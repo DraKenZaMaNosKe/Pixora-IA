@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
+import '../../../../widgets/touch_glow_effect.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../data/models/wallpaper.dart';
 
@@ -87,6 +89,40 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     setState(() => _isApplying = false);
   }
 
+  Future<void> _applyLiveWallpaper() async {
+    setState(() => _isApplying = true);
+
+    // Request microphone permission for equalizer visualization
+    final micStatus = await Permission.microphone.request();
+    if (!micStatus.isGranted && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Microphone permission needed for equalizer effect'),
+        ),
+      );
+    }
+
+    final path =
+        await DownloadService.instance.downloadWallpaper(widget.wallpaper.imageFile);
+
+    if (path == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Download failed')),
+        );
+      }
+      setState(() => _isApplying = false);
+      return;
+    }
+
+    await WallpaperService.instance.setLiveWallpaper(
+      path,
+      widget.wallpaper.glowColor,
+    );
+
+    setState(() => _isApplying = false);
+  }
+
   void _showApplyDialog() {
     if (Platform.isIOS) {
       _saveToGallery();
@@ -121,6 +157,11 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
               Navigator.pop(context);
               _applyWallpaper(2);
             }),
+            const Divider(color: Colors.white12),
+            _buildOption(Icons.auto_awesome, 'Live Wallpaper (Touch Effect)', () {
+              Navigator.pop(context);
+              _applyLiveWallpaper();
+            }),
             const SizedBox(height: 8),
           ],
         ),
@@ -147,12 +188,15 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Fullscreen image
-          InteractiveViewer(
-            minScale: 1.0,
-            maxScale: 3.0,
-            child: CachedWallpaperImage(
-              imageUrl: widget.wallpaper.fullImageUrl,
+          // Fullscreen image with touch glow
+          TouchGlowEffect(
+            glowColor: glowColor,
+            child: InteractiveViewer(
+              minScale: 1.0,
+              maxScale: 3.0,
+              child: CachedWallpaperImage(
+                imageUrl: widget.wallpaper.fullImageUrl,
+              ),
             ),
           ),
 

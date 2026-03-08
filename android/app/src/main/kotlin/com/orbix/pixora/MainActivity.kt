@@ -1,6 +1,8 @@
 package com.orbix.pixora
 
 import android.app.WallpaperManager
+import android.content.ComponentName
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
@@ -27,6 +29,16 @@ class MainActivity : FlutterActivity() {
                             result.error("INVALID_ARG", "Path is required", null)
                         }
                     }
+                    "setLiveWallpaper" -> {
+                        val path = call.argument<String>("path")
+                        val glowColor = call.argument<String>("glowColor") ?: "#7C4DFF"
+                        if (path != null) {
+                            setLiveWallpaper(path, glowColor)
+                            result.success(true)
+                        } else {
+                            result.error("INVALID_ARG", "Path is required", null)
+                        }
+                    }
                     "saveToGallery" -> {
                         val path = call.argument<String>("path")
                         if (path != null) {
@@ -39,6 +51,23 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    private fun setLiveWallpaper(imagePath: String, glowColor: String) {
+        // Save config for the WallpaperService to read
+        val prefs = getSharedPreferences("pixora_live", 0)
+        prefs.edit()
+            .putString("wallpaper_path", imagePath)
+            .putString("glow_color", glowColor)
+            .apply()
+
+        // Launch the live wallpaper picker
+        val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+        intent.putExtra(
+            WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+            ComponentName(this, PixoraWallpaperService::class.java)
+        )
+        startActivity(intent)
     }
 
     private fun setWallpaper(path: String, target: Int): Boolean {
