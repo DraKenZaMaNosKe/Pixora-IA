@@ -1,32 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'core/config/app_env.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'core/theme/app_theme.dart';
-import 'features/gallery/presentation/pages/gallery_page.dart';
-import 'services/supabase_service.dart';
+import 'features/home/presentation/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env', mergeWith: const {});
-  final env = AppEnv.fromDotEnv();
-  env.dump();
-  await SupabaseService.init(env);
-
-  runApp(ProviderScope(overrides: [appEnvProvider.overrideWithValue(env)], child: const PixoraApp()));
+  await Hive.initFlutter();
+  runApp(const ProviderScope(child: PixoraApp()));
 }
 
-class PixoraApp extends ConsumerWidget {
+class PixoraApp extends StatelessWidget {
   const PixoraApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PixoraIA',
+      title: 'Pixora IA',
       debugShowCheckedModeBanner: false,
-      theme: PixoraTheme.light,
-      home: const GalleryPage(),
+      theme: AppTheme.dark,
+      home: const HomePage(),
     );
   }
 }
