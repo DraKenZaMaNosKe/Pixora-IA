@@ -3,28 +3,37 @@ import '../../../core/constants/categories.dart';
 import '../../../core/services/catalog_service.dart';
 import '../data/models/wallpaper.dart';
 
+/// Provider principal: descarga y cachea el catálogo desde Supabase.
+/// Se invalida con ref.invalidate(catalogProvider) en pull-to-refresh.
 final catalogProvider = FutureProvider<List<Wallpaper>>((ref) async {
   return CatalogService.instance.fetchCatalog();
 });
 
+/// Categoría actualmente seleccionada en los chips de filtro.
 final selectedCategoryProvider =
     StateProvider<WallpaperCategory>((ref) => WallpaperCategory.all);
 
-final filteredWallpapersProvider = Provider<AsyncValue<List<Wallpaper>>>((ref) {
-  final catalog = ref.watch(catalogProvider);
+/// Wallpapers filtrados por categoría.
+///
+/// FIX: Antes era Provider<AsyncValue<List>> — ahora es FutureProvider
+/// que propaga correctamente los estados loading/error/data.
+final filteredWallpapersProvider =
+    FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogProvider.future);
   final category = ref.watch(selectedCategoryProvider);
 
-  return catalog.whenData((wallpapers) {
-    if (category == WallpaperCategory.all) return wallpapers;
-    return wallpapers
-        .where((w) =>
-            w.category.toUpperCase() == category.name.replaceAll('_', '').toUpperCase())
-        .toList();
-  });
+  if (category == WallpaperCategory.all) return wallpapers;
+
+  return wallpapers
+      .where((w) =>
+          w.category.toUpperCase() ==
+          category.name.replaceAll('_', '').toUpperCase())
+      .toList();
 });
 
-final featuredWallpapersProvider = Provider<AsyncValue<List<Wallpaper>>>((ref) {
-  final catalog = ref.watch(catalogProvider);
-  return catalog.whenData(
-      (wallpapers) => wallpapers.where((w) => w.featured).toList());
+/// Wallpapers marcados como featured en el catálogo JSON.
+final featuredWallpapersProvider =
+    FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogProvider.future);
+  return wallpapers.where((w) => w.featured).toList();
 });

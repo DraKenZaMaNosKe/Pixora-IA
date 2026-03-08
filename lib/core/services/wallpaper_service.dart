@@ -1,13 +1,21 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+/// Servicio para aplicar wallpapers (Android) o guardar en galería (iOS).
+///
+/// Android: usa MethodChannel → WallpaperManager nativo (Kotlin).
+/// iOS:     no tiene WallpaperManager — retorna false con log claro.
+///          El flujo iOS se maneja en WallpaperPreviewPage via Share sheet.
 class WallpaperService {
   WallpaperService._();
   static final instance = WallpaperService._();
 
   static const _channel = MethodChannel('com.orbix.pixora/wallpaper');
 
-  /// Set wallpaper on Android. [target]: 0=home, 1=lock, 2=both
+  /// Establece el wallpaper en Android.
+  /// [target]: 0 = Home, 1 = Lock, 2 = Ambos.
+  /// Retorna false en iOS (no soportado vía WallpaperManager).
   Future<bool> setWallpaper(String filePath, int target) async {
     if (!Platform.isAndroid) return false;
     try {
@@ -16,20 +24,36 @@ class WallpaperService {
         {'path': filePath, 'target': target},
       );
       return result ?? false;
-    } on PlatformException {
+    } on PlatformException catch (e) {
+      debugPrint('[WallpaperService] setWallpaper error: ${e.message}');
+      return false;
+    } catch (e) {
+      debugPrint('[WallpaperService] setWallpaper unexpected error: $e');
       return false;
     }
   }
 
-  /// Save image to gallery (iOS flow)
+  /// Guarda imagen en galería del dispositivo.
+  /// Android: usa MediaStore via MethodChannel (Kotlin).
+  /// iOS:     retorna false — pendiente implementar con plugin nativo.
   Future<bool> saveToGallery(String filePath) async {
+    if (!Platform.isAndroid) {
+      // iOS: no tiene MethodChannel para esto todavía.
+      // WallpaperPreviewPage usa el Share sheet como alternativa.
+      debugPrint('[WallpaperService] saveToGallery: iOS no soportado via channel.');
+      return false;
+    }
     try {
       final result = await _channel.invokeMethod<bool>(
         'saveToGallery',
         {'path': filePath},
       );
       return result ?? false;
-    } on PlatformException {
+    } on PlatformException catch (e) {
+      debugPrint('[WallpaperService] saveToGallery error: ${e.message}');
+      return false;
+    } catch (e) {
+      debugPrint('[WallpaperService] saveToGallery unexpected error: $e');
       return false;
     }
   }
