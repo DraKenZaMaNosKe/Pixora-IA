@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
@@ -129,6 +130,16 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       return;
     }
 
+    // Show interstitial ad, then show the apply options
+    AdService.instance.showInterstitialAd(
+      onAdDismissed: () {
+        if (!mounted) return;
+        _showApplyOptions();
+      },
+    );
+  }
+
+  void _showApplyOptions() {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1A1A2E),
