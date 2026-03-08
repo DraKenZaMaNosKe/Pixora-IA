@@ -20,8 +20,14 @@ class TouchGlowEffect extends StatefulWidget {
 class _TouchGlowEffectState extends State<TouchGlowEffect>
     with TickerProviderStateMixin {
   final List<_GlowDot> _dots = [];
+  int _lastTouchTime = 0;
+  static const _minTouchInterval = 40; // ms throttle
 
   void _onTouch(Offset position) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastTouchTime < _minTouchInterval) return;
+    _lastTouchTime = now;
+
     final controller = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -121,5 +127,5 @@ class _GlowPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _GlowPainter old) => true;
+  bool shouldRepaint(covariant _GlowPainter old) => dots.length != old.dots.length;
 }

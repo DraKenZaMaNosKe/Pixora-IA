@@ -9,9 +9,12 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import java.io.File
+import kotlin.math.exp
+import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 class PixoraWallpaperService : WallpaperService() {
 
@@ -84,21 +87,28 @@ class PixoraWallpaperService : WallpaperService() {
             val bmp = wallpaperBitmap ?: return
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
-            val srcRatio = bmp.width.toFloat() / bmp.height.toFloat()
-            val dstRatio = surfaceWidth.toFloat() / surfaceHeight.toFloat()
+            Thread {
+                val srcRatio = bmp.width.toFloat() / bmp.height.toFloat()
+                val dstRatio = surfaceWidth.toFloat() / surfaceHeight.toFloat()
 
-            val (cropW, cropH) = if (srcRatio > dstRatio) {
-                Pair((bmp.height * dstRatio).toInt(), bmp.height)
-            } else {
-                Pair(bmp.width, (bmp.width / dstRatio).toInt())
-            }
+                val (cropW, cropH) = if (srcRatio > dstRatio) {
+                    Pair((bmp.height * dstRatio).toInt(), bmp.height)
+                } else {
+                    Pair(bmp.width, (bmp.width / dstRatio).toInt())
+                }
 
-            val x = (bmp.width - cropW) / 2
-            val y = (bmp.height - cropH) / 2
+                val x = (bmp.width - cropW) / 2
+                val y = (bmp.height - cropH) / 2
 
-            val cropped = Bitmap.createBitmap(bmp, x, y, cropW, cropH)
-            scaledBitmap = Bitmap.createScaledBitmap(cropped, surfaceWidth, surfaceHeight, true)
-            if (cropped != scaledBitmap) cropped.recycle()
+                try {
+                    val cropped = Bitmap.createBitmap(bmp, x, y, cropW, cropH)
+                    val scaled = Bitmap.createScaledBitmap(cropped, surfaceWidth, surfaceHeight, true)
+                    if (cropped != scaled) cropped.recycle()
+                    scaledBitmap = scaled
+                } catch (e: Exception) {
+                    Log.e(TAG, "createScaledBitmap error: ${e.message}")
+                }
+            }.start()
         }
 
         private fun setupVisualizer() {
@@ -137,7 +147,7 @@ class PixoraWallpaperService : WallpaperService() {
                     if (idx + 1 >= fft.size) break
                     val real = fft[idx].toFloat()
                     val imag = fft[idx + 1].toFloat()
-                    magnitude += Math.sqrt((real * real + imag * imag).toDouble()).toFloat()
+                    magnitude += sqrt((real * real + imag * imag).toDouble()).toFloat()
                     count++
                 }
                 if (count > 0) magnitude /= count
@@ -145,7 +155,7 @@ class PixoraWallpaperService : WallpaperService() {
             }
 
             // Detect if there's actual audio
-            val maxLevel = currentLevels.max()
+            val maxLevel = currentLevels.max() ?: 0f
             val wasPlaying = hasAudio
             hasAudio = maxLevel > SILENCE_THRESHOLD
 
@@ -158,10 +168,10 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         private fun mapBarToFFTBin(barIndex: Int, totalBins: Int): Int {
-            val logMin = Math.log(1.0)
-            val logMax = Math.log(totalBins.toDouble())
+            val logMin = ln(1.0)
+            val logMax = ln(totalBins.toDouble())
             val fraction = barIndex.toDouble() / BAR_COUNT
-            return Math.exp(logMin + fraction * (logMax - logMin)).toInt().coerceIn(1, totalBins)
+            return exp(logMin + fraction * (logMax - logMin)).toInt().coerceIn(1, totalBins)
         }
 
         private fun releaseVisualizer() {
@@ -395,7 +405,7 @@ class PixoraWallpaperService : WallpaperService() {
         const val GLOW_DURATION = 700L
         const val MAX_RADIUS = 120f
         const val BAR_COUNT = 6
-        const val FRAME_DELAY = 50L // ~20fps
+        const val FRAME_DELAY = 33L // ~30fps
         const val SILENCE_THRESHOLD = 0.02f
     }
 }
