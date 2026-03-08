@@ -48,6 +48,23 @@ class MainActivity : FlutterActivity() {
                             result.error("INVALID_ARG", "Path is required", null)
                         }
                     }
+                    "startStory" -> {
+                        val storyId = call.argument<String>("storyId") ?: ""
+                        val imagePaths = call.argument<List<String>>("imagePaths") ?: emptyList()
+                        val intervalMinutes = call.argument<Int>("intervalMinutes") ?: 30
+                        val success = StoryWorker.startStory(
+                            applicationContext, storyId, imagePaths, intervalMinutes
+                        )
+                        result.success(success)
+                    }
+                    "stopStory" -> {
+                        val success = StoryWorker.stopStory(applicationContext)
+                        result.success(success)
+                    }
+                    "getStoryStatus" -> {
+                        val status = StoryWorker.getStatus(applicationContext)
+                        result.success(status)
+                    }
                     else -> result.notImplemented()
                 }
             }

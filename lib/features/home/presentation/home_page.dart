@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../settings/presentation/settings_page.dart';
+import '../../stories/presentation/pages/stories_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,11 +16,12 @@ class _HomePageState extends State<HomePage> {
 
   static const _pages = [
     WallpapersPage(),
+    StoriesPage(),
     FavoritesPage(),
     SettingsPage(),
   ];
 
-  static const _titles = ['Pixora IA', 'Favorites', 'Settings'];
+  static const _titles = ['Pixora IA', 'Stories', 'Favorites', 'Settings'];
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +45,15 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.wallpaper),
             label: 'Wallpapers',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_stories),
+            label: 'Stories',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
