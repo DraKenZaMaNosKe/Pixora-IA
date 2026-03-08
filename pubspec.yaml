@@ -15,7 +15,6 @@ dependencies:
   flutter_riverpod: ^2.5.1
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
-  google_mobile_ads: ^5.1.0
   just_audio: ^0.9.39
   hive_flutter: ^1.1.0
   google_fonts: ^6.1.0
