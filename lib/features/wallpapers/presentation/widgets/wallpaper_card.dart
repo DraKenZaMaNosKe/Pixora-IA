@@ -64,28 +64,58 @@ class WallpaperCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              // Badge
-              if (wallpaper.badge != null)
-                Positioned(
-                  left: 8,
-                  top: 8,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: glowColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      wallpaper.badge!,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+              // Badges row (top-left)
+              Positioned(
+                left: 8,
+                top: 8,
+                child: Row(
+                  children: [
+                    // Panoramic indicator
+                    if (wallpaper.category == 'PANORAMIC')
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        margin: const EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black87,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: glowColor.withOpacity(0.6), width: 1),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.panorama_wide_angle, size: 10, color: glowColor),
+                            const SizedBox(width: 3),
+                            Text(
+                              'PANO',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                color: glowColor,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
+                    // Regular badge (NEW, etc.)
+                    if (wallpaper.badge != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: glowColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          wallpaper.badge!,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
+              ),
               // Favorite button
               Positioned(
                 right: 6,
@@ -100,22 +130,7 @@ class WallpaperCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              // Title
-              Positioned(
-                left: 10,
-                right: 10,
-                bottom: 10,
-                child: Text(
-                  wallpaper.name,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              // Title hidden — let the image speak for itself
             ],
           ),
         ),

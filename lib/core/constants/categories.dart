@@ -11,6 +11,7 @@ enum WallpaperCategory {
   horror('Horror', Icons.sentiment_very_dissatisfied),
   abstract_('Abstract', Icons.blur_on),
   minimal('Minimal', Icons.crop_square),
+  panoramic('Panoramic', Icons.panorama_wide_angle),
   christmas('Christmas', Icons.ac_unit),
   special('Special', Icons.star);
 

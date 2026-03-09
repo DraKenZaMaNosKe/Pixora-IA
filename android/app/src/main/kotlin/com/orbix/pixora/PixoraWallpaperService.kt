@@ -20,6 +20,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.random.Random
 
 class PixoraWallpaperService : WallpaperService() {
 
@@ -34,6 +35,15 @@ class PixoraWallpaperService : WallpaperService() {
         private var surfaceWidth = 0
         private var surfaceHeight = 0
         private var glowColor = Color.parseColor("#7C4DFF")
+
+        // Panoramic scroll
+        private var xOffset = 0f
+        private var isPanoramic = false
+        private var panoramicBitmap: Bitmap? = null // full-width scaled bitmap
+        private var touchStartX = 0f
+        private var scrollOffsetPx = 0f // current scroll in pixels
+        private var targetScrollPx = 0f // target for smooth interpolation
+        private var scrollVelocity = 0f // for inertia/fling
 
         // Equalizer
         private var visualizer: Visualizer? = null
@@ -65,6 +75,25 @@ class PixoraWallpaperService : WallpaperService() {
 
         private var idleMode = false // true = low fps clock-only mode
 
+        // Rain + scene effects (lofi_girl_rain only)
+        private var isRainWallpaper = false
+        private var currentWallpaperPath: String? = null
+        private val rainDrops = mutableListOf<RainDrop>()
+        private val glassDrops = mutableListOf<GlassDrop>()
+        private val rainPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val glassPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private var rainInitialized = false
+
+        // City lights
+        private val cityLights = mutableListOf<CityLight>()
+        private val cityPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+        // Lamp glow
+        private val lampPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+        // Headphone glow
+        private val headphonePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
         private val drawRunnable = object : Runnable {
             override fun run() {
                 if (drawing) {
@@ -94,6 +123,8 @@ class PixoraWallpaperService : WallpaperService() {
 
                 // Pick clock style based on wallpaper path hash
                 clockStyle = abs((path ?: "").hashCode()) % 4
+                currentWallpaperPath = path
+                isRainWallpaper = path?.contains("lofi_girl_rain") == true
 
                 if (path != null) {
                     val file = File(path)
@@ -114,22 +145,41 @@ class PixoraWallpaperService : WallpaperService() {
                 val srcRatio = bmp.width.toFloat() / bmp.height.toFloat()
                 val dstRatio = surfaceWidth.toFloat() / surfaceHeight.toFloat()
 
-                val (cropW, cropH) = if (srcRatio > dstRatio) {
-                    Pair((bmp.height * dstRatio).toInt(), bmp.height)
+                // Detect panoramic: image is significantly wider than screen ratio
+                isPanoramic = srcRatio > dstRatio * 1.5f
+
+                if (isPanoramic) {
+                    // Scale to fill screen height, keep full width for scrolling
+                    val scaledHeight = surfaceHeight
+                    val scaledWidth = (bmp.width.toFloat() / bmp.height.toFloat() * scaledHeight).toInt()
+                    try {
+                        panoramicBitmap = Bitmap.createScaledBitmap(bmp, scaledWidth, scaledHeight, true)
+                        scaledBitmap = null
+                        Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - surfaceWidth}px)")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "createPanoramic error: ${e.message}")
+                    }
                 } else {
-                    Pair(bmp.width, (bmp.width / dstRatio).toInt())
-                }
+                    // Normal: center crop to fill screen
+                    val (cropW, cropH) = if (srcRatio > dstRatio) {
+                        Pair((bmp.height * dstRatio).toInt(), bmp.height)
+                    } else {
+                        Pair(bmp.width, (bmp.width / dstRatio).toInt())
+                    }
 
-                val x = (bmp.width - cropW) / 2
-                val y = (bmp.height - cropH) / 2
+                    val x = (bmp.width - cropW) / 2
+                    val y = (bmp.height - cropH) / 2
 
-                try {
-                    val cropped = Bitmap.createBitmap(bmp, x, y, cropW, cropH)
-                    val scaled = Bitmap.createScaledBitmap(cropped, surfaceWidth, surfaceHeight, true)
-                    if (cropped != scaled) cropped.recycle()
-                    scaledBitmap = scaled
-                } catch (e: Exception) {
-                    Log.e(TAG, "createScaledBitmap error: ${e.message}")
+                    try {
+                        val cropped = Bitmap.createBitmap(bmp, x, y, cropW, cropH)
+                        val scaled = Bitmap.createScaledBitmap(cropped, surfaceWidth, surfaceHeight, true)
+                        if (cropped != scaled) cropped.recycle()
+                        scaledBitmap = scaled
+                        panoramicBitmap = null
+                        isPanoramic = false
+                    } catch (e: Exception) {
+                        Log.e(TAG, "createScaledBitmap error: ${e.message}")
+                    }
                 }
             }.start()
         }
@@ -204,6 +254,19 @@ class PixoraWallpaperService : WallpaperService() {
             visualizer = null
         }
 
+        override fun onOffsetsChanged(xOffset: Float, yOffset: Float, xStep: Float, yStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
+            // Launcher scroll: update target in pixel space (same as touch scroll)
+            if (isPanoramic && xStep > 0f && xStep < 1f) {
+                val panBmp = panoramicBitmap
+                if (panBmp != null) {
+                    val maxScroll = (panBmp.width - surfaceWidth).toFloat().coerceAtLeast(0f)
+                    targetScrollPx = xOffset * maxScroll
+                    scrollVelocity = 0f
+                    if (!drawing) drawFrame()
+                }
+            }
+        }
+
         override fun onSurfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
             super.onSurfaceChanged(holder, format, width, height)
             surfaceWidth = width
@@ -229,6 +292,30 @@ class PixoraWallpaperService : WallpaperService() {
 
         override fun onTouchEvent(event: MotionEvent?) {
             event ?: return
+
+            // Panoramic touch scroll (always enabled — works on all launchers)
+            if (isPanoramic) {
+                val panBmp = panoramicBitmap
+                if (panBmp != null) {
+                    val maxScroll = (panBmp.width - surfaceWidth).toFloat().coerceAtLeast(0f)
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            touchStartX = event.rawX
+                            scrollVelocity = 0f // stop inertia on touch
+                        }
+                        MotionEvent.ACTION_MOVE -> {
+                            val deltaX = touchStartX - event.rawX
+                            touchStartX = event.rawX
+                            scrollVelocity = deltaX * 2f // track velocity for fling
+                            targetScrollPx = (targetScrollPx + deltaX * 2f).coerceIn(0f, maxScroll)
+                        }
+                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                            // Keep velocity for inertia fling
+                        }
+                    }
+                }
+            }
+
             when (event.action) {
                 MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
                     glowDots.add(GlowDot(event.x, event.y, System.currentTimeMillis(), glowColor))
@@ -247,6 +334,7 @@ class PixoraWallpaperService : WallpaperService() {
                 canvas = holder.lockCanvas()
                 if (canvas != null) {
                     drawBackground(canvas)
+                    if (isRainWallpaper) drawRainEffect(canvas)
                     drawClock(canvas)
                     drawEqualizerBars(canvas)
                     drawGlowEffects(canvas)
@@ -263,7 +351,9 @@ class PixoraWallpaperService : WallpaperService() {
             glowDots.removeAll { now - it.startTime > GLOW_DURATION }
 
             // Switch to idle mode (low fps) when no audio and no touch
-            if (!hasAudio && glowDots.isEmpty()) {
+            // Rain wallpaper and active scroll stay at full fps
+            val scrolling = isPanoramic && abs(scrollVelocity) > 0.5f
+            if (!hasAudio && glowDots.isEmpty() && !isRainWallpaper && !scrolling) {
                 silentFrames++
                 if (silentFrames > 30 && !idleMode) {
                     idleMode = true
@@ -277,6 +367,22 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         private fun drawBackground(canvas: Canvas) {
+            val panBmp = panoramicBitmap
+            if (isPanoramic && panBmp != null) {
+                val maxScroll = (panBmp.width - surfaceWidth).toFloat().coerceAtLeast(0f)
+
+                // Apply inertia/fling
+                if (abs(scrollVelocity) > 0.5f) {
+                    targetScrollPx = (targetScrollPx + scrollVelocity).coerceIn(0f, maxScroll)
+                    scrollVelocity *= 0.92f // friction
+                }
+                // Smooth interpolation toward target
+                scrollOffsetPx += (targetScrollPx - scrollOffsetPx) * 0.15f
+
+                val scrollX = scrollOffsetPx
+                canvas.drawBitmap(panBmp, -scrollX, 0f, null)
+                return
+            }
             val bmp = scaledBitmap
             if (bmp != null) {
                 canvas.drawBitmap(bmp, 0f, 0f, null)
@@ -501,6 +607,328 @@ class PixoraWallpaperService : WallpaperService() {
             lastMinute = minute
         }
 
+        // ── Rain effect (lofi_girl_rain only) ──────────────────────────
+        // Window region in normalized coords (0..1) based on the lofi_girl_rain image
+        private val winLeft   = 0.0f
+        private val winRight  = 0.47f
+        private val winTop    = 0.0f
+        private val winBottom = 0.53f
+
+        private fun initRain() {
+            if (rainInitialized || surfaceWidth <= 0 || surfaceHeight <= 0) return
+            rainInitialized = true
+
+            val wL = winLeft * surfaceWidth
+            val wR = winRight * surfaceWidth
+            val wT = winTop * surfaceHeight
+            val wB = winBottom * surfaceHeight
+            val regionW = wR - wL
+            val regionH = wB - wT
+
+            // Falling rain streaks — only inside window
+            for (i in 0 until RAIN_DROP_COUNT) {
+                rainDrops.add(RainDrop(
+                    x = wL + Random.nextFloat() * regionW,
+                    y = wT + Random.nextFloat() * regionH,
+                    speed = 8f + Random.nextFloat() * 14f,
+                    length = 15f + Random.nextFloat() * 30f,
+                    alpha = 30 + Random.nextInt(55),
+                    windOffset = Random.nextFloat() * 1.5f - 0.3f
+                ))
+            }
+
+            // Glass drops on window surface
+            for (i in 0 until GLASS_DROP_COUNT) {
+                glassDrops.add(GlassDrop(
+                    x = wL + Random.nextFloat() * regionW,
+                    y = wT + Random.nextFloat() * regionH,
+                    radius = 2f + Random.nextFloat() * 3.5f,
+                    slideSpeed = 0.3f + Random.nextFloat() * 1.0f,
+                    trailLength = 25f + Random.nextFloat() * 60f,
+                    alpha = 20 + Random.nextInt(40)
+                ))
+            }
+
+            // City lights — scattered across the city skyline area in the window
+            // City is roughly x=2-44%, y=5-38% of image
+            val cityColors = intArrayOf(
+                Color.rgb(255, 220, 120),  // warm yellow
+                Color.rgb(255, 180, 100),  // orange
+                Color.rgb(255, 150, 200),  // pink/magenta
+                Color.rgb(180, 160, 255),  // purple
+                Color.rgb(120, 200, 255),  // cool blue
+                Color.rgb(255, 255, 200),  // white-warm
+            )
+            // City lights inside window but away from right edge (girl's hair covers it)
+            val cityRight = 0.36f // narrower than window to avoid hair overlap
+            for (i in 0 until CITY_LIGHT_COUNT) {
+                val cx = (winLeft + 0.02f + Random.nextFloat() * (cityRight - winLeft - 0.04f)) * surfaceWidth
+                val cy = (winTop + 0.05f + Random.nextFloat() * (winBottom - winTop - 0.10f)) * surfaceHeight
+                cityLights.add(CityLight(
+                    x = cx, y = cy,
+                    baseAlpha = 80 + Random.nextInt(100),
+                    flickerSpeed = 0.5f + Random.nextFloat() * 3f,
+                    flickerOffset = Random.nextFloat() * 6.28f,
+                    radius = 3f + Random.nextFloat() * 5f,
+                    color = cityColors[Random.nextInt(cityColors.size)]
+                ))
+            }
+        }
+
+        private fun drawRainEffect(canvas: Canvas) {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+            if (!rainInitialized) initRain()
+
+            val w = surfaceWidth.toFloat()
+            val h = surfaceHeight.toFloat()
+
+            // Window bounds in pixels
+            val wL = winLeft * w
+            val wR = winRight * w
+            val wT = winTop * h
+            val wB = winBottom * h
+            val regionW = wR - wL
+
+            // Clip all rain drawing to the window region
+            canvas.save()
+            canvas.clipRect(wL, wT, wR, wB)
+
+            // 1) Slight blue-dark overlay on window only (rainy atmosphere)
+            overlayPaint.color = Color.argb(12, 0, 10, 30)
+            canvas.drawRect(wL, wT, wR, wB, overlayPaint)
+
+            // 2) Falling rain streaks (diagonal, fast) — window only
+            rainPaint.strokeCap = Paint.Cap.ROUND
+            for (drop in rainDrops) {
+                drop.y += drop.speed
+                drop.x += drop.windOffset + 1.2f
+
+                // Reset to top of window when passing bottom
+                if (drop.y > wB + drop.length) {
+                    drop.y = wT - drop.length
+                    drop.x = wL + Random.nextFloat() * regionW
+                }
+                // Wrap horizontally within window
+                if (drop.x > wR + 10f) {
+                    drop.x = wL - 5f
+                }
+
+                rainPaint.color = Color.argb(drop.alpha, 180, 200, 220)
+                rainPaint.strokeWidth = 1.2f
+
+                val endX = drop.x + drop.length * 0.1f
+                val endY = drop.y + drop.length
+                canvas.drawLine(drop.x, drop.y, endX, endY, rainPaint)
+            }
+
+            // 3) Glass drops (slow round drops sliding down window)
+            for (drop in glassDrops) {
+                drop.y += drop.slideSpeed
+                drop.x += sin((animationPhase * 0.5f + drop.x * 0.01f).toDouble()).toFloat() * 0.25f
+
+                if (drop.y > wB + drop.trailLength) {
+                    drop.y = wT - drop.trailLength
+                    drop.x = wL + Random.nextFloat() * regionW
+                }
+
+                // Trail line
+                glassPaint.color = Color.argb(drop.alpha / 2, 160, 190, 210)
+                glassPaint.strokeWidth = drop.radius * 0.5f
+                glassPaint.strokeCap = Paint.Cap.ROUND
+                glassPaint.style = Paint.Style.STROKE
+                canvas.drawLine(
+                    drop.x, drop.y - drop.trailLength,
+                    drop.x, drop.y,
+                    glassPaint
+                )
+
+                // Drop circle
+                glassPaint.style = Paint.Style.FILL
+                glassPaint.color = Color.argb(drop.alpha, 200, 215, 230)
+                canvas.drawCircle(drop.x, drop.y, drop.radius, glassPaint)
+
+                // Bright highlight
+                glassPaint.color = Color.argb(drop.alpha + 15, 240, 245, 255)
+                canvas.drawCircle(
+                    drop.x - drop.radius * 0.3f,
+                    drop.y - drop.radius * 0.3f,
+                    drop.radius * 0.3f,
+                    glassPaint
+                )
+            }
+
+            // 4) City lights flickering in the buildings — RadialGradient bloom
+            for (light in cityLights) {
+                val flicker = sin((animationPhase * light.flickerSpeed + light.flickerOffset).toDouble()).toFloat()
+                val alpha = (light.baseAlpha + flicker * 60).toInt().coerceIn(20, 255)
+                val bloomRadius = light.radius * 5f
+
+                val lr = Color.red(light.color)
+                val lg = Color.green(light.color)
+                val lb = Color.blue(light.color)
+
+                // Bloom glow (RadialGradient — works on HW canvas)
+                cityPaint.shader = RadialGradient(
+                    light.x, light.y, bloomRadius,
+                    intArrayOf(
+                        Color.argb(alpha, lr, lg, lb),
+                        Color.argb((alpha * 0.4f).toInt(), lr, lg, lb),
+                        Color.argb(0, lr, lg, lb)
+                    ),
+                    floatArrayOf(0f, 0.3f, 1f),
+                    Shader.TileMode.CLAMP
+                )
+                canvas.drawCircle(light.x, light.y, bloomRadius, cityPaint)
+                cityPaint.shader = null
+
+                // Bright center dot
+                cityPaint.color = Color.argb(min(255, alpha + 60), lr, lg, lb)
+                canvas.drawCircle(light.x, light.y, light.radius, cityPaint)
+            }
+
+            // 5) Occasional lightning flash (only on window area)
+            val flashChance = (animationPhase * 30f).toInt() % 600
+            if (flashChance == 0) {
+                overlayPaint.color = Color.argb(18, 200, 210, 255)
+                canvas.drawRect(wL, wT, wR, wB, overlayPaint)
+            }
+
+            canvas.restore()
+
+            // Effects outside window (no clip)
+            drawLampGlow(canvas)
+        }
+
+        private fun drawLampGlow(canvas: Canvas) {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0 || !isRainWallpaper) return
+            val w = surfaceWidth.toFloat()
+            val h = surfaceHeight.toFloat()
+
+            // Lamp bulb center — calibrated from touch
+            val lampX = 0.06f * w
+            val lampY = 0.41f * h
+            // Book/desk center — light projects downward-right toward the book
+            val bookX = 0.30f * w
+            val bookY = 0.68f * h
+
+            val pulse = sin((animationPhase * 0.5).toDouble()).toFloat() * 0.08f + 0.92f
+
+            // 1) Bright bulb point
+            val bulbRadius = w * 0.045f
+            lampPaint.shader = RadialGradient(
+                lampX, lampY, bulbRadius,
+                intArrayOf(
+                    Color.argb(255, 255, 250, 230),   // white-hot center
+                    Color.argb(220, 255, 230, 160),
+                    Color.argb(0, 255, 200, 100)
+                ),
+                floatArrayOf(0f, 0.5f, 1f),
+                Shader.TileMode.CLAMP
+            )
+            canvas.drawCircle(lampX, lampY, bulbRadius, lampPaint)
+
+            // 2) Light cone toward the book
+            val coneRadius = w * 0.40f * pulse
+
+            lampPaint.shader = RadialGradient(
+                lampX, lampY, coneRadius,
+                intArrayOf(
+                    Color.argb((230 * pulse).toInt(), 255, 220, 140),
+                    Color.argb((150 * pulse).toInt(), 255, 200, 100),
+                    Color.argb((60 * pulse).toInt(), 255, 175, 70),
+                    Color.argb(0, 255, 150, 40)
+                ),
+                floatArrayOf(0f, 0.15f, 0.45f, 1f),
+                Shader.TileMode.CLAMP
+            )
+            canvas.save()
+            canvas.translate(lampX, lampY)
+            canvas.scale(1f, 1.8f)
+            canvas.translate(-lampX, -lampY)
+            canvas.drawCircle(lampX, lampY, coneRadius, lampPaint)
+            canvas.restore()
+
+            // 3) Warm glow on the book/desk area
+            val bookGlow = w * 0.22f
+            lampPaint.shader = RadialGradient(
+                bookX, bookY, bookGlow,
+                intArrayOf(
+                    Color.argb((120 * pulse).toInt(), 255, 215, 140),
+                    Color.argb((55 * pulse).toInt(), 255, 195, 100),
+                    Color.argb(0, 255, 170, 60)
+                ),
+                floatArrayOf(0f, 0.45f, 1f),
+                Shader.TileMode.CLAMP
+            )
+            canvas.drawCircle(bookX, bookY, bookGlow, lampPaint)
+            lampPaint.shader = null
+        }
+
+        private fun drawHeadphoneGlow(canvas: Canvas) {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0 || !isRainWallpaper) return
+
+            val w = surfaceWidth.toFloat()
+            val h = surfaceHeight.toFloat()
+
+            // Headphones center — calibrated from screenshot
+            val hpX = 0.62f * w
+            val hpY = 0.30f * h
+
+            val gr = Color.red(glowColor)
+            val gg = Color.green(glowColor)
+            val gb = Color.blue(glowColor)
+
+            // Always show a subtle breathing glow on headphones
+            val breathe = sin((animationPhase * 0.7).toDouble()).toFloat() * 0.3f + 0.7f
+            val idleRadius = w * 0.09f * breathe
+            val idleAlpha = (60 * breathe).toInt()
+
+            headphonePaint.shader = RadialGradient(
+                hpX, hpY, idleRadius,
+                intArrayOf(
+                    Color.argb(idleAlpha, gr, gg, gb),
+                    Color.argb((idleAlpha * 0.3f).toInt(), gr, gg, gb),
+                    Color.argb(0, gr, gg, gb)
+                ),
+                floatArrayOf(0f, 0.4f, 1f),
+                Shader.TileMode.CLAMP
+            )
+            canvas.drawCircle(hpX, hpY, idleRadius, headphonePaint)
+            headphonePaint.shader = null
+
+            // When music plays, add reactive pulse on top
+            if (hasAudio) {
+                val avgLevel = smoothLevels.average().toFloat()
+                val intensity = (avgLevel * 3f).coerceIn(0f, 1f)
+                if (intensity > 0.02f) {
+                    val beatRadius = w * 0.12f + intensity * w * 0.10f
+                    val beatAlpha = (intensity * 120).toInt().coerceIn(0, 140)
+
+                    headphonePaint.shader = RadialGradient(
+                        hpX, hpY, beatRadius,
+                        intArrayOf(
+                            Color.argb(beatAlpha, gr, gg, gb),
+                            Color.argb((beatAlpha * 0.3f).toInt(), gr, gg, gb),
+                            Color.argb(0, gr, gg, gb)
+                        ),
+                        floatArrayOf(0f, 0.4f, 1f),
+                        Shader.TileMode.CLAMP
+                    )
+                    canvas.drawCircle(hpX, hpY, beatRadius, headphonePaint)
+                    headphonePaint.shader = null
+
+                    // Pulse ring
+                    val ringAlpha = (intensity * 50).toInt()
+                    headphonePaint.style = Paint.Style.STROKE
+                    headphonePaint.strokeWidth = 2.5f
+                    headphonePaint.color = Color.argb(ringAlpha, gr, gg, gb)
+                    val ringRadius = beatRadius * (0.7f + sin((animationPhase * 4f).toDouble()).toFloat() * 0.3f)
+                    canvas.drawCircle(hpX, hpY, ringRadius, headphonePaint)
+                    headphonePaint.style = Paint.Style.FILL
+                }
+            }
+        }
+
         private fun drawEqualizerBars(canvas: Canvas) {
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
@@ -626,11 +1054,31 @@ class PixoraWallpaperService : WallpaperService() {
             releaseVisualizer()
             wallpaperBitmap?.recycle()
             scaledBitmap?.recycle()
+            panoramicBitmap?.recycle()
             super.onDestroy()
         }
     }
 
     data class GlowDot(val x: Float, val y: Float, val startTime: Long, val color: Int)
+
+    data class RainDrop(
+        var x: Float, var y: Float,
+        val speed: Float, val length: Float,
+        val alpha: Int, val windOffset: Float
+    )
+
+    data class GlassDrop(
+        var x: Float, var y: Float,
+        val radius: Float, val slideSpeed: Float,
+        val trailLength: Float, val alpha: Int
+    )
+
+    data class CityLight(
+        val x: Float, val y: Float,
+        val baseAlpha: Int, val flickerSpeed: Float,
+        val flickerOffset: Float, val radius: Float,
+        val color: Int
+    )
 
     companion object {
         private const val TAG = "PixoraEQ"
@@ -640,5 +1088,8 @@ class PixoraWallpaperService : WallpaperService() {
         const val FRAME_DELAY = 33L // ~30fps
         const val IDLE_FRAME_DELAY = 100L // ~10fps (clock only mode)
         const val SILENCE_THRESHOLD = 0.02f
+        const val RAIN_DROP_COUNT = 120
+        const val GLASS_DROP_COUNT = 15
+        const val CITY_LIGHT_COUNT = 35
     }
 }
