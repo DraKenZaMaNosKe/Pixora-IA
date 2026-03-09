@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
+import '../../../../widgets/card_live_effect.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
@@ -32,18 +33,21 @@ class WallpaperCard extends ConsumerWidget {
           ),
         );
       },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: glowColor.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
+      child: CardLiveEffect(
+        glowColor: glowColor,
+        effectSeed: wallpaper.id.hashCode,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: glowColor.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Stack(
             fit: StackFit.expand,
@@ -114,6 +118,7 @@ class WallpaperCard extends ConsumerWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

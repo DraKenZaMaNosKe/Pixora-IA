@@ -16,6 +16,12 @@ class CatalogService {
 
   List<Wallpaper> get wallpapers => _wallpapers;
 
+  /// Clears in-memory cache so next fetchCatalog() hits the network
+  void clearCache() {
+    _wallpapers = [];
+    _lastFetch = null;
+  }
+
   bool get _isCacheValid =>
       _lastFetch != null &&
       DateTime.now().difference(_lastFetch!) < const Duration(hours: _cacheHours);
