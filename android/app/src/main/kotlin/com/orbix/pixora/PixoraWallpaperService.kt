@@ -1,9 +1,18 @@
 package com.orbix.pixora
 
+import android.app.ActivityManager
+import android.app.KeyguardManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.*
 import android.media.audiofx.Visualizer
+import android.os.BatteryManager
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.os.StatFs
 import android.service.wallpaper.WallpaperService
 import android.text.TextPaint
 import android.util.Log
@@ -94,6 +103,28 @@ class PixoraWallpaperService : WallpaperService() {
         // Headphone glow
         private val headphonePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
+        // Battery indicator
+        private var batteryLevel = -1
+        private var batteryCharging = false
+        private var batteryPulsePhase = 0f
+        private val batteryArcPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val batteryBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val batteryTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
+        private val batteryIconPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private var batteryReceiver: BroadcastReceiver? = null
+
+        // System rings (RAM + Storage)
+        private var ramAvailableGB = 0f
+        private var ramTotalGB = 0f
+        private var storageAvailableGB = 0f
+        private var storageTotalGB = 0f
+        private var lastSystemRead = 0L
+        private val systemRingPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val systemRingBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val systemTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
+        private val systemLabelPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
+        private var systemPulsePhase = 0f
+
         private val drawRunnable = object : Runnable {
             override fun run() {
                 if (drawing) {
@@ -108,7 +139,31 @@ class PixoraWallpaperService : WallpaperService() {
             super.onCreate(surfaceHolder)
             setTouchEventsEnabled(true)
             loadWallpaperImage()
+            registerBatteryReceiver()
             Log.d(TAG, "Engine onCreate")
+        }
+
+        private fun registerBatteryReceiver() {
+            batteryReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    intent ?: return
+                    val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                    val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+                    val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+                    batteryLevel = (level * 100) / scale
+                    batteryCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
+                            || status == BatteryManager.BATTERY_STATUS_FULL
+                }
+            }
+            val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            applicationContext.registerReceiver(batteryReceiver, filter)
+        }
+
+        private fun unregisterBatteryReceiver() {
+            batteryReceiver?.let {
+                try { applicationContext.unregisterReceiver(it) } catch (_: Exception) {}
+            }
+            batteryReceiver = null
         }
 
         private fun loadWallpaperImage() {
@@ -129,12 +184,34 @@ class PixoraWallpaperService : WallpaperService() {
                 if (path != null) {
                     val file = File(path)
                     if (file.exists()) {
-                        wallpaperBitmap = BitmapFactory.decodeFile(path)
+                        // Decode with optimal sample size to save memory
+                        val opts = BitmapFactory.Options()
+                        opts.inJustDecodeBounds = true
+                        BitmapFactory.decodeFile(path, opts)
+
+                        // Target: screen height * 1.2 (enough quality, saves RAM)
+                        val targetH = if (surfaceHeight > 0) surfaceHeight else 2340
+                        opts.inSampleSize = calculateInSampleSize(opts, opts.outWidth, targetH)
+                        opts.inJustDecodeBounds = false
+                        wallpaperBitmap = BitmapFactory.decodeFile(path, opts)
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+            val (height, width) = options.outHeight to options.outWidth
+            var inSampleSize = 1
+            if (height > reqHeight || width > reqWidth) {
+                val halfH = height / 2
+                val halfW = width / 2
+                while ((halfH / inSampleSize) >= reqHeight && (halfW / inSampleSize) >= reqWidth) {
+                    inSampleSize *= 2
+                }
+            }
+            return inSampleSize
         }
 
         private fun createScaledBitmap() {
@@ -155,6 +232,9 @@ class PixoraWallpaperService : WallpaperService() {
                     try {
                         panoramicBitmap = Bitmap.createScaledBitmap(bmp, scaledWidth, scaledHeight, true)
                         scaledBitmap = null
+                        // Recycle original to free memory
+                        bmp.recycle()
+                        wallpaperBitmap = null
                         Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - surfaceWidth}px)")
                     } catch (e: Exception) {
                         Log.e(TAG, "createPanoramic error: ${e.message}")
@@ -177,6 +257,9 @@ class PixoraWallpaperService : WallpaperService() {
                         scaledBitmap = scaled
                         panoramicBitmap = null
                         isPanoramic = false
+                        // Recycle original to free memory
+                        bmp.recycle()
+                        wallpaperBitmap = null
                     } catch (e: Exception) {
                         Log.e(TAG, "createScaledBitmap error: ${e.message}")
                     }
@@ -232,6 +315,11 @@ class PixoraWallpaperService : WallpaperService() {
             val wasPlaying = hasAudio
             hasAudio = maxLevel > SILENCE_THRESHOLD
 
+            // Clear levels immediately when music stops (avoid ghost bars)
+            if (!hasAudio && wasPlaying) {
+                currentLevels.fill(0f)
+            }
+
             // Wake up draw loop when music starts
             if (hasAudio && !wasPlaying && !drawing) {
                 silentFrames = 0
@@ -252,6 +340,9 @@ class PixoraWallpaperService : WallpaperService() {
                 visualizer?.let { it.enabled = false; it.release() }
             } catch (_: Exception) {}
             visualizer = null
+            // Clear audio levels to prevent ghost bars
+            currentLevels.fill(0f)
+            hasAudio = false
         }
 
         override fun onOffsetsChanged(xOffset: Float, yOffset: Float, xStep: Float, yStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
@@ -335,7 +426,16 @@ class PixoraWallpaperService : WallpaperService() {
                 if (canvas != null) {
                     drawBackground(canvas)
                     if (isRainWallpaper) drawRainEffect(canvas)
-                    drawClock(canvas)
+                    // Hide our clock on lock screen to avoid overlap with system clock
+                    val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                    val isLocked = km?.isKeyguardLocked == true
+                    if (!isLocked) {
+                        drawClock(canvas)
+                    }
+                    drawBatteryIndicator(canvas)
+                    if (!isLocked) {
+                        drawSystemRings(canvas)
+                    }
                     drawEqualizerBars(canvas)
                     drawGlowEffects(canvas)
                 }
@@ -357,11 +457,13 @@ class PixoraWallpaperService : WallpaperService() {
                 silentFrames++
                 if (silentFrames > 30 && !idleMode) {
                     idleMode = true
+                    releaseVisualizer() // save CPU in idle
                 }
             } else {
                 silentFrames = 0
                 if (idleMode) {
                     idleMode = false
+                    setupVisualizer() // re-enable when active
                 }
             }
         }
@@ -929,6 +1031,215 @@ class PixoraWallpaperService : WallpaperService() {
             }
         }
 
+        private fun drawBatteryIndicator(canvas: Canvas) {
+            if (batteryLevel < 0 || surfaceWidth <= 0 || surfaceHeight <= 0) return
+
+            val w = surfaceWidth.toFloat()
+            val h = surfaceHeight.toFloat()
+
+            // Position: top-left area
+            val radius = w * 0.055f // ring radius
+            val centerX = radius + w * 0.05f
+            val centerY = h * 0.12f
+            val strokeWidth = radius * 0.22f
+
+            // Colors based on battery level and wallpaper glow
+            val r = Color.red(glowColor)
+            val g = Color.green(glowColor)
+            val b = Color.blue(glowColor)
+
+            val arcColor = when {
+                batteryLevel <= 15 -> Color.rgb(255, 50, 50) // red critical
+                batteryLevel <= 30 -> Color.rgb(255, 165, 0) // orange low
+                else -> glowColor // wallpaper glow color
+            }
+
+            // Charging pulse animation
+            if (batteryCharging) {
+                batteryPulsePhase += 0.06f
+                if (batteryPulsePhase > Math.PI.toFloat() * 2f) batteryPulsePhase = 0f
+            }
+            val pulseAlpha = if (batteryCharging) {
+                (0.4f + 0.6f * ((sin(batteryPulsePhase) + 1f) / 2f))
+            } else 1f
+
+            // Background ring (dark)
+            batteryBgPaint.style = Paint.Style.STROKE
+            batteryBgPaint.strokeWidth = strokeWidth
+            batteryBgPaint.strokeCap = Paint.Cap.ROUND
+            batteryBgPaint.color = Color.argb(60, 255, 255, 255)
+            val arcRect = RectF(
+                centerX - radius, centerY - radius,
+                centerX + radius, centerY + radius
+            )
+            canvas.drawArc(arcRect, -90f, 360f, false, batteryBgPaint)
+
+            // Battery arc (colored, proportional to level)
+            val sweepAngle = batteryLevel * 3.6f // 100% = 360°
+            batteryArcPaint.style = Paint.Style.STROKE
+            batteryArcPaint.strokeWidth = strokeWidth
+            batteryArcPaint.strokeCap = Paint.Cap.ROUND
+            batteryArcPaint.color = arcColor
+            batteryArcPaint.alpha = (255 * pulseAlpha).toInt()
+
+            // Glow effect behind arc
+            batteryArcPaint.setShadowLayer(radius * 0.5f, 0f, 0f, arcColor)
+            canvas.drawArc(arcRect, -90f, sweepAngle, false, batteryArcPaint)
+            batteryArcPaint.clearShadowLayer()
+
+            // Percentage text
+            val text = "$batteryLevel"
+            batteryTextPaint.textSize = radius * 0.75f
+            batteryTextPaint.textAlign = Paint.Align.CENTER
+            batteryTextPaint.typeface = Typeface.create("sans-serif-light", Typeface.BOLD)
+            batteryTextPaint.color = Color.WHITE
+            batteryTextPaint.alpha = (230 * pulseAlpha).toInt()
+            val textY = centerY + batteryTextPaint.textSize * 0.35f
+            canvas.drawText(text, centerX, textY, batteryTextPaint)
+
+            // Small "%" below
+            batteryTextPaint.textSize = radius * 0.32f
+            batteryTextPaint.alpha = (150 * pulseAlpha).toInt()
+            canvas.drawText("%", centerX, textY + radius * 0.4f, batteryTextPaint)
+
+            // Charging bolt icon
+            if (batteryCharging) {
+                batteryIconPaint.color = arcColor
+                batteryIconPaint.alpha = (200 * pulseAlpha).toInt()
+                batteryIconPaint.style = Paint.Style.FILL
+                val boltSize = radius * 0.3f
+                val bx = centerX + radius + strokeWidth * 0.8f
+                val by = centerY - radius * 0.3f
+                val bolt = Path()
+                bolt.moveTo(bx - boltSize * 0.2f, by - boltSize)
+                bolt.lineTo(bx - boltSize * 0.5f, by + boltSize * 0.1f)
+                bolt.lineTo(bx - boltSize * 0.05f, by + boltSize * 0.1f)
+                bolt.lineTo(bx + boltSize * 0.2f, by + boltSize)
+                bolt.lineTo(bx + boltSize * 0.5f, by - boltSize * 0.1f)
+                bolt.lineTo(bx + boltSize * 0.05f, by - boltSize * 0.1f)
+                bolt.close()
+                canvas.drawPath(bolt, batteryIconPaint)
+            }
+        }
+
+        private fun readSystemInfo() {
+            val now = System.currentTimeMillis()
+            if (now - lastSystemRead < 5000) return // read every 5 seconds max
+            lastSystemRead = now
+
+            try {
+                // RAM
+                val am = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+                if (am != null) {
+                    val memInfo = ActivityManager.MemoryInfo()
+                    am.getMemoryInfo(memInfo)
+                    ramAvailableGB = memInfo.availMem / (1024f * 1024f * 1024f)
+                    ramTotalGB = memInfo.totalMem / (1024f * 1024f * 1024f)
+                }
+
+                // Storage
+                val stat = StatFs(Environment.getDataDirectory().path)
+                storageTotalGB = (stat.blockSizeLong * stat.blockCountLong) / (1024f * 1024f * 1024f)
+                storageAvailableGB = (stat.blockSizeLong * stat.availableBlocksLong) / (1024f * 1024f * 1024f)
+            } catch (_: Exception) {}
+        }
+
+        private fun drawSystemRings(canvas: Canvas) {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+            readSystemInfo()
+            if (ramTotalGB <= 0f && storageTotalGB <= 0f) return
+
+            val w = surfaceWidth.toFloat()
+            val h = surfaceHeight.toFloat()
+
+            // Animate a subtle breathing pulse
+            systemPulsePhase += 0.02f
+            if (systemPulsePhase > Math.PI.toFloat() * 2f) systemPulsePhase = 0f
+            val breathe = 0.85f + 0.15f * sin(systemPulsePhase)
+
+            // Position: below battery ring, left side
+            val batteryRadius = w * 0.055f
+            val batteryY = h * 0.12f
+            val startY = batteryY + batteryRadius * 2.8f // below battery
+
+            val ringRadius = w * 0.04f // smaller than battery
+            val spacing = ringRadius * 3.2f
+            val leftX = ringRadius + w * 0.055f
+
+            // --- RAM Ring ---
+            val ramPct = if (ramTotalGB > 0) ((ramTotalGB - ramAvailableGB) / ramTotalGB * 100f) else 0f
+            val ramColor = when {
+                ramPct > 90 -> Color.rgb(255, 50, 50) // critical
+                ramPct > 75 -> Color.rgb(255, 165, 0) // high
+                else -> glowColor
+            }
+            drawMiniRing(
+                canvas, leftX, startY, ringRadius,
+                ramPct, ramColor, breathe,
+                String.format("%.1f", ramAvailableGB), "GB", "RAM"
+            )
+
+            // --- Storage Ring ---
+            val storagePct = if (storageTotalGB > 0) ((storageTotalGB - storageAvailableGB) / storageTotalGB * 100f) else 0f
+            val storageColor = when {
+                storagePct > 90 -> Color.rgb(255, 50, 50)
+                storagePct > 75 -> Color.rgb(255, 165, 0)
+                else -> glowColor
+            }
+            drawMiniRing(
+                canvas, leftX, startY + spacing, ringRadius,
+                storagePct, storageColor, breathe,
+                if (storageAvailableGB >= 10) String.format("%.0f", storageAvailableGB)
+                else String.format("%.1f", storageAvailableGB),
+                "GB", "DISK"
+            )
+        }
+
+        private fun drawMiniRing(
+            canvas: Canvas, cx: Float, cy: Float, radius: Float,
+            usedPct: Float, color: Int, breathe: Float,
+            value: String, unit: String, label: String
+        ) {
+            val strokeWidth = radius * 0.25f
+
+            // Background ring
+            systemRingBgPaint.style = Paint.Style.STROKE
+            systemRingBgPaint.strokeWidth = strokeWidth
+            systemRingBgPaint.strokeCap = Paint.Cap.ROUND
+            systemRingBgPaint.color = Color.argb(40, 255, 255, 255)
+            val rect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
+            canvas.drawArc(rect, -90f, 360f, false, systemRingBgPaint)
+
+            // Colored arc
+            val sweep = usedPct * 3.6f
+            systemRingPaint.style = Paint.Style.STROKE
+            systemRingPaint.strokeWidth = strokeWidth
+            systemRingPaint.strokeCap = Paint.Cap.ROUND
+            systemRingPaint.color = color
+            systemRingPaint.alpha = (255 * breathe).toInt()
+            systemRingPaint.setShadowLayer(radius * 0.4f, 0f, 0f, color)
+            canvas.drawArc(rect, -90f, sweep, false, systemRingPaint)
+            systemRingPaint.clearShadowLayer()
+
+            // Value text (right of ring)
+            val textX = cx + radius + strokeWidth + radius * 0.4f
+            systemTextPaint.textSize = radius * 0.85f
+            systemTextPaint.textAlign = Paint.Align.LEFT
+            systemTextPaint.typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+            systemTextPaint.color = Color.WHITE
+            systemTextPaint.alpha = (220 * breathe).toInt()
+            canvas.drawText(value, textX, cy + radius * 0.15f, systemTextPaint)
+
+            // Unit + Label
+            val valueWidth = systemTextPaint.measureText(value)
+            systemLabelPaint.textSize = radius * 0.5f
+            systemLabelPaint.textAlign = Paint.Align.LEFT
+            systemLabelPaint.typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
+            systemLabelPaint.color = color
+            systemLabelPaint.alpha = (180 * breathe).toInt()
+            canvas.drawText("$unit $label", textX + valueWidth + radius * 0.15f, cy + radius * 0.15f, systemLabelPaint)
+        }
+
         private fun drawEqualizerBars(canvas: Canvas) {
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
@@ -938,7 +1249,7 @@ class PixoraWallpaperService : WallpaperService() {
                 smoothLevels[i] = if (target > smoothLevels[i]) {
                     smoothLevels[i] + (target - smoothLevels[i]) * 0.4f
                 } else {
-                    smoothLevels[i] + (target - smoothLevels[i]) * 0.12f
+                    smoothLevels[i] + (target - smoothLevels[i]) * 0.25f // faster decay
                 }
 
                 if (smoothLevels[i] > peakLevels[i]) {
@@ -1052,6 +1363,7 @@ class PixoraWallpaperService : WallpaperService() {
             drawing = false
             handler.removeCallbacks(drawRunnable)
             releaseVisualizer()
+            unregisterBatteryReceiver()
             wallpaperBitmap?.recycle()
             scaledBitmap?.recycle()
             panoramicBitmap?.recycle()
@@ -1085,9 +1397,9 @@ class PixoraWallpaperService : WallpaperService() {
         const val GLOW_DURATION = 700L
         const val MAX_RADIUS = 120f
         const val BAR_COUNT = 6
-        const val FRAME_DELAY = 33L // ~30fps
-        const val IDLE_FRAME_DELAY = 100L // ~10fps (clock only mode)
-        const val SILENCE_THRESHOLD = 0.02f
+        const val FRAME_DELAY = 42L // ~24fps (saves CPU with equalizer)
+        const val IDLE_FRAME_DELAY = 1000L // ~1fps (clock only mode — saves battery)
+        const val SILENCE_THRESHOLD = 0.05f
         const val RAIN_DROP_COUNT = 120
         const val GLASS_DROP_COUNT = 15
         const val CITY_LIGHT_COUNT = 35
