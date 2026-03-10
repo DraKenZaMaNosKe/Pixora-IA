@@ -51,10 +51,30 @@ class MainActivity : FlutterActivity() {
                     "startStory" -> {
                         val storyId = call.argument<String>("storyId") ?: ""
                         val imagePaths = call.argument<List<String>>("imagePaths") ?: emptyList()
+                        val captions = call.argument<List<String>>("captions") ?: emptyList()
+                        val glowColor = call.argument<String>("glowColor") ?: "#7C4DFF"
                         val intervalMinutes = call.argument<Int>("intervalMinutes") ?: 30
                         val success = StoryWorker.startStory(
-                            applicationContext, storyId, imagePaths, intervalMinutes
+                            applicationContext, storyId, imagePaths, captions, glowColor, intervalMinutes
                         )
+                        // Set first frame immediately and activate live wallpaper
+                        if (success && imagePaths.isNotEmpty()) {
+                            val firstCaption = if (captions.isNotEmpty()) captions[0] else null
+                            val prefs = getSharedPreferences("pixora_live", 0)
+                            prefs.edit()
+                                .putString("wallpaper_path", imagePaths[0])
+                                .putString("glow_color", glowColor)
+                                .putString("caption", firstCaption)
+                                .putLong("changed_at", System.currentTimeMillis())
+                                .apply()
+                            // Launch live wallpaper picker to ensure service is active
+                            val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+                            intent.putExtra(
+                                WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                                ComponentName(this@MainActivity, PixoraWallpaperService::class.java)
+                            )
+                            startActivity(intent)
+                        }
                         result.success(success)
                     }
                     "stopStory" -> {
@@ -64,6 +84,28 @@ class MainActivity : FlutterActivity() {
                     "getStoryStatus" -> {
                         val status = StoryWorker.getStatus(applicationContext)
                         result.success(status)
+                    }
+                    "startAutoRotate" -> {
+                        val catalogData = call.argument<List<String>>("catalogData") ?: emptyList()
+                        val intervalMinutes = call.argument<Int>("intervalMinutes") ?: 5
+                        val target = call.argument<Int>("target") ?: 2
+                        val category = call.argument<String>("category")
+                        val success = AutoRotateWorker.start(
+                            applicationContext, catalogData, intervalMinutes, target, category
+                        )
+                        result.success(success)
+                    }
+                    "stopAutoRotate" -> {
+                        val success = AutoRotateWorker.stop(applicationContext)
+                        result.success(success)
+                    }
+                    "getAutoRotateStatus" -> {
+                        val status = AutoRotateWorker.getStatus(applicationContext)
+                        result.success(status)
+                    }
+                    "clearAutoRotateCache" -> {
+                        AutoRotateWorker.clearCache(applicationContext)
+                        result.success(true)
                     }
                     else -> result.notImplemented()
                 }

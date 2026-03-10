@@ -40,7 +40,8 @@ class CatalogService {
       ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        final body = utf8.decode(response.bodyBytes);
+        final json = jsonDecode(body) as Map<String, dynamic>;
         final list = json['wallpapers'] as List<dynamic>;
         _wallpapers = list
             .map((e) => Wallpaper.fromJson(e as Map<String, dynamic>))
@@ -49,7 +50,7 @@ class CatalogService {
         _lastFetch = DateTime.now();
 
         // Save to local cache
-        await _saveToCache(response.body);
+        await _saveToCache(body);
 
         debugPrint('[Pixora] Catalog loaded: ${_wallpapers.length} wallpapers');
         return _wallpapers;

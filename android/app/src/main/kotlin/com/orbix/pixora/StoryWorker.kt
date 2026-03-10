@@ -1,11 +1,9 @@
 package com.orbix.pixora
 
-import android.app.WallpaperManager
 import android.content.Context
-import android.graphics.BitmapFactory
-import android.os.Build
 import android.util.Log
 import androidx.work.*
+import org.json.JSONArray
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -28,18 +26,26 @@ class StoryWorker(context: Context, params: WorkerParameters) : Worker(context, 
         }
 
         return try {
-            val bitmap = BitmapFactory.decodeFile(path) ?: return Result.failure()
-            val manager = WallpaperManager.getInstance(applicationContext)
+            // Get caption for this frame from JSON array (preserves UTF-8)
+            val captionsJsonArray = prefs.getString("captions_json", null)
+            val caption = try {
+                val arr = JSONArray(captionsJsonArray ?: "[]")
+                if (currentIndex < arr.length()) arr.getString(currentIndex) else ""
+            } catch (_: Exception) { "" }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                manager.setBitmap(bitmap, null, true,
-                    WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-            } else {
-                manager.setBitmap(bitmap)
-            }
-            bitmap.recycle()
+            // Get glow color
+            val glowColor = prefs.getString("glow_color", "#7C4DFF") ?: "#7C4DFF"
 
-            // Advance to next frame
+            // Update live wallpaper prefs — PixoraWallpaperService will pick up the change
+            val livePrefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+            livePrefs.edit()
+                .putString("wallpaper_path", path)
+                .putString("glow_color", glowColor)
+                .putString("caption", if (caption.isNotEmpty()) caption else null)
+                .putLong("changed_at", System.currentTimeMillis())
+                .apply()
+
+            // Advance to next frame (loops back to 0)
             val nextIndex = (currentIndex + 1) % paths.size
             prefs.edit().putInt("current_index", nextIndex).apply()
 
@@ -78,12 +84,25 @@ class StoryWorker(context: Context, params: WorkerParameters) : Worker(context, 
             context: Context,
             storyId: String,
             imagePaths: List<String>,
+            captions: List<String>,
+            glowColor: String,
             intervalMinutes: Int
         ): Boolean {
+            // Stop auto-rotate so it doesn't interfere with story
+            AutoRotateWorker.stop(context)
+            Log.d(TAG, "Auto-rotate stopped for story playback")
+
             val prefs = context.getSharedPreferences("pixora_story", Context.MODE_PRIVATE)
+
+            // Store captions as JSON array to preserve UTF-8 encoding
+            val captionsArray = JSONArray()
+            captions.forEach { captionsArray.put(it) }
+
             prefs.edit()
                 .putString("story_id", storyId)
                 .putString("image_paths", imagePaths.joinToString("|"))
+                .putString("captions_json", captionsArray.toString())
+                .putString("glow_color", glowColor)
                 .putInt("interval_minutes", intervalMinutes)
                 .putInt("current_index", 0)
                 .putInt("total_frames", imagePaths.size)
@@ -109,6 +128,14 @@ class StoryWorker(context: Context, params: WorkerParameters) : Worker(context, 
             WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
             val prefs = context.getSharedPreferences("pixora_story", Context.MODE_PRIVATE)
             prefs.edit().clear().apply()
+
+            // Clear caption from live wallpaper
+            val livePrefs = context.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+            livePrefs.edit()
+                .remove("caption")
+                .putLong("changed_at", System.currentTimeMillis())
+                .apply()
+
             Log.d(TAG, "Story stopped")
             return true
         }

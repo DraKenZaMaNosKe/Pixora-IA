@@ -36,7 +36,8 @@ class StoryCatalogService {
       ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        final body = utf8.decode(response.bodyBytes);
+        final json = jsonDecode(body) as Map<String, dynamic>;
         final list = json['stories'] as List<dynamic>;
         _stories = list
             .map((e) => Story.fromJson(e as Map<String, dynamic>))
@@ -44,7 +45,7 @@ class StoryCatalogService {
         _lastFetch = DateTime.now();
 
         // Save to local cache
-        await _saveToCache(response.body);
+        await _saveToCache(body);
 
         debugPrint('[Pixora] Stories catalog loaded: ${_stories.length} stories');
         return _stories;

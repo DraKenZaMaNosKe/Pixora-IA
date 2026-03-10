@@ -14,6 +14,8 @@ class StoryRotationService {
   Future<bool> startStory({
     required String storyId,
     required List<String> imagePaths,
+    List<String> captions = const [],
+    String glowColor = '#7C4DFF',
     required int intervalMinutes,
   }) async {
     if (!Platform.isAndroid) return false;
@@ -23,6 +25,8 @@ class StoryRotationService {
         {
           'storyId': storyId,
           'imagePaths': imagePaths,
+          'captions': captions,
+          'glowColor': glowColor,
           'intervalMinutes': intervalMinutes,
         },
       );

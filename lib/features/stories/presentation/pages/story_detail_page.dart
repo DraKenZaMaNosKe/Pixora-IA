@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/story_rotation_service.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
@@ -29,6 +30,13 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   }
 
   Future<void> _startStory() async {
+    // Show interstitial ad before starting
+    AdService.instance.showInterstitialAd(onAdDismissed: () {
+      if (mounted) _doStartStory();
+    });
+  }
+
+  Future<void> _doStartStory() async {
     setState(() {
       _isStarting = true;
       _downloadProgress = 0;
@@ -53,10 +61,18 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
       paths.add(path);
     }
 
+    // Build captions with rotating languages: es → en → ja → es...
+    final captions = <String>[];
+    for (var i = 0; i < widget.story.frames.length; i++) {
+      captions.add(widget.story.frames[i].captionForLang(i));
+    }
+
     // Start rotation via platform channel
     final success = await StoryRotationService.instance.startStory(
       storyId: widget.story.id,
       imagePaths: paths,
+      captions: captions,
+      glowColor: widget.story.glowColor,
       intervalMinutes: widget.story.intervalMinutes,
     );
 
@@ -192,10 +208,10 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                                 imageUrl: frame.fullImageUrl),
                           ),
                         ),
-                        if (frame.caption.isNotEmpty) ...[
+                        if (frame.captionEs.isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Text(
-                            frame.caption,
+                            frame.captionEs,
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.6),
                               fontSize: 12,

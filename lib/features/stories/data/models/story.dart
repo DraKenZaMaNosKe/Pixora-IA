@@ -2,23 +2,40 @@ import '../../../../core/constants/supabase_config.dart';
 
 class StoryFrame {
   final String imageFile;
-  final String caption;
+  final String captionEs;
+  final String captionEn;
+  final String captionJa;
 
-  const StoryFrame({required this.imageFile, required this.caption});
+  const StoryFrame({
+    required this.imageFile,
+    this.captionEs = '',
+    this.captionEn = '',
+    this.captionJa = '',
+  });
+
+  /// Get caption for language index: 0=es, 1=en, 2=ja
+  String captionForLang(int langIndex) {
+    switch (langIndex % 3) {
+      case 0: return captionEs;
+      case 1: return captionEn;
+      case 2: return captionJa;
+      default: return captionEs;
+    }
+  }
+
+  /// All captions as list [es, en, ja]
+  List<String> get allCaptions => [captionEs, captionEn, captionJa];
 
   String get fullImageUrl => SupabaseConfig.imageUrl(imageFile);
 
   factory StoryFrame.fromJson(Map<String, dynamic> json) {
     return StoryFrame(
       imageFile: json['imageFile'] as String,
-      caption: json['caption'] as String? ?? '',
+      captionEs: json['captionEs'] as String? ?? json['caption'] as String? ?? '',
+      captionEn: json['captionEn'] as String? ?? '',
+      captionJa: json['captionJa'] as String? ?? '',
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    'imageFile': imageFile,
-    'caption': caption,
-  };
 }
 
 class Story {

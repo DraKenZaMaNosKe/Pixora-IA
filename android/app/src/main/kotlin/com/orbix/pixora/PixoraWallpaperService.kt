@@ -12,6 +12,7 @@ import android.os.BatteryManager
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.content.SharedPreferences
 import android.os.StatFs
 import android.service.wallpaper.WallpaperService
 import android.text.TextPaint
@@ -125,6 +126,16 @@ class PixoraWallpaperService : WallpaperService() {
         private val systemLabelPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
         private var systemPulsePhase = 0f
 
+        // Story caption overlay
+        private var currentCaption: String? = null
+        private val captionTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
+        private val captionBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private var captionAlpha = 0f // for fade-in animation
+        private var lastCaptionChange = 0L
+
+        // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
+        private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
+
         private val drawRunnable = object : Runnable {
             override fun run() {
                 if (drawing) {
@@ -140,7 +151,30 @@ class PixoraWallpaperService : WallpaperService() {
             setTouchEventsEnabled(true)
             loadWallpaperImage()
             registerBatteryReceiver()
+            registerPrefsListener()
             Log.d(TAG, "Engine onCreate")
+        }
+
+        private fun registerPrefsListener() {
+            val prefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+            prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == "changed_at" || key == "wallpaper_path") {
+                    Log.d(TAG, "Wallpaper changed by auto-rotate, reloading...")
+                    handler.post {
+                        loadWallpaperImage()
+                        createScaledBitmap()
+                    }
+                }
+            }
+            prefs.registerOnSharedPreferenceChangeListener(prefsListener)
+        }
+
+        private fun unregisterPrefsListener() {
+            prefsListener?.let {
+                val prefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+                prefs.unregisterOnSharedPreferenceChangeListener(it)
+            }
+            prefsListener = null
         }
 
         private fun registerBatteryReceiver() {
@@ -171,6 +205,14 @@ class PixoraWallpaperService : WallpaperService() {
                 val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
                 val path = prefs.getString("wallpaper_path", null)
                 val color = prefs.getString("glow_color", "#7C4DFF")
+                val caption = prefs.getString("caption", null)
+
+                // Update caption with fade-in
+                if (caption != currentCaption) {
+                    currentCaption = caption
+                    captionAlpha = 0f
+                    lastCaptionChange = System.currentTimeMillis()
+                }
 
                 color?.let {
                     try { glowColor = Color.parseColor(it) } catch (_: Exception) {}
@@ -438,6 +480,7 @@ class PixoraWallpaperService : WallpaperService() {
                         drawSystemRings(canvas)
                     }
                     drawEqualizerBars(canvas)
+                    if (!isLocked) drawCaption(canvas)
                     drawGlowEffects(canvas)
                 }
             } finally {
@@ -1241,6 +1284,143 @@ class PixoraWallpaperService : WallpaperService() {
             canvas.drawText("$unit $label", textX + valueWidth + radius * 0.15f, cy + radius * 0.15f, systemLabelPaint)
         }
 
+        // Character names to highlight in glow color
+        private val highlightWords = setOf(
+            "GOKU", "VEGETA", "GOHAN", "GOTEN", "TRUNKS", "PICCOLO",
+            "FRIEZA", "FREEZER", "CELL", "BUU", "BILLS", "BEERUS",
+            "WHIS", "KRILLIN", "BULMA", "CHICHI", "MR. SATAN", "SATAN",
+            "MAJIN BUU", "MAJIN", "GENKI DAMA", "SPIRIT BOMB",
+            "SUPER SAIYAN", "GOD", "KAIO", "KAIOUSAMA",
+            "CHOU GENKI DAMA", "SAIYAN"
+        )
+
+        private fun drawCaption(canvas: Canvas) {
+            val text = currentCaption ?: return
+            if (text.isEmpty() || surfaceWidth <= 0) return
+
+            // Fade in over 600ms
+            val elapsed = System.currentTimeMillis() - lastCaptionChange
+            captionAlpha = min(1f, elapsed / 600f)
+            val alpha = (captionAlpha * 240).toInt()
+
+            val w = surfaceWidth.toFloat()
+            val h = surfaceHeight.toFloat()
+            val margin = w * 0.05f
+            val maxWidth = w - margin * 2 - w * 0.025f // account for accent bar
+
+            val textSize = w * 0.034f
+
+            // Build word list with highlight info
+            data class CaptionWord(val text: String, val highlight: Boolean)
+            val rawWords = text.split(" ")
+            val captionWords = mutableListOf<CaptionWord>()
+
+            var i = 0
+            while (i < rawWords.size) {
+                // Check 2-word highlights first (e.g. "MAJIN BUU", "GENKI DAMA")
+                var matched = false
+                if (i + 1 < rawWords.size) {
+                    val twoWord = "${rawWords[i]} ${rawWords[i+1]}"
+                    if (highlightWords.contains(twoWord.uppercase())) {
+                        captionWords.add(CaptionWord(twoWord, true))
+                        i += 2
+                        matched = true
+                    }
+                }
+                if (!matched) {
+                    val isHighlight = highlightWords.contains(rawWords[i].uppercase().trimEnd(',', '.', '!', '?'))
+                    captionWords.add(CaptionWord(rawWords[i], isHighlight))
+                    i++
+                }
+            }
+
+            // Measure and word-wrap
+            captionTextPaint.textSize = textSize
+            captionTextPaint.typeface = android.graphics.Typeface.DEFAULT
+
+            data class LineWord(val text: String, val highlight: Boolean)
+            val lines = mutableListOf<MutableList<LineWord>>()
+            var currentLine = mutableListOf<LineWord>()
+            var currentWidth = 0f
+
+            for (word in captionWords) {
+                captionTextPaint.typeface = if (word.highlight)
+                    android.graphics.Typeface.DEFAULT_BOLD else android.graphics.Typeface.DEFAULT
+                val wordWidth = captionTextPaint.measureText(word.text + " ")
+                if (currentWidth + wordWidth > maxWidth && currentLine.isNotEmpty()) {
+                    lines.add(currentLine)
+                    currentLine = mutableListOf()
+                    currentWidth = 0f
+                }
+                currentLine.add(LineWord(word.text, word.highlight))
+                currentWidth += wordWidth
+            }
+            if (currentLine.isNotEmpty()) lines.add(currentLine)
+
+            val lineHeight = textSize * 1.5f
+            val totalTextHeight = lines.size * lineHeight
+            val padding = w * 0.03f
+            val accentWidth = w * 0.008f
+
+            // Background box
+            val boxBottom = h * 0.80f
+            val boxTop = boxBottom - totalTextHeight - padding * 2
+            val boxLeft = margin - padding
+            val boxRight = w - margin + padding
+
+            // Outer glow
+            captionBgPaint.color = glowColor
+            captionBgPaint.alpha = (alpha * 0.15f).toInt()
+            captionBgPaint.maskFilter = BlurMaskFilter(w * 0.02f, BlurMaskFilter.Blur.OUTER)
+            canvas.drawRoundRect(
+                RectF(boxLeft - 4, boxTop - 4, boxRight + 4, boxBottom + 4),
+                w * 0.025f, w * 0.025f, captionBgPaint
+            )
+            captionBgPaint.maskFilter = null
+
+            // Background
+            captionBgPaint.color = Color.BLACK
+            captionBgPaint.alpha = (alpha * 0.70f).toInt()
+            canvas.drawRoundRect(
+                RectF(boxLeft, boxTop, boxRight, boxBottom),
+                w * 0.02f, w * 0.02f, captionBgPaint
+            )
+
+            // Accent bar on left (glow colored)
+            captionBgPaint.color = glowColor
+            captionBgPaint.alpha = (alpha * 0.9f).toInt()
+            canvas.drawRoundRect(
+                RectF(boxLeft + padding * 0.3f, boxTop + padding * 0.6f,
+                    boxLeft + padding * 0.3f + accentWidth, boxBottom - padding * 0.6f),
+                accentWidth / 2, accentWidth / 2, captionBgPaint
+            )
+
+            // Draw text word by word with highlights
+            val textLeft = margin + accentWidth + padding * 0.3f
+            var y = boxTop + padding + textSize * 1.1f
+
+            for (line in lines) {
+                var x = textLeft
+                for (word in line) {
+                    if (word.highlight) {
+                        captionTextPaint.color = glowColor
+                        captionTextPaint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+                        captionTextPaint.alpha = alpha
+                        captionTextPaint.setShadowLayer(6f, 0f, 0f, glowColor)
+                    } else {
+                        captionTextPaint.color = Color.WHITE
+                        captionTextPaint.typeface = android.graphics.Typeface.DEFAULT
+                        captionTextPaint.alpha = (alpha * 0.92f).toInt()
+                        captionTextPaint.setShadowLayer(3f, 0f, 2f, Color.BLACK)
+                    }
+                    captionTextPaint.textAlign = Paint.Align.LEFT
+                    canvas.drawText(word.text, x, y, captionTextPaint)
+                    x += captionTextPaint.measureText(word.text + " ")
+                }
+                y += lineHeight
+            }
+        }
+
         private fun drawEqualizerBars(canvas: Canvas) {
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
@@ -1365,6 +1545,7 @@ class PixoraWallpaperService : WallpaperService() {
             handler.removeCallbacks(drawRunnable)
             releaseVisualizer()
             unregisterBatteryReceiver()
+            unregisterPrefsListener()
             wallpaperBitmap?.recycle()
             scaledBitmap?.recycle()
             panoramicBitmap?.recycle()
