@@ -193,6 +193,7 @@ class PixoraWallpaperService : WallpaperService() {
                         val targetH = if (surfaceHeight > 0) surfaceHeight else 2340
                         opts.inSampleSize = calculateInSampleSize(opts, opts.outWidth, targetH)
                         opts.inJustDecodeBounds = false
+                        opts.inPreferredConfig = Bitmap.Config.RGB_565 // half memory, no alpha needed
                         wallpaperBitmap = BitmapFactory.decodeFile(path, opts)
                     }
                 }
