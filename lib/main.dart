@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:convert';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  await MobileAds.instance.initialize();
   runApp(const ProviderScope(child: PixoraTestApp()));
 }
 
@@ -36,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   List<String> imageUrls = [];
   bool loading = true;
   String? error;
+  String adStatus = 'AdMob inicializado OK';
 
   @override
   void initState() {
@@ -94,14 +97,6 @@ class _HomePageState extends State<HomePage> {
             const Icon(Icons.error, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text('Error: $error', style: const TextStyle(color: Colors.white)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                setState(() { loading = true; error = null; });
-                _loadImages();
-              },
-              child: const Text('Reintentar'),
-            ),
           ],
         ),
       );
@@ -109,14 +104,22 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'HTTP + Images OK! (${imageUrls.length} wallpapers)',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.greenAccent,
-            ),
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              Text(
+                'HTTP + Images + Ads OK! (${imageUrls.length})',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.greenAccent,
+                ),
+              ),
+              Text(
+                adStatus,
+                style: const TextStyle(fontSize: 12, color: Colors.white38),
+              ),
+            ],
           ),
         ),
         Expanded(
