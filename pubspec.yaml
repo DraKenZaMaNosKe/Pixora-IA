@@ -21,6 +21,9 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_cache_manager: ^3.3.2
 
+dependency_overrides:
+  win32: ^5.9.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
