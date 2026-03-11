@@ -9,14 +9,27 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
-      - name: Build iOS (no codesign)
+      - name: Pod install
+        script: cd ios && pod install
+      - name: Build iOS with xcodebuild
         script: |
-          flutter build ios --release --no-codesign
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination generic/platform=iOS \
+            -archivePath build/ios/Runner.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=- \
+            DEVELOPMENT_TEAM="" \
+            archive
       - name: Package IPA
         script: |
+          mkdir -p build/ios/iphoneos/Payload
+          cp -r build/ios/Runner.xcarchive/Products/Applications/Runner.app build/ios/iphoneos/Payload/
           cd build/ios/iphoneos
-          mkdir Payload
-          cp -r Runner.app Payload/
           zip -r Pixora.ipa Payload
     artifacts:
       - build/ios/iphoneos/Pixora.ipa
