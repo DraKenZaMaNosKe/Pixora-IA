@@ -113,11 +113,15 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun setLiveWallpaper(imagePath: String, glowColor: String) {
+        // Stop any active story to prevent it from overriding this wallpaper
+        StoryWorker.stopStory(applicationContext)
+
         // Save config for the WallpaperService to read
         val prefs = getSharedPreferences("pixora_live", 0)
         prefs.edit()
             .putString("wallpaper_path", imagePath)
             .putString("glow_color", glowColor)
+            .remove("caption")
             .apply()
 
         // Launch the live wallpaper picker
@@ -130,6 +134,9 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun setWallpaper(path: String, target: Int): Boolean {
+        // Stop any active story to prevent it from interfering
+        StoryWorker.stopStory(applicationContext)
+
         return try {
             val file = File(path)
             if (!file.exists()) return false
