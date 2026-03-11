@@ -20,8 +20,15 @@ workflows:
         script: |
           flutter build ios --debug --no-codesign
 
+      - name: Package IPA
+        script: |
+          cd build/ios/iphoneos
+          mkdir -p Payload
+          cp -r Runner.app Payload/
+          zip -r Pixora.ipa Payload
+
     artifacts:
-      - build/ios/iphoneos/*.app
+      - build/ios/iphoneos/Pixora.ipa
 
   android-build:
     name: Android Build
