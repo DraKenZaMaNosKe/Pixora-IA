@@ -1,7 +1,7 @@
 name: pixora
 description: "Pixora IA - Test iOS"
 publish_to: 'none'
-version: 1.1.0+7
+version: 1.1.0+8
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
+  flutter_riverpod: ^2.5.1
 
 dev_dependencies:
   flutter_test:
