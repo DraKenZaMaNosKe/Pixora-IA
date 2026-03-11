@@ -4,6 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 
 Future<void> main() async {
@@ -38,12 +40,32 @@ class _HomePageState extends State<HomePage> {
   List<String> imageUrls = [];
   bool loading = true;
   String? error;
-  String adStatus = 'AdMob inicializado OK';
+  String statusText = 'Cargando...';
 
   @override
   void initState() {
     super.initState();
-    _loadImages();
+    _init();
+  }
+
+  Future<void> _init() async {
+    // Test path_provider
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      statusText = 'Docs: ${dir.path.split('/').last}';
+    } catch (e) {
+      statusText = 'path_provider error: $e';
+    }
+
+    // Test permission_handler
+    try {
+      final photoStatus = await Permission.photos.status;
+      statusText += ' | Photos: $photoStatus';
+    } catch (e) {
+      statusText += ' | perm error: $e';
+    }
+
+    await _loadImages();
   }
 
   Future<void> _loadImages() async {
@@ -78,7 +100,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Pixora Test iOS'),
+        title: const Text('Pixora FULL Test'),
         backgroundColor: const Color(0xFF6A11CB),
       ),
       body: _buildBody(),
@@ -107,17 +129,19 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              Text(
-                'HTTP + Images + Ads OK! (${imageUrls.length})',
-                style: const TextStyle(
-                  fontSize: 16,
+              const Text(
+                'ALL DEPENDENCIES OK!',
+                style: TextStyle(
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.greenAccent,
                 ),
               ),
+              const SizedBox(height: 4),
               Text(
-                adStatus,
-                style: const TextStyle(fontSize: 12, color: Colors.white38),
+                statusText,
+                style: const TextStyle(fontSize: 10, color: Colors.white38),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
