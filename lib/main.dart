@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
-  runApp(const ProviderScope(child: PixoraTestApp()));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  final box = await Hive.openBox('testBox');
+  runApp(ProviderScope(child: PixoraTestApp(box: box)));
 }
 
 class PixoraTestApp extends StatelessWidget {
-  const PixoraTestApp({super.key});
+  final Box box;
+  const PixoraTestApp({super.key, required this.box});
 
   @override
   Widget build(BuildContext context) {
@@ -14,21 +19,37 @@ class PixoraTestApp extends StatelessWidget {
       title: 'Pixora Test',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(useMaterial3: true),
-      home: const HomePage(),
+      home: HomePage(box: box),
     );
   }
 }
 
-// Simple counter provider to test Riverpod works
-final counterProvider = StateProvider<int>((ref) => 0);
-
-class HomePage extends ConsumerWidget {
-  const HomePage({super.key});
+class HomePage extends StatefulWidget {
+  final Box box;
+  const HomePage({super.key, required this.box});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final count = ref.watch(counterProvider);
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  late int count;
+
+  @override
+  void initState() {
+    super.initState();
+    count = widget.box.get('counter', defaultValue: 0);
+  }
+
+  void _increment() {
+    setState(() {
+      count++;
+      widget.box.put('counter', count);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -53,9 +74,9 @@ class HomePage extends ConsumerWidget {
                   const Icon(Icons.check_circle, size: 64, color: Colors.greenAccent),
                   const SizedBox(height: 16),
                   const Text(
-                    'Riverpod OK!',
+                    'Hive + Riverpod OK!',
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -65,12 +86,17 @@ class HomePage extends ConsumerWidget {
                     'Contador: $count',
                     style: const TextStyle(fontSize: 20, color: Colors.white70),
                   ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    '(se guarda al cerrar la app)',
+                    style: TextStyle(fontSize: 12, color: Colors.white38),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: () => ref.read(counterProvider.notifier).state++,
+              onPressed: _increment,
               icon: const Icon(Icons.add),
               label: const Text('Incrementar'),
               style: ElevatedButton.styleFrom(
@@ -78,43 +104,7 @@ class HomePage extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SecondPage()),
-                );
-              },
-              icon: const Icon(Icons.navigate_next),
-              label: const Text('Ir a página 2'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2575FC),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              ),
-            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class SecondPage extends StatelessWidget {
-  const SecondPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Página 2'),
-        backgroundColor: const Color(0xFF2575FC),
-      ),
-      body: const Center(
-        child: Text(
-          'Navegación OK!',
-          style: TextStyle(fontSize: 28, color: Colors.white),
         ),
       ),
     );
