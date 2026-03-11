@@ -9,9 +9,21 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
+      - name: Install CocoaPods
+        script: |
+          cd ios && pod install
       - name: Build iOS (no codesign)
         script: |
-          flutter build ios --release --no-codesign
+          xcodebuild -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination generic/platform=iOS \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build
       - name: Package IPA
         script: |
           cd build/ios/iphoneos
