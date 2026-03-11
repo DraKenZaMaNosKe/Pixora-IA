@@ -22,7 +22,7 @@ dependencies:
   share_plus: ^9.0.0
   permission_handler: ^11.3.0
   flutter_cache_manager: ^3.3.2
-  intl: ^0.18.1
+  intl: ^0.20.2
   google_mobile_ads: ^5.2.0
 
 dependency_overrides:
