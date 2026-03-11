@@ -1,27 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'core/services/ad_service.dart';
-import 'core/theme/app_theme.dart';
-import 'features/home/presentation/home_page.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  AdService.instance.initialize();
-  runApp(const ProviderScope(child: PixoraApp()));
+void main() {
+  runApp(const PixoraTestApp());
 }
 
-class PixoraApp extends StatelessWidget {
-  const PixoraApp({super.key});
+class PixoraTestApp extends StatelessWidget {
+  const PixoraTestApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pixora IA',
+      title: 'Pixora Test',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      home: const HomePage(),
+      theme: ThemeData.dark(useMaterial3: true),
+      home: const TestPage(),
+    );
+  }
+}
+
+class TestPage extends StatelessWidget {
+  const TestPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.phone_iphone, size: 64, color: Colors.white),
+              SizedBox(height: 16),
+              Text(
+                'Hola Mundo iPhone!',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Pixora - Test iOS',
+                style: TextStyle(fontSize: 16, color: Colors.white70),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
