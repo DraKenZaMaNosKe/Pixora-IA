@@ -32,59 +32,71 @@ import Photos
   private func saveToGallery(path: String, result: @escaping FlutterResult) {
     print("[Pixora-iOS] saveToGallery called with path: \(path)")
 
-    let fileExists = FileManager.default.fileExists(atPath: path)
-    print("[Pixora-iOS] File exists: \(fileExists)")
-
-    guard fileExists else {
-      print("[Pixora-iOS] ERROR: File does not exist at path")
+    guard FileManager.default.fileExists(atPath: path) else {
       result(FlutterError(code: "FILE_NOT_FOUND", message: "File not found: \(path)", details: nil))
       return
     }
 
-    // Log file size
-    if let attrs = try? FileManager.default.attributesOfItem(atPath: path),
-       let size = attrs[.size] as? Int {
-      print("[Pixora-iOS] File size: \(size) bytes")
-    }
-
     guard let image = UIImage(contentsOfFile: path) else {
-      print("[Pixora-iOS] ERROR: Could not load image from file")
       result(FlutterError(code: "INVALID_IMAGE", message: "Cannot load image from: \(path)", details: nil))
       return
     }
 
-    print("[Pixora-iOS] Image loaded OK: \(image.size.width)x\(image.size.height)")
+    print("[Pixora-iOS] Image loaded: \(image.size.width)x\(image.size.height)")
+
+    // Convert to JPEG data to ensure compatibility (WebP not always supported by Photos)
+    guard let jpegData = image.jpegData(compressionQuality: 0.95) else {
+      result(FlutterError(code: "CONVERT_FAIL", message: "Failed to convert image to JPEG", details: nil))
+      return
+    }
+
+    print("[Pixora-iOS] Converted to JPEG: \(jpegData.count) bytes")
+
+    // Write JPEG to temp file
+    let tempPath = NSTemporaryDirectory() + "pixora_save.jpg"
+    let tempUrl = URL(fileURLWithPath: tempPath)
+    do {
+      try jpegData.write(to: tempUrl)
+    } catch {
+      result(FlutterError(code: "WRITE_FAIL", message: "Failed to write temp JPEG: \(error)", details: nil))
+      return
+    }
+
+    let saveBlock: () -> Void = {
+      PHPhotoLibrary.shared().performChanges({
+        PHAssetCreationRequest.forAsset().addResource(with: .photo, fileURL: tempUrl, options: nil)
+      }) { success, error in
+        // Clean up temp file
+        try? FileManager.default.removeItem(at: tempUrl)
+        print("[Pixora-iOS] Save result: success=\(success), error=\(String(describing: error))")
+        DispatchQueue.main.async {
+          if success {
+            result(true)
+          } else {
+            result(FlutterError(code: "SAVE_FAIL", message: "Photos save failed: \(error?.localizedDescription ?? "unknown")", details: nil))
+          }
+        }
+      }
+    }
 
     if #available(iOS 14, *) {
-      let currentStatus = PHPhotoLibrary.authorizationStatus(for: .addOnly)
-      print("[Pixora-iOS] Current photo auth status: \(currentStatus.rawValue)")
-
       PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-        print("[Pixora-iOS] Auth status after request: \(status.rawValue) (3=authorized, 4=limited)")
         if status == .authorized || status == .limited {
-          PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAsset(from: image)
-          }) { success, error in
-            print("[Pixora-iOS] performChanges result: success=\(success), error=\(String(describing: error))")
-            DispatchQueue.main.async { result(success) }
-          }
+          saveBlock()
         } else {
-          print("[Pixora-iOS] Photo permission DENIED (status: \(status.rawValue))")
-          DispatchQueue.main.async { result(false) }
+          DispatchQueue.main.async {
+            result(FlutterError(code: "PERMISSION_DENIED", message: "Photo library access denied (status: \(status.rawValue))", details: nil))
+          }
         }
       }
     } else {
       PHPhotoLibrary.requestAuthorization { status in
-        print("[Pixora-iOS] Auth status (legacy): \(status.rawValue)")
         if status == .authorized {
-          PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAsset(from: image)
-          }) { success, error in
-            print("[Pixora-iOS] performChanges result: success=\(success), error=\(String(describing: error))")
-            DispatchQueue.main.async { result(success) }
-          }
+          saveBlock()
         } else {
-          DispatchQueue.main.async { result(false) }
+          DispatchQueue.main.async {
+            result(FlutterError(code: "PERMISSION_DENIED", message: "Photo library access denied", details: nil))
+          }
         }
       }
     }
