@@ -8,7 +8,10 @@
       "Read(//c/Program Files/**)",
       "Read(//c/Program Files \\(x86\\)/**)",
       "Read(//c/pixora/$LOCALAPPDATA/**)",
-      "Bash(\"$LOCALAPPDATA/Sideloadly/sideloadly.exe\" --help 2>&1 || \"$LOCALAPPDATA/Sideloadly/sideloadly.exe\" -h 2>&1)"
+      "Bash(\"$LOCALAPPDATA/Sideloadly/sideloadly.exe\" --help 2>&1 || \"$LOCALAPPDATA/Sideloadly/sideloadly.exe\" -h 2>&1)",
+      "Bash(cd C:/Users/lalo/.openclaw/workspace/Pixora-IA && flutter pub get 2>&1 && flutter build apk --debug 2>&1)",
+      "Bash(adb -s G2R4C17516000149 install -r build/app/outputs/flutter-apk/app-debug.apk 2>&1)",
+      "Bash(adb -s G2R4C17516000149 uninstall com.orbix.pixora 2>&1 && adb -s G2R4C17516000149 install build/app/outputs/flutter-apk/app-debug.apk 2>&1)"
     ]
   }
 }
