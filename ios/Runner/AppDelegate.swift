@@ -40,21 +40,28 @@ import Photos
       return
     }
 
-    PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-      if status == .authorized || status == .limited {
-        PHPhotoLibrary.shared().performChanges({
-          PHAssetChangeRequest.creationRequestForAsset(from: image)
-        }) { success, error in
-          DispatchQueue.main.async {
-            if let error = error {
-              print("[Pixora] Save to gallery error: \(error.localizedDescription)")
-            }
-            result(success)
+    if #available(iOS 14, *) {
+      PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+        if status == .authorized || status == .limited {
+          PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAsset(from: image)
+          }) { success, error in
+            DispatchQueue.main.async { result(success) }
           }
+        } else {
+          DispatchQueue.main.async { result(false) }
         }
-      } else {
-        DispatchQueue.main.async {
-          result(false)
+      }
+    } else {
+      PHPhotoLibrary.requestAuthorization { status in
+        if status == .authorized {
+          PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAsset(from: image)
+          }) { success, error in
+            DispatchQueue.main.async { result(success) }
+          }
+        } else {
+          DispatchQueue.main.async { result(false) }
         }
       }
     }
