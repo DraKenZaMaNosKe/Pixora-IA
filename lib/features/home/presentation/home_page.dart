@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../settings/presentation/settings_page.dart';
@@ -14,14 +15,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  static const _pages = [
-    WallpapersPage(),
-    StoriesPage(),
-    FavoritesPage(),
-    SettingsPage(),
+  static final _pages = [
+    const WallpapersPage(),
+    if (!Platform.isIOS) const StoriesPage(),
+    const FavoritesPage(),
+    const SettingsPage(),
   ];
 
-  static const _titles = ['Pixora IA', 'Stories', 'Favorites', 'Settings'];
+  static final _titles = [
+    'Pixora IA',
+    if (!Platform.isIOS) 'Stories',
+    'Favorites',
+    'Settings',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -46,20 +52,21 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.wallpaper),
             label: 'Wallpapers',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.auto_stories),
-            label: 'Stories',
-          ),
-          BottomNavigationBarItem(
+          if (!Platform.isIOS)
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.auto_stories),
+              label: 'Stories',
+            ),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Favorites',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
           ),

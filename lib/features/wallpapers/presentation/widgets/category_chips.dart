@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/categories.dart';
@@ -5,6 +6,12 @@ import '../../providers/wallpaper_providers.dart';
 
 class CategoryChips extends ConsumerWidget {
   const CategoryChips({super.key});
+
+  static final _categories = Platform.isIOS
+      ? WallpaperCategory.values
+          .where((c) => c != WallpaperCategory.panoramic)
+          .toList()
+      : WallpaperCategory.values;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,10 +22,10 @@ class CategoryChips extends ConsumerWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: WallpaperCategory.values.length,
+        itemCount: _categories.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final cat = WallpaperCategory.values[index];
+          final cat = _categories[index];
           final isSelected = cat == selected;
           return FilterChip(
             selected: isSelected,

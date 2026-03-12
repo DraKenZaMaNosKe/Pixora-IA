@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/categories.dart';
 import '../../../core/services/catalog_service.dart';
@@ -22,9 +23,16 @@ final filteredWallpapersProvider =
   final wallpapers = await ref.watch(catalogProvider.future);
   final category = ref.watch(selectedCategoryProvider);
 
-  if (category == WallpaperCategory.all) return wallpapers;
+  var filtered = wallpapers;
 
-  return wallpapers
+  // iOS: exclude panoramic wallpapers (no panoramic scroll support)
+  if (Platform.isIOS) {
+    filtered = filtered.where((w) => w.category.toUpperCase() != 'PANORAMIC').toList();
+  }
+
+  if (category == WallpaperCategory.all) return filtered;
+
+  return filtered
       .where((w) =>
           w.category.toUpperCase() ==
           category.name.replaceAll('_', '').toUpperCase())
