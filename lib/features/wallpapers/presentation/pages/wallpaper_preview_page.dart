@@ -63,31 +63,62 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   Future<void> _saveToGallery() async {
     setState(() => _isApplying = true);
 
+    _showStatus('Downloading image...');
+
     final path =
         await DownloadService.instance.downloadWallpaper(widget.wallpaper.imageFile);
 
     if (path == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed')),
-        );
+        _showStatus('Download FAILED - no file returned', isError: true);
       }
       setState(() => _isApplying = false);
       return;
     }
 
+    // Verify file exists on disk
+    final file = File(path);
+    final exists = await file.exists();
+    final size = exists ? await file.length() : 0;
+    final sizeKb = (size / 1024).toStringAsFixed(1);
+
+    if (!exists) {
+      if (mounted) {
+        _showStatus('File NOT on disk: $path', isError: true);
+      }
+      setState(() => _isApplying = false);
+      return;
+    }
+
+    _showStatus('Downloaded OK ($sizeKb KB)\nPath: $path\nSaving to gallery...');
+
     final success = await WallpaperService.instance.saveToGallery(path);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success
-              ? 'Saved to gallery!'
-              : 'Saved! Set it from Settings > Wallpaper'),
-        ),
-      );
+      if (success) {
+        _showStatus('Saved to Photos! ($sizeKb KB)', isError: false);
+      } else {
+        final nativeErr = WallpaperService.instance.lastError;
+        _showStatus(
+          'saveToGallery returned FALSE\n${nativeErr != null ? "Native: $nativeErr\n" : ""}File: $path\nSize: $sizeKb KB',
+          isError: true,
+        );
+      }
     }
     setState(() => _isApplying = false);
+  }
+
+  void _showStatus(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(fontSize: 12)),
+        backgroundColor: isError ? Colors.red.shade800 : Colors.green.shade800,
+        duration: Duration(seconds: isError ? 8 : 4),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Future<void> _applyLiveWallpaper() async {

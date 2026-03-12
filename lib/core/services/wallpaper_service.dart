@@ -36,18 +36,28 @@ class WallpaperService {
   /// Guarda imagen en galería del dispositivo.
   /// Android: usa MediaStore via MethodChannel (Kotlin).
   /// iOS:     usa PHPhotoLibrary via MethodChannel (Swift).
+  ///
+  /// Returns true on success. On failure, throws or returns false.
+  /// [lastError] contains details if the native side reported an error.
+  String? lastError;
+
   Future<bool> saveToGallery(String filePath) async {
+    lastError = null;
     try {
+      debugPrint('[WallpaperService] saveToGallery path: $filePath');
       final result = await _channel.invokeMethod<bool>(
         'saveToGallery',
         {'path': filePath},
       );
+      debugPrint('[WallpaperService] saveToGallery result: $result');
       return result ?? false;
     } on PlatformException catch (e) {
-      debugPrint('[WallpaperService] saveToGallery error: ${e.message}');
+      lastError = '${e.code}: ${e.message}';
+      debugPrint('[WallpaperService] saveToGallery PlatformException: $lastError');
       return false;
     } catch (e) {
-      debugPrint('[WallpaperService] saveToGallery unexpected error: $e');
+      lastError = e.toString();
+      debugPrint('[WallpaperService] saveToGallery unexpected: $lastError');
       return false;
     }
   }
