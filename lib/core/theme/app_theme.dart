@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   AppTheme._();
@@ -10,27 +9,29 @@ class AppTheme {
   static const _surface = Color(0xFF141420);
   static const _card = Color(0xFF1A1A2E);
 
+  static const _fontFamily = 'SF Pro Display';
+
   static ThemeData get dark => ThemeData(
         brightness: Brightness.dark,
         colorScheme: const ColorScheme.dark(
           primary: _primary,
           secondary: _secondary,
           surface: _surface,
-          background: _background,
         ),
         scaffoldBackgroundColor: _background,
-        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-        appBarTheme: AppBarTheme(
+        fontFamily: _fontFamily,
+        appBarTheme: const AppBarTheme(
           backgroundColor: _background,
           elevation: 0,
           centerTitle: false,
-          titleTextStyle: GoogleFonts.inter(
+          titleTextStyle: TextStyle(
+            fontFamily: _fontFamily,
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: _card,
           elevation: 4,
           shape:
@@ -39,7 +40,7 @@ class AppTheme {
         chipTheme: ChipThemeData(
           backgroundColor: _surface,
           selectedColor: _primary,
-          labelStyle: GoogleFonts.inter(fontSize: 13),
+          labelStyle: const TextStyle(fontFamily: _fontFamily, fontSize: 13),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),

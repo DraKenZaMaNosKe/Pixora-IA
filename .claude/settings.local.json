@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone:*)",
+      "Bash(git init:*)",
+      "Bash(git push:*)",
+      "Bash(where sideloadly:*)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Read(//c/pixora/$LOCALAPPDATA/**)",
+      "Bash(\"$LOCALAPPDATA/Sideloadly/sideloadly.exe\" --help 2>&1 || \"$LOCALAPPDATA/Sideloadly/sideloadly.exe\" -h 2>&1)"
+    ]
+  }
+}

@@ -35,14 +35,8 @@ class WallpaperService {
 
   /// Guarda imagen en galería del dispositivo.
   /// Android: usa MediaStore via MethodChannel (Kotlin).
-  /// iOS:     retorna false — pendiente implementar con plugin nativo.
+  /// iOS:     usa PHPhotoLibrary via MethodChannel (Swift).
   Future<bool> saveToGallery(String filePath) async {
-    if (!Platform.isAndroid) {
-      // iOS: no tiene MethodChannel para esto todavía.
-      // WallpaperPreviewPage usa el Share sheet como alternativa.
-      debugPrint('[WallpaperService] saveToGallery: iOS no soportado via channel.');
-      return false;
-    }
     try {
       final result = await _channel.invokeMethod<bool>(
         'saveToGallery',
