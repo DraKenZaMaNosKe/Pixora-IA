@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../icon_rooms/presentation/pages/icon_rooms_page.dart';
 import '../../settings/presentation/settings_page.dart';
+import '../../day_cycle/presentation/pages/day_cycle_page.dart';
 import '../../stories/presentation/pages/stories_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';
 
@@ -19,6 +20,7 @@ class _HomePageState extends State<HomePage> {
     WallpapersPage(),
     IconRoomsPage(),
     StoriesPage(),
+    DayCyclePage(),
     FavoritesPage(),
     SettingsPage(),
   ];
@@ -61,8 +63,14 @@ class _HomePageState extends State<HomePage> {
           Icons.auto_stories,
         );
       case 3:
-        return const Text('Favorites');
+        return _buildSpecialTitle(
+          'Day Cycle',
+          const [Color(0xFFFFB74D), Color(0xFF5C6BC0)],
+          Icons.wb_twilight,
+        );
       case 4:
+        return const Text('Favorites');
+      case 5:
         return const Text('Settings');
       default:
         return const Text('Pixora IA');
@@ -130,6 +138,14 @@ class _HomePageState extends State<HomePage> {
               isSelected: _currentIndex == 2,
             ),
             label: 'Stories',
+          ),
+          BottomNavigationBarItem(
+            icon: _buildGradientIcon(
+              Icons.wb_twilight,
+              const [Color(0xFFFFB74D), Color(0xFF5C6BC0)],
+              isSelected: _currentIndex == 3,
+            ),
+            label: 'Day Cycle',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
