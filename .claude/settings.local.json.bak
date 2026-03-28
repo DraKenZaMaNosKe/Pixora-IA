@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /d/Orbix/Pixora-IA -type f \\\\\\(-name *.dart -o -name *.kt -o -name *.swift -o -name *.json \\\\\\))",
+      "Bash(flutter devices:*)",
+      "Bash(flutter run:*)",
+      "Bash(adb:*)",
+      "Bash(flutter build:*)",
+      "Bash(bundletool version:*)",
+      "Bash(java -jar bundletool*.jar version)",
+      "Bash(java -jar bundletool.jar build-apks --bundle=2.aab --output=pixora.apks --mode=universal --ks=\"D:/Orbix/Pixora-IA/android/app/debug.keystore\" --ks-pass=pass:android --ks-key-alias=androiddebugkey --key-pass=pass:android)",
+      "Bash(java -jar bundletool.jar build-apks --bundle=2.aab --output=pixora.apks --mode=universal)",
+      "Bash(cd:*)",
+      "Bash(unzip -o pixora.apks -d pixora_apks)"
+    ]
+  }
+}
