@@ -14,6 +14,9 @@ class Wallpaper {
     this.badge,
     this.sortOrder = 0,
     this.featured = false,
+    this.tags = const [],
+    this.downloadCount = 0,
+    this.createdAt,
   });
 
   final String id;
@@ -28,6 +31,9 @@ class Wallpaper {
   final String? badge;
   final int sortOrder;
   final bool featured;
+  final List<String> tags;
+  final int downloadCount;
+  final DateTime? createdAt;
 
   String get previewUrl => SupabaseConfig.imageUrl(previewFile);
   String get fullImageUrl => SupabaseConfig.imageUrl(imageFile);
@@ -51,7 +57,18 @@ class Wallpaper {
       badge: json['badge'] as String?,
       sortOrder: json['sortOrder'] as int? ?? 0,
       featured: json['featured'] as bool? ?? false,
+      tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      downloadCount: json['downloadCount'] as int? ?? 0,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
     );
+  }
+
+  /// Is this wallpaper "new" (added within last 14 days)?
+  bool get isNew {
+    if (createdAt == null) return badge == 'NEW';
+    return DateTime.now().difference(createdAt!).inDays <= 14;
   }
 
   Map<String, dynamic> toJson() => {
@@ -67,5 +84,8 @@ class Wallpaper {
         'badge': badge,
         'sortOrder': sortOrder,
         'featured': featured,
+        'tags': tags,
+        'downloadCount': downloadCount,
+        'createdAt': createdAt?.toIso8601String(),
       };
 }

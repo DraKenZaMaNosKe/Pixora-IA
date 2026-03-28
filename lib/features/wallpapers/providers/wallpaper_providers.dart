@@ -54,17 +54,31 @@ final heroBannerProvider = FutureProvider<List<Wallpaper>>((ref) async {
   return all.take(5).toList();
 });
 
-/// Trending: sorted by sortOrder (lowest = most popular), top 15.
+/// Trending: sorted by download count (highest first), fallback to sortOrder.
 final trendingWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final wallpapers = await ref.watch(catalogProvider.future);
-  final sorted = [...wallpapers]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+  final sorted = [...wallpapers]..sort((a, b) {
+    // Primary: downloadCount descending
+    if (a.downloadCount != b.downloadCount) {
+      return b.downloadCount.compareTo(a.downloadCount);
+    }
+    // Fallback: sortOrder ascending
+    return a.sortOrder.compareTo(b.sortOrder);
+  });
   return sorted.take(15).toList();
 });
 
-/// New wallpapers: those with badge == 'NEW'.
+/// New wallpapers: added within last 14 days or badge == 'NEW'.
 final newWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final wallpapers = await ref.watch(catalogProvider.future);
-  return wallpapers.where((w) => w.badge == 'NEW').take(15).toList();
+  final newOnes = wallpapers.where((w) => w.isNew).toList();
+  // Sort newest first
+  newOnes.sort((a, b) {
+    final aDate = a.createdAt ?? DateTime(2000);
+    final bDate = b.createdAt ?? DateTime(2000);
+    return bDate.compareTo(aDate);
+  });
+  return newOnes.take(15).toList();
 });
 
 /// Category rows: grouped by category, min 3 items per row.

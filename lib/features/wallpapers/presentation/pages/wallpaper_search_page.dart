@@ -17,7 +17,8 @@ final _searchResultsProvider = FutureProvider<List<Wallpaper>>((ref) async {
   return wallpapers.where((w) {
     return w.name.toLowerCase().contains(query) ||
         w.description.toLowerCase().contains(query) ||
-        w.category.toLowerCase().contains(query);
+        w.category.toLowerCase().contains(query) ||
+        w.tags.any((t) => t.toLowerCase().contains(query));
   }).toList();
 });
 
