@@ -4,7 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/services/ad_service.dart';
 import 'core/theme/app_theme.dart';
-import 'features/home/presentation/home_page.dart';
+import 'features/splash/presentation/splash_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,7 @@ class PixoraApp extends StatelessWidget {
       title: 'Pixora IA',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: const HomePage(),
+      home: const SplashPage(),
     );
   }
 }
