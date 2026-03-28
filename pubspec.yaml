@@ -23,6 +23,8 @@ dependencies:
   flutter_cache_manager: ^3.3.2
   intl: any
   google_mobile_ads: ^5.2.0
+  supabase_flutter: ^2.5.0
+  google_sign_in: ^6.2.1
 
 dependency_overrides:
   win32: 5.5.0

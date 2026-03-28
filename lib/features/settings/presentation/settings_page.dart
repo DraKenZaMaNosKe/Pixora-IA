@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/download_service.dart';
+import '../../favorites/providers/favorites_provider.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _autoRotateEnabled = false;
   bool _loading = true;
   int _intervalMinutes = 5;
@@ -99,6 +102,10 @@ class _SettingsPageState extends State<SettingsPage> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Account section
+        const _SectionHeader('Account'),
+        _buildAccountSection(),
+        const SizedBox(height: 20),
         const _SectionHeader('Auto-Rotate'),
         _loading
             ? const Padding(
@@ -197,6 +204,153 @@ class _SettingsPageState extends State<SettingsPage> {
           subtitle: 'Orbix Studio',
         ),
       ],
+    );
+  }
+
+  Widget _buildAccountSection() {
+    final auth = AuthService.instance;
+
+    if (auth.isLoggedIn) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundImage: auth.avatarUrl != null
+                      ? NetworkImage(auth.avatarUrl!)
+                      : null,
+                  backgroundColor: const Color(0xFF7C4DFF),
+                  child: auth.avatarUrl == null
+                      ? Text(
+                          (auth.displayName ?? 'U')[0].toUpperCase(),
+                          style: const TextStyle(fontSize: 20, color: Colors.white),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        auth.displayName ?? 'User',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        auth.email ?? '',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Synced',
+                    style: TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () async {
+                  await auth.signOut();
+                  if (mounted) setState(() {});
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white54,
+                  side: const BorderSide(color: Colors.white12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Sign out'),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Not logged in
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.cloud_sync, size: 40, color: Colors.white.withOpacity(0.3)),
+          const SizedBox(height: 12),
+          const Text(
+            'Sign in to sync favorites',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Keep your favorites safe across devices',
+            style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4)),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                final success = await auth.signInWithGoogle();
+                if (success && mounted) {
+                  setState(() {});
+                  // Sync favorites after login
+                  ref.read(favoritesProvider.notifier).syncWithCloud();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Signed in! Favorites synced.'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.g_mobiledata, size: 24),
+              label: const Text(
+                'Continue with Google',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black87,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Optional — app works fully without an account',
+            style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.3)),
+          ),
+        ],
+      ),
     );
   }
 
