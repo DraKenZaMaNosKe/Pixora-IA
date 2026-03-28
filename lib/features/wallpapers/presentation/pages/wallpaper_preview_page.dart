@@ -385,7 +385,8 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: glowColor,
-                                  foregroundColor: Colors.black,
+                                  foregroundColor: Colors.white,
+                                  minimumSize: const Size(double.infinity, 52),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../settings/presentation/settings_page.dart';
 import '../../stories/presentation/pages/stories_page.dart';
+import '../../day_cycle/presentation/pages/day_cycle_page.dart';
 import '../../wallpapers/presentation/pages/wallpaper_search_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';
 
@@ -19,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   static final _pages = [
     const WallpapersPage(),
     if (!Platform.isIOS) const StoriesPage(),
+    if (!Platform.isIOS) const DayCyclePage(),
     const FavoritesPage(),
     const SettingsPage(),
   ];
@@ -29,6 +31,7 @@ class _HomePageState extends State<HomePage> {
     final titles = [
       'Pixora IA',
       if (!Platform.isIOS) 'Stories',
+      if (!Platform.isIOS) 'Day Cycle',
       'Favorites',
       'Settings',
     ];
@@ -84,6 +87,11 @@ class _HomePageState extends State<HomePage> {
             const BottomNavigationBarItem(
               icon: Icon(Icons.auto_stories),
               label: 'Stories',
+            ),
+          if (!Platform.isIOS)
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.wb_twilight),
+              label: 'Day Cycle',
             ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.favorite),

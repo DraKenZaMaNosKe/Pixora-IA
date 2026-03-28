@@ -121,6 +121,33 @@ class MainActivity : FlutterActivity() {
                         AutoRotateWorker.clearCache(applicationContext)
                         result.success(true)
                     }
+                    "startDayCycle" -> {
+                        val themeId = call.argument<String>("themeId") ?: ""
+                        val morningPath = call.argument<String>("morningPath") ?: ""
+                        val afternoonPath = call.argument<String>("afternoonPath") ?: ""
+                        val eveningPath = call.argument<String>("eveningPath") ?: ""
+                        val nightPath = call.argument<String>("nightPath") ?: ""
+                        val glowColor = call.argument<String>("glowColor") ?: "#7C4DFF"
+                        val target = call.argument<Int>("target") ?: 0
+                        // Stop any active story
+                        StoryWorker.stopStory(applicationContext)
+                        val success = DayCycleWorker.start(
+                            applicationContext, themeId,
+                            morningPath, afternoonPath, eveningPath, nightPath,
+                            glowColor, target,
+                        )
+                        // Ensure live wallpaper is active for panoramic scroll
+                        if (success) ensureLiveWallpaperActive()
+                        result.success(success)
+                    }
+                    "stopDayCycle" -> {
+                        val success = DayCycleWorker.stop(applicationContext)
+                        result.success(success)
+                    }
+                    "getDayCycleStatus" -> {
+                        val status = DayCycleWorker.getStatus(applicationContext)
+                        result.success(status)
+                    }
                     else -> result.notImplemented()
                 }
             }
