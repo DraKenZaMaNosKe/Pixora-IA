@@ -45,3 +45,39 @@ final featuredWallpapersProvider =
   final wallpapers = await ref.watch(catalogProvider.future);
   return wallpapers.where((w) => w.featured).toList();
 });
+
+/// Hero banner: featured wallpapers, fallback to first 5.
+final heroBannerProvider = FutureProvider<List<Wallpaper>>((ref) async {
+  final featured = await ref.watch(featuredWallpapersProvider.future);
+  if (featured.isNotEmpty) return featured.take(6).toList();
+  final all = await ref.watch(catalogProvider.future);
+  return all.take(5).toList();
+});
+
+/// Trending: sorted by sortOrder (lowest = most popular), top 15.
+final trendingWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogProvider.future);
+  final sorted = [...wallpapers]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+  return sorted.take(15).toList();
+});
+
+/// New wallpapers: those with badge == 'NEW'.
+final newWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogProvider.future);
+  return wallpapers.where((w) => w.badge == 'NEW').take(15).toList();
+});
+
+/// Category rows: grouped by category, min 3 items per row.
+final categoryRowsProvider =
+    FutureProvider<List<({String title, List<Wallpaper> items})>>((ref) async {
+  final wallpapers = await ref.watch(catalogProvider.future);
+  final map = <String, List<Wallpaper>>{};
+  for (final w in wallpapers) {
+    if (Platform.isIOS && w.category.toUpperCase() == 'PANORAMIC') continue;
+    map.putIfAbsent(w.category, () => []).add(w);
+  }
+  return map.entries
+      .where((e) => e.value.length >= 3)
+      .map((e) => (title: e.key[0].toUpperCase() + e.key.substring(1).toLowerCase(), items: e.value))
+      .toList();
+});

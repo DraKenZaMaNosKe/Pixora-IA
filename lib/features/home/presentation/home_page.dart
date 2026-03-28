@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../settings/presentation/settings_page.dart';
 import '../../stories/presentation/pages/stories_page.dart';
+import '../../wallpapers/presentation/pages/wallpaper_search_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,28 +23,50 @@ class _HomePageState extends State<HomePage> {
     const SettingsPage(),
   ];
 
-  static final _titles = [
-    'Pixora IA',
-    if (!Platform.isIOS) 'Stories',
-    'Favorites',
-    'Settings',
-  ];
+  bool get _isWallpapersTab => _currentIndex == 0;
+
+  String get _title {
+    final titles = [
+      'Pixora IA',
+      if (!Platform.isIOS) 'Stories',
+      'Favorites',
+      'Settings',
+    ];
+    return titles[_currentIndex];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_currentIndex]),
-        actions: [
-          if (_currentIndex == 0)
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                // TODO: Search
-              },
+      extendBodyBehindAppBar: _isWallpapersTab,
+      appBar: _isWallpapersTab
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: const Text(
+                'Pixora IA',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const WallpaperSearchPage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            )
+          : AppBar(
+              title: Text(_title),
             ),
-        ],
-      ),
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,

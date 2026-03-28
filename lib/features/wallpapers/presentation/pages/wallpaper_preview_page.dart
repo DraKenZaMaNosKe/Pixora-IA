@@ -22,6 +22,7 @@ class WallpaperPreviewPage extends ConsumerStatefulWidget {
 
 class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   bool _isApplying = false;
+  double _downloadProgress = 0.0;
 
   Color _parseGlowColor() {
     try {
@@ -33,15 +34,19 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   }
 
   Future<void> _applyWallpaper(int target) async {
-    setState(() => _isApplying = true);
+    setState(() { _isApplying = true; _downloadProgress = 0.0; });
 
-    final path =
-        await DownloadService.instance.downloadWallpaper(widget.wallpaper.imageFile);
+    final path = await DownloadService.instance.downloadWallpaper(
+      widget.wallpaper.imageFile,
+      onProgress: (p) {
+        if (mounted) setState(() => _downloadProgress = p);
+      },
+    );
 
     if (path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed')),
+          const SnackBar(content: Text('Download failed. Please try again.')),
         );
       }
       setState(() => _isApplying = false);
@@ -61,12 +66,16 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   }
 
   Future<void> _saveToGallery() async {
-    setState(() => _isApplying = true);
+    setState(() { _isApplying = true; _downloadProgress = 0.0; });
 
     _showStatus('Downloading image...');
 
-    final path =
-        await DownloadService.instance.downloadWallpaper(widget.wallpaper.imageFile);
+    final path = await DownloadService.instance.downloadWallpaper(
+      widget.wallpaper.imageFile,
+      onProgress: (p) {
+        if (mounted) setState(() => _downloadProgress = p);
+      },
+    );
 
     if (path == null) {
       if (mounted) {
@@ -134,13 +143,17 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       );
     }
 
-    final path =
-        await DownloadService.instance.downloadWallpaper(widget.wallpaper.imageFile);
+    final path = await DownloadService.instance.downloadWallpaper(
+      widget.wallpaper.imageFile,
+      onProgress: (p) {
+        if (mounted) setState(() => _downloadProgress = p);
+      },
+    );
 
     if (path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed')),
+          const SnackBar(content: Text('Download failed. Please try again.')),
         );
       }
       setState(() => _isApplying = false);
@@ -328,39 +341,56 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                       SizedBox(
                         width: double.infinity,
                         height: 52,
-                        child: ElevatedButton.icon(
-                          onPressed: _isApplying ? null : _showApplyDialog,
-                          icon: _isApplying
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2),
-                                )
-                              : Icon(
+                        child: _isApplying
+                            ? Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: LinearProgressIndicator(
+                                      value: _downloadProgress > 0 ? _downloadProgress : null,
+                                      backgroundColor: Colors.white12,
+                                      valueColor: AlwaysStoppedAnimation<Color>(glowColor),
+                                      minHeight: 6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _downloadProgress >= 1.0
+                                        ? 'Applying...'
+                                        : _downloadProgress > 0
+                                            ? 'Downloading ${(_downloadProgress * 100).toInt()}%'
+                                            : 'Connecting...',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.7),
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : ElevatedButton.icon(
+                                onPressed: _showApplyDialog,
+                                icon: Icon(
                                   Platform.isIOS
                                       ? Icons.save_alt
                                       : Icons.wallpaper,
                                 ),
-                          label: Text(
-                            _isApplying
-                                ? 'Applying...'
-                                : Platform.isIOS
-                                    ? 'Save to Photos'
-                                    : 'Set Wallpaper',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: glowColor,
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                        ),
+                                label: Text(
+                                  Platform.isIOS
+                                      ? 'Save to Photos'
+                                      : 'Set Wallpaper',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: glowColor,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                              ),
                       ),
                     ],
                   ),
