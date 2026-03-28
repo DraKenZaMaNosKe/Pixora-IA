@@ -13,6 +13,25 @@ import java.io.File
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.orbix.pixora/wallpaper"
 
+    /** Check if PixoraWallpaperService is the currently active live wallpaper */
+    private fun isPixoraLiveWallpaperActive(): Boolean {
+        val manager = WallpaperManager.getInstance(applicationContext)
+        val info = manager.wallpaperInfo ?: return false
+        return info.component == ComponentName(applicationContext, PixoraWallpaperService::class.java)
+    }
+
+    /** Launch the live wallpaper picker only if not already active */
+    private fun ensureLiveWallpaperActive() {
+        if (!isPixoraLiveWallpaperActive()) {
+            val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+            intent.putExtra(
+                WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                ComponentName(this, PixoraWallpaperService::class.java)
+            )
+            startActivity(intent)
+        }
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
@@ -67,13 +86,8 @@ class MainActivity : FlutterActivity() {
                                 .putString("caption", firstCaption)
                                 .putLong("changed_at", System.currentTimeMillis())
                                 .apply()
-                            // Launch live wallpaper picker to ensure service is active
-                            val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
-                            intent.putExtra(
-                                WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                ComponentName(this@MainActivity, PixoraWallpaperService::class.java)
-                            )
-                            startActivity(intent)
+                            // Only show picker if live wallpaper isn't already active
+                            ensureLiveWallpaperActive()
                         }
                         result.success(success)
                     }
@@ -122,15 +136,11 @@ class MainActivity : FlutterActivity() {
             .putString("wallpaper_path", imagePath)
             .putString("glow_color", glowColor)
             .remove("caption")
+            .putLong("changed_at", System.currentTimeMillis())
             .apply()
 
-        // Launch the live wallpaper picker
-        val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
-        intent.putExtra(
-            WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-            ComponentName(this, PixoraWallpaperService::class.java)
-        )
-        startActivity(intent)
+        // Only show picker if live wallpaper isn't already active
+        ensureLiveWallpaperActive()
     }
 
     private fun setWallpaper(path: String, target: Int): Boolean {

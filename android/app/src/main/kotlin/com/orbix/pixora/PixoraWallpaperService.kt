@@ -130,8 +130,13 @@ class PixoraWallpaperService : WallpaperService() {
         private var currentCaption: String? = null
         private val captionTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
         private val captionBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        private var captionAlpha = 0f // for fade-in animation
+        private var captionAlpha = 0f // for fade-in/fade-out animation
         private var lastCaptionChange = 0L
+        private var lastCaptionShowTime = 0L // when the caption last became visible
+        private val captionShowDurationMs = 30_000L  // visible for 30 seconds
+        private val captionIntervalMs = 180_000L     // appear every 3 minutes
+        private val captionFadeInMs = 600f
+        private val captionFadeOutMs = 800f
 
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
@@ -207,11 +212,13 @@ class PixoraWallpaperService : WallpaperService() {
                 val color = prefs.getString("glow_color", "#7C4DFF")
                 val caption = prefs.getString("caption", null)
 
-                // Update caption with fade-in
+                // Update caption: show immediately on change, then cycle every 3 min
                 if (caption != currentCaption) {
                     currentCaption = caption
                     captionAlpha = 0f
-                    lastCaptionChange = System.currentTimeMillis()
+                    val now = System.currentTimeMillis()
+                    lastCaptionChange = now
+                    lastCaptionShowTime = now // show right away on new caption
                 }
 
                 color?.let {
@@ -1298,10 +1305,29 @@ class PixoraWallpaperService : WallpaperService() {
             val text = currentCaption ?: return
             if (text.isEmpty() || surfaceWidth <= 0) return
 
-            // Fade in over 600ms
-            val elapsed = System.currentTimeMillis() - lastCaptionChange
-            captionAlpha = min(1f, elapsed / 600f)
+            val now = System.currentTimeMillis()
+            val timeSinceShow = now - lastCaptionShowTime
+
+            // Cycle: visible for 30s, then hidden until 3 min mark
+            if (timeSinceShow > captionShowDurationMs) {
+                // Hidden phase — check if it's time to show again
+                if (timeSinceShow >= captionIntervalMs) {
+                    lastCaptionShowTime = now // start new show cycle
+                }
+                return // don't draw during hidden phase
+            }
+
+            // Fade in over 600ms, fade out over last 800ms of the 30s window
+            val timeLeft = captionShowDurationMs - timeSinceShow
+            captionAlpha = if (timeSinceShow < captionFadeInMs) {
+                timeSinceShow / captionFadeInMs
+            } else if (timeLeft < captionFadeOutMs) {
+                timeLeft / captionFadeOutMs
+            } else {
+                1f
+            }
             val alpha = (captionAlpha * 240).toInt()
+            if (alpha <= 0) return
 
             val w = surfaceWidth.toFloat()
             val h = surfaceHeight.toFloat()
