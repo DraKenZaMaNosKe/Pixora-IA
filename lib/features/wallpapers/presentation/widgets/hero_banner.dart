@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
+import '../../../../core/services/quality_service.dart';
 import '../../providers/wallpaper_providers.dart';
 import '../pages/wallpaper_preview_page.dart';
 
@@ -55,6 +56,8 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
       data: (wallpapers) {
         if (wallpapers.isEmpty) return SizedBox(height: height);
         _startAutoScroll(wallpapers.length);
+        final quality = ref.watch(imageQualityProvider);
+        final useHD = ImageQualityNotifier.shouldUseHD(quality);
         return SizedBox(
           height: height,
           child: Stack(
@@ -67,7 +70,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
                   _startAutoScroll(wallpapers.length);
                 },
                 itemBuilder: (context, index) =>
-                    _HeroPage(wallpaper: wallpapers[index]),
+                    _HeroPage(wallpaper: wallpapers[index], useHD: useHD),
               ),
               // Dot indicators
               Positioned(
@@ -102,8 +105,9 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
 }
 
 class _HeroPage extends StatelessWidget {
-  const _HeroPage({required this.wallpaper});
+  const _HeroPage({required this.wallpaper, required this.useHD});
   final Wallpaper wallpaper;
+  final bool useHD;
 
   Color get _glowColor {
     try {
@@ -126,7 +130,7 @@ class _HeroPage extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
+          CachedWallpaperImage(imageUrl: wallpaper.browseUrl(useHD)),
           // Gradient fade to background
           const DecoratedBox(
             decoration: BoxDecoration(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../../core/services/ad_service.dart';
+import '../../../../core/services/quality_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
@@ -24,6 +25,13 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   bool _isApplying = false;
   double _downloadProgress = 0.0;
 
+  /// Get the file to download based on quality setting.
+  String get _downloadFile {
+    final quality = ref.read(imageQualityProvider);
+    if (quality == ImageQuality.lq) return widget.wallpaper.previewFile;
+    return widget.wallpaper.imageFile; // HD and Auto use full image
+  }
+
   Color _parseGlowColor() {
     try {
       final hex = widget.wallpaper.glowColor.replaceFirst('#', '');
@@ -37,7 +45,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     setState(() { _isApplying = true; _downloadProgress = 0.0; });
 
     final path = await DownloadService.instance.downloadWallpaper(
-      widget.wallpaper.imageFile,
+      _downloadFile,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
@@ -71,7 +79,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     _showStatus('Downloading image...');
 
     final path = await DownloadService.instance.downloadWallpaper(
-      widget.wallpaper.imageFile,
+      _downloadFile,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
@@ -144,7 +152,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     }
 
     final path = await DownloadService.instance.downloadWallpaper(
-      widget.wallpaper.imageFile,
+      _downloadFile,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },

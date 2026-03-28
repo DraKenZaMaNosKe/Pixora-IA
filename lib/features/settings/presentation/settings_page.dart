@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/download_service.dart';
+import '../../../core/services/quality_service.dart';
 import '../../favorites/providers/favorites_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -177,6 +178,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ],
               ),
         const Divider(color: Colors.white12),
+        const _SectionHeader('Image Quality'),
+        _buildQualitySection(),
+        const SizedBox(height: 12),
+        const Divider(color: Colors.white12),
         const _SectionHeader('General'),
         _SettingsTile(
           icon: Icons.delete_outline,
@@ -204,6 +209,36 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           subtitle: 'Orbix Studio',
         ),
       ],
+    );
+  }
+
+  Widget _buildQualitySection() {
+    final quality = ref.watch(imageQualityProvider);
+    return Column(
+      children: ImageQuality.values.map((q) {
+        final isSelected = quality == q;
+        return Container(
+          margin: const EdgeInsets.only(bottom: 6),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white.withOpacity(0.08) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: isSelected ? Border.all(color: const Color(0xFF7C4DFF), width: 1) : null,
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            leading: Icon(q.icon, color: isSelected ? const Color(0xFF7C4DFF) : Colors.white38),
+            title: Text(q.label, style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white70,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            )),
+            subtitle: Text(q.description, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+            trailing: isSelected
+                ? const Icon(Icons.check_circle, color: Color(0xFF7C4DFF), size: 20)
+                : null,
+            onTap: () => ref.read(imageQualityProvider.notifier).setQuality(q),
+          ),
+        );
+      }).toList(),
     );
   }
 

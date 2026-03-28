@@ -37,6 +37,10 @@ class Wallpaper {
 
   String get previewUrl => SupabaseConfig.imageUrl(previewFile);
   String get fullImageUrl => SupabaseConfig.imageUrl(imageFile);
+
+  /// Get the browsing URL based on quality setting.
+  /// HD = full image, LQ = preview, always full when applying wallpaper.
+  String browseUrl(bool useHD) => useHD ? fullImageUrl : previewUrl;
   String get imageSizeFormatted {
     if (imageSize < 1024) return '$imageSize B';
     if (imageSize < 1024 * 1024) return '${(imageSize / 1024).toStringAsFixed(0)} KB';
