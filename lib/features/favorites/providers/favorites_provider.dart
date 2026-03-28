@@ -59,12 +59,17 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
         );
         if (entry.key != -1) await box.delete(entry.key);
         state = {...state}..remove(wallpaperId);
-        AuthService.instance.removeFavoriteRemote(wallpaperId);
+        // Sync to cloud in background (don't block UI)
+        AuthService.instance.removeFavoriteRemote(wallpaperId).catchError(
+          (e) => debugPrint('[Favorites] Remote remove failed: $e'),
+        );
       } else {
         // Add
         await box.add(wallpaperId);
         state = {...state, wallpaperId};
-        AuthService.instance.addFavoriteRemote(wallpaperId);
+        AuthService.instance.addFavoriteRemote(wallpaperId).catchError(
+          (e) => debugPrint('[Favorites] Remote add failed: $e'),
+        );
       }
     } catch (e) {
       debugPrint('[Favorites] Error in toggle($wallpaperId): $e');

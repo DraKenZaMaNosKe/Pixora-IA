@@ -74,7 +74,9 @@ class CatalogService {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/catalog_cache.json');
       await file.writeAsString(json);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Pixora] Cache write error: $e');
+    }
   }
 
   Future<List<Wallpaper>?> _loadFromCache() async {
@@ -90,7 +92,9 @@ class CatalogService {
         wallpapers.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
         return wallpapers;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Pixora] Cache read error: $e');
+    }
     return null;
   }
 }

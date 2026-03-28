@@ -79,7 +79,8 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
               title: Text(widget.theme.name,
                 style: const TextStyle(fontWeight: FontWeight.bold, shadows: [Shadow(blurRadius: 8, color: Colors.black)])),
               background: Stack(fit: StackFit.expand, children: [
-                Image.network(widget.theme.previewUrl, fit: BoxFit.cover),
+                Image.network(widget.theme.previewUrl, fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(color: const Color(0xFF1A1A2E))),
                 const DecoratedBox(decoration: BoxDecoration(
                   gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
                     colors: [Colors.transparent, Colors.black87]),
