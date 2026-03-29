@@ -167,46 +167,54 @@ class PixoraWallpaperService : WallpaperService() {
             val bmp = wallpaperBitmap ?: return
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
+            // Invalidate old bitmaps immediately to prevent drawing stale frames
+            scaledBitmap = null
+            panoramicBitmap = null
+
+            // Capture dimensions at call time (they could change during thread execution)
+            val targetW = surfaceWidth
+            val targetH = surfaceHeight
+
             Thread {
-                val srcRatio = bmp.width.toFloat() / bmp.height.toFloat()
-                val dstRatio = surfaceWidth.toFloat() / surfaceHeight.toFloat()
+                try {
+                    val srcRatio = bmp.width.toFloat() / bmp.height.toFloat()
+                    val dstRatio = targetW.toFloat() / targetH.toFloat()
 
-                isPanoramic = srcRatio > dstRatio * 1.5f
+                    val panoramic = srcRatio > dstRatio * 1.5f
 
-                if (isPanoramic) {
-                    val scaledHeight = surfaceHeight
-                    val scaledWidth = (bmp.width.toFloat() / bmp.height.toFloat() * scaledHeight).toInt()
-                    try {
-                        panoramicBitmap = Bitmap.createScaledBitmap(bmp, scaledWidth, scaledHeight, true)
+                    if (panoramic) {
+                        val scaledHeight = targetH
+                        val scaledWidth = (bmp.width.toFloat() / bmp.height.toFloat() * scaledHeight).toInt()
+                        val newPanBmp = Bitmap.createScaledBitmap(bmp, scaledWidth, scaledHeight, true)
+                        panoramicBitmap = newPanBmp
                         scaledBitmap = null
+                        isPanoramic = true
                         bmp.recycle()
                         wallpaperBitmap = null
-                        Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - surfaceWidth}px)")
-                    } catch (e: Exception) {
-                        Log.e(TAG, "createPanoramic error: ${e.message}")
-                    }
-                } else {
-                    val (cropW, cropH) = if (srcRatio > dstRatio) {
-                        Pair((bmp.height * dstRatio).toInt(), bmp.height)
+                        Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - targetW}px)")
                     } else {
-                        Pair(bmp.width, (bmp.width / dstRatio).toInt())
-                    }
+                        val (cropW, cropH) = if (srcRatio > dstRatio) {
+                            Pair((bmp.height * dstRatio).toInt(), bmp.height)
+                        } else {
+                            Pair(bmp.width, (bmp.width / dstRatio).toInt())
+                        }
 
-                    val x = (bmp.width - cropW) / 2
-                    val y = (bmp.height - cropH) / 2
+                        val x = (bmp.width - cropW) / 2
+                        val y = (bmp.height - cropH) / 2
 
-                    try {
                         val cropped = Bitmap.createBitmap(bmp, x, y, cropW, cropH)
-                        val scaled = Bitmap.createScaledBitmap(cropped, surfaceWidth, surfaceHeight, true)
+                        val scaled = Bitmap.createScaledBitmap(cropped, targetW, targetH, true)
                         if (cropped != scaled) cropped.recycle()
                         scaledBitmap = scaled
                         panoramicBitmap = null
                         isPanoramic = false
                         bmp.recycle()
                         wallpaperBitmap = null
-                    } catch (e: Exception) {
-                        Log.e(TAG, "createScaledBitmap error: ${e.message}")
                     }
+                    // Force a redraw with the new bitmap
+                    handler.post { if (drawing) drawFrame() }
+                } catch (e: Exception) {
+                    Log.e(TAG, "createScaledBitmap error: ${e.message}")
                 }
             }.start()
         }
@@ -258,8 +266,14 @@ class PixoraWallpaperService : WallpaperService() {
 
         override fun onSurfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
             super.onSurfaceChanged(holder, format, width, height)
+            val dimensionsChanged = surfaceWidth != width || surfaceHeight != height
             surfaceWidth = width
             surfaceHeight = height
+            if (dimensionsChanged) {
+                Log.d(TAG, "Surface changed: ${width}x${height}")
+                // Reload image for new dimensions (handles rotation)
+                loadWallpaperImage()
+            }
             createScaledBitmap()
             drawFrame()
         }
