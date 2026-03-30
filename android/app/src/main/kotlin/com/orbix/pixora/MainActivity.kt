@@ -2,7 +2,12 @@ package com.orbix.pixora
 
 import android.app.WallpaperManager
 import android.content.ComponentName
+import android.content.ContentValues
 import android.content.Intent
+import android.media.RingtoneManager
+import android.net.Uri
+import android.provider.MediaStore
+import android.provider.Settings as AndroidSettings
 import android.graphics.BitmapFactory
 import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
@@ -148,9 +153,111 @@ class MainActivity : FlutterActivity() {
                         val status = DayCycleWorker.getStatus(applicationContext)
                         result.success(status)
                     }
+                    "setRingtone" -> {
+                        val path = call.argument<String>("path") ?: ""
+                        val title = call.argument<String>("title") ?: "Pixora Ringtone"
+                        val type = call.argument<Int>("type") ?: 1
+                        val success = setRingtone(path, title, type)
+                        result.success(success)
+                    }
+                    "checkWriteSettingsPermission" -> {
+                        result.success(AndroidSettings.System.canWrite(applicationContext))
+                    }
+                    "requestWriteSettingsPermission" -> {
+                        val intent = Intent(AndroidSettings.ACTION_MANAGE_WRITE_SETTINGS)
+                        intent.data = Uri.parse("package:$packageName")
+                        startActivity(intent)
+                        result.success(true)
+                    }
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    private fun setRingtone(path: String, title: String, type: Int): Boolean {
+        return try {
+            // Check WRITE_SETTINGS permission
+            if (!AndroidSettings.System.canWrite(applicationContext)) {
+                val intent = Intent(AndroidSettings.ACTION_MANAGE_WRITE_SETTINGS)
+                intent.data = Uri.parse("package:${applicationContext.packageName}")
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                return false
+            }
+
+            val file = File(path)
+            if (!file.exists()) {
+                android.util.Log.e("PixoraRingtone", "File not found: $path")
+                return false
+            }
+
+            val ringtoneType = when (type) {
+                0 -> RingtoneManager.TYPE_RINGTONE
+                1 -> RingtoneManager.TYPE_NOTIFICATION
+                2 -> RingtoneManager.TYPE_ALARM
+                else -> RingtoneManager.TYPE_NOTIFICATION
+            }
+
+            val relativePath = when (type) {
+                0 -> "Ringtones"
+                1 -> "Notifications"
+                2 -> "Alarms"
+                else -> "Notifications"
+            }
+
+            // Clean filename
+            val cleanTitle = title.replace(Regex("[^a-zA-Z0-9\\s_-]"), "").trim()
+
+            // Insert into MediaStore with scoped storage
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, "$cleanTitle.mp3")
+                put(MediaStore.MediaColumns.TITLE, title)
+                put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg")
+                put(MediaStore.MediaColumns.SIZE, file.length())
+                put(MediaStore.Audio.Media.IS_RINGTONE, type == 0)
+                put(MediaStore.Audio.Media.IS_NOTIFICATION, type == 1)
+                put(MediaStore.Audio.Media.IS_ALARM, type == 2)
+                put(MediaStore.Audio.Media.IS_MUSIC, false)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+                }
+            }
+
+            // Delete existing entry with same name to avoid duplicates
+            try {
+                contentResolver.delete(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    "${MediaStore.MediaColumns.DISPLAY_NAME} = ?",
+                    arrayOf("$cleanTitle.mp3")
+                )
+            } catch (_: Exception) {}
+
+            val uri = contentResolver.insert(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                values
+            )
+
+            if (uri == null) {
+                android.util.Log.e("PixoraRingtone", "MediaStore insert returned null")
+                return false
+            }
+
+            // Copy file content to MediaStore URI
+            contentResolver.openOutputStream(uri)?.use { output ->
+                file.inputStream().use { input ->
+                    input.copyTo(output)
+                }
+            }
+
+            // Set as default
+            RingtoneManager.setActualDefaultRingtoneUri(applicationContext, ringtoneType, uri)
+
+            android.util.Log.d("PixoraRingtone", "Set '$title' as type=$type, uri=$uri, path=$relativePath")
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("PixoraRingtone", "Failed: ${e.message}", e)
+            false
+        }
     }
 
     private fun setLiveWallpaper(imagePath: String, glowColor: String) {

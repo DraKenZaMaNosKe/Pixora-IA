@@ -7,6 +7,7 @@ import '../../favorites/providers/favorites_provider.dart';
 import '../../settings/presentation/settings_page.dart';
 import '../../stories/presentation/pages/stories_page.dart';
 import '../../day_cycle/presentation/pages/day_cycle_page.dart';
+import '../../ringtones/presentation/pages/ringtones_page.dart';
 import '../../wallpapers/presentation/pages/wallpaper_search_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';
 
@@ -24,6 +25,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     const WallpapersPage(),
     if (!Platform.isIOS) const StoriesPage(),
     if (!Platform.isIOS) const DayCyclePage(),
+    if (!Platform.isIOS) const RingtonesPage(),
     const FavoritesPage(),
     const SettingsPage(),
   ];
@@ -35,6 +37,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       'Pixora IA',
       if (!Platform.isIOS) 'Stories',
       if (!Platform.isIOS) 'Day Cycle',
+      if (!Platform.isIOS) 'Sounds',
       'Favorites',
       'Settings',
     ];
@@ -205,6 +208,11 @@ class _HomePageState extends ConsumerState<HomePage> {
             const BottomNavigationBarItem(
               icon: Icon(Icons.wb_twilight),
               label: 'Day Cycle',
+            ),
+          if (!Platform.isIOS)
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.music_note),
+              label: 'Sounds',
             ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
