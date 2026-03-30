@@ -191,6 +191,11 @@ class MainActivity : FlutterActivity() {
                 return false
             }
 
+            if (file.length() == 0L) {
+                android.util.Log.e("PixoraRingtone", "File is empty: $path")
+                return false
+            }
+
             val ringtoneType = when (type) {
                 0 -> RingtoneManager.TYPE_RINGTONE
                 1 -> RingtoneManager.TYPE_NOTIFICATION
@@ -205,32 +210,35 @@ class MainActivity : FlutterActivity() {
                 else -> "Notifications"
             }
 
-            // Clean filename
-            val cleanTitle = title.replace(Regex("[^a-zA-Z0-9\\s_-]"), "").trim()
-
-            // Insert into MediaStore with scoped storage
-            val values = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, "$cleanTitle.mp3")
-                put(MediaStore.MediaColumns.TITLE, title)
-                put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg")
-                put(MediaStore.MediaColumns.SIZE, file.length())
-                put(MediaStore.Audio.Media.IS_RINGTONE, type == 0)
-                put(MediaStore.Audio.Media.IS_NOTIFICATION, type == 1)
-                put(MediaStore.Audio.Media.IS_ALARM, type == 2)
-                put(MediaStore.Audio.Media.IS_MUSIC, false)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
-                }
-            }
+            // Clean filename — keep alphanumeric, spaces, dashes, underscores
+            var cleanTitle = title.replace(Regex("[^a-zA-Z0-9\\s_-]"), "").trim()
+            if (cleanTitle.isEmpty()) cleanTitle = "Pixora_${System.currentTimeMillis()}"
+            val fileName = "$cleanTitle.mp3"
 
             // Delete existing entry with same name to avoid duplicates
             try {
                 contentResolver.delete(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     "${MediaStore.MediaColumns.DISPLAY_NAME} = ?",
-                    arrayOf("$cleanTitle.mp3")
+                    arrayOf(fileName)
                 )
             } catch (_: Exception) {}
+
+            // Insert into MediaStore with IS_PENDING=1 so we can write before it's visible
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.TITLE, title)
+                put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg")
+                put(MediaStore.MediaColumns.SIZE, file.length())
+                put(MediaStore.Audio.Media.IS_RINGTONE, type == 0 || type == 1 || type == 2)
+                put(MediaStore.Audio.Media.IS_NOTIFICATION, type == 0 || type == 1 || type == 2)
+                put(MediaStore.Audio.Media.IS_ALARM, type == 0 || type == 1 || type == 2)
+                put(MediaStore.Audio.Media.IS_MUSIC, false)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
+            }
 
             val uri = contentResolver.insert(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -243,16 +251,34 @@ class MainActivity : FlutterActivity() {
             }
 
             // Copy file content to MediaStore URI
-            contentResolver.openOutputStream(uri)?.use { output ->
-                file.inputStream().use { input ->
-                    input.copyTo(output)
-                }
+            val outputStream = contentResolver.openOutputStream(uri)
+            if (outputStream == null) {
+                android.util.Log.e("PixoraRingtone", "Failed to open output stream for $uri")
+                // Clean up the empty entry
+                try { contentResolver.delete(uri, null, null) } catch (_: Exception) {}
+                return false
             }
 
-            // Set as default
+            outputStream.use { output ->
+                file.inputStream().use { input ->
+                    val bytesCopied = input.copyTo(output)
+                    android.util.Log.d("PixoraRingtone", "Copied $bytesCopied bytes to MediaStore")
+                }
+                output.flush()
+            }
+
+            // Mark as no longer pending — makes the file visible to the system
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val updateValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.IS_PENDING, 0)
+                }
+                contentResolver.update(uri, updateValues, null, null)
+            }
+
+            // Set as default ringtone/notification/alarm
             RingtoneManager.setActualDefaultRingtoneUri(applicationContext, ringtoneType, uri)
 
-            android.util.Log.d("PixoraRingtone", "Set '$title' as type=$type, uri=$uri, path=$relativePath")
+            android.util.Log.d("PixoraRingtone", "SUCCESS: Set '$title' as type=$type, uri=$uri, path=$relativePath")
             true
         } catch (e: Exception) {
             android.util.Log.e("PixoraRingtone", "Failed: ${e.message}", e)

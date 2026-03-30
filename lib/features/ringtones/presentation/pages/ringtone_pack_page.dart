@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../data/models/ringtone_pack.dart';
 
@@ -10,9 +13,12 @@ class RingtonePackPage extends StatefulWidget {
   State<RingtonePackPage> createState() => _RingtonePackPageState();
 }
 
-class _RingtonePackPageState extends State<RingtonePackPage> {
+class _RingtonePackPageState extends State<RingtonePackPage>
+    with TickerProviderStateMixin {
+  final AudioPlayer _player = AudioPlayer();
   String? _playingId;
   String? _settingId;
+  late final AnimationController _entranceController;
 
   Color get _glowColor {
     try {
@@ -32,17 +38,110 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     }
   }
 
-  String _typeLabel(String type) {
-    switch (type) {
-      case 'ringtone': return 'Ringtone';
-      case 'notification': return 'Notification';
-      case 'alarm': return 'Alarm';
-      default: return 'Sound';
+  /// Default icon per tone based on name keywords
+  IconData _defaultIcon(RingtoneTone tone) {
+    final n = tone.name.toLowerCase();
+    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin') || n.contains('powerup') || n.contains('jump') || n.contains('level')) return Icons.videogame_asset;
+    if (n.contains('goku') || n.contains('saiyan') || n.contains('kamehameha') || n.contains('dragon') || n.contains('dbgt')) return Icons.flash_on;
+    if (n.contains('zelda') || n.contains('navi') || n.contains('hyrule') || n.contains('fairy') || n.contains('guardian') || n.contains('rupee') || n.contains('ocarina')) return Icons.shield;
+    if (n.contains('homero') || n.contains('simpson') || n.contains('bob') || n.contains('esponja') || n.contains('sponge') || n.contains('patricio') || n.contains('patan')) return Icons.tv;
+    if (n.contains('death') || n.contains('note')) return Icons.menu_book;
+    if (n.contains('shrek')) return Icons.forest;
+    if (n.contains('phone') || n.contains('rotary') || n.contains('classic') || n.contains('vintage') || n.contains('retro') || n.contains('nokia')) return Icons.phone_callback;
+    if (n.contains('iphone') || n.contains('modern') || n.contains('digital') || n.contains('electronic') || n.contains('future') || n.contains('sci')) return Icons.smartphone;
+    if (n.contains('soft') || n.contains('gentle') || n.contains('morning') || n.contains('ambient') || n.contains('chill') || n.contains('calm') || n.contains('mystery')) return Icons.spa;
+    if (n.contains('alarm') || n.contains('alert')) return Icons.alarm;
+    if (n.contains('minecraft') || n.contains('tnt')) return Icons.landscape;
+    if (n.contains('fnaf')) return Icons.nights_stay;
+    if (n.contains('hadouken') || n.contains('street')) return Icons.sports_mma;
+    if (n.contains('fall guys')) return Icons.emoji_events;
+    if (n.contains('casa') || n.contains('papel')) return Icons.masks;
+    if (n.contains('hazbin') || n.contains('alastor')) return Icons.local_fire_department;
+    if (n.contains('pou')) return Icons.pets;
+    if (n.contains('kill bill')) return Icons.content_cut;
+    if (n.contains('huawei') || n.contains('havana')) return Icons.music_note;
+    return Icons.music_note;
+  }
+
+  /// Gradient colors per tone based on category/name
+  List<Color> _defaultGradient(RingtoneTone tone) {
+    final n = tone.name.toLowerCase();
+    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin')) return [const Color(0xFFE52521), const Color(0xFF8B0000)];
+    if (n.contains('goku') || n.contains('saiyan') || n.contains('kamehameha') || n.contains('dbgt')) return [const Color(0xFFFF8C00), const Color(0xFF8B4513)];
+    if (n.contains('zelda') || n.contains('navi') || n.contains('hyrule') || n.contains('fairy') || n.contains('rupee')) return [const Color(0xFF00FF7F), const Color(0xFF006400)];
+    if (n.contains('homero') || n.contains('simpson')) return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
+    if (n.contains('bob') || n.contains('esponja') || n.contains('sponge') || n.contains('patricio')) return [const Color(0xFFFFEB3B), const Color(0xFF795548)];
+    if (n.contains('death') || n.contains('note')) return [const Color(0xFF9C27B0), const Color(0xFF311B92)];
+    if (n.contains('shrek')) return [const Color(0xFF4CAF50), const Color(0xFF1B5E20)];
+    if (n.contains('nokia') || n.contains('retro') || n.contains('vintage') || n.contains('classic') || n.contains('rotary')) return [const Color(0xFFFFD700), const Color(0xFF5D4037)];
+    if (n.contains('iphone') || n.contains('modern') || n.contains('digital') || n.contains('future')) return [const Color(0xFF00B4D8), const Color(0xFF0D47A1)];
+    if (n.contains('soft') || n.contains('gentle') || n.contains('ambient') || n.contains('chill') || n.contains('morning')) return [const Color(0xFF7C4DFF), const Color(0xFF1A237E)];
+    if (n.contains('minecraft')) return [const Color(0xFF4CAF50), const Color(0xFF33691E)];
+    if (n.contains('fnaf')) return [const Color(0xFF7B1FA2), const Color(0xFF12005E)];
+    if (n.contains('hadouken')) return [const Color(0xFF2196F3), const Color(0xFF0D47A1)];
+    if (n.contains('fall guys')) return [const Color(0xFFE91E63), const Color(0xFF880E4F)];
+    if (n.contains('hazbin') || n.contains('alastor')) return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
+    if (n.contains('casa') || n.contains('papel')) return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
+    if (n.contains('pou')) return [const Color(0xFF795548), const Color(0xFF3E2723)];
+    return [_glowColor, _glowColor.withOpacity(0.3)];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    _entranceController.dispose();
+    super.dispose();
+  }
+
+  // ── Preview playback ──────────────────────────────────────────────
+
+  Future<void> _togglePreview(RingtoneTone tone) async {
+    if (_playingId == tone.id) {
+      await _player.stop();
+      setState(() => _playingId = null);
+      return;
+    }
+
+    setState(() => _playingId = tone.id);
+
+    try {
+      await _player.stop();
+      await _player.setUrl(tone.fileUrl);
+      _player.play();
+
+      _player.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          if (mounted) setState(() => _playingId = null);
+        }
+      });
+    } catch (e) {
+      debugPrint('[Pixora] Preview failed: $e');
+      if (mounted) {
+        setState(() => _playingId = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not play preview'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
+  // ── Set as ringtone/notification/alarm ─────────────────────────────
+
   Future<void> _setAs(RingtoneTone tone, int type) async {
-    // Check permission first
+    if (_playingId != null) {
+      await _player.stop();
+      setState(() => _playingId = null);
+    }
+
     final hasPermission = await RingtoneService.instance.checkPermission();
     if (!hasPermission) {
       if (mounted) await _showPermissionDialog(tone, type);
@@ -164,163 +263,391 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     );
   }
 
+  // ── Build ─────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    final notifications = widget.pack.notificationTones;
-    final ringtones = widget.pack.ringtoneTones;
-    final alarms = widget.pack.alarmTones;
+    final allTones = widget.pack.tones;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0F),
-      appBar: AppBar(
-        title: Text(widget.pack.name),
-        backgroundColor: const Color(0xFF0A0A0F),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Pack header
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                colors: [_glowColor.withOpacity(0.15), Colors.transparent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+      body: CustomScrollView(
+        slivers: [
+          // Collapsing header with pack info
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            backgroundColor: const Color(0xFF0A0A0F),
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(widget.pack.name, style: const TextStyle(fontSize: 16)),
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [_glowColor.withOpacity(0.3), const Color(0xFF0A0A0F)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 40),
+                      Icon(Icons.library_music, color: _glowColor, size: 52),
+                      const SizedBox(height: 10),
+                      Text(
+                        widget.pack.description,
+                        style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _glowColor.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${allTones.length} sounds  •  Tap to preview',
+                          style: TextStyle(color: _glowColor, fontSize: 11),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            child: Column(
-              children: [
-                Icon(Icons.library_music, color: _glowColor, size: 48),
-                const SizedBox(height: 12),
-                Text(widget.pack.name,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(widget.pack.description,
-                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
-                    textAlign: TextAlign.center),
-                const SizedBox(height: 8),
-                Text('${widget.pack.tones.length} sounds',
-                    style: TextStyle(color: _glowColor, fontSize: 12)),
-              ],
+          ),
+
+          // Grid of tone cards
+          SliverPadding(
+            padding: const EdgeInsets.all(12),
+            sliver: SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final tone = allTones[index];
+                  // Staggered entrance
+                  final stagger = (index * 0.04).clamp(0.0, 0.7);
+                  final progress = ((_entranceController.value - stagger) / (1.0 - stagger)).clamp(0.0, 1.0);
+                  final fade = Curves.easeOut.transform(progress);
+                  final scale = 0.8 + 0.2 * Curves.easeOutBack.transform(progress);
+
+                  return AnimatedBuilder(
+                    animation: _entranceController,
+                    builder: (_, __) => Opacity(
+                      opacity: fade,
+                      child: Transform.scale(
+                        scale: scale,
+                        child: _VisualToneCard(
+                          tone: tone,
+                          glowColor: _glowColor,
+                          typeIcon: _typeIcon(tone.suggestedType),
+                          defaultIcon: _defaultIcon(tone),
+                          defaultGradient: _defaultGradient(tone),
+                          isPlaying: _playingId == tone.id,
+                          isSetting: _settingId == tone.id,
+                          onPlay: () => _togglePreview(tone),
+                          onSetAs: () => _showSetAsDialog(tone),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                childCount: allTones.length,
+              ),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 0.78,
+              ),
             ),
           ),
-          const SizedBox(height: 20),
 
-          // Notifications section
-          if (notifications.isNotEmpty) ...[
-            _SectionHeader(title: 'Notifications', icon: Icons.notifications, color: _glowColor),
-            ...notifications.map((t) => _ToneCard(
-              tone: t, glowColor: _glowColor, typeIcon: _typeIcon(t.suggestedType),
-              isSetting: _settingId == t.id,
-              onSetAs: () => _showSetAsDialog(t),
-            )),
-          ],
-
-          // Ringtones section
-          if (ringtones.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _SectionHeader(title: 'Ringtones', icon: Icons.phone_in_talk, color: _glowColor),
-            ...ringtones.map((t) => _ToneCard(
-              tone: t, glowColor: _glowColor, typeIcon: _typeIcon(t.suggestedType),
-              isSetting: _settingId == t.id,
-              onSetAs: () => _showSetAsDialog(t),
-            )),
-          ],
-
-          // Alarms section
-          if (alarms.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _SectionHeader(title: 'Alarms', icon: Icons.alarm, color: _glowColor),
-            ...alarms.map((t) => _ToneCard(
-              tone: t, glowColor: _glowColor, typeIcon: _typeIcon(t.suggestedType),
-              isSetting: _settingId == t.id,
-              onSetAs: () => _showSetAsDialog(t),
-            )),
-          ],
-
-          const SizedBox(height: 32),
+          const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
         ],
       ),
     );
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Color color;
-  const _SectionHeader({required this.title, required this.icon, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(width: 8),
-          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
-        ],
-      ),
-    );
-  }
-}
-
-class _ToneCard extends StatelessWidget {
+/// Visual card for each tone — shows preview image or themed gradient placeholder
+class _VisualToneCard extends StatelessWidget {
   final RingtoneTone tone;
   final Color glowColor;
   final IconData typeIcon;
+  final IconData defaultIcon;
+  final List<Color> defaultGradient;
+  final bool isPlaying;
   final bool isSetting;
+  final VoidCallback onPlay;
   final VoidCallback onSetAs;
 
-  const _ToneCard({
+  const _VisualToneCard({
     required this.tone,
     required this.glowColor,
     required this.typeIcon,
+    required this.defaultIcon,
+    required this.defaultGradient,
+    required this.isPlaying,
     required this.isSetting,
+    required this.onPlay,
     required this.onSetAs,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        leading: Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: glowColor.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(typeIcon, color: glowColor, size: 20),
+    final hasImage = tone.previewImageUrl.isNotEmpty;
+
+    return GestureDetector(
+      onTap: onPlay,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: isPlaying
+              ? Border.all(color: glowColor, width: 2)
+              : Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+          boxShadow: isPlaying
+              ? [BoxShadow(color: glowColor.withOpacity(0.3), blurRadius: 16, spreadRadius: 2)]
+              : [BoxShadow(color: glowColor.withOpacity(0.08), blurRadius: 8)],
         ),
-        title: Text(tone.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-        subtitle: Text(tone.durationFormatted,
-            style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.4))),
-        trailing: isSetting
-            ? SizedBox(
-                width: 24, height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2, color: glowColor),
-              )
-            : ElevatedButton(
-                onPressed: onSetAs,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: glowColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  minimumSize: const Size(0, 34),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Background: image or gradient placeholder
+              if (hasImage)
+                CachedNetworkImage(
+                  imageUrl: tone.previewImageUrl,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, __, ___) => _GradientPlaceholder(
+                    icon: defaultIcon,
+                    gradient: defaultGradient,
+                  ),
+                )
+              else
+                _GradientPlaceholder(
+                  icon: defaultIcon,
+                  gradient: defaultGradient,
                 ),
-                child: const Text('Set as...', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+
+              // Dark overlay for text readability
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.3),
+                      Colors.black.withOpacity(0.85),
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
+                ),
               ),
+
+              // Type badge (top-left)
+              Positioned(
+                top: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(typeIcon, size: 10, color: glowColor),
+                      const SizedBox(width: 3),
+                      Text(
+                        tone.durationFormatted,
+                        style: const TextStyle(fontSize: 9, color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Play/stop indicator (center)
+              if (isPlaying)
+                Center(
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: glowColor.withOpacity(0.9),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: glowColor.withOpacity(0.5), blurRadius: 20),
+                      ],
+                    ),
+                    child: const Icon(Icons.stop_rounded, color: Colors.white, size: 28),
+                  ),
+                )
+              else if (!isSetting)
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 26),
+                  ),
+                ),
+
+              // Loading spinner
+              if (isSetting)
+                Center(
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: glowColor),
+                    ),
+                  ),
+                ),
+
+              // Playing wave indicator
+              if (isPlaying)
+                Positioned(
+                  bottom: 46,
+                  left: 0,
+                  right: 0,
+                  child: Center(child: _PlayingWave(color: glowColor)),
+                ),
+
+              // Bottom info + set button
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tone.name,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 30,
+                        child: ElevatedButton(
+                          onPressed: isSetting ? null : onSetAs,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: glowColor,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('Set as...', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Gradient placeholder when no preview image is available
+class _GradientPlaceholder extends StatelessWidget {
+  final IconData icon;
+  final List<Color> gradient;
+
+  const _GradientPlaceholder({required this.icon, required this.gradient});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradient,
+        ),
+      ),
+      child: Center(
+        child: Icon(icon, size: 48, color: Colors.white.withOpacity(0.25)),
+      ),
+    );
+  }
+}
+
+/// Animated wave bars for playing state
+class _PlayingWave extends StatefulWidget {
+  final Color color;
+  const _PlayingWave({required this.color});
+
+  @override
+  State<_PlayingWave> createState() => _PlayingWaveState();
+}
+
+class _PlayingWaveState extends State<_PlayingWave>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, __) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(5, (i) {
+          final phase = (_controller.value + i * 0.15) % 1.0;
+          final h = 6.0 + 14.0 * (0.5 + 0.5 * math.sin(phase * math.pi * 2));
+          return Container(
+            width: 3,
+            height: h,
+            margin: const EdgeInsets.symmetric(horizontal: 1.5),
+            decoration: BoxDecoration(
+              color: widget.color,
+              borderRadius: BorderRadius.circular(2),
+              boxShadow: [BoxShadow(color: widget.color.withOpacity(0.4), blurRadius: 4)],
+            ),
+          );
+        }),
       ),
     );
   }

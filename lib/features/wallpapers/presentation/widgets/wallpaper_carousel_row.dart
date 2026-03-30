@@ -4,7 +4,7 @@ import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 
-class WallpaperCarouselRow extends StatelessWidget {
+class WallpaperCarouselRow extends StatefulWidget {
   const WallpaperCarouselRow({
     required this.title,
     required this.items,
@@ -19,54 +19,126 @@ class WallpaperCarouselRow extends StatelessWidget {
   final double cardWidth;
 
   @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) return const SizedBox.shrink();
+  State<WallpaperCarouselRow> createState() => _WallpaperCarouselRowState();
+}
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section header
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
+    with SingleTickerProviderStateMixin {
+  late final ScrollController _scrollController;
+  late final AnimationController _entranceController;
+  bool _hasAnimated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    // Trigger entrance animation after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_hasAnimated) {
+        _hasAnimated = true;
+        _entranceController.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _entranceController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.items.isEmpty) return const SizedBox.shrink();
+
+    return AnimatedBuilder(
+      animation: _entranceController,
+      builder: (_, __) {
+        final slideValue = Curves.easeOutCubic.transform(_entranceController.value);
+        final fadeValue = Curves.easeOut.transform(_entranceController.value);
+
+        return Opacity(
+          opacity: fadeValue,
+          child: Transform.translate(
+            offset: Offset(0, 30 * (1 - slideValue)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Section header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+                  child: Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                // Horizontal list with scroll-driven effects
+                SizedBox(
+                  height: widget.cardHeight,
+                  child: AnimatedBuilder(
+                    animation: _scrollController,
+                    builder: (context, _) => ListView.builder(
+                      controller: _scrollController,
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemCount: widget.items.length,
+                      cacheExtent: 500,
+                      itemBuilder: (context, index) {
+                        // Staggered entrance per card
+                        final stagger = (index * 0.08).clamp(0.0, 0.6);
+                        final cardProgress = ((_entranceController.value - stagger) / (1.0 - stagger)).clamp(0.0, 1.0);
+                        final cardFade = Curves.easeOut.transform(cardProgress);
+                        final cardScale = 0.85 + 0.15 * Curves.easeOutBack.transform(cardProgress);
+
+                        return Opacity(
+                          opacity: cardFade,
+                          child: Transform.scale(
+                            scale: cardScale,
+                            child: _ParallaxCarouselCard(
+                              wallpaper: widget.items[index],
+                              width: widget.cardWidth,
+                              height: widget.cardHeight,
+                              scrollController: _scrollController,
+                              index: index,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        // Horizontal list
-        SizedBox(
-          height: cardHeight,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: items.length,
-            cacheExtent: 500,
-            itemBuilder: (context, index) => _CarouselCard(
-              wallpaper: items[index],
-              width: cardWidth,
-              height: cardHeight,
-            ),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
 
-class _CarouselCard extends StatelessWidget {
-  const _CarouselCard({
+class _ParallaxCarouselCard extends StatelessWidget {
+  const _ParallaxCarouselCard({
     required this.wallpaper,
     required this.width,
     required this.height,
+    required this.scrollController,
+    required this.index,
   });
 
   final Wallpaper wallpaper;
   final double width;
   final double height;
+  final ScrollController scrollController;
+  final int index;
 
   Color get _glowColor {
     try {
@@ -77,8 +149,21 @@ class _CarouselCard extends StatelessWidget {
     }
   }
 
+  double _getParallaxOffset(BuildContext context) {
+    if (!scrollController.hasClients) return 0.0;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scrollOffset = scrollController.offset;
+    final cardPosition = index * (width + 12) + 12 - scrollOffset;
+    final center = screenWidth / 2;
+    final cardCenter = cardPosition + width / 2;
+    final distFromCenter = (cardCenter - center) / center;
+    return distFromCenter * -15.0; // subtle parallax
+  }
+
   @override
   Widget build(BuildContext context) {
+    final parallaxOffset = _getParallaxOffset(context);
+
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -104,7 +189,14 @@ class _CarouselCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
+              // Parallax image
+              Transform.translate(
+                offset: Offset(parallaxOffset, 0),
+                child: Transform.scale(
+                  scale: 1.1, // slightly oversized for parallax room
+                  child: CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
+                ),
+              ),
               // Bottom gradient
               const Positioned(
                 bottom: 0,

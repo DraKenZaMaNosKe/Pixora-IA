@@ -6,6 +6,7 @@ class RingtoneTone {
   final String file;
   final int duration;
   final String suggestedType; // ringtone, notification, alarm
+  final String previewImage; // per-tone preview image
 
   const RingtoneTone({
     required this.id,
@@ -13,9 +14,14 @@ class RingtoneTone {
     required this.file,
     required this.duration,
     required this.suggestedType,
+    this.previewImage = '',
   });
 
   String get fileUrl => '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$file';
+
+  String get previewImageUrl => previewImage.isEmpty
+      ? ''
+      : '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$previewImage';
 
   String get durationFormatted {
     if (duration < 60) return '${duration}s';
@@ -29,6 +35,7 @@ class RingtoneTone {
       file: json['file'] as String? ?? '',
       duration: json['duration'] as int? ?? 0,
       suggestedType: json['suggestedType'] as String? ?? 'notification',
+      previewImage: json['previewImage'] as String? ?? '',
     );
   }
 }

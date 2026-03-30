@@ -25,9 +25,10 @@ dependencies:
   google_mobile_ads: ^5.2.0
   supabase_flutter: ^2.5.0
   google_sign_in: ^6.2.1
+  just_audio: ^0.9.40
 
 dependency_overrides:
-  win32: 5.5.0
+  win32: 5.7.1
 
 dev_dependencies:
   flutter_test:
