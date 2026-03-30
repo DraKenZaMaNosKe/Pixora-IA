@@ -1,0 +1,137 @@
+{
+  "version": 2,
+  "packs": [
+    {
+      "id": "zelda_pack",
+      "name": "Legend of Zelda",
+      "description": "Iconic sounds from Hyrule. Ocarina melodies, fairy fountains, and adventure alerts.",
+      "previewImage": "dyn_zelda_receive_item_preview.webp",
+      "glowColor": "#00FF7F",
+      "category": "GAMING",
+      "tones": [
+        { "id": "zelda_navi", "name": "Navi - Hey Listen!", "file": "ringtones/zelda/navi_hey_listen.mp3", "duration": 2, "suggestedType": "notification" },
+        { "id": "zelda_receive_item", "name": "Receive Item", "file": "ringtones/zelda/zelda_receive_item.mp3", "duration": 5, "suggestedType": "notification" },
+        { "id": "zelda_heart_container", "name": "Heart Container", "file": "ringtones/zelda/heart_container.mp3", "duration": 3, "suggestedType": "notification" },
+        { "id": "zelda_rupee", "name": "Rupee Collect", "file": "ringtones/zelda/rupee_collect.mp3", "duration": 4, "suggestedType": "notification" },
+        { "id": "zelda_song_of_time", "name": "Song of Time", "file": "ringtones/zelda/song_of_time.mp3", "duration": 18, "suggestedType": "ringtone" },
+        { "id": "zelda_fairy_fountain", "name": "Fairy Fountain", "file": "ringtones/zelda/fairy_fountain.mp3", "duration": 30, "suggestedType": "ringtone" },
+        { "id": "zelda_hyrule_field", "name": "Hyrule Field", "file": "ringtones/zelda/hyrule_field.mp3", "duration": 35, "suggestedType": "ringtone" },
+        { "id": "zelda_game_over", "name": "Game Over", "file": "ringtones/zelda/game_over.mp3", "duration": 8, "suggestedType": "alarm" },
+        { "id": "zelda_guardian", "name": "Guardian Alert (BOTW)", "file": "ringtones/zelda/guardian_alert.mp3", "duration": 10, "suggestedType": "alarm" }
+      ]
+    },
+    {
+      "id": "gaming_pack",
+      "name": "Gaming",
+      "description": "Epic sounds from Mario, Dragon Ball, Street Fighter, Minecraft and more",
+      "previewImage": "",
+      "glowColor": "#FF4500",
+      "category": "GAMING",
+      "tones": [
+        { "id": "mario_coin", "name": "Mario Coin", "file": "ringtones/gaming/mario_coin.mp3", "duration": 2, "suggestedType": "notification" },
+        { "id": "mario_level_clear", "name": "Mario Level Clear", "file": "ringtones/gaming/mario_level_clear.mp3", "duration": 7, "suggestedType": "notification" },
+        { "id": "mario_game_over", "name": "Mario Game Over", "file": "ringtones/gaming/mario_game_over.mp3", "duration": 7, "suggestedType": "alarm" },
+        { "id": "mario_jump", "name": "Mario Jump", "file": "ringtones/gaming/mario_jump.mp3", "duration": 3, "suggestedType": "notification" },
+        { "id": "mario_powerup", "name": "Mario PowerUp", "file": "ringtones/gaming/mario_powerup.mp3", "duration": 4, "suggestedType": "notification" },
+        { "id": "mario_bros_3", "name": "Mario Bros 3", "file": "ringtones/gaming/mario_bros_3.mp3", "duration": 15, "suggestedType": "ringtone" },
+        { "id": "hadouken", "name": "Hadouken", "file": "ringtones/gaming/hadouken.mp3", "duration": 5, "suggestedType": "notification" },
+        { "id": "super_saiyan", "name": "Super Saiyan PowerUp", "file": "ringtones/gaming/super_saiyan.mp3", "duration": 5, "suggestedType": "notification" },
+        { "id": "kamehameha", "name": "Kamehameha", "file": "ringtones/gaming/kamehameha.mp3", "duration": 7, "suggestedType": "notification" },
+        { "id": "goku_notification", "name": "Goku Notification", "file": "ringtones/gaming/goku_notification.mp3", "duration": 5, "suggestedType": "notification" },
+        { "id": "goku_ultra_instinct", "name": "Goku Ultra Instinct", "file": "ringtones/gaming/goku_ultra_instinct.mp3", "duration": 20, "suggestedType": "ringtone" },
+        { "id": "dbgt_mi_corazon", "name": "DBGT Mi Corazon Encantado", "file": "ringtones/gaming/dbgt_mi_corazon.mp3", "duration": 30, "suggestedType": "ringtone" },
+        { "id": "fall_guys", "name": "Fall Guys", "file": "ringtones/gaming/fall_guys.mp3", "duration": 22, "suggestedType": "notification" },
+        { "id": "yoshi_theme", "name": "Yoshi Theme", "file": "ringtones/gaming/yoshi_theme.mp3", "duration": 18, "suggestedType": "ringtone" },
+        { "id": "minecraft_tnt", "name": "Minecraft TNT", "file": "ringtones/gaming/minecraft_tnt.mp3", "duration": 3, "suggestedType": "notification" },
+        { "id": "fnaf_melody", "name": "FNAF Melody", "file": "ringtones/gaming/fnaf_melody.mp3", "duration": 7, "suggestedType": "ringtone" },
+        { "id": "zelda_ringtone", "name": "Zelda Ringtone", "file": "ringtones/gaming/zelda_ringtone.mp3", "duration": 7, "suggestedType": "ringtone" }
+      ]
+    },
+    {
+      "id": "anime_tv_pack",
+      "name": "Anime & TV",
+      "description": "Fun tones from The Simpsons, SpongeBob, Death Note, Shrek and more",
+      "previewImage": "",
+      "glowColor": "#FF6090",
+      "category": "ANIME_TV",
+      "tones": [
+        { "id": "homero_llamada", "name": "Homero Llamada", "file": "ringtones/anime_tv/homero_llamada.mp3", "duration": 15, "suggestedType": "ringtone" },
+        { "id": "homero_notification", "name": "Homero Notification", "file": "ringtones/anime_tv/homero_notification.mp3", "duration": 6, "suggestedType": "notification" },
+        { "id": "death_note", "name": "Death Note", "file": "ringtones/anime_tv/death_note.mp3", "duration": 5, "suggestedType": "notification" },
+        { "id": "alastor_hazbin", "name": "Alastor Hazbin", "file": "ringtones/anime_tv/alastor_hazbin.mp3", "duration": 6, "suggestedType": "ringtone" },
+        { "id": "casa_papel_piano", "name": "La Casa de Papel Piano", "file": "ringtones/anime_tv/casa_papel_piano.mp3", "duration": 12, "suggestedType": "ringtone" },
+        { "id": "casa_papel", "name": "La Casa de Papel", "file": "ringtones/anime_tv/casa_papel.mp3", "duration": 15, "suggestedType": "ringtone" },
+        { "id": "shrek", "name": "Shrek", "file": "ringtones/anime_tv/shrek.mp3", "duration": 12, "suggestedType": "ringtone" },
+        { "id": "perro_patan", "name": "Perro Patan", "file": "ringtones/anime_tv/perro_patan.mp3", "duration": 2, "suggestedType": "notification" },
+        { "id": "patricio_me_captas", "name": "Patricio Me Captas", "file": "ringtones/anime_tv/patricio_me_captas.mp3", "duration": 6, "suggestedType": "ringtone" },
+        { "id": "spongebob_fail", "name": "SpongeBob Fail", "file": "ringtones/anime_tv/spongebob_fail.mp3", "duration": 7, "suggestedType": "notification" },
+        { "id": "bob_esponja_flauta", "name": "Bob Esponja Flauta", "file": "ringtones/anime_tv/bob_esponja_flauta.mp3", "duration": 7, "suggestedType": "ringtone" }
+      ]
+    },
+    {
+      "id": "retro_classic_pack",
+      "name": "Retro & Classic",
+      "description": "Nostalgic phone rings from the 60s to 90s, vintage alarms and Nokia classics",
+      "previewImage": "",
+      "glowColor": "#FFD700",
+      "category": "RETRO_CLASSIC",
+      "tones": [
+        { "id": "uk_classic", "name": "UK Classic", "file": "ringtones/retro_classic/uk_classic.mp3", "duration": 30, "suggestedType": "ringtone" },
+        { "id": "90s_mobile", "name": "90s Mobile", "file": "ringtones/retro_classic/90s_mobile.mp3", "duration": 7, "suggestedType": "ringtone" },
+        { "id": "90s_home_phone", "name": "90s Home Phone", "file": "ringtones/retro_classic/90s_home_phone.mp3", "duration": 10, "suggestedType": "ringtone" },
+        { "id": "90s_digital", "name": "90s Digital", "file": "ringtones/retro_classic/90s_digital.mp3", "duration": 28, "suggestedType": "ringtone" },
+        { "id": "classic_digital", "name": "Classic Digital", "file": "ringtones/retro_classic/classic_digital.mp3", "duration": 30, "suggestedType": "ringtone" },
+        { "id": "classic_retro", "name": "Classic Retro", "file": "ringtones/retro_classic/classic_retro.mp3", "duration": 10, "suggestedType": "ringtone" },
+        { "id": "60s_rotary", "name": "60s Rotary Dial", "file": "ringtones/retro_classic/60s_rotary.mp3", "duration": 28, "suggestedType": "ringtone" },
+        { "id": "old_wall_phone", "name": "Old Wall Phone", "file": "ringtones/retro_classic/old_wall_phone.mp3", "duration": 16, "suggestedType": "ringtone" },
+        { "id": "old_rotary", "name": "Old Rotary Phone", "file": "ringtones/retro_classic/old_rotary.mp3", "duration": 18, "suggestedType": "ringtone" },
+        { "id": "vintage_telephone", "name": "Vintage Telephone", "file": "ringtones/retro_classic/vintage_telephone.mp3", "duration": 20, "suggestedType": "ringtone" },
+        { "id": "nokia_alert", "name": "Nokia Alert", "file": "ringtones/retro_classic/nokia_alert.mp3", "duration": 28, "suggestedType": "notification" },
+        { "id": "nokia_alarm", "name": "Nokia Alarm", "file": "ringtones/retro_classic/nokia_alarm.mp3", "duration": 12, "suggestedType": "alarm" },
+        { "id": "vintage_alarm", "name": "Vintage Alarm Clock", "file": "ringtones/retro_classic/vintage_alarm.mp3", "duration": 18, "suggestedType": "alarm" },
+        { "id": "incoming_classic", "name": "Incoming Classic", "file": "ringtones/retro_classic/incoming_classic.mp3", "duration": 13, "suggestedType": "ringtone" },
+        { "id": "retro_vintage", "name": "Retro Vintage", "file": "ringtones/retro_classic/retro_vintage.mp3", "duration": 7, "suggestedType": "ringtone" },
+        { "id": "80s_alarm", "name": "80s Morning Alarm", "file": "ringtones/retro_classic/80s_alarm.mp3", "duration": 28, "suggestedType": "alarm" }
+      ]
+    },
+    {
+      "id": "modern_futuristic_pack",
+      "name": "Modern & Futuristic",
+      "description": "Clean modern ringtones, sci-fi alerts, and sleek digital tones",
+      "previewImage": "",
+      "glowColor": "#00B4D8",
+      "category": "MODERN_FUTURISTIC",
+      "tones": [
+        { "id": "iphone_pro", "name": "iPhone Pro", "file": "ringtones/modern_futuristic/iphone_pro.mp3", "duration": 10, "suggestedType": "ringtone" },
+        { "id": "kill_bill_whistle", "name": "Kill Bill Whistle", "file": "ringtones/modern_futuristic/kill_bill_whistle.mp3", "duration": 12, "suggestedType": "ringtone" },
+        { "id": "clean_default", "name": "Clean Default", "file": "ringtones/modern_futuristic/clean_default.mp3", "duration": 7, "suggestedType": "ringtone" },
+        { "id": "simple_electronic", "name": "Simple Electronic", "file": "ringtones/modern_futuristic/simple_electronic.mp3", "duration": 5, "suggestedType": "ringtone" },
+        { "id": "modern_alert", "name": "Modern Alert", "file": "ringtones/modern_futuristic/modern_alert.mp3", "duration": 7, "suggestedType": "notification" },
+        { "id": "hybrid_call", "name": "Hybrid Call", "file": "ringtones/modern_futuristic/hybrid_call.mp3", "duration": 6, "suggestedType": "ringtone" },
+        { "id": "future_call", "name": "Future Call", "file": "ringtones/modern_futuristic/future_call.mp3", "duration": 12, "suggestedType": "ringtone" },
+        { "id": "top_digital", "name": "Top Digital", "file": "ringtones/modern_futuristic/top_digital.mp3", "duration": 7, "suggestedType": "ringtone" },
+        { "id": "huawei", "name": "Huawei", "file": "ringtones/modern_futuristic/huawei.mp3", "duration": 30, "suggestedType": "ringtone" },
+        { "id": "the_expanse", "name": "The Expanse", "file": "ringtones/modern_futuristic/the_expanse.mp3", "duration": 6, "suggestedType": "ringtone" },
+        { "id": "911_space", "name": "911 Call from Space", "file": "ringtones/modern_futuristic/911_space.mp3", "duration": 7, "suggestedType": "ringtone" },
+        { "id": "past_present_future", "name": "Past Present Future", "file": "ringtones/modern_futuristic/past_present_future.mp3", "duration": 10, "suggestedType": "ringtone" },
+        { "id": "sms_notification", "name": "SMS Notification", "file": "ringtones/modern_futuristic/sms_notification.mp3", "duration": 3, "suggestedType": "notification" },
+        { "id": "havana", "name": "Havana", "file": "ringtones/modern_futuristic/havana.mp3", "duration": 30, "suggestedType": "ringtone" },
+        { "id": "pou", "name": "Pou", "file": "ringtones/modern_futuristic/pou.mp3", "duration": 30, "suggestedType": "ringtone" }
+      ]
+    },
+    {
+      "id": "chill_ambient_pack",
+      "name": "Chill & Ambient",
+      "description": "Soft, calm and atmospheric tones for a relaxed phone experience",
+      "previewImage": "",
+      "glowColor": "#7C4DFF",
+      "category": "CHILL_AMBIENT",
+      "tones": [
+        { "id": "gentle_ringing", "name": "Gentle Ringing", "file": "ringtones/chill_ambient/gentle_ringing.mp3", "duration": 7, "suggestedType": "ringtone" },
+        { "id": "mystery_ambient", "name": "Mystery Ambient", "file": "ringtones/chill_ambient/mystery_ambient.mp3", "duration": 10, "suggestedType": "ringtone" },
+        { "id": "morning_beeps", "name": "Morning Beeps", "file": "ringtones/chill_ambient/morning_beeps.mp3", "duration": 22, "suggestedType": "alarm" },
+        { "id": "soft_digital", "name": "Soft Digital", "file": "ringtones/chill_ambient/soft_digital.mp3", "duration": 7, "suggestedType": "ringtone" }
+      ]
+    }
+  ]
+}

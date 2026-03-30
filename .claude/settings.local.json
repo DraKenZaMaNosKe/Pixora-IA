@@ -27,7 +27,8 @@
       "Bash(yt-dlp -x --audio-format mp3 --audio-quality 0 -o \"D:/Orbix/Pixora-IA/ringtones/zelda/navi_hey_listen.%\\(ext\\)s\" \"https://www.youtube.com/watch?v=P55sOvmHOvs\")",
       "Bash(yt-dlp:*)",
       "Bash(yt-dlp -x --audio-format mp3 --audio-quality 0 -o \"D:/Orbix/Pixora-IA/ringtones/zelda/zelda_secret_found.%\\(ext\\)s\" \"https://www.youtube.com/watch?v=ctDr_NpSQH8\")",
-      "Bash(reg query:*)"
+      "Bash(reg query:*)",
+      "Bash(RT=\"D:/Orbix/Pixora-IA/ringtones\" for pack in gaming anime_tv retro_classic modern_futuristic chill_ambient)"
     ]
   }
 }
