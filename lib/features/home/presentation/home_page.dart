@@ -37,7 +37,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       'Pixora IA',
       if (!Platform.isIOS) 'Stories',
       if (!Platform.isIOS) 'Day Cycle',
-      if (!Platform.isIOS) 'Sounds',
+      if (!Platform.isIOS) 'Tones',
       'Favorites',
       'Settings',
     ];
@@ -212,7 +212,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           if (!Platform.isIOS)
             const BottomNavigationBarItem(
               icon: Icon(Icons.music_note),
-              label: 'Sounds',
+              label: 'Tones',
             ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
