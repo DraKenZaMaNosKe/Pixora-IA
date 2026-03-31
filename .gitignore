@@ -47,3 +47,4 @@ app.*.map.json
 *.keystore
 google-services.json
 GoogleService-Info.plist
+KEYS_LOCAL.md
