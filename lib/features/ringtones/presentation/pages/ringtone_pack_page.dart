@@ -1,9 +1,10 @@
 import 'dart:math' as math;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../data/models/ringtone_pack.dart';
+
+const _defaultPreviewAsset = 'assets/tone_preview_default.webp';
 
 class RingtonePackPage extends StatefulWidget {
   final RingtonePack pack;
@@ -13,12 +14,10 @@ class RingtonePackPage extends StatefulWidget {
   State<RingtonePackPage> createState() => _RingtonePackPageState();
 }
 
-class _RingtonePackPageState extends State<RingtonePackPage>
-    with TickerProviderStateMixin {
+class _RingtonePackPageState extends State<RingtonePackPage> {
   final AudioPlayer _player = AudioPlayer();
   String? _playingId;
   String? _settingId;
-  late final AnimationController _entranceController;
 
   Color get _glowColor {
     try {
@@ -38,33 +37,16 @@ class _RingtonePackPageState extends State<RingtonePackPage>
     }
   }
 
-  /// Default icon per tone based on name keywords
-  IconData _defaultIcon(RingtoneTone tone) {
-    final n = tone.name.toLowerCase();
-    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin') || n.contains('powerup') || n.contains('jump') || n.contains('level')) return Icons.videogame_asset;
-    if (n.contains('goku') || n.contains('saiyan') || n.contains('kamehameha') || n.contains('dragon') || n.contains('dbgt')) return Icons.flash_on;
-    if (n.contains('zelda') || n.contains('navi') || n.contains('hyrule') || n.contains('fairy') || n.contains('guardian') || n.contains('rupee') || n.contains('ocarina')) return Icons.shield;
-    if (n.contains('homero') || n.contains('simpson') || n.contains('bob') || n.contains('esponja') || n.contains('sponge') || n.contains('patricio') || n.contains('patan')) return Icons.tv;
-    if (n.contains('death') || n.contains('note')) return Icons.menu_book;
-    if (n.contains('shrek')) return Icons.forest;
-    if (n.contains('phone') || n.contains('rotary') || n.contains('classic') || n.contains('vintage') || n.contains('retro') || n.contains('nokia')) return Icons.phone_callback;
-    if (n.contains('iphone') || n.contains('modern') || n.contains('digital') || n.contains('electronic') || n.contains('future') || n.contains('sci')) return Icons.smartphone;
-    if (n.contains('soft') || n.contains('gentle') || n.contains('morning') || n.contains('ambient') || n.contains('chill') || n.contains('calm') || n.contains('mystery')) return Icons.spa;
-    if (n.contains('alarm') || n.contains('alert')) return Icons.alarm;
-    if (n.contains('minecraft') || n.contains('tnt')) return Icons.landscape;
-    if (n.contains('fnaf')) return Icons.nights_stay;
-    if (n.contains('hadouken') || n.contains('street')) return Icons.sports_mma;
-    if (n.contains('fall guys')) return Icons.emoji_events;
-    if (n.contains('casa') || n.contains('papel')) return Icons.masks;
-    if (n.contains('hazbin') || n.contains('alastor')) return Icons.local_fire_department;
-    if (n.contains('pou')) return Icons.pets;
-    if (n.contains('kill bill')) return Icons.content_cut;
-    if (n.contains('huawei') || n.contains('havana')) return Icons.music_note;
-    return Icons.music_note;
+  String _typeLabel(String type) {
+    switch (type) {
+      case 'ringtone': return 'Ringtone';
+      case 'notification': return 'Notification';
+      case 'alarm': return 'Alarm';
+      default: return 'Tone';
+    }
   }
 
-  /// Gradient colors per tone based on category/name
-  List<Color> _defaultGradient(RingtoneTone tone) {
+  List<Color> _toneGradient(RingtoneTone tone) {
     final n = tone.name.toLowerCase();
     if (n.contains('mario') || n.contains('yoshi') || n.contains('coin')) return [const Color(0xFFE52521), const Color(0xFF8B0000)];
     if (n.contains('goku') || n.contains('saiyan') || n.contains('kamehameha') || n.contains('dbgt')) return [const Color(0xFFFF8C00), const Color(0xFF8B4513)];
@@ -83,22 +65,15 @@ class _RingtonePackPageState extends State<RingtonePackPage>
     if (n.contains('hazbin') || n.contains('alastor')) return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
     if (n.contains('casa') || n.contains('papel')) return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
     if (n.contains('pou')) return [const Color(0xFF795548), const Color(0xFF3E2723)];
+    if (n.contains('kill bill')) return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
+    if (n.contains('huawei')) return [const Color(0xFFE53935), const Color(0xFF880E4F)];
+    if (n.contains('havana')) return [const Color(0xFFFF7043), const Color(0xFF4E342E)];
     return [_glowColor, _glowColor.withOpacity(0.3)];
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _entranceController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    )..forward();
   }
 
   @override
   void dispose() {
     _player.dispose();
-    _entranceController.dispose();
     super.dispose();
   }
 
@@ -166,7 +141,7 @@ class _RingtonePackPageState extends State<RingtonePackPage>
         ),
         content: const Text(
           'To set ringtones, Pixora needs permission to modify system settings.\n\n'
-          'Tap "Open Settings" below, then enable the toggle. Come back and try again.',
+          'Tap "Open Settings" below, then enable the toggle.',
           style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
         ),
         actions: [
@@ -233,6 +208,14 @@ class _RingtonePackPageState extends State<RingtonePackPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(tone.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _buildSetOption(ctx, Icons.phone_in_talk, 'Ringtone', () {
@@ -258,6 +241,7 @@ class _RingtonePackPageState extends State<RingtonePackPage>
     return ListTile(
       leading: Icon(icon, color: _glowColor),
       title: Text(label),
+      trailing: const Icon(Icons.chevron_right, color: Colors.white24),
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
@@ -273,84 +257,99 @@ class _RingtonePackPageState extends State<RingtonePackPage>
       backgroundColor: const Color(0xFF0A0A0F),
       body: CustomScrollView(
         slivers: [
-          // Collapsing header with pack info
+          // Header with pack info + default image background
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
             backgroundColor: const Color(0xFF0A0A0F),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(widget.pack.name, style: const TextStyle(fontSize: 16)),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [_glowColor.withOpacity(0.3), const Color(0xFF0A0A0F)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 40),
-                      Icon(Icons.library_music, color: _glowColor, size: 52),
-                      const SizedBox(height: 10),
-                      Text(
-                        widget.pack.description,
-                        style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
-                        textAlign: TextAlign.center,
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Default preview image as background
+                  Image.asset(_defaultPreviewAsset, fit: BoxFit.cover),
+                  // Glow color tint
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _glowColor.withOpacity(0.4),
+                          _glowColor.withOpacity(0.15),
+                        ],
                       ),
-                      const SizedBox(height: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: _glowColor.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${allTones.length} sounds  •  Tap to preview',
-                          style: TextStyle(color: _glowColor, fontSize: 11),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  // Dark gradient for readability
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 40),
+                        Icon(Icons.library_music, color: _glowColor, size: 44),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            widget.pack.description,
+                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _glowColor.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: _glowColor.withOpacity(0.4)),
+                          ),
+                          child: Text(
+                            '${allTones.length} tones  •  Tap to preview',
+                            style: TextStyle(color: _glowColor, fontSize: 11),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
 
-          // Grid of tone cards
+          // Grid of tone cards — NO staggered animation
           SliverPadding(
             padding: const EdgeInsets.all(12),
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final tone = allTones[index];
-                  // Staggered entrance
-                  final stagger = (index * 0.04).clamp(0.0, 0.7);
-                  final progress = ((_entranceController.value - stagger) / (1.0 - stagger)).clamp(0.0, 1.0);
-                  final fade = Curves.easeOut.transform(progress);
-                  final scale = 0.8 + 0.2 * Curves.easeOutBack.transform(progress);
-
-                  return AnimatedBuilder(
-                    animation: _entranceController,
-                    builder: (_, __) => Opacity(
-                      opacity: fade,
-                      child: Transform.scale(
-                        scale: scale,
-                        child: _VisualToneCard(
-                          tone: tone,
-                          glowColor: _glowColor,
-                          typeIcon: _typeIcon(tone.suggestedType),
-                          defaultIcon: _defaultIcon(tone),
-                          defaultGradient: _defaultGradient(tone),
-                          isPlaying: _playingId == tone.id,
-                          isSetting: _settingId == tone.id,
-                          onPlay: () => _togglePreview(tone),
-                          onSetAs: () => _showSetAsDialog(tone),
-                        ),
-                      ),
-                    ),
+                  final gradient = _toneGradient(tone);
+                  return _ToneCard(
+                    tone: tone,
+                    glowColor: _glowColor,
+                    gradient: gradient,
+                    typeIcon: _typeIcon(tone.suggestedType),
+                    typeLabel: _typeLabel(tone.suggestedType),
+                    isPlaying: _playingId == tone.id,
+                    isSetting: _settingId == tone.id,
+                    onPlay: () => _togglePreview(tone),
+                    onSetAs: () => _showSetAsDialog(tone),
                   );
                 },
                 childCount: allTones.length,
@@ -371,24 +370,24 @@ class _RingtonePackPageState extends State<RingtonePackPage>
   }
 }
 
-/// Visual card for each tone — shows preview image or themed gradient placeholder
-class _VisualToneCard extends StatelessWidget {
+// ── Tone Card with default image background ─────────────────────────
+class _ToneCard extends StatelessWidget {
   final RingtoneTone tone;
   final Color glowColor;
+  final List<Color> gradient;
   final IconData typeIcon;
-  final IconData defaultIcon;
-  final List<Color> defaultGradient;
+  final String typeLabel;
   final bool isPlaying;
   final bool isSetting;
   final VoidCallback onPlay;
   final VoidCallback onSetAs;
 
-  const _VisualToneCard({
+  const _ToneCard({
     required this.tone,
     required this.glowColor,
+    required this.gradient,
     required this.typeIcon,
-    required this.defaultIcon,
-    required this.defaultGradient,
+    required this.typeLabel,
     required this.isPlaying,
     required this.isSetting,
     required this.onPlay,
@@ -397,18 +396,17 @@ class _VisualToneCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasImage = tone.previewImageUrl.isNotEmpty;
-
     return GestureDetector(
       onTap: onPlay,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: isPlaying
               ? Border.all(color: glowColor, width: 2)
-              : Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+              : Border.all(color: Colors.white.withOpacity(0.08)),
           boxShadow: isPlaying
-              ? [BoxShadow(color: glowColor.withOpacity(0.3), blurRadius: 16, spreadRadius: 2)]
+              ? [BoxShadow(color: glowColor.withOpacity(0.4), blurRadius: 16, spreadRadius: 2)]
               : [BoxShadow(color: glowColor.withOpacity(0.08), blurRadius: 8)],
         ),
         child: ClipRRect(
@@ -416,44 +414,42 @@ class _VisualToneCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Background: image or gradient placeholder
-              if (hasImage)
-                CachedNetworkImage(
-                  imageUrl: tone.previewImageUrl,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => _GradientPlaceholder(
-                    icon: defaultIcon,
-                    gradient: defaultGradient,
+              // Background: default image + color tint
+              Image.asset(_defaultPreviewAsset, fit: BoxFit.cover),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      gradient[0].withOpacity(0.5),
+                      gradient[1].withOpacity(0.4),
+                    ],
                   ),
-                )
-              else
-                _GradientPlaceholder(
-                  icon: defaultIcon,
-                  gradient: defaultGradient,
                 ),
+              ),
 
-              // Dark overlay for text readability
+              // Dark overlay for text
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.3),
-                      Colors.black.withOpacity(0.85),
+                      Colors.black.withOpacity(0.05),
+                      Colors.black.withOpacity(0.8),
                     ],
-                    stops: const [0.0, 0.5, 1.0],
+                    stops: const [0.35, 1.0],
                   ),
                 ),
               ),
 
-              // Type badge (top-left)
+              // Duration + type badge (top-left)
               Positioned(
                 top: 8,
                 left: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(8),
@@ -462,7 +458,7 @@ class _VisualToneCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(typeIcon, size: 10, color: glowColor),
-                      const SizedBox(width: 3),
+                      const SizedBox(width: 4),
                       Text(
                         tone.durationFormatted,
                         style: const TextStyle(fontSize: 9, color: Colors.white70),
@@ -472,62 +468,25 @@ class _VisualToneCard extends StatelessWidget {
                 ),
               ),
 
-              // Play/stop indicator (center)
-              if (isPlaying)
-                Center(
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: glowColor.withOpacity(0.9),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: glowColor.withOpacity(0.5), blurRadius: 20),
-                      ],
-                    ),
-                    child: const Icon(Icons.stop_rounded, color: Colors.white, size: 28),
-                  ),
-                )
-              else if (!isSetting)
-                Center(
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 26),
-                  ),
+              // Play/Stop button (prominent)
+              Center(
+                child: _PlayStopButton(
+                  isPlaying: isPlaying,
+                  isSetting: isSetting,
+                  glow: glowColor,
                 ),
-
-              // Loading spinner
-              if (isSetting)
-                Center(
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: glowColor),
-                    ),
-                  ),
-                ),
+              ),
 
               // Playing wave indicator
               if (isPlaying)
                 Positioned(
-                  bottom: 46,
+                  bottom: 50,
                   left: 0,
                   right: 0,
                   child: Center(child: _PlayingWave(color: glowColor)),
                 ),
 
-              // Bottom info + set button
+              // Bottom: name + set button
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -561,7 +520,10 @@ class _VisualToneCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text('Set as...', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            isSetting ? 'Installing...' : 'Set as...',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ],
@@ -576,31 +538,59 @@ class _VisualToneCard extends StatelessWidget {
   }
 }
 
-/// Gradient placeholder when no preview image is available
-class _GradientPlaceholder extends StatelessWidget {
-  final IconData icon;
-  final List<Color> gradient;
+// ── Play/Stop Button ────────────────────────────────────────────────
+class _PlayStopButton extends StatelessWidget {
+  final bool isPlaying;
+  final bool isSetting;
+  final Color glow;
 
-  const _GradientPlaceholder({required this.icon, required this.gradient});
+  const _PlayStopButton({
+    required this.isPlaying,
+    required this.isSetting,
+    required this.glow,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: gradient,
+    if (isSetting) {
+      return Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.5),
+          shape: BoxShape.circle,
         ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: CircularProgressIndicator(strokeWidth: 2.5, color: glow),
+        ),
+      );
+    }
+
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: isPlaying ? glow : Colors.white.withOpacity(0.2),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isPlaying ? glow : Colors.white.withOpacity(0.4),
+          width: 2,
+        ),
+        boxShadow: isPlaying
+            ? [BoxShadow(color: glow.withOpacity(0.6), blurRadius: 16, spreadRadius: 2)]
+            : [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8)],
       ),
-      child: Center(
-        child: Icon(icon, size: 48, color: Colors.white.withOpacity(0.25)),
+      child: Icon(
+        isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
+        color: Colors.white,
+        size: 28,
       ),
     );
   }
 }
 
-/// Animated wave bars for playing state
+// ── Animated wave bars ──────────────────────────────────────────────
 class _PlayingWave extends StatefulWidget {
   final Color color;
   const _PlayingWave({required this.color});
