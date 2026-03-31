@@ -201,7 +201,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         const _SettingsTile(
           icon: Icons.info_outline,
           title: 'Pixora IA',
-          subtitle: 'Version 1.3.0',
+          subtitle: 'Version 1.4.0',
         ),
         const _SettingsTile(
           icon: Icons.code,
