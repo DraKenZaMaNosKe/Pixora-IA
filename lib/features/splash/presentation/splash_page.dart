@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../../../core/services/catalog_service.dart';
+import '../../../core/services/wallpaper_stats_service.dart';
 import '../../home/presentation/home_page.dart';
 
 class SplashPage extends StatefulWidget {
@@ -42,7 +43,10 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
   Future<void> _preload() async {
     try {
-      await CatalogService.instance.fetchCatalog();
+      await Future.wait([
+        CatalogService.instance.fetchCatalog(),
+        WallpaperStatsService.instance.init(),
+      ]);
     } catch (_) {}
     _loadingDone = true;
     _navigateIfReady();

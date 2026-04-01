@@ -3,6 +3,8 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
+import 'card_effects.dart';
+import 'wallpaper_stats_bar.dart';
 
 class WallpaperCarouselRow extends StatefulWidget {
   const WallpaperCarouselRow({
@@ -27,6 +29,15 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
   late final ScrollController _scrollController;
   late final AnimationController _entranceController;
   bool _hasAnimated = false;
+
+  static Color _parseGlow(String hex) {
+    try {
+      final h = hex.replaceFirst('#', '');
+      return Color(int.parse('FF$h', radix: 16));
+    } catch (_) {
+      return Colors.white;
+    }
+  }
 
   @override
   void initState() {
@@ -99,12 +110,13 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                         final cardFade = Curves.easeOut.transform(cardProgress);
                         final cardScale = 0.85 + 0.15 * Curves.easeOutBack.transform(cardProgress);
 
+                        final wp = widget.items[index];
                         return Opacity(
                           opacity: cardFade,
                           child: Transform.scale(
                             scale: cardScale,
                             child: _ParallaxCarouselCard(
-                              wallpaper: widget.items[index],
+                              wallpaper: wp,
                               width: widget.cardWidth,
                               height: widget.cardHeight,
                               scrollController: _scrollController,
@@ -211,6 +223,15 @@ class _ParallaxCarouselCard extends StatelessWidget {
                     ),
                   ),
                   child: SizedBox(height: 60),
+                ),
+              ),
+              // Stats bar (views, downloads, like) — TOP right
+              Positioned(
+                top: 6,
+                right: 6,
+                child: WallpaperStatsBar(
+                  wallpaperId: wallpaper.id,
+                  glowColor: _glowColor,
                 ),
               ),
               // Name

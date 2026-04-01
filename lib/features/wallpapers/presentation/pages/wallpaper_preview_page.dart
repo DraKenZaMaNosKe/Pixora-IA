@@ -9,6 +9,7 @@ import '../../../../core/services/wallpaper_service.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../../widgets/touch_glow_effect.dart';
 import '../../../favorites/providers/favorites_provider.dart';
+import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../data/models/wallpaper.dart';
 
 class WallpaperPreviewPage extends ConsumerStatefulWidget {
@@ -24,6 +25,13 @@ class WallpaperPreviewPage extends ConsumerStatefulWidget {
 class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   bool _isApplying = false;
   double _downloadProgress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Track view when user opens wallpaper
+    WallpaperStatsService.instance.trackView(widget.wallpaper.id);
+  }
 
   /// Get the file to download based on quality setting.
   String get _downloadFile {
@@ -43,6 +51,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
 
   Future<void> _applyWallpaper(int target) async {
     setState(() { _isApplying = true; _downloadProgress = 0.0; });
+    WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
     final path = await DownloadService.instance.downloadWallpaper(
       _downloadFile,
@@ -75,6 +84,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
 
   Future<void> _saveToGallery() async {
     setState(() { _isApplying = true; _downloadProgress = 0.0; });
+    WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
     _showStatus('Downloading image...');
 
@@ -140,6 +150,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
 
   Future<void> _applyLiveWallpaper() async {
     setState(() => _isApplying = true);
+    WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
     // Request microphone permission for equalizer visualization
     final micStatus = await Permission.microphone.request();
