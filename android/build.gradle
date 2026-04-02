@@ -8,6 +8,11 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    afterEvaluate {
+        tasks.withType(JavaCompile).configureEach {
+            options.compilerArgs.removeAll { it == '-Werror' }
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(':app')

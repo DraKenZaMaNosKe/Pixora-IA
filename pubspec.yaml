@@ -26,6 +26,7 @@ dependencies:
   supabase_flutter: ^2.5.0
   google_sign_in: ^6.2.1
   just_audio: ^0.9.40
+  video_player: ^2.9.2
 
 dependency_overrides:
   win32: 5.5.0

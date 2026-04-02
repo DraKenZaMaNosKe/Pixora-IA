@@ -4,7 +4,11 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.*
+import android.net.Uri
 import android.os.Handler
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.util.Log
@@ -41,6 +45,10 @@ class PixoraWallpaperService : WallpaperService() {
         private var idleMode = false
         private var isRainWallpaper = false
         private var currentWallpaperPath: String? = null
+
+        // Video wallpaper (ExoPlayer)
+        private var exoPlayer: ExoPlayer? = null
+        private var isVideoWallpaper = false
 
         // Pre-allocated paint for glow dots
         private val glowDotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -85,15 +93,22 @@ class PixoraWallpaperService : WallpaperService() {
             }
         }
 
+        private var pendingReload: Runnable? = null
+
         private fun registerPrefsListener() {
             val prefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
             prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 if (key == "changed_at" || key == "wallpaper_path") {
-                    Log.d(TAG, "Wallpaper changed by auto-rotate, reloading...")
-                    handler.post {
+                    Log.d(TAG, "Prefs changed: $key — scheduling reload")
+                    // Debounce: only reload once after 300ms of no changes
+                    pendingReload?.let { handler.removeCallbacks(it) }
+                    val reload = Runnable {
+                        Log.d(TAG, "Executing debounced reload")
                         loadWallpaperImage()
-                        createScaledBitmap()
+                        if (!isVideoWallpaper) createScaledBitmap()
                     }
+                    pendingReload = reload
+                    handler.postDelayed(reload, 300)
                 }
             }
             prefs.registerOnSharedPreferenceChangeListener(prefsListener)
@@ -134,6 +149,17 @@ class PixoraWallpaperService : WallpaperService() {
                 if (path != null) {
                     val file = File(path)
                     if (file.exists()) {
+                        val isVideo = path.endsWith(".mp4", ignoreCase = true) ||
+                            path.endsWith(".webm", ignoreCase = true)
+
+                        if (isVideo) {
+                            startVideoWallpaper(path)
+                            return
+                        }
+
+                        // Stop video if switching to image
+                        stopVideoWallpaper()
+
                         val opts = BitmapFactory.Options()
                         opts.inJustDecodeBounds = true
                         BitmapFactory.decodeFile(path, opts)
@@ -147,6 +173,95 @@ class PixoraWallpaperService : WallpaperService() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+
+        // Guard against multiple simultaneous video starts
+        private var videoStarting = false
+
+        private fun startVideoWallpaper(path: String) {
+            if (videoStarting) {
+                Log.d(TAG, "Video already starting, skipping")
+                return
+            }
+            videoStarting = true
+            Log.d(TAG, "Starting ExoPlayer for: $path")
+
+            // Stop canvas drawing
+            drawing = false
+            handler.removeCallbacks(drawRunnable)
+            equalizerRenderer.releaseVisualizer()
+            scaledBitmap = null
+            panoramicBitmap = null
+            wallpaperBitmap = null
+            isVideoWallpaper = true
+
+            // Release old player
+            stopVideoWallpaper()
+            isVideoWallpaper = true // stopVideoWallpaper resets this
+
+            val surface = surfaceHolder?.surface
+            if (surface == null || !surface.isValid) {
+                Log.e(TAG, "Surface not valid for video")
+                videoStarting = false
+                isVideoWallpaper = false
+                return
+            }
+
+            try {
+                val player = ExoPlayer.Builder(applicationContext).build()
+                player.setVideoSurface(surface)
+                player.volume = 0f // Mute
+                player.repeatMode = Player.REPEAT_MODE_ALL // Infinite loop
+
+                val mediaItem = MediaItem.fromUri(Uri.fromFile(java.io.File(path)))
+                player.setMediaItem(mediaItem)
+
+                player.addListener(object : Player.Listener {
+                    override fun onPlaybackStateChanged(state: Int) {
+                        when (state) {
+                            Player.STATE_READY -> {
+                                Log.d(TAG, "ExoPlayer READY, starting: $path")
+                                videoStarting = false
+                                player.play()
+                            }
+                            Player.STATE_ENDED -> {
+                                Log.d(TAG, "ExoPlayer ended (shouldn't happen with REPEAT_MODE_ALL)")
+                            }
+                        }
+                    }
+                    override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                        Log.e(TAG, "ExoPlayer error: ${error.message}")
+                        videoStarting = false
+                        isVideoWallpaper = false
+                    }
+                })
+
+                player.prepare()
+                exoPlayer = player
+                Log.d(TAG, "ExoPlayer setup complete")
+            } catch (e: Exception) {
+                Log.e(TAG, "ExoPlayer FAILED: ${e.javaClass.simpleName}: ${e.message}")
+                videoStarting = false
+                isVideoWallpaper = false
+            }
+        }
+
+        private fun stopVideoWallpaper() {
+            val player = exoPlayer
+            exoPlayer = null
+            isVideoWallpaper = false
+            videoStarting = false
+            if (player != null) {
+                try {
+                    player.stop()
+                    player.clearVideoSurface()
+                    player.release()
+                    Log.d(TAG, "ExoPlayer released")
+                } catch (e: Exception) {
+                    Log.w(TAG, "stopVideoWallpaper: ${e.message}")
+                    try { player.release() } catch (_: Exception) {}
+                }
             }
         }
 
@@ -271,25 +386,43 @@ class PixoraWallpaperService : WallpaperService() {
             surfaceHeight = height
             if (dimensionsChanged) {
                 Log.d(TAG, "Surface changed: ${width}x${height}")
-                // Reload image for new dimensions (handles rotation)
                 loadWallpaperImage()
             }
-            createScaledBitmap()
-            drawFrame()
+            if (!isVideoWallpaper) {
+                createScaledBitmap()
+                drawFrame()
+            }
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
-            Log.d(TAG, "visibility=$visible")
+            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper exo=${exoPlayer != null}")
             if (visible) {
+                if (videoStarting) return
+                val player = exoPlayer
+                if (player != null) {
+                    // ExoPlayer exists — just resume
+                    player.play()
+                    Log.d(TAG, "ExoPlayer resumed")
+                    return
+                }
+                // No video — load image wallpaper
                 loadWallpaperImage()
-                createScaledBitmap()
-                equalizerRenderer.setupVisualizer()
-                drawing = true
-                handler.post(drawRunnable)
+                if (!isVideoWallpaper && !videoStarting) {
+                    createScaledBitmap()
+                    equalizerRenderer.setupVisualizer()
+                    drawing = true
+                    handler.post(drawRunnable)
+                }
             } else {
-                drawing = false
-                handler.removeCallbacks(drawRunnable)
-                equalizerRenderer.releaseVisualizer()
+                val player = exoPlayer
+                if (player != null) {
+                    player.pause()
+                    Log.d(TAG, "ExoPlayer paused")
+                } else if (!videoStarting) {
+                    drawing = false
+                    handler.removeCallbacks(drawRunnable)
+                    equalizerRenderer.releaseVisualizer()
+                }
             }
         }
 
@@ -437,6 +570,7 @@ class PixoraWallpaperService : WallpaperService() {
             drawing = false
             handler.removeCallbacks(drawRunnable)
             equalizerRenderer.releaseVisualizer()
+            stopVideoWallpaper()
             super.onSurfaceDestroyed(holder)
         }
 
@@ -444,6 +578,7 @@ class PixoraWallpaperService : WallpaperService() {
             drawing = false
             handler.removeCallbacks(drawRunnable)
             equalizerRenderer.releaseVisualizer()
+            stopVideoWallpaper()
             batteryIndicator.release()
             unregisterPrefsListener()
             wallpaperBitmap?.recycle()
