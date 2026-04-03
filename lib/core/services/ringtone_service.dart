@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import '../constants/supabase_config.dart';
+import 'download_service.dart';
 import '../../features/ringtones/data/models/ringtone_pack.dart';
 
 class RingtoneService {
@@ -34,7 +35,7 @@ class RingtoneService {
       if (response.statusCode == 200) {
         final body = utf8.decode(response.bodyBytes);
         final json = jsonDecode(body) as Map<String, dynamic>;
-        final list = json['packs'] as List<dynamic>;
+        final list = (json['packs'] as List<dynamic>?) ?? [];
         _packs = list
             .map((e) => RingtonePack.fromJson(e as Map<String, dynamic>))
             .toList();
@@ -48,27 +49,28 @@ class RingtoneService {
   }
 
   /// Download a ringtone file and return the local path.
-  Future<String?> downloadTone(RingtoneTone tone) async {
+  /// Uses DownloadService for retry, connectivity check, and validation.
+  Future<String?> downloadTone(
+    RingtoneTone tone, {
+    void Function(String message)? onError,
+  }) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/ringtones/${tone.id}.mp3');
 
-      if (await file.exists()) return file.path;
-
-      await file.parent.create(recursive: true);
-
-      final response = await http.get(Uri.parse(tone.fileUrl))
-          .timeout(const Duration(seconds: 60));
-
-      if (response.statusCode == 200) {
-        await file.writeAsBytes(response.bodyBytes);
-        debugPrint('[Pixora] Ringtone downloaded: ${tone.name}');
-        return file.path;
-      }
+      return await DownloadService.instance.downloadFile(
+        tone.fileUrl,
+        file,
+        retries: 3,
+        timeoutSeconds: 60,
+        minBytes: 500, // MP3 files should be at least 500 bytes
+        onError: onError,
+      );
     } catch (e) {
       debugPrint('[Pixora] Ringtone download failed: $e');
+      onError?.call('Download failed');
+      return null;
     }
-    return null;
   }
 
   /// Check if the app has WRITE_SETTINGS permission.

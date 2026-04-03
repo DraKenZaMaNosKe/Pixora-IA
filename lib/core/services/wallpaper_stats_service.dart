@@ -20,10 +20,11 @@ class WallpaperStatsService {
   RealtimeChannel? _channel;
   Box? _likesBox;
   bool _initialized = false;
+  bool _disposed = false;
 
   /// Initialize: fetch all stats, subscribe to realtime, open likes box.
   Future<void> init() async {
-    if (_initialized) return;
+    if (_initialized || _disposed) return;
     _initialized = true;
 
     _likesBox = await Hive.openBox('wallpaper_likes');
@@ -186,7 +187,14 @@ class WallpaperStatsService {
   }
 
   void dispose() {
+    _disposed = true;
     _channel?.unsubscribe();
-    _statsController.close();
+    _channel = null;
+    if (!_statsController.isClosed) {
+      _statsController.close();
+    }
+    _likesBox?.close();
+    _likesBox = null;
+    _initialized = false;
   }
 }

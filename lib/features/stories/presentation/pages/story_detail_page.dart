@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/story_rotation_service.dart';
@@ -20,14 +21,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   int _downloadProgress = 0;
   final _pageController = PageController(viewportFraction: 0.85);
 
-  Color get _glowColor {
-    try {
-      final hex = widget.story.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return Colors.deepPurple;
-    }
-  }
+  Color get _glowColor => parseHexColor(widget.story.glowColor, fallback: Colors.deepPurple);
 
   Future<void> _startStory() async {
     // Show interstitial ad before starting

@@ -1,8 +1,12 @@
 package com.orbix.pixora.renderers
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.*
 import android.media.audiofx.Visualizer
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.orbix.pixora.PixoraWallpaperService
 import kotlin.math.exp
 import kotlin.math.ln
@@ -11,18 +15,20 @@ import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-class EqualizerRenderer {
+class EqualizerRenderer(private val context: Context? = null) {
 
     interface AudioCallback {
         fun onAudioStarted()
     }
 
+    private val visualizerLock = Object()
     private var visualizer: Visualizer? = null
+    @Volatile private var isReleasing = false
     private val currentLevels = FloatArray(PixoraWallpaperService.BAR_COUNT)
     val smoothLevels = FloatArray(PixoraWallpaperService.BAR_COUNT)
     private val peakLevels = FloatArray(PixoraWallpaperService.BAR_COUNT)
     private val peakDecay = FloatArray(PixoraWallpaperService.BAR_COUNT)
-    var hasAudio = false
+    @Volatile var hasAudio = false
         private set
     var silentFrames = 0
 
@@ -37,29 +43,41 @@ class EqualizerRenderer {
     var audioCallback: AudioCallback? = null
 
     fun setupVisualizer() {
+        // Check RECORD_AUDIO permission before creating Visualizer
+        if (context != null &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "RECORD_AUDIO permission not granted, skipping visualizer")
+            return
+        }
         releaseVisualizer()
-        try {
-            val viz = Visualizer(0)
-            viz.captureSize = Visualizer.getCaptureSizeRange()[1]
-            Log.d(TAG, "Visualizer captureSize=${viz.captureSize}")
+        synchronized(visualizerLock) {
+            isReleasing = false
+            try {
+                val viz = Visualizer(0)
+                viz.captureSize = Visualizer.getCaptureSizeRange()[1]
+                Log.d(TAG, "Visualizer captureSize=${viz.captureSize}")
 
-            viz.setDataCaptureListener(object : Visualizer.OnDataCaptureListener {
-                override fun onWaveFormDataCapture(v: Visualizer?, waveform: ByteArray?, samplingRate: Int) {}
-                override fun onFftDataCapture(v: Visualizer?, fft: ByteArray?, samplingRate: Int) {
-                    fft ?: return
-                    processFFT(fft)
-                }
-            }, Visualizer.getMaxCaptureRate(), false, true)
+                viz.setDataCaptureListener(object : Visualizer.OnDataCaptureListener {
+                    override fun onWaveFormDataCapture(v: Visualizer?, waveform: ByteArray?, samplingRate: Int) {}
+                    override fun onFftDataCapture(v: Visualizer?, fft: ByteArray?, samplingRate: Int) {
+                        if (isReleasing) return
+                        fft ?: return
+                        processFFT(fft)
+                    }
+                }, Visualizer.getMaxCaptureRate(), false, true)
 
-            viz.enabled = true
-            visualizer = viz
-            Log.d(TAG, "Visualizer enabled OK")
-        } catch (e: Exception) {
-            Log.e(TAG, "Visualizer failed: ${e.message}")
+                viz.enabled = true
+                visualizer = viz
+                Log.d(TAG, "Visualizer enabled OK")
+            } catch (e: Exception) {
+                Log.e(TAG, "Visualizer failed: ${e.message}")
+            }
         }
     }
 
     private fun processFFT(fft: ByteArray) {
+        if (isReleasing) return
         val n = fft.size / 2
         for (i in 0 until PixoraWallpaperService.BAR_COUNT) {
             val startBin = mapBarToFFTBin(i, n)
@@ -80,7 +98,7 @@ class EqualizerRenderer {
         }
 
         // Detect if there's actual audio
-        val maxLevel = currentLevels.max() ?: 0f
+        val maxLevel = currentLevels.max()
         val wasPlaying = hasAudio
         hasAudio = maxLevel > PixoraWallpaperService.SILENCE_THRESHOLD
 
@@ -104,12 +122,15 @@ class EqualizerRenderer {
     }
 
     fun releaseVisualizer() {
-        try {
-            visualizer?.let { it.enabled = false; it.release() }
-        } catch (_: Exception) {}
-        visualizer = null
-        currentLevels.fill(0f)
-        hasAudio = false
+        synchronized(visualizerLock) {
+            isReleasing = true
+            try {
+                visualizer?.let { it.enabled = false; it.release() }
+            } catch (_: Exception) {}
+            visualizer = null
+            currentLevels.fill(0f)
+            hasAudio = false
+        }
     }
 
     fun draw(canvas: Canvas) {

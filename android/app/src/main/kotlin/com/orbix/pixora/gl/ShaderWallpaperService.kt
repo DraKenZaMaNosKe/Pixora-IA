@@ -166,11 +166,17 @@ class ShaderWallpaperService : WallpaperService() {
                 val numConfigs = IntArray(1)
                 EGL14.eglChooseConfig(eglDisplay, configAttribs, 0, configs, 0, 1, numConfigs, 0)
 
+                if (numConfigs[0] == 0 || configs[0] == null) {
+                    Log.e(TAG, "eglChooseConfig failed: no valid configs")
+                    return
+                }
+                val eglConfig = configs[0]!!
+
                 val contextAttribs = intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE)
-                eglContext = EGL14.eglCreateContext(eglDisplay, configs[0], EGL14.EGL_NO_CONTEXT, contextAttribs, 0)
+                eglContext = EGL14.eglCreateContext(eglDisplay, eglConfig, EGL14.EGL_NO_CONTEXT, contextAttribs, 0)
 
                 val surfaceAttribs = intArrayOf(EGL14.EGL_NONE)
-                eglSurface = EGL14.eglCreateWindowSurface(eglDisplay, configs[0], holder.surface, surfaceAttribs, 0)
+                eglSurface = EGL14.eglCreateWindowSurface(eglDisplay, eglConfig, holder.surface, surfaceAttribs, 0)
 
                 EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)
 

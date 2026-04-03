@@ -312,6 +312,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: OutlinedButton(
                 onPressed: () async {
                   await auth.signOut();
+                  ref.read(favoritesProvider.notifier).reset();
                   if (mounted) setState(() {});
                 },
                 style: OutlinedButton.styleFrom(

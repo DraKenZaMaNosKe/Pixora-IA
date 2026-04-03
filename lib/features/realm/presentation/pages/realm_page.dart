@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../data/models/shader_wallpaper.dart';
 
 class RealmPage extends StatelessWidget {
@@ -107,14 +108,7 @@ class _ShaderCard extends StatelessWidget {
   final ShaderWallpaper shader;
   const _ShaderCard({required this.shader});
 
-  Color get _glowColor {
-    try {
-      final hex = shader.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return Colors.purple;
-    }
-  }
+  Color get _glowColor => parseHexColor(shader.glowColor, fallback: Colors.purple);
 
   IconData get _icon {
     switch (shader.id) {

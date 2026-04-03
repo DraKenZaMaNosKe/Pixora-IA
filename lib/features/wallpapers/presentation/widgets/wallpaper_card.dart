@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../../widgets/card_live_effect.dart';
 import '../../../favorites/providers/favorites_provider.dart';
@@ -11,14 +12,7 @@ class WallpaperCard extends ConsumerWidget {
 
   final Wallpaper wallpaper;
 
-  Color _parseGlowColor() {
-    try {
-      final hex = wallpaper.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return Colors.white;
-    }
-  }
+  Color _parseGlowColor() => parseHexColor(wallpaper.glowColor, fallback: Colors.white);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

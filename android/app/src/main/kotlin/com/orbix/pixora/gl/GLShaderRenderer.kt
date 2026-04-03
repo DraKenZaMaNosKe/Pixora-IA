@@ -190,7 +190,11 @@ class GLShaderRenderer(private val context: Context) {
      */
     fun loadShaderFromAsset(assetPath: String): Boolean {
         return try {
-            val source = context.assets.open(assetPath).bufferedReader().readText()
+            val source = context.assets.open(assetPath).use { input ->
+                input.bufferedReader().use { reader ->
+                    reader.readText()
+                }
+            }
             loadShader(source)
         } catch (e: Exception) {
             Log.e(TAG, "loadShaderFromAsset($assetPath) failed: ${e.message}")

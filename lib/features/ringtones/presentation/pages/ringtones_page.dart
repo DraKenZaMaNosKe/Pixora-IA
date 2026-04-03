@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../providers/ringtone_providers.dart';
 import '../../data/models/ringtone_pack.dart';
@@ -198,14 +199,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────
-  Color _parseGlow(String hex) {
-    try {
-      final h = hex.replaceFirst('#', '');
-      return Color(int.parse('FF$h', radix: 16));
-    } catch (_) {
-      return const Color(0xFF7C4DFF);
-    }
-  }
+  Color _parseGlow(String hex) => parseHexColor(hex);
 
   List<Color> _toneGradient(RingtoneTone tone, Color fallback) {
     final n = tone.name.toLowerCase();

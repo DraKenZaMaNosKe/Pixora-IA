@@ -47,7 +47,9 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
         CatalogService.instance.fetchCatalog(),
         WallpaperStatsService.instance.init(),
       ]);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Pixora] Preload error (continuing): $e');
+    }
     _loadingDone = true;
     _navigateIfReady();
   }

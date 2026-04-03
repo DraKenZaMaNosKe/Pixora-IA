@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
+import '../../../../core/utils/color_utils.dart';
+import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
+import '../../../../core/widgets/loading_overlay.dart';
 import '../../data/models/live_wallpaper.dart';
 
 class LiveWallpaperPreviewPage extends StatefulWidget {
@@ -22,20 +24,18 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   bool _isVideoReady = false;
   bool _isApplying = false;
   double _downloadProgress = 0.0;
+  String _loadingStatus = '';
   bool _showControls = true;
+  late Future<bool> _isDownloadedFuture;
+  // Token to cancel stale auto-hide callbacks
+  int _controlsToken = 0;
 
-  Color get _glowColor {
-    try {
-      final hex = widget.wallpaper.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return const Color(0xFFFF4500);
-    }
-  }
+  Color get _glowColor => parseHexColor(widget.wallpaper.glowColor, fallback: const Color(0xFFFF4500));
 
   @override
   void initState() {
     super.initState();
+    _isDownloadedFuture = _isDownloaded();
     WallpaperStatsService.instance.trackView('live_${widget.wallpaper.id}');
     _initVideo();
   }
@@ -51,18 +51,28 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       if (mounted) {
         setState(() => _isVideoReady = true);
         _videoController!.play();
-        // Auto-hide controls after 3 seconds
-        Future.delayed(const Duration(seconds: 3), () {
-          if (mounted) setState(() => _showControls = false);
-        });
+        _scheduleAutoHide();
       }
     } catch (e) {
+      // Dispose controller on init failure to prevent leak
+      _videoController?.dispose();
+      _videoController = null;
       debugPrint('[Pixora] Video init failed: $e');
     }
   }
 
+  void _scheduleAutoHide() {
+    final token = ++_controlsToken;
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted && _controlsToken == token) {
+        setState(() => _showControls = false);
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _controlsToken++; // Invalidate any pending auto-hide
     _videoController?.dispose();
     super.dispose();
   }
@@ -70,9 +80,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   void _toggleControls() {
     setState(() => _showControls = !_showControls);
     if (_showControls) {
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) setState(() => _showControls = false);
-      });
+      _scheduleAutoHide();
     }
   }
 
@@ -80,6 +88,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
+      _loadingStatus = 'Downloading video...';
     });
     WallpaperStatsService.instance
         .trackDownload('live_${widget.wallpaper.id}');
@@ -87,80 +96,35 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     final dir = await getApplicationDocumentsDirectory();
     final localFile =
         File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
-    await localFile.parent.create(recursive: true);
 
-    // Always check if file exists and is valid — re-download if needed
-    bool needsDownload = true;
-    if (await localFile.exists()) {
-      final size = await localFile.length();
-      if (size > 1000) {
-        needsDownload = false; // File exists and is not empty/corrupt
-        debugPrint('[Pixora] Video cache hit: ${localFile.path} (${size}B)');
-      } else {
-        await localFile.delete(); // Delete corrupt file
-        debugPrint('[Pixora] Deleted corrupt video: ${localFile.path}');
-      }
-    }
-
-    if (needsDownload) {
-      debugPrint('[Pixora] Downloading video: ${widget.wallpaper.videoUrl}');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Downloading video...'),
-            backgroundColor: _glowColor,
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-      try {
-        final client = http.Client();
-        final request =
-            http.Request('GET', Uri.parse(widget.wallpaper.videoUrl));
-        final response = await client.send(request);
-        final totalBytes = response.contentLength ?? 0;
-        int receivedBytes = 0;
-        final sink = localFile.openWrite();
-        await for (final chunk in response.stream) {
-          sink.add(chunk);
-          receivedBytes += chunk.length;
-          if (totalBytes > 0 && mounted) {
-            setState(() => _downloadProgress = receivedBytes / totalBytes);
-          }
-        }
-        await sink.close();
-        client.close();
-        debugPrint('[Pixora] Download complete: ${await localFile.length()}B');
-      } catch (e) {
-        debugPrint('[Pixora] Live wallpaper download failed: $e');
+    // Download with retry, timeout, connectivity check, and validation
+    final path = await DownloadService.instance.downloadFile(
+      widget.wallpaper.videoUrl,
+      localFile,
+      retries: 3,
+      timeoutSeconds: 120,
+      minBytes: 1000,
+      onProgress: (p) {
+        if (mounted) setState(() => _downloadProgress = p);
+      },
+      onError: (msg) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Download failed. Check your connection.'),
-                backgroundColor: Colors.red),
+            SnackBar(content: Text(msg), backgroundColor: Colors.red),
           );
         }
-        setState(() => _isApplying = false);
-        return;
-      }
-    }
+      },
+    );
 
-    // Final validation
-    if (!await localFile.exists() || await localFile.length() < 1000) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Video file is invalid. Try again.'),
-              backgroundColor: Colors.red),
-        );
-      }
-      setState(() => _isApplying = false);
+    if (path == null) {
+      if (mounted) setState(() => _isApplying = false);
       return;
     }
 
-    debugPrint('[Pixora] Setting live wallpaper: ${localFile.path}');
+    if (mounted) setState(() => _loadingStatus = 'Setting live wallpaper...');
+
     await WallpaperService.instance.setLiveWallpaper(
-      localFile.path,
+      path,
       widget.wallpaper.glowColor,
     );
 
@@ -171,8 +135,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
           backgroundColor: Colors.green.shade700,
         ),
       );
+      setState(() => _isApplying = false);
     }
-    setState(() => _isApplying = false);
   }
 
   Future<bool> _isDownloaded() async {
@@ -187,7 +151,9 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     if (await file.exists()) {
       await file.delete();
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _isDownloadedFuture = _isDownloaded();
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Video deleted from device'),
@@ -243,6 +209,14 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                   ],
                 ),
               ),
+
+            // Loading overlay
+            LoadingOverlay(
+              visible: _isApplying,
+              progress: _downloadProgress > 0 ? _downloadProgress : null,
+              status: _loadingStatus,
+              accentColor: _glowColor,
+            ),
 
             // Controls overlay (animated fade)
             AnimatedOpacity(
@@ -417,7 +391,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                             const SizedBox(height: 10),
                             // Delete from device button
                             FutureBuilder<bool>(
-                              future: _isDownloaded(),
+                              future: _isDownloadedFuture,
                               builder: (ctx, snap) {
                                 if (snap.data != true) return const SizedBox.shrink();
                                 return SizedBox(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../../../../core/services/quality_service.dart';
@@ -109,14 +110,7 @@ class _HeroPage extends StatelessWidget {
   final Wallpaper wallpaper;
   final bool useHD;
 
-  Color get _glowColor {
-    try {
-      final hex = wallpaper.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return Colors.deepPurple;
-    }
-  }
+  Color get _glowColor => parseHexColor(wallpaper.glowColor, fallback: Colors.deepPurple);
 
   @override
   Widget build(BuildContext context) {

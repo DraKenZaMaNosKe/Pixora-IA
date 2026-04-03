@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../providers/story_providers.dart';
 import 'story_detail_page.dart';
@@ -57,13 +58,7 @@ class StoriesPage extends ConsumerWidget {
             final story = stories[index];
             final isActive = activeId == story.id;
 
-            Color glowColor;
-            try {
-              final hex = story.glowColor.replaceFirst('#', '');
-              glowColor = Color(int.parse('FF$hex', radix: 16));
-            } catch (_) {
-              glowColor = Colors.deepPurple;
-            }
+            final glowColor = parseHexColor(story.glowColor, fallback: Colors.deepPurple);
 
             return GestureDetector(
               onTap: () => Navigator.push(

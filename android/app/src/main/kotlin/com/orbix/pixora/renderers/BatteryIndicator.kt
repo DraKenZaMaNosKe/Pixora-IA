@@ -19,6 +19,7 @@ class BatteryIndicator(private val context: Context) {
     private val batteryTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val batteryIconPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var batteryReceiver: BroadcastReceiver? = null
+    private val typefaceLightBold = Typeface.create("sans-serif-light", Typeface.BOLD)
 
     var surfaceWidth = 0
     var surfaceHeight = 0
@@ -106,7 +107,7 @@ class BatteryIndicator(private val context: Context) {
         val text = "$batteryLevel"
         batteryTextPaint.textSize = radius * 0.75f
         batteryTextPaint.textAlign = Paint.Align.CENTER
-        batteryTextPaint.typeface = Typeface.create("sans-serif-light", Typeface.BOLD)
+        batteryTextPaint.typeface = typefaceLightBold
         batteryTextPaint.color = Color.WHITE
         batteryTextPaint.alpha = (230 * pulseAlpha).toInt()
         val textY = centerY + batteryTextPaint.textSize * 0.35f

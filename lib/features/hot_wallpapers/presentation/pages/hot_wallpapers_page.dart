@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../providers/live_wallpaper_providers.dart';
@@ -247,14 +248,7 @@ class _LiveWallpaperCard extends StatelessWidget {
     required this.height,
   });
 
-  Color get _glowColor {
-    try {
-      final hex = item.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return const Color(0xFFFF4500);
-    }
-  }
+  Color get _glowColor => parseHexColor(item.glowColor, fallback: const Color(0xFFFF4500));
 
   @override
   Widget build(BuildContext context) {

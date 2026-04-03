@@ -10,15 +10,16 @@ final favoritesProvider =
 
 class FavoritesNotifier extends StateNotifier<Set<String>> {
   FavoritesNotifier() : super({}) {
-    _loadFromHive();
+    _init();
   }
 
   static const _boxName = 'favorites';
+  Box<String>? _box;
 
-  Future<void> _loadFromHive() async {
+  Future<void> _init() async {
     try {
-      final box = await Hive.openBox<String>(_boxName);
-      state = box.values.toSet();
+      _box = await Hive.openBox<String>(_boxName);
+      state = _box!.values.toSet();
 
       // If user is logged in, sync with Supabase
       if (AuthService.instance.isLoggedIn) {
@@ -36,7 +37,7 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
       if (merged != state) {
         state = merged;
         // Save merged set back to Hive
-        final box = await Hive.openBox<String>(_boxName);
+        final box = _box ?? await Hive.openBox<String>(_boxName);
         await box.clear();
         for (final id in merged) {
           await box.add(id);
@@ -50,7 +51,7 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
 
   Future<void> toggle(String wallpaperId) async {
     try {
-      final box = await Hive.openBox<String>(_boxName);
+      final box = _box ?? await Hive.openBox<String>(_boxName);
       if (state.contains(wallpaperId)) {
         // Remove
         final entry = box.toMap().entries.firstWhere(
@@ -74,6 +75,11 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
     } catch (e) {
       debugPrint('[Favorites] Error in toggle($wallpaperId): $e');
     }
+  }
+
+  /// Clear local state (call on logout for privacy).
+  void reset() {
+    state = {};
   }
 
   bool isFavorite(String wallpaperId) => state.contains(wallpaperId);

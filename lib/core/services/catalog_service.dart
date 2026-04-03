@@ -14,6 +14,9 @@ class CatalogService {
   List<Wallpaper> _wallpapers = [];
   DateTime? _lastFetch;
 
+  // Prevent concurrent fetches — dedup simultaneous requests
+  Future<List<Wallpaper>>? _activeFetch;
+
   List<Wallpaper> get wallpapers => _wallpapers;
 
   /// Clears in-memory cache so next fetchCatalog() hits the network
@@ -31,6 +34,18 @@ class CatalogService {
       return _wallpapers;
     }
 
+    // Dedup: if a fetch is already in-flight, await it instead of starting another
+    if (_activeFetch != null) return _activeFetch!;
+
+    _activeFetch = _doFetch();
+    try {
+      return await _activeFetch!;
+    } finally {
+      _activeFetch = null;
+    }
+  }
+
+  Future<List<Wallpaper>> _doFetch() async {
     try {
       // Try loading from network
       final url = SupabaseConfig.catalogUrl();
@@ -42,7 +57,7 @@ class CatalogService {
       if (response.statusCode == 200) {
         final body = utf8.decode(response.bodyBytes);
         final json = jsonDecode(body) as Map<String, dynamic>;
-        final list = json['wallpapers'] as List<dynamic>;
+        final list = (json['wallpapers'] as List<dynamic>?) ?? [];
         _wallpapers = list
             .map((e) => Wallpaper.fromJson(e as Map<String, dynamic>))
             .toList();

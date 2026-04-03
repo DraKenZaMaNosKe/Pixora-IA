@@ -86,9 +86,11 @@ class AuthService {
           .select('wallpaper_id')
           .eq('user_id', userId);
 
-      final remoteFavs = (response as List)
-          .map((r) => r['wallpaper_id'] as String)
-          .toSet();
+      final remoteFavs = <String>{};
+      for (final r in (response as List)) {
+        final id = r['wallpaper_id'] as String?;
+        if (id != null) remoteFavs.add(id);
+      }
 
       // Merge: union of local + remote
       final merged = {...localFavorites, ...remoteFavs};
@@ -162,7 +164,8 @@ class AuthService {
           .limit(100);
 
       return (response as List)
-          .map((r) => r['wallpaper_id'] as String)
+          .map((r) => (r['wallpaper_id'] as String?) ?? '')
+          .where((id) => id.isNotEmpty)
           .toList();
     } catch (e) {
       debugPrint('[Auth] Get download history failed: $e');

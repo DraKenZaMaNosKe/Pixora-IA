@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/quality_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
+import '../../../../core/widgets/loading_overlay.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../../widgets/touch_glow_effect.dart';
 import '../../../favorites/providers/favorites_provider.dart';
@@ -25,6 +27,7 @@ class WallpaperPreviewPage extends ConsumerStatefulWidget {
 class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   bool _isApplying = false;
   double _downloadProgress = 0.0;
+  String _loadingStatus = '';
 
   @override
   void initState() {
@@ -40,42 +43,44 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     return widget.wallpaper.imageFile; // HD and Auto use full image
   }
 
-  Color _parseGlowColor() {
-    try {
-      final hex = widget.wallpaper.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return Colors.white;
-    }
+  Color _parseGlowColor() => parseHexColor(widget.wallpaper.glowColor, fallback: Colors.white);
+
+  void _setLoading(String status, {double progress = 0.0}) {
+    if (mounted) setState(() { _loadingStatus = status; _downloadProgress = progress; });
   }
 
   Future<void> _applyWallpaper(int target) async {
-    setState(() { _isApplying = true; _downloadProgress = 0.0; });
+    setState(() { _isApplying = true; _downloadProgress = 0.0; _loadingStatus = 'Downloading...'; });
     WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
+    String? errorMsg;
     final path = await DownloadService.instance.downloadWallpaper(
       _downloadFile,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
+      onError: (msg) => errorMsg = msg,
     );
 
     if (path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed. Please try again.')),
+          SnackBar(content: Text(errorMsg ?? 'Download failed'), backgroundColor: Colors.red),
         );
       }
       setState(() => _isApplying = false);
       return;
     }
 
+    _setLoading('Applying wallpaper...', progress: 1.0);
+
     final success = await WallpaperService.instance.setWallpaper(path, target);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success ? 'Wallpaper applied!' : 'Failed to apply'),
+          content: Text(success ? 'Wallpaper applied!' : 'Failed to apply wallpaper'),
+          backgroundColor: success ? Colors.green.shade700 : Colors.red,
         ),
       );
     }
@@ -83,73 +88,57 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   }
 
   Future<void> _saveToGallery() async {
-    setState(() { _isApplying = true; _downloadProgress = 0.0; });
+    setState(() { _isApplying = true; _downloadProgress = 0.0; _loadingStatus = 'Downloading...'; });
     WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
-    _showStatus('Downloading image...');
-
+    String? errorMsg;
     final path = await DownloadService.instance.downloadWallpaper(
       _downloadFile,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
+      onError: (msg) => errorMsg = msg,
     );
 
     if (path == null) {
       if (mounted) {
-        _showStatus('Download FAILED - no file returned', isError: true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMsg ?? 'Download failed'), backgroundColor: Colors.red),
+        );
       }
       setState(() => _isApplying = false);
       return;
     }
 
-    // Verify file exists on disk
+    // Verify file on disk
     final file = File(path);
-    final exists = await file.exists();
-    final size = exists ? await file.length() : 0;
-    final sizeKb = (size / 1024).toStringAsFixed(1);
-
-    if (!exists) {
+    if (!await file.exists()) {
       if (mounted) {
-        _showStatus('File NOT on disk: $path', isError: true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File not found after download'), backgroundColor: Colors.red),
+        );
       }
       setState(() => _isApplying = false);
       return;
     }
 
-    _showStatus('Downloaded OK ($sizeKb KB)\nPath: $path\nSaving to gallery...');
+    _setLoading('Saving to gallery...', progress: 1.0);
 
     final success = await WallpaperService.instance.saveToGallery(path);
 
     if (mounted) {
-      if (success) {
-        _showStatus('Saved to Photos! ($sizeKb KB)', isError: false);
-      } else {
-        final nativeErr = WallpaperService.instance.lastError;
-        _showStatus(
-          'saveToGallery returned FALSE\n${nativeErr != null ? "Native: $nativeErr\n" : ""}File: $path\nSize: $sizeKb KB',
-          isError: true,
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success ? 'Saved to Photos!' : 'Failed to save to gallery'),
+          backgroundColor: success ? Colors.green.shade700 : Colors.red,
+        ),
+      );
     }
     setState(() => _isApplying = false);
   }
 
-  void _showStatus(String message, {bool isError = false}) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(fontSize: 12)),
-        backgroundColor: isError ? Colors.red.shade800 : Colors.green.shade800,
-        duration: Duration(seconds: isError ? 8 : 4),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   Future<void> _applyLiveWallpaper() async {
-    setState(() => _isApplying = true);
+    setState(() { _isApplying = true; _downloadProgress = 0.0; _loadingStatus = 'Preparing...'; });
     WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
     // Request microphone permission for equalizer visualization
@@ -162,22 +151,28 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       );
     }
 
+    _setLoading('Downloading...');
+
+    String? errorMsg;
     final path = await DownloadService.instance.downloadWallpaper(
       _downloadFile,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
+      onError: (msg) => errorMsg = msg,
     );
 
     if (path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed. Please try again.')),
+          SnackBar(content: Text(errorMsg ?? 'Download failed'), backgroundColor: Colors.red),
         );
       }
       setState(() => _isApplying = false);
       return;
     }
+
+    _setLoading('Setting live wallpaper...', progress: 1.0);
 
     await WallpaperService.instance.setLiveWallpaper(
       path,
@@ -203,6 +198,9 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   }
 
   void _showApplyOptions() {
+    final isFree = AdService.instance.isNextActionFree;
+    final glowColor = _parseGlowColor();
+
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1A1A2E),
@@ -214,10 +212,46 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Set wallpaper as',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Set wallpaper as',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 10),
+                // FREE! / Ad badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isFree
+                        ? Colors.green.withOpacity(0.2)
+                        : Colors.orange.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isFree
+                          ? Colors.greenAccent.withOpacity(0.5)
+                          : Colors.orange.withOpacity(0.5),
+                    ),
+                  ),
+                  child: Text(
+                    isFree ? 'FREE!' : 'Ad next',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: isFree ? Colors.greenAccent : Colors.orangeAccent,
+                    ),
+                  ),
+                ),
+              ],
             ),
+            if (isFree) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Next wallpaper is ad-free!',
+                style: TextStyle(fontSize: 12, color: Colors.greenAccent.withOpacity(0.7)),
+              ),
+            ],
             const SizedBox(height: 20),
             _buildOption(Icons.home, 'Home Screen', () {
               Navigator.pop(context);
@@ -262,16 +296,27 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Fullscreen image with touch glow
-          TouchGlowEffect(
-            glowColor: glowColor,
-            child: InteractiveViewer(
-              minScale: 1.0,
-              maxScale: 3.0,
-              child: CachedWallpaperImage(
-                imageUrl: widget.wallpaper.fullImageUrl,
+          // Fullscreen image with touch glow (ignores touch when loading)
+          IgnorePointer(
+            ignoring: _isApplying,
+            child: TouchGlowEffect(
+              glowColor: glowColor,
+              child: InteractiveViewer(
+                minScale: 1.0,
+                maxScale: 3.0,
+                child: CachedWallpaperImage(
+                  imageUrl: widget.wallpaper.fullImageUrl,
+                ),
               ),
             ),
+          ),
+
+          // Loading overlay
+          LoadingOverlay(
+            visible: _isApplying,
+            progress: _downloadProgress > 0 ? _downloadProgress : null,
+            status: _loadingStatus,
+            accentColor: glowColor,
           ),
 
           // Top bar
@@ -360,34 +405,8 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                       SizedBox(
                         width: double.infinity,
                         height: 52,
-                        child: _isApplying
-                            ? Column(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: LinearProgressIndicator(
-                                      value: _downloadProgress > 0 ? _downloadProgress : null,
-                                      backgroundColor: Colors.white12,
-                                      valueColor: AlwaysStoppedAnimation<Color>(glowColor),
-                                      minHeight: 6,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    _downloadProgress >= 1.0
-                                        ? 'Applying...'
-                                        : _downloadProgress > 0
-                                            ? 'Downloading ${(_downloadProgress * 100).toInt()}%'
-                                            : 'Connecting...',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.7),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : ElevatedButton.icon(
-                                onPressed: _showApplyDialog,
+                        child: ElevatedButton.icon(
+                                onPressed: _isApplying ? null : _showApplyDialog,
                                 icon: Icon(
                                   Platform.isIOS
                                       ? Icons.save_alt

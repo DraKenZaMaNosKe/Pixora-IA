@@ -9,8 +9,20 @@ class AdService {
 
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;
+  bool _isAdLoading = false;
+
+  /// Alternating counter: ad shows on odd counts (1st, 3rd, 5th…),
+  /// skips on even counts (2nd, 4th, 6th…).
+  int _actionCount = 0;
 
   bool get isAdLoaded => _isAdLoaded;
+
+  /// Whether the NEXT action will show an ad (true) or be free (false).
+  /// Use this to show "FREE!" or "Ad next" badges in the UI.
+  bool get isNextActionFree => _actionCount.isOdd;
+
+  /// Current flag value for debugging: even = next is ad, odd = next is free.
+  int get debugFlag => _actionCount;
 
   /// Initialize Mobile Ads SDK. Call once at app startup.
   Future<void> initialize() async {
@@ -20,6 +32,8 @@ class AdService {
 
   /// Pre-load an interstitial ad so it's ready when needed.
   void loadInterstitialAd() {
+    if (_isAdLoading || _isAdLoaded) return;
+    _isAdLoading = true;
     InterstitialAd.load(
       adUnitId: _interstitialAdUnitId,
       request: const AdRequest(),
@@ -27,22 +41,34 @@ class AdService {
         onAdLoaded: (ad) {
           _interstitialAd = ad;
           _isAdLoaded = true;
+          _isAdLoading = false;
           debugPrint('[Pixora] Interstitial ad loaded');
         },
         onAdFailedToLoad: (error) {
           _isAdLoaded = false;
-          debugPrint('[Pixora] Interstitial ad failed to load: ${error.message}');
+          _isAdLoading = false;
+          debugPrint('[Pixora] Interstitial ad failed: ${error.message}');
         },
       ),
     );
   }
 
-  /// Show the interstitial ad, then call [onAdDismissed] when done.
-  /// If no ad is loaded, calls [onAdDismissed] immediately.
+  /// Show interstitial ad on alternating actions (1st yes, 2nd no, 3rd yes…).
+  /// Always calls [onAdDismissed] whether ad was shown or skipped.
   void showInterstitialAd({required VoidCallback onAdDismissed}) {
+    _actionCount++;
+    final shouldShow = _actionCount.isOdd;
+
+    if (!shouldShow) {
+      // Skip turn — let user enjoy ad-free
+      onAdDismissed();
+      return;
+    }
+
+    // Show turn — but if ad not ready, just proceed
     if (_interstitialAd == null || !_isAdLoaded) {
       onAdDismissed();
-      loadInterstitialAd(); // Try loading for next time
+      loadInterstitialAd();
       return;
     }
 
@@ -51,7 +77,7 @@ class AdService {
         ad.dispose();
         _interstitialAd = null;
         _isAdLoaded = false;
-        loadInterstitialAd(); // Pre-load next ad
+        loadInterstitialAd();
         onAdDismissed();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {

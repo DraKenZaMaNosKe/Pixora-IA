@@ -27,7 +27,7 @@ class PixoraWallpaperService : WallpaperService() {
         private var wallpaperBitmap: Bitmap? = null
         @Volatile private var scaledBitmap: Bitmap? = null
         private val glowDots = mutableListOf<GlowDot>()
-        private var drawing = false
+        @Volatile private var drawing = false
         private var surfaceWidth = 0
         private var surfaceHeight = 0
         private var glowColor = Color.parseColor("#7C4DFF")
@@ -48,16 +48,20 @@ class PixoraWallpaperService : WallpaperService() {
 
         // Video wallpaper (ExoPlayer)
         private var exoPlayer: ExoPlayer? = null
-        private var isVideoWallpaper = false
+        @Volatile private var isVideoWallpaper = false
 
-        // Note: Shaders use separate ShaderWallpaperService, not this one
+        // Lock for bitmap field access across threads
+        private val bitmapLock = Object()
+
+        // Lock for ExoPlayer start/stop synchronization
+        private val videoLock = Object()
 
         // Pre-allocated paint for glow dots
         private val glowDotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
         // Renderers
         private val clockRenderer = ClockRenderer()
-        private val equalizerRenderer = EqualizerRenderer()
+        private val equalizerRenderer = EqualizerRenderer(applicationContext)
         private val rainRenderer = RainEffectRenderer()
         private val batteryIndicator = BatteryIndicator(applicationContext)
         private val systemRings = SystemRingsRenderer(applicationContext)
@@ -95,7 +99,7 @@ class PixoraWallpaperService : WallpaperService() {
             }
         }
 
-        private var pendingReload: Runnable? = null
+        @Volatile private var pendingReload: Runnable? = null
 
         private fun registerPrefsListener() {
             val prefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
@@ -168,36 +172,60 @@ class PixoraWallpaperService : WallpaperService() {
                         opts.inJustDecodeBounds = true
                         BitmapFactory.decodeFile(path, opts)
 
-                        val targetH = if (surfaceHeight > 0) surfaceHeight else 2340
+                        if (opts.outWidth <= 0 || opts.outHeight <= 0) {
+                            Log.e(TAG, "Invalid bitmap dimensions: ${opts.outWidth}x${opts.outHeight}")
+                            return
+                        }
+
+                        // Use actual surface height, or screen height as fallback
+                        val targetH = if (surfaceHeight > 0) surfaceHeight else
+                            resources.displayMetrics.heightPixels
                         opts.inSampleSize = calculateInSampleSize(opts, opts.outWidth, targetH)
                         opts.inJustDecodeBounds = false
                         opts.inPreferredConfig = Bitmap.Config.RGB_565
-                        wallpaperBitmap = BitmapFactory.decodeFile(path, opts)
+
+                        val decoded = try {
+                            BitmapFactory.decodeFile(path, opts)
+                        } catch (oom: OutOfMemoryError) {
+                            Log.e(TAG, "OOM decoding bitmap, retrying with higher sample: ${oom.message}")
+                            opts.inSampleSize *= 2
+                            BitmapFactory.decodeFile(path, opts)
+                        }
+
+                        if (decoded != null) {
+                            wallpaperBitmap = decoded
+                        } else {
+                            Log.e(TAG, "Failed to decode bitmap: $path")
+                        }
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "loadWallpaperImage error: ${e.message}")
             }
         }
 
         // Guard against multiple simultaneous video starts
-        private var videoStarting = false
+        @Volatile private var videoStarting = false
 
         private fun startVideoWallpaper(path: String) {
-            if (videoStarting) {
-                Log.d(TAG, "Video already starting, skipping")
-                return
+            synchronized(videoLock) {
+                if (videoStarting) {
+                    Log.d(TAG, "Video already starting, skipping")
+                    return
+                }
+                videoStarting = true
             }
-            videoStarting = true
             Log.d(TAG, "Starting ExoPlayer for: $path")
 
             // Stop canvas drawing
             drawing = false
             handler.removeCallbacks(drawRunnable)
             equalizerRenderer.releaseVisualizer()
-            scaledBitmap = null
-            panoramicBitmap = null
-            wallpaperBitmap = null
+            synchronized(bitmapLock) {
+                scaledBitmap = null
+                panoramicBitmap = null
+                wallpaperBitmap = null
+            }
             isVideoWallpaper = true
 
             // Release old player
@@ -207,7 +235,7 @@ class PixoraWallpaperService : WallpaperService() {
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
                 Log.e(TAG, "Surface not valid for video")
-                videoStarting = false
+                synchronized(videoLock) { videoStarting = false }
                 isVideoWallpaper = false
                 return
             }
@@ -226,7 +254,7 @@ class PixoraWallpaperService : WallpaperService() {
                         when (state) {
                             Player.STATE_READY -> {
                                 Log.d(TAG, "ExoPlayer READY, starting: $path")
-                                videoStarting = false
+                                synchronized(videoLock) { videoStarting = false }
                                 player.play()
                             }
                             Player.STATE_ENDED -> {
@@ -236,26 +264,29 @@ class PixoraWallpaperService : WallpaperService() {
                     }
                     override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                         Log.e(TAG, "ExoPlayer error: ${error.message}")
-                        videoStarting = false
+                        synchronized(videoLock) { videoStarting = false }
                         isVideoWallpaper = false
                     }
                 })
 
                 player.prepare()
-                exoPlayer = player
+                synchronized(videoLock) { exoPlayer = player }
                 Log.d(TAG, "ExoPlayer setup complete")
             } catch (e: Exception) {
                 Log.e(TAG, "ExoPlayer FAILED: ${e.javaClass.simpleName}: ${e.message}")
-                videoStarting = false
+                synchronized(videoLock) { videoStarting = false }
                 isVideoWallpaper = false
             }
         }
 
         private fun stopVideoWallpaper() {
-            val player = exoPlayer
-            exoPlayer = null
-            isVideoWallpaper = false
-            videoStarting = false
+            val player: ExoPlayer?
+            synchronized(videoLock) {
+                player = exoPlayer
+                exoPlayer = null
+                isVideoWallpaper = false
+                videoStarting = false
+            }
             if (player != null) {
                 try {
                     player.stop()
@@ -286,9 +317,11 @@ class PixoraWallpaperService : WallpaperService() {
             val bmp = wallpaperBitmap ?: return
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
-            // Invalidate old bitmaps immediately to prevent drawing stale frames
-            scaledBitmap = null
-            panoramicBitmap = null
+            // Invalidate old bitmaps under lock to prevent drawFrame reading recycled bitmap
+            synchronized(bitmapLock) {
+                scaledBitmap = null
+                panoramicBitmap = null
+            }
 
             // Capture dimensions at call time (they could change during thread execution)
             val targetW = surfaceWidth
@@ -305,11 +338,12 @@ class PixoraWallpaperService : WallpaperService() {
                         val scaledHeight = targetH
                         val scaledWidth = (bmp.width.toFloat() / bmp.height.toFloat() * scaledHeight).toInt()
                         val newPanBmp = Bitmap.createScaledBitmap(bmp, scaledWidth, scaledHeight, true)
-                        // Null references BEFORE recycle to prevent drawFrame reading recycled bitmap
-                        wallpaperBitmap = null
-                        scaledBitmap = null
-                        panoramicBitmap = newPanBmp
-                        isPanoramic = true
+                        synchronized(bitmapLock) {
+                            wallpaperBitmap = null
+                            scaledBitmap = null
+                            panoramicBitmap = newPanBmp
+                            isPanoramic = true
+                        }
                         bmp.recycle()
                         Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - targetW}px)")
                     } else {
@@ -325,15 +359,18 @@ class PixoraWallpaperService : WallpaperService() {
                         val cropped = Bitmap.createBitmap(bmp, x, y, cropW, cropH)
                         val scaled = Bitmap.createScaledBitmap(cropped, targetW, targetH, true)
                         if (cropped != scaled) cropped.recycle()
-                        // Null references BEFORE recycle
-                        wallpaperBitmap = null
-                        panoramicBitmap = null
-                        scaledBitmap = scaled
-                        isPanoramic = false
+                        synchronized(bitmapLock) {
+                            wallpaperBitmap = null
+                            panoramicBitmap = null
+                            scaledBitmap = scaled
+                            isPanoramic = false
+                        }
                         bmp.recycle()
                     }
-                    // Force a redraw with the new bitmap
-                    handler.post { if (drawing) drawFrame() }
+                    // Force a redraw with the new bitmap (verify surface still valid)
+                    handler.post {
+                        if (drawing && surfaceHolder?.surface?.isValid == true) drawFrame()
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "createScaledBitmap error: ${e.message}")
                 }
@@ -390,6 +427,17 @@ class PixoraWallpaperService : WallpaperService() {
             val dimensionsChanged = surfaceWidth != width || surfaceHeight != height
             surfaceWidth = width
             surfaceHeight = height
+
+            // Re-attach surface to ExoPlayer if it was detached in onSurfaceDestroyed
+            synchronized(videoLock) {
+                val player = exoPlayer
+                if (player != null && holder?.surface != null && holder.surface.isValid) {
+                    player.setVideoSurface(holder.surface)
+                    Log.d(TAG, "ExoPlayer surface re-attached")
+                    return
+                }
+            }
+
             if (dimensionsChanged) {
                 Log.d(TAG, "Surface changed: ${width}x${height}")
                 loadWallpaperImage()
@@ -401,18 +449,19 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
-            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper ")
+            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper videoStarting=$videoStarting exoPlayer=${exoPlayer != null}")
             if (visible) {
                 if (videoStarting) return
 
-                // Video: resume ExoPlayer
+                // Video: resume ExoPlayer if still alive
                 val player = exoPlayer
                 if (player != null) {
                     player.play()
                     Log.d(TAG, "ExoPlayer resumed")
                     return
                 }
-                // No video/shader — load image wallpaper
+
+                // Reload wallpaper config — may need to restart video
                 loadWallpaperImage()
                 if (!isVideoWallpaper && !videoStarting) {
                     createScaledBitmap()
@@ -421,6 +470,7 @@ class PixoraWallpaperService : WallpaperService() {
                     handler.post(drawRunnable)
                 }
             } else {
+                // Only pause video, don't stop/release — it will be resumed on visibility=true
                 val player = exoPlayer
                 if (player != null) {
                     player.pause()
@@ -471,30 +521,31 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         private fun drawFrame() {
-            val holder = surfaceHolder
+            if (!drawing) return
+            val holder = surfaceHolder ?: return
             var canvas: Canvas? = null
             try {
-                canvas = holder.lockCanvas()
-                if (canvas != null) {
-                    updateRendererState()
-                    drawBackground(canvas)
-                    rainRenderer.draw(canvas)
-                    if (isRainWallpaper) rainRenderer.drawHeadphoneGlow(canvas)
+                canvas = holder.lockCanvas() ?: return
+                updateRendererState()
+                drawBackground(canvas)
+                rainRenderer.draw(canvas)
+                if (isRainWallpaper) rainRenderer.drawHeadphoneGlow(canvas)
 
-                    // Hide our clock on lock screen to avoid overlap with system clock
-                    val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-                    val isLocked = km?.isKeyguardLocked == true
-                    if (!isLocked) {
-                        clockRenderer.draw(canvas)
-                    }
-                    batteryIndicator.draw(canvas)
-                    if (!isLocked) {
-                        systemRings.draw(canvas)
-                    }
-                    equalizerRenderer.draw(canvas)
-                    if (!isLocked) captionOverlay.draw(canvas)
-                    drawGlowEffects(canvas)
+                // Hide our clock on lock screen to avoid overlap with system clock
+                val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                val isLocked = km?.isKeyguardLocked == true
+                if (!isLocked) {
+                    clockRenderer.draw(canvas)
                 }
+                batteryIndicator.draw(canvas)
+                if (!isLocked) {
+                    systemRings.draw(canvas)
+                }
+                equalizerRenderer.draw(canvas)
+                if (!isLocked) captionOverlay.draw(canvas)
+                drawGlowEffects(canvas)
+            } catch (e: Exception) {
+                Log.e(TAG, "drawFrame error: ${e.message}")
             } finally {
                 if (canvas != null) {
                     try { holder.unlockCanvasAndPost(canvas) } catch (_: Exception) {}
@@ -524,8 +575,17 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         private fun drawBackground(canvas: Canvas) {
-            val panBmp = panoramicBitmap
-            if (isPanoramic && panBmp != null) {
+            // Read bitmap references under lock to prevent use-after-recycle
+            val panBmp: Bitmap?
+            val stdBmp: Bitmap?
+            val pan: Boolean
+            synchronized(bitmapLock) {
+                panBmp = panoramicBitmap
+                stdBmp = scaledBitmap
+                pan = isPanoramic
+            }
+
+            if (pan && panBmp != null && !panBmp.isRecycled) {
                 val maxScroll = (panBmp.width - surfaceWidth).toFloat().coerceAtLeast(0f)
 
                 if (abs(scrollVelocity) > 0.5f) {
@@ -534,13 +594,11 @@ class PixoraWallpaperService : WallpaperService() {
                 }
                 scrollOffsetPx += (targetScrollPx - scrollOffsetPx) * 0.15f
 
-                val scrollX = scrollOffsetPx
-                canvas.drawBitmap(panBmp, -scrollX, 0f, null)
+                canvas.drawBitmap(panBmp, -scrollOffsetPx, 0f, null)
                 return
             }
-            val bmp = scaledBitmap
-            if (bmp != null) {
-                canvas.drawBitmap(bmp, 0f, 0f, null)
+            if (stdBmp != null && !stdBmp.isRecycled) {
+                canvas.drawBitmap(stdBmp, 0f, 0f, null)
             } else {
                 canvas.drawColor(Color.BLACK)
             }
@@ -576,8 +634,13 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onSurfaceDestroyed(holder: SurfaceHolder?) {
             drawing = false
             handler.removeCallbacks(drawRunnable)
+            pendingReload?.let { handler.removeCallbacks(it) }
             equalizerRenderer.releaseVisualizer()
-            stopVideoWallpaper()
+            // Don't release ExoPlayer here — surface may be recreated (visibility change).
+            // Only detach the surface so it doesn't draw to a destroyed one.
+            synchronized(videoLock) {
+                exoPlayer?.clearVideoSurface()
+            }
             super.onSurfaceDestroyed(holder)
         }
 
@@ -589,9 +652,14 @@ class PixoraWallpaperService : WallpaperService() {
             stopVideoWallpaper()
             batteryIndicator.release()
             unregisterPrefsListener()
-            wallpaperBitmap?.recycle()
-            scaledBitmap?.recycle()
-            panoramicBitmap?.recycle()
+            synchronized(bitmapLock) {
+                wallpaperBitmap?.recycle()
+                scaledBitmap?.recycle()
+                panoramicBitmap?.recycle()
+                wallpaperBitmap = null
+                scaledBitmap = null
+                panoramicBitmap = null
+            }
             super.onDestroy()
         }
     }

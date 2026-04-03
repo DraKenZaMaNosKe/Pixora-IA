@@ -33,7 +33,7 @@ class DayCycleCatalogService {
       if (response.statusCode == 200) {
         final body = utf8.decode(response.bodyBytes);
         final json = jsonDecode(body) as Map<String, dynamic>;
-        final list = json['themes'] as List<dynamic>;
+        final list = (json['themes'] as List<dynamic>?) ?? [];
         _themes = list
             .map((e) => DayCycleTheme.fromJson(e as Map<String, dynamic>))
             .toList();
@@ -59,7 +59,9 @@ class DayCycleCatalogService {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/day_cycle_cache.json');
       await file.writeAsString(json);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Pixora] Day cycle cache write error: $e');
+    }
   }
 
   Future<List<DayCycleTheme>?> _loadFromCache() async {
@@ -68,10 +70,12 @@ class DayCycleCatalogService {
       final file = File('${dir.path}/day_cycle_cache.json');
       if (await file.exists()) {
         final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-        final list = json['themes'] as List<dynamic>;
+        final list = (json['themes'] as List<dynamic>?) ?? [];
         return list.map((e) => DayCycleTheme.fromJson(e as Map<String, dynamic>)).toList();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Pixora] Day cycle cache read error: $e');
+    }
     return null;
   }
 }

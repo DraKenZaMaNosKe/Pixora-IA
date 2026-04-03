@@ -159,9 +159,10 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
     }
 
     private fun downloadFile(url: String, target: File): Boolean {
+        var conn: HttpURLConnection? = null
         return try {
             target.parentFile?.mkdirs()
-            val conn = URL(url).openConnection() as HttpURLConnection
+            conn = URL(url).openConnection() as HttpURLConnection
             conn.connectTimeout = 15_000
             conn.readTimeout = 30_000
 
@@ -181,6 +182,8 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             Log.e(TAG, "Download error: ${e.message}")
             target.delete() // clean up partial download
             false
+        } finally {
+            conn?.disconnect()
         }
     }
 

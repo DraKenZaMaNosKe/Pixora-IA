@@ -57,8 +57,12 @@ class DayCycleService {
   Future<Map<String, dynamic>> getStatus() async {
     try {
       final result = await _channel.invokeMethod('getDayCycleStatus');
-      return Map<String, dynamic>.from(result as Map);
+      if (result is Map) {
+        return Map<String, dynamic>.from(result);
+      }
+      return {'enabled': false};
     } catch (e) {
+      debugPrint('[Pixora] Day cycle status error: $e');
       return {'enabled': false};
     }
   }

@@ -17,6 +17,11 @@ class ClockRenderer {
     private val clockArcPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val clockFlashPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    // Pre-allocated Typefaces to avoid allocation per frame
+    private val typefaceBold = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+    private val typefaceLight = Typeface.create("sans-serif-light", Typeface.NORMAL)
+    private val typefaceBoldBold = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD)
+
     var clockStyle = 0
     private var lastMinute = -1
     private var lastHour = -1
@@ -106,7 +111,7 @@ class ClockRenderer {
                 clockShadowPaint.apply {
                     color = glowColor
                     textSize = timeSize
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = typefaceBold
                     textAlign = Paint.Align.CENTER
                     letterSpacing = 0.08f
                     alpha = 80
@@ -116,7 +121,7 @@ class ClockRenderer {
                 clockTimePaint.apply {
                     color = Color.WHITE
                     textSize = timeSize
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = typefaceBold
                     textAlign = Paint.Align.CENTER
                     letterSpacing = 0.08f
                     alpha = timeAlpha
@@ -129,7 +134,7 @@ class ClockRenderer {
                 clockTimePaint.apply {
                     color = Color.WHITE
                     textSize = timeSize * 0.9f
-                    typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
+                    typeface = typefaceLight
                     textAlign = Paint.Align.CENTER
                     letterSpacing = 0.12f
                     alpha = timeAlpha
@@ -142,7 +147,7 @@ class ClockRenderer {
                 clockShadowPaint.apply {
                     color = glowColor
                     textSize = timeSize * 1.05f
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = typefaceBold
                     textAlign = Paint.Align.CENTER
                     letterSpacing = 0.02f
                     alpha = 150
@@ -152,7 +157,7 @@ class ClockRenderer {
                 clockTimePaint.apply {
                     color = Color.WHITE
                     textSize = timeSize * 1.05f
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = typefaceBold
                     textAlign = Paint.Align.CENTER
                     letterSpacing = 0.02f
                     alpha = timeAlpha
@@ -164,7 +169,7 @@ class ClockRenderer {
             3 -> { // Gradient Fade
                 clockTimePaint.apply {
                     textSize = timeSize
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = typefaceBold
                     textAlign = Paint.Align.CENTER
                     letterSpacing = 0.06f
                     alpha = timeAlpha
@@ -192,7 +197,7 @@ class ClockRenderer {
         clockSecPaint.apply {
             color = secColor
             textSize = secSize
-            typeface = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD)
+            typeface = typefaceBoldBold
             textAlign = Paint.Align.LEFT
             letterSpacing = 0.05f
             val breathe = sin(animationPhase * 2.0).toFloat() * 8f + 12f

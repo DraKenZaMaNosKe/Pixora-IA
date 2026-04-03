@@ -25,7 +25,8 @@ class LiveWallpaperCatalogService {
     try {
       final url =
           '${SupabaseConfig.storageBase}/wallpaper-videos/$_catalogFile';
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(Uri.parse(url))
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;

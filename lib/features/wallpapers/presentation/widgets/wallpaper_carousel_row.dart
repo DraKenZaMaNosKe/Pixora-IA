@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 import 'wallpaper_stats_bar.dart';
@@ -142,14 +143,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
   final ScrollController scrollController;
   final int index;
 
-  Color get _glowColor {
-    try {
-      final hex = wallpaper.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return Colors.white;
-    }
-  }
+  Color get _glowColor => parseHexColor(wallpaper.glowColor, fallback: Colors.white);
 
   double _getParallaxOffset(BuildContext context) {
     if (!scrollController.hasClients) return 0.0;

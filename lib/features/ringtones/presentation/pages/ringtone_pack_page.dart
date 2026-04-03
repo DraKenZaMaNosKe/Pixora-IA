@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../data/models/ringtone_pack.dart';
 
@@ -21,14 +22,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   String? _settingId;
   StreamSubscription? _playerSub;
 
-  Color get _glowColor {
-    try {
-      final hex = widget.pack.glowColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return Colors.deepPurple;
-    }
-  }
+  Color get _glowColor => parseHexColor(widget.pack.glowColor, fallback: Colors.deepPurple);
 
   IconData _typeIcon(String type) {
     switch (type) {
