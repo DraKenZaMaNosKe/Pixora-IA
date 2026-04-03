@@ -96,6 +96,28 @@ class MainActivity : FlutterActivity() {
                         }
                         result.success(success)
                     }
+                    "setShaderWallpaper" -> {
+                        val shaderName = call.argument<String>("shaderName")
+                        if (shaderName != null) {
+                            // Save shader name for ShaderWallpaperService to read
+                            val prefs = getSharedPreferences("pixora_shader", 0)
+                            prefs.edit()
+                                .putString("shader_name", shaderName)
+                                .apply()
+
+                            // Launch shader wallpaper picker (uses ShaderWallpaperService)
+                            val intent = android.content.Intent(android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+                            intent.putExtra(
+                                android.app.WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                                android.content.ComponentName(applicationContext, com.orbix.pixora.gl.ShaderWallpaperService::class.java)
+                            )
+                            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivity(intent)
+                            result.success(true)
+                        } else {
+                            result.error("INVALID_ARG", "shaderName required", null)
+                        }
+                    }
                     "stopStory" -> {
                         val success = StoryWorker.stopStory(applicationContext)
                         result.success(success)
@@ -275,10 +297,46 @@ class MainActivity : FlutterActivity() {
                 contentResolver.update(uri, updateValues, null, null)
             }
 
+            // Small delay to let MediaStore fully index the file
+            Thread.sleep(200)
+
+            // Verify file is accessible before setting as default
+            try {
+                val testStream = contentResolver.openInputStream(uri)
+                val readable = testStream != null
+                testStream?.close()
+                android.util.Log.d("PixoraRingtone", "File readable after insert: $readable")
+            } catch (e: Exception) {
+                android.util.Log.w("PixoraRingtone", "File verify failed: ${e.message}")
+            }
+
             // Set as default ringtone/notification/alarm
             RingtoneManager.setActualDefaultRingtoneUri(applicationContext, ringtoneType, uri)
+            android.util.Log.d("PixoraRingtone", "setActualDefaultRingtoneUri OK: type=$ringtoneType uri=$uri")
 
-            android.util.Log.d("PixoraRingtone", "SUCCESS: Set '$title' as type=$type, uri=$uri, path=$relativePath")
+            // Verify it was set correctly
+            val verifyUri = RingtoneManager.getActualDefaultRingtoneUri(applicationContext, ringtoneType)
+            val verified = verifyUri?.toString() == uri.toString()
+            android.util.Log.d("PixoraRingtone", "Verify: expected=$uri actual=$verifyUri match=$verified")
+
+            if (!verified) {
+                // Some devices need the content:// URI with the specific ID
+                // Try alternative approach: set via Settings.System directly
+                try {
+                    val settingKey = when (type) {
+                        0 -> AndroidSettings.System.RINGTONE
+                        1 -> AndroidSettings.System.NOTIFICATION_SOUND
+                        2 -> AndroidSettings.System.ALARM_ALERT
+                        else -> AndroidSettings.System.NOTIFICATION_SOUND
+                    }
+                    AndroidSettings.System.putString(contentResolver, settingKey, uri.toString())
+                    android.util.Log.d("PixoraRingtone", "Fallback: Settings.System.putString($settingKey, $uri)")
+                } catch (e: Exception) {
+                    android.util.Log.w("PixoraRingtone", "Settings.System fallback failed: ${e.message}")
+                }
+            }
+
+            android.util.Log.d("PixoraRingtone", "SUCCESS: '$title' type=$type uri=$uri path=$relativePath")
             true
         } catch (e: Exception) {
             android.util.Log.e("PixoraRingtone", "Failed: ${e.message}", e)

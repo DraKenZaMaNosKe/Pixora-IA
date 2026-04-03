@@ -8,6 +8,7 @@ import '../../settings/presentation/settings_page.dart';
 import '../../stories/presentation/pages/stories_page.dart';
 import '../../day_cycle/presentation/pages/day_cycle_page.dart';
 import '../../hot_wallpapers/presentation/pages/hot_wallpapers_page.dart';
+import '../../realm/presentation/pages/realm_page.dart';
 import '../../ringtones/presentation/pages/ringtones_page.dart';
 import '../../wallpapers/presentation/pages/wallpaper_search_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';
@@ -25,6 +26,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   static final _pages = [
     const WallpapersPage(),
     if (!Platform.isIOS) const HotWallpapersPage(),
+    if (!Platform.isIOS) const RealmPage(),
     if (!Platform.isIOS) const StoriesPage(),
     if (!Platform.isIOS) const DayCyclePage(),
     if (!Platform.isIOS) const RingtonesPage(),
@@ -38,6 +40,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final titles = [
       'Pixora IA',
       if (!Platform.isIOS) 'HOT',
+      if (!Platform.isIOS) 'Realm',
       if (!Platform.isIOS) 'Stories',
       if (!Platform.isIOS) 'Day Cycle',
       if (!Platform.isIOS) 'Tones',
@@ -206,6 +209,11 @@ class _HomePageState extends ConsumerState<HomePage> {
             const BottomNavigationBarItem(
               icon: Icon(Icons.local_fire_department),
               label: 'HOT',
+            ),
+          if (!Platform.isIOS)
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.auto_awesome),
+              label: 'Realm',
             ),
           if (!Platform.isIOS)
             const BottomNavigationBarItem(

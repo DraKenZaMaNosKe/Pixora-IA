@@ -50,6 +50,9 @@ class PixoraWallpaperService : WallpaperService() {
         private var exoPlayer: ExoPlayer? = null
         private var isVideoWallpaper = false
 
+        // Shader flag (shaders use separate ShaderWallpaperService)
+        private var isShaderWallpaper = false
+
         // Pre-allocated paint for glow dots
         private val glowDotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
@@ -105,7 +108,7 @@ class PixoraWallpaperService : WallpaperService() {
                     val reload = Runnable {
                         Log.d(TAG, "Executing debounced reload")
                         loadWallpaperImage()
-                        if (!isVideoWallpaper) createScaledBitmap()
+                        if (!isVideoWallpaper && !isShaderWallpaper) createScaledBitmap()
                     }
                     pendingReload = reload
                     handler.postDelayed(reload, 300)
@@ -153,12 +156,14 @@ class PixoraWallpaperService : WallpaperService() {
                             path.endsWith(".webm", ignoreCase = true)
 
                         if (isVideo) {
+                            // (shaders use separate ShaderWallpaperService)
                             startVideoWallpaper(path)
                             return
                         }
 
-                        // Stop video if switching to image
+                        // Stop video/shader if switching to image
                         stopVideoWallpaper()
+                        isShaderWallpaper = false
 
                         val opts = BitmapFactory.Options()
                         opts.inJustDecodeBounds = true
@@ -388,26 +393,27 @@ class PixoraWallpaperService : WallpaperService() {
                 Log.d(TAG, "Surface changed: ${width}x${height}")
                 loadWallpaperImage()
             }
-            if (!isVideoWallpaper) {
+            if (!isVideoWallpaper && !isShaderWallpaper) {
                 createScaledBitmap()
                 drawFrame()
             }
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
-            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper exo=${exoPlayer != null}")
+            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper isShader=$isShaderWallpaper")
             if (visible) {
                 if (videoStarting) return
+
+                // Video: resume ExoPlayer
                 val player = exoPlayer
                 if (player != null) {
-                    // ExoPlayer exists — just resume
                     player.play()
                     Log.d(TAG, "ExoPlayer resumed")
                     return
                 }
-                // No video — load image wallpaper
+                // No video/shader — load image wallpaper
                 loadWallpaperImage()
-                if (!isVideoWallpaper && !videoStarting) {
+                if (!isVideoWallpaper && !isShaderWallpaper && !videoStarting) {
                     createScaledBitmap()
                     equalizerRenderer.setupVisualizer()
                     drawing = true
