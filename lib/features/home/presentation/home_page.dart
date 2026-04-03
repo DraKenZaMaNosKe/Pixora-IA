@@ -8,7 +8,6 @@ import '../../settings/presentation/settings_page.dart';
 import '../../stories/presentation/pages/stories_page.dart';
 import '../../day_cycle/presentation/pages/day_cycle_page.dart';
 import '../../hot_wallpapers/presentation/pages/hot_wallpapers_page.dart';
-// import '../../realm/presentation/pages/realm_page.dart'; // Shader section — coming soon
 import '../../ringtones/presentation/pages/ringtones_page.dart';
 import '../../wallpapers/presentation/pages/wallpaper_search_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';

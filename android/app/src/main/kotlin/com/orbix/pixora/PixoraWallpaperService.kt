@@ -25,7 +25,7 @@ class PixoraWallpaperService : WallpaperService() {
     inner class PixoraEngine : Engine(), EqualizerRenderer.AudioCallback {
         private val handler = Handler(Looper.getMainLooper())
         private var wallpaperBitmap: Bitmap? = null
-        private var scaledBitmap: Bitmap? = null
+        @Volatile private var scaledBitmap: Bitmap? = null
         private val glowDots = mutableListOf<GlowDot>()
         private var drawing = false
         private var surfaceWidth = 0
@@ -34,7 +34,7 @@ class PixoraWallpaperService : WallpaperService() {
 
         // Panoramic scroll
         private var isPanoramic = false
-        private var panoramicBitmap: Bitmap? = null
+        @Volatile private var panoramicBitmap: Bitmap? = null
         private var touchStartX = 0f
         private var scrollOffsetPx = 0f
         private var targetScrollPx = 0f
@@ -50,8 +50,7 @@ class PixoraWallpaperService : WallpaperService() {
         private var exoPlayer: ExoPlayer? = null
         private var isVideoWallpaper = false
 
-        // Shader flag (shaders use separate ShaderWallpaperService)
-        private var isShaderWallpaper = false
+        // Note: Shaders use separate ShaderWallpaperService, not this one
 
         // Pre-allocated paint for glow dots
         private val glowDotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -108,7 +107,7 @@ class PixoraWallpaperService : WallpaperService() {
                     val reload = Runnable {
                         Log.d(TAG, "Executing debounced reload")
                         loadWallpaperImage()
-                        if (!isVideoWallpaper && !isShaderWallpaper) createScaledBitmap()
+                        if (!isVideoWallpaper) createScaledBitmap()
                     }
                     pendingReload = reload
                     handler.postDelayed(reload, 300)
@@ -163,7 +162,7 @@ class PixoraWallpaperService : WallpaperService() {
 
                         // Stop video/shader if switching to image
                         stopVideoWallpaper()
-                        isShaderWallpaper = false
+                        // (shaders use separate service)
 
                         val opts = BitmapFactory.Options()
                         opts.inJustDecodeBounds = true
@@ -306,11 +305,12 @@ class PixoraWallpaperService : WallpaperService() {
                         val scaledHeight = targetH
                         val scaledWidth = (bmp.width.toFloat() / bmp.height.toFloat() * scaledHeight).toInt()
                         val newPanBmp = Bitmap.createScaledBitmap(bmp, scaledWidth, scaledHeight, true)
-                        panoramicBitmap = newPanBmp
+                        // Null references BEFORE recycle to prevent drawFrame reading recycled bitmap
+                        wallpaperBitmap = null
                         scaledBitmap = null
+                        panoramicBitmap = newPanBmp
                         isPanoramic = true
                         bmp.recycle()
-                        wallpaperBitmap = null
                         Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - targetW}px)")
                     } else {
                         val (cropW, cropH) = if (srcRatio > dstRatio) {
@@ -325,11 +325,12 @@ class PixoraWallpaperService : WallpaperService() {
                         val cropped = Bitmap.createBitmap(bmp, x, y, cropW, cropH)
                         val scaled = Bitmap.createScaledBitmap(cropped, targetW, targetH, true)
                         if (cropped != scaled) cropped.recycle()
-                        scaledBitmap = scaled
+                        // Null references BEFORE recycle
+                        wallpaperBitmap = null
                         panoramicBitmap = null
+                        scaledBitmap = scaled
                         isPanoramic = false
                         bmp.recycle()
-                        wallpaperBitmap = null
                     }
                     // Force a redraw with the new bitmap
                     handler.post { if (drawing) drawFrame() }
@@ -393,14 +394,14 @@ class PixoraWallpaperService : WallpaperService() {
                 Log.d(TAG, "Surface changed: ${width}x${height}")
                 loadWallpaperImage()
             }
-            if (!isVideoWallpaper && !isShaderWallpaper) {
+            if (!isVideoWallpaper) {
                 createScaledBitmap()
                 drawFrame()
             }
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
-            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper isShader=$isShaderWallpaper")
+            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper ")
             if (visible) {
                 if (videoStarting) return
 
@@ -413,7 +414,7 @@ class PixoraWallpaperService : WallpaperService() {
                 }
                 // No video/shader — load image wallpaper
                 loadWallpaperImage()
-                if (!isVideoWallpaper && !isShaderWallpaper && !videoStarting) {
+                if (!isVideoWallpaper && !videoStarting) {
                     createScaledBitmap()
                     equalizerRenderer.setupVisualizer()
                     drawing = true
@@ -583,6 +584,7 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onDestroy() {
             drawing = false
             handler.removeCallbacks(drawRunnable)
+            pendingReload?.let { handler.removeCallbacks(it) }
             equalizerRenderer.releaseVisualizer()
             stopVideoWallpaper()
             batteryIndicator.release()

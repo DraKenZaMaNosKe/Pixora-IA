@@ -114,9 +114,10 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         );
       }
       try {
+        final client = http.Client();
         final request =
             http.Request('GET', Uri.parse(widget.wallpaper.videoUrl));
-        final response = await http.Client().send(request);
+        final response = await client.send(request);
         final totalBytes = response.contentLength ?? 0;
         int receivedBytes = 0;
         final sink = localFile.openWrite();
@@ -128,6 +129,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
           }
         }
         await sink.close();
+        client.close();
         debugPrint('[Pixora] Download complete: ${await localFile.length()}B');
       } catch (e) {
         debugPrint('[Pixora] Live wallpaper download failed: $e');

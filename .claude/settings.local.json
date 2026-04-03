@@ -56,7 +56,8 @@
       "Bash(f=\"lionO_thundercats_power_marca.png\")",
       "Bash(rm test_bmp.bmp)",
       "Bash(node -e \":*)",
-      "Bash(\"C:/Users/lalo/AppData/Local/Temp/hot_stats.sql\")"
+      "Bash(\"C:/Users/lalo/AppData/Local/Temp/hot_stats.sql\")",
+      "Bash(cd:*)"
     ]
   }
 }

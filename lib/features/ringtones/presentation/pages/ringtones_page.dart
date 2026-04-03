@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +26,11 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   final AudioPlayer _player = AudioPlayer();
   String? _playingId;
   String? _settingId;
+  StreamSubscription? _playerSub;
 
   @override
   void dispose() {
+    _playerSub?.cancel();
     _player.dispose();
     super.dispose();
   }
@@ -44,7 +47,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       await _player.stop();
       await _player.setUrl(tone.fileUrl);
       _player.play();
-      _player.playerStateStream.listen((state) {
+      _playerSub?.cancel();
+      _playerSub = _player.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           if (mounted) setState(() => _playingId = null);
         }

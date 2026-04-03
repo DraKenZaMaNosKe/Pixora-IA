@@ -3,7 +3,6 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
-import 'card_effects.dart';
 import 'wallpaper_stats_bar.dart';
 
 class WallpaperCarouselRow extends StatefulWidget {
@@ -29,15 +28,6 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
   late final ScrollController _scrollController;
   late final AnimationController _entranceController;
   bool _hasAnimated = false;
-
-  static Color _parseGlow(String hex) {
-    try {
-      final h = hex.replaceFirst('#', '');
-      return Color(int.parse('FF$h', radix: 16));
-    } catch (_) {
-      return Colors.white;
-    }
-  }
 
   @override
   void initState() {

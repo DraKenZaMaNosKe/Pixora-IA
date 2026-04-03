@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -18,6 +19,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   final AudioPlayer _player = AudioPlayer();
   String? _playingId;
   String? _settingId;
+  StreamSubscription? _playerSub;
 
   Color get _glowColor {
     try {
@@ -73,6 +75,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 
   @override
   void dispose() {
+    _playerSub?.cancel();
     _player.dispose();
     super.dispose();
   }
@@ -93,7 +96,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
       await _player.setUrl(tone.fileUrl);
       _player.play();
 
-      _player.playerStateStream.listen((state) {
+      _playerSub?.cancel();
+      _playerSub = _player.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           if (mounted) setState(() => _playingId = null);
         }
