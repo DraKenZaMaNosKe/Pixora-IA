@@ -53,29 +53,18 @@ class PixoraWallpaperService : WallpaperService() {
         private var exoPlayer: ExoPlayer? = null
         @Volatile private var isVideoWallpaper = false
         private var isInteractive = false // touch scrubbing mode
-        private var scrubStartX = 0f
-        private var scrubStartPosition = 0L
-        private var scrubLastOffset = 0f
         private var videoRetryCount = 0
 
-        // Smooth seek: interpolate gradually to target position
-        private var scrubTargetMs = 0L
-        private var scrubCurrentMs = 0L
-        private val scrubAnimRunnable = object : Runnable {
+        // Frame scrub mode: extracted frames rendered via Canvas
+        private val frameScrubRenderer = FrameScrubRenderer()
+        private var isFrameMode = false // true when interactive uses extracted frames
+        private val frameScrubUpdateRunnable = object : Runnable {
             override fun run() {
-                val player = exoPlayer ?: return
-                if (!isInteractive || !isVideoWallpaper) return
-
-                val diff = scrubTargetMs - scrubCurrentMs
-                if (kotlin.math.abs(diff) < 10) return // close enough
-
-                // Move 15% of remaining distance each frame — smooth easing
-                val step = (diff * 0.15f).toLong()
-                scrubCurrentMs = (scrubCurrentMs + if (step == 0L) diff else step)
-                    .coerceIn(0, player.duration - 1)
-                player.seekTo(scrubCurrentMs)
-
-                handler.postDelayed(this, 16) // ~60fps
+                if (!isFrameMode || !frameScrubRenderer.isReady) return
+                if (frameScrubRenderer.update()) {
+                    drawFrame()
+                }
+                handler.postDelayed(this, 30) // ~33fps animation
             }
         }
 
@@ -317,6 +306,36 @@ class PixoraWallpaperService : WallpaperService() {
             stopVideoWallpaper()
             isVideoWallpaper = true // stopVideoWallpaper resets this
 
+            // Interactive mode: extract frames and use Canvas rendering
+            if (isInteractive) {
+                Log.d(TAG, "Interactive mode: extracting frames from $path")
+                isFrameMode = true
+                synchronized(videoLock) { videoStarting = false }
+
+                Thread {
+                    val cacheDir = applicationContext.cacheDir
+                    val success = frameScrubRenderer.extractFrames(
+                        videoPath = path,
+                        cacheDir = cacheDir,
+                    )
+                    if (success) frameScrubRenderer.cleanOldCaches(cacheDir)
+                    handler.post {
+                        if (success && isFrameMode) {
+                            Log.d(TAG, "Frame mode ready — starting Canvas draw")
+                            drawing = true
+                            handler.post(drawRunnable)
+                            handler.post(frameScrubUpdateRunnable)
+                        } else {
+                            Log.e(TAG, "Frame extraction failed, falling back to ExoPlayer")
+                            isFrameMode = false
+                            isInteractive = false
+                            startVideoWallpaper(path)
+                        }
+                    }
+                }.start()
+                return
+            }
+
             // Give MediaCodec time to release hardware resources
             Thread.sleep(CODEC_RELEASE_DELAY_MS)
 
@@ -435,7 +454,9 @@ class PixoraWallpaperService : WallpaperService() {
 
         private fun stopVideoWallpaper() {
             handler.removeCallbacks(fadeRunnable)
-            handler.removeCallbacks(scrubAnimRunnable)
+            handler.removeCallbacks(frameScrubUpdateRunnable)
+            frameScrubRenderer.release()
+            isFrameMode = false
             videoFadeAlpha = 0f
             val player: ExoPlayer?
             synchronized(videoLock) {
@@ -568,24 +589,6 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         override fun onOffsetsChanged(xOffset: Float, yOffset: Float, xStep: Float, yStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
-            // Interactive video: use launcher's xOffset changes to scrub video
-            if (isInteractive && isVideoWallpaper) {
-                val player = exoPlayer
-                if (player != null && player.duration > 0) {
-                    // Convert offset delta to video position delta
-                    val deltaOffset = xOffset - scrubLastOffset
-                    scrubLastOffset = xOffset
-                    if (kotlin.math.abs(deltaOffset) > 0.001f && kotlin.math.abs(deltaOffset) < 0.5f) {
-                        // Each 0.1 offset change = 1 second of video
-                        val seekDelta = (deltaOffset * player.duration * 0.5f).toLong()
-                        val current = player.currentPosition
-                        val target = (current + seekDelta).coerceIn(0, player.duration - 1)
-                        player.seekTo(target)
-                    }
-                }
-                return
-            }
-
             if (isPanoramic && xStep > 0f && xStep < 1f) {
                 val panBmp = panoramicBitmap
                 if (panBmp != null) {
@@ -661,19 +664,21 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onTouchEvent(event: MotionEvent?) {
             event ?: return
 
-            // Interactive video: tap position on screen = position in video
-            // Samsung launcher captures ACTION_MOVE, so we use ACTION_DOWN position.
-            // Left edge = frame 0, right edge = last frame.
-            // Seek is animated gradually for smooth visual transition.
+            // Interactive mode: tap position on screen = position in video/frames
             if (isInteractive && isVideoWallpaper) {
-                val player = exoPlayer
-                if (player != null && player.duration > 0 && event.action == MotionEvent.ACTION_DOWN) {
+                if (event.action == MotionEvent.ACTION_DOWN) {
                     val pct = (event.x / surfaceWidth.toFloat()).coerceIn(0f, 1f)
-                    scrubTargetMs = (pct * player.duration).toLong().coerceIn(0, player.duration - 1)
-                    scrubCurrentMs = player.currentPosition
-                    // Start smooth interpolation
-                    handler.removeCallbacks(scrubAnimRunnable)
-                    handler.post(scrubAnimRunnable)
+
+                    if (isFrameMode && frameScrubRenderer.isReady) {
+                        // Frame mode: seek through extracted frames
+                        frameScrubRenderer.seekTo(pct)
+                    } else {
+                        // ExoPlayer fallback: animated seek
+                        val player = exoPlayer
+                        if (player != null && player.duration > 0) {
+                            player.seekTo((pct * player.duration).toLong().coerceIn(0, player.duration - 1))
+                        }
+                    }
                 }
                 return
             }
@@ -719,7 +724,14 @@ class PixoraWallpaperService : WallpaperService() {
             try {
                 canvas = holder.lockCanvas() ?: return
                 updateRendererState()
-                drawBackground(canvas)
+
+                // Frame mode: draw extracted frame instead of wallpaper bitmap
+                if (isFrameMode && frameScrubRenderer.isReady) {
+                    frameScrubRenderer.draw(canvas)
+                } else {
+                    drawBackground(canvas)
+                }
+
                 rainRenderer.draw(canvas)
                 if (isRainWallpaper) rainRenderer.drawHeadphoneGlow(canvas)
 

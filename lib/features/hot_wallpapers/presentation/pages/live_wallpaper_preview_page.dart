@@ -292,7 +292,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                               ),
                             ),
                             const SizedBox(height: 14),
-                            // Mode toggle: Auto Play / Touch
+                            // Mode toggle: Auto Play / Explore
                             Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(4),
@@ -347,10 +347,10 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Icon(Icons.touch_app, size: 16,
+                                            Icon(Icons.explore, size: 16,
                                               color: _interactiveMode ? Colors.white : Colors.white38),
                                             const SizedBox(width: 6),
-                                            Text('Touch',
+                                            Text('Explore',
                                               style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold,
                                                 color: _interactiveMode ? Colors.white : Colors.white38)),
                                           ],
