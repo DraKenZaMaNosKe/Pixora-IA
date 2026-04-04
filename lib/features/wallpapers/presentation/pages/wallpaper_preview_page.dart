@@ -175,10 +175,18 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
 
     _setLoading('Setting live wallpaper...', progress: 1.0);
 
-    await WallpaperService.instance.setLiveWallpaper(
-      path,
-      widget.wallpaper.glowColor,
-    );
+    try {
+      await WallpaperService.instance.setLiveWallpaper(
+        path,
+        widget.wallpaper.glowColor,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to set live wallpaper: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
 
     setState(() => _isApplying = false);
   }

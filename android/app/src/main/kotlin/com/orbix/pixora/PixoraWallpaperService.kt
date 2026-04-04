@@ -57,7 +57,6 @@ class PixoraWallpaperService : WallpaperService() {
         private var scrubStartPosition = 0L
         private var scrubLastOffset = 0f
         private var videoRetryCount = 0
-        private val maxVideoRetries = 2
 
         // Smooth seek: interpolate gradually to target position
         private var scrubTargetMs = 0L
@@ -106,7 +105,7 @@ class PixoraWallpaperService : WallpaperService() {
                     return
                 }
 
-                val fadeMs = 500L // fade duration in ms
+                val fadeMs = FADE_DURATION_MS
                 val timeLeft = itemDuration - itemPosition
 
                 videoFadeAlpha = when {
@@ -319,7 +318,7 @@ class PixoraWallpaperService : WallpaperService() {
             isVideoWallpaper = true // stopVideoWallpaper resets this
 
             // Give MediaCodec time to release hardware resources
-            Thread.sleep(500)
+            Thread.sleep(CODEC_RELEASE_DELAY_MS)
 
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
@@ -385,7 +384,7 @@ class PixoraWallpaperService : WallpaperService() {
                         }
                     }
                     override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                        Log.e(TAG, "ExoPlayer error (retry $videoRetryCount/$maxVideoRetries): ${error.message}")
+                        Log.e(TAG, "ExoPlayer error (retry $videoRetryCount/$MAX_VIDEO_RETRIES): ${error.message}")
                         // Release the failed player to free codec resources
                         try {
                             player.stop()
@@ -399,10 +398,10 @@ class PixoraWallpaperService : WallpaperService() {
                         }
                         isVideoWallpaper = false
 
-                        if (videoRetryCount < maxVideoRetries) {
+                        if (videoRetryCount < MAX_VIDEO_RETRIES) {
                             videoRetryCount++
                             // Retry with increasing delay to let codec fully release
-                            val delay = (videoRetryCount * 1500).toLong()
+                            val delay = videoRetryCount * RETRY_DELAY_PER_ATTEMPT_MS
                             handler.postDelayed({
                                 Log.d(TAG, "Retrying video wallpaper (attempt $videoRetryCount)")
                                 loadWallpaperImage()
@@ -414,7 +413,7 @@ class PixoraWallpaperService : WallpaperService() {
                             }, delay)
                         } else {
                             // Max retries reached — fall back to static image mode
-                            Log.w(TAG, "Video failed after $maxVideoRetries retries, falling back to image")
+                            Log.w(TAG, "Video failed after $MAX_VIDEO_RETRIES retries, falling back to image")
                             videoRetryCount = 0
                             handler.post {
                                 drawing = true
@@ -870,5 +869,9 @@ class PixoraWallpaperService : WallpaperService() {
         const val RAIN_DROP_COUNT = 120
         const val GLASS_DROP_COUNT = 15
         const val CITY_LIGHT_COUNT = 35
+        private const val CODEC_RELEASE_DELAY_MS = 500L
+        private const val MAX_VIDEO_RETRIES = 2
+        private const val RETRY_DELAY_PER_ATTEMPT_MS = 1500L
+        private const val FADE_DURATION_MS = 500L
     }
 }

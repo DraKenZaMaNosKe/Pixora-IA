@@ -78,7 +78,7 @@ class AuthService {
     if (!isLoggedIn) return localFavorites;
 
     try {
-      final userId = currentUser!.id;
+      final userId = currentUser?.id ?? '';
 
       // Get remote favorites
       final response = await _client
@@ -117,7 +117,7 @@ class AuthService {
     if (!isLoggedIn) return;
     try {
       await _client.from('user_favorites').upsert({
-        'user_id': currentUser!.id,
+        'user_id': currentUser?.id ?? '',
         'wallpaper_id': wallpaperId,
       });
     } catch (e) {
@@ -132,7 +132,7 @@ class AuthService {
       await _client
           .from('user_favorites')
           .delete()
-          .eq('user_id', currentUser!.id)
+          .eq('user_id', currentUser?.id ?? '')
           .eq('wallpaper_id', wallpaperId);
     } catch (e) {
       debugPrint('[Auth] Remove favorite remote failed: $e');
@@ -144,7 +144,7 @@ class AuthService {
     if (!isLoggedIn) return;
     try {
       await _client.from('user_downloads').insert({
-        'user_id': currentUser!.id,
+        'user_id': currentUser?.id ?? '',
         'wallpaper_id': wallpaperId,
       });
     } catch (e) {
@@ -159,7 +159,7 @@ class AuthService {
       final response = await _client
           .from('user_downloads')
           .select('wallpaper_id')
-          .eq('user_id', currentUser!.id)
+          .eq('user_id', currentUser?.id ?? '')
           .order('downloaded_at', ascending: false)
           .limit(100);
 

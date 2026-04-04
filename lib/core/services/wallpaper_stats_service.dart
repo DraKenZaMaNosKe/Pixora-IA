@@ -127,7 +127,7 @@ class WallpaperStatsService {
       // Optimistic local update
       final s = _cache[wallpaperId];
       if (s != null) {
-        s['likes'] = (s['likes']! - 1).clamp(0, 999999);
+        s['likes'] = ((s['likes'] ?? 0) - 1).clamp(0, 999999);
         _statsController.add(Map.from(_cache));
       }
       return false;
@@ -146,7 +146,7 @@ class WallpaperStatsService {
       }
       // Optimistic local update
       final s = _cache[wallpaperId] ?? {'likes': 0, 'downloads': 0, 'views': 0};
-      s['likes'] = (s['likes']! + 1);
+      s['likes'] = ((s['likes'] ?? 0) + 1);
       _cache[wallpaperId] = s;
       _statsController.add(Map.from(_cache));
       return true;
@@ -161,7 +161,7 @@ class WallpaperStatsService {
       debugPrint('[Pixora] Track download failed: $e');
     }
     final s = _cache[wallpaperId] ?? {'likes': 0, 'downloads': 0, 'views': 0};
-    s['downloads'] = (s['downloads']! + 1);
+    s['downloads'] = ((s['downloads'] ?? 0) + 1);
     _cache[wallpaperId] = s;
     _statsController.add(Map.from(_cache));
   }
@@ -174,7 +174,7 @@ class WallpaperStatsService {
       debugPrint('[Pixora] Track view failed: $e');
     }
     final s = _cache[wallpaperId] ?? {'likes': 0, 'downloads': 0, 'views': 0};
-    s['views'] = (s['views']! + 1);
+    s['views'] = ((s['views'] ?? 0) + 1);
     _cache[wallpaperId] = s;
     _statsController.add(Map.from(_cache));
   }
