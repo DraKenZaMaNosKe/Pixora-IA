@@ -48,6 +48,8 @@ class AdService {
           _isAdLoaded = false;
           _isAdLoading = false;
           debugPrint('[Pixora] Interstitial ad failed: ${error.message}');
+          // Retry after 10 seconds
+          Future.delayed(const Duration(seconds: 10), () => loadInterstitialAd());
         },
       ),
     );

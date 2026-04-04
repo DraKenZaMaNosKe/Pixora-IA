@@ -18,6 +18,7 @@ class LiveWallpaper {
   final List<String> tags;
   final int downloadCount;
   final String? createdAt;
+  final bool interactive; // true = touch scrubbing mode
 
   const LiveWallpaper({
     required this.id,
@@ -35,6 +36,7 @@ class LiveWallpaper {
     this.tags = const [],
     this.downloadCount = 0,
     this.createdAt,
+    this.interactive = false,
   });
 
   String get videoUrl =>
@@ -71,6 +73,7 @@ class LiveWallpaper {
           [],
       downloadCount: json['downloadCount'] as int? ?? 0,
       createdAt: json['createdAt'] as String?,
+      interactive: json['interactive'] as bool? ?? false,
     );
   }
 

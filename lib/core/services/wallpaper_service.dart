@@ -64,12 +64,12 @@ class WallpaperService {
 
   /// Activa el Live Wallpaper con efecto touch glow.
   /// Abre el selector de Android para confirmar.
-  Future<bool> setLiveWallpaper(String filePath, String glowColor) async {
+  Future<bool> setLiveWallpaper(String filePath, String glowColor, {bool interactive = false}) async {
     if (!Platform.isAndroid) return false;
     try {
       final result = await _channel.invokeMethod<bool>(
         'setLiveWallpaper',
-        {'path': filePath, 'glowColor': glowColor},
+        {'path': filePath, 'glowColor': glowColor, 'interactive': interactive},
       );
       return result ?? false;
     } on PlatformException catch (e) {

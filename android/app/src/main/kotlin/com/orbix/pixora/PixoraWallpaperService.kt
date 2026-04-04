@@ -52,6 +52,9 @@ class PixoraWallpaperService : WallpaperService() {
         // Video wallpaper (ExoPlayer)
         private var exoPlayer: ExoPlayer? = null
         @Volatile private var isVideoWallpaper = false
+        private var isInteractive = false // touch scrubbing mode
+        private var scrubStartX = 0f
+        private var scrubStartPosition = 0L
 
         // Lock for bitmap field access across threads
         private val bitmapLock = Object()
@@ -141,6 +144,8 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
             super.onCreate(surfaceHolder)
             setTouchEventsEnabled(true)
+            // Disable launcher page scrolling so we get horizontal touch events
+            setOffsetNotificationsEnabled(false)
             equalizerRenderer.audioCallback = this
             loadWallpaperImage()
             batteryIndicator.registerBatteryReceiver()
@@ -192,6 +197,7 @@ class PixoraWallpaperService : WallpaperService() {
                 val path = prefs.getString("wallpaper_path", null)
                 val color = prefs.getString("glow_color", "#7C4DFF")
                 val caption = prefs.getString("caption", null)
+                isInteractive = prefs.getBoolean("interactive", false)
 
                 // Update caption: show immediately on change, then cycle every 3 min
                 if (caption != captionOverlay.currentCaption) {
@@ -291,7 +297,7 @@ class PixoraWallpaperService : WallpaperService() {
             isVideoWallpaper = true // stopVideoWallpaper resets this
 
             // Give MediaCodec time to release hardware resources
-            Thread.sleep(200)
+            Thread.sleep(500)
 
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
@@ -305,28 +311,43 @@ class PixoraWallpaperService : WallpaperService() {
                 val player = ExoPlayer.Builder(applicationContext).build()
                 player.setVideoSurface(surface)
                 player.volume = 0f // Mute
-                player.repeatMode = Player.REPEAT_MODE_ALL // Loop the playlist
 
-                // Gapless loop: two copies of the same source — ExoPlayer pre-buffers
-                // the next one while the current plays, eliminating the seek flash.
                 val uri = Uri.fromFile(java.io.File(path))
-                val factory = ProgressiveMediaSource.Factory(
-                    DefaultDataSource.Factory(applicationContext)
-                )
-                val source1 = factory.createMediaSource(MediaItem.fromUri(uri))
-                val source2 = factory.createMediaSource(MediaItem.fromUri(uri))
-                player.setMediaSource(ConcatenatingMediaSource(source1, source2))
 
+                if (isInteractive) {
+                    // Interactive: single source, no loop — user controls position
+                    player.repeatMode = Player.REPEAT_MODE_OFF
+                    player.setMediaItem(MediaItem.fromUri(uri))
+                } else {
+                    // Normal: gapless loop with 2 copies for seamless transition
+                    player.repeatMode = Player.REPEAT_MODE_ALL
+                    val factory = ProgressiveMediaSource.Factory(
+                        DefaultDataSource.Factory(applicationContext)
+                    )
+                    val source1 = factory.createMediaSource(MediaItem.fromUri(uri))
+                    val source2 = factory.createMediaSource(MediaItem.fromUri(uri))
+                    player.setMediaSource(ConcatenatingMediaSource(source1, source2))
+                }
+
+                var playerReady = false
                 player.addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(state: Int) {
                         when (state) {
                             Player.STATE_READY -> {
-                                Log.d(TAG, "ExoPlayer READY, starting: $path")
+                                if (playerReady) return // Prevent re-entry
+                                playerReady = true
+                                Log.d(TAG, "ExoPlayer READY (interactive=$isInteractive)")
                                 synchronized(videoLock) { videoStarting = false }
-                                player.play()
-                                // Start fade overlay loop
-                                handler.removeCallbacks(fadeRunnable)
-                                handler.postDelayed(fadeRunnable, 200)
+                                if (isInteractive) {
+                                    // Interactive: pause at frame 0, user scrubs with touch
+                                    player.seekTo(0)
+                                    player.pause()
+                                } else {
+                                    player.play()
+                                    // Start fade overlay loop
+                                    handler.removeCallbacks(fadeRunnable)
+                                    handler.postDelayed(fadeRunnable, 200)
+                                }
                             }
                             Player.STATE_ENDED -> {
                                 Log.d(TAG, "ExoPlayer ended (shouldn't happen with REPEAT_MODE_ALL)")
@@ -347,13 +368,16 @@ class PixoraWallpaperService : WallpaperService() {
                             videoStarting = false
                         }
                         isVideoWallpaper = false
-                        // Fall back to image wallpaper
-                        handler.post {
+                        // Retry after codec has time to fully release
+                        handler.postDelayed({
+                            Log.d(TAG, "Retrying video wallpaper after codec error")
                             loadWallpaperImage()
-                            createScaledBitmap()
-                            drawing = true
-                            handler.post(drawRunnable)
-                        }
+                            if (!isVideoWallpaper) {
+                                createScaledBitmap()
+                                drawing = true
+                                handler.post(drawRunnable)
+                            }
+                        }, 1000)
                     }
                 })
 
@@ -546,8 +570,8 @@ class PixoraWallpaperService : WallpaperService() {
                 // Video: resume ExoPlayer if still alive
                 val player = exoPlayer
                 if (player != null) {
-                    player.play()
-                    Log.d(TAG, "ExoPlayer resumed")
+                    if (!isInteractive) player.play()
+                    Log.d(TAG, "ExoPlayer resumed (interactive=$isInteractive)")
                     return
                 }
 
@@ -575,6 +599,29 @@ class PixoraWallpaperService : WallpaperService() {
 
         override fun onTouchEvent(event: MotionEvent?) {
             event ?: return
+
+            // Interactive video scrubbing: each finger move advances/rewinds incrementally
+            if (isInteractive && isVideoWallpaper) {
+                val player = exoPlayer
+                if (player != null && player.duration > 0) {
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            scrubStartX = event.x
+                        }
+                        MotionEvent.ACTION_MOVE -> {
+                            val deltaX = event.x - scrubStartX
+                            scrubStartX = event.x // reset for next move
+                            // Each pixel of finger movement = small seek
+                            // Sensitivity: 1 pixel = ~0.3ms of video
+                            val seekDelta = (deltaX * 0.3f).toLong()
+                            val current = player.currentPosition
+                            val target = (current + seekDelta).coerceIn(0, player.duration - 1)
+                            player.seekTo(target)
+                        }
+                    }
+                    return
+                }
+            }
 
             // Panoramic touch scroll
             if (isPanoramic) {

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/utils/color_utils.dart';
+import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/ringtone_providers.dart';
@@ -308,12 +309,6 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       }
     }
 
-    // Featured pack (first with matching tones)
-    final featuredPack = packs.firstWhere(
-      (p) => _packFilteredTones(p).isNotEmpty,
-      orElse: () => packs.first,
-    );
-
     // Build pack section widgets
     final packSections = <Widget>[];
     for (final pack in packs) {
@@ -340,7 +335,19 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
 
           // ── Hero Banner ───────────────────────────────────────
           const SizedBox(height: 16),
-          _buildHeroBanner(featuredPack),
+          SectionHeroBanner(
+            items: packs.take(5).map((pack) => HeroBannerItem(
+              imageUrl: pack.previewUrl,
+              title: pack.name,
+              subtitle: '${pack.tones.length} tones \u00b7 ${pack.description}',
+              badge: pack.category,
+              accentColor: parseHexColor(pack.glowColor, fallback: const Color(0xFFE50914)),
+            )).toList(),
+            onTap: (i) => Navigator.push(context, MaterialPageRoute(
+              builder: (_) => RingtonePackPage(pack: packs[i]),
+            )),
+            height: 0.32,
+          ),
 
           // ── Recommended ───────────────────────────────────────
           if (recommended.isNotEmpty) ...[
@@ -409,191 +416,6 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
         },
       ),
     );
-  }
-
-  // ── Hero Banner ───────────────────────────────────────────────────
-  Widget _buildHeroBanner(RingtonePack pack) {
-    final glow = _parseGlow(pack.glowColor);
-    final hasImage = pack.previewImage.isNotEmpty;
-
-    return GestureDetector(
-      onTap: () => Navigator.push(context,
-          MaterialPageRoute(builder: (_) => RingtonePackPage(pack: pack))),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        height: 200,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(color: glow.withOpacity(0.3), blurRadius: 24, spreadRadius: 2),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Background — use pack image, or default asset with tint
-              if (hasImage)
-                CachedNetworkImage(
-                  imageUrl: pack.previewUrl,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => _heroDefault(glow),
-                )
-              else
-                _heroDefault(glow),
-
-              // Dark gradient overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.4),
-                      Colors.black.withOpacity(0.9),
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-
-              // Content
-              Positioned(
-                bottom: 20,
-                left: 20,
-                right: 20,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Category badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: glow.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: glow.withOpacity(0.5)),
-                      ),
-                      child: Text(
-                        '${pack.tones.length} tones',
-                        style: TextStyle(fontSize: 11, color: glow, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      pack.name,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      pack.description,
-                      style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.7)),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-                    // Explore button
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: glow,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(color: glow.withOpacity(0.4), blurRadius: 12),
-                        ],
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.headphones, size: 16, color: Colors.white),
-                          SizedBox(width: 6),
-                          Text(
-                            'EXPLORE',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Stats bar
-              Positioned(
-                top: 12,
-                left: 16,
-                child: WallpaperStatsBar(
-                  wallpaperId: 'tone_pack_${pack.id}',
-                  glowColor: glow,
-                ),
-              ),
-
-              // Floating icon top-right
-              Positioned(
-                top: 16,
-                right: 16,
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _packIcon(pack.category),
-                    color: glow,
-                    size: 22,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _heroDefault(Color glow) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Image.asset(_defaultPreviewAsset, fit: BoxFit.cover),
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                glow.withOpacity(0.4),
-                glow.withOpacity(0.15),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  IconData _packIcon(String category) {
-    switch (category) {
-      case 'GAMING': return Icons.videogame_asset;
-      case 'ANIME_TV': return Icons.tv;
-      case 'RETRO_CLASSIC': return Icons.phone_callback;
-      case 'MODERN_FUTURISTIC': return Icons.smartphone;
-      case 'CHILL_AMBIENT': return Icons.spa;
-      default: return Icons.music_note;
-    }
   }
 
   // ── Section Header ────────────────────────────────────────────────

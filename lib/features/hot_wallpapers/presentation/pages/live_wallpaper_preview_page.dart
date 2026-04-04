@@ -28,6 +28,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   double _downloadProgress = 0.0;
   String _loadingStatus = '';
   bool _showControls = true;
+  bool _interactiveMode = false; // false = Auto Play, true = Touch scrub
   late Future<bool> _isDownloadedFuture;
   // Token to cancel stale auto-hide callbacks
   int _controlsToken = 0;
@@ -140,6 +141,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     await WallpaperService.instance.setLiveWallpaper(
       path,
       widget.wallpaper.glowColor,
+      interactive: _interactiveMode,
     );
 
     if (mounted) {
@@ -348,6 +350,75 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                               ),
                             ),
                             const SizedBox(height: 14),
+                            // Mode toggle: Auto Play / Touch
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => setState(() => _interactiveMode = false),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                        decoration: BoxDecoration(
+                                          color: !_interactiveMode
+                                              ? _glowColor.withOpacity(0.3)
+                                              : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: !_interactiveMode
+                                              ? Border.all(color: _glowColor.withOpacity(0.5))
+                                              : null,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.play_circle_outline, size: 16,
+                                              color: !_interactiveMode ? Colors.white : Colors.white38),
+                                            const SizedBox(width: 6),
+                                            Text('Auto Play',
+                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold,
+                                                color: !_interactiveMode ? Colors.white : Colors.white38)),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => setState(() => _interactiveMode = true),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                        decoration: BoxDecoration(
+                                          color: _interactiveMode
+                                              ? _glowColor.withOpacity(0.3)
+                                              : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: _interactiveMode
+                                              ? Border.all(color: _glowColor.withOpacity(0.5))
+                                              : null,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.touch_app, size: 16,
+                                              color: _interactiveMode ? Colors.white : Colors.white38),
+                                            const SizedBox(width: 6),
+                                            Text('Touch',
+                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold,
+                                                color: _interactiveMode ? Colors.white : Colors.white38)),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             // Apply button
                             SizedBox(
                               width: double.infinity,

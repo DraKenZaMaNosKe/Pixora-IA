@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/day_cycle_providers.dart';
 import '../../data/models/day_cycle_theme.dart';
@@ -36,13 +37,32 @@ class DayCyclePage extends ConsumerWidget {
                 style: TextStyle(color: Colors.white54)),
           );
         }
-        return RefreshIndicator(
-          onRefresh: () async => ref.invalidate(dayCycleCatalogProvider),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: themes.length,
-            itemBuilder: (context, index) => _DayCycleCard(theme: themes[index]),
-          ),
+        return Column(
+          children: [
+            SectionHeroBanner(
+              items: themes.take(5).map((theme) => HeroBannerItem(
+                imageUrl: theme.previewUrl,
+                title: theme.name,
+                subtitle: theme.description,
+                badge: 'DAY CYCLE',
+                accentColor: const Color(0xFF00B4D8),
+              )).toList(),
+              onTap: (i) => Navigator.push(context, MaterialPageRoute(
+                builder: (_) => DayCycleDetailPage(theme: themes[i]),
+              )),
+              height: 0.35,
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async => ref.invalidate(dayCycleCatalogProvider),
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: themes.length,
+                  itemBuilder: (context, index) => _DayCycleCard(theme: themes[index]),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/utils/color_utils.dart';
+import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../providers/live_wallpaper_providers.dart';
@@ -64,13 +65,19 @@ class _HotContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header ────────────────────────────────────────────
-          const SizedBox(height: 8),
-          _buildHeader(),
-
-          // ── Warning banner ────────────────────────────────────
-          const SizedBox(height: 12),
-          _buildWarningBanner(),
+          // ── Hero Banner ──────────────────────────────────────
+          SectionHeroBanner(
+            items: items.take(5).map((item) => HeroBannerItem(
+              imageUrl: item.previewUrl,
+              title: item.name,
+              subtitle: item.description,
+              badge: item.category,
+              accentColor: parseHexColor(item.glowColor, fallback: const Color(0xFFE50914)),
+            )).toList(),
+            onTap: (i) => Navigator.push(context, MaterialPageRoute(
+              builder: (_) => LiveWallpaperPreviewPage(wallpaper: items[i]),
+            )),
+          ),
 
           // ── Popular Now ───────────────────────────────────────
           const SizedBox(height: 20),
@@ -85,67 +92,6 @@ class _HotContent extends StatelessWidget {
             const SizedBox(height: 12),
             _buildGrid(entry.value, context),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Color(0xFFFF4500), Color(0xFFFF6B35), Color(0xFFFFD700)],
-            ).createShader(bounds),
-            child: const Text(
-              'HOT',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: 2,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            'LIVE WALLPAPERS',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 1,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWarningBanner() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.orange.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.bolt, color: Colors.orange.shade300, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Animated wallpapers. Best for mid-high end devices. May use more battery.',
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.orange.shade200,
-              ),
-            ),
-          ),
         ],
       ),
     );

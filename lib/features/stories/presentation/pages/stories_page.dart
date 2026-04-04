@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/color_utils.dart';
+import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/story_providers.dart';
@@ -52,7 +53,21 @@ class StoriesPage extends ConsumerWidget {
           );
         }
 
-        return ListView.builder(
+        return Column(
+          children: [
+            SectionHeroBanner(
+              items: stories.take(5).map((story) => HeroBannerItem(
+                imageUrl: story.coverImageUrl,
+                title: story.title,
+                subtitle: '${story.frames.length} frames \u00b7 Every ${story.intervalMinutes} min',
+                badge: story.category,
+              )).toList(),
+              onTap: (i) => Navigator.push(context, MaterialPageRoute(
+                builder: (_) => StoryDetailPage(story: stories[i]),
+              )),
+            ),
+            Expanded(
+              child: ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: stories.length,
           itemBuilder: (context, index) {
@@ -180,6 +195,9 @@ class StoriesPage extends ConsumerWidget {
               ),
             );
           },
+        ),
+            ),
+          ],
         );
       },
     );

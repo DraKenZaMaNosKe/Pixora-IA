@@ -56,8 +56,9 @@ class MainActivity : FlutterActivity() {
                     "setLiveWallpaper" -> {
                         val path = call.argument<String>("path")
                         val glowColor = call.argument<String>("glowColor") ?: "#7C4DFF"
+                        val interactive = call.argument<Boolean>("interactive") ?: false
                         if (path != null) {
-                            setLiveWallpaper(path, glowColor)
+                            setLiveWallpaper(path, glowColor, interactive)
                             result.success(true)
                         } else {
                             result.error("INVALID_ARG", "Path is required", null)
@@ -344,7 +345,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun setLiveWallpaper(imagePath: String, glowColor: String) {
+    private fun setLiveWallpaper(imagePath: String, glowColor: String, interactive: Boolean = false) {
         // Stop any active story to prevent it from overriding this wallpaper
         StoryWorker.stopStory(applicationContext)
 
@@ -353,6 +354,7 @@ class MainActivity : FlutterActivity() {
         prefs.edit()
             .putString("wallpaper_path", imagePath)
             .putString("glow_color", glowColor)
+            .putBoolean("interactive", interactive)
             .remove("caption")
             .putLong("changed_at", System.currentTimeMillis())
             .apply()

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ad_service.dart';
+import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/story_rotation_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -244,42 +245,75 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
         ],
       ),
 
-      // Start/Stop button
+      // Start/Stop button + ad badge
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-          child: SizedBox(
-            height: 52,
-            child: ElevatedButton.icon(
-              onPressed: _isStarting
-                  ? null
-                  : isActive
-                      ? _stopStory
-                      : _startStory,
-              icon: _isStarting
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: glow),
-                    )
-                  : Icon(isActive ? Icons.stop : Icons.play_arrow),
-              label: Text(
-                _isStarting
-                    ? 'Downloading frame $_downloadProgress/${widget.story.frames.length}...'
-                    : isActive
-                        ? 'Stop Story'
-                        : 'Start Story',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!isActive && !_isStarting) ...[
+                Builder(builder: (_) {
+                  final isFree = AdService.instance.isNextActionFree;
+                  final credits = CreditService.instance.balance;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isFree ? Colors.green.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: isFree ? Colors.greenAccent.withOpacity(0.5) : Colors.orange.withOpacity(0.5)),
+                        ),
+                        child: Text(
+                          isFree ? 'FREE!' : '+${CreditService.creditsPerAd} credits',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isFree ? Colors.greenAccent : Colors.orangeAccent),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Icon(Icons.diamond, size: 12, color: Color(0xFF7C4DFF)),
+                      const SizedBox(width: 3),
+                      Text('$credits', style: const TextStyle(fontSize: 11, color: Color(0xFF7C4DFF))),
+                    ],
+                  );
+                }),
+                const SizedBox(height: 8),
+              ],
+              SizedBox(
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: _isStarting
+                      ? null
+                      : isActive
+                          ? _stopStory
+                          : _startStory,
+                  icon: _isStarting
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: glow),
+                        )
+                      : Icon(isActive ? Icons.stop : Icons.play_arrow),
+                  label: Text(
+                    _isStarting
+                        ? 'Downloading frame $_downloadProgress/${widget.story.frames.length}...'
+                        : isActive
+                            ? 'Stop Story'
+                            : 'Start Story',
+                    style:
+                        const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isActive ? Colors.red.shade800 : glow,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isActive ? Colors.red.shade800 : glow,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
+            ],
           ),
         ),
       ),
