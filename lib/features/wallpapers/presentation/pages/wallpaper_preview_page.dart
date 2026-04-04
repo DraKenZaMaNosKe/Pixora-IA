@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ad_service.dart';
+import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/quality_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
@@ -199,7 +200,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
 
   void _showApplyOptions() {
     final isFree = AdService.instance.isNextActionFree;
-    final glowColor = _parseGlowColor();
+    final credits = CreditService.instance.balance;
 
     showModalBottomSheet(
       context: context,
@@ -252,7 +253,27 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                 style: TextStyle(fontSize: 12, color: Colors.greenAccent.withOpacity(0.7)),
               ),
             ],
-            const SizedBox(height: 20),
+            if (!isFree) ...[
+              const SizedBox(height: 6),
+              Text(
+                '+${CreditService.creditsPerAd} credits for watching',
+                style: TextStyle(fontSize: 12, color: Colors.orangeAccent.withOpacity(0.7)),
+              ),
+            ],
+            // Credits balance
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.diamond, size: 14, color: Color(0xFF7C4DFF)),
+                const SizedBox(width: 4),
+                Text(
+                  '$credits credits',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF7C4DFF)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             _buildOption(Icons.home, 'Home Screen', () {
               Navigator.pop(context);
               _applyWallpaper(0);

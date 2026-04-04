@@ -8,7 +8,10 @@ import android.net.Uri
 import android.os.Handler
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ConcatenatingMediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.util.Log
@@ -55,6 +58,61 @@ class PixoraWallpaperService : WallpaperService() {
 
         // Lock for ExoPlayer start/stop synchronization
         private val videoLock = Object()
+
+        // Video loop fade: darkens near end, brightens at start
+        private val fadePaint = Paint()
+        private var videoFadeAlpha = 0f
+        private val fadeRunnable = object : Runnable {
+            override fun run() {
+                val player = exoPlayer ?: return
+                if (!isVideoWallpaper) return
+
+                val duration = player.duration
+                val position = player.currentPosition
+                // Use per-item duration (playlist has 2 copies)
+                val itemDuration = if (duration > 0 && player.mediaItemCount > 1)
+                    duration / player.mediaItemCount else duration
+                val itemPosition = if (itemDuration > 0) position % itemDuration else position
+
+                if (itemDuration <= 0) {
+                    handler.postDelayed(this, 50)
+                    return
+                }
+
+                val fadeMs = 500L // fade duration in ms
+                val timeLeft = itemDuration - itemPosition
+
+                videoFadeAlpha = when {
+                    // Near end: fade to black
+                    timeLeft < fadeMs -> ((fadeMs - timeLeft).toFloat() / fadeMs).coerceIn(0f, 1f)
+                    // Near start: fade from black
+                    itemPosition < fadeMs -> ((fadeMs - itemPosition).toFloat() / fadeMs).coerceIn(0f, 1f)
+                    else -> 0f
+                }
+
+                // Draw overlay if fading
+                if (videoFadeAlpha > 0.01f) {
+                    val holder = surfaceHolder
+                    var canvas: Canvas? = null
+                    try {
+                        canvas = holder?.lockCanvas()
+                        if (canvas != null) {
+                            // Don't clear — ExoPlayer already drew the video frame
+                            // Just overlay black with alpha
+                            fadePaint.color = Color.argb((videoFadeAlpha * 255).toInt(), 0, 0, 0)
+                            canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), fadePaint)
+                        }
+                    } catch (_: Exception) {
+                    } finally {
+                        if (canvas != null) {
+                            try { holder?.unlockCanvasAndPost(canvas) } catch (_: Exception) {}
+                        }
+                    }
+                }
+
+                handler.postDelayed(this, 30) // ~33fps check
+            }
+        }
 
         // Pre-allocated paint for glow dots
         private val glowDotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -228,9 +286,12 @@ class PixoraWallpaperService : WallpaperService() {
             }
             isVideoWallpaper = true
 
-            // Release old player
+            // Release old player fully before creating new one
             stopVideoWallpaper()
             isVideoWallpaper = true // stopVideoWallpaper resets this
+
+            // Give MediaCodec time to release hardware resources
+            Thread.sleep(200)
 
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
@@ -244,10 +305,17 @@ class PixoraWallpaperService : WallpaperService() {
                 val player = ExoPlayer.Builder(applicationContext).build()
                 player.setVideoSurface(surface)
                 player.volume = 0f // Mute
-                player.repeatMode = Player.REPEAT_MODE_ALL // Infinite loop
+                player.repeatMode = Player.REPEAT_MODE_ALL // Loop the playlist
 
-                val mediaItem = MediaItem.fromUri(Uri.fromFile(java.io.File(path)))
-                player.setMediaItem(mediaItem)
+                // Gapless loop: two copies of the same source — ExoPlayer pre-buffers
+                // the next one while the current plays, eliminating the seek flash.
+                val uri = Uri.fromFile(java.io.File(path))
+                val factory = ProgressiveMediaSource.Factory(
+                    DefaultDataSource.Factory(applicationContext)
+                )
+                val source1 = factory.createMediaSource(MediaItem.fromUri(uri))
+                val source2 = factory.createMediaSource(MediaItem.fromUri(uri))
+                player.setMediaSource(ConcatenatingMediaSource(source1, source2))
 
                 player.addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(state: Int) {
@@ -256,6 +324,9 @@ class PixoraWallpaperService : WallpaperService() {
                                 Log.d(TAG, "ExoPlayer READY, starting: $path")
                                 synchronized(videoLock) { videoStarting = false }
                                 player.play()
+                                // Start fade overlay loop
+                                handler.removeCallbacks(fadeRunnable)
+                                handler.postDelayed(fadeRunnable, 200)
                             }
                             Player.STATE_ENDED -> {
                                 Log.d(TAG, "ExoPlayer ended (shouldn't happen with REPEAT_MODE_ALL)")
@@ -264,8 +335,25 @@ class PixoraWallpaperService : WallpaperService() {
                     }
                     override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                         Log.e(TAG, "ExoPlayer error: ${error.message}")
-                        synchronized(videoLock) { videoStarting = false }
+                        // Release the failed player to free codec resources
+                        try {
+                            player.stop()
+                            player.clearVideoSurface()
+                            player.release()
+                            Log.d(TAG, "Failed ExoPlayer released")
+                        } catch (_: Exception) {}
+                        synchronized(videoLock) {
+                            exoPlayer = null
+                            videoStarting = false
+                        }
                         isVideoWallpaper = false
+                        // Fall back to image wallpaper
+                        handler.post {
+                            loadWallpaperImage()
+                            createScaledBitmap()
+                            drawing = true
+                            handler.post(drawRunnable)
+                        }
                     }
                 })
 
@@ -280,6 +368,8 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         private fun stopVideoWallpaper() {
+            handler.removeCallbacks(fadeRunnable)
+            videoFadeAlpha = 0f
             val player: ExoPlayer?
             synchronized(videoLock) {
                 player = exoPlayer

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import '../../../../core/utils/color_utils.dart';
+import '../../../../core/services/ad_service.dart';
+import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -85,7 +87,19 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   }
 
   Future<void> _applyLiveWallpaper() async {
+    // Show alternating ad (awards credits), then proceed
+    AdService.instance.showInterstitialAd(onAdDismissed: () {
+      if (mounted) _doApplyLiveWallpaper();
+    });
+  }
+
+  Future<void> _doApplyLiveWallpaper() async {
+    // Release preview video player to free codec for the native wallpaper engine
+    _videoController?.pause();
+    _videoController?.dispose();
+    _videoController = null;
     setState(() {
+      _isVideoReady = false;
       _isApplying = true;
       _downloadProgress = 0.0;
       _loadingStatus = 'Downloading video...';
@@ -135,7 +149,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
           backgroundColor: Colors.green.shade700,
         ),
       );
-      setState(() => _isApplying = false);
+      // Go back to home — frees all preview resources
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 
@@ -388,7 +403,36 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                       ),
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            // Ad status + credits
+                            Builder(builder: (_) {
+                              final isFree = AdService.instance.isNextActionFree;
+                              final credits = CreditService.instance.balance;
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8, bottom: 4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: isFree ? Colors.green.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: isFree ? Colors.greenAccent.withOpacity(0.5) : Colors.orange.withOpacity(0.5)),
+                                      ),
+                                      child: Text(
+                                        isFree ? 'FREE!' : '+${CreditService.creditsPerAd} credits',
+                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isFree ? Colors.greenAccent : Colors.orangeAccent),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Icon(Icons.diamond, size: 12, color: const Color(0xFF7C4DFF)),
+                                    const SizedBox(width: 3),
+                                    Text('$credits', style: const TextStyle(fontSize: 11, color: Color(0xFF7C4DFF))),
+                                  ],
+                                ),
+                              );
+                            }),
+                            const SizedBox(height: 6),
                             // Delete from device button
                             FutureBuilder<bool>(
                               future: _isDownloadedFuture,

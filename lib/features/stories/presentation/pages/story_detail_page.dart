@@ -4,6 +4,7 @@ import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/story_rotation_service.dart';
+import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/story.dart';
 import '../../providers/story_providers.dart';
@@ -23,8 +24,14 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
 
   Color get _glowColor => parseHexColor(widget.story.glowColor, fallback: Colors.deepPurple);
 
+  @override
+  void initState() {
+    super.initState();
+    WallpaperStatsService.instance.trackView('story_${widget.story.id}');
+  }
+
   Future<void> _startStory() async {
-    // Show interstitial ad before starting
+    // Show alternating ad (awards credits), then start
     AdService.instance.showInterstitialAd(onAdDismissed: () {
       if (mounted) _doStartStory();
     });
@@ -35,6 +42,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
       _isStarting = true;
       _downloadProgress = 0;
     });
+    WallpaperStatsService.instance.trackDownload('story_${widget.story.id}');
 
     // Download all frames
     final paths = <String>[];

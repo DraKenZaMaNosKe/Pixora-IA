@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/day_cycle_providers.dart';
 import '../../data/models/day_cycle_theme.dart';
 import 'day_cycle_detail_page.dart';
@@ -91,6 +92,16 @@ class _DayCycleCard extends ConsumerWidget {
                       colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
                     ),
                   ),
+                ),
+              ),
+              // Stats bar
+              Positioned(
+                top: 8,
+                right: isActive ? null : 8,
+                left: isActive ? 8 : null,
+                child: WallpaperStatsBar(
+                  wallpaperId: 'daycycle_${theme.id}',
+                  glowColor: Colors.deepPurple,
                 ),
               ),
               if (isActive)

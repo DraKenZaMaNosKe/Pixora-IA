@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
+import 'core/services/credit_service.dart';
 import 'core/services/wallpaper_stats_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/splash/presentation/splash_page.dart';
@@ -26,6 +27,7 @@ Future<void> main() async {
       anonKey: SupabaseConfig.anonKey,
     );
 
+    await CreditService.instance.init();
     AdService.instance.initialize();
     runApp(const ProviderScope(child: PixoraApp()));
   }, (error, stackTrace) {

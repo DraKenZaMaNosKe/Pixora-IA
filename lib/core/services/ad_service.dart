@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'credit_service.dart';
 
 class AdService {
   AdService._();
@@ -18,10 +19,9 @@ class AdService {
   bool get isAdLoaded => _isAdLoaded;
 
   /// Whether the NEXT action will show an ad (true) or be free (false).
-  /// Use this to show "FREE!" or "Ad next" badges in the UI.
   bool get isNextActionFree => _actionCount.isOdd;
 
-  /// Current flag value for debugging: even = next is ad, odd = next is free.
+  /// Current flag value for debugging.
   int get debugFlag => _actionCount;
 
   /// Initialize Mobile Ads SDK. Call once at app startup.
@@ -54,18 +54,16 @@ class AdService {
   }
 
   /// Show interstitial ad on alternating actions (1st yes, 2nd no, 3rd yes…).
-  /// Always calls [onAdDismissed] whether ad was shown or skipped.
+  /// Awards credits when an ad is actually shown and watched.
   void showInterstitialAd({required VoidCallback onAdDismissed}) {
     _actionCount++;
     final shouldShow = _actionCount.isOdd;
 
     if (!shouldShow) {
-      // Skip turn — let user enjoy ad-free
       onAdDismissed();
       return;
     }
 
-    // Show turn — but if ad not ready, just proceed
     if (_interstitialAd == null || !_isAdLoaded) {
       onAdDismissed();
       loadInterstitialAd();
@@ -78,6 +76,8 @@ class AdService {
         _interstitialAd = null;
         _isAdLoaded = false;
         loadInterstitialAd();
+        // Award credits for watching the ad
+        CreditService.instance.earnFromAd();
         onAdDismissed();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {

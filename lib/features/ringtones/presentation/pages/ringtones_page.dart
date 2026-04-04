@@ -7,6 +7,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ringtone_service.dart';
+import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/ringtone_providers.dart';
 import '../../data/models/ringtone_pack.dart';
 import 'ringtone_pack_page.dart';
@@ -528,6 +529,16 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                 ),
               ),
 
+              // Stats bar
+              Positioned(
+                top: 12,
+                left: 16,
+                child: WallpaperStatsBar(
+                  wallpaperId: 'tone_pack_${pack.id}',
+                  glowColor: glow,
+                ),
+              ),
+
               // Floating icon top-right
               Positioned(
                 top: 16,
@@ -860,6 +871,16 @@ class _RecommendedCard extends StatelessWidget {
                   child: Center(child: _MiniWave(color: glow)),
                 ),
 
+              // Stats
+              Positioned(
+                bottom: 42,
+                left: 6,
+                child: WallpaperStatsBar(
+                  wallpaperId: 'tone_${tone.id}',
+                  glowColor: glow,
+                ),
+              ),
+
               // Bottom info
               Positioned(
                 bottom: 0,
@@ -1053,6 +1074,16 @@ class _ToneGridCard extends StatelessWidget {
                   left: 0, right: 0,
                   child: Center(child: _MiniWave(color: glow)),
                 ),
+
+              // Stats
+              Positioned(
+                top: 4,
+                right: 4,
+                child: WallpaperStatsBar(
+                  wallpaperId: 'tone_${tone.id}',
+                  glowColor: glow,
+                ),
+              ),
 
               // Name + duration
               Positioned(

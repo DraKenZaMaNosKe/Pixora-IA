@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/credit_service.dart';
+import '../../ai_generate/presentation/pages/ai_generate_page.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../favorites/providers/favorites_provider.dart';
 import '../../settings/presentation/settings_page.dart';
@@ -28,6 +30,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (!Platform.isIOS) const StoriesPage(),
     if (!Platform.isIOS) const DayCyclePage(),
     if (!Platform.isIOS) const RingtonesPage(),
+    if (!Platform.isIOS) const AIGeneratePage(),
     const FavoritesPage(),
     const SettingsPage(),
   ];
@@ -41,6 +44,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (!Platform.isIOS) 'Stories',
       if (!Platform.isIOS) 'Day Cycle',
       if (!Platform.isIOS) 'Tones',
+      if (!Platform.isIOS) 'AI Create',
       'Favorites',
       'Settings',
     ];
@@ -156,6 +160,139 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  void _showCreditsSheet() {
+    final credits = CreditService.instance;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A2E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => ListenableBuilder(
+        listenable: credits,
+        builder: (ctx, _) => Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Balance
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.diamond, size: 32, color: Color(0xFF7C4DFF)),
+                  const SizedBox(width: 10),
+                  Text(
+                    '${credits.balance}',
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Credits',
+                style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.5)),
+              ),
+              const SizedBox(height: 20),
+              // Stats
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _creditStat('Earned', '${credits.totalEarned}'),
+                    Container(width: 1, height: 30, color: Colors.white12),
+                    _creditStat('Ads Watched', '${credits.adsWatched}'),
+                    Container(width: 1, height: 30, color: Colors.white12),
+                    _creditStat('Per Ad', '+${CreditService.creditsPerAd}'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Promo banner
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF7C4DFF).withOpacity(0.2),
+                      const Color(0xFF00B4D8).withOpacity(0.2),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFF7C4DFF).withOpacity(0.3)),
+                ),
+                child: Column(
+                  children: [
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.auto_awesome, size: 18, color: Color(0xFF00B4D8)),
+                        SizedBox(width: 8),
+                        Text(
+                          'AI Wallpapers — Coming Soon',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Save credits now! Generate wallpapers and ringtones with AI when it launches.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.6),
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // How to earn
+              Text(
+                'Watch ads while using the app to earn credits automatically',
+                style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.35)),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _creditStat(String label, String value) {
+    return Column(
+      children: [
+        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 2),
+        Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.4))),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,6 +310,47 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
               ),
               actions: [
+                // Credits badge
+                ListenableBuilder(
+                  listenable: CreditService.instance,
+                  builder: (context, _) {
+                    final credits = CreditService.instance.balance;
+                    return GestureDetector(
+                      onTap: () => _showCreditsSheet(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.black87,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFF7C4DFF), width: 1.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF7C4DFF).withOpacity(0.3),
+                              blurRadius: 8,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.diamond, size: 16, color: Color(0xFF00E5FF)),
+                            const SizedBox(width: 5),
+                            Text(
+                              '$credits',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 4),
                 IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () {
@@ -221,6 +399,11 @@ class _HomePageState extends ConsumerState<HomePage> {
             const BottomNavigationBarItem(
               icon: Icon(Icons.music_note),
               label: 'Tones',
+            ),
+          if (!Platform.isIOS)
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.auto_awesome),
+              label: 'AI',
             ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.favorite),

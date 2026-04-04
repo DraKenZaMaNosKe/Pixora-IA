@@ -4,6 +4,7 @@ import '../../data/models/day_cycle_theme.dart';
 import '../../providers/day_cycle_providers.dart';
 import '../../../../core/services/day_cycle_service.dart';
 import '../../../../core/services/ad_service.dart';
+import '../../../../core/services/wallpaper_stats_service.dart';
 
 class DayCycleDetailPage extends ConsumerStatefulWidget {
   final DayCycleTheme theme;
@@ -16,6 +17,12 @@ class DayCycleDetailPage extends ConsumerStatefulWidget {
 class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
   bool _isActivating = false;
   String _progressText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    WallpaperStatsService.instance.trackView('daycycle_${widget.theme.id}');
+  }
 
   final _periods = const [
     {'label': 'Morning', 'time': '6:00 - 12:00', 'icon': Icons.wb_sunny, 'color': Color(0xFFFFB74D)},
@@ -32,7 +39,14 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
   Future<void> _activate() async {
     setState(() { _isActivating = true; _progressText = 'Preparing...'; });
 
-    AdService.instance.showInterstitialAd(onAdDismissed: () {});
+    // Show alternating ad (awards credits), then activate
+    AdService.instance.showInterstitialAd(onAdDismissed: () {
+      if (mounted) _doActivate();
+    });
+  }
+
+  Future<void> _doActivate() async {
+    WallpaperStatsService.instance.trackDownload('daycycle_${widget.theme.id}');
 
     final success = await DayCycleService.instance.activate(
       widget.theme, target: 0,

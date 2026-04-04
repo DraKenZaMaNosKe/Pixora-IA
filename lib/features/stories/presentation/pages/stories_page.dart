@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
+import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/story_providers.dart';
 import 'story_detail_page.dart';
 
@@ -147,10 +148,19 @@ class StoriesPage extends ConsumerWidget {
                           ],
                         ),
                       ),
+                      // Stats bar
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: WallpaperStatsBar(
+                          wallpaperId: 'story_${story.id}',
+                          glowColor: glowColor,
+                        ),
+                      ),
                       // Play icon
                       Positioned(
                         top: 12,
-                        right: 12,
+                        left: 12,
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(

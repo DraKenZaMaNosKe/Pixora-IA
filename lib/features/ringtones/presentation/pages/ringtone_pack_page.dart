@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ringtone_service.dart';
+import '../../../../core/services/wallpaper_stats_service.dart';
+import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../data/models/ringtone_pack.dart';
 
 const _defaultPreviewAsset = 'assets/tone_preview_default.webp';
@@ -65,6 +67,12 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     if (n.contains('huawei')) return [const Color(0xFFE53935), const Color(0xFF880E4F)];
     if (n.contains('havana')) return [const Color(0xFFFF7043), const Color(0xFF4E342E)];
     return [_glowColor, _glowColor.withOpacity(0.3)];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WallpaperStatsService.instance.trackView('tone_pack_${widget.pack.id}');
   }
 
   @override
@@ -166,6 +174,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 
   Future<void> _doSetAs(RingtoneTone tone, int type) async {
     setState(() => _settingId = tone.id);
+    WallpaperStatsService.instance.trackDownload('tone_${tone.id}');
 
     final path = await RingtoneService.instance.downloadTone(tone);
     if (path == null) {
@@ -439,6 +448,16 @@ class _ToneCard extends StatelessWidget {
                     ],
                     stops: const [0.35, 1.0],
                   ),
+                ),
+              ),
+
+              // Stats
+              Positioned(
+                top: 8,
+                right: 8,
+                child: WallpaperStatsBar(
+                  wallpaperId: 'tone_${tone.id}',
+                  glowColor: glowColor,
                 ),
               ),
 
