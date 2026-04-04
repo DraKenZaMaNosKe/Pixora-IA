@@ -55,6 +55,30 @@ class PixoraWallpaperService : WallpaperService() {
         private var isInteractive = false // touch scrubbing mode
         private var scrubStartX = 0f
         private var scrubStartPosition = 0L
+        private var scrubLastOffset = 0f
+        private var videoRetryCount = 0
+        private val maxVideoRetries = 2
+
+        // Smooth seek: interpolate gradually to target position
+        private var scrubTargetMs = 0L
+        private var scrubCurrentMs = 0L
+        private val scrubAnimRunnable = object : Runnable {
+            override fun run() {
+                val player = exoPlayer ?: return
+                if (!isInteractive || !isVideoWallpaper) return
+
+                val diff = scrubTargetMs - scrubCurrentMs
+                if (kotlin.math.abs(diff) < 10) return // close enough
+
+                // Move 15% of remaining distance each frame — smooth easing
+                val step = (diff * 0.15f).toLong()
+                scrubCurrentMs = (scrubCurrentMs + if (step == 0L) diff else step)
+                    .coerceIn(0, player.duration - 1)
+                player.seekTo(scrubCurrentMs)
+
+                handler.postDelayed(this, 16) // ~60fps
+            }
+        }
 
         // Lock for bitmap field access across threads
         private val bitmapLock = Object()
@@ -144,8 +168,6 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
             super.onCreate(surfaceHolder)
             setTouchEventsEnabled(true)
-            // Disable launcher page scrolling so we get horizontal touch events
-            setOffsetNotificationsEnabled(false)
             equalizerRenderer.audioCallback = this
             loadWallpaperImage()
             batteryIndicator.registerBatteryReceiver()
@@ -308,7 +330,12 @@ class PixoraWallpaperService : WallpaperService() {
             }
 
             try {
-                val player = ExoPlayer.Builder(applicationContext).build()
+                // Use software decoder fallback if hardware codec failed before
+                val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(applicationContext)
+                    .setEnableDecoderFallback(true) // Fall back to software if hardware fails
+                val player = ExoPlayer.Builder(applicationContext)
+                    .setRenderersFactory(renderersFactory)
+                    .build()
                 player.setVideoSurface(surface)
                 player.volume = 0f // Mute
 
@@ -317,6 +344,8 @@ class PixoraWallpaperService : WallpaperService() {
                 if (isInteractive) {
                     // Interactive: single source, no loop — user controls position
                     player.repeatMode = Player.REPEAT_MODE_OFF
+                    // Exact seek: decode to precise frame, not just nearest keyframe
+                    player.setSeekParameters(androidx.media3.exoplayer.SeekParameters.EXACT)
                     player.setMediaItem(MediaItem.fromUri(uri))
                 } else {
                     // Normal: gapless loop with 2 copies for seamless transition
@@ -336,6 +365,7 @@ class PixoraWallpaperService : WallpaperService() {
                             Player.STATE_READY -> {
                                 if (playerReady) return // Prevent re-entry
                                 playerReady = true
+                                videoRetryCount = 0 // Success — reset retry counter
                                 Log.d(TAG, "ExoPlayer READY (interactive=$isInteractive)")
                                 synchronized(videoLock) { videoStarting = false }
                                 if (isInteractive) {
@@ -355,7 +385,7 @@ class PixoraWallpaperService : WallpaperService() {
                         }
                     }
                     override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                        Log.e(TAG, "ExoPlayer error: ${error.message}")
+                        Log.e(TAG, "ExoPlayer error (retry $videoRetryCount/$maxVideoRetries): ${error.message}")
                         // Release the failed player to free codec resources
                         try {
                             player.stop()
@@ -368,16 +398,29 @@ class PixoraWallpaperService : WallpaperService() {
                             videoStarting = false
                         }
                         isVideoWallpaper = false
-                        // Retry after codec has time to fully release
-                        handler.postDelayed({
-                            Log.d(TAG, "Retrying video wallpaper after codec error")
-                            loadWallpaperImage()
-                            if (!isVideoWallpaper) {
-                                createScaledBitmap()
+
+                        if (videoRetryCount < maxVideoRetries) {
+                            videoRetryCount++
+                            // Retry with increasing delay to let codec fully release
+                            val delay = (videoRetryCount * 1500).toLong()
+                            handler.postDelayed({
+                                Log.d(TAG, "Retrying video wallpaper (attempt $videoRetryCount)")
+                                loadWallpaperImage()
+                                if (!isVideoWallpaper) {
+                                    createScaledBitmap()
+                                    drawing = true
+                                    handler.post(drawRunnable)
+                                }
+                            }, delay)
+                        } else {
+                            // Max retries reached — fall back to static image mode
+                            Log.w(TAG, "Video failed after $maxVideoRetries retries, falling back to image")
+                            videoRetryCount = 0
+                            handler.post {
                                 drawing = true
                                 handler.post(drawRunnable)
                             }
-                        }, 1000)
+                        }
                     }
                 })
 
@@ -393,6 +436,7 @@ class PixoraWallpaperService : WallpaperService() {
 
         private fun stopVideoWallpaper() {
             handler.removeCallbacks(fadeRunnable)
+            handler.removeCallbacks(scrubAnimRunnable)
             videoFadeAlpha = 0f
             val player: ExoPlayer?
             synchronized(videoLock) {
@@ -525,6 +569,24 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         override fun onOffsetsChanged(xOffset: Float, yOffset: Float, xStep: Float, yStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
+            // Interactive video: use launcher's xOffset changes to scrub video
+            if (isInteractive && isVideoWallpaper) {
+                val player = exoPlayer
+                if (player != null && player.duration > 0) {
+                    // Convert offset delta to video position delta
+                    val deltaOffset = xOffset - scrubLastOffset
+                    scrubLastOffset = xOffset
+                    if (kotlin.math.abs(deltaOffset) > 0.001f && kotlin.math.abs(deltaOffset) < 0.5f) {
+                        // Each 0.1 offset change = 1 second of video
+                        val seekDelta = (deltaOffset * player.duration * 0.5f).toLong()
+                        val current = player.currentPosition
+                        val target = (current + seekDelta).coerceIn(0, player.duration - 1)
+                        player.seekTo(target)
+                    }
+                }
+                return
+            }
+
             if (isPanoramic && xStep > 0f && xStep < 1f) {
                 val panBmp = panoramicBitmap
                 if (panBmp != null) {
@@ -600,27 +662,21 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onTouchEvent(event: MotionEvent?) {
             event ?: return
 
-            // Interactive video scrubbing: each finger move advances/rewinds incrementally
+            // Interactive video: tap position on screen = position in video
+            // Samsung launcher captures ACTION_MOVE, so we use ACTION_DOWN position.
+            // Left edge = frame 0, right edge = last frame.
+            // Seek is animated gradually for smooth visual transition.
             if (isInteractive && isVideoWallpaper) {
                 val player = exoPlayer
-                if (player != null && player.duration > 0) {
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            scrubStartX = event.x
-                        }
-                        MotionEvent.ACTION_MOVE -> {
-                            val deltaX = event.x - scrubStartX
-                            scrubStartX = event.x // reset for next move
-                            // Each pixel of finger movement = small seek
-                            // Sensitivity: 1 pixel = ~0.3ms of video
-                            val seekDelta = (deltaX * 0.3f).toLong()
-                            val current = player.currentPosition
-                            val target = (current + seekDelta).coerceIn(0, player.duration - 1)
-                            player.seekTo(target)
-                        }
-                    }
-                    return
+                if (player != null && player.duration > 0 && event.action == MotionEvent.ACTION_DOWN) {
+                    val pct = (event.x / surfaceWidth.toFloat()).coerceIn(0f, 1f)
+                    scrubTargetMs = (pct * player.duration).toLong().coerceIn(0, player.duration - 1)
+                    scrubCurrentMs = player.currentPosition
+                    // Start smooth interpolation
+                    handler.removeCallbacks(scrubAnimRunnable)
+                    handler.post(scrubAnimRunnable)
                 }
+                return
             }
 
             // Panoramic touch scroll

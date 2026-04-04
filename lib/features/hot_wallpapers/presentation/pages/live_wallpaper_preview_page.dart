@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
@@ -22,15 +21,12 @@ class LiveWallpaperPreviewPage extends StatefulWidget {
 }
 
 class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
-  VideoPlayerController? _videoController;
-  bool _isVideoReady = false;
   bool _isApplying = false;
   double _downloadProgress = 0.0;
   String _loadingStatus = '';
   bool _showControls = true;
   bool _interactiveMode = false; // false = Auto Play, true = Touch scrub
   late Future<bool> _isDownloadedFuture;
-  // Token to cancel stale auto-hide callbacks
   int _controlsToken = 0;
 
   Color get _glowColor => parseHexColor(widget.wallpaper.glowColor, fallback: const Color(0xFFFF4500));
@@ -40,33 +36,12 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     super.initState();
     _isDownloadedFuture = _isDownloaded();
     WallpaperStatsService.instance.trackView('live_${widget.wallpaper.id}');
-    _initVideo();
-  }
-
-  Future<void> _initVideo() async {
-    try {
-      _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.wallpaper.videoUrl),
-      );
-      await _videoController!.initialize();
-      _videoController!.setLooping(true);
-      _videoController!.setVolume(0); // Mute for wallpaper preview
-      if (mounted) {
-        setState(() => _isVideoReady = true);
-        _videoController!.play();
-        _scheduleAutoHide();
-      }
-    } catch (e) {
-      // Dispose controller on init failure to prevent leak
-      _videoController?.dispose();
-      _videoController = null;
-      debugPrint('[Pixora] Video init failed: $e');
-    }
+    _scheduleAutoHide();
   }
 
   void _scheduleAutoHide() {
     final token = ++_controlsToken;
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 4), () {
       if (mounted && _controlsToken == token) {
         setState(() => _showControls = false);
       }
@@ -75,8 +50,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
 
   @override
   void dispose() {
-    _controlsToken++; // Invalidate any pending auto-hide
-    _videoController?.dispose();
+    _controlsToken++;
     super.dispose();
   }
 
@@ -95,12 +69,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   }
 
   Future<void> _doApplyLiveWallpaper() async {
-    // Release preview video player to free codec for the native wallpaper engine
-    _videoController?.pause();
-    _videoController?.dispose();
-    _videoController = null;
     setState(() {
-      _isVideoReady = false;
       _isApplying = true;
       _downloadProgress = 0.0;
       _loadingStatus = 'Downloading video...';
@@ -192,40 +161,13 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Video or preview image
-            if (_isVideoReady && _videoController != null)
-              Center(
-                child: AspectRatio(
-                  aspectRatio: _videoController!.value.aspectRatio,
-                  child: VideoPlayer(_videoController!),
-                ),
-              )
-            else
-              CachedNetworkImage(
-                imageUrl: w.previewUrl,
-                fit: BoxFit.cover,
-                errorWidget: (_, __, ___) =>
-                    Container(color: const Color(0xFF0A0A0F)),
-              ),
-
-            // Loading indicator while video loads
-            if (!_isVideoReady)
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(color: _glowColor),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Loading preview...',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            // Preview image (static — no video codec used)
+            CachedNetworkImage(
+              imageUrl: w.previewUrl,
+              fit: BoxFit.cover,
+              errorWidget: (_, __, ___) =>
+                  Container(color: const Color(0xFF0A0A0F)),
+            ),
 
             // Loading overlay
             LoadingOverlay(
