@@ -80,4 +80,16 @@ class WallpaperService {
       return false;
     }
   }
+
+  /// Reset the live wallpaper engine — releases all codecs, bitmaps, players.
+  Future<bool> resetEngine() async {
+    if (!Platform.isAndroid) return false;
+    try {
+      final result = await _channel.invokeMethod<bool>('resetEngine');
+      return result ?? false;
+    } catch (e) {
+      debugPrint('[WallpaperService] resetEngine error: $e');
+      return false;
+    }
+  }
 }

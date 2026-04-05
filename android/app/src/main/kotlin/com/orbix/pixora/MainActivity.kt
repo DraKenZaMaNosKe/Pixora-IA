@@ -64,6 +64,21 @@ class MainActivity : FlutterActivity() {
                             result.error("INVALID_ARG", "Path is required", null)
                         }
                     }
+                    "resetEngine" -> {
+                        // Kill wallpaper service to force full restart and release all resources
+                        try {
+                            val prefs = getSharedPreferences("pixora_live", 0)
+                            prefs.edit()
+                                .putLong("changed_at", System.currentTimeMillis())
+                                .apply()
+                            // Force GC to release any lingering codecs
+                            System.gc()
+                            result.success(true)
+                            android.util.Log.d("PixoraEQ", "Engine reset requested")
+                        } catch (e: Exception) {
+                            result.success(false)
+                        }
+                    }
                     "saveToGallery" -> {
                         val path = call.argument<String>("path")
                         if (path != null) {
@@ -346,8 +361,9 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun setLiveWallpaper(imagePath: String, glowColor: String, interactive: Boolean = false) {
-        // Stop any active story to prevent it from overriding this wallpaper
+        // Stop any active story/day cycle to prevent them from overriding this wallpaper
         StoryWorker.stopStory(applicationContext)
+        DayCycleWorker.stop(applicationContext)
 
         // Save config for the WallpaperService to read
         val prefs = getSharedPreferences("pixora_live", 0)
@@ -364,8 +380,9 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun setWallpaper(path: String, target: Int): Boolean {
-        // Stop any active story to prevent it from interfering
+        // Stop any active story/day cycle to prevent them from interfering
         StoryWorker.stopStory(applicationContext)
+        DayCycleWorker.stop(applicationContext)
 
         return try {
             val file = File(path)

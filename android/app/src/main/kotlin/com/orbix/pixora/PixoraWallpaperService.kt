@@ -302,13 +302,20 @@ class PixoraWallpaperService : WallpaperService() {
             }
             isVideoWallpaper = true
 
-            // Release old player fully before creating new one
+            // Release old player/frames fully before creating new one
+            val wasFrameMode = isFrameMode
             stopVideoWallpaper()
             isVideoWallpaper = true // stopVideoWallpaper resets this
 
+            // If coming from frame mode, force GC to release MediaMetadataRetriever codec
+            if (wasFrameMode) {
+                System.gc()
+                Thread.sleep(CODEC_RELEASE_DELAY_MS * 2) // extra time for codec cleanup
+            }
+
             // Interactive mode: extract frames and use Canvas rendering
             if (isInteractive) {
-                Log.d(TAG, "Interactive mode: extracting frames from $path")
+                Log.d(TAG, "Explore mode: extracting frames from $path")
                 isFrameMode = true
                 synchronized(videoLock) { videoStarting = false }
 
@@ -321,7 +328,7 @@ class PixoraWallpaperService : WallpaperService() {
                     if (success) frameScrubRenderer.cleanOldCaches(cacheDir)
                     handler.post {
                         if (success && isFrameMode) {
-                            Log.d(TAG, "Frame mode ready — starting Canvas draw")
+                            Log.d(TAG, "Explore mode ready")
                             drawing = true
                             handler.post(drawRunnable)
                             handler.post(frameScrubUpdateRunnable)

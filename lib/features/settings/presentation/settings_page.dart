@@ -4,6 +4,7 @@ import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/download_service.dart';
 import '../../../core/services/quality_service.dart';
+import '../../../core/services/wallpaper_service.dart';
 import '../../favorites/providers/favorites_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -196,12 +197,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             }
           },
         ),
+        _SettingsTile(
+          icon: Icons.refresh,
+          title: 'Reset wallpaper engine',
+          subtitle: 'Fix stuck or frozen live wallpapers',
+          onTap: () async {
+            final ok = await WallpaperService.instance.resetEngine();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(ok ? 'Engine reset — wallpaper will reload' : 'Reset failed'),
+                  backgroundColor: ok ? Colors.green.shade700 : Colors.red,
+                ),
+              );
+            }
+          },
+        ),
         const Divider(color: Colors.white12),
         const _SectionHeader('About'),
         const _SettingsTile(
           icon: Icons.info_outline,
           title: 'Pixora IA',
-          subtitle: 'Version 1.4.0',
+          subtitle: 'Version 1.5.0',
         ),
         const _SettingsTile(
           icon: Icons.code,
