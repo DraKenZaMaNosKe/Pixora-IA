@@ -19,7 +19,7 @@ class WallpaperStatsBar extends StatefulWidget {
 }
 
 class _WallpaperStatsBarState extends State<WallpaperStatsBar>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late final WallpaperStatsService _service;
   StreamSubscription? _sub;
   Map<String, int> _stats = {'likes': 0, 'downloads': 0, 'views': 0};
@@ -64,6 +64,7 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
+    WidgetsBinding.instance.addObserver(this);
 
     // Listen for realtime updates
     _sub = _service.statsStream.listen((allStats) {
@@ -80,7 +81,17 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _heartbeatController?.stop();
+    } else if (state == AppLifecycleState.resumed) {
+      _heartbeatController?.repeat(reverse: true);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _sub?.cancel();
     _likeController?.dispose();
     _particleController?.dispose();

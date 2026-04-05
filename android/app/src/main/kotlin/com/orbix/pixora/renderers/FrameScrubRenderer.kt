@@ -38,7 +38,8 @@ class FrameScrubRenderer {
         videoPath: String,
         cacheDir: File,
         targetWidth: Int = 540,
-        everyNthFrame: Int = 4
+        everyNthFrame: Int = 4,
+        onProgress: ((current: Int, total: Int) -> Unit)? = null
     ): Boolean {
         try {
             val videoFile = File(videoPath)
@@ -74,6 +75,7 @@ class FrameScrubRenderer {
             Log.d(TAG, "Extracting $framesToExtract frames from ${durationMs}ms video")
 
             var extracted = 0
+            onProgress?.invoke(0, framesToExtract)
             for (i in 0 until framesToExtract) {
                 val timeUs = (i * everyNthFrame * 1000000L / fps)
                 val frame = retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST)
@@ -97,6 +99,7 @@ class FrameScrubRenderer {
                 }
                 scaled.recycle()
                 extracted++
+                onProgress?.invoke(extracted, framesToExtract)
             }
 
             retriever.release()

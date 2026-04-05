@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -177,9 +178,13 @@ class DownloadService {
     }
   }
 
-  /// Remove oldest cached files if cache exceeds max size.
+  /// Remove oldest cached files if cache exceeds max size (debounced).
+  Timer? _trimTimer;
   void _trimCacheIfNeeded(String basePath) {
-    compute(_trimCache, '$basePath/wallpapers');
+    _trimTimer?.cancel();
+    _trimTimer = Timer(const Duration(seconds: 5), () {
+      compute(_trimCache, '$basePath/wallpapers');
+    });
   }
 
   static Future<void> _trimCache(String dirPath) async {

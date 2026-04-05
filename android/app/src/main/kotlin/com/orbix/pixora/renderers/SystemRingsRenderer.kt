@@ -20,6 +20,9 @@ class SystemRingsRenderer(private val context: Context) {
     private val systemTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val systemLabelPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private var systemPulsePhase = 0f
+    private val ringRect = RectF()
+    private val typefaceCondensedBold = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+    private val typefaceLight = Typeface.create("sans-serif-light", Typeface.NORMAL)
 
     var surfaceWidth = 0
     var surfaceHeight = 0
@@ -110,8 +113,8 @@ class SystemRingsRenderer(private val context: Context) {
         systemRingBgPaint.strokeWidth = strokeWidth
         systemRingBgPaint.strokeCap = Paint.Cap.ROUND
         systemRingBgPaint.color = Color.argb(40, 255, 255, 255)
-        val rect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
-        canvas.drawArc(rect, -90f, 360f, false, systemRingBgPaint)
+        ringRect.set(cx - radius, cy - radius, cx + radius, cy + radius)
+        canvas.drawArc(ringRect, -90f, 360f, false, systemRingBgPaint)
 
         // Colored arc
         val sweep = usedPct * 3.6f
@@ -121,14 +124,14 @@ class SystemRingsRenderer(private val context: Context) {
         systemRingPaint.color = color
         systemRingPaint.alpha = (255 * breathe).toInt()
         systemRingPaint.setShadowLayer(radius * 0.4f, 0f, 0f, color)
-        canvas.drawArc(rect, -90f, sweep, false, systemRingPaint)
+        canvas.drawArc(ringRect, -90f, sweep, false, systemRingPaint)
         systemRingPaint.clearShadowLayer()
 
         // Value text (right of ring)
         val textX = cx + radius + strokeWidth + radius * 0.4f
         systemTextPaint.textSize = radius * 0.85f
         systemTextPaint.textAlign = Paint.Align.LEFT
-        systemTextPaint.typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+        systemTextPaint.typeface = typefaceCondensedBold
         systemTextPaint.color = Color.WHITE
         systemTextPaint.alpha = (220 * breathe).toInt()
         canvas.drawText(value, textX, cy + radius * 0.15f, systemTextPaint)
@@ -137,7 +140,7 @@ class SystemRingsRenderer(private val context: Context) {
         val valueWidth = systemTextPaint.measureText(value)
         systemLabelPaint.textSize = radius * 0.5f
         systemLabelPaint.textAlign = Paint.Align.LEFT
-        systemLabelPaint.typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
+        systemLabelPaint.typeface = typefaceLight
         systemLabelPaint.color = color
         systemLabelPaint.alpha = (180 * breathe).toInt()
         canvas.drawText("$unit $label", textX + valueWidth + radius * 0.15f, cy + radius * 0.15f, systemLabelPaint)

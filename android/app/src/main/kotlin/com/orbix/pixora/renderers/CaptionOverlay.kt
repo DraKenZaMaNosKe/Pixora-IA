@@ -17,6 +17,23 @@ class CaptionOverlay {
     private val captionTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val captionBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    // Pre-allocated RectF for draw loop reuse
+    private val outerGlowRect = RectF()
+    private val bgRect = RectF()
+    private val accentRect = RectF()
+
+    // Cached BlurMaskFilter (recreated only when surfaceWidth changes)
+    private var cachedBlurFilter: BlurMaskFilter? = null
+    private var cachedBlurWidth = 0
+
+    // Cached word-wrap results (recalculated only when caption or width changes)
+    private data class CaptionWord(val text: String, val highlight: Boolean)
+    private data class LineWord(val text: String, val highlight: Boolean)
+    private var cachedCaption: String? = null
+    private var cachedMaxWidth = 0f
+    private var cachedTextSize = 0f
+    private var cachedLines: List<List<LineWord>> = emptyList()
+
     // Character names to highlight in glow color
     private val highlightWords = setOf(
         "GOKU", "VEGETA", "GOHAN", "GOTEN", "TRUNKS", "PICCOLO",
@@ -65,51 +82,58 @@ class CaptionOverlay {
 
         val textSize = w * 0.034f
 
-        // Build word list with highlight info
-        data class CaptionWord(val text: String, val highlight: Boolean)
-        val rawWords = text.split(" ")
-        val captionWords = mutableListOf<CaptionWord>()
+        // Recalculate word-wrap only when caption or layout changes
+        if (text != cachedCaption || maxWidth != cachedMaxWidth || textSize != cachedTextSize) {
+            cachedCaption = text
+            cachedMaxWidth = maxWidth
+            cachedTextSize = textSize
 
-        var i = 0
-        while (i < rawWords.size) {
-            var matched = false
-            if (i + 1 < rawWords.size) {
-                val twoWord = "${rawWords[i]} ${rawWords[i+1]}"
-                if (highlightWords.contains(twoWord.uppercase())) {
-                    captionWords.add(CaptionWord(twoWord, true))
-                    i += 2
-                    matched = true
+            val rawWords = text.split(" ")
+            val captionWords = mutableListOf<CaptionWord>()
+
+            var i = 0
+            while (i < rawWords.size) {
+                var matched = false
+                if (i + 1 < rawWords.size) {
+                    val twoWord = "${rawWords[i]} ${rawWords[i+1]}"
+                    if (highlightWords.contains(twoWord.uppercase())) {
+                        captionWords.add(CaptionWord(twoWord, true))
+                        i += 2
+                        matched = true
+                    }
+                }
+                if (!matched) {
+                    val isHighlight = highlightWords.contains(rawWords[i].uppercase().trimEnd(',', '.', '!', '?'))
+                    captionWords.add(CaptionWord(rawWords[i], isHighlight))
+                    i++
                 }
             }
-            if (!matched) {
-                val isHighlight = highlightWords.contains(rawWords[i].uppercase().trimEnd(',', '.', '!', '?'))
-                captionWords.add(CaptionWord(rawWords[i], isHighlight))
-                i++
+
+            // Measure and word-wrap
+            captionTextPaint.textSize = textSize
+            captionTextPaint.typeface = Typeface.DEFAULT
+
+            val lines = mutableListOf<MutableList<LineWord>>()
+            var currentLine = mutableListOf<LineWord>()
+            var currentWidth = 0f
+
+            for (word in captionWords) {
+                captionTextPaint.typeface = if (word.highlight)
+                    Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                val wordWidth = captionTextPaint.measureText(word.text + " ")
+                if (currentWidth + wordWidth > maxWidth && currentLine.isNotEmpty()) {
+                    lines.add(currentLine)
+                    currentLine = mutableListOf()
+                    currentWidth = 0f
+                }
+                currentLine.add(LineWord(word.text, word.highlight))
+                currentWidth += wordWidth
             }
+            if (currentLine.isNotEmpty()) lines.add(currentLine)
+            cachedLines = lines
         }
 
-        // Measure and word-wrap
-        captionTextPaint.textSize = textSize
-        captionTextPaint.typeface = Typeface.DEFAULT
-
-        data class LineWord(val text: String, val highlight: Boolean)
-        val lines = mutableListOf<MutableList<LineWord>>()
-        var currentLine = mutableListOf<LineWord>()
-        var currentWidth = 0f
-
-        for (word in captionWords) {
-            captionTextPaint.typeface = if (word.highlight)
-                Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-            val wordWidth = captionTextPaint.measureText(word.text + " ")
-            if (currentWidth + wordWidth > maxWidth && currentLine.isNotEmpty()) {
-                lines.add(currentLine)
-                currentLine = mutableListOf()
-                currentWidth = 0f
-            }
-            currentLine.add(LineWord(word.text, word.highlight))
-            currentWidth += wordWidth
-        }
-        if (currentLine.isNotEmpty()) lines.add(currentLine)
+        val lines = cachedLines
 
         val lineHeight = textSize * 1.5f
         val totalTextHeight = lines.size * lineHeight
@@ -122,12 +146,17 @@ class CaptionOverlay {
         val boxLeft = margin - padding
         val boxRight = w - margin + padding
 
-        // Outer glow
+        // Outer glow (cache BlurMaskFilter when width changes)
+        if (cachedBlurWidth != surfaceWidth) {
+            cachedBlurWidth = surfaceWidth
+            cachedBlurFilter = BlurMaskFilter(w * 0.02f, BlurMaskFilter.Blur.OUTER)
+        }
         captionBgPaint.color = glowColor
         captionBgPaint.alpha = (alpha * 0.15f).toInt()
-        captionBgPaint.maskFilter = BlurMaskFilter(w * 0.02f, BlurMaskFilter.Blur.OUTER)
+        captionBgPaint.maskFilter = cachedBlurFilter
+        outerGlowRect.set(boxLeft - 4, boxTop - 4, boxRight + 4, boxBottom + 4)
         canvas.drawRoundRect(
-            RectF(boxLeft - 4, boxTop - 4, boxRight + 4, boxBottom + 4),
+            outerGlowRect,
             w * 0.025f, w * 0.025f, captionBgPaint
         )
         captionBgPaint.maskFilter = null
@@ -135,17 +164,19 @@ class CaptionOverlay {
         // Background
         captionBgPaint.color = Color.BLACK
         captionBgPaint.alpha = (alpha * 0.70f).toInt()
+        bgRect.set(boxLeft, boxTop, boxRight, boxBottom)
         canvas.drawRoundRect(
-            RectF(boxLeft, boxTop, boxRight, boxBottom),
+            bgRect,
             w * 0.02f, w * 0.02f, captionBgPaint
         )
 
         // Accent bar on left (glow colored)
         captionBgPaint.color = glowColor
         captionBgPaint.alpha = (alpha * 0.9f).toInt()
+        accentRect.set(boxLeft + padding * 0.3f, boxTop + padding * 0.6f,
+            boxLeft + padding * 0.3f + accentWidth, boxBottom - padding * 0.6f)
         canvas.drawRoundRect(
-            RectF(boxLeft + padding * 0.3f, boxTop + padding * 0.6f,
-                boxLeft + padding * 0.3f + accentWidth, boxBottom - padding * 0.6f),
+            accentRect,
             accentWidth / 2, accentWidth / 2, captionBgPaint
         )
 

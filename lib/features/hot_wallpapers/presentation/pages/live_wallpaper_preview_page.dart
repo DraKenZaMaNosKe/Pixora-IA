@@ -105,7 +105,14 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       return;
     }
 
-    if (mounted) setState(() => _loadingStatus = 'Setting live wallpaper...');
+    if (mounted) {
+      setState(() {
+        _loadingStatus = _interactiveMode
+            ? 'Preparing Explore mode...'
+            : 'Setting live wallpaper...';
+        _downloadProgress = 0.0;
+      });
+    }
 
     await WallpaperService.instance.setLiveWallpaper(
       path,
@@ -113,14 +120,27 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       interactive: _interactiveMode,
     );
 
+    // If Explore mode, wait for frame extraction to complete
+    if (_interactiveMode && mounted) {
+      setState(() => _loadingStatus = 'Extracting frames...');
+      // Poll until frames are ready (WallpaperService extracts in background)
+      for (var i = 0; i < 30; i++) { // max 15 seconds
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) {
+          setState(() => _downloadProgress = (i + 1) / 30.0);
+        }
+      }
+    }
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Live wallpaper set!'),
+          content: Text(_interactiveMode
+              ? 'Explore wallpaper set!'
+              : 'Live wallpaper set!'),
           backgroundColor: Colors.green.shade700,
         ),
       );
-      // Go back to home — frees all preview resources
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }

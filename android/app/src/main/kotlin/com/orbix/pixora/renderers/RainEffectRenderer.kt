@@ -40,6 +40,20 @@ class RainEffectRenderer {
 
     private var rainInitialized = false
 
+    // Pre-allocated arrays for RadialGradient construction (city lights)
+    private val cityGradientColors = IntArray(3)
+    private val cityGradientStops = floatArrayOf(0f, 0.3f, 1f)
+
+    // Pre-allocated arrays for lamp glow gradients
+    private val lampGradientColors3 = IntArray(3)
+    private val lampGradientStops3 = floatArrayOf(0f, 0.5f, 1f)
+    private val lampGradientColors4 = IntArray(4)
+    private val lampGradientStops4 = floatArrayOf(0f, 0.15f, 0.45f, 1f)
+
+    // Pre-allocated arrays for headphone glow gradients
+    private val hpGradientColors = IntArray(3)
+    private val hpGradientStops = floatArrayOf(0f, 0.4f, 1f)
+
     // Window region in normalized coords (0..1) based on the lofi_girl_rain image
     private val winLeft = 0.0f
     private val winRight = 0.47f
@@ -204,14 +218,13 @@ class RainEffectRenderer {
             val lg = Color.green(light.color)
             val lb = Color.blue(light.color)
 
+            cityGradientColors[0] = Color.argb(alpha, lr, lg, lb)
+            cityGradientColors[1] = Color.argb((alpha * 0.4f).toInt(), lr, lg, lb)
+            cityGradientColors[2] = Color.argb(0, lr, lg, lb)
             cityPaint.shader = RadialGradient(
                 light.x, light.y, bloomRadius,
-                intArrayOf(
-                    Color.argb(alpha, lr, lg, lb),
-                    Color.argb((alpha * 0.4f).toInt(), lr, lg, lb),
-                    Color.argb(0, lr, lg, lb)
-                ),
-                floatArrayOf(0f, 0.3f, 1f),
+                cityGradientColors,
+                cityGradientStops,
                 Shader.TileMode.CLAMP
             )
             canvas.drawCircle(light.x, light.y, bloomRadius, cityPaint)
@@ -251,14 +264,13 @@ class RainEffectRenderer {
 
         // 1) Bright bulb point
         val bulbRadius = w * 0.045f
+        lampGradientColors3[0] = Color.argb(255, 255, 250, 230)
+        lampGradientColors3[1] = Color.argb(220, 255, 230, 160)
+        lampGradientColors3[2] = Color.argb(0, 255, 200, 100)
         lampPaint.shader = RadialGradient(
             lampX, lampY, bulbRadius,
-            intArrayOf(
-                Color.argb(255, 255, 250, 230),
-                Color.argb(220, 255, 230, 160),
-                Color.argb(0, 255, 200, 100)
-            ),
-            floatArrayOf(0f, 0.5f, 1f),
+            lampGradientColors3,
+            lampGradientStops3,
             Shader.TileMode.CLAMP
         )
         canvas.drawCircle(lampX, lampY, bulbRadius, lampPaint)
@@ -266,15 +278,14 @@ class RainEffectRenderer {
         // 2) Light cone toward the book
         val coneRadius = w * 0.40f * pulse
 
+        lampGradientColors4[0] = Color.argb((230 * pulse).toInt(), 255, 220, 140)
+        lampGradientColors4[1] = Color.argb((150 * pulse).toInt(), 255, 200, 100)
+        lampGradientColors4[2] = Color.argb((60 * pulse).toInt(), 255, 175, 70)
+        lampGradientColors4[3] = Color.argb(0, 255, 150, 40)
         lampPaint.shader = RadialGradient(
             lampX, lampY, coneRadius,
-            intArrayOf(
-                Color.argb((230 * pulse).toInt(), 255, 220, 140),
-                Color.argb((150 * pulse).toInt(), 255, 200, 100),
-                Color.argb((60 * pulse).toInt(), 255, 175, 70),
-                Color.argb(0, 255, 150, 40)
-            ),
-            floatArrayOf(0f, 0.15f, 0.45f, 1f),
+            lampGradientColors4,
+            lampGradientStops4,
             Shader.TileMode.CLAMP
         )
         canvas.save()
@@ -286,13 +297,12 @@ class RainEffectRenderer {
 
         // 3) Warm glow on the book/desk area
         val bookGlow = w * 0.22f
+        lampGradientColors3[0] = Color.argb((120 * pulse).toInt(), 255, 215, 140)
+        lampGradientColors3[1] = Color.argb((55 * pulse).toInt(), 255, 195, 100)
+        lampGradientColors3[2] = Color.argb(0, 255, 170, 60)
         lampPaint.shader = RadialGradient(
             bookX, bookY, bookGlow,
-            intArrayOf(
-                Color.argb((120 * pulse).toInt(), 255, 215, 140),
-                Color.argb((55 * pulse).toInt(), 255, 195, 100),
-                Color.argb(0, 255, 170, 60)
-            ),
+            lampGradientColors3,
             floatArrayOf(0f, 0.45f, 1f),
             Shader.TileMode.CLAMP
         )
@@ -319,14 +329,13 @@ class RainEffectRenderer {
         val idleRadius = w * 0.09f * breathe
         val idleAlpha = (60 * breathe).toInt()
 
+        hpGradientColors[0] = Color.argb(idleAlpha, gr, gg, gb)
+        hpGradientColors[1] = Color.argb((idleAlpha * 0.3f).toInt(), gr, gg, gb)
+        hpGradientColors[2] = Color.argb(0, gr, gg, gb)
         headphonePaint.shader = RadialGradient(
             hpX, hpY, idleRadius,
-            intArrayOf(
-                Color.argb(idleAlpha, gr, gg, gb),
-                Color.argb((idleAlpha * 0.3f).toInt(), gr, gg, gb),
-                Color.argb(0, gr, gg, gb)
-            ),
-            floatArrayOf(0f, 0.4f, 1f),
+            hpGradientColors,
+            hpGradientStops,
             Shader.TileMode.CLAMP
         )
         canvas.drawCircle(hpX, hpY, idleRadius, headphonePaint)
@@ -340,14 +349,13 @@ class RainEffectRenderer {
                 val beatRadius = w * 0.12f + intensity * w * 0.10f
                 val beatAlpha = (intensity * 120).toInt().coerceIn(0, 140)
 
+                hpGradientColors[0] = Color.argb(beatAlpha, gr, gg, gb)
+                hpGradientColors[1] = Color.argb((beatAlpha * 0.3f).toInt(), gr, gg, gb)
+                hpGradientColors[2] = Color.argb(0, gr, gg, gb)
                 headphonePaint.shader = RadialGradient(
                     hpX, hpY, beatRadius,
-                    intArrayOf(
-                        Color.argb(beatAlpha, gr, gg, gb),
-                        Color.argb((beatAlpha * 0.3f).toInt(), gr, gg, gb),
-                        Color.argb(0, gr, gg, gb)
-                    ),
-                    floatArrayOf(0f, 0.4f, 1f),
+                    hpGradientColors,
+                    hpGradientStops,
                     Shader.TileMode.CLAMP
                 )
                 canvas.drawCircle(hpX, hpY, beatRadius, headphonePaint)
