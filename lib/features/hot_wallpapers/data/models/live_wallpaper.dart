@@ -7,8 +7,11 @@ class LiveWallpaper {
   final String name;
   final String description;
   final String videoFile;      // MP4 for Auto Play mode
-  final String? exploreFile;   // MP4 optimized for Explore mode (all keyframes)
+  final String? exploreFile;   // MP4 optimized for Explore mode (legacy)
   final String previewFile;    // WebP preview thumbnail
+  final int frameCount;        // Number of pre-extracted frames for Explore
+  final String? framesPath;    // Supabase path to frames folder
+  final bool exploreOnly;      // true = no Auto Play, only Explore mode
   final int videoSize;         // bytes
   final int previewSize;
   final String glowColor;
@@ -27,6 +30,9 @@ class LiveWallpaper {
     required this.videoFile,
     this.exploreFile,
     required this.previewFile,
+    this.frameCount = 0,
+    this.framesPath,
+    this.exploreOnly = false,
     required this.videoSize,
     required this.previewSize,
     required this.glowColor,
@@ -44,6 +50,13 @@ class LiveWallpaper {
 
   String get exploreUrl =>
       '${SupabaseConfig.storageBase}/wallpaper-videos/${exploreFile ?? videoFile}';
+
+  /// Whether pre-extracted frames are available on server
+  bool get hasRemoteFrames => frameCount > 0 && framesPath != null;
+
+  /// URL for a specific frame image
+  String frameUrl(int index) =>
+      '${SupabaseConfig.storageBase}/wallpaper-videos/$framesPath/frame_${(index + 1).toString().padLeft(4, '0')}.jpg';
 
   String get previewUrl =>
       '${SupabaseConfig.storageBase}/wallpaper-videos/$previewFile';
@@ -64,6 +77,9 @@ class LiveWallpaper {
       videoFile: json['videoFile'] as String? ?? '',
       exploreFile: json['exploreFile'] as String?,
       previewFile: json['previewFile'] as String? ?? '',
+      frameCount: json['frameCount'] as int? ?? 0,
+      framesPath: json['framesPath'] as String?,
+      exploreOnly: json['exploreOnly'] as bool? ?? false,
       videoSize: json['videoSize'] as int? ?? 0,
       previewSize: json['previewSize'] as int? ?? 0,
       glowColor: json['glowColor'] as String? ?? '#FF4500',

@@ -149,15 +149,51 @@ class FrameScrubRenderer {
         }
     }
 
+    /**
+     * Load pre-downloaded frames from a directory (no codec needed).
+     * Call from any thread — no MediaMetadataRetriever involved.
+     */
+    fun loadFromDirectory(path: String): Boolean {
+        try {
+            val dir = File(path)
+            if (!dir.exists()) return false
+
+            val files = dir.listFiles()?.filter {
+                it.extension == "jpg" || it.extension == "webp"
+            }?.sortedBy { it.name } ?: return false
+
+            if (files.isEmpty()) return false
+
+            framesDir = dir
+            frameCount = files.size
+            loadFrame(0)
+            isReady = true
+            Log.d(TAG, "Loaded $frameCount frames from $path (no codec)")
+            return true
+        } catch (e: Exception) {
+            Log.e(TAG, "loadFromDirectory failed: ${e.message}")
+            return false
+        }
+    }
+
     /** Load a frame bitmap from disk with reduced memory (RGB_565) */
     private fun loadFrameBitmap(index: Int): Bitmap? {
         if (index < 0 || index >= frameCount) return null
         val dir = framesDir ?: return null
-        val file = File(dir, "frame_${"%04d".format(index)}.webp")
-        if (!file.exists()) return null
-        val opts = BitmapFactory.Options()
-        opts.inPreferredConfig = Bitmap.Config.RGB_565 // 2 bytes/pixel instead of 4
-        return BitmapFactory.decodeFile(file.path, opts)
+        // Try jpg first (pre-downloaded from server), then webp (locally extracted)
+        val jpgFile = File(dir, "frame_${"%04d".format(index + 1)}.jpg")
+        if (jpgFile.exists()) {
+            val opts = BitmapFactory.Options()
+            opts.inPreferredConfig = Bitmap.Config.RGB_565
+            return BitmapFactory.decodeFile(jpgFile.path, opts)
+        }
+        val webpFile = File(dir, "frame_${"%04d".format(index)}.webp")
+        if (webpFile.exists()) {
+            val opts = BitmapFactory.Options()
+            opts.inPreferredConfig = Bitmap.Config.RGB_565
+            return BitmapFactory.decodeFile(webpFile.path, opts)
+        }
+        return null
     }
 
     /** Load frame and its neighbors into RAM */

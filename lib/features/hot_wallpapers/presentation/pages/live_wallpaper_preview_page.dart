@@ -34,6 +34,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   @override
   void initState() {
     super.initState();
+    // Force Explore mode for explore-only videos
+    if (widget.wallpaper.exploreOnly) _interactiveMode = true;
     _isDownloadedFuture = _isDownloaded();
     WallpaperStatsService.instance.trackView('live_${widget.wallpaper.id}');
     _scheduleAutoHide();
@@ -72,24 +74,60 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
-      _loadingStatus = 'Downloading video...';
+      _loadingStatus = 'Downloading...';
     });
     WallpaperStatsService.instance
         .trackDownload('live_${widget.wallpaper.id}');
 
     final dir = await getApplicationDocumentsDirectory();
-    // Use explore-optimized video if in Explore mode, otherwise normal video
-    final videoFileName = _interactiveMode
-        ? (widget.wallpaper.exploreFile ?? widget.wallpaper.videoFile)
-        : widget.wallpaper.videoFile;
-    final videoUrl = _interactiveMode
-        ? widget.wallpaper.exploreUrl
-        : widget.wallpaper.videoUrl;
-    final localFile = File('${dir.path}/live_wallpapers/$videoFileName');
+    final w = widget.wallpaper;
 
-    // Download with retry, timeout, connectivity check, and validation
+    // Explore mode with pre-extracted frames: download images from Supabase
+    if (_interactiveMode && w.hasRemoteFrames) {
+      if (mounted) setState(() => _loadingStatus = 'Preparing your scene...');
+      final framesDir = Directory('${dir.path}/explore_frames/${w.id}');
+      await framesDir.create(recursive: true);
+
+      // Check if already cached
+      final existing = framesDir.listSync().where((f) => f.path.endsWith('.jpg')).length;
+      if (existing < w.frameCount) {
+        // Download all frames
+        for (var i = 0; i < w.frameCount; i++) {
+          final frameFile = File('${framesDir.path}/frame_${(i + 1).toString().padLeft(4, '0')}.jpg');
+          if (await frameFile.exists() && await frameFile.length() > 100) continue;
+          await DownloadService.instance.downloadFile(
+            w.frameUrl(i),
+            frameFile,
+            retries: 2,
+            timeoutSeconds: 30,
+            minBytes: 100,
+          );
+          if (mounted) {
+            setState(() => _downloadProgress = (i + 1) / w.frameCount);
+          }
+        }
+      }
+
+      // Set wallpaper with frames path
+      await WallpaperService.instance.setLiveWallpaper(
+        framesDir.path,
+        w.glowColor,
+        interactive: true,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: const Text('Explore wallpaper set!'), backgroundColor: Colors.green.shade700),
+        );
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+      return;
+    }
+
+    // Auto Play mode: download video
+    final localFile = File('${dir.path}/live_wallpapers/${w.videoFile}');
     final path = await DownloadService.instance.downloadFile(
-      videoUrl,
+      w.videoUrl,
       localFile,
       retries: 3,
       timeoutSeconds: 120,
@@ -318,8 +356,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                               ),
                             ),
                             const SizedBox(height: 14),
-                            // Mode toggle: Auto Play / Explore
-                            Container(
+                            // Mode toggle: Auto Play / Explore (hidden for explore-only)
+                            if (!widget.wallpaper.exploreOnly) Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(

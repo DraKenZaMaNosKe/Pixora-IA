@@ -229,11 +229,18 @@ class PixoraWallpaperService : WallpaperService() {
                 if (path != null) {
                     val file = File(path)
                     if (file.exists()) {
+                        // Frames directory: pre-downloaded images for Explore mode
+                        if (file.isDirectory) {
+                            isInteractive = true
+                            isVideoWallpaper = true
+                            startVideoWallpaper(path)
+                            return
+                        }
+
                         val isVideo = path.endsWith(".mp4", ignoreCase = true) ||
                             path.endsWith(".webm", ignoreCase = true)
 
                         if (isVideo) {
-                            // (shaders use separate ShaderWallpaperService)
                             startVideoWallpaper(path)
                             return
                         }
@@ -316,18 +323,35 @@ class PixoraWallpaperService : WallpaperService() {
                 Thread.sleep(CODEC_RELEASE_DELAY_MS * 2) // extra time for codec cleanup
             }
 
-            // Interactive mode: extract frames and use Canvas rendering
+            // Interactive mode: load pre-downloaded frames or extract from video
             if (isInteractive) {
-                // Skip if already extracting or frames ready
                 if (isFrameMode) {
                     Log.d(TAG, "Explore mode: already active, skipping")
                     synchronized(videoLock) { videoStarting = false }
                     return
                 }
-                Log.d(TAG, "Explore mode: extracting frames from $path")
+
                 isFrameMode = true
                 synchronized(videoLock) { videoStarting = false }
 
+                // Check if path is a frames directory (pre-downloaded from server)
+                val pathFile = java.io.File(path)
+                if (pathFile.isDirectory) {
+                    Log.d(TAG, "Explore mode: loading pre-downloaded frames from $path")
+                    val success = frameScrubRenderer.loadFromDirectory(path)
+                    if (success) {
+                        drawing = true
+                        handler.post(drawRunnable)
+                        handler.post(frameScrubUpdateRunnable)
+                    } else {
+                        Log.e(TAG, "Failed to load frames from directory")
+                        isFrameMode = false
+                    }
+                    return
+                }
+
+                // Fallback: extract from video (for videos without server frames)
+                Log.d(TAG, "Explore mode: extracting frames from $path")
                 Thread {
                     val cacheDir = applicationContext.cacheDir
                     val success = frameScrubRenderer.extractFrames(
