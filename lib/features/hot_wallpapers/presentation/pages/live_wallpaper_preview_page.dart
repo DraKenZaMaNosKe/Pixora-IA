@@ -122,7 +122,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
 
     // If Explore mode, wait for frame extraction to complete
     if (_interactiveMode && mounted) {
-      setState(() => _loadingStatus = 'Extracting frames...');
+      setState(() => _loadingStatus = 'Preparing your scene...');
       // Poll until frames are ready (WallpaperService extracts in background)
       for (var i = 0; i < 30; i++) { // max 15 seconds
         await Future.delayed(const Duration(milliseconds: 500));
