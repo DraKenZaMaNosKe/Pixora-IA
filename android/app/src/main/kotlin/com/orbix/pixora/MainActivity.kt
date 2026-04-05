@@ -65,16 +65,24 @@ class MainActivity : FlutterActivity() {
                         }
                     }
                     "resetEngine" -> {
-                        // Kill wallpaper service to force full restart and release all resources
                         try {
+                            // Clear frame caches
+                            cacheDir.listFiles()
+                                ?.filter { it.isDirectory && it.name.startsWith("frames_") }
+                                ?.forEach { it.deleteRecursively() }
+                            // Clear video caches
+                            val liveDir = java.io.File(filesDir, "app_flutter/live_wallpapers")
+                            if (liveDir.exists()) liveDir.deleteRecursively()
+                            // Reset prefs to force reload
                             val prefs = getSharedPreferences("pixora_live", 0)
                             prefs.edit()
+                                .putBoolean("interactive", false)
                                 .putLong("changed_at", System.currentTimeMillis())
                                 .apply()
-                            // Force GC to release any lingering codecs
+                            // Force GC to release codecs
                             System.gc()
+                            android.util.Log.d("PixoraEQ", "Engine reset: caches cleared, codecs released")
                             result.success(true)
-                            android.util.Log.d("PixoraEQ", "Engine reset requested")
                         } catch (e: Exception) {
                             result.success(false)
                         }

@@ -302,10 +302,13 @@ class PixoraWallpaperService : WallpaperService() {
             }
             isVideoWallpaper = true
 
-            // Release old player/frames fully before creating new one
+            // Release old player/frames and force-free all codecs before creating new one
             val wasFrameMode = isFrameMode
             stopVideoWallpaper()
             isVideoWallpaper = true // stopVideoWallpaper resets this
+            // Force GC to release any lingering MediaCodec instances
+            System.gc()
+            Thread.sleep(300)
 
             // If coming from frame mode, force GC to release MediaMetadataRetriever codec
             if (wasFrameMode) {
@@ -432,9 +435,12 @@ class PixoraWallpaperService : WallpaperService() {
 
                         if (videoRetryCount < MAX_VIDEO_RETRIES) {
                             videoRetryCount++
-                            // Retry with increasing delay to let codec fully release
-                            val delay = videoRetryCount * RETRY_DELAY_PER_ATTEMPT_MS
+                            // Aggressively release codecs before retry
+                            System.gc()
+                            Runtime.getRuntime().gc()
+                            val delay = videoRetryCount * RETRY_DELAY_PER_ATTEMPT_MS * 2 // longer delay
                             handler.postDelayed({
+                                System.gc() // GC again right before retry
                                 Log.d(TAG, "Retrying video wallpaper (attempt $videoRetryCount)")
                                 loadWallpaperImage()
                                 if (!isVideoWallpaper) {
@@ -904,7 +910,7 @@ class PixoraWallpaperService : WallpaperService() {
         const val GLASS_DROP_COUNT = 15
         const val CITY_LIGHT_COUNT = 35
         private const val CODEC_RELEASE_DELAY_MS = 500L
-        private const val MAX_VIDEO_RETRIES = 2
+        private const val MAX_VIDEO_RETRIES = 4
         private const val RETRY_DELAY_PER_ATTEMPT_MS = 1500L
         private const val FADE_DURATION_MS = 500L
     }

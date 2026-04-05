@@ -78,12 +78,18 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         .trackDownload('live_${widget.wallpaper.id}');
 
     final dir = await getApplicationDocumentsDirectory();
-    final localFile =
-        File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
+    // Use explore-optimized video if in Explore mode, otherwise normal video
+    final videoFileName = _interactiveMode
+        ? (widget.wallpaper.exploreFile ?? widget.wallpaper.videoFile)
+        : widget.wallpaper.videoFile;
+    final videoUrl = _interactiveMode
+        ? widget.wallpaper.exploreUrl
+        : widget.wallpaper.videoUrl;
+    final localFile = File('${dir.path}/live_wallpapers/$videoFileName');
 
     // Download with retry, timeout, connectivity check, and validation
     final path = await DownloadService.instance.downloadFile(
-      widget.wallpaper.videoUrl,
+      videoUrl,
       localFile,
       retries: 3,
       timeoutSeconds: 120,

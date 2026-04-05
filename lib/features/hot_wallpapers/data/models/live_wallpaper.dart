@@ -6,7 +6,8 @@ class LiveWallpaper {
   final String id;
   final String name;
   final String description;
-  final String videoFile;      // MP4 file in Supabase
+  final String videoFile;      // MP4 for Auto Play mode
+  final String? exploreFile;   // MP4 optimized for Explore mode (all keyframes)
   final String previewFile;    // WebP preview thumbnail
   final int videoSize;         // bytes
   final int previewSize;
@@ -24,6 +25,7 @@ class LiveWallpaper {
     required this.name,
     required this.description,
     required this.videoFile,
+    this.exploreFile,
     required this.previewFile,
     required this.videoSize,
     required this.previewSize,
@@ -39,6 +41,9 @@ class LiveWallpaper {
 
   String get videoUrl =>
       '${SupabaseConfig.storageBase}/wallpaper-videos/$videoFile';
+
+  String get exploreUrl =>
+      '${SupabaseConfig.storageBase}/wallpaper-videos/${exploreFile ?? videoFile}';
 
   String get previewUrl =>
       '${SupabaseConfig.storageBase}/wallpaper-videos/$previewFile';
@@ -57,6 +62,7 @@ class LiveWallpaper {
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
       videoFile: json['videoFile'] as String? ?? '',
+      exploreFile: json['exploreFile'] as String?,
       previewFile: json['previewFile'] as String? ?? '',
       videoSize: json['videoSize'] as int? ?? 0,
       previewSize: json['previewSize'] as int? ?? 0,
