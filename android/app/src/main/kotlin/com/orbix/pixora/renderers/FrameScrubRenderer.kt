@@ -16,13 +16,14 @@ class FrameScrubRenderer {
     private var framesDir: File? = null
     private var frameCount = 0
     private var currentIndex = 0
+    @Volatile private var extractionCancelled = false
+    @Volatile private var isExtracting = false
     private var currentBitmap: Bitmap? = null
     private var prevBitmap: Bitmap? = null
     private var nextBitmap: Bitmap? = null
     private var crossfadeAlpha = 0f // 0 = showing current, 1 = showing next/prev
     private var targetIndex = 0
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
-    private val fadePaint = Paint(Paint.FILTER_BITMAP_FLAG)
     var isReady = false
         private set
 
@@ -34,6 +35,11 @@ class FrameScrubRenderer {
      * @param everyNthFrame extract every Nth frame (4 = ~9fps from 24fps video)
      * @return true if extraction succeeded
      */
+    /** Cancel any in-progress extraction */
+    fun cancelExtraction() {
+        extractionCancelled = true
+    }
+
     fun extractFrames(
         videoPath: String,
         cacheDir: File,
@@ -41,24 +47,37 @@ class FrameScrubRenderer {
         everyNthFrame: Int = 4,
         onProgress: ((current: Int, total: Int) -> Unit)? = null
     ): Boolean {
+        // Cancel previous extraction if running
+        extractionCancelled = true
+        while (isExtracting) Thread.sleep(50) // wait for previous to stop
+        extractionCancelled = false
+        isExtracting = true
+
         try {
             val videoFile = File(videoPath)
             if (!videoFile.exists()) return false
 
-            // Create frames directory based on video filename
             val videoName = videoFile.nameWithoutExtension
             framesDir = File(cacheDir, "frames_$videoName")
-            framesDir!!.mkdirs()
 
-            // Check if already extracted
+            // Check if frames already cached for THIS video
             val existing = framesDir!!.listFiles()?.filter { it.extension == "webp" } ?: emptyList()
             if (existing.size > 10) {
                 frameCount = existing.size
-                Log.d(TAG, "Frames already extracted: $frameCount")
+                Log.d(TAG, "Frames cached: $frameCount for $videoName")
                 loadFrame(0)
                 isReady = true
                 return true
             }
+
+            // Clean old caches from OTHER videos, keep current
+            cacheDir.listFiles()
+                ?.filter { it.isDirectory && it.name.startsWith("frames_") && it.name != "frames_$videoName" }
+                ?.forEach { it.deleteRecursively() }
+
+            // Clean partial extraction if any
+            framesDir!!.deleteRecursively()
+            framesDir!!.mkdirs()
 
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(videoPath)
@@ -77,6 +96,10 @@ class FrameScrubRenderer {
             var extracted = 0
             onProgress?.invoke(0, framesToExtract)
             for (i in 0 until framesToExtract) {
+                if (extractionCancelled) {
+                    Log.d(TAG, "Extraction cancelled at frame $i")
+                    break
+                }
                 val timeUs = (i * everyNthFrame * 1000000L / fps)
                 val frame = retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST)
                     ?: continue
@@ -103,6 +126,13 @@ class FrameScrubRenderer {
             }
 
             retriever.release()
+            System.gc()
+
+            if (extractionCancelled) {
+                isExtracting = false
+                return false
+            }
+
             frameCount = extracted
             Log.d(TAG, "Extracted $extracted frames to ${framesDir!!.path}")
 
@@ -110,9 +140,11 @@ class FrameScrubRenderer {
                 loadFrame(0)
                 isReady = true
             }
+            isExtracting = false
             return extracted > 0
         } catch (e: Exception) {
             Log.e(TAG, "Frame extraction failed: ${e.message}")
+            isExtracting = false
             return false
         }
     }
@@ -188,29 +220,25 @@ class FrameScrubRenderer {
         return false
     }
 
+    private val destRect = RectF()
+
     /**
      * Draw current frame to canvas, scaled to fill.
      */
     fun draw(canvas: Canvas) {
         val bmp = currentBitmap ?: return
+        val cw = canvas.width.toFloat()
+        val ch = canvas.height.toFloat()
 
-        // Scale to fill canvas
-        val canvasW = canvas.width.toFloat()
-        val canvasH = canvas.height.toFloat()
-        val bmpW = bmp.width.toFloat()
-        val bmpH = bmp.height.toFloat()
-
-        val scale = maxOf(canvasW / bmpW, canvasH / bmpH)
-        val scaledW = bmpW * scale
-        val scaledH = bmpH * scale
-        val left = (canvasW - scaledW) / 2f
-        val top = (canvasH - scaledH) / 2f
-
-        val dest = RectF(left, top, left + scaledW, top + scaledH)
-        canvas.drawBitmap(bmp, null, dest, paint)
+        val scale = maxOf(cw / bmp.width, ch / bmp.height)
+        val sw = bmp.width * scale
+        val sh = bmp.height * scale
+        destRect.set((cw - sw) / 2f, (ch - sh) / 2f, (cw + sw) / 2f, (ch + sh) / 2f)
+        canvas.drawBitmap(bmp, null, destRect, paint)
     }
 
     fun release() {
+        extractionCancelled = true
         prevBitmap?.recycle()
         currentBitmap?.recycle()
         nextBitmap?.recycle()

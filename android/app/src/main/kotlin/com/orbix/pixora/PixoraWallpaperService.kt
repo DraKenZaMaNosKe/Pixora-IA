@@ -315,6 +315,12 @@ class PixoraWallpaperService : WallpaperService() {
 
             // Interactive mode: extract frames and use Canvas rendering
             if (isInteractive) {
+                // Skip if already extracting or frames ready
+                if (isFrameMode) {
+                    Log.d(TAG, "Explore mode: already active, skipping")
+                    synchronized(videoLock) { videoStarting = false }
+                    return
+                }
                 Log.d(TAG, "Explore mode: extracting frames from $path")
                 isFrameMode = true
                 synchronized(videoLock) { videoStarting = false }
@@ -634,15 +640,24 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
-            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper videoStarting=$videoStarting exoPlayer=${exoPlayer != null}")
+            Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper isFrame=$isFrameMode videoStarting=$videoStarting")
             if (visible) {
                 if (videoStarting) return
+
+                // Frame mode (Explore): already rendering via Canvas, just resume drawing
+                if (isFrameMode) {
+                    if (!drawing) {
+                        drawing = true
+                        handler.post(drawRunnable)
+                    }
+                    return
+                }
 
                 // Video: resume ExoPlayer if still alive
                 val player = exoPlayer
                 if (player != null) {
                     if (!isInteractive) player.play()
-                    Log.d(TAG, "ExoPlayer resumed (interactive=$isInteractive)")
+                    Log.d(TAG, "ExoPlayer resumed")
                     return
                 }
 
@@ -882,7 +897,7 @@ class PixoraWallpaperService : WallpaperService() {
         const val GLOW_DURATION = 700L
         const val MAX_RADIUS = 120f
         const val BAR_COUNT = 6
-        const val FRAME_DELAY = 42L
+        const val FRAME_DELAY = 33L // ~30fps
         const val IDLE_FRAME_DELAY = 1000L
         const val SILENCE_THRESHOLD = 0.05f
         const val RAIN_DROP_COUNT = 120

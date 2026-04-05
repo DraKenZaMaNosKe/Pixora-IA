@@ -18,6 +18,8 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   bool _loadingDone = false;
   bool _minTimeDone = false;
   bool _exiting = false;
+  String _loadingStatus = 'Starting...';
+  double _loadingProgress = 0.0;
 
   @override
   void initState() {
@@ -43,12 +45,22 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
   Future<void> _preload() async {
     try {
-      await Future.wait([
-        CatalogService.instance.fetchCatalog(),
-        WallpaperStatsService.instance.init(),
-      ]);
+      // Step 1: Fetch catalog
+      if (mounted) setState(() { _loadingStatus = 'Loading catalog...'; _loadingProgress = 0.2; });
+      await CatalogService.instance.fetchCatalog();
+
+      // Step 2: Init stats
+      if (mounted) setState(() { _loadingStatus = 'Loading stats...'; _loadingProgress = 0.5; });
+      await WallpaperStatsService.instance.init();
+
+      // Step 3: Init credits
+      if (mounted) setState(() { _loadingStatus = 'Preparing...'; _loadingProgress = 0.8; });
+      await Future.delayed(const Duration(milliseconds: 200));
+
+      if (mounted) setState(() { _loadingStatus = 'Ready!'; _loadingProgress = 1.0; });
     } catch (e) {
       debugPrint('[Pixora] Preload error (continuing): $e');
+      if (mounted) setState(() => _loadingStatus = 'Ready!');
     }
     _loadingDone = true;
     _navigateIfReady();
@@ -202,25 +214,34 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     final entry = max(0.0, min(1.0, (t - 1.5) / 0.5));
 
     return Opacity(
-      opacity: entry * 0.6,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(3, (i) {
-          final dotPhase = sin(t * 3 - i * 0.8) * 0.5 + 0.5;
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color.lerp(
-                const Color(0xFF7C4DFF),
-                const Color(0xFF00B4D8),
-                dotPhase,
-              )!.withOpacity(0.4 + dotPhase * 0.6),
+      opacity: entry,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 60),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Progress bar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: _loadingProgress > 0 ? _loadingProgress : null,
+                backgroundColor: Colors.white.withOpacity(0.1),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF7C4DFF)),
+                minHeight: 3,
+              ),
             ),
-          );
-        }),
+            const SizedBox(height: 10),
+            // Status text
+            Text(
+              _loadingStatus,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.white.withOpacity(0.35),
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
