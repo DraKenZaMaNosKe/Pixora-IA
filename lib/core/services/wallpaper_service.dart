@@ -81,6 +81,17 @@ class WallpaperService {
     }
   }
 
+  /// Check if video codec is available for Auto Play.
+  Future<bool> isVideoCodecAvailable() async {
+    if (!Platform.isAndroid) return false;
+    try {
+      final result = await _channel.invokeMethod<bool>('checkVideoCodec');
+      return result ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Reset the live wallpaper engine — releases all codecs, bitmaps, players.
   Future<bool> resetEngine() async {
     if (!Platform.isAndroid) return false;

@@ -74,8 +74,16 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
-      _loadingStatus = 'Downloading...';
+      _loadingStatus = 'Checking system...';
     });
+
+    // Small delay to ensure previous wallpaper service releases codec
+    if (!_interactiveMode) {
+      if (mounted) setState(() => _loadingStatus = 'Preparing player...');
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+
+    if (mounted) setState(() => _loadingStatus = 'Downloading...');
     WallpaperStatsService.instance
         .trackDownload('live_${widget.wallpaper.id}');
 

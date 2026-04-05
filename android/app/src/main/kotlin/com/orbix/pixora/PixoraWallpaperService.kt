@@ -4,14 +4,9 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.*
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.source.ConcatenatingMediaSource
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.util.Log
@@ -49,8 +44,8 @@ class PixoraWallpaperService : WallpaperService() {
         private var isRainWallpaper = false
         private var currentWallpaperPath: String? = null
 
-        // Video wallpaper (ExoPlayer)
-        private var exoPlayer: ExoPlayer? = null
+        // Video wallpaper (MediaPlayer for Auto Play — no codec conflicts)
+        private var mediaPlayer: MediaPlayer? = null
         @Volatile private var isVideoWallpaper = false
         private var isInteractive = false // touch scrubbing mode
         private var videoRetryCount = 0
@@ -79,15 +74,13 @@ class PixoraWallpaperService : WallpaperService() {
         private var videoFadeAlpha = 0f
         private val fadeRunnable = object : Runnable {
             override fun run() {
-                val player = exoPlayer ?: return
+                val player = mediaPlayer ?: return
                 if (!isVideoWallpaper) return
 
-                val duration = player.duration
-                val position = player.currentPosition
-                // Use per-item duration (playlist has 2 copies)
-                val itemDuration = if (duration > 0 && player.mediaItemCount > 1)
-                    duration / player.mediaItemCount else duration
-                val itemPosition = if (itemDuration > 0) position % itemDuration else position
+                val duration = player.duration.toLong()
+                val position = player.currentPosition.toLong()
+                val itemDuration = duration
+                val itemPosition = position
 
                 if (itemDuration <= 0) {
                     handler.postDelayed(this, 50)
@@ -376,120 +369,65 @@ class PixoraWallpaperService : WallpaperService() {
                 return
             }
 
-            // Give MediaCodec time to release hardware resources
-            Thread.sleep(CODEC_RELEASE_DELAY_MS)
+            // Auto Play: use MediaPlayer (native, no MediaCodec conflicts)
+            // Wait for surface on background thread to avoid blocking main thread
+            Thread {
+                var waitMs = 0L
+                while (surfaceHolder?.surface?.isValid != true) {
+                    Thread.sleep(100)
+                    waitMs += 100
+                    if (waitMs % 2000 == 0L) Log.d(TAG, "Waiting for surface... ${waitMs}ms")
+                }
+                Log.d(TAG, "Surface ready after ${waitMs}ms")
 
+                handler.post { startMediaPlayer(path) }
+            }.start()
+        }
+
+        private fun startMediaPlayer(path: String) {
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
-                Log.e(TAG, "Surface not valid for video")
+                Log.e(TAG, "Surface invalid in startMediaPlayer")
                 synchronized(videoLock) { videoStarting = false }
                 isVideoWallpaper = false
                 return
             }
 
             try {
-                // Use software decoder fallback if hardware codec failed before
-                val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(applicationContext)
-                    .setEnableDecoderFallback(true) // Fall back to software if hardware fails
-                val player = ExoPlayer.Builder(applicationContext)
-                    .setRenderersFactory(renderersFactory)
-                    .build()
-                player.setVideoSurface(surface)
-                player.volume = 0f // Mute
+                val mp = MediaPlayer()
+                mp.setSurface(surface)  // Set surface BEFORE prepare
+                mp.setDataSource(path)
+                mp.setVolume(0f, 0f)
+                mp.isLooping = true
 
-                val uri = Uri.fromFile(java.io.File(path))
-
-                if (isInteractive) {
-                    // Interactive: single source, no loop — user controls position
-                    player.repeatMode = Player.REPEAT_MODE_OFF
-                    // Exact seek: decode to precise frame, not just nearest keyframe
-                    player.setSeekParameters(androidx.media3.exoplayer.SeekParameters.EXACT)
-                    player.setMediaItem(MediaItem.fromUri(uri))
-                } else {
-                    // Normal: gapless loop with 2 copies for seamless transition
-                    player.repeatMode = Player.REPEAT_MODE_ALL
-                    val factory = ProgressiveMediaSource.Factory(
-                        DefaultDataSource.Factory(applicationContext)
-                    )
-                    val source1 = factory.createMediaSource(MediaItem.fromUri(uri))
-                    val source2 = factory.createMediaSource(MediaItem.fromUri(uri))
-                    player.setMediaSource(ConcatenatingMediaSource(source1, source2))
+                mp.setOnPreparedListener {
+                    Log.d(TAG, "MediaPlayer READY: $path")
+                    synchronized(videoLock) { videoStarting = false }
+                    mp.start()
+                    handler.removeCallbacks(fadeRunnable)
+                    handler.postDelayed(fadeRunnable, 200)
                 }
 
-                var playerReady = false
-                player.addListener(object : Player.Listener {
-                    override fun onPlaybackStateChanged(state: Int) {
-                        when (state) {
-                            Player.STATE_READY -> {
-                                if (playerReady) return // Prevent re-entry
-                                playerReady = true
-                                videoRetryCount = 0 // Success — reset retry counter
-                                Log.d(TAG, "ExoPlayer READY (interactive=$isInteractive)")
-                                synchronized(videoLock) { videoStarting = false }
-                                if (isInteractive) {
-                                    // Interactive: pause at frame 0, user scrubs with touch
-                                    player.seekTo(0)
-                                    player.pause()
-                                } else {
-                                    player.play()
-                                    // Start fade overlay loop
-                                    handler.removeCallbacks(fadeRunnable)
-                                    handler.postDelayed(fadeRunnable, 200)
-                                }
-                            }
-                            Player.STATE_ENDED -> {
-                                Log.d(TAG, "ExoPlayer ended (shouldn't happen with REPEAT_MODE_ALL)")
-                            }
-                        }
+                mp.setOnErrorListener { _, what, extra ->
+                    Log.e(TAG, "MediaPlayer error: what=$what extra=$extra")
+                    try { mp.release() } catch (_: Exception) {}
+                    synchronized(videoLock) {
+                        mediaPlayer = null
+                        videoStarting = false
                     }
-                    override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                        Log.e(TAG, "ExoPlayer error (retry $videoRetryCount/$MAX_VIDEO_RETRIES): ${error.message}")
-                        // Release the failed player to free codec resources
-                        try {
-                            player.stop()
-                            player.clearVideoSurface()
-                            player.release()
-                            Log.d(TAG, "Failed ExoPlayer released")
-                        } catch (_: Exception) {}
-                        synchronized(videoLock) {
-                            exoPlayer = null
-                            videoStarting = false
-                        }
-                        isVideoWallpaper = false
-
-                        if (videoRetryCount < MAX_VIDEO_RETRIES) {
-                            videoRetryCount++
-                            // Aggressively release codecs before retry
-                            System.gc()
-                            Runtime.getRuntime().gc()
-                            val delay = videoRetryCount * RETRY_DELAY_PER_ATTEMPT_MS * 2 // longer delay
-                            handler.postDelayed({
-                                System.gc() // GC again right before retry
-                                Log.d(TAG, "Retrying video wallpaper (attempt $videoRetryCount)")
-                                loadWallpaperImage()
-                                if (!isVideoWallpaper) {
-                                    createScaledBitmap()
-                                    drawing = true
-                                    handler.post(drawRunnable)
-                                }
-                            }, delay)
-                        } else {
-                            // Max retries reached — fall back to static image mode
-                            Log.w(TAG, "Video failed after $MAX_VIDEO_RETRIES retries, falling back to image")
-                            videoRetryCount = 0
-                            handler.post {
-                                drawing = true
-                                handler.post(drawRunnable)
-                            }
-                        }
+                    isVideoWallpaper = false
+                    handler.post {
+                        drawing = true
+                        handler.post(drawRunnable)
                     }
-                })
+                    true
+                }
 
-                player.prepare()
-                synchronized(videoLock) { exoPlayer = player }
-                Log.d(TAG, "ExoPlayer setup complete")
+                synchronized(videoLock) { mediaPlayer = mp }
+                mp.prepareAsync()
+                Log.d(TAG, "MediaPlayer setup complete")
             } catch (e: Exception) {
-                Log.e(TAG, "ExoPlayer FAILED: ${e.javaClass.simpleName}: ${e.message}")
+                Log.e(TAG, "MediaPlayer FAILED: ${e.message}")
                 synchronized(videoLock) { videoStarting = false }
                 isVideoWallpaper = false
             }
@@ -501,22 +439,22 @@ class PixoraWallpaperService : WallpaperService() {
             frameScrubRenderer.release()
             isFrameMode = false
             videoFadeAlpha = 0f
-            val player: ExoPlayer?
+            val mp: MediaPlayer?
             synchronized(videoLock) {
-                player = exoPlayer
-                exoPlayer = null
+                mp = mediaPlayer
+                mediaPlayer = null
                 isVideoWallpaper = false
                 videoStarting = false
             }
-            if (player != null) {
+            if (mp != null) {
                 try {
-                    player.stop()
-                    player.clearVideoSurface()
-                    player.release()
-                    Log.d(TAG, "ExoPlayer released")
+                    mp.setSurface(null)
+                    try { mp.stop() } catch (_: Exception) {}
+                    mp.release()
+                    Log.d(TAG, "MediaPlayer released")
                 } catch (e: Exception) {
                     Log.w(TAG, "stopVideoWallpaper: ${e.message}")
-                    try { player.release() } catch (_: Exception) {}
+                    try { mp.release() } catch (_: Exception) {}
                 }
             }
         }
@@ -651,10 +589,10 @@ class PixoraWallpaperService : WallpaperService() {
 
             // Re-attach surface to ExoPlayer if it was detached in onSurfaceDestroyed
             synchronized(videoLock) {
-                val player = exoPlayer
+                val player = mediaPlayer
                 if (player != null && holder?.surface != null && holder.surface.isValid) {
-                    player.setVideoSurface(holder.surface)
-                    Log.d(TAG, "ExoPlayer surface re-attached")
+                    player.setSurface(holder.surface)
+                    Log.d(TAG, "MediaPlayer surface re-attached")
                     return
                 }
             }
@@ -684,10 +622,10 @@ class PixoraWallpaperService : WallpaperService() {
                 }
 
                 // Video: resume ExoPlayer if still alive
-                val player = exoPlayer
+                val player = mediaPlayer
                 if (player != null) {
-                    if (!isInteractive) player.play()
-                    Log.d(TAG, "ExoPlayer resumed")
+                    if (!isInteractive) player.start()
+                    Log.d(TAG, "MediaPlayer resumed")
                     return
                 }
 
@@ -701,10 +639,10 @@ class PixoraWallpaperService : WallpaperService() {
                 }
             } else {
                 // Only pause video, don't stop/release — it will be resumed on visibility=true
-                val player = exoPlayer
+                val player = mediaPlayer
                 if (player != null) {
                     player.pause()
-                    Log.d(TAG, "ExoPlayer paused")
+                    Log.d(TAG, "MediaPlayer paused")
                 } else if (!videoStarting) {
                     drawing = false
                     handler.removeCallbacks(drawRunnable)
@@ -726,9 +664,9 @@ class PixoraWallpaperService : WallpaperService() {
                         frameScrubRenderer.seekTo(pct)
                     } else {
                         // ExoPlayer fallback: animated seek
-                        val player = exoPlayer
+                        val player = mediaPlayer
                         if (player != null && player.duration > 0) {
-                            player.seekTo((pct * player.duration).toLong().coerceIn(0, player.duration - 1))
+                            player.seekTo((pct * player.duration).toInt().coerceIn(0, player.duration - 1))
                         }
                     }
                 }
@@ -895,7 +833,7 @@ class PixoraWallpaperService : WallpaperService() {
             // Don't release ExoPlayer here — surface may be recreated (visibility change).
             // Only detach the surface so it doesn't draw to a destroyed one.
             synchronized(videoLock) {
-                exoPlayer?.clearVideoSurface()
+                mediaPlayer?.setSurface(null)
             }
             super.onSurfaceDestroyed(holder)
         }
