@@ -55,9 +55,13 @@ class AdService {
     );
   }
 
+  /// DEBUG: set to true to disable ads during testing
+  static const _debugDisableAds = true;
+
   /// Show interstitial ad on alternating actions (1st yes, 2nd no, 3rd yes…).
   /// Awards credits when an ad is actually shown and watched.
   void showInterstitialAd({required VoidCallback onAdDismissed}) {
+    if (_debugDisableAds) { onAdDismissed(); return; }
     _actionCount++;
     final shouldShow = _actionCount.isOdd;
 

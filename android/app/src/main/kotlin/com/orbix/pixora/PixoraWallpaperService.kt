@@ -48,7 +48,6 @@ class PixoraWallpaperService : WallpaperService() {
         private var mediaPlayer: MediaPlayer? = null
         @Volatile private var isVideoWallpaper = false
         private var isInteractive = false // touch scrubbing mode
-        private var videoRetryCount = 0
 
         // Frame scrub mode: extracted frames rendered via Canvas
         private val frameScrubRenderer = FrameScrubRenderer()
@@ -58,8 +57,11 @@ class PixoraWallpaperService : WallpaperService() {
                 if (!isFrameMode || !frameScrubRenderer.isReady) return
                 if (frameScrubRenderer.update()) {
                     drawFrame()
+                    // Only keep running if animation is active (seeking to target)
+                    handler.postDelayed(this, 30)
                 }
-                handler.postDelayed(this, 30) // ~33fps animation
+                // If update() returns false (no movement), stop loop — saves CPU
+                // Will be restarted on next touch event
             }
         }
 
@@ -140,7 +142,12 @@ class PixoraWallpaperService : WallpaperService() {
             override fun run() {
                 if (drawing) {
                     drawFrame()
-                    val delay = if (idleMode) IDLE_FRAME_DELAY else FRAME_DELAY
+                    // In frame mode (Explore), use slow refresh — only clock needs updating
+                    val delay = when {
+                        isFrameMode -> IDLE_FRAME_DELAY // 1fps — clock updates every second
+                        idleMode -> IDLE_FRAME_DELAY
+                        else -> FRAME_DELAY
+                    }
                     handler.postDelayed(this, delay)
                 }
             }
@@ -283,13 +290,10 @@ class PixoraWallpaperService : WallpaperService() {
 
         private fun startVideoWallpaper(path: String) {
             synchronized(videoLock) {
-                if (videoStarting) {
-                    Log.d(TAG, "Video already starting, skipping")
-                    return
-                }
+                if (videoStarting) return
                 videoStarting = true
             }
-            Log.d(TAG, "Starting ExoPlayer for: $path")
+            Log.d(TAG, "Starting video: $path")
 
             // Stop canvas drawing
             drawing = false
@@ -300,94 +304,45 @@ class PixoraWallpaperService : WallpaperService() {
                 panoramicBitmap = null
                 wallpaperBitmap = null
             }
+
+            stopVideoWallpaper()
             isVideoWallpaper = true
 
-            // Release old player/frames and force-free all codecs before creating new one
-            val wasFrameMode = isFrameMode
-            stopVideoWallpaper()
-            isVideoWallpaper = true // stopVideoWallpaper resets this
-            // Force GC to release any lingering MediaCodec instances
-            System.gc()
-            Thread.sleep(300)
-
-            // If coming from frame mode, force GC to release MediaMetadataRetriever codec
-            if (wasFrameMode) {
-                System.gc()
-                Thread.sleep(CODEC_RELEASE_DELAY_MS * 2) // extra time for codec cleanup
-            }
-
-            // Interactive mode: load pre-downloaded frames or extract from video
+            // Explore mode: load pre-downloaded frames (no codec needed)
             if (isInteractive) {
                 if (isFrameMode) {
-                    Log.d(TAG, "Explore mode: already active, skipping")
                     synchronized(videoLock) { videoStarting = false }
                     return
                 }
-
                 isFrameMode = true
                 synchronized(videoLock) { videoStarting = false }
 
-                // Check if path is a frames directory (pre-downloaded from server)
-                val pathFile = java.io.File(path)
+                val pathFile = File(path)
                 if (pathFile.isDirectory) {
-                    Log.d(TAG, "Explore mode: loading pre-downloaded frames from $path")
-                    val success = frameScrubRenderer.loadFromDirectory(path)
-                    if (success) {
+                    Log.d(TAG, "Explore: loading frames from $path")
+                    if (frameScrubRenderer.loadFromDirectory(path)) {
                         drawing = true
                         handler.post(drawRunnable)
                         handler.post(frameScrubUpdateRunnable)
                     } else {
-                        Log.e(TAG, "Failed to load frames from directory")
                         isFrameMode = false
                     }
-                    return
                 }
-
-                // Fallback: extract from video (for videos without server frames)
-                Log.d(TAG, "Explore mode: extracting frames from $path")
-                Thread {
-                    val cacheDir = applicationContext.cacheDir
-                    val success = frameScrubRenderer.extractFrames(
-                        videoPath = path,
-                        cacheDir = cacheDir,
-                    )
-                    if (success) frameScrubRenderer.cleanOldCaches(cacheDir)
-                    handler.post {
-                        if (success && isFrameMode) {
-                            Log.d(TAG, "Explore mode ready")
-                            drawing = true
-                            handler.post(drawRunnable)
-                            handler.post(frameScrubUpdateRunnable)
-                        } else {
-                            Log.e(TAG, "Frame extraction failed, falling back to ExoPlayer")
-                            isFrameMode = false
-                            isInteractive = false
-                            startVideoWallpaper(path)
-                        }
-                    }
-                }.start()
                 return
             }
 
-            // Auto Play: use MediaPlayer (native, no MediaCodec conflicts)
-            // Wait for surface on background thread to avoid blocking main thread
-            Thread {
-                var waitMs = 0L
-                while (surfaceHolder?.surface?.isValid != true) {
-                    Thread.sleep(100)
-                    waitMs += 100
-                    if (waitMs % 2000 == 0L) Log.d(TAG, "Waiting for surface... ${waitMs}ms")
-                }
-                Log.d(TAG, "Surface ready after ${waitMs}ms")
-
-                handler.post { startMediaPlayer(path) }
-            }.start()
-        }
-
-        private fun startMediaPlayer(path: String) {
+            // Auto Play: use MediaPlayer
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
-                Log.e(TAG, "Surface invalid in startMediaPlayer")
+                Log.e(TAG, "Surface not valid")
+                synchronized(videoLock) { videoStarting = false }
+                isVideoWallpaper = false
+                return
+            }
+
+            val videoFile = File(path)
+            if (!videoFile.exists()) {
+                Log.e(TAG, "Video not found: $path")
                 synchronized(videoLock) { videoStarting = false }
                 isVideoWallpaper = false
                 return
@@ -395,15 +350,18 @@ class PixoraWallpaperService : WallpaperService() {
 
             try {
                 val mp = MediaPlayer()
-                mp.setSurface(surface)  // Set surface BEFORE prepare
                 mp.setDataSource(path)
+                mp.setSurface(surface)
                 mp.setVolume(0f, 0f)
                 mp.isLooping = true
 
                 mp.setOnPreparedListener {
                     Log.d(TAG, "MediaPlayer READY: $path")
-                    synchronized(videoLock) { videoStarting = false }
-                    mp.start()
+                    synchronized(videoLock) {
+                        mediaPlayer = mp
+                        videoStarting = false
+                    }
+                    try { mp.start() } catch (e: Exception) { Log.e(TAG, "start failed: ${e.message}") }
                     handler.removeCallbacks(fadeRunnable)
                     handler.postDelayed(fadeRunnable, 200)
                 }
@@ -423,11 +381,11 @@ class PixoraWallpaperService : WallpaperService() {
                     true
                 }
 
-                synchronized(videoLock) { mediaPlayer = mp }
                 mp.prepareAsync()
-                Log.d(TAG, "MediaPlayer setup complete")
+                Log.d(TAG, "MediaPlayer preparing...")
             } catch (e: Exception) {
-                Log.e(TAG, "MediaPlayer FAILED: ${e.message}")
+                Log.e(TAG, "MediaPlayer FAILED: ${e.javaClass.simpleName}: ${e.message}")
+                e.printStackTrace()
                 synchronized(videoLock) { videoStarting = false }
                 isVideoWallpaper = false
             }
@@ -621,11 +579,17 @@ class PixoraWallpaperService : WallpaperService() {
                     return
                 }
 
-                // Video: resume ExoPlayer if still alive
+                // Video: resume MediaPlayer if still alive and playing
                 val player = mediaPlayer
                 if (player != null) {
-                    if (!isInteractive) player.start()
-                    Log.d(TAG, "MediaPlayer resumed")
+                    try {
+                        if (!isInteractive && !player.isPlaying) player.start()
+                        Log.d(TAG, "MediaPlayer resumed")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "MediaPlayer resume failed: ${e.message}")
+                        // Player is in bad state, clean up
+                        stopVideoWallpaper()
+                    }
                     return
                 }
 
@@ -662,6 +626,9 @@ class PixoraWallpaperService : WallpaperService() {
                     if (isFrameMode && frameScrubRenderer.isReady) {
                         // Frame mode: seek through extracted frames
                         frameScrubRenderer.seekTo(pct)
+                        // Restart animation loop to process the seek
+                        handler.removeCallbacks(frameScrubUpdateRunnable)
+                        handler.post(frameScrubUpdateRunnable)
                     } else {
                         // ExoPlayer fallback: animated seek
                         val player = mediaPlayer
@@ -871,9 +838,6 @@ class PixoraWallpaperService : WallpaperService() {
         const val RAIN_DROP_COUNT = 120
         const val GLASS_DROP_COUNT = 15
         const val CITY_LIGHT_COUNT = 35
-        private const val CODEC_RELEASE_DELAY_MS = 500L
-        private const val MAX_VIDEO_RETRIES = 4
-        private const val RETRY_DELAY_PER_ATTEMPT_MS = 1500L
         private const val FADE_DURATION_MS = 500L
     }
 }

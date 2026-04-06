@@ -127,7 +127,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: const Text('Explore wallpaper set!'), backgroundColor: Colors.green.shade700),
         );
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        setState(() => _isApplying = false);
       }
       return;
     }
@@ -193,7 +193,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
           backgroundColor: Colors.green.shade700,
         ),
       );
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      setState(() => _isApplying = false);
     }
   }
 

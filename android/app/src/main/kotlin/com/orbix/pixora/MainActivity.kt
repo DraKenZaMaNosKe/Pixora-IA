@@ -27,14 +27,13 @@ class MainActivity : FlutterActivity() {
 
     /** Launch the live wallpaper picker only if not already active */
     private fun ensureLiveWallpaperActive() {
-        if (!isPixoraLiveWallpaperActive()) {
-            val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
-            intent.putExtra(
-                WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                ComponentName(this, PixoraWallpaperService::class.java)
-            )
-            startActivity(intent)
-        }
+        // Always show picker so user sees preview, even if already active
+        val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+        intent.putExtra(
+            WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+            ComponentName(this, PixoraWallpaperService::class.java)
+        )
+        startActivity(intent)
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -63,9 +62,6 @@ class MainActivity : FlutterActivity() {
                         } else {
                             result.error("INVALID_ARG", "Path is required", null)
                         }
-                    }
-                    "checkVideoCodec" -> {
-                        result.success(isVideoCodecAvailable())
                     }
                     "resetEngine" -> {
                         try {
@@ -370,51 +366,17 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Check if video codec is available, force-release if not */
-    private fun isVideoCodecAvailable(): Boolean {
-        return try {
-            val codec = android.media.MediaCodec.createDecoderByType("video/avc")
-            codec.release()
-            true
-        } catch (e: Exception) {
-            android.util.Log.w("PixoraEQ", "Video codec unavailable, forcing release...")
-            // Force GC multiple times to release zombie codecs
-            System.gc()
-            Runtime.getRuntime().gc()
-            Thread.sleep(500)
-            System.gc()
-            // Try again
-            try {
-                val codec = android.media.MediaCodec.createDecoderByType("video/avc")
-                codec.release()
-                android.util.Log.d("PixoraEQ", "Codec available after force release")
-                true
-            } catch (e2: Exception) {
-                android.util.Log.e("PixoraEQ", "Codec still unavailable after force release")
-                false
-            }
-        }
-    }
-
     private fun setLiveWallpaper(imagePath: String, glowColor: String, interactive: Boolean = false) {
         // Stop any active story/day cycle to prevent them from overriding this wallpaper
         StoryWorker.stopStory(applicationContext)
         DayCycleWorker.stop(applicationContext)
-
-        // If Auto Play and codec not available, force Explore mode
-        var actualInteractive = interactive
-        val isVideo = imagePath.endsWith(".mp4", ignoreCase = true)
-        if (isVideo && !interactive && !isVideoCodecAvailable()) {
-            android.util.Log.w("PixoraEQ", "Codec unavailable — forcing Explore mode")
-            actualInteractive = true
-        }
 
         // Save config for the WallpaperService to read
         val prefs = getSharedPreferences("pixora_live", 0)
         prefs.edit()
             .putString("wallpaper_path", imagePath)
             .putString("glow_color", glowColor)
-            .putBoolean("interactive", actualInteractive)
+            .putBoolean("interactive", interactive)
             .remove("caption")
             .putLong("changed_at", System.currentTimeMillis())
             .apply()
