@@ -72,53 +72,13 @@ class PixoraWallpaperService : WallpaperService() {
         private val videoLock = Object()
 
         // Video loop fade: darkens near end, brightens at start
-        private val fadePaint = Paint()
-        private var videoFadeAlpha = 0f
+        // NOTE: Fade overlay was REMOVED. It used Canvas drawing on the SAME Surface
+        // where MediaPlayer renders the video, which corrupted the surface producer state
+        // and caused setVideoSurfaceTexture to fail with -22 on the next video install.
+        // Canvas (CPU producer) and MediaPlayer (hardware producer) cannot share a Surface.
+        // For loop fade-in/out, bake it into the video file with ffmpeg:
+        //   ffmpeg -i in.mp4 -vf "fade=in:0:12,fade=out:st=4.5:d=0.5" out.mp4
         private var cachedDuration = 0L
-        private val fadeRunnable = object : Runnable {
-            override fun run() {
-                val player = mediaPlayer ?: return
-                if (!isVideoWallpaper) return
-
-                // Cache duration — it never changes
-                if (cachedDuration <= 0) cachedDuration = player.duration.toLong()
-                if (cachedDuration <= 0) {
-                    handler.postDelayed(this, 500)
-                    return
-                }
-
-                val position = player.currentPosition.toLong()
-                val fadeMs = FADE_DURATION_MS
-                val timeLeft = cachedDuration - position
-
-                // Only process fade near start/end of video
-                val needsFade = timeLeft < fadeMs || position < fadeMs
-                videoFadeAlpha = when {
-                    timeLeft < fadeMs -> ((fadeMs - timeLeft).toFloat() / fadeMs).coerceIn(0f, 1f)
-                    position < fadeMs -> ((fadeMs - position).toFloat() / fadeMs).coerceIn(0f, 1f)
-                    else -> 0f
-                }
-
-                if (videoFadeAlpha > 0.01f) {
-                    val holder = surfaceHolder
-                    var canvas: Canvas? = null
-                    try {
-                        canvas = holder?.lockCanvas()
-                        if (canvas != null) {
-                            fadePaint.color = Color.argb((videoFadeAlpha * 255).toInt(), 0, 0, 0)
-                            canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), fadePaint)
-                        }
-                    } catch (_: Exception) {
-                    } finally {
-                        canvas?.let { try { holder?.unlockCanvasAndPost(it) } catch (_: Exception) {} }
-                    }
-                }
-
-                // Check frequently near edges, slowly in the middle
-                val delay = if (needsFade) 30L else 500L
-                handler.postDelayed(this, delay)
-            }
-        }
 
         // Pre-allocated paint for glow dots
         private val glowDotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -284,6 +244,9 @@ class PixoraWallpaperService : WallpaperService() {
         // Guard against multiple simultaneous video starts
         @Volatile private var videoStarting = false
 
+        private var videoRetryCount = 0
+        private val MAX_VIDEO_RETRIES = 10
+
         private fun startVideoWallpaper(path: String) {
             synchronized(videoLock) {
                 if (videoStarting) return
@@ -330,10 +293,20 @@ class PixoraWallpaperService : WallpaperService() {
             // Auto Play: use MediaPlayer — wait for valid surface
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
-                // Surface not ready yet — retry shortly
-                handler.postDelayed({ startVideoWallpaper(path) }, 200)
+                // Surface not ready yet — retry shortly (reset guard so retry can enter)
+                synchronized(videoLock) { videoStarting = false }
+                if (videoRetryCount < MAX_VIDEO_RETRIES) {
+                    videoRetryCount++
+                    Log.d(TAG, "Surface not ready, retry $videoRetryCount/$MAX_VIDEO_RETRIES")
+                    handler.postDelayed({ startVideoWallpaper(path) }, 200)
+                } else {
+                    Log.e(TAG, "Surface never became ready after $MAX_VIDEO_RETRIES retries")
+                    videoRetryCount = 0
+                    isVideoWallpaper = false
+                }
                 return
             }
+            videoRetryCount = 0
 
             val videoFile = File(path)
             if (!videoFile.exists()) {
@@ -343,29 +316,37 @@ class PixoraWallpaperService : WallpaperService() {
                 return
             }
 
+            var mp: MediaPlayer? = null
             try {
-                val mp = MediaPlayer()
-                mp.setDataSource(path)
-                mp.setSurface(surface)
-                mp.setVolume(0f, 0f)
-                mp.isLooping = true
+                // Re-check surface validity right before use (can become invalid between check and use)
+                val currentSurface = surfaceHolder?.surface
+                if (currentSurface == null || !currentSurface.isValid) {
+                    Log.w(TAG, "Surface became invalid before MediaPlayer setup")
+                    synchronized(videoLock) { videoStarting = false }
+                    isVideoWallpaper = false
+                    return
+                }
+                val player = MediaPlayer()
+                mp = player
+                player.setDataSource(path)
+                player.setSurface(currentSurface)
+                player.setVolume(0f, 0f)
+                player.isLooping = true
 
-                mp.setOnPreparedListener {
+                player.setOnPreparedListener {
                     Log.d(TAG, "MediaPlayer READY: $path")
                     synchronized(videoLock) {
-                        mediaPlayer = mp
+                        mediaPlayer = player
                         videoStarting = false
                     }
-                    try { mp.start() } catch (e: Exception) { Log.e(TAG, "start failed: ${e.message}") }
-                    handler.removeCallbacks(fadeRunnable)
-                    handler.postDelayed(fadeRunnable, 200)
+                    try { player.start() } catch (e: Exception) { Log.e(TAG, "start failed: ${e.message}") }
                 }
 
-                mp.setOnErrorListener { _, what, extra ->
+                player.setOnErrorListener { _, what, extra ->
                     Log.e(TAG, "MediaPlayer error: what=$what extra=$extra")
-                    try { mp.release() } catch (_: Exception) {}
+                    releaseMediaPlayerSafely(player)
                     synchronized(videoLock) {
-                        mediaPlayer = null
+                        if (mediaPlayer === player) mediaPlayer = null
                         videoStarting = false
                     }
                     isVideoWallpaper = false
@@ -376,23 +357,50 @@ class PixoraWallpaperService : WallpaperService() {
                     true
                 }
 
-                mp.prepareAsync()
+                // Silence other events so GC never finds unhandled ones
+                player.setOnCompletionListener { /* loop handles it */ }
+                player.setOnInfoListener { _, _, _ -> true }
+                player.setOnBufferingUpdateListener { _, _ -> }
+                player.setOnSeekCompleteListener { /* no-op */ }
+                player.setOnVideoSizeChangedListener { _, _, _ -> }
+
+                player.prepareAsync()
                 Log.d(TAG, "MediaPlayer preparing...")
             } catch (e: Exception) {
                 Log.e(TAG, "MediaPlayer FAILED: ${e.javaClass.simpleName}: ${e.message}")
                 e.printStackTrace()
+                // Critical: release the local instance so it doesn't leak (was causing
+                // "finalized without being released" and stuck Surface for next attempts)
+                if (mp != null) releaseMediaPlayerSafely(mp)
                 synchronized(videoLock) { videoStarting = false }
                 isVideoWallpaper = false
             }
         }
 
+        /**
+         * Releases a MediaPlayer cleanly: clears all listeners (avoids "went away with
+         * unhandled events"), detaches surface, stops, and releases native resources.
+         */
+        private fun releaseMediaPlayerSafely(mp: MediaPlayer) {
+            try { mp.setOnPreparedListener(null) } catch (_: Exception) {}
+            try { mp.setOnErrorListener(null) } catch (_: Exception) {}
+            try { mp.setOnCompletionListener(null) } catch (_: Exception) {}
+            try { mp.setOnInfoListener(null) } catch (_: Exception) {}
+            try { mp.setOnBufferingUpdateListener(null) } catch (_: Exception) {}
+            try { mp.setOnSeekCompleteListener(null) } catch (_: Exception) {}
+            try { mp.setOnVideoSizeChangedListener(null) } catch (_: Exception) {}
+            try { mp.setSurface(null) } catch (_: Exception) {}
+            try { mp.stop() } catch (_: Exception) {}
+            try { mp.reset() } catch (_: Exception) {}
+            try { mp.release() } catch (_: Exception) {}
+        }
+
         private fun stopVideoWallpaper() {
-            handler.removeCallbacks(fadeRunnable)
             handler.removeCallbacks(frameScrubUpdateRunnable)
             frameScrubRenderer.release()
             isFrameMode = false
-            videoFadeAlpha = 0f
             cachedDuration = 0L
+            videoRetryCount = 0
             val mp: MediaPlayer?
             synchronized(videoLock) {
                 mp = mediaPlayer
@@ -401,15 +409,8 @@ class PixoraWallpaperService : WallpaperService() {
                 videoStarting = false
             }
             if (mp != null) {
-                try {
-                    mp.setSurface(null)
-                    try { mp.stop() } catch (_: Exception) {}
-                    mp.release()
-                    Log.d(TAG, "MediaPlayer released")
-                } catch (e: Exception) {
-                    Log.w(TAG, "stopVideoWallpaper: ${e.message}")
-                    try { mp.release() } catch (_: Exception) {}
-                }
+                releaseMediaPlayerSafely(mp)
+                Log.d(TAG, "MediaPlayer released")
             }
         }
 
@@ -834,6 +835,5 @@ class PixoraWallpaperService : WallpaperService() {
         const val RAIN_DROP_COUNT = 120
         const val GLASS_DROP_COUNT = 15
         const val CITY_LIGHT_COUNT = 35
-        private const val FADE_DURATION_MS = 500L
     }
 }

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
-import '../../../core/services/download_service.dart';
 import '../../../core/services/quality_service.dart';
-import '../../../core/services/wallpaper_service.dart';
 import '../../favorites/providers/favorites_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -184,35 +182,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         const SizedBox(height: 12),
         const Divider(color: Colors.white12),
         const _SectionHeader('General'),
-        _SettingsTile(
-          icon: Icons.delete_outline,
-          title: 'Clear cache',
-          subtitle: 'Remove downloaded wallpapers',
-          onTap: () async {
-            await DownloadService.instance.clearCache();
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cache cleared')),
-              );
-            }
-          },
-        ),
-        _SettingsTile(
-          icon: Icons.refresh,
-          title: 'Reset wallpaper engine',
-          subtitle: 'Fix stuck or frozen live wallpapers',
-          onTap: () async {
-            final ok = await WallpaperService.instance.resetEngine();
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(ok ? 'Engine reset — wallpaper will reload' : 'Reset failed'),
-                  backgroundColor: ok ? Colors.green.shade700 : Colors.red,
-                ),
-              );
-            }
-          },
-        ),
         const Divider(color: Colors.white12),
         const _SectionHeader('About'),
         const _SettingsTile(

@@ -1,8 +1,10 @@
 package com.orbix.pixora
 
+import android.app.ActivityManager
 import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
@@ -371,7 +373,9 @@ class MainActivity : FlutterActivity() {
         StoryWorker.stopStory(applicationContext)
         DayCycleWorker.stop(applicationContext)
 
-        // Save config for the WallpaperService to read
+        // Save config for the WallpaperService to read.
+        // Use commit() (not apply()) so the file is flushed BEFORE we kill the wallpaper
+        // process — otherwise the respawned process might read stale prefs.
         val prefs = getSharedPreferences("pixora_live", 0)
         prefs.edit()
             .putString("wallpaper_path", imagePath)
@@ -379,10 +383,37 @@ class MainActivity : FlutterActivity() {
             .putBoolean("interactive", interactive)
             .remove("caption")
             .putLong("changed_at", System.currentTimeMillis())
-            .apply()
+            .commit()
+
+        // Kill the wallpaper engine process so Android recreates it with a fresh Surface.
+        // This is mandatory because Canvas (image/explore) and MediaPlayer (video) cannot
+        // share the same Surface — switching between them corrupts the producer state and
+        // setVideoSurfaceTexture fails with -22. Killing forces a clean Surface.
+        killWallpaperProcess()
 
         // Only show picker if live wallpaper isn't already active
         ensureLiveWallpaperActive()
+    }
+
+    /**
+     * Kills the ":wallpaper" process so Android respawns the WallpaperService with
+     * a fresh Engine + Surface. Required to switch cleanly between Canvas-based and
+     * MediaPlayer-based wallpaper modes (the Surface producer can't be re-bound).
+     */
+    private fun killWallpaperProcess() {
+        try {
+            val am = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return
+            val myPid = android.os.Process.myPid()
+            val target = "${packageName}:wallpaper"
+            am.runningAppProcesses?.forEach { proc ->
+                if (proc.processName == target && proc.pid != myPid) {
+                    android.util.Log.d("PixoraEQ", "Killing wallpaper process pid=${proc.pid}")
+                    android.os.Process.killProcess(proc.pid)
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("PixoraEQ", "killWallpaperProcess: ${e.message}")
+        }
     }
 
     private fun setWallpaper(path: String, target: Int): Boolean {
