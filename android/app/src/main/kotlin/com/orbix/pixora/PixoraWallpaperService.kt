@@ -74,53 +74,49 @@ class PixoraWallpaperService : WallpaperService() {
         // Video loop fade: darkens near end, brightens at start
         private val fadePaint = Paint()
         private var videoFadeAlpha = 0f
+        private var cachedDuration = 0L
         private val fadeRunnable = object : Runnable {
             override fun run() {
                 val player = mediaPlayer ?: return
                 if (!isVideoWallpaper) return
 
-                val duration = player.duration.toLong()
-                val position = player.currentPosition.toLong()
-                val itemDuration = duration
-                val itemPosition = position
-
-                if (itemDuration <= 0) {
-                    handler.postDelayed(this, 50)
+                // Cache duration — it never changes
+                if (cachedDuration <= 0) cachedDuration = player.duration.toLong()
+                if (cachedDuration <= 0) {
+                    handler.postDelayed(this, 500)
                     return
                 }
 
+                val position = player.currentPosition.toLong()
                 val fadeMs = FADE_DURATION_MS
-                val timeLeft = itemDuration - itemPosition
+                val timeLeft = cachedDuration - position
 
+                // Only process fade near start/end of video
+                val needsFade = timeLeft < fadeMs || position < fadeMs
                 videoFadeAlpha = when {
-                    // Near end: fade to black
                     timeLeft < fadeMs -> ((fadeMs - timeLeft).toFloat() / fadeMs).coerceIn(0f, 1f)
-                    // Near start: fade from black
-                    itemPosition < fadeMs -> ((fadeMs - itemPosition).toFloat() / fadeMs).coerceIn(0f, 1f)
+                    position < fadeMs -> ((fadeMs - position).toFloat() / fadeMs).coerceIn(0f, 1f)
                     else -> 0f
                 }
 
-                // Draw overlay if fading
                 if (videoFadeAlpha > 0.01f) {
                     val holder = surfaceHolder
                     var canvas: Canvas? = null
                     try {
                         canvas = holder?.lockCanvas()
                         if (canvas != null) {
-                            // Don't clear — ExoPlayer already drew the video frame
-                            // Just overlay black with alpha
                             fadePaint.color = Color.argb((videoFadeAlpha * 255).toInt(), 0, 0, 0)
                             canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), fadePaint)
                         }
                     } catch (_: Exception) {
                     } finally {
-                        if (canvas != null) {
-                            try { holder?.unlockCanvasAndPost(canvas) } catch (_: Exception) {}
-                        }
+                        canvas?.let { try { holder?.unlockCanvasAndPost(it) } catch (_: Exception) {} }
                     }
                 }
 
-                handler.postDelayed(this, 30) // ~33fps check
+                // Check frequently near edges, slowly in the middle
+                val delay = if (needsFade) 30L else 500L
+                handler.postDelayed(this, delay)
             }
         }
 
@@ -331,12 +327,11 @@ class PixoraWallpaperService : WallpaperService() {
                 return
             }
 
-            // Auto Play: use MediaPlayer
+            // Auto Play: use MediaPlayer — wait for valid surface
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
-                Log.e(TAG, "Surface not valid")
-                synchronized(videoLock) { videoStarting = false }
-                isVideoWallpaper = false
+                // Surface not ready yet — retry shortly
+                handler.postDelayed({ startVideoWallpaper(path) }, 200)
                 return
             }
 
@@ -397,6 +392,7 @@ class PixoraWallpaperService : WallpaperService() {
             frameScrubRenderer.release()
             isFrameMode = false
             videoFadeAlpha = 0f
+            cachedDuration = 0L
             val mp: MediaPlayer?
             synchronized(videoLock) {
                 mp = mediaPlayer
@@ -545,7 +541,7 @@ class PixoraWallpaperService : WallpaperService() {
             surfaceWidth = width
             surfaceHeight = height
 
-            // Re-attach surface to ExoPlayer if it was detached in onSurfaceDestroyed
+            // Re-attach surface to existing MediaPlayer
             synchronized(videoLock) {
                 val player = mediaPlayer
                 if (player != null && holder?.surface != null && holder.surface.isValid) {
