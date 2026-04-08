@@ -40,7 +40,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   String get _title {
     final titles = [
       'Pixora IA',
-      if (!Platform.isIOS) 'HOT',
+      if (!Platform.isIOS) 'LIVE',
       if (!Platform.isIOS) 'Stories',
       if (!Platform.isIOS) 'Day Cycle',
       if (!Platform.isIOS) 'Tones',
@@ -382,8 +382,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           if (!Platform.isIOS)
             const BottomNavigationBarItem(
-              icon: Icon(Icons.local_fire_department),
-              label: 'HOT',
+              icon: Icon(Icons.play_circle_filled),
+              label: 'LIVE',
             ),
           if (!Platform.isIOS)
             const BottomNavigationBarItem(
