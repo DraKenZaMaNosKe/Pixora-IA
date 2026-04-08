@@ -26,6 +26,8 @@ dependencies:
   supabase_flutter: ^2.5.0
   google_sign_in: ^6.2.1
   just_audio: ^0.9.40
+  just_audio_background: ^0.0.1-beta.13
+  audio_session: ^0.1.21
   video_player: ^2.9.2
 
 dependency_overrides:
