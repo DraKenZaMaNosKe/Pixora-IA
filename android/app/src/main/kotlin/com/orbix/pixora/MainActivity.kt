@@ -12,12 +12,12 @@ import android.provider.MediaStore
 import android.provider.Settings as AndroidSettings
 import android.graphics.BitmapFactory
 import android.os.Build
-import io.flutter.embedding.android.FlutterActivity
+import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 
-class MainActivity : FlutterActivity() {
+class MainActivity : AudioServiceActivity() {
     private val CHANNEL = "com.orbix.pixora/wallpaper"
 
     /** Check if PixoraWallpaperService is the currently active live wallpaper */
