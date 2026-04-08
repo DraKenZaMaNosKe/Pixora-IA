@@ -1,0 +1,7 @@
+out/
+raw/
+*.mp3
+*.wav
+__pycache__/
+.venv/
+fetch_log.json

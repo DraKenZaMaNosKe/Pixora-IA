@@ -1,0 +1,129 @@
+{
+  "frequencies": [
+    {
+      "id": "freq_174",
+      "hz": 174,
+      "name_en": "Foundation",
+      "name_es": "Fundación",
+      "chakra": null,
+      "color_hex": "#6B4F8F",
+      "duration_min": 15,
+      "file": "out/frequencies/174hz_foundation.mp3",
+      "desc_en": "The lowest Solfeggio tone, traditionally associated with a sense of safety, security, and pain relief. Often used as a grounding base before deeper meditation.",
+      "desc_es": "El tono Solfeggio más bajo, tradicionalmente asociado con una sensación de seguridad, protección y alivio del dolor. Se usa como base para enraizarse antes de meditaciones profundas."
+    },
+    {
+      "id": "freq_285",
+      "hz": 285,
+      "name_en": "Quantum Cognition",
+      "name_es": "Cognición Cuántica",
+      "chakra": null,
+      "color_hex": "#7C5BA6",
+      "duration_min": 15,
+      "file": "out/frequencies/285hz_quantum.mp3",
+      "desc_en": "Said to support the body's natural healing field — popular in practices focused on tissue regeneration and recovery.",
+      "desc_es": "Asociada al campo natural de sanación del cuerpo — popular en prácticas enfocadas en regeneración de tejidos y recuperación."
+    },
+    {
+      "id": "freq_396",
+      "hz": 396,
+      "name_en": "Liberation",
+      "name_es": "Liberación",
+      "chakra": "root",
+      "color_hex": "#C0392B",
+      "duration_min": 15,
+      "file": "out/frequencies/396hz_liberation.mp3",
+      "desc_en": "Linked to the root chakra (Muladhara). Traditionally used to release fear and guilt, helping you feel grounded and present.",
+      "desc_es": "Vinculada al chacra raíz (Muladhara). Tradicionalmente usada para liberar miedo y culpa, ayudándote a sentirte enraizado y presente."
+    },
+    {
+      "id": "freq_417",
+      "hz": 417,
+      "name_en": "Transmutation",
+      "name_es": "Transmutación",
+      "chakra": "sacral",
+      "color_hex": "#E67E22",
+      "duration_min": 15,
+      "file": "out/frequencies/417hz_transmutation.mp3",
+      "desc_en": "Associated with the sacral chakra (Svadhisthana). Used to facilitate change, break old patterns, and welcome new beginnings.",
+      "desc_es": "Asociada al chacra sacro (Svadhisthana). Se usa para facilitar el cambio, romper patrones antiguos y dar bienvenida a nuevos comienzos."
+    },
+    {
+      "id": "freq_528",
+      "hz": 528,
+      "name_en": "Miracle",
+      "name_es": "Milagro",
+      "chakra": "solar_plexus",
+      "color_hex": "#F1C40F",
+      "duration_min": 15,
+      "file": "out/frequencies/528hz_miracle.mp3",
+      "desc_en": "The most popular Solfeggio frequency, known as the 'Love Frequency'. Linked to the solar plexus chakra (Manipura) and widely used in meditation for inner peace and self-confidence.",
+      "desc_es": "La frecuencia Solfeggio más popular, conocida como la 'Frecuencia del Amor'. Vinculada al chacra del plexo solar (Manipura) y muy usada en meditación para la paz interior y la confianza personal."
+    },
+    {
+      "id": "freq_639",
+      "hz": 639,
+      "name_en": "Connection",
+      "name_es": "Conexión",
+      "chakra": "heart",
+      "color_hex": "#27AE60",
+      "duration_min": 15,
+      "file": "out/frequencies/639hz_connection.mp3",
+      "desc_en": "Tied to the heart chakra (Anahata). Used to nurture harmony in relationships, communication, and self-love.",
+      "desc_es": "Ligada al chacra del corazón (Anahata). Se usa para nutrir la armonía en las relaciones, la comunicación y el amor propio."
+    },
+    {
+      "id": "freq_741",
+      "hz": 741,
+      "name_en": "Expression",
+      "name_es": "Expresión",
+      "chakra": "throat",
+      "color_hex": "#3498DB",
+      "duration_min": 15,
+      "file": "out/frequencies/741hz_expression.mp3",
+      "desc_en": "Associated with the throat chakra (Vishuddha). Traditionally used to support clear self-expression, intuition, and creative problem-solving.",
+      "desc_es": "Asociada al chacra de la garganta (Vishuddha). Tradicionalmente usada para apoyar la auto-expresión clara, la intuición y la resolución creativa de problemas."
+    },
+    {
+      "id": "freq_852",
+      "hz": 852,
+      "name_en": "Intuition",
+      "name_es": "Intuición",
+      "chakra": "third_eye",
+      "color_hex": "#5B2C6F",
+      "duration_min": 15,
+      "file": "out/frequencies/852hz_intuition.mp3",
+      "desc_en": "Linked to the third-eye chakra (Ajna). Used in practices that aim to awaken intuition and inner vision.",
+      "desc_es": "Vinculada al chacra del tercer ojo (Ajna). Se usa en prácticas que buscan despertar la intuición y la visión interior."
+    },
+    {
+      "id": "freq_963",
+      "hz": 963,
+      "name_en": "Divine Consciousness",
+      "name_es": "Consciencia Divina",
+      "chakra": "crown",
+      "color_hex": "#9B59B6",
+      "duration_min": 15,
+      "file": "out/frequencies/963hz_divine.mp3",
+      "desc_en": "The highest Solfeggio tone, tied to the crown chakra (Sahasrara). Used in meditations focused on spiritual awakening and a sense of unity.",
+      "desc_es": "El tono Solfeggio más alto, ligado al chacra corona (Sahasrara). Se usa en meditaciones enfocadas en el despertar espiritual y la sensación de unidad."
+    }
+  ],
+  "nature": [
+    { "id": "nat_rain_soft",     "name_en": "Soft Rain",        "name_es": "Lluvia Suave",         "icon": "rain",        "freesound_query": "soft rain ambient",            "license": "CC0", "duration_min": 10, "file": "out/nature/rain_soft.mp3",     "desc_en": "Gentle, steady rainfall — the classic sleep companion.", "desc_es": "Lluvia suave y constante — la compañera clásica para dormir." },
+    { "id": "nat_rain_thunder",  "name_en": "Rain & Thunder",   "name_es": "Lluvia y Truenos",     "icon": "storm",       "freesound_query": "rain thunder distant",         "license": "CC0", "duration_min": 10, "file": "out/nature/rain_thunder.mp3",  "desc_en": "Rain with distant rolling thunder — cozy and grounding.", "desc_es": "Lluvia con truenos lejanos — acogedor y enraizante." },
+    { "id": "nat_ocean",         "name_en": "Ocean Waves",      "name_es": "Olas del Mar",         "icon": "wave",        "freesound_query": "ocean waves beach calm",       "license": "CC0", "duration_min": 10, "file": "out/nature/ocean.mp3",         "desc_en": "Slow ocean waves washing over a beach.",                 "desc_es": "Olas lentas del océano lavando una playa." },
+    { "id": "nat_river",         "name_en": "River Stream",     "name_es": "Río",                  "icon": "river",       "freesound_query": "river stream flowing",         "license": "CC0", "duration_min": 10, "file": "out/nature/river.mp3",         "desc_en": "A clear stream flowing over stones.",                    "desc_es": "Un arroyo claro fluyendo sobre piedras." },
+    { "id": "nat_waterfall",     "name_en": "Waterfall",        "name_es": "Cascada",              "icon": "waterfall",   "freesound_query": "waterfall ambient",            "license": "CC0", "duration_min": 10, "file": "out/nature/waterfall.mp3",     "desc_en": "The roar of a forest waterfall.",                        "desc_es": "El rugido de una cascada en el bosque." },
+    { "id": "nat_fireplace",     "name_en": "Fireplace",        "name_es": "Chimenea",             "icon": "fire",        "freesound_query": "fireplace crackling",          "license": "CC0", "duration_min": 10, "file": "out/nature/fireplace.mp3",     "desc_en": "Crackling fire on a winter night.",                      "desc_es": "Fuego crepitando en una noche de invierno." },
+    { "id": "nat_forest_birds",  "name_en": "Forest Birds",     "name_es": "Bosque y Pájaros",     "icon": "forest",      "freesound_query": "forest birds ambient morning", "license": "CC0", "duration_min": 10, "file": "out/nature/forest_birds.mp3",  "desc_en": "Birdsong in a peaceful forest at dawn.",                 "desc_es": "Canto de pájaros en un bosque tranquilo al amanecer." },
+    { "id": "nat_wind_trees",    "name_en": "Wind in Trees",    "name_es": "Viento en Árboles",    "icon": "wind",        "freesound_query": "wind in trees leaves",         "license": "CC0", "duration_min": 10, "file": "out/nature/wind_trees.mp3",    "desc_en": "Wind moving through leaves and branches.",               "desc_es": "Viento moviéndose entre hojas y ramas." },
+    { "id": "nat_storm",         "name_en": "Distant Storm",    "name_es": "Tormenta Lejana",      "icon": "lightning",   "freesound_query": "distant thunderstorm rumble",  "license": "CC0", "duration_min": 10, "file": "out/nature/storm.mp3",         "desc_en": "A storm rolling across the horizon.",                    "desc_es": "Una tormenta rodando por el horizonte." },
+    { "id": "nat_crickets",      "name_en": "Night Crickets",   "name_es": "Grillos Nocturnos",    "icon": "moon",        "freesound_query": "crickets night ambient",       "license": "CC0", "duration_min": 10, "file": "out/nature/crickets.mp3",      "desc_en": "A summer night chorus of crickets.",                     "desc_es": "Coro de grillos en una noche de verano." },
+    { "id": "nat_cafe",          "name_en": "Coffee Shop",      "name_es": "Cafetería",            "icon": "coffee",      "freesound_query": "coffee shop ambience",         "license": "CC0", "duration_min": 10, "file": "out/nature/cafe.mp3",          "desc_en": "Soft chatter and clinking cups for focus.",              "desc_es": "Murmullo suave y tazas chocando para concentrarse." },
+    { "id": "nat_white_noise",   "name_en": "White Noise",      "name_es": "Ruido Blanco",         "icon": "static",      "freesound_query": null,                           "license": "GENERATED", "duration_min": 15, "file": "out/nature/white_noise.mp3", "desc_en": "Pure white noise — masks distractions and supports deep sleep.", "desc_es": "Ruido blanco puro — enmascara distracciones y apoya el sueño profundo." },
+    { "id": "nat_brown_noise",   "name_en": "Brown Noise",      "name_es": "Ruido Marrón",         "icon": "static",      "freesound_query": null,                           "license": "GENERATED", "duration_min": 15, "file": "out/nature/brown_noise.mp3", "desc_en": "Deeper than white noise — softer on the ears, popular for focus.", "desc_es": "Más profundo que el ruido blanco — más suave al oído, popular para concentrarse." },
+    { "id": "nat_singing_bowl",  "name_en": "Tibetan Bowl",     "name_es": "Cuenco Tibetano",      "icon": "bowl",        "freesound_query": "tibetan singing bowl",         "license": "CC0", "duration_min": 10, "file": "out/nature/singing_bowl.mp3",  "desc_en": "Tibetan singing bowl — a traditional meditation aid.",   "desc_es": "Cuenco tibetano — auxiliar tradicional de meditación." },
+    { "id": "nat_wind_chimes",   "name_en": "Wind Chimes",      "name_es": "Campanas de Viento",   "icon": "bell",        "freesound_query": "wind chimes gentle",           "license": "CC0", "duration_min": 10, "file": "out/nature/wind_chimes.mp3",   "desc_en": "Soft wind chimes drifting on a breeze.",                 "desc_es": "Campanas de viento suaves meciéndose con la brisa." }
+  ]
+}
