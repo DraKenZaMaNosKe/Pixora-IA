@@ -83,52 +83,63 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
-              Container(
-                width: 200, height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [_accent.withOpacity(0.4), _accent.withOpacity(0.05)],
-                  ),
-                  boxShadow: [
-                    BoxShadow(color: _accent.withOpacity(0.5), blurRadius: 60, spreadRadius: 4),
-                  ],
-                ),
-                child: Center(
-                  child: t.category == AuraCategory.frequency
-                    ? Text('${t.hz} Hz',
+              // Middle section — scrollable so it adapts to any screen height
+              // and any description length without overflowing.
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 24),
+                      Container(
+                        width: 200, height: 200,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [_accent.withOpacity(0.4), _accent.withOpacity(0.05)],
+                          ),
+                          boxShadow: [
+                            BoxShadow(color: _accent.withOpacity(0.5), blurRadius: 60, spreadRadius: 4),
+                          ],
+                        ),
+                        child: Center(
+                          child: t.category == AuraCategory.frequency
+                            ? Text('${t.hz} Hz',
+                                style: const TextStyle(
+                                  fontSize: 38, fontWeight: FontWeight.bold, color: Colors.white))
+                            : const Icon(Icons.spa, size: 80, color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(t.displayName,
                         style: const TextStyle(
-                          fontSize: 38, fontWeight: FontWeight.bold, color: Colors.white))
-                    : const Icon(Icons.spa, size: 80, color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Text(t.displayName,
-                style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withOpacity(0.08)),
-                  ),
-                  child: Text(
-                    t.displayDescription,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.white.withOpacity(0.75),
-                      height: 1.45,
-                    ),
-                    textAlign: TextAlign.center,
+                          fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withOpacity(0.08)),
+                          ),
+                          child: Text(
+                            t.displayDescription,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.75),
+                              height: 1.45,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ),
                 ),
               ),
-              const Spacer(),
               StreamBuilder<Duration>(
                 stream: svc.positionStream,
                 builder: (_, snap) {
