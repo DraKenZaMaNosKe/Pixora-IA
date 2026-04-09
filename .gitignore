@@ -48,3 +48,14 @@ app.*.map.json
 google-services.json
 GoogleService-Info.plist
 KEYS_LOCAL.md
+
+# Master doc snapshots (local only, not for version control)
+docs/master_doc_snapshots/
+
+# Claude Code — local settings with user-specific paths and device serials
+.claude/settings.local.json
+.claude/settings.local.json.bak
+.claude/*.bak
+
+# Master doc snapshots (private, sometimes large)
+docs/master_doc_snapshots/
