@@ -59,3 +59,6 @@ docs/master_doc_snapshots/
 
 # Master doc snapshots (private, sometimes large)
 docs/master_doc_snapshots/
+
+# Batch content generation jobs (huge, temporary)
+tools/batch/
