@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
@@ -35,6 +36,19 @@ Future<void> main() async {
       androidNotificationOngoing: true,
       androidNotificationIcon: 'drawable/ic_aura_notification',
     );
+
+    // Configure audio session as ambient — don't steal focus from Spotify/YouTube.
+    // AURA sounds play alongside other apps (duck softly, never pause them).
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.ambient,
+      androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientMayDuck,
+      androidWillPauseWhenDucked: false,
+      androidAudioAttributes: AndroidAudioAttributes(
+        contentType: AndroidAudioContentType.music,
+        usage: AndroidAudioUsage.media,
+      ),
+    ));
 
     await CreditService.instance.init();
     await AuraPlayerService.instance.init();
