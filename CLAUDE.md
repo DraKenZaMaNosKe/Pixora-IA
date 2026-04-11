@@ -11,9 +11,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Version: `pubspec.yaml` → `version: X.Y.Z+N`
 - iOS gating: everything except `WallpapersPage`, `FavoritesPage`, `SettingsPage` is wrapped in `if (!Platform.isIOS)` in `home_page.dart`
 
+## Time awareness
+
+**Never assume or guess the time of day.** Before saying "good morning", "good night", or making any time-based greeting or assumption, check the actual time:
+```bash
+date
+```
+The user's timezone is CST (Mexico, UTC-6). Use the real time to greet appropriately. No lies, no assumptions.
+
 ## First 30 seconds of a new session
 
-1. `git status` + `git log --oneline -5` — know where you are
+1. Check the time: `date` — greet accordingly
+2. `git status` + `git log --oneline -5` — know where you are
 2. Skim this file (you're doing it) for conventions and pitfalls
 3. Check `C:\Users\lalo\.claude\projects\D--Orbix-Pixora-IA\memory\MEMORY.md` — persistent user memories
 4. If the task touches AURA, also skim `docs/superpowers/plans/2026-04-07-aura-*.md`
