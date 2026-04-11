@@ -79,7 +79,10 @@ A `WallpaperService` Engine's Surface accepts **one producer at a time**: Canvas
 ### C. NDK version must match plugins
 `android/app/build.gradle` → `ndkVersion "27.0.12077973"`. Plugins request it; downgrading triggers a Gradle warning and can break native builds.
 
-### D. GitHub Push Protection is active
+### D. ClockRenderer hourly flash must check minute == 0
+`ClockRenderer.kt` triggers a full-screen glow flash when the hour changes. The condition must include `minute <= 1` — otherwise the flash fires when the user unlocks their phone 20 minutes after the hour, which makes no sense. The flash should only fire if the user is looking at the wallpaper at the actual hour change. Fixed in the `hour != lastHour && lastHour >= 0 && minute <= 1` guard.
+
+### E. GitHub Push Protection is active
 Secret scanning blocks pushes containing Supabase JWTs, Google OAuth IDs/secrets, Freesound keys, keystore passwords, etc. Before committing anything that might contain a secret (docs, snapshots, config examples), grep for the patterns and redact. If a push is rejected, amend the commit — don't try to force it.
 
 ## Feature module map
@@ -96,6 +99,21 @@ Secret scanning blocks pushes containing Supabase JWTs, Google OAuth IDs/secrets
 | `lib/core/constants/supabase_config.dart` | URL + anon key (public, in lib) |
 | `tools/aura/` | AURA content pipeline (ffmpeg + Python + Supabase uploader). `tracks_manifest.json` is the single source of truth. |
 | `docs/superpowers/plans/` | Implementation plans from brainstorming sessions |
+
+## Content dimensions (official Pixora specs)
+
+| Type | Dimensions (px) | Aspect | Notes |
+|---|---|---|---|
+| Static wallpaper (phone) | 1080 x 2340 | ~9:16 | Portrait, WebP |
+| **Panoramic wallpaper** | **4192 x 1024** | **~4:1** | Ultra-wide, scrollable on home. **Generate in Gemini** (Grok doesn't support custom ultra-wide) |
+| Video wallpaper (LIVE) | 720p wide, 5-8s | varies | MP4 H.264 baseline, no audio, <2 MB |
+| Day Cycle (per image) | 1080 x 2340 | ~9:16 | 4 images: morning/afternoon/evening/night |
+| Story frame | 1080 x 2340 | ~9:16 | 4-8 frames per story |
+| Preview wallpaper | 540 x 1170 | ~9:16 | WebP, <50 KB |
+| Preview video | 720 x 720 | 1:1 | WebP, <50 KB |
+| Play Store screenshot | 1080 x 1920 or 1080 x 2340 | 9:16 | Min 2, max 8 |
+
+**AI image generation**: use Gemini for panoramics (4192x1024) and custom sizes. Grok works for standard sizes. Always specify "no text, no letters" in prompts when generating base images for text-overlay features (e.g. cemetery tombstones).
 
 ## Conventions
 
