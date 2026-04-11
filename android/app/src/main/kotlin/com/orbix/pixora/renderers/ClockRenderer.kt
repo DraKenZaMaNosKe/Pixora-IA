@@ -65,7 +65,14 @@ class ClockRenderer {
         } else 1f
 
         // --- Hour change flash effect ---
-        if (hour != lastHour && lastHour >= 0) {
+        // Only trigger when:
+        //   1. The hour actually changed (hour != lastHour)
+        //   2. It wasn't the first frame after init (lastHour >= 0)
+        //   3. We're within the first minute of the new hour (minute <= 1)
+        //      This prevents the flash from firing when the user unlocks their
+        //      phone 20 minutes after the hour changed — the effect only makes
+        //      sense if the user sees it "live" at :00.
+        if (hour != lastHour && lastHour >= 0 && minute <= 1) {
             hourFlashAlpha = 1f
         }
         lastHour = hour
