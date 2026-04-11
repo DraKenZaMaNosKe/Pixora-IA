@@ -30,6 +30,9 @@ class PixoraWallpaperService : WallpaperService() {
         private var surfaceHeight = 0
         private var glowColor = Color.parseColor("#7C4DFF")
 
+        // Bitmap scaling version counter — prevents stale Thread results
+        @Volatile private var scaleVersion = 0
+
         // Panoramic scroll
         private var isPanoramic = false
         @Volatile private var panoramicBitmap: Bitmap? = null
@@ -438,11 +441,12 @@ class PixoraWallpaperService : WallpaperService() {
             val bmp = wallpaperBitmap ?: return
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
-            // Invalidate old bitmaps under lock to prevent drawFrame reading recycled bitmap
-            synchronized(bitmapLock) {
-                scaledBitmap = null
-                panoramicBitmap = null
-            }
+            // Increment version — any Thread with an older version will discard its result
+            val myVersion = ++scaleVersion
+
+            // DON'T nullify scaledBitmap/panoramicBitmap here!
+            // The old bitmap continues to be drawn until the new one is ready.
+            // This prevents the black flash between nullification and Thread completion.
 
             // Capture dimensions at call time (they could change during thread execution)
             val targetW = surfaceWidth
@@ -459,17 +463,26 @@ class PixoraWallpaperService : WallpaperService() {
                         val scaledHeight = targetH
                         val scaledWidth = (bmp.width.toFloat() / bmp.height.toFloat() * scaledHeight).toInt()
                         val newPanBmp = Bitmap.createScaledBitmap(bmp, scaledWidth, scaledHeight, true)
-                        synchronized(bitmapLock) {
-                            // Only nullify wallpaperBitmap if it's still the same reference
-                            // (prevents race condition when loadWallpaperImage sets a new bitmap
-                            // between Thread start and finish)
-                            if (wallpaperBitmap === bmp) wallpaperBitmap = null
-                            scaledBitmap = null
-                            panoramicBitmap = newPanBmp
-                            isPanoramic = true
+
+                        // Only apply if this is still the latest scaling request
+                        if (myVersion == scaleVersion) {
+                            synchronized(bitmapLock) {
+                                val oldScaled = scaledBitmap
+                                val oldPan = panoramicBitmap
+                                if (wallpaperBitmap === bmp) wallpaperBitmap = null
+                                scaledBitmap = null
+                                panoramicBitmap = newPanBmp
+                                isPanoramic = true
+                                oldScaled?.recycle()
+                                oldPan?.recycle()
+                            }
+                            bmp.recycle()
+                            Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - targetW}px)")
+                        } else {
+                            Log.d(TAG, "Stale panoramic scaling (v$myVersion vs current v$scaleVersion), discarding")
+                            newPanBmp.recycle()
+                            bmp.recycle()
                         }
-                        bmp.recycle()
-                        Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - targetW}px)")
                     } else {
                         val (cropW, cropH) = if (srcRatio > dstRatio) {
                             Pair((bmp.height * dstRatio).toInt(), bmp.height)
@@ -482,14 +495,31 @@ class PixoraWallpaperService : WallpaperService() {
 
                         val cropped = Bitmap.createBitmap(bmp, x, y, cropW, cropH)
                         val scaled = Bitmap.createScaledBitmap(cropped, targetW, targetH, true)
-                        if (cropped != scaled) cropped.recycle()
-                        synchronized(bitmapLock) {
-                            if (wallpaperBitmap === bmp) wallpaperBitmap = null
-                            panoramicBitmap = null
-                            scaledBitmap = scaled
-                            isPanoramic = false
+                        // Only recycle cropped if it's a different object from both bmp and scaled
+                        if (cropped !== scaled && cropped !== bmp) cropped.recycle()
+
+                        if (myVersion == scaleVersion) {
+                            synchronized(bitmapLock) {
+                                val oldScaled = scaledBitmap
+                                val oldPan = panoramicBitmap
+                                if (wallpaperBitmap === bmp) wallpaperBitmap = null
+                                panoramicBitmap = null
+                                scaledBitmap = scaled
+                                isPanoramic = false
+                                // Only recycle old bitmaps if they're different objects
+                                if (oldScaled !== scaled) oldScaled?.recycle()
+                                if (oldPan !== scaled) oldPan?.recycle()
+                            }
+                            // Don't recycle bmp if Android reused it as the scaled result
+                            // (createScaledBitmap returns the same object when dims match)
+                            if (bmp !== scaled && bmp !== cropped) bmp.recycle()
+                            Log.d(TAG, "Scaled: ${targetW}x${targetH} (v$myVersion) bmp===scaled:${bmp===scaled}")
+                        } else {
+                            Log.d(TAG, "Stale scaling (v$myVersion vs current v$scaleVersion), discarding")
+                            if (scaled !== bmp && scaled !== cropped) scaled.recycle()
+                            if (cropped !== bmp) cropped.recycle()
+                            bmp.recycle()
                         }
-                        bmp.recycle()
                     }
                     // Force a redraw with the new bitmap (verify surface still valid)
                     handler.post {
