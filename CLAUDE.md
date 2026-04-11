@@ -197,6 +197,16 @@ After any of these, append (don't rewrite) a sub-section to the master `.docx` v
 | New platform pitfall learned | Add to "lecciones aprendidas" so it's not re-learned |
 | AURA track added/removed | §14.3 or §14.4 |
 
+## Active objectives & pending tasks
+
+The master document is the canonical task tracker. Key sections with actionable objectives:
+
+- **§14 AURA**: melodic frequency tracks (Suno/Udio + ffmpeg layering), binaural beats, guided meditations
+- **§16 Art Gallery Wallpapers**: 10 museum scene prompts (5 static + 5 panoramic), interactive zoom-on-tap, Day Cycle museum variant, "Your Personal Museum" customization
+- **Cemetery/Memorial**: Día de Muertos configurable tombstones (name + date + phrase overlay), panoramic + normal modes
+
+When starting a session, check the master doc for the latest pending tasks.
+
 ## What NOT to do
 
 - ❌ Commit `KEYS_LOCAL.md`, `android/key.properties`, `*.keystore`, `*.jks`, `.env*`, `.claude/settings.local.json`, `tools/aura/out/`, `tools/aura/raw/`, `docs/master_doc_snapshots/` — all gitignored for a reason
