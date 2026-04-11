@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/color_utils.dart';
+import '../../../../core/content/content_manager.dart';
+import '../../../../core/content/content_types.dart';
+import '../../../../core/content/content_url_resolver.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
-import '../../../../core/services/download_service.dart';
 import '../../../../core/services/story_rotation_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
@@ -23,7 +25,8 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   int _downloadProgress = 0;
   final _pageController = PageController(viewportFraction: 0.85);
 
-  Color get _glowColor => parseHexColor(widget.story.glowColor, fallback: Colors.deepPurple);
+  Color get _glowColor =>
+      parseHexColor(widget.story.glowColor, fallback: Colors.deepPurple);
 
   @override
   void initState() {
@@ -51,7 +54,13 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
       final frame = widget.story.frames[i];
       setState(() => _downloadProgress = i + 1);
 
-      final path = await DownloadService.instance.downloadWallpaper(frame.imageFile);
+      final item = ContentItem(
+        id: '${widget.story.id}_frame_$i',
+        type: ContentType.staticWallpaper,
+        remoteFile: frame.imageFile,
+        bucket: ContentUrlResolver.wallpaperImagesBucket,
+      );
+      final path = await ContentManager.instance.download(item);
       if (path == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -260,21 +269,37 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: isFree ? Colors.green.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
+                          color: isFree
+                              ? Colors.green.withOpacity(0.2)
+                              : Colors.orange.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: isFree ? Colors.greenAccent.withOpacity(0.5) : Colors.orange.withOpacity(0.5)),
+                          border: Border.all(
+                              color: isFree
+                                  ? Colors.greenAccent.withOpacity(0.5)
+                                  : Colors.orange.withOpacity(0.5)),
                         ),
                         child: Text(
-                          isFree ? 'FREE!' : '+${CreditService.creditsPerAd} credits',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isFree ? Colors.greenAccent : Colors.orangeAccent),
+                          isFree
+                              ? 'FREE!'
+                              : '+${CreditService.creditsPerAd} credits',
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: isFree
+                                  ? Colors.greenAccent
+                                  : Colors.orangeAccent),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Icon(Icons.diamond, size: 12, color: Color(0xFF7C4DFF)),
+                      const Icon(Icons.diamond,
+                          size: 12, color: Color(0xFF7C4DFF)),
                       const SizedBox(width: 3),
-                      Text('$credits', style: const TextStyle(fontSize: 11, color: Color(0xFF7C4DFF))),
+                      Text('$credits',
+                          style: const TextStyle(
+                              fontSize: 11, color: Color(0xFF7C4DFF))),
                     ],
                   );
                 }),
@@ -302,8 +327,8 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                         : isActive
                             ? 'Stop Story'
                             : 'Start Story',
-                    style:
-                        const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isActive ? Colors.red.shade800 : glow,

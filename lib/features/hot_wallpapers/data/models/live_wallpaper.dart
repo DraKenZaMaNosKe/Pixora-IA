@@ -1,4 +1,6 @@
 import '../../../../core/constants/supabase_config.dart';
+import '../../../../core/content/content_types.dart';
+import '../../../../core/content/content_url_resolver.dart';
 
 enum LiveWallpaperType { video, shader, image3d }
 
@@ -6,18 +8,18 @@ class LiveWallpaper {
   final String id;
   final String name;
   final String description;
-  final String videoFile;      // MP4 for Auto Play mode
-  final String? exploreFile;   // MP4 optimized for Explore mode (legacy)
-  final String previewFile;    // WebP preview thumbnail
-  final int frameCount;        // Number of pre-extracted frames for Explore
-  final String? framesPath;    // Supabase path to frames folder
-  final bool exploreOnly;      // true = no Auto Play, only Explore mode
-  final int videoSize;         // bytes
+  final String videoFile; // MP4 for Auto Play mode
+  final String? exploreFile; // MP4 optimized for Explore mode (legacy)
+  final String previewFile; // WebP preview thumbnail
+  final int frameCount; // Number of pre-extracted frames for Explore
+  final String? framesPath; // Supabase path to frames folder
+  final bool exploreOnly; // true = no Auto Play, only Explore mode
+  final int videoSize; // bytes
   final int previewSize;
   final String glowColor;
-  final String category;       // GAMING, ANIME, SCIFI, NATURE, PIXEL, HORROR
+  final String category; // GAMING, ANIME, SCIFI, NATURE, PIXEL, HORROR
   final LiveWallpaperType type;
-  final String? badge;         // LIVE, 3D, NEW, HOT
+  final String? badge; // LIVE, 3D, NEW, HOT
   final int sortOrder;
   final List<String> tags;
   final int downloadCount;
@@ -63,9 +65,12 @@ class LiveWallpaper {
 
   String get typeBadge {
     switch (type) {
-      case LiveWallpaperType.video: return 'LIVE';
-      case LiveWallpaperType.shader: return 'SHADER';
-      case LiveWallpaperType.image3d: return '3D';
+      case LiveWallpaperType.video:
+        return 'LIVE';
+      case LiveWallpaperType.shader:
+        return 'SHADER';
+      case LiveWallpaperType.image3d:
+        return '3D';
     }
   }
 
@@ -87,20 +92,42 @@ class LiveWallpaper {
       type: _parseType(json['type'] as String?),
       badge: json['badge'] as String?,
       sortOrder: json['sortOrder'] as int? ?? 0,
-      tags: (json['tags'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              [],
       downloadCount: json['downloadCount'] as int? ?? 0,
       createdAt: json['createdAt'] as String?,
     );
   }
 
+  /// Convert to unified ContentItem for ContentManager.
+  ContentItem toContentItem({bool explore = false}) {
+    return ContentItem(
+      id: id,
+      type: explore ? ContentType.liveVideoExplore : ContentType.liveVideo,
+      remoteFile: explore ? (exploreFile ?? videoFile) : videoFile,
+      bucket: ContentUrlResolver.wallpaperVideosBucket,
+      previewFile: previewFile,
+      name: name,
+      metadata: {
+        'glowColor': glowColor,
+        'interactive': explore,
+        'frameCount': frameCount,
+        'framesPath': framesPath,
+        'exploreFile': exploreFile,
+        'category': category,
+      },
+    );
+  }
+
   static LiveWallpaperType _parseType(String? type) {
     switch (type) {
-      case 'shader': return LiveWallpaperType.shader;
-      case '3d': return LiveWallpaperType.image3d;
-      default: return LiveWallpaperType.video;
+      case 'shader':
+        return LiveWallpaperType.shader;
+      case '3d':
+        return LiveWallpaperType.image3d;
+      default:
+        return LiveWallpaperType.video;
     }
   }
 }

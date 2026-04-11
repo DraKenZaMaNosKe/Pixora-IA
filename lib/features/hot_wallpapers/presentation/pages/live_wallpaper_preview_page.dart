@@ -3,6 +3,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../../core/utils/color_utils.dart';
+import '../../../../core/content/content_manager.dart';
+import '../../../../core/content/content_types.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
@@ -29,7 +31,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   late Future<bool> _isDownloadedFuture;
   int _controlsToken = 0;
 
-  Color get _glowColor => parseHexColor(widget.wallpaper.glowColor, fallback: const Color(0xFFFF4500));
+  Color get _glowColor => parseHexColor(widget.wallpaper.glowColor,
+      fallback: const Color(0xFFFF4500));
 
   @override
   void initState() {
@@ -84,8 +87,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     }
 
     if (mounted) setState(() => _loadingStatus = 'Downloading...');
-    WallpaperStatsService.instance
-        .trackDownload('live_${widget.wallpaper.id}');
+    WallpaperStatsService.instance.trackDownload('live_${widget.wallpaper.id}');
 
     final dir = await getApplicationDocumentsDirectory();
     final w = widget.wallpaper;
@@ -97,12 +99,15 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       await framesDir.create(recursive: true);
 
       // Check if already cached
-      final existing = framesDir.listSync().where((f) => f.path.endsWith('.jpg')).length;
+      final existing =
+          framesDir.listSync().where((f) => f.path.endsWith('.jpg')).length;
       if (existing < w.frameCount) {
         // Download all frames
         for (var i = 0; i < w.frameCount; i++) {
-          final frameFile = File('${framesDir.path}/frame_${(i + 1).toString().padLeft(4, '0')}.jpg');
-          if (await frameFile.exists() && await frameFile.length() > 100) continue;
+          final frameFile = File(
+              '${framesDir.path}/frame_${(i + 1).toString().padLeft(4, '0')}.jpg');
+          if (await frameFile.exists() && await frameFile.length() > 100)
+            continue;
           await DownloadService.instance.downloadFile(
             w.frameUrl(i),
             frameFile,
@@ -125,21 +130,19 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('Explore wallpaper set!'), backgroundColor: Colors.green.shade700),
+          SnackBar(
+              content: const Text('Explore wallpaper set!'),
+              backgroundColor: Colors.green.shade700),
         );
         setState(() => _isApplying = false);
       }
       return;
     }
 
-    // Auto Play mode: download video
-    final localFile = File('${dir.path}/live_wallpapers/${w.videoFile}');
-    final path = await DownloadService.instance.downloadFile(
-      w.videoUrl,
-      localFile,
-      retries: 3,
-      timeoutSeconds: 120,
-      minBytes: 1000,
+    // Auto Play mode: download video via ContentManager
+    final success = await ContentManager.instance.downloadAndInstall(
+      item: w.toContentItem(explore: _interactiveMode),
+      target: InstallTarget.liveWallpaper,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
@@ -152,31 +155,17 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       },
     );
 
-    if (path == null) {
+    if (!success) {
       if (mounted) setState(() => _isApplying = false);
       return;
     }
-
-    if (mounted) {
-      setState(() {
-        _loadingStatus = _interactiveMode
-            ? 'Preparing Explore mode...'
-            : 'Setting live wallpaper...';
-        _downloadProgress = 0.0;
-      });
-    }
-
-    await WallpaperService.instance.setLiveWallpaper(
-      path,
-      widget.wallpaper.glowColor,
-      interactive: _interactiveMode,
-    );
 
     // If Explore mode, wait for frame extraction to complete
     if (_interactiveMode && mounted) {
       setState(() => _loadingStatus = 'Preparing your scene...');
       // Poll until frames are ready (WallpaperService extracts in background)
-      for (var i = 0; i < 30; i++) { // max 15 seconds
+      for (var i = 0; i < 30; i++) {
+        // max 15 seconds
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
           setState(() => _downloadProgress = (i + 1) / 30.0);
@@ -199,13 +188,15 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
 
   Future<bool> _isDownloaded() async {
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
+    final file =
+        File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
     return file.exists();
   }
 
   Future<void> _deleteFromDevice() async {
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
+    final file =
+        File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
     if (await file.exists()) {
       await file.delete();
       if (mounted) {
@@ -365,74 +356,103 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                             ),
                             const SizedBox(height: 14),
                             // Mode toggle: Auto Play / Explore (hidden for explore-only)
-                            if (!widget.wallpaper.exploreOnly) Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => setState(() => _interactiveMode = false),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 10),
-                                        decoration: BoxDecoration(
-                                          color: !_interactiveMode
-                                              ? _glowColor.withOpacity(0.3)
-                                              : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: !_interactiveMode
-                                              ? Border.all(color: _glowColor.withOpacity(0.5))
-                                              : null,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.play_circle_outline, size: 16,
-                                              color: !_interactiveMode ? Colors.white : Colors.white38),
-                                            const SizedBox(width: 6),
-                                            Text('Auto Play',
-                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold,
-                                                color: !_interactiveMode ? Colors.white : Colors.white38)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => setState(() => _interactiveMode = true),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 10),
-                                        decoration: BoxDecoration(
-                                          color: _interactiveMode
-                                              ? _glowColor.withOpacity(0.3)
-                                              : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: _interactiveMode
-                                              ? Border.all(color: _glowColor.withOpacity(0.5))
-                                              : null,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.explore, size: 16,
-                                              color: _interactiveMode ? Colors.white : Colors.white38),
-                                            const SizedBox(width: 6),
-                                            Text('Explore',
-                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold,
-                                                color: _interactiveMode ? Colors.white : Colors.white38)),
-                                          ],
+                            if (!widget.wallpaper.exploreOnly)
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () => setState(
+                                            () => _interactiveMode = false),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          decoration: BoxDecoration(
+                                            color: !_interactiveMode
+                                                ? _glowColor.withOpacity(0.3)
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: !_interactiveMode
+                                                ? Border.all(
+                                                    color: _glowColor
+                                                        .withOpacity(0.5))
+                                                : null,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.play_circle_outline,
+                                                  size: 16,
+                                                  color: !_interactiveMode
+                                                      ? Colors.white
+                                                      : Colors.white38),
+                                              const SizedBox(width: 6),
+                                              Text('Auto Play',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: !_interactiveMode
+                                                          ? Colors.white
+                                                          : Colors.white38)),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () => setState(
+                                            () => _interactiveMode = true),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          decoration: BoxDecoration(
+                                            color: _interactiveMode
+                                                ? _glowColor.withOpacity(0.3)
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: _interactiveMode
+                                                ? Border.all(
+                                                    color: _glowColor
+                                                        .withOpacity(0.5))
+                                                : null,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.explore,
+                                                  size: 16,
+                                                  color: _interactiveMode
+                                                      ? Colors.white
+                                                      : Colors.white38),
+                                              const SizedBox(width: 6),
+                                              Text('Explore',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: _interactiveMode
+                                                          ? Colors.white
+                                                          : Colors.white38)),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
                             // Apply button
                             SizedBox(
                               width: double.infinity,
@@ -490,29 +510,51 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                             ),
                             // Ad status + credits
                             Builder(builder: (_) {
-                              final isFree = AdService.instance.isNextActionFree;
+                              final isFree =
+                                  AdService.instance.isNextActionFree;
                               final credits = CreditService.instance.balance;
                               return Padding(
-                                padding: const EdgeInsets.only(top: 8, bottom: 4),
+                                padding:
+                                    const EdgeInsets.only(top: 8, bottom: 4),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
-                                        color: isFree ? Colors.green.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
+                                        color: isFree
+                                            ? Colors.green.withOpacity(0.2)
+                                            : Colors.orange.withOpacity(0.2),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: isFree ? Colors.greenAccent.withOpacity(0.5) : Colors.orange.withOpacity(0.5)),
+                                        border: Border.all(
+                                            color: isFree
+                                                ? Colors.greenAccent
+                                                    .withOpacity(0.5)
+                                                : Colors.orange
+                                                    .withOpacity(0.5)),
                                       ),
                                       child: Text(
-                                        isFree ? 'FREE!' : '+${CreditService.creditsPerAd} credits',
-                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isFree ? Colors.greenAccent : Colors.orangeAccent),
+                                        isFree
+                                            ? 'FREE!'
+                                            : '+${CreditService.creditsPerAd} credits',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: isFree
+                                                ? Colors.greenAccent
+                                                : Colors.orangeAccent),
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    Icon(Icons.diamond, size: 12, color: const Color(0xFF7C4DFF)),
+                                    Icon(Icons.diamond,
+                                        size: 12,
+                                        color: const Color(0xFF7C4DFF)),
                                     const SizedBox(width: 3),
-                                    Text('$credits', style: const TextStyle(fontSize: 11, color: Color(0xFF7C4DFF))),
+                                    Text('$credits',
+                                        style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Color(0xFF7C4DFF))),
                                   ],
                                 ),
                               );
@@ -522,7 +564,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                             FutureBuilder<bool>(
                               future: _isDownloadedFuture,
                               builder: (ctx, snap) {
-                                if (snap.data != true) return const SizedBox.shrink();
+                                if (snap.data != true)
+                                  return const SizedBox.shrink();
                                 return SizedBox(
                                   width: double.infinity,
                                   height: 40,

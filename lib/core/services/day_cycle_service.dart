@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../../features/day_cycle/data/models/day_cycle_theme.dart';
-import 'download_service.dart';
+import '../content/content_manager.dart';
+import '../content/content_types.dart';
+import '../content/content_url_resolver.dart';
 
 class DayCycleService {
   DayCycleService._();
@@ -20,7 +22,13 @@ class DayCycleService {
 
       for (var i = 0; i < images.length; i++) {
         onProgress?.call(i + 1, images.length);
-        final path = await DownloadService.instance.downloadWallpaper(images[i]);
+        final item = ContentItem(
+          id: '${theme.id}_$i',
+          type: ContentType.staticWallpaper,
+          remoteFile: images[i],
+          bucket: ContentUrlResolver.wallpaperImagesBucket,
+        );
+        final path = await ContentManager.instance.download(item);
         if (path == null) {
           debugPrint('[Pixora] Day cycle: failed to download ${images[i]}');
           return false;

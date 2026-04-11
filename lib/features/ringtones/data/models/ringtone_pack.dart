@@ -1,4 +1,6 @@
 import '../../../../core/constants/supabase_config.dart';
+import '../../../../core/content/content_types.dart';
+import '../../../../core/content/content_url_resolver.dart';
 
 class RingtoneTone {
   final String id;
@@ -17,7 +19,8 @@ class RingtoneTone {
     this.previewImage = '',
   });
 
-  String get fileUrl => '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$file';
+  String get fileUrl =>
+      '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$file';
 
   String get previewImageUrl => previewImage.isEmpty
       ? ''
@@ -26,6 +29,23 @@ class RingtoneTone {
   String get durationFormatted {
     if (duration < 60) return '${duration}s';
     return '${duration ~/ 60}:${(duration % 60).toString().padLeft(2, '0')}';
+  }
+
+  /// Convert to unified ContentItem for ContentManager.
+  ContentItem toContentItem() {
+    final type = switch (suggestedType) {
+      'ringtone' => ContentType.ringtone,
+      'alarm' => ContentType.alarm,
+      _ => ContentType.notification,
+    };
+    return ContentItem(
+      id: id,
+      type: type,
+      remoteFile: file,
+      bucket: ContentUrlResolver.wallpaperImagesBucket,
+      name: name,
+      metadata: {'duration': duration, 'suggestedType': suggestedType},
+    );
   }
 
   factory RingtoneTone.fromJson(Map<String, dynamic> json) {
@@ -70,8 +90,9 @@ class RingtonePack {
 
   factory RingtonePack.fromJson(Map<String, dynamic> json) {
     final tonesList = (json['tones'] as List<dynamic>?)
-        ?.map((e) => RingtoneTone.fromJson(e as Map<String, dynamic>))
-        .toList() ?? [];
+            ?.map((e) => RingtoneTone.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [];
 
     return RingtonePack(
       id: json['id'] as String? ?? '',
