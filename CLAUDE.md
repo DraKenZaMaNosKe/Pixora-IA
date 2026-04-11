@@ -203,7 +203,8 @@ The master document is the canonical task tracker. Key sections with actionable 
 
 - **§14 AURA**: melodic frequency tracks (Suno/Udio + ffmpeg layering), binaural beats, guided meditations
 - **§16 Art Gallery Wallpapers**: 10 museum scene prompts (5 static + 5 panoramic), interactive zoom-on-tap, Day Cycle museum variant, "Your Personal Museum" customization
-- **Cemetery/Memorial**: Día de Muertos configurable tombstones (name + date + phrase overlay), panoramic + normal modes
+- **§16 Cemetery/Memorial**: Día de Muertos configurable tombstones (name + date + phrase overlay), panoramic + normal modes
+- **§17 LiveCalendar**: lunar calendar synced with real moon phases (MVP), cultural calendars (Maya, Azteca, Egipcio), zodiac wallpapers, planetary perspectives (Earth, Moon, Mars, Europa, Titan)
 
 When starting a session, check the master doc for the latest pending tasks.
 
