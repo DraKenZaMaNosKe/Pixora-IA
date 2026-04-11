@@ -60,17 +60,34 @@ class ContentManager {
   // ── Install only (from already-cached path) ────────────────
 
   /// Install from a local path. Assumes content is already downloaded.
+  /// The installer is resolved by INSTALL TARGET first, then by content type.
+  /// This ensures a static wallpaper installed as "live wallpaper" uses the
+  /// LiveWallpaperInstaller (with clock + equalizer), not StaticWallpaperInstaller.
   Future<bool> install(
     String localPath,
     ContentItem item,
     InstallTarget target,
   ) {
-    final installer = _installers[item.type];
-    if (installer == null) {
-      debugPrint('[ContentManager] No installer for ${item.type}');
-      return Future.value(false);
-    }
+    final installer = _resolveInstaller(item, target);
     return installer.install(localPath, item, target);
+  }
+
+  ContentInstaller _resolveInstaller(ContentItem item, InstallTarget target) {
+    // Install target overrides content-type-based installer
+    switch (target) {
+      case InstallTarget.liveWallpaper:
+        return LiveWallpaperInstaller();
+      case InstallTarget.ringtone:
+      case InstallTarget.notificationSound:
+      case InstallTarget.alarmSound:
+        return RingtoneInstaller();
+      case InstallTarget.play:
+      case InstallTarget.offline:
+        if (item.type == ContentType.auraTrack) return AuraInstaller();
+        return _installers[item.type] ?? StaticWallpaperInstaller();
+      default:
+        return _installers[item.type] ?? StaticWallpaperInstaller();
+    }
   }
 
   // ── Download + Install (most common) ───────────────────────
