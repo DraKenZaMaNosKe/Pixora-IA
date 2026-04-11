@@ -184,6 +184,7 @@ class PixoraWallpaperService : WallpaperService() {
 
                 if (path != null) {
                     val file = File(path)
+                    Log.d(TAG, "loadWallpaperImage: path=$path exists=${file.exists()} len=${if(file.exists()) file.length() else -1}")
                     if (file.exists()) {
                         // Frames directory: pre-downloaded images for Explore mode
                         if (file.isDirectory) {
@@ -208,6 +209,7 @@ class PixoraWallpaperService : WallpaperService() {
                         val opts = BitmapFactory.Options()
                         opts.inJustDecodeBounds = true
                         BitmapFactory.decodeFile(path, opts)
+                        Log.d(TAG, "decodeFile bounds: ${opts.outWidth}x${opts.outHeight} mimeType=${opts.outMimeType}")
 
                         if (opts.outWidth <= 0 || opts.outHeight <= 0) {
                             Log.e(TAG, "Invalid bitmap dimensions: ${opts.outWidth}x${opts.outHeight}")
@@ -231,10 +233,15 @@ class PixoraWallpaperService : WallpaperService() {
 
                         if (decoded != null) {
                             wallpaperBitmap = decoded
+                            Log.d(TAG, "Bitmap decoded OK: ${decoded.width}x${decoded.height} config=${decoded.config}")
                         } else {
-                            Log.e(TAG, "Failed to decode bitmap: $path")
+                            Log.e(TAG, "Failed to decode bitmap: $path (sampleSize=${opts.inSampleSize})")
                         }
+                    } else {
+                        Log.e(TAG, "loadWallpaperImage: FILE NOT FOUND at $path")
                     }
+                } else {
+                    Log.w(TAG, "loadWallpaperImage: path is null in SharedPreferences")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "loadWallpaperImage error: ${e.message}")
@@ -453,7 +460,10 @@ class PixoraWallpaperService : WallpaperService() {
                         val scaledWidth = (bmp.width.toFloat() / bmp.height.toFloat() * scaledHeight).toInt()
                         val newPanBmp = Bitmap.createScaledBitmap(bmp, scaledWidth, scaledHeight, true)
                         synchronized(bitmapLock) {
-                            wallpaperBitmap = null
+                            // Only nullify wallpaperBitmap if it's still the same reference
+                            // (prevents race condition when loadWallpaperImage sets a new bitmap
+                            // between Thread start and finish)
+                            if (wallpaperBitmap === bmp) wallpaperBitmap = null
                             scaledBitmap = null
                             panoramicBitmap = newPanBmp
                             isPanoramic = true
@@ -474,7 +484,7 @@ class PixoraWallpaperService : WallpaperService() {
                         val scaled = Bitmap.createScaledBitmap(cropped, targetW, targetH, true)
                         if (cropped != scaled) cropped.recycle()
                         synchronized(bitmapLock) {
-                            wallpaperBitmap = null
+                            if (wallpaperBitmap === bmp) wallpaperBitmap = null
                             panoramicBitmap = null
                             scaledBitmap = scaled
                             isPanoramic = false
