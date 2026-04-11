@@ -1,4 +1,6 @@
 import '../../../../core/constants/supabase_config.dart';
+import '../../../../core/content/content_types.dart';
+import '../../../../core/content/content_url_resolver.dart';
 
 class Wallpaper {
   const Wallpaper({
@@ -43,7 +45,8 @@ class Wallpaper {
   String browseUrl(bool useHD) => useHD ? fullImageUrl : previewUrl;
   String get imageSizeFormatted {
     if (imageSize < 1024) return '$imageSize B';
-    if (imageSize < 1024 * 1024) return '${(imageSize / 1024).toStringAsFixed(0)} KB';
+    if (imageSize < 1024 * 1024)
+      return '${(imageSize / 1024).toStringAsFixed(0)} KB';
     return '${(imageSize / 1024 / 1024).toStringAsFixed(1)} MB';
   }
 
@@ -61,7 +64,9 @@ class Wallpaper {
       badge: json['badge'] as String?,
       sortOrder: json['sortOrder'] as int? ?? 0,
       featured: json['featured'] as bool? ?? false,
-      tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+              const [],
       downloadCount: json['downloadCount'] as int? ?? 0,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String)
@@ -73,6 +78,29 @@ class Wallpaper {
   bool get isNew {
     if (createdAt == null) return badge == 'NEW';
     return DateTime.now().difference(createdAt!).inDays <= 14;
+  }
+
+  /// Whether this is a panoramic wallpaper (ultra-wide).
+  bool get isPanoramic => category == 'PANORAMIC';
+
+  /// Convert to unified ContentItem for ContentManager.
+  ContentItem toContentItem({bool asLive = false}) {
+    final type = isPanoramic
+        ? ContentType.panoramicWallpaper
+        : ContentType.staticWallpaper;
+    return ContentItem(
+      id: id,
+      type: type,
+      remoteFile: imageFile,
+      bucket: ContentUrlResolver.wallpaperImagesBucket,
+      previewFile: previewFile,
+      name: name,
+      metadata: {
+        'glowColor': glowColor,
+        'category': category,
+        'interactive': false,
+      },
+    );
   }
 
   Map<String, dynamic> toJson() => {
