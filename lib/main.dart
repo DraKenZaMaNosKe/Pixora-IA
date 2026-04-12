@@ -34,7 +34,7 @@ Future<void> main() async {
       androidNotificationChannelId: 'com.orbix.pixora.aura.channel.audio',
       androidNotificationChannelName: 'AURA Audio',
       androidNotificationOngoing: true,
-      androidNotificationIcon: 'drawable/ic_aura_notification',
+      androidNotificationIcon: 'mipmap/ic_launcher',
     );
 
     // Configure audio session as ambient — don't steal focus from Spotify/YouTube.
