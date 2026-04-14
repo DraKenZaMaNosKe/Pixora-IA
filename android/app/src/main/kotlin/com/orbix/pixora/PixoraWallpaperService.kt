@@ -93,6 +93,8 @@ class PixoraWallpaperService : WallpaperService() {
         private val batteryIndicator = BatteryIndicator(applicationContext)
         private val systemRings = SystemRingsRenderer(applicationContext)
         private val captionOverlay = CaptionOverlay()
+        private val aquariumRenderer = AquariumRenderer(applicationContext)
+        private var isAquariumMode = false
 
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
@@ -184,6 +186,18 @@ class PixoraWallpaperService : WallpaperService() {
                 clockRenderer.clockStyle = abs((path ?: "").hashCode()) % 4
                 currentWallpaperPath = path
                 isRainWallpaper = path?.contains("lofi_girl_rain") == true
+
+                // Aquarium mode: animated fish over background image
+                isAquariumMode = path?.contains("aquarium") == true
+                if (isAquariumMode && surfaceWidth > 0 && surfaceHeight > 0) {
+                    aquariumRenderer.surfaceWidth = surfaceWidth
+                    aquariumRenderer.surfaceHeight = surfaceHeight
+                    aquariumRenderer.loadFishSprites("aquarium/betta")
+                    if (aquariumRenderer.fishCount == 0) {
+                        aquariumRenderer.addFish(3)
+                        Log.d(TAG, "Aquarium mode activated: 3 betta fish (${surfaceWidth}x${surfaceHeight})")
+                    }
+                }
 
                 if (path != null) {
                     val file = File(path)
@@ -655,6 +669,11 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onTouchEvent(event: MotionEvent?) {
             event ?: return
 
+            // Aquarium: fish flee from touch
+            if (isAquariumMode && event.action == MotionEvent.ACTION_DOWN) {
+                aquariumRenderer.onTouch(event.x, event.y)
+            }
+
             // Interactive mode: tap position on screen = position in video/frames
             if (isInteractive && isVideoWallpaper) {
                 if (event.action == MotionEvent.ACTION_DOWN) {
@@ -724,6 +743,13 @@ class PixoraWallpaperService : WallpaperService() {
                     frameScrubRenderer.draw(canvas)
                 } else {
                     drawBackground(canvas)
+                }
+
+                // Aquarium: draw animated fish over the background
+                if (isAquariumMode) {
+                    aquariumRenderer.surfaceWidth = surfaceWidth
+                    aquariumRenderer.surfaceHeight = surfaceHeight
+                    aquariumRenderer.draw(canvas)
                 }
 
                 rainRenderer.draw(canvas)
@@ -848,6 +874,7 @@ class PixoraWallpaperService : WallpaperService() {
             pendingReload?.let { handler.removeCallbacks(it) }
             equalizerRenderer.releaseVisualizer()
             stopVideoWallpaper()
+            aquariumRenderer.recycle()
             batteryIndicator.release()
             unregisterPrefsListener()
             synchronized(bitmapLock) {
