@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import '../../../../core/services/preview_player_service.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -19,53 +20,103 @@ class RingtonePackPage extends StatefulWidget {
 }
 
 class _RingtonePackPageState extends State<RingtonePackPage> {
-  final AudioPlayer _player = AudioPlayer();
+  final _previewPlayer = PreviewPlayerService.instance;
   String? _playingId;
   String? _settingId;
   StreamSubscription? _playerSub;
 
-  Color get _glowColor => parseHexColor(widget.pack.glowColor, fallback: Colors.deepPurple);
+  Color get _glowColor =>
+      parseHexColor(widget.pack.glowColor, fallback: Colors.deepPurple);
 
   IconData _typeIcon(String type) {
     switch (type) {
-      case 'ringtone': return Icons.phone_in_talk;
-      case 'notification': return Icons.notifications;
-      case 'alarm': return Icons.alarm;
-      default: return Icons.music_note;
+      case 'ringtone':
+        return Icons.phone_in_talk;
+      case 'notification':
+        return Icons.notifications;
+      case 'alarm':
+        return Icons.alarm;
+      default:
+        return Icons.music_note;
     }
   }
 
   String _typeLabel(String type) {
     switch (type) {
-      case 'ringtone': return 'Ringtone';
-      case 'notification': return 'Notification';
-      case 'alarm': return 'Alarm';
-      default: return 'Tone';
+      case 'ringtone':
+        return 'Ringtone';
+      case 'notification':
+        return 'Notification';
+      case 'alarm':
+        return 'Alarm';
+      default:
+        return 'Tone';
     }
   }
 
   List<Color> _toneGradient(RingtoneTone tone) {
     final n = tone.name.toLowerCase();
-    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin')) return [const Color(0xFFE52521), const Color(0xFF8B0000)];
-    if (n.contains('goku') || n.contains('saiyan') || n.contains('kamehameha') || n.contains('dbgt')) return [const Color(0xFFFF8C00), const Color(0xFF8B4513)];
-    if (n.contains('zelda') || n.contains('navi') || n.contains('hyrule') || n.contains('fairy') || n.contains('rupee')) return [const Color(0xFF00FF7F), const Color(0xFF006400)];
-    if (n.contains('homero') || n.contains('simpson')) return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
-    if (n.contains('bob') || n.contains('esponja') || n.contains('sponge') || n.contains('patricio')) return [const Color(0xFFFFEB3B), const Color(0xFF795548)];
-    if (n.contains('death') || n.contains('note')) return [const Color(0xFF9C27B0), const Color(0xFF311B92)];
-    if (n.contains('shrek')) return [const Color(0xFF4CAF50), const Color(0xFF1B5E20)];
-    if (n.contains('nokia') || n.contains('retro') || n.contains('vintage') || n.contains('classic') || n.contains('rotary')) return [const Color(0xFFFFD700), const Color(0xFF5D4037)];
-    if (n.contains('iphone') || n.contains('modern') || n.contains('digital') || n.contains('future')) return [const Color(0xFF00B4D8), const Color(0xFF0D47A1)];
-    if (n.contains('soft') || n.contains('gentle') || n.contains('ambient') || n.contains('chill') || n.contains('morning')) return [const Color(0xFF7C4DFF), const Color(0xFF1A237E)];
-    if (n.contains('minecraft')) return [const Color(0xFF4CAF50), const Color(0xFF33691E)];
-    if (n.contains('fnaf')) return [const Color(0xFF7B1FA2), const Color(0xFF12005E)];
-    if (n.contains('hadouken')) return [const Color(0xFF2196F3), const Color(0xFF0D47A1)];
-    if (n.contains('fall guys')) return [const Color(0xFFE91E63), const Color(0xFF880E4F)];
-    if (n.contains('hazbin') || n.contains('alastor')) return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
-    if (n.contains('casa') || n.contains('papel')) return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
-    if (n.contains('pou')) return [const Color(0xFF795548), const Color(0xFF3E2723)];
-    if (n.contains('kill bill')) return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
-    if (n.contains('huawei')) return [const Color(0xFFE53935), const Color(0xFF880E4F)];
-    if (n.contains('havana')) return [const Color(0xFFFF7043), const Color(0xFF4E342E)];
+    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin'))
+      return [const Color(0xFFE52521), const Color(0xFF8B0000)];
+    if (n.contains('goku') ||
+        n.contains('saiyan') ||
+        n.contains('kamehameha') ||
+        n.contains('dbgt'))
+      return [const Color(0xFFFF8C00), const Color(0xFF8B4513)];
+    if (n.contains('zelda') ||
+        n.contains('navi') ||
+        n.contains('hyrule') ||
+        n.contains('fairy') ||
+        n.contains('rupee'))
+      return [const Color(0xFF00FF7F), const Color(0xFF006400)];
+    if (n.contains('homero') || n.contains('simpson'))
+      return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
+    if (n.contains('bob') ||
+        n.contains('esponja') ||
+        n.contains('sponge') ||
+        n.contains('patricio'))
+      return [const Color(0xFFFFEB3B), const Color(0xFF795548)];
+    if (n.contains('death') || n.contains('note'))
+      return [const Color(0xFF9C27B0), const Color(0xFF311B92)];
+    if (n.contains('shrek'))
+      return [const Color(0xFF4CAF50), const Color(0xFF1B5E20)];
+    if (n.contains('nokia') ||
+        n.contains('retro') ||
+        n.contains('vintage') ||
+        n.contains('classic') ||
+        n.contains('rotary'))
+      return [const Color(0xFFFFD700), const Color(0xFF5D4037)];
+    if (n.contains('iphone') ||
+        n.contains('modern') ||
+        n.contains('digital') ||
+        n.contains('future'))
+      return [const Color(0xFF00B4D8), const Color(0xFF0D47A1)];
+    if (n.contains('soft') ||
+        n.contains('gentle') ||
+        n.contains('ambient') ||
+        n.contains('chill') ||
+        n.contains('morning'))
+      return [const Color(0xFF7C4DFF), const Color(0xFF1A237E)];
+    if (n.contains('minecraft'))
+      return [const Color(0xFF4CAF50), const Color(0xFF33691E)];
+    if (n.contains('fnaf'))
+      return [const Color(0xFF7B1FA2), const Color(0xFF12005E)];
+    if (n.contains('hadouken'))
+      return [const Color(0xFF2196F3), const Color(0xFF0D47A1)];
+    if (n.contains('fall guys'))
+      return [const Color(0xFFE91E63), const Color(0xFF880E4F)];
+    if (n.contains('hazbin') || n.contains('alastor'))
+      return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
+    if (n.contains('casa') || n.contains('papel'))
+      return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
+    if (n.contains('pou'))
+      return [const Color(0xFF795548), const Color(0xFF3E2723)];
+    if (n.contains('kill bill'))
+      return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
+    if (n.contains('huawei'))
+      return [const Color(0xFFE53935), const Color(0xFF880E4F)];
+    if (n.contains('havana'))
+      return [const Color(0xFFFF7043), const Color(0xFF4E342E)];
     return [_glowColor, _glowColor.withOpacity(0.3)];
   }
 
@@ -78,7 +129,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   @override
   void dispose() {
     _playerSub?.cancel();
-    _player.dispose();
+    _previewPlayer.stop();
     super.dispose();
   }
 
@@ -86,7 +137,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 
   Future<void> _togglePreview(RingtoneTone tone) async {
     if (_playingId == tone.id) {
-      await _player.stop();
+      await _previewPlayer.stop();
       setState(() => _playingId = null);
       return;
     }
@@ -94,12 +145,16 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     setState(() => _playingId = tone.id);
 
     try {
-      await _player.stop();
-      await _player.setUrl(tone.fileUrl);
-      _player.play();
+      await _previewPlayer.play(
+        url: tone.fileUrl,
+        id: tone.id,
+        title: tone.name,
+        album: 'Pixora Tones',
+        artist: widget.pack.name,
+      );
 
       _playerSub?.cancel();
-      _playerSub = _player.playerStateStream.listen((state) {
+      _playerSub = _previewPlayer.playerStateStream?.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           if (mounted) setState(() => _playingId = null);
         }
@@ -109,7 +164,9 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
       if (mounted) {
         setState(() => _playingId = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not play preview'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Could not play preview'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -119,7 +176,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 
   Future<void> _setAs(RingtoneTone tone, int type) async {
     if (_playingId != null) {
-      await _player.stop();
+      await _previewPlayer.stop();
       setState(() => _playingId = null);
     }
 
@@ -153,7 +210,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+            child: Text('Cancel',
+                style: TextStyle(color: Colors.white.withOpacity(0.5))),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -163,7 +221,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: _glowColor,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Open Settings'),
           ),
@@ -180,7 +239,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     if (path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Download failed'), backgroundColor: Colors.red),
         );
       }
       setState(() => _settingId = null);
@@ -188,7 +248,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     }
 
     final typeNames = ['Ringtone', 'Notification', 'Alarm'];
-    final success = await RingtoneService.instance.setAsRingtone(path, tone.name, type);
+    final success =
+        await RingtoneService.instance.setAsRingtone(path, tone.name, type);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,14 +277,17 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               decoration: BoxDecoration(
                 color: Colors.white24,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 16),
-            Text(tone.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(tone.name,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _buildSetOption(ctx, Icons.phone_in_talk, 'Ringtone', () {
               Navigator.pop(ctx);
@@ -244,7 +308,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     );
   }
 
-  Widget _buildSetOption(BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
+  Widget _buildSetOption(
+      BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: _glowColor),
       title: Text(label),
@@ -270,7 +335,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
             pinned: true,
             backgroundColor: const Color(0xFF0A0A0F),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(widget.pack.name, style: const TextStyle(fontSize: 16)),
+              title:
+                  Text(widget.pack.name, style: const TextStyle(fontSize: 16)),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -314,17 +380,21 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 32),
                           child: Text(
                             widget.pack.description,
-                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
+                            style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 12),
                             textAlign: TextAlign.center,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
                             color: _glowColor.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: _glowColor.withOpacity(0.4)),
+                            border:
+                                Border.all(color: _glowColor.withOpacity(0.4)),
                           ),
                           child: Text(
                             '${allTones.length} tones  •  Tap to preview',
@@ -413,7 +483,12 @@ class _ToneCard extends StatelessWidget {
               ? Border.all(color: glowColor, width: 2)
               : Border.all(color: Colors.white.withOpacity(0.08)),
           boxShadow: isPlaying
-              ? [BoxShadow(color: glowColor.withOpacity(0.4), blurRadius: 16, spreadRadius: 2)]
+              ? [
+                  BoxShadow(
+                      color: glowColor.withOpacity(0.4),
+                      blurRadius: 16,
+                      spreadRadius: 2)
+                ]
               : [BoxShadow(color: glowColor.withOpacity(0.08), blurRadius: 8)],
         ),
         child: ClipRRect(
@@ -466,7 +541,8 @@ class _ToneCard extends StatelessWidget {
                 top: 8,
                 left: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(8),
@@ -478,7 +554,8 @@ class _ToneCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         tone.durationFormatted,
-                        style: const TextStyle(fontSize: 9, color: Colors.white70),
+                        style:
+                            const TextStyle(fontSize: 9, color: Colors.white70),
                       ),
                     ],
                   ),
@@ -539,7 +616,8 @@ class _ToneCard extends StatelessWidget {
                           ),
                           child: Text(
                             isSetting ? 'Installing...' : 'Set as...',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -595,7 +673,12 @@ class _PlayStopButton extends StatelessWidget {
           width: 2,
         ),
         boxShadow: isPlaying
-            ? [BoxShadow(color: glow.withOpacity(0.6), blurRadius: 16, spreadRadius: 2)]
+            ? [
+                BoxShadow(
+                    color: glow.withOpacity(0.6),
+                    blurRadius: 16,
+                    spreadRadius: 2)
+              ]
             : [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8)],
       ),
       child: Icon(
@@ -651,7 +734,9 @@ class _PlayingWaveState extends State<_PlayingWave>
             decoration: BoxDecoration(
               color: widget.color,
               borderRadius: BorderRadius.circular(2),
-              boxShadow: [BoxShadow(color: widget.color.withOpacity(0.4), blurRadius: 4)],
+              boxShadow: [
+                BoxShadow(color: widget.color.withOpacity(0.4), blurRadius: 4)
+              ],
             ),
           );
         }),

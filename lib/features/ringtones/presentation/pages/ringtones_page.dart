@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/services/preview_player_service.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../../core/services/ringtone_service.dart';
@@ -26,7 +27,7 @@ class RingtonesPage extends ConsumerStatefulWidget {
 
 class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   _ToneFilter _filter = _ToneFilter.all;
-  final AudioPlayer _player = AudioPlayer();
+  final _previewPlayer = PreviewPlayerService.instance;
   String? _playingId;
   String? _settingId;
   StreamSubscription? _playerSub;
@@ -34,24 +35,27 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   @override
   void dispose() {
     _playerSub?.cancel();
-    _player.dispose();
+    _previewPlayer.stop();
     super.dispose();
   }
 
   // ── Preview playback ─────────────────────────────────────────────
   Future<void> _togglePreview(RingtoneTone tone) async {
     if (_playingId == tone.id) {
-      await _player.stop();
+      await _previewPlayer.stop();
       setState(() => _playingId = null);
       return;
     }
     setState(() => _playingId = tone.id);
     try {
-      await _player.stop();
-      await _player.setUrl(tone.fileUrl);
-      _player.play();
+      await _previewPlayer.play(
+        url: tone.fileUrl,
+        id: tone.id,
+        title: tone.name,
+        album: 'Pixora Tones',
+      );
       _playerSub?.cancel();
-      _playerSub = _player.playerStateStream.listen((state) {
+      _playerSub = _previewPlayer.playerStateStream?.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           if (mounted) setState(() => _playingId = null);
         }
@@ -61,7 +65,9 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       if (mounted) {
         setState(() => _playingId = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not play preview'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Could not play preview'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -70,7 +76,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   // ── Set as ringtone/notification/alarm ────────────────────────────
   Future<void> _setAs(RingtoneTone tone, int type) async {
     if (_playingId != null) {
-      await _player.stop();
+      await _previewPlayer.stop();
       setState(() => _playingId = null);
     }
     final hasPermission = await RingtoneService.instance.checkPermission();
@@ -102,7 +108,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+            child: Text('Cancel',
+                style: TextStyle(color: Colors.white.withOpacity(0.5))),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -112,7 +119,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF7C4DFF),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Open Settings'),
           ),
@@ -127,14 +135,16 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     if (path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Download failed'), backgroundColor: Colors.red),
         );
       }
       setState(() => _settingId = null);
       return;
     }
     final typeNames = ['Ringtone', 'Notification', 'Alarm'];
-    final success = await RingtoneService.instance.setAsRingtone(path, tone.name, type);
+    final success =
+        await RingtoneService.instance.setAsRingtone(path, tone.name, type);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -161,7 +171,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               decoration: BoxDecoration(
                 color: Colors.white24,
                 borderRadius: BorderRadius.circular(2),
@@ -169,7 +180,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
             ),
             const SizedBox(height: 16),
             Text(tone.name,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _buildSetOption(ctx, Icons.phone_in_talk, 'Ringtone', () {
               Navigator.pop(ctx);
@@ -190,7 +202,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     );
   }
 
-  Widget _buildSetOption(BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
+  Widget _buildSetOption(
+      BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: const Color(0xFF7C4DFF)),
       title: Text(label),
@@ -205,46 +218,113 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
 
   List<Color> _toneGradient(RingtoneTone tone, Color fallback) {
     final n = tone.name.toLowerCase();
-    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin')) return [const Color(0xFFE52521), const Color(0xFF8B0000)];
-    if (n.contains('goku') || n.contains('saiyan') || n.contains('kamehameha') || n.contains('dbgt')) return [const Color(0xFFFF8C00), const Color(0xFF8B4513)];
-    if (n.contains('zelda') || n.contains('navi') || n.contains('hyrule') || n.contains('fairy') || n.contains('rupee')) return [const Color(0xFF00FF7F), const Color(0xFF006400)];
-    if (n.contains('homero') || n.contains('simpson')) return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
-    if (n.contains('bob') || n.contains('esponja') || n.contains('sponge') || n.contains('patricio')) return [const Color(0xFFFFEB3B), const Color(0xFF795548)];
-    if (n.contains('death') || n.contains('note')) return [const Color(0xFF9C27B0), const Color(0xFF311B92)];
-    if (n.contains('shrek')) return [const Color(0xFF4CAF50), const Color(0xFF1B5E20)];
-    if (n.contains('nokia') || n.contains('retro') || n.contains('vintage') || n.contains('classic') || n.contains('rotary')) return [const Color(0xFFFFD700), const Color(0xFF5D4037)];
-    if (n.contains('iphone') || n.contains('modern') || n.contains('digital') || n.contains('future')) return [const Color(0xFF00B4D8), const Color(0xFF0D47A1)];
-    if (n.contains('soft') || n.contains('gentle') || n.contains('ambient') || n.contains('chill') || n.contains('morning')) return [const Color(0xFF7C4DFF), const Color(0xFF1A237E)];
-    if (n.contains('minecraft')) return [const Color(0xFF4CAF50), const Color(0xFF33691E)];
-    if (n.contains('fnaf')) return [const Color(0xFF7B1FA2), const Color(0xFF12005E)];
-    if (n.contains('hadouken')) return [const Color(0xFF2196F3), const Color(0xFF0D47A1)];
-    if (n.contains('fall guys')) return [const Color(0xFFE91E63), const Color(0xFF880E4F)];
-    if (n.contains('hazbin') || n.contains('alastor')) return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
-    if (n.contains('casa') || n.contains('papel')) return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
-    if (n.contains('pou')) return [const Color(0xFF795548), const Color(0xFF3E2723)];
-    if (n.contains('kill bill')) return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
-    if (n.contains('huawei')) return [const Color(0xFFE53935), const Color(0xFF880E4F)];
-    if (n.contains('havana')) return [const Color(0xFFFF7043), const Color(0xFF4E342E)];
+    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin'))
+      return [const Color(0xFFE52521), const Color(0xFF8B0000)];
+    if (n.contains('goku') ||
+        n.contains('saiyan') ||
+        n.contains('kamehameha') ||
+        n.contains('dbgt'))
+      return [const Color(0xFFFF8C00), const Color(0xFF8B4513)];
+    if (n.contains('zelda') ||
+        n.contains('navi') ||
+        n.contains('hyrule') ||
+        n.contains('fairy') ||
+        n.contains('rupee'))
+      return [const Color(0xFF00FF7F), const Color(0xFF006400)];
+    if (n.contains('homero') || n.contains('simpson'))
+      return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
+    if (n.contains('bob') ||
+        n.contains('esponja') ||
+        n.contains('sponge') ||
+        n.contains('patricio'))
+      return [const Color(0xFFFFEB3B), const Color(0xFF795548)];
+    if (n.contains('death') || n.contains('note'))
+      return [const Color(0xFF9C27B0), const Color(0xFF311B92)];
+    if (n.contains('shrek'))
+      return [const Color(0xFF4CAF50), const Color(0xFF1B5E20)];
+    if (n.contains('nokia') ||
+        n.contains('retro') ||
+        n.contains('vintage') ||
+        n.contains('classic') ||
+        n.contains('rotary'))
+      return [const Color(0xFFFFD700), const Color(0xFF5D4037)];
+    if (n.contains('iphone') ||
+        n.contains('modern') ||
+        n.contains('digital') ||
+        n.contains('future'))
+      return [const Color(0xFF00B4D8), const Color(0xFF0D47A1)];
+    if (n.contains('soft') ||
+        n.contains('gentle') ||
+        n.contains('ambient') ||
+        n.contains('chill') ||
+        n.contains('morning'))
+      return [const Color(0xFF7C4DFF), const Color(0xFF1A237E)];
+    if (n.contains('minecraft'))
+      return [const Color(0xFF4CAF50), const Color(0xFF33691E)];
+    if (n.contains('fnaf'))
+      return [const Color(0xFF7B1FA2), const Color(0xFF12005E)];
+    if (n.contains('hadouken'))
+      return [const Color(0xFF2196F3), const Color(0xFF0D47A1)];
+    if (n.contains('fall guys'))
+      return [const Color(0xFFE91E63), const Color(0xFF880E4F)];
+    if (n.contains('hazbin') || n.contains('alastor'))
+      return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
+    if (n.contains('casa') || n.contains('papel'))
+      return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
+    if (n.contains('pou'))
+      return [const Color(0xFF795548), const Color(0xFF3E2723)];
+    if (n.contains('kill bill'))
+      return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
+    if (n.contains('huawei'))
+      return [const Color(0xFFE53935), const Color(0xFF880E4F)];
+    if (n.contains('havana'))
+      return [const Color(0xFFFF7043), const Color(0xFF4E342E)];
     return [fallback, fallback.withOpacity(0.3)];
   }
 
   IconData _toneIcon(RingtoneTone tone) {
     final n = tone.name.toLowerCase();
-    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin') || n.contains('powerup') || n.contains('level')) return Icons.videogame_asset;
-    if (n.contains('goku') || n.contains('saiyan') || n.contains('kamehameha') || n.contains('dragon') || n.contains('dbgt')) return Icons.flash_on;
-    if (n.contains('zelda') || n.contains('navi') || n.contains('hyrule') || n.contains('fairy') || n.contains('rupee')) return Icons.shield;
-    if (n.contains('homero') || n.contains('simpson') || n.contains('bob') || n.contains('esponja') || n.contains('sponge')) return Icons.tv;
+    if (n.contains('mario') ||
+        n.contains('yoshi') ||
+        n.contains('coin') ||
+        n.contains('powerup') ||
+        n.contains('level')) return Icons.videogame_asset;
+    if (n.contains('goku') ||
+        n.contains('saiyan') ||
+        n.contains('kamehameha') ||
+        n.contains('dragon') ||
+        n.contains('dbgt')) return Icons.flash_on;
+    if (n.contains('zelda') ||
+        n.contains('navi') ||
+        n.contains('hyrule') ||
+        n.contains('fairy') ||
+        n.contains('rupee')) return Icons.shield;
+    if (n.contains('homero') ||
+        n.contains('simpson') ||
+        n.contains('bob') ||
+        n.contains('esponja') ||
+        n.contains('sponge')) return Icons.tv;
     if (n.contains('death') || n.contains('note')) return Icons.menu_book;
     if (n.contains('shrek')) return Icons.forest;
-    if (n.contains('phone') || n.contains('rotary') || n.contains('classic') || n.contains('nokia')) return Icons.phone_callback;
-    if (n.contains('iphone') || n.contains('modern') || n.contains('digital') || n.contains('future')) return Icons.smartphone;
-    if (n.contains('soft') || n.contains('gentle') || n.contains('ambient') || n.contains('chill')) return Icons.spa;
+    if (n.contains('phone') ||
+        n.contains('rotary') ||
+        n.contains('classic') ||
+        n.contains('nokia')) return Icons.phone_callback;
+    if (n.contains('iphone') ||
+        n.contains('modern') ||
+        n.contains('digital') ||
+        n.contains('future')) return Icons.smartphone;
+    if (n.contains('soft') ||
+        n.contains('gentle') ||
+        n.contains('ambient') ||
+        n.contains('chill')) return Icons.spa;
     if (n.contains('alarm') || n.contains('alert')) return Icons.alarm;
     if (n.contains('minecraft')) return Icons.landscape;
     if (n.contains('fnaf')) return Icons.nights_stay;
     if (n.contains('hadouken') || n.contains('street')) return Icons.sports_mma;
     if (n.contains('fall guys')) return Icons.emoji_events;
-    if (n.contains('hazbin') || n.contains('alastor')) return Icons.local_fire_department;
+    if (n.contains('hazbin') || n.contains('alastor'))
+      return Icons.local_fire_department;
     if (n.contains('casa') || n.contains('papel')) return Icons.masks;
     if (n.contains('pou')) return Icons.pets;
     if (n.contains('kill bill')) return Icons.content_cut;
@@ -290,10 +370,14 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     if (_filter == _ToneFilter.all) return pack.tones;
     return pack.tones.where((t) {
       switch (_filter) {
-        case _ToneFilter.ringtone: return t.suggestedType == 'ringtone';
-        case _ToneFilter.notification: return t.suggestedType == 'notification';
-        case _ToneFilter.alarm: return t.suggestedType == 'alarm';
-        case _ToneFilter.all: return true;
+        case _ToneFilter.ringtone:
+          return t.suggestedType == 'ringtone';
+        case _ToneFilter.notification:
+          return t.suggestedType == 'notification';
+        case _ToneFilter.alarm:
+          return t.suggestedType == 'alarm';
+        case _ToneFilter.all:
+          return true;
       }
     }).toList();
   }
@@ -336,16 +420,23 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           // ── Hero Banner ───────────────────────────────────────
           const SizedBox(height: 16),
           SectionHeroBanner(
-            items: packs.take(5).map((pack) => HeroBannerItem(
-              imageUrl: pack.previewUrl,
-              title: pack.name,
-              subtitle: '${pack.tones.length} tones \u00b7 ${pack.description}',
-              badge: pack.category,
-              accentColor: parseHexColor(pack.glowColor, fallback: const Color(0xFFE50914)),
-            )).toList(),
-            onTap: (i) => Navigator.push(context, MaterialPageRoute(
-              builder: (_) => RingtonePackPage(pack: packs[i]),
-            )),
+            items: packs
+                .take(5)
+                .map((pack) => HeroBannerItem(
+                      imageUrl: pack.previewUrl,
+                      title: pack.name,
+                      subtitle:
+                          '${pack.tones.length} tones \u00b7 ${pack.description}',
+                      badge: pack.category,
+                      accentColor: parseHexColor(pack.glowColor,
+                          fallback: const Color(0xFFE50914)),
+                    ))
+                .toList(),
+            onTap: (i) => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => RingtonePackPage(pack: packs[i]),
+                )),
             height: 0.32,
           ),
 
@@ -389,7 +480,9 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFF7C4DFF) : const Color(0xFF1A1A2E),
+                color: selected
+                    ? const Color(0xFF7C4DFF)
+                    : const Color(0xFF1A1A2E),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: selected ? const Color(0xFF7C4DFF) : Colors.white12,
@@ -398,7 +491,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(icon, size: 16,
+                  Icon(icon,
+                      size: 16,
                       color: selected ? Colors.white : Colors.white54),
                   const SizedBox(width: 6),
                   Text(
@@ -449,7 +543,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                   ),
                   const SizedBox(width: 2),
                   Icon(Icons.chevron_right,
-                      size: 18, color: const Color(0xFF7C4DFF).withOpacity(0.9)),
+                      size: 18,
+                      color: const Color(0xFF7C4DFF).withOpacity(0.9)),
                 ],
               ),
             ),
@@ -459,7 +554,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   }
 
   // ── Recommended Row (horizontal scroll) ───────────────────────────
-  Widget _buildRecommendedRow(List<RingtoneTone> tones, List<RingtonePack> packs) {
+  Widget _buildRecommendedRow(
+      List<RingtoneTone> tones, List<RingtonePack> packs) {
     // Assign badges
     final badges = <String, String>{};
     if (tones.isNotEmpty) badges[tones[0].id] = 'POPULAR';
@@ -636,7 +732,8 @@ class _RecommendedCard extends StatelessWidget {
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: badge == 'POPULAR'
                           ? const Color(0xFFFF6B35)
@@ -662,7 +759,8 @@ class _RecommendedCard extends StatelessWidget {
                 top: 8,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(8),
@@ -726,11 +824,14 @@ class _RecommendedCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Icon(_typeIconSmall(tone.suggestedType), size: 10, color: glow),
+                          Icon(_typeIconSmall(tone.suggestedType),
+                              size: 10, color: glow),
                           const SizedBox(width: 4),
                           Text(
                             _typeLabel(tone.suggestedType),
-                            style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.5)),
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.white.withOpacity(0.5)),
                           ),
                         ],
                       ),
@@ -747,19 +848,27 @@ class _RecommendedCard extends StatelessWidget {
 
   IconData _typeIconSmall(String type) {
     switch (type) {
-      case 'ringtone': return Icons.phone_in_talk;
-      case 'notification': return Icons.notifications;
-      case 'alarm': return Icons.alarm;
-      default: return Icons.music_note;
+      case 'ringtone':
+        return Icons.phone_in_talk;
+      case 'notification':
+        return Icons.notifications;
+      case 'alarm':
+        return Icons.alarm;
+      default:
+        return Icons.music_note;
     }
   }
 
   String _typeLabel(String type) {
     switch (type) {
-      case 'ringtone': return 'Ringtone';
-      case 'notification': return 'Notification';
-      case 'alarm': return 'Alarm';
-      default: return 'Tone';
+      case 'ringtone':
+        return 'Ringtone';
+      case 'notification':
+        return 'Notification';
+      case 'alarm':
+        return 'Alarm';
+      default:
+        return 'Tone';
     }
   }
 }
@@ -806,7 +915,12 @@ class _PlayButton extends StatelessWidget {
           width: 2,
         ),
         boxShadow: isPlaying
-            ? [BoxShadow(color: glow.withOpacity(0.6), blurRadius: 16, spreadRadius: 2)]
+            ? [
+                BoxShadow(
+                    color: glow.withOpacity(0.6),
+                    blurRadius: 16,
+                    spreadRadius: 2)
+              ]
             : [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8)],
       ),
       child: Icon(
@@ -893,7 +1007,8 @@ class _ToneGridCard extends StatelessWidget {
               if (isPlaying)
                 Positioned(
                   bottom: 32,
-                  left: 0, right: 0,
+                  left: 0,
+                  right: 0,
                   child: Center(child: _MiniWave(color: glow)),
                 ),
 
@@ -930,7 +1045,8 @@ class _ToneGridCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         tone.durationFormatted,
-                        style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.5)),
+                        style: TextStyle(
+                            fontSize: 9, color: Colors.white.withOpacity(0.5)),
                       ),
                     ],
                   ),
@@ -960,7 +1076,8 @@ class _MiniWaveState extends State<_MiniWave>
   @override
   void initState() {
     super.initState();
-    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+    _c = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900))
       ..repeat();
   }
 
@@ -986,7 +1103,9 @@ class _MiniWaveState extends State<_MiniWave>
             decoration: BoxDecoration(
               color: widget.color,
               borderRadius: BorderRadius.circular(2),
-              boxShadow: [BoxShadow(color: widget.color.withOpacity(0.4), blurRadius: 3)],
+              boxShadow: [
+                BoxShadow(color: widget.color.withOpacity(0.4), blurRadius: 3)
+              ],
             ),
           );
         }),
@@ -1008,20 +1127,23 @@ class _ShimmerLoading extends StatelessWidget {
         children: [
           // Filter chips shimmer
           Row(
-            children: List.generate(3, (i) => Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Shimmer.fromColors(
-                baseColor: const Color(0xFF1A1A2E),
-                highlightColor: const Color(0xFF2A2A3E),
-                child: Container(
-                  width: 90, height: 36,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A2E),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-              ),
-            )),
+            children: List.generate(
+                3,
+                (i) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Shimmer.fromColors(
+                        baseColor: const Color(0xFF1A1A2E),
+                        highlightColor: const Color(0xFF2A2A3E),
+                        child: Container(
+                          width: 90,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1A1A2E),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                      ),
+                    )),
           ),
           const SizedBox(height: 16),
           // Hero shimmer
@@ -1042,7 +1164,8 @@ class _ShimmerLoading extends StatelessWidget {
             baseColor: const Color(0xFF1A1A2E),
             highlightColor: const Color(0xFF2A2A3E),
             child: Container(
-              width: 160, height: 20,
+              width: 160,
+              height: 20,
               decoration: BoxDecoration(
                 color: const Color(0xFF1A1A2E),
                 borderRadius: BorderRadius.circular(8),
@@ -1054,20 +1177,23 @@ class _ShimmerLoading extends StatelessWidget {
           SizedBox(
             height: 170,
             child: Row(
-              children: List.generate(3, (i) => Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Shimmer.fromColors(
-                  baseColor: const Color(0xFF1A1A2E),
-                  highlightColor: const Color(0xFF2A2A3E),
-                  child: Container(
-                    width: 140, height: 170,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1A1A2E),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-              )),
+              children: List.generate(
+                  3,
+                  (i) => Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Shimmer.fromColors(
+                          baseColor: const Color(0xFF1A1A2E),
+                          highlightColor: const Color(0xFF2A2A3E),
+                          child: Container(
+                            width: 140,
+                            height: 170,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1A2E),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                      )),
             ),
           ),
         ],

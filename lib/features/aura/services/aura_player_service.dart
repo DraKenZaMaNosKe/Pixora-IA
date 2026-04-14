@@ -39,7 +39,9 @@ class AuraPlayerService extends ChangeNotifier {
           tag: MediaItem(
             id: track.id,
             title: track.displayName,
-            album: track.category == AuraCategory.frequency ? 'Frequencies' : 'Nature',
+            album: track.category == AuraCategory.frequency
+                ? 'Frequencies'
+                : 'Nature',
             artist: 'Pixora · AURA',
             duration: Duration(seconds: track.durationSec),
           ),
@@ -49,6 +51,38 @@ class AuraPlayerService extends ChangeNotifier {
       await _player.play();
     } catch (e) {
       debugPrint('[Pixora] AURA play failed: $e');
+    }
+  }
+
+  /// Play any URL (used by PreviewPlayerService for tone previews).
+  /// This reuses the same AudioPlayer already registered with just_audio_background.
+  Future<void> playUrl({
+    required String url,
+    required String id,
+    required String title,
+    String album = 'Preview',
+    String artist = 'Pixora',
+  }) async {
+    _current = null;
+    _cancelSleepTimer();
+    try {
+      await _player.setAudioSource(
+        AudioSource.uri(
+          Uri.parse(url),
+          tag: MediaItem(
+            id: id,
+            title: title,
+            album: album,
+            artist: artist,
+          ),
+        ),
+      );
+      await _player.setLoopMode(LoopMode.off);
+      await _player.play();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[Pixora] playUrl failed: $e');
+      rethrow;
     }
   }
 
