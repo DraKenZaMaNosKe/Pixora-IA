@@ -17,14 +17,21 @@ class AuraPage extends ConsumerStatefulWidget {
 
 class _AuraPageState extends ConsumerState<AuraPage> {
   AuraCategory _tab = AuraCategory.frequency;
+  bool _isOpening = false;
 
   void _openTrack(AuraTrack track) {
+    if (_isOpening) return; // Guard: prevent spam taps
+    _isOpening = true;
     AdService.instance.showInterstitialAd(onAdDismissed: () async {
       await AuraPlayerService.instance.play(track);
-      if (!mounted) return;
-      Navigator.of(context).push(MaterialPageRoute(
+      if (!mounted) {
+        _isOpening = false;
+        return;
+      }
+      await Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => AuraPlayerPage(track: track),
       ));
+      _isOpening = false; // Reset after returning from player page
     });
   }
 
@@ -50,7 +57,8 @@ class _AuraPageState extends ConsumerState<AuraPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('AURA',
+                        const Text(
+                          'AURA',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -60,8 +68,8 @@ class _AuraPageState extends ConsumerState<AuraPage> {
                         ),
                         Text(
                           isEs
-                            ? 'Sonidos para sanar, descansar y dormir'
-                            : 'Sounds to heal, rest and sleep',
+                              ? 'Sonidos para sanar, descansar y dormir'
+                              : 'Sounds to heal, rest and sleep',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.white.withOpacity(0.5),
@@ -87,7 +95,8 @@ class _AuraPageState extends ConsumerState<AuraPage> {
                 data: (tracks) {
                   if (tracks.isEmpty) {
                     return const Center(
-                      child: Text('No tracks yet', style: TextStyle(color: Colors.white54)),
+                      child: Text('No tracks yet',
+                          style: TextStyle(color: Colors.white54)),
                     );
                   }
                   return ListenableBuilder(
@@ -96,7 +105,8 @@ class _AuraPageState extends ConsumerState<AuraPage> {
                       final currentId = AuraPlayerService.instance.current?.id;
                       return GridView.builder(
                         padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
@@ -117,7 +127,8 @@ class _AuraPageState extends ConsumerState<AuraPage> {
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Center(
-                  child: Text('Error: $e', style: const TextStyle(color: Colors.redAccent)),
+                  child: Text('Error: $e',
+                      style: const TextStyle(color: Colors.redAccent)),
                 ),
               ),
             ),
@@ -132,7 +143,8 @@ class _Segmented extends StatelessWidget {
   final AuraCategory value;
   final ValueChanged<AuraCategory> onChanged;
   final bool isEs;
-  const _Segmented({required this.value, required this.onChanged, required this.isEs});
+  const _Segmented(
+      {required this.value, required this.onChanged, required this.isEs});
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +158,7 @@ class _Segmented extends StatelessWidget {
       child: Row(
         children: [
           _seg(AuraCategory.frequency, isEs ? 'Frecuencias' : 'Frequencies'),
-          _seg(AuraCategory.nature,    isEs ? 'Naturaleza'  : 'Nature'),
+          _seg(AuraCategory.nature, isEs ? 'Naturaleza' : 'Nature'),
         ],
       ),
     );
