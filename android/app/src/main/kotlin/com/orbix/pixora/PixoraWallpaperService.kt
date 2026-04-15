@@ -96,6 +96,12 @@ class PixoraWallpaperService : WallpaperService() {
         private val aquariumRenderer = AquariumRenderer(applicationContext)
         private var isAquariumMode = false
 
+        // Any wallpaper that uses code-driven animated sprites over a static background
+        // (aquarium today; butterflies, birds, jellyfish, etc. later). Keeps the engine at
+        // full FPS so both the animation and the clock second-hand stay smooth.
+        private val hasAnimatedCanvasOverlay: Boolean
+            get() = isAquariumMode
+
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
@@ -783,7 +789,7 @@ class PixoraWallpaperService : WallpaperService() {
 
             // Switch to idle mode (low fps) when no audio and no touch
             val scrolling = isPanoramic && abs(scrollVelocity) > 0.5f
-            if (!equalizerRenderer.hasAudio && glowDots.isEmpty() && !isRainWallpaper && !scrolling) {
+            if (!equalizerRenderer.hasAudio && glowDots.isEmpty() && !isRainWallpaper && !scrolling && !hasAnimatedCanvasOverlay) {
                 equalizerRenderer.silentFrames++
                 if (equalizerRenderer.silentFrames > 30 && !idleMode) {
                     idleMode = true
