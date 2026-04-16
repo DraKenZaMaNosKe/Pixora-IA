@@ -45,7 +45,9 @@ class AquariumRenderer(private val context: Context) {
     )
 
     // ── Load sprites from assets ─────────────────────────────────
-    fun loadFishSprites(assetFolder: String) {
+    // mirrorOnLoad: flip each frame horizontally once at decode time. Use for sprite
+    // sets whose source faces right — the renderer assumes left-facing as canonical.
+    fun loadFishSprites(assetFolder: String, mirrorOnLoad: Boolean = false) {
         if (spriteCache.containsKey(assetFolder)) return
         try {
             val files = context.assets.list(assetFolder)
@@ -53,25 +55,38 @@ class AquariumRenderer(private val context: Context) {
                 ?.sorted() ?: return
 
             val bitmaps = files.map { filename ->
-                context.assets.open("$assetFolder/$filename").use { stream ->
+                val raw = context.assets.open("$assetFolder/$filename").use { stream ->
                     BitmapFactory.decodeStream(stream)
                 }
+                if (mirrorOnLoad && raw != null) {
+                    val m = Matrix().apply { postScale(-1f, 1f) }
+                    val flipped = Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, m, true)
+                    raw.recycle()
+                    flipped
+                } else raw
             }
             spriteCache[assetFolder] = bitmaps
-            android.util.Log.d("AquariumRenderer", "Loaded ${bitmaps.size} frames from $assetFolder")
+            android.util.Log.d("AquariumRenderer", "Loaded ${bitmaps.size} frames from $assetFolder (mirrored=$mirrorOnLoad)")
         } catch (e: Exception) {
             android.util.Log.e("AquariumRenderer", "Failed to load sprites: $e")
         }
     }
 
     // ── Add fish ─────────────────────────────────────────────────
-    fun addFish(count: Int, spriteFolder: String = "aquarium/betta") {
+    fun addFish(
+        count: Int,
+        spriteFolder: String = "aquarium/betta",
+        scaleMin: Float = 0.6f,
+        scaleMax: Float = 1.0f,
+        speedMin: Float = 1f,
+        speedMax: Float = 3f,
+    ) {
         if (surfaceWidth <= 0 || surfaceHeight <= 0) return
         loadFishSprites(spriteFolder)
 
         for (i in 0 until count) {
             val goingRight = Random.nextBoolean()
-            val speed = Random.nextFloat() * 2f + 1f  // 1-3 px/frame
+            val speed = Random.nextFloat() * (speedMax - speedMin) + speedMin
             fishes.add(Fish(
                 x = Random.nextFloat() * surfaceWidth,
                 y = Random.nextFloat() * (surfaceHeight * 0.6f) + surfaceHeight * 0.15f,
@@ -83,7 +98,7 @@ class AquariumRenderer(private val context: Context) {
                 frameTimer = 0,
                 framesPerTick = Random.nextInt(2, 4),  // animation speed variety
                 goingRight = goingRight,
-                scale = Random.nextFloat() * 0.4f + 0.6f,  // 0.6x - 1.0x size
+                scale = Random.nextFloat() * (scaleMax - scaleMin) + scaleMin,
                 spriteFolder = spriteFolder,
             ))
         }

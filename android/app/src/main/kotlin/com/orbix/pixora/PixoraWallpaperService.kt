@@ -94,6 +94,7 @@ class PixoraWallpaperService : WallpaperService() {
         private val systemRings = SystemRingsRenderer(applicationContext)
         private val captionOverlay = CaptionOverlay()
         private val aquariumRenderer = AquariumRenderer(applicationContext)
+        private val bubbleRenderer = BubbleRenderer()
         private var isAquariumMode = false
 
         // Any wallpaper that uses code-driven animated sprites over a static background
@@ -199,9 +200,23 @@ class PixoraWallpaperService : WallpaperService() {
                     aquariumRenderer.surfaceWidth = surfaceWidth
                     aquariumRenderer.surfaceHeight = surfaceHeight
                     aquariumRenderer.loadFishSprites("aquarium/betta")
+                    aquariumRenderer.loadFishSprites("aquarium/angel", mirrorOnLoad = true)
+                    aquariumRenderer.loadFishSprites("aquarium/neon", mirrorOnLoad = true)
+                    bubbleRenderer.surfaceWidth = surfaceWidth
+                    bubbleRenderer.surfaceHeight = surfaceHeight
                     if (aquariumRenderer.fishCount == 0) {
-                        aquariumRenderer.addFish(3)
-                        Log.d(TAG, "Aquarium mode activated: 3 betta fish (${surfaceWidth}x${surfaceHeight})")
+                        aquariumRenderer.addFish(3, "aquarium/betta")
+                        aquariumRenderer.addFish(3, "aquarium/angel")
+                        // Neon tetra school: 5 small, fast fish
+                        aquariumRenderer.addFish(
+                            count = 5,
+                            spriteFolder = "aquarium/neon",
+                            scaleMin = 0.8f,
+                            scaleMax = 1.3f,
+                            speedMin = 2f,
+                            speedMax = 4f,
+                        )
+                        Log.d(TAG, "Aquarium mode activated: 3 betta + 3 angelfish + 5 neon tetras (${surfaceWidth}x${surfaceHeight})")
                     }
                 }
 
@@ -751,11 +766,15 @@ class PixoraWallpaperService : WallpaperService() {
                     drawBackground(canvas)
                 }
 
-                // Aquarium: draw animated fish over the background
+                // Aquarium: draw animated fish over the background, plus rising bubbles
                 if (isAquariumMode) {
                     aquariumRenderer.surfaceWidth = surfaceWidth
                     aquariumRenderer.surfaceHeight = surfaceHeight
                     aquariumRenderer.draw(canvas)
+                    bubbleRenderer.surfaceWidth = surfaceWidth
+                    bubbleRenderer.surfaceHeight = surfaceHeight
+                    bubbleRenderer.update()
+                    bubbleRenderer.draw(canvas)
                 }
 
                 rainRenderer.draw(canvas)
@@ -881,6 +900,7 @@ class PixoraWallpaperService : WallpaperService() {
             equalizerRenderer.releaseVisualizer()
             stopVideoWallpaper()
             aquariumRenderer.recycle()
+            bubbleRenderer.reset()
             batteryIndicator.release()
             unregisterPrefsListener()
             synchronized(bitmapLock) {

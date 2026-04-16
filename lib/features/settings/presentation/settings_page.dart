@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/quality_service.dart';
@@ -20,11 +21,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   String? _category; // null = all, 'PANORAMIC' = only panoramic
   String _cacheSizeMB = '0.0';
   int _cachedCount = 0;
+  String _appVersion = '';
 
   @override
   void initState() {
     super.initState();
     _loadStatus();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() => _appVersion = '${info.version}+${info.buildNumber}');
+    }
   }
 
   Future<void> _loadStatus() async {
@@ -60,7 +70,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           final label = _category == 'PANORAMIC' ? 'panoramic' : 'all';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Auto-rotate ON — $label, every $_intervalMinutes min'),
+              content:
+                  Text('Auto-rotate ON — $label, every $_intervalMinutes min'),
               backgroundColor: Colors.green.shade800,
             ),
           );
@@ -85,9 +96,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   String _targetLabel(int target) {
     switch (target) {
-      case 0: return 'Home screen';
-      case 1: return 'Lock screen';
-      default: return 'Both screens';
+      case 0:
+        return 'Home screen';
+      case 1:
+        return 'Lock screen';
+      default:
+        return 'Both screens';
     }
   }
 
@@ -118,7 +132,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     contentPadding: EdgeInsets.zero,
                     secondary: Icon(
                       Icons.autorenew,
-                      color: _autoRotateEnabled ? Colors.greenAccent : Colors.white54,
+                      color: _autoRotateEnabled
+                          ? Colors.greenAccent
+                          : Colors.white54,
                     ),
                     title: const Text('Auto-rotate wallpaper'),
                     subtitle: Text(
@@ -168,7 +184,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         await _loadStatus();
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Auto-rotate cache cleared')),
+                            const SnackBar(
+                                content: Text('Auto-rotate cache cleared')),
                           );
                         }
                       },
@@ -184,10 +201,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         const _SectionHeader('General'),
         const Divider(color: Colors.white12),
         const _SectionHeader('About'),
-        const _SettingsTile(
+        _SettingsTile(
           icon: Icons.info_outline,
           title: 'Pixora IA',
-          subtitle: 'Version 1.5.0',
+          subtitle: _appVersion.isEmpty ? 'Version —' : 'Version $_appVersion',
         ),
         const _SettingsTile(
           icon: Icons.code,
@@ -206,20 +223,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return Container(
           margin: const EdgeInsets.only(bottom: 6),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white.withOpacity(0.08) : Colors.transparent,
+            color: isSelected
+                ? Colors.white.withOpacity(0.08)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            border: isSelected ? Border.all(color: const Color(0xFF7C4DFF), width: 1) : null,
+            border: isSelected
+                ? Border.all(color: const Color(0xFF7C4DFF), width: 1)
+                : null,
           ),
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            leading: Icon(q.icon, color: isSelected ? const Color(0xFF7C4DFF) : Colors.white38),
-            title: Text(q.label, style: TextStyle(
-              color: isSelected ? Colors.white : Colors.white70,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            )),
-            subtitle: Text(q.description, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+            leading: Icon(q.icon,
+                color: isSelected ? const Color(0xFF7C4DFF) : Colors.white38),
+            title: Text(q.label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white70,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                )),
+            subtitle: Text(q.description,
+                style: const TextStyle(color: Colors.white38, fontSize: 12)),
             trailing: isSelected
-                ? const Icon(Icons.check_circle, color: Color(0xFF7C4DFF), size: 20)
+                ? const Icon(Icons.check_circle,
+                    color: Color(0xFF7C4DFF), size: 20)
                 : null,
             onTap: () => ref.read(imageQualityProvider.notifier).setQuality(q),
           ),
@@ -252,7 +277,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   child: auth.avatarUrl == null
                       ? Text(
                           (auth.displayName ?? 'U')[0].toUpperCase(),
-                          style: const TextStyle(fontSize: 20, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 20, color: Colors.white),
                         )
                       : null,
                 ),
@@ -280,14 +306,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.greenAccent.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
                     'Synced',
-                    style: TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.greenAccent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -304,7 +334,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white54,
                   side: const BorderSide(color: Colors.white12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text('Sign out'),
               ),
@@ -324,16 +355,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ),
       child: Column(
         children: [
-          Icon(Icons.cloud_sync, size: 40, color: Colors.white.withOpacity(0.3)),
+          Icon(Icons.cloud_sync,
+              size: 40, color: Colors.white.withOpacity(0.3)),
           const SizedBox(height: 12),
           const Text(
             'Sign in to sync favorites',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
+            style: TextStyle(
+                fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
           ),
           const SizedBox(height: 4),
           Text(
             'Keep your favorites safe across devices',
-            style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4)),
+            style:
+                TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4)),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -362,14 +396,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black87,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Optional — app works fully without an account',
-            style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.3)),
+            style:
+                TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.3)),
           ),
         ],
       ),
@@ -389,30 +425,31 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           children: [
             const Padding(
               padding: EdgeInsets.all(16),
-              child: Text('Rotate wallpapers from', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('Rotate wallpapers from',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             ...[
               (null, 'All categories', Icons.photo_library),
               ('PANORAMIC', 'Panoramic only', Icons.panorama_wide_angle),
             ].map((entry) => ListTile(
-              leading: Icon(entry.$3, color: Colors.white54),
-              title: Text(entry.$2),
-              trailing: entry.$1 == _category
-                  ? const Icon(Icons.check, color: Colors.greenAccent)
-                  : null,
-              onTap: () async {
-                Navigator.pop(ctx);
-                setState(() => _category = entry.$1);
-                if (_autoRotateEnabled) {
-                  await AutoRotateService.instance.start(
-                    intervalMinutes: _intervalMinutes,
-                    target: _target,
-                    category: entry.$1,
-                  );
-                  _loadStatus();
-                }
-              },
-            )),
+                  leading: Icon(entry.$3, color: Colors.white54),
+                  title: Text(entry.$2),
+                  trailing: entry.$1 == _category
+                      ? const Icon(Icons.check, color: Colors.greenAccent)
+                      : null,
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    setState(() => _category = entry.$1);
+                    if (_autoRotateEnabled) {
+                      await AutoRotateService.instance.start(
+                        intervalMinutes: _intervalMinutes,
+                        target: _target,
+                        category: entry.$1,
+                      );
+                      _loadStatus();
+                    }
+                  },
+                )),
             const SizedBox(height: 8),
           ],
         ),
@@ -434,26 +471,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           children: [
             const Padding(
               padding: EdgeInsets.all(16),
-              child: Text('Change interval', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('Change interval',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             ...intervals.map((mins) => ListTile(
-              title: Text(_intervalLabel(mins)),
-              trailing: mins == _intervalMinutes
-                  ? const Icon(Icons.check, color: Colors.greenAccent)
-                  : null,
-              onTap: () async {
-                Navigator.pop(ctx);
-                setState(() => _intervalMinutes = mins);
-                if (_autoRotateEnabled) {
-                  await AutoRotateService.instance.start(
-                    intervalMinutes: mins,
-                    target: _target,
-                    category: _category,
-                  );
-                  _loadStatus();
-                }
-              },
-            )),
+                  title: Text(_intervalLabel(mins)),
+                  trailing: mins == _intervalMinutes
+                      ? const Icon(Icons.check, color: Colors.greenAccent)
+                      : null,
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    setState(() => _intervalMinutes = mins);
+                    if (_autoRotateEnabled) {
+                      await AutoRotateService.instance.start(
+                        intervalMinutes: mins,
+                        target: _target,
+                        category: _category,
+                      );
+                      _loadStatus();
+                    }
+                  },
+                )),
             const SizedBox(height: 8),
           ],
         ),
@@ -474,31 +512,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           children: [
             const Padding(
               padding: EdgeInsets.all(16),
-              child: Text('Apply wallpaper to', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text('Apply wallpaper to',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             ...[
               (0, 'Home screen', Icons.home),
               (1, 'Lock screen', Icons.lock),
               (2, 'Both screens', Icons.phone_android),
             ].map((entry) => ListTile(
-              leading: Icon(entry.$3, color: Colors.white54),
-              title: Text(entry.$2),
-              trailing: entry.$1 == _target
-                  ? const Icon(Icons.check, color: Colors.greenAccent)
-                  : null,
-              onTap: () async {
-                Navigator.pop(ctx);
-                setState(() => _target = entry.$1);
-                if (_autoRotateEnabled) {
-                  await AutoRotateService.instance.start(
-                    intervalMinutes: _intervalMinutes,
-                    target: entry.$1,
-                    category: _category,
-                  );
-                  _loadStatus();
-                }
-              },
-            )),
+                  leading: Icon(entry.$3, color: Colors.white54),
+                  title: Text(entry.$2),
+                  trailing: entry.$1 == _target
+                      ? const Icon(Icons.check, color: Colors.greenAccent)
+                      : null,
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    setState(() => _target = entry.$1);
+                    if (_autoRotateEnabled) {
+                      await AutoRotateService.instance.start(
+                        intervalMinutes: _intervalMinutes,
+                        target: entry.$1,
+                        category: _category,
+                      );
+                      _loadStatus();
+                    }
+                  },
+                )),
             const SizedBox(height: 8),
           ],
         ),
