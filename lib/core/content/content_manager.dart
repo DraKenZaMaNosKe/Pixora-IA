@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../services/ad_service.dart';
+import '../services/sprite_download_service.dart';
 import '../services/wallpaper_stats_service.dart';
 import 'content_cache.dart';
 import 'content_downloader.dart';
@@ -107,6 +108,12 @@ class ContentManager {
     // Download
     final path = await download(item, onProgress: onProgress, onError: onError);
     if (path == null) return false;
+
+    // Download sprites if this is an animated wallpaper theme (aquarium, firefly, etc.)
+    final theme = SpriteDownloadService.instance.detectTheme(item.remoteFile);
+    if (theme != null) {
+      await SpriteDownloadService.instance.ensureSpritesForTheme(theme);
+    }
 
     // Install
     final success = await install(path, item, target);

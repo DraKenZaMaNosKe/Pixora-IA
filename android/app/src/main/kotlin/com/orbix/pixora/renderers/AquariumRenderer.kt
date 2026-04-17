@@ -44,19 +44,31 @@ class AquariumRenderer(private val context: Context) {
         var spriteFolder: String,    // which sprite set to use
     )
 
-    // ── Load sprites from assets ─────────────────────────────────
+    // ── Load sprites from assets OR filesystem ────────────────────
     // mirrorOnLoad: flip each frame horizontally once at decode time. Use for sprite
     // sets whose source faces right — the renderer assumes left-facing as canonical.
+    // Checks filesystem cache first (sprites downloaded from Supabase); falls back to
+    // bundled APK assets if the cache dir doesn't exist.
     fun loadFishSprites(assetFolder: String, mirrorOnLoad: Boolean = false) {
         if (spriteCache.containsKey(assetFolder)) return
         try {
-            val files = context.assets.list(assetFolder)
-                ?.filter { it.endsWith(".png") }
-                ?.sorted() ?: return
+            // Check filesystem cache first (downloaded sprites)
+            val cacheDir = java.io.File(context.filesDir, "sprites/$assetFolder")
+            val fromFiles = cacheDir.isDirectory
+            val fileList = if (fromFiles) {
+                cacheDir.listFiles()?.filter { it.name.endsWith(".png") }?.sorted()?.map { it.name } ?: emptyList()
+            } else {
+                context.assets.list(assetFolder)?.filter { it.endsWith(".png") }?.sorted() ?: emptyList()
+            }
+            if (fileList.isEmpty()) return
 
-            val bitmaps = files.map { filename ->
-                val raw = context.assets.open("$assetFolder/$filename").use { stream ->
-                    BitmapFactory.decodeStream(stream)
+            val bitmaps = fileList.map { filename ->
+                val raw = if (fromFiles) {
+                    BitmapFactory.decodeFile("${cacheDir.absolutePath}/$filename")
+                } else {
+                    context.assets.open("$assetFolder/$filename").use { stream ->
+                        BitmapFactory.decodeStream(stream)
+                    }
                 }
                 if (mirrorOnLoad && raw != null) {
                     val m = Matrix().apply { postScale(-1f, 1f) }
@@ -66,7 +78,8 @@ class AquariumRenderer(private val context: Context) {
                 } else raw
             }
             spriteCache[assetFolder] = bitmaps
-            android.util.Log.d("AquariumRenderer", "Loaded ${bitmaps.size} frames from $assetFolder (mirrored=$mirrorOnLoad)")
+            val src = if (fromFiles) "files" else "assets"
+            android.util.Log.d("AquariumRenderer", "Loaded ${bitmaps.size} frames from $src:$assetFolder (mirrored=$mirrorOnLoad)")
         } catch (e: Exception) {
             android.util.Log.e("AquariumRenderer", "Failed to load sprites: $e")
         }
@@ -158,6 +171,18 @@ class AquariumRenderer(private val context: Context) {
 
             canvas.drawBitmap(sprite, 0f, 0f, paint)
             canvas.restore()
+        }
+    }
+
+    // ── Position a sprite at a fixed point, fully stationary (for perched owls, etc.) ──
+    fun setLastFishPosition(x: Float, y: Float) {
+        if (fishes.isNotEmpty()) {
+            val f = fishes.last()
+            f.x = x
+            f.y = y
+            f.speedX = 0f
+            f.amplitudeY = 0f
+            f.waveSpeed = 0f
         }
     }
 

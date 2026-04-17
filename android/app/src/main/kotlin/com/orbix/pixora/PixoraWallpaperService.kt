@@ -95,13 +95,14 @@ class PixoraWallpaperService : WallpaperService() {
         private val captionOverlay = CaptionOverlay()
         private val aquariumRenderer = AquariumRenderer(applicationContext)
         private val bubbleRenderer = BubbleRenderer()
+        private val fireflyRenderer = FireflyRenderer()
         private var isAquariumMode = false
+        private var isFireflyMode = false
 
-        // Any wallpaper that uses code-driven animated sprites over a static background
-        // (aquarium today; butterflies, birds, jellyfish, etc. later). Keeps the engine at
-        // full FPS so both the animation and the clock second-hand stay smooth.
+        // Any wallpaper that uses code-driven animated sprites over a static background.
+        // Keeps the engine at full FPS so animations and the clock second-hand stay smooth.
         private val hasAnimatedCanvasOverlay: Boolean
-            get() = isAquariumMode
+            get() = isAquariumMode || isFireflyMode
 
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
@@ -177,6 +178,11 @@ class PixoraWallpaperService : WallpaperService() {
                 val caption = prefs.getString("caption", null)
                 isInteractive = prefs.getBoolean("interactive", false)
 
+                // Reset animated overlay state on wallpaper change
+                aquariumRenderer.recycle()
+                bubbleRenderer.reset()
+                fireflyRenderer.reset()
+
                 // Update caption: show immediately on change, then cycle every 3 min
                 if (caption != captionOverlay.currentCaption) {
                     captionOverlay.currentCaption = caption
@@ -193,6 +199,30 @@ class PixoraWallpaperService : WallpaperService() {
                 clockRenderer.clockStyle = abs((path ?: "").hashCode()) % 4
                 currentWallpaperPath = path
                 isRainWallpaper = path?.contains("lofi_girl_rain") == true
+
+                // Firefly mode: glowing fireflies + luna moths over enchanted forest
+                isFireflyMode = path?.contains("firefly") == true
+                if (isFireflyMode && surfaceWidth > 0 && surfaceHeight > 0) {
+                    fireflyRenderer.surfaceWidth = surfaceWidth
+                    fireflyRenderer.surfaceHeight = surfaceHeight
+                    aquariumRenderer.surfaceWidth = surfaceWidth
+                    aquariumRenderer.surfaceHeight = surfaceHeight
+                    // moth_a, moth_d face left (canonical); moth_b, moth_c face right (mirror)
+                    aquariumRenderer.loadFishSprites("aquarium/firefly/moth_a")
+                    aquariumRenderer.loadFishSprites("aquarium/firefly/moth_b", mirrorOnLoad = true)
+                    aquariumRenderer.loadFishSprites("aquarium/firefly/moth_c", mirrorOnLoad = true)
+                    aquariumRenderer.loadFishSprites("aquarium/firefly/moth_d")
+                    if (aquariumRenderer.fishCount == 0) {
+                        aquariumRenderer.addFish(1, "aquarium/firefly/moth_a", scaleMin = 0.6f, scaleMax = 0.8f, speedMin = 0.5f, speedMax = 1.5f)
+                        aquariumRenderer.addFish(1, "aquarium/firefly/moth_b", scaleMin = 0.5f, scaleMax = 0.7f, speedMin = 0.5f, speedMax = 1.5f)
+                        aquariumRenderer.addFish(1, "aquarium/firefly/moth_c", scaleMin = 0.5f, scaleMax = 0.7f, speedMin = 0.5f, speedMax = 1.5f)
+                        aquariumRenderer.addFish(1, "aquarium/firefly/moth_d", scaleMin = 0.6f, scaleMax = 0.8f, speedMin = 0.5f, speedMax = 1.5f)
+                        // Owl: stationary, perched on upper-right branch
+                        aquariumRenderer.addFish(1, "aquarium/firefly/owl", scaleMin = 0.7f, scaleMax = 0.7f, speedMin = 0f, speedMax = 0f)
+                        aquariumRenderer.setLastFishPosition(surfaceWidth * 0.78f, surfaceHeight * 0.02f)
+                    }
+                    Log.d(TAG, "Firefly mode activated: 4 luna moths + 1 owl + fireflies (${surfaceWidth}x${surfaceHeight})")
+                }
 
                 // Aquarium mode: animated fish over background image
                 isAquariumMode = path?.contains("aquarium") == true
@@ -766,6 +796,17 @@ class PixoraWallpaperService : WallpaperService() {
                     drawBackground(canvas)
                 }
 
+                // Firefly: luna moths + glowing dots over enchanted forest
+                if (isFireflyMode) {
+                    aquariumRenderer.surfaceWidth = surfaceWidth
+                    aquariumRenderer.surfaceHeight = surfaceHeight
+                    aquariumRenderer.draw(canvas)
+                    fireflyRenderer.surfaceWidth = surfaceWidth
+                    fireflyRenderer.surfaceHeight = surfaceHeight
+                    fireflyRenderer.update()
+                    fireflyRenderer.draw(canvas)
+                }
+
                 // Aquarium: draw animated fish over the background, plus rising bubbles
                 if (isAquariumMode) {
                     aquariumRenderer.surfaceWidth = surfaceWidth
@@ -901,6 +942,7 @@ class PixoraWallpaperService : WallpaperService() {
             stopVideoWallpaper()
             aquariumRenderer.recycle()
             bubbleRenderer.reset()
+            fireflyRenderer.reset()
             batteryIndicator.release()
             unregisterPrefsListener()
             synchronized(bitmapLock) {
