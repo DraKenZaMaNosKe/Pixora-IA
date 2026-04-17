@@ -26,6 +26,8 @@ class ClockRenderer {
     private var lastMinute = -1
     private var lastHour = -1
     private var hourFlashAlpha = 0f
+    private var cachedGradientShader: LinearGradient? = null
+    private var cachedGradientGlowColor = 0
 
     var surfaceWidth = 0
     var surfaceHeight = 0
@@ -174,17 +176,21 @@ class ClockRenderer {
                 canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
             }
             3 -> { // Gradient Fade
+                if (cachedGradientShader == null || cachedGradientGlowColor != glowColor) {
+                    cachedGradientShader = LinearGradient(
+                        centerX - timeSize, timeY - timeSize * 0.8f,
+                        centerX + timeSize, timeY,
+                        intArrayOf(Color.WHITE, glowColor), null, Shader.TileMode.CLAMP
+                    )
+                    cachedGradientGlowColor = glowColor
+                }
                 clockTimePaint.apply {
                     textSize = timeSize
                     typeface = typefaceBold
                     textAlign = Paint.Align.CENTER
                     letterSpacing = 0.06f
                     alpha = timeAlpha
-                    shader = LinearGradient(
-                        centerX - timeSize, timeY - timeSize * 0.8f,
-                        centerX + timeSize, timeY,
-                        intArrayOf(Color.WHITE, glowColor), null, Shader.TileMode.CLAMP
-                    )
+                    shader = cachedGradientShader
                     setShadowLayer(15f, 0f, 0f, Color.argb(100, 0, 0, 0))
                 }
                 canvas.drawText(timeStr, centerX, timeY, clockTimePaint)

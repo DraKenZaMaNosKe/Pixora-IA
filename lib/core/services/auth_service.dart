@@ -87,9 +87,13 @@ class AuthService {
           .eq('user_id', userId);
 
       final remoteFavs = <String>{};
-      for (final r in (response as List)) {
-        final id = r['wallpaper_id'] as String?;
-        if (id != null) remoteFavs.add(id);
+      if (response is List) {
+        for (final r in response) {
+          if (r is Map) {
+            final id = r['wallpaper_id'] as String?;
+            if (id != null) remoteFavs.add(id);
+          }
+        }
       }
 
       // Merge: union of local + remote

@@ -29,6 +29,8 @@ class FireflyRenderer {
         var pulseSpeed: Float,
         var life: Float,
         var maxLife: Float,
+        var lastGlowAlpha: Int = -1,
+        var cachedShader: RadialGradient? = null,
     )
 
     private val fireflies = mutableListOf<Firefly>()
@@ -91,28 +93,38 @@ class FireflyRenderer {
     }
 
     fun draw(canvas: Canvas) {
+        if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+
         for (f in fireflies) {
-            // Pulse: main oscillation
             val pulse = 0.5f + 0.5f * sin((f.life * f.pulseSpeed + f.pulsePhase).toDouble()).toFloat()
 
-            // Fade in during first 30 frames, fade out during last 30
             val fadeIn = (f.life / 30f).coerceAtMost(1f)
             val fadeOut = ((f.maxLife - f.life) / 30f).coerceAtMost(1f)
             val alpha = pulse * fadeIn * fadeOut
 
             if (alpha < 0.02f) continue
 
-            // Warm yellow-green glow (outer)
             val glowAlpha = (alpha * 100f).toInt().coerceIn(0, 180)
-            glowPaint.shader = RadialGradient(
-                f.x, f.y, f.glowRadius * (0.8f + alpha * 0.4f),
-                Color.argb(glowAlpha, 200, 220, 80),
-                Color.argb(0, 180, 200, 60),
-                Shader.TileMode.CLAMP
-            )
-            canvas.drawCircle(f.x, f.y, f.glowRadius * (0.8f + alpha * 0.4f), glowPaint)
+            val effectiveRadius = f.glowRadius * (0.8f + alpha * 0.4f)
 
-            // Bright core (inner)
+            // Only recreate shader when alpha bucket changes (reduces allocations ~8x)
+            val alphaBucket = glowAlpha / 8
+            if (alphaBucket != f.lastGlowAlpha) {
+                f.cachedShader = RadialGradient(
+                    0f, 0f, effectiveRadius,
+                    Color.argb(glowAlpha, 200, 220, 80),
+                    Color.argb(0, 180, 200, 60),
+                    Shader.TileMode.CLAMP
+                )
+                f.lastGlowAlpha = alphaBucket
+            }
+
+            canvas.save()
+            canvas.translate(f.x, f.y)
+            glowPaint.shader = f.cachedShader
+            canvas.drawCircle(0f, 0f, effectiveRadius, glowPaint)
+            canvas.restore()
+
             val coreAlpha = (alpha * 255f).toInt().coerceIn(0, 255)
             corePaint.color = Color.argb(coreAlpha, 255, 255, 200)
             canvas.drawCircle(f.x, f.y, f.radius * (0.6f + alpha * 0.4f), corePaint)

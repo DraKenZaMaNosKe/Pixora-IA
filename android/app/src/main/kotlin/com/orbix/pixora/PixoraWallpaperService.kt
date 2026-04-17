@@ -670,6 +670,7 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onVisibilityChanged(visible: Boolean) {
             Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper isFrame=$isFrameMode videoStarting=$videoStarting")
             if (visible) {
+                batteryIndicator.registerBatteryReceiver()
                 if (videoStarting) return
 
                 // Frame mode (Explore): already rendering via Canvas, just resume drawing
@@ -926,6 +927,7 @@ class PixoraWallpaperService : WallpaperService() {
             handler.removeCallbacks(drawRunnable)
             pendingReload?.let { handler.removeCallbacks(it) }
             equalizerRenderer.releaseVisualizer()
+            batteryIndicator.unregisterBatteryReceiver()
             // Don't release ExoPlayer here — surface may be recreated (visibility change).
             // Only detach the surface so it doesn't draw to a destroyed one.
             synchronized(videoLock) {

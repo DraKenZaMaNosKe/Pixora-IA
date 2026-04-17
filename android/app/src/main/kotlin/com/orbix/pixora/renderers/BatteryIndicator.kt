@@ -26,6 +26,7 @@ class BatteryIndicator(private val context: Context) {
     var glowColor = Color.parseColor("#7C4DFF")
 
     fun registerBatteryReceiver() {
+        if (batteryReceiver != null) return
         batteryReceiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent?) {
                 intent ?: return

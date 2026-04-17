@@ -117,10 +117,13 @@ class FrameScrubRenderer {
 
                 // Save as WebP
                 val outFile = File(framesDir, "frame_${"%04d".format(i)}.webp")
-                FileOutputStream(outFile).use { fos ->
-                    scaled.compress(Bitmap.CompressFormat.WEBP, 80, fos)
+                try {
+                    FileOutputStream(outFile).use { fos ->
+                        scaled.compress(Bitmap.CompressFormat.WEBP, 80, fos)
+                    }
+                } finally {
+                    scaled.recycle()
                 }
-                scaled.recycle()
                 extracted++
                 onProgress?.invoke(extracted, framesToExtract)
             }

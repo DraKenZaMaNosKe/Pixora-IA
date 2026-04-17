@@ -43,6 +43,8 @@ class RainEffectRenderer {
     // Pre-allocated arrays for RadialGradient construction (city lights)
     private val cityGradientColors = IntArray(3)
     private val cityGradientStops = floatArrayOf(0f, 0.3f, 1f)
+    private var lastCityLightFrame = -1
+    private val cityLightShaders = mutableMapOf<Int, RadialGradient>()
 
     // Pre-allocated arrays for lamp glow gradients
     private val lampGradientColors3 = IntArray(3)
@@ -209,7 +211,12 @@ class RainEffectRenderer {
         }
 
         // 4) City lights flickering in the buildings -- RadialGradient bloom
-        for (light in cityLights) {
+        // Rebuild shaders every 3 frames to reduce GC pressure
+        val currentFrame = (animationPhase * 10f).toInt()
+        val rebuildShaders = currentFrame != lastCityLightFrame
+        if (rebuildShaders) lastCityLightFrame = currentFrame
+
+        for ((idx, light) in cityLights.withIndex()) {
             val flicker = sin((animationPhase * light.flickerSpeed + light.flickerOffset).toDouble()).toFloat()
             val alpha = (light.baseAlpha + flicker * 60).toInt().coerceIn(20, 255)
             val bloomRadius = light.radius * 5f
@@ -218,19 +225,22 @@ class RainEffectRenderer {
             val lg = Color.green(light.color)
             val lb = Color.blue(light.color)
 
-            cityGradientColors[0] = Color.argb(alpha, lr, lg, lb)
-            cityGradientColors[1] = Color.argb((alpha * 0.4f).toInt(), lr, lg, lb)
-            cityGradientColors[2] = Color.argb(0, lr, lg, lb)
-            cityPaint.shader = RadialGradient(
-                light.x, light.y, bloomRadius,
-                cityGradientColors,
-                cityGradientStops,
-                Shader.TileMode.CLAMP
-            )
+            if (rebuildShaders) {
+                cityGradientColors[0] = Color.argb(alpha, lr, lg, lb)
+                cityGradientColors[1] = Color.argb((alpha * 0.4f).toInt(), lr, lg, lb)
+                cityGradientColors[2] = Color.argb(0, lr, lg, lb)
+                cityLightShaders[idx] = RadialGradient(
+                    light.x, light.y, bloomRadius,
+                    cityGradientColors.copyOf(),
+                    cityGradientStops,
+                    Shader.TileMode.CLAMP
+                )
+            }
+
+            cityPaint.shader = cityLightShaders[idx]
             canvas.drawCircle(light.x, light.y, bloomRadius, cityPaint)
             cityPaint.shader = null
 
-            // Bright center dot
             cityPaint.color = Color.argb(min(255, alpha + 60), lr, lg, lb)
             canvas.drawCircle(light.x, light.y, light.radius, cityPaint)
         }

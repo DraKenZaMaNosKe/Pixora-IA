@@ -62,7 +62,7 @@ class AquariumRenderer(private val context: Context) {
             }
             if (fileList.isEmpty()) return
 
-            val bitmaps = fileList.map { filename ->
+            val bitmaps = fileList.mapNotNull { filename ->
                 val raw = if (fromFiles) {
                     BitmapFactory.decodeFile("${cacheDir.absolutePath}/$filename")
                 } else {
@@ -70,7 +70,8 @@ class AquariumRenderer(private val context: Context) {
                         BitmapFactory.decodeStream(stream)
                     }
                 }
-                if (mirrorOnLoad && raw != null) {
+                if (raw == null) return@mapNotNull null
+                if (mirrorOnLoad) {
                     val m = Matrix().apply { postScale(-1f, 1f) }
                     val flipped = Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, m, true)
                     raw.recycle()
@@ -142,7 +143,8 @@ class AquariumRenderer(private val context: Context) {
             val waveY = sin(fish.phaseY.toDouble()).toFloat() * fish.amplitudeY
 
             // Wrap around screen
-            val sprite = sprites[fish.frameIndex]
+            val sprite = sprites[fish.frameIndex % sprites.size]
+            if (sprite.isRecycled) continue
             val scaledW = sprite.width * fish.scale
             if (fish.goingRight && fish.x > surfaceWidth + scaledW) {
                 // Exit right → re-enter left, maybe change direction
@@ -204,7 +206,7 @@ class AquariumRenderer(private val context: Context) {
     // ── Cleanup ──────────────────────────────────────────────────
     fun recycle() {
         for ((_, bitmaps) in spriteCache) {
-            bitmaps.forEach { it.recycle() }
+            bitmaps.forEach { if (!it.isRecycled) it.recycle() }
         }
         spriteCache.clear()
         fishes.clear()

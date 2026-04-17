@@ -112,7 +112,12 @@ class ContentManager {
     // Download sprites if this is an animated wallpaper theme (aquarium, firefly, etc.)
     final theme = SpriteDownloadService.instance.detectTheme(item.remoteFile);
     if (theme != null) {
-      await SpriteDownloadService.instance.ensureSpritesForTheme(theme);
+      final spritesOk = await SpriteDownloadService.instance
+          .ensureSpritesForTheme(theme, onProgress: onProgress);
+      if (!spritesOk) {
+        onError?.call(
+            'Could not download animated sprites. Check your connection and try again.');
+      }
     }
 
     // Install
