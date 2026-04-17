@@ -26,6 +26,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   bool _isApplying = false;
   double _downloadProgress = 0.0;
   String _loadingStatus = '';
+  LoadingPhase _loadingPhase = LoadingPhase.downloading;
   bool _showControls = true;
   bool _interactiveMode = false; // false = Auto Play, true = Touch scrub
   late Future<bool> _isDownloadedFuture;
@@ -78,6 +79,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       _isApplying = true;
       _downloadProgress = 0.0;
       _loadingStatus = 'Checking system...';
+      _loadingPhase = LoadingPhase.downloading;
     });
 
     // Small delay to ensure previous wallpaper service releases codec
@@ -86,7 +88,12 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       await Future.delayed(const Duration(milliseconds: 500));
     }
 
-    if (mounted) setState(() => _loadingStatus = 'Downloading...');
+    if (mounted) {
+      setState(() {
+        _loadingStatus = 'Downloading...';
+        _loadingPhase = LoadingPhase.downloading;
+      });
+    }
     WallpaperStatsService.instance.trackDownload('live_${widget.wallpaper.id}');
 
     final dir = await getApplicationDocumentsDirectory();
@@ -94,7 +101,12 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
 
     // Explore mode with pre-extracted frames: download images from Supabase
     if (_interactiveMode && w.hasRemoteFrames) {
-      if (mounted) setState(() => _loadingStatus = 'Preparing your scene...');
+      if (mounted) {
+        setState(() {
+          _loadingStatus = 'Downloading scene frames...';
+          _loadingPhase = LoadingPhase.downloading;
+        });
+      }
       final framesDir = Directory('${dir.path}/explore_frames/${w.id}');
       await framesDir.create(recursive: true);
 
@@ -122,6 +134,12 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       }
 
       // Set wallpaper with frames path
+      if (mounted) {
+        setState(() {
+          _loadingPhase = LoadingPhase.installing;
+          _loadingStatus = 'Applying explore wallpaper...';
+        });
+      }
       await WallpaperService.instance.setLiveWallpaper(
         framesDir.path,
         w.glowColor,
@@ -129,11 +147,11 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: const Text('Explore wallpaper set!'),
-              backgroundColor: Colors.green.shade700),
-        );
+        setState(() {
+          _loadingPhase = LoadingPhase.done;
+          _loadingStatus = 'Explore wallpaper set!';
+        });
+        await Future.delayed(const Duration(milliseconds: 1200));
         setState(() => _isApplying = false);
       }
       return;
@@ -146,42 +164,58 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
+      onPhase: (phase) {
+        if (!mounted) return;
+        setState(() {
+          switch (phase) {
+            case 'downloading':
+              _loadingPhase = LoadingPhase.downloading;
+              _loadingStatus = 'Downloading video...';
+            case 'sprites':
+              _loadingPhase = LoadingPhase.sprites;
+              _loadingStatus = 'Downloading animated effects...';
+              _downloadProgress = 0.0;
+            case 'installing':
+              _loadingPhase = LoadingPhase.installing;
+              _loadingStatus = 'Applying live wallpaper...';
+            case 'done':
+              _loadingPhase = LoadingPhase.done;
+              _loadingStatus = 'Live wallpaper applied!';
+          }
+        });
+      },
       onError: (msg) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(msg), backgroundColor: Colors.red),
-          );
+          setState(() {
+            _loadingPhase = LoadingPhase.error;
+            _loadingStatus = msg;
+          });
         }
       },
     );
 
     if (!success) {
-      if (mounted) setState(() => _isApplying = false);
+      if (mounted) {
+        if (_loadingPhase != LoadingPhase.error) {
+          setState(() {
+            _loadingPhase = LoadingPhase.error;
+            _loadingStatus = 'Failed to set live wallpaper';
+          });
+          await Future.delayed(const Duration(milliseconds: 1500));
+        }
+        setState(() => _isApplying = false);
+      }
       return;
     }
 
-    // If Explore mode, wait for frame extraction to complete
-    if (_interactiveMode && mounted) {
-      setState(() => _loadingStatus = 'Preparing your scene...');
-      // Poll until frames are ready (WallpaperService extracts in background)
-      for (var i = 0; i < 30; i++) {
-        // max 15 seconds
-        await Future.delayed(const Duration(milliseconds: 500));
-        if (mounted) {
-          setState(() => _downloadProgress = (i + 1) / 30.0);
-        }
-      }
-    }
-
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_interactiveMode
-              ? 'Explore wallpaper set!'
-              : 'Live wallpaper set!'),
-          backgroundColor: Colors.green.shade700,
-        ),
-      );
+      setState(() {
+        _loadingPhase = LoadingPhase.done;
+        _loadingStatus = _interactiveMode
+            ? 'Explore wallpaper set!'
+            : 'Live wallpaper applied!';
+      });
+      await Future.delayed(const Duration(milliseconds: 1200));
       setState(() => _isApplying = false);
     }
   }
@@ -238,6 +272,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
               progress: _downloadProgress > 0 ? _downloadProgress : null,
               status: _loadingStatus,
               accentColor: _glowColor,
+              phase: _loadingPhase,
             ),
 
             // Controls overlay (animated fade)

@@ -31,6 +31,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   bool _isApplying = false;
   double _downloadProgress = 0.0;
   String _loadingStatus = '';
+  LoadingPhase _loadingPhase = LoadingPhase.downloading;
 
   @override
   void initState() {
@@ -61,7 +62,8 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
-      _loadingStatus = 'Downloading...';
+      _loadingStatus = 'Downloading wallpaper...';
+      _loadingPhase = LoadingPhase.downloading;
     });
 
     final installTarget = switch (target) {
@@ -76,26 +78,44 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
+      onPhase: (phase) {
+        if (!mounted) return;
+        setState(() {
+          switch (phase) {
+            case 'downloading':
+              _loadingPhase = LoadingPhase.downloading;
+              _loadingStatus = 'Downloading wallpaper...';
+            case 'sprites':
+              _loadingPhase = LoadingPhase.sprites;
+              _loadingStatus = 'Downloading animated effects...';
+              _downloadProgress = 0.0;
+            case 'installing':
+              _loadingPhase = LoadingPhase.installing;
+              _loadingStatus = 'Applying wallpaper...';
+            case 'done':
+              _loadingPhase = LoadingPhase.done;
+              _loadingStatus = 'Wallpaper applied!';
+          }
+        });
+      },
       onError: (msg) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(msg), backgroundColor: Colors.red),
-          );
+          setState(() {
+            _loadingPhase = LoadingPhase.error;
+            _loadingStatus = msg;
+          });
         }
       },
     );
 
-    if (mounted) {
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Wallpaper applied!'),
-            backgroundColor: Colors.green.shade700,
-          ),
-        );
-      }
+    if (mounted && success) {
+      setState(() {
+        _loadingPhase = LoadingPhase.done;
+        _loadingStatus = 'Wallpaper applied!';
+      });
+      await Future.delayed(const Duration(milliseconds: 1200));
     }
-    setState(() => _isApplying = false);
+    if (mounted) setState(() => _isApplying = false);
   }
 
   Future<void> _saveToGallery() async {
@@ -162,6 +182,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       _isApplying = true;
       _downloadProgress = 0.0;
       _loadingStatus = 'Preparing...';
+      _loadingPhase = LoadingPhase.downloading;
     });
 
     // Request microphone permission for equalizer visualization
@@ -174,7 +195,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       );
     }
 
-    _setLoading('Downloading...');
+    _setLoading('Downloading wallpaper...');
 
     final success = await ContentManager.instance.downloadAndInstall(
       item: widget.wallpaper.toContentItem(asLive: true),
@@ -182,24 +203,44 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
       },
+      onPhase: (phase) {
+        if (!mounted) return;
+        setState(() {
+          switch (phase) {
+            case 'downloading':
+              _loadingPhase = LoadingPhase.downloading;
+              _loadingStatus = 'Downloading wallpaper...';
+            case 'sprites':
+              _loadingPhase = LoadingPhase.sprites;
+              _loadingStatus = 'Downloading animated effects...';
+              _downloadProgress = 0.0;
+            case 'installing':
+              _loadingPhase = LoadingPhase.installing;
+              _loadingStatus = 'Applying live wallpaper...';
+            case 'done':
+              _loadingPhase = LoadingPhase.done;
+              _loadingStatus = 'Live wallpaper applied!';
+          }
+        });
+      },
       onError: (msg) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(msg), backgroundColor: Colors.red),
-          );
+          setState(() {
+            _loadingPhase = LoadingPhase.error;
+            _loadingStatus = msg;
+          });
         }
       },
     );
 
-    if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Failed to set live wallpaper'),
-            backgroundColor: Colors.red),
-      );
+    if (mounted && success) {
+      setState(() {
+        _loadingPhase = LoadingPhase.done;
+        _loadingStatus = 'Live wallpaper applied!';
+      });
+      await Future.delayed(const Duration(milliseconds: 1200));
     }
-
-    setState(() => _isApplying = false);
+    if (mounted) setState(() => _isApplying = false);
   }
 
   void _showApplyDialog() {
@@ -362,6 +403,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
             progress: _downloadProgress > 0 ? _downloadProgress : null,
             status: _loadingStatus,
             accentColor: glowColor,
+            phase: _loadingPhase,
           ),
 
           // Top bar

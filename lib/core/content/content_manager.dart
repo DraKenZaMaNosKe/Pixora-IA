@@ -100,18 +100,21 @@ class ContentManager {
     required InstallTarget target,
     void Function(double progress)? onProgress,
     void Function(String message)? onError,
+    void Function(String phase)? onPhase,
     bool showAd = true,
   }) async {
     // Track the download
     WallpaperStatsService.instance.trackDownload(item.id);
 
-    // Download
+    // Phase 1: Download
+    onPhase?.call('downloading');
     final path = await download(item, onProgress: onProgress, onError: onError);
     if (path == null) return false;
 
-    // Download sprites if this is an animated wallpaper theme (aquarium, firefly, etc.)
+    // Phase 2: Download sprites if animated wallpaper theme
     final theme = SpriteDownloadService.instance.detectTheme(item.remoteFile);
     if (theme != null) {
+      onPhase?.call('sprites');
       final spritesOk = await SpriteDownloadService.instance
           .ensureSpritesForTheme(theme, onProgress: onProgress);
       if (!spritesOk) {
@@ -120,10 +123,14 @@ class ContentManager {
       }
     }
 
-    // Install
+    // Phase 3: Install
+    onPhase?.call('installing');
+    onProgress?.call(0.0);
     final success = await install(path, item, target);
 
-    if (!success) {
+    if (success) {
+      onPhase?.call('done');
+    } else {
       onError?.call('Installation failed');
     }
 
