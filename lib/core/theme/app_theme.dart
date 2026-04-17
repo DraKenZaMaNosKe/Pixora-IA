@@ -31,7 +31,7 @@ class AppTheme {
             color: Colors.white,
           ),
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: _card,
           elevation: 4,
           shape:
