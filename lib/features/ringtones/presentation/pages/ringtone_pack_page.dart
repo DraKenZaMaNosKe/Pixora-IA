@@ -6,6 +6,7 @@ import '../../../../core/services/preview_player_service.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
+import '../../../../core/widgets/loading_overlay.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../data/models/ringtone_pack.dart';
 
@@ -23,6 +24,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   final _previewPlayer = PreviewPlayerService.instance;
   String? _playingId;
   String? _settingId;
+  String _toneLoadingStatus = '';
+  LoadingPhase _toneLoadingPhase = LoadingPhase.downloading;
   StreamSubscription? _playerSub;
 
   Color get _glowColor =>
@@ -232,36 +235,47 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   }
 
   Future<void> _doSetAs(RingtoneTone tone, int type) async {
-    setState(() => _settingId = tone.id);
+    final typeNames = ['Ringtone', 'Notification', 'Alarm'];
+    setState(() {
+      _settingId = tone.id;
+      _toneLoadingPhase = LoadingPhase.downloading;
+      _toneLoadingStatus = 'Downloading ${tone.name}...';
+    });
     WallpaperStatsService.instance.trackDownload('tone_${tone.id}');
 
     final path = await RingtoneService.instance.downloadTone(tone);
     if (path == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Download failed'), backgroundColor: Colors.red),
-        );
+        setState(() {
+          _toneLoadingPhase = LoadingPhase.error;
+          _toneLoadingStatus = 'Download failed';
+        });
+        await Future.delayed(const Duration(milliseconds: 1200));
+        setState(() => _settingId = null);
       }
-      setState(() => _settingId = null);
       return;
     }
 
-    final typeNames = ['Ringtone', 'Notification', 'Alarm'];
+    if (mounted) {
+      setState(() {
+        _toneLoadingPhase = LoadingPhase.installing;
+        _toneLoadingStatus = 'Setting as ${typeNames[type]}...';
+      });
+    }
+
     final success =
         await RingtoneService.instance.setAsRingtone(path, tone.name, type);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success
-              ? '${tone.name} set as ${typeNames[type]}!'
-              : 'Failed to set ringtone'),
-          backgroundColor: success ? Colors.green : Colors.red,
-        ),
-      );
+      setState(() {
+        _toneLoadingPhase = success ? LoadingPhase.done : LoadingPhase.error;
+        _toneLoadingStatus = success
+            ? '${tone.name} set as ${typeNames[type]}!'
+            : 'Failed to set ringtone';
+      });
+      await Future.delayed(const Duration(milliseconds: 1200));
+      setState(() => _settingId = null);
     }
-    setState(() => _settingId = null);
   }
 
   void _showSetAsDialog(RingtoneTone tone) {
@@ -327,7 +341,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0F),
-      body: CustomScrollView(
+      body: Stack(children: [
+      CustomScrollView(
         slivers: [
           // Header with pack info + default image background
           SliverAppBar(
@@ -443,6 +458,13 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
           const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
         ],
       ),
+      LoadingOverlay(
+        visible: _settingId != null,
+        status: _toneLoadingStatus,
+        accentColor: _glowColor,
+        phase: _toneLoadingPhase,
+      ),
+      ]),
     );
   }
 }

@@ -8,6 +8,7 @@ import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/story_rotation_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
+import '../../../../core/widgets/loading_overlay.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/story.dart';
 import '../../providers/story_providers.dart';
@@ -23,6 +24,9 @@ class StoryDetailPage extends ConsumerStatefulWidget {
 class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   bool _isStarting = false;
   int _downloadProgress = 0;
+  double _downloadFraction = 0.0;
+  String _loadingStatus = '';
+  LoadingPhase _loadingPhase = LoadingPhase.downloading;
   final _pageController = PageController(viewportFraction: 0.85);
 
   Color get _glowColor =>
@@ -42,17 +46,27 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   }
 
   Future<void> _doStartStory() async {
+    final total = widget.story.frames.length;
     setState(() {
       _isStarting = true;
       _downloadProgress = 0;
+      _downloadFraction = 0.0;
+      _loadingStatus = 'Downloading frame 1/$total...';
+      _loadingPhase = LoadingPhase.downloading;
     });
     WallpaperStatsService.instance.trackDownload('story_${widget.story.id}');
 
     // Download all frames
     final paths = <String>[];
-    for (var i = 0; i < widget.story.frames.length; i++) {
+    for (var i = 0; i < total; i++) {
       final frame = widget.story.frames[i];
-      setState(() => _downloadProgress = i + 1);
+      if (mounted) {
+        setState(() {
+          _downloadProgress = i + 1;
+          _downloadFraction = (i + 1) / total;
+          _loadingStatus = 'Downloading frame ${i + 1}/$total...';
+        });
+      }
 
       final item = ContentItem(
         id: '${widget.story.id}_frame_$i',
@@ -63,23 +77,32 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
       final path = await ContentManager.instance.download(item);
       if (path == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to download frame ${i + 1}')),
-          );
+          setState(() {
+            _loadingPhase = LoadingPhase.error;
+            _loadingStatus = 'Failed to download frame ${i + 1}';
+          });
+          await Future.delayed(const Duration(milliseconds: 1500));
+          setState(() => _isStarting = false);
         }
-        setState(() => _isStarting = false);
         return;
       }
       paths.add(path);
     }
 
-    // Build captions with rotating languages: es → en → ja → es...
+    // Build captions
+    if (mounted) {
+      setState(() {
+        _loadingPhase = LoadingPhase.installing;
+        _loadingStatus = 'Activating story rotation...';
+        _downloadFraction = 0.0;
+      });
+    }
+
     final captions = <String>[];
-    for (var i = 0; i < widget.story.frames.length; i++) {
+    for (var i = 0; i < total; i++) {
       captions.add(widget.story.frames[i].captionForLang(i));
     }
 
-    // Start rotation via platform channel
     final success = await StoryRotationService.instance.startStory(
       storyId: widget.story.id,
       imagePaths: paths,
@@ -92,15 +115,15 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
       ref.read(activeStoryIdProvider.notifier).state =
           success ? widget.story.id : null;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success
-              ? 'Story started! Wallpaper changes every ${widget.story.intervalMinutes} min'
-              : 'Failed to start story'),
-        ),
-      );
+      setState(() {
+        _loadingPhase = success ? LoadingPhase.done : LoadingPhase.error;
+        _loadingStatus = success
+            ? 'Story started!'
+            : 'Failed to start story';
+      });
+      await Future.delayed(const Duration(milliseconds: 1200));
+      setState(() => _isStarting = false);
     }
-    setState(() => _isStarting = false);
   }
 
   Future<void> _stopStory() async {
@@ -126,7 +149,8 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: CustomScrollView(
+      body: Stack(children: [
+      CustomScrollView(
         slivers: [
           // Cover image as app bar
           SliverAppBar(
@@ -253,6 +277,14 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
+      LoadingOverlay(
+        visible: _isStarting,
+        progress: _downloadFraction > 0 ? _downloadFraction : null,
+        status: _loadingStatus,
+        accentColor: glow,
+        phase: _loadingPhase,
+      ),
+      ]),
 
       // Start/Stop button + ad badge
       bottomNavigationBar: SafeArea(

@@ -5,6 +5,7 @@ import '../../providers/day_cycle_providers.dart';
 import '../../../../core/services/day_cycle_service.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
+import '../../../../core/widgets/loading_overlay.dart';
 
 class DayCycleDetailPage extends ConsumerStatefulWidget {
   final DayCycleTheme theme;
@@ -17,6 +18,8 @@ class DayCycleDetailPage extends ConsumerStatefulWidget {
 class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
   bool _isActivating = false;
   String _progressText = '';
+  double _downloadFraction = 0.0;
+  LoadingPhase _loadingPhase = LoadingPhase.downloading;
 
   @override
   void initState() {
@@ -48,10 +51,23 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
   Future<void> _doActivate() async {
     WallpaperStatsService.instance.trackDownload('daycycle_${widget.theme.id}');
 
+    if (mounted) {
+      setState(() {
+        _loadingPhase = LoadingPhase.downloading;
+        _progressText = 'Downloading images...';
+        _downloadFraction = 0.0;
+      });
+    }
+
     final success = await DayCycleService.instance.activate(
       widget.theme, target: 0,
       onProgress: (current, total) {
-        if (mounted) setState(() => _progressText = 'Downloading image $current/$total...');
+        if (mounted) {
+          setState(() {
+            _progressText = 'Downloading image $current/$total...';
+            _downloadFraction = current / total;
+          });
+        }
       },
     );
 
@@ -59,15 +75,18 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
 
     if (success) {
       ref.read(activeDayCycleIdProvider.notifier).state = widget.theme.id;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${widget.theme.name} day cycle activated!'), backgroundColor: Colors.green),
-      );
+      setState(() {
+        _loadingPhase = LoadingPhase.done;
+        _progressText = '${widget.theme.name} activated!';
+      });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to activate. Check your connection.'), backgroundColor: Colors.red),
-      );
+      setState(() {
+        _loadingPhase = LoadingPhase.error;
+        _progressText = 'Failed to activate. Check your connection.';
+      });
     }
-    setState(() { _isActivating = false; _progressText = ''; });
+    await Future.delayed(const Duration(milliseconds: 1200));
+    if (mounted) setState(() { _isActivating = false; _progressText = ''; });
   }
 
   Future<void> _deactivate() async {
@@ -85,7 +104,8 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
     final currentPeriod = DayCycleTheme.currentPeriodLabel();
 
     return Scaffold(
-      body: CustomScrollView(
+      body: Stack(children: [
+      CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 250, pinned: true,
@@ -162,6 +182,14 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
           ),
         ],
       ),
+      LoadingOverlay(
+        visible: _isActivating,
+        progress: _downloadFraction > 0 ? _downloadFraction : null,
+        status: _progressText,
+        accentColor: const Color(0xFF7C4DFF),
+        phase: _loadingPhase,
+      ),
+      ]),
     );
   }
 }

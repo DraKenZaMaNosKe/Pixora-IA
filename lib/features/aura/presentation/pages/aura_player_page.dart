@@ -3,6 +3,7 @@ import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/utils/locale_helper.dart';
+import '../../../../core/widgets/loading_overlay.dart';
 import '../../data/models/aura_track.dart';
 import '../../services/aura_download_service.dart';
 import '../../services/aura_player_service.dart';
@@ -18,6 +19,8 @@ class AuraPlayerPage extends StatefulWidget {
 
 class _AuraPlayerPageState extends State<AuraPlayerPage> {
   bool _isDownloading = false;
+  String _downloadStatus = '';
+  LoadingPhase _downloadPhase = LoadingPhase.downloading;
 
   Color get _accent => widget.track.colorHex != null
       ? parseHexColor(widget.track.colorHex!, fallback: const Color(0xFF7C4DFF))
@@ -46,7 +49,8 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0F),
-      body: Container(
+      body: Stack(children: [
+      Container(
         decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
@@ -277,29 +281,37 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                 onPressed: _isDownloading
                     ? null
                     : () {
-                        setState(() => _isDownloading = true);
+                        setState(() {
+                          _isDownloading = true;
+                          _downloadPhase = LoadingPhase.downloading;
+                          _downloadStatus = isEs
+                              ? 'Descargando audio...'
+                              : 'Downloading audio...';
+                        });
                         AdService.instance.showInterstitialAd(
                             onAdDismissed: () async {
                           WallpaperStatsService.instance
                               .trackDownload('aura_${t.id}');
                           final file =
                               await AuraDownloadService.instance.download(t);
-                          if (mounted) setState(() => _isDownloading = false);
                           if (!mounted) return;
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(file != null
-                                  ? (isEs
-                                      ? 'Guardado para escuchar sin internet'
-                                      : 'Saved for offline')
-                                  : (isEs
-                                      ? 'No se pudo descargar'
-                                      : 'Download failed')),
-                              backgroundColor:
-                                  file != null ? Colors.green : Colors.red,
-                            ),
-                          );
+                          setState(() {
+                            _downloadPhase = file != null
+                                ? LoadingPhase.done
+                                : LoadingPhase.error;
+                            _downloadStatus = file != null
+                                ? (isEs
+                                    ? 'Guardado para offline'
+                                    : 'Saved for offline')
+                                : (isEs
+                                    ? 'No se pudo descargar'
+                                    : 'Download failed');
+                          });
+                          await Future.delayed(
+                              const Duration(milliseconds: 1200));
+                          if (mounted) {
+                            setState(() => _isDownloading = false);
+                          }
                         });
                       },
                 icon:
@@ -314,6 +326,13 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
           ),
         ),
       ),
+      LoadingOverlay(
+        visible: _isDownloading,
+        status: _downloadStatus,
+        accentColor: _accent,
+        phase: _downloadPhase,
+      ),
+      ]),
     );
   }
 }
