@@ -49,19 +49,23 @@ class AdService {
           _isAdLoading = false;
           debugPrint('[Pixora] Interstitial ad failed: ${error.message}');
           // Retry after 10 seconds
-          Future.delayed(const Duration(seconds: 10), () => loadInterstitialAd());
+          Future.delayed(
+              const Duration(seconds: 10), () => loadInterstitialAd());
         },
       ),
     );
   }
 
   /// DEBUG: set to true to disable ads during testing
-  static const _debugDisableAds = true;
+  static const _debugDisableAds = false;
 
   /// Show interstitial ad on alternating actions (1st yes, 2nd no, 3rd yes…).
   /// Awards credits when an ad is actually shown and watched.
   void showInterstitialAd({required VoidCallback onAdDismissed}) {
-    if (_debugDisableAds) { onAdDismissed(); return; }
+    if (_debugDisableAds) {
+      onAdDismissed();
+      return;
+    }
     _actionCount++;
     final shouldShow = _actionCount.isOdd;
 

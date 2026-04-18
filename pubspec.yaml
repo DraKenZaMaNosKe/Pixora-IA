@@ -1,7 +1,7 @@
 name: pixora
 description: "Pixora IA - Wallpapers, Ringtones & Icon Packs"
 publish_to: 'none'
-version: 1.5.8+24
+version: 1.5.9+25
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
@@ -22,7 +22,7 @@ dependencies:
   permission_handler: ^12.0.0
   flutter_cache_manager: ^3.3.2
   intl: any
-  google_mobile_ads: ^5.2.0
+  google_mobile_ads: ^8.0.0
   supabase_flutter: ^2.5.0
   google_sign_in: ^6.2.1
   just_audio: ^0.9.40
@@ -30,6 +30,7 @@ dependencies:
   audio_session: ^0.1.21
   video_player: ^2.9.2
   package_info_plus: ^8.0.0
+  device_info_plus: ^10.1.2
   archive: ^4.0.2
 
 dependency_overrides:
