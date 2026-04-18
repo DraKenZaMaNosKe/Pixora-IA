@@ -53,7 +53,8 @@ class WallpaperService {
       return result ?? false;
     } on PlatformException catch (e) {
       lastError = '${e.code}: ${e.message}';
-      debugPrint('[WallpaperService] saveToGallery PlatformException: $lastError');
+      debugPrint(
+          '[WallpaperService] saveToGallery PlatformException: $lastError');
       return false;
     } catch (e) {
       lastError = e.toString();
@@ -64,7 +65,8 @@ class WallpaperService {
 
   /// Activa el Live Wallpaper con efecto touch glow.
   /// Abre el selector de Android para confirmar.
-  Future<bool> setLiveWallpaper(String filePath, String glowColor, {bool interactive = false}) async {
+  Future<bool> setLiveWallpaper(String filePath, String glowColor,
+      {bool interactive = false}) async {
     if (!Platform.isAndroid) return false;
     try {
       final result = await _channel.invokeMethod<bool>(
@@ -89,6 +91,44 @@ class WallpaperService {
       return result ?? false;
     } catch (e) {
       debugPrint('[WallpaperService] resetEngine error: $e');
+      return false;
+    }
+  }
+
+  /// Read the current overlay visibility flags from native prefs.
+  /// Keys: clock, battery, ram, storage, equalizer. Missing entries default true.
+  Future<Map<String, bool>> getOverlayVisibility() async {
+    if (!Platform.isAndroid) {
+      return const {
+        'clock': true,
+        'battery': true,
+        'ram': true,
+        'storage': true,
+        'equalizer': true,
+      };
+    }
+    try {
+      final result = await _channel.invokeMethod<Map>('getOverlayVisibility');
+      if (result == null) return const {};
+      return result.map((k, v) => MapEntry(k.toString(), v == true));
+    } catch (e) {
+      debugPrint('[WallpaperService] getOverlayVisibility error: $e');
+      return const {};
+    }
+  }
+
+  /// Toggle a single overlay. Writes to prefs and broadcasts to the :wallpaper
+  /// process so the change is reflected immediately, no app restart needed.
+  Future<bool> setOverlayVisibility(String key, bool value) async {
+    if (!Platform.isAndroid) return false;
+    try {
+      final result = await _channel.invokeMethod<bool>(
+        'setOverlayVisibility',
+        {'key': key, 'value': value},
+      );
+      return result ?? false;
+    } catch (e) {
+      debugPrint('[WallpaperService] setOverlayVisibility error: $e');
       return false;
     }
   }

@@ -1,11 +1,15 @@
 package com.orbix.pixora
 
 import android.app.KeyguardManager
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.graphics.*
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
@@ -107,6 +111,50 @@ class PixoraWallpaperService : WallpaperService() {
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
+        // Cached KeyguardManager — authoritative source for lock state in drawFrame.
+        // Avoids getSystemService() overhead every frame.
+        private val keyguardManager by lazy {
+            getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+        }
+
+        // User-controlled overlay visibility — loaded from pixora_live prefs,
+        // refreshed via OVERLAY_SETTINGS_CHANGED broadcast so Settings toggles take
+        // effect instantly (the :wallpaper process can't see main-process pref
+        // writes directly — see tech_sharedprefs_multi_process.md).
+        @Volatile private var showClock = true
+        @Volatile private var showBattery = true
+        @Volatile private var showEqualizer = true
+
+        private val overlaySettingsReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                loadOverlaySettings()
+                if (drawing) handler.post { drawFrame() }
+            }
+        }
+
+        private fun loadOverlaySettings() {
+            val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
+            showClock = prefs.getBoolean("show_clock", true)
+            showBattery = prefs.getBoolean("show_battery", true)
+            showEqualizer = prefs.getBoolean("show_equalizer", true)
+            systemRings.showRam = prefs.getBoolean("show_ram", true)
+            systemRings.showStorage = prefs.getBoolean("show_storage", true)
+        }
+
+        // Set true only for the "last frame before sleep" so the cached frame Android
+        // shows on the lock screen has overlays hidden. Reset right after the draw.
+        // Everything else defers to KeyguardManager.isKeyguardLocked.
+        @Volatile private var forceHideOverlays = false
+
+        // Broadcast receiver only forces a redraw on screen events — doesn't own state.
+        // This way a missed ACTION_USER_PRESENT (which happens on some Samsung configs
+        // with fast biometric unlock) doesn't leave overlays permanently hidden.
+        private val keyguardReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (drawing) handler.post { drawFrame() }
+            }
+        }
+
         private val drawRunnable = object : Runnable {
             override fun run() {
                 if (drawing) {
@@ -126,10 +174,61 @@ class PixoraWallpaperService : WallpaperService() {
             super.onCreate(surfaceHolder)
             setTouchEventsEnabled(true)
             equalizerRenderer.audioCallback = this
+            loadOverlaySettings()
             loadWallpaperImage()
             batteryIndicator.registerBatteryReceiver()
             registerPrefsListener()
+            registerKeyguardReceiver()
+            registerOverlaySettingsReceiver()
             Log.d(TAG, "Engine onCreate")
+        }
+
+        private fun registerOverlaySettingsReceiver() {
+            val filter = IntentFilter("com.orbix.pixora.OVERLAY_SETTINGS_CHANGED")
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    applicationContext.registerReceiver(
+                        overlaySettingsReceiver, filter, Context.RECEIVER_NOT_EXPORTED
+                    )
+                } else {
+                    @Suppress("UnspecifiedRegisterReceiverFlag")
+                    applicationContext.registerReceiver(overlaySettingsReceiver, filter)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "overlaySettingsReceiver register failed: ${e.message}")
+            }
+        }
+
+        private fun unregisterOverlaySettingsReceiver() {
+            try {
+                applicationContext.unregisterReceiver(overlaySettingsReceiver)
+            } catch (_: Exception) { /* not registered */ }
+        }
+
+        private fun registerKeyguardReceiver() {
+            val filter = IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_OFF)
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_USER_PRESENT)
+            }
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    applicationContext.registerReceiver(
+                        keyguardReceiver, filter, Context.RECEIVER_NOT_EXPORTED
+                    )
+                } else {
+                    @Suppress("UnspecifiedRegisterReceiverFlag")
+                    applicationContext.registerReceiver(keyguardReceiver, filter)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "keyguardReceiver register failed: ${e.message}")
+            }
+        }
+
+        private fun unregisterKeyguardReceiver() {
+            try {
+                applicationContext.unregisterReceiver(keyguardReceiver)
+            } catch (_: Exception) { /* not registered */ }
         }
 
         // EqualizerRenderer.AudioCallback
@@ -705,6 +804,17 @@ class PixoraWallpaperService : WallpaperService() {
                     handler.post(drawRunnable)
                 }
             } else {
+                // Paint one final frame with overlays hidden BEFORE we stop drawing.
+                // Otherwise Android caches the last drawn frame (with clock + rings)
+                // and flashes it briefly on the lock screen when the device wakes.
+                // This only matters for Canvas-based modes; video wallpapers don't
+                // render Canvas overlays anyway.
+                if (drawing && !isVideoWallpaper) {
+                    forceHideOverlays = true
+                    drawFrame()
+                    forceHideOverlays = false
+                }
+
                 // Only pause video, don't stop/release — it will be resumed on visibility=true
                 val player = mediaPlayer
                 if (player != null) {
@@ -822,17 +932,25 @@ class PixoraWallpaperService : WallpaperService() {
                 rainRenderer.draw(canvas)
                 if (isRainWallpaper) rainRenderer.drawHeadphoneGlow(canvas)
 
-                // Hide our clock on lock screen to avoid overlap with system clock
-                val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-                val isLocked = km?.isKeyguardLocked == true
-                if (!isLocked) {
+                // Hide our decorative overlays on the lock screen (KeyguardManager is
+                // authoritative) AND respect user toggles from Settings. forceHideOverlays
+                // is only set for the "last frame before sleep" so the cached lockscreen
+                // frame is clean.
+                val isLocked = forceHideOverlays ||
+                    keyguardManager?.isKeyguardLocked == true
+                if (!isLocked && showClock) {
                     clockRenderer.draw(canvas)
                 }
-                batteryIndicator.draw(canvas)
+                if (showBattery) {
+                    batteryIndicator.draw(canvas)
+                }
                 if (!isLocked) {
+                    // SystemRings internally respects its own showRam/showStorage flags.
                     systemRings.draw(canvas)
                 }
-                equalizerRenderer.draw(canvas)
+                if (showEqualizer) {
+                    equalizerRenderer.draw(canvas)
+                }
                 if (!isLocked) captionOverlay.draw(canvas)
                 drawGlowEffects(canvas)
             } catch (e: Exception) {
@@ -947,6 +1065,8 @@ class PixoraWallpaperService : WallpaperService() {
             fireflyRenderer.reset()
             batteryIndicator.release()
             unregisterPrefsListener()
+            unregisterKeyguardReceiver()
+            unregisterOverlaySettingsReceiver()
             synchronized(bitmapLock) {
                 wallpaperBitmap?.recycle()
                 scaledBitmap?.recycle()

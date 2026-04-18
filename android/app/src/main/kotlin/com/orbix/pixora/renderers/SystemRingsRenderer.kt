@@ -28,6 +28,10 @@ class SystemRingsRenderer(private val context: Context) {
     var surfaceHeight = 0
     var glowColor = Color.parseColor("#7C4DFF")
 
+    // User-controlled toggles (set by PixoraWallpaperService from SharedPreferences).
+    var showRam = true
+    var showStorage = true
+
     private fun readSystemInfo() {
         val now = System.currentTimeMillis()
         if (now - lastSystemRead < 5000) return
@@ -52,6 +56,7 @@ class SystemRingsRenderer(private val context: Context) {
 
     fun draw(canvas: Canvas) {
         if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+        if (!showRam && !showStorage) return
         readSystemInfo()
         if (ramTotalGB <= 0f && storageTotalGB <= 0f) return
 
@@ -73,32 +78,39 @@ class SystemRingsRenderer(private val context: Context) {
         val leftX = ringRadius + w * 0.055f
 
         // --- RAM Ring ---
-        val ramPct = if (ramTotalGB > 0) ((ramTotalGB - ramAvailableGB) / ramTotalGB * 100f) else 0f
-        val ramColor = when {
-            ramPct > 90 -> Color.rgb(255, 50, 50)
-            ramPct > 75 -> Color.rgb(255, 165, 0)
-            else -> glowColor
+        if (showRam) {
+            val ramPct = if (ramTotalGB > 0) ((ramTotalGB - ramAvailableGB) / ramTotalGB * 100f) else 0f
+            val ramColor = when {
+                ramPct > 90 -> Color.rgb(255, 50, 50)
+                ramPct > 75 -> Color.rgb(255, 165, 0)
+                else -> glowColor
+            }
+            drawMiniRing(
+                canvas, leftX, startY, ringRadius,
+                ramPct, ramColor, breathe,
+                String.format("%.1f", ramAvailableGB), "GB", "RAM"
+            )
         }
-        drawMiniRing(
-            canvas, leftX, startY, ringRadius,
-            ramPct, ramColor, breathe,
-            String.format("%.1f", ramAvailableGB), "GB", "RAM"
-        )
 
         // --- Storage Ring ---
-        val storagePct = if (storageTotalGB > 0) ((storageTotalGB - storageAvailableGB) / storageTotalGB * 100f) else 0f
-        val storageColor = when {
-            storagePct > 90 -> Color.rgb(255, 50, 50)
-            storagePct > 75 -> Color.rgb(255, 165, 0)
-            else -> glowColor
+        // If RAM is hidden, pull the storage ring up into its slot so we don't leave
+        // a gap where RAM used to be.
+        if (showStorage) {
+            val storageY = if (showRam) startY + spacing else startY
+            val storagePct = if (storageTotalGB > 0) ((storageTotalGB - storageAvailableGB) / storageTotalGB * 100f) else 0f
+            val storageColor = when {
+                storagePct > 90 -> Color.rgb(255, 50, 50)
+                storagePct > 75 -> Color.rgb(255, 165, 0)
+                else -> glowColor
+            }
+            drawMiniRing(
+                canvas, leftX, storageY, ringRadius,
+                storagePct, storageColor, breathe,
+                if (storageAvailableGB >= 10) String.format("%.0f", storageAvailableGB)
+                else String.format("%.1f", storageAvailableGB),
+                "GB", "DISK"
+            )
         }
-        drawMiniRing(
-            canvas, leftX, startY + spacing, ringRadius,
-            storagePct, storageColor, breathe,
-            if (storageAvailableGB >= 10) String.format("%.0f", storageAvailableGB)
-            else String.format("%.1f", storageAvailableGB),
-            "GB", "DISK"
-        )
     }
 
     private fun drawMiniRing(

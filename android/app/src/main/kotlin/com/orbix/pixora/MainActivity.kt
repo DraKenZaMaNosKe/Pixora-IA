@@ -115,6 +115,14 @@ class MainActivity : AudioServiceActivity() {
                                 .putString("caption", firstCaption)
                                 .putLong("changed_at", System.currentTimeMillis())
                                 .apply()
+
+                            // Kill the :wallpaper process so its stale SharedPreferences cache
+                            // is discarded. SharedPreferences is NOT multi-process safe —
+                            // without this, an engine that was running a previous live wallpaper
+                            // (e.g. firefly) keeps showing that wallpaper because its cached
+                            // value of wallpaper_path never sees the write from this process.
+                            killWallpaperProcess()
+
                             // Only show picker if live wallpaper isn't already active
                             ensureLiveWallpaperActive()
                         }
@@ -187,8 +195,12 @@ class MainActivity : AudioServiceActivity() {
                             morningPath, afternoonPath, eveningPath, nightPath,
                             glowColor, target,
                         )
-                        // Ensure live wallpaper is active for panoramic scroll
-                        if (success) ensureLiveWallpaperActive()
+                        if (success) {
+                            // Same multi-process cache reason as startStory —
+                            // force :wallpaper to respawn with fresh prefs.
+                            killWallpaperProcess()
+                            ensureLiveWallpaperActive()
+                        }
                         result.success(success)
                     }
                     "stopDayCycle" -> {
@@ -198,6 +210,39 @@ class MainActivity : AudioServiceActivity() {
                     "getDayCycleStatus" -> {
                         val status = DayCycleWorker.getStatus(applicationContext)
                         result.success(status)
+                    }
+                    "getOverlayVisibility" -> {
+                        val prefs = getSharedPreferences("pixora_live", 0)
+                        val map = mapOf(
+                            "clock" to prefs.getBoolean("show_clock", true),
+                            "battery" to prefs.getBoolean("show_battery", true),
+                            "ram" to prefs.getBoolean("show_ram", true),
+                            "storage" to prefs.getBoolean("show_storage", true),
+                            "equalizer" to prefs.getBoolean("show_equalizer", true),
+                        )
+                        result.success(map)
+                    }
+                    "setOverlayVisibility" -> {
+                        val key = call.argument<String>("key")
+                        val value = call.argument<Boolean>("value")
+                        if (key == null || value == null) {
+                            result.error("INVALID_ARG", "key and value required", null)
+                            return@setMethodCallHandler
+                        }
+                        val allowed = setOf("clock", "battery", "ram", "storage", "equalizer")
+                        if (key !in allowed) {
+                            result.error("INVALID_ARG", "key must be one of $allowed", null)
+                            return@setMethodCallHandler
+                        }
+                        val prefs = getSharedPreferences("pixora_live", 0)
+                        prefs.edit().putBoolean("show_$key", value).apply()
+                        // Notify :wallpaper process — SharedPreferences is NOT multi-
+                        // process safe, so the engine's cached flags won't refresh
+                        // without this broadcast. See tech_sharedprefs_multi_process.md.
+                        val intent = Intent("com.orbix.pixora.OVERLAY_SETTINGS_CHANGED")
+                            .setPackage(packageName)
+                        sendBroadcast(intent)
+                        result.success(true)
                     }
                     "setRingtone" -> {
                         val path = call.argument<String>("path") ?: ""

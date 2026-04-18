@@ -4,6 +4,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/quality_service.dart';
+import '../../../core/services/wallpaper_service.dart';
+import '../../../core/utils/locale_helper.dart';
 import '../../favorites/providers/favorites_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -23,11 +25,41 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   int _cachedCount = 0;
   String _appVersion = '';
 
+  // Wallpaper overlay toggles (read from / written to native SharedPreferences).
+  final Map<String, bool> _overlays = {
+    'clock': true,
+    'battery': true,
+    'ram': true,
+    'storage': true,
+    'equalizer': true,
+  };
+
   @override
   void initState() {
     super.initState();
     _loadStatus();
     _loadVersion();
+    _loadOverlays();
+  }
+
+  Future<void> _loadOverlays() async {
+    final values = await WallpaperService.instance.getOverlayVisibility();
+    if (!mounted || values.isEmpty) return;
+    setState(() {
+      for (final key in _overlays.keys) {
+        if (values.containsKey(key)) _overlays[key] = values[key]!;
+      }
+    });
+  }
+
+  Future<void> _setOverlay(String key, bool value) async {
+    // Optimistic update — instant feedback in the UI while the native call runs.
+    setState(() => _overlays[key] = value);
+    final ok = await WallpaperService.instance.setOverlayVisibility(key, value);
+    if (!ok && mounted) {
+      // Revert on failure.
+      setState(() => _overlays[key] = !value);
+    }
   }
 
   Future<void> _loadVersion() async {
@@ -194,6 +226,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ],
               ),
         const Divider(color: Colors.white12),
+        _SectionHeader(LocaleHelper.pick(
+          es: 'Overlays del wallpaper',
+          en: 'Wallpaper overlays',
+        )),
+        _buildOverlaysSection(),
+        const Divider(color: Colors.white12),
         const _SectionHeader('Image Quality'),
         _buildQualitySection(),
         const SizedBox(height: 12),
@@ -212,6 +250,74 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           subtitle: 'Orbix Studio',
         ),
       ],
+    );
+  }
+
+  Widget _buildOverlaysSection() {
+    // (key, icon, title, subtitle) — subtitle is bilingual.
+    final items = [
+      (
+        'clock',
+        Icons.access_time,
+        LocaleHelper.pick(es: 'Reloj', en: 'Clock'),
+        LocaleHelper.pick(
+          es: 'Muestra el reloj decorativo sobre el fondo',
+          en: 'Show the decorative clock on the wallpaper',
+        ),
+      ),
+      (
+        'battery',
+        Icons.battery_charging_full,
+        LocaleHelper.pick(es: 'Batería', en: 'Battery'),
+        LocaleHelper.pick(
+          es: 'Muestra el indicador circular de batería',
+          en: 'Show the circular battery indicator',
+        ),
+      ),
+      (
+        'ram',
+        Icons.memory,
+        'RAM',
+        LocaleHelper.pick(
+          es: 'Muestra el anillo de uso de RAM',
+          en: 'Show the RAM usage ring',
+        ),
+      ),
+      (
+        'storage',
+        Icons.sd_storage,
+        LocaleHelper.pick(es: 'Disco', en: 'Disk'),
+        LocaleHelper.pick(
+          es: 'Muestra el anillo de almacenamiento',
+          en: 'Show the storage usage ring',
+        ),
+      ),
+      (
+        'equalizer',
+        Icons.equalizer,
+        LocaleHelper.pick(es: 'Ecualizador', en: 'Equalizer'),
+        LocaleHelper.pick(
+          es: 'Barras reactivas al audio que esté sonando',
+          en: 'Bars that react to the audio playing',
+        ),
+      ),
+    ];
+
+    return Column(
+      children: items.map((t) {
+        final key = t.$1;
+        final enabled = _overlays[key] ?? true;
+        return SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          secondary:
+              Icon(t.$2, color: enabled ? Colors.greenAccent : Colors.white54),
+          title: Text(t.$3),
+          subtitle: Text(t.$4, style: const TextStyle(color: Colors.white38)),
+          value: enabled,
+          activeColor: Colors.greenAccent,
+          onChanged: (v) => _setOverlay(key, v),
+        );
+      }).toList(),
     );
   }
 
