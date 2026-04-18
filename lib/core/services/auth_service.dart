@@ -1,6 +1,13 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'credit_service.dart';
 
 class AuthService {
   AuthService._();
@@ -29,7 +36,8 @@ class AuthService {
   /// Sign in with Google.
   Future<bool> signInWithGoogle() async {
     try {
-      const webClientId = '615188090674-057ja5g8m8sennvr4d5qkkgj1r85m9ul.apps.googleusercontent.com';
+      const webClientId =
+          '615188090674-057ja5g8m8sennvr4d5qkkgj1r85m9ul.apps.googleusercontent.com';
 
       final googleSignIn = GoogleSignIn(serverClientId: webClientId);
       final googleUser = await googleSignIn.signIn();
@@ -55,6 +63,11 @@ class AuthService {
       );
 
       debugPrint('[Auth] Signed in: ${response.user?.email}');
+      if (response.user != null) {
+        // Record session + sync local diamonds. Both run independently and
+        // don't block the sign-in UX — errors are logged but don't reject.
+        unawaited(_logSessionAndSyncCredits());
+      }
       return response.user != null;
     } catch (e) {
       debugPrint('[Auth] Google sign-in failed: $e');
@@ -62,11 +75,59 @@ class AuthService {
     }
   }
 
+  /// Fire-and-forget: record a session row and merge any local diamond
+  /// earnings into the server account.
+  Future<void> _logSessionAndSyncCredits() async {
+    try {
+      final info = await _collectDeviceInfo();
+      await _client.rpc('log_session', params: {
+        'p_app_version': info['app_version'],
+        'p_device_model': info['device_model'],
+        'p_android_version': info['android_version'],
+        'p_locale': Platform.localeName,
+      });
+      debugPrint('[Auth] Session logged');
+    } catch (e) {
+      debugPrint('[Auth] log_session failed: $e');
+    }
+    // Sync diamonds regardless of whether log_session succeeded.
+    try {
+      await CreditService.instance.syncAfterLogin();
+    } catch (e) {
+      debugPrint('[Auth] CreditService.syncAfterLogin failed: $e');
+    }
+  }
+
+  Future<Map<String, String?>> _collectDeviceInfo() async {
+    final out = <String, String?>{
+      'app_version': null,
+      'device_model': null,
+      'android_version': null,
+    };
+    try {
+      final pkg = await PackageInfo.fromPlatform();
+      out['app_version'] = '${pkg.version}+${pkg.buildNumber}';
+    } catch (_) {}
+    try {
+      if (Platform.isAndroid) {
+        final info = await DeviceInfoPlugin().androidInfo;
+        out['device_model'] = info.model;
+        out['android_version'] = info.version.release;
+      } else if (Platform.isIOS) {
+        final info = await DeviceInfoPlugin().iosInfo;
+        out['device_model'] = info.utsname.machine;
+        out['android_version'] = info.systemVersion;
+      }
+    } catch (_) {}
+    return out;
+  }
+
   /// Sign out.
   Future<void> signOut() async {
     try {
       await GoogleSignIn().signOut();
       await _client.auth.signOut();
+      await CreditService.instance.onSignOut();
       debugPrint('[Auth] Signed out');
     } catch (e) {
       debugPrint('[Auth] Sign out failed: $e');
@@ -108,7 +169,8 @@ class AuthService {
         });
       }
 
-      debugPrint('[Auth] Favorites synced: ${merged.length} total (${onlyLocal.length} uploaded)');
+      debugPrint(
+          '[Auth] Favorites synced: ${merged.length} total (${onlyLocal.length} uploaded)');
       return merged;
     } catch (e) {
       debugPrint('[Auth] Favorites sync failed: $e');
