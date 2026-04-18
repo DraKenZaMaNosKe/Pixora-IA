@@ -1,6 +1,7 @@
 package com.orbix.pixora
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.work.*
 import org.json.JSONArray
@@ -36,14 +37,26 @@ class StoryWorker(context: Context, params: WorkerParameters) : Worker(context, 
             // Get glow color
             val glowColor = prefs.getString("glow_color", "#7C4DFF") ?: "#7C4DFF"
 
-            // Update live wallpaper prefs — PixoraWallpaperService will pick up the change
+            // Update live wallpaper prefs — written from main process; disk is authoritative.
             val livePrefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+            val captionForIntent = if (caption.isNotEmpty()) caption else null
             livePrefs.edit()
                 .putString("wallpaper_path", path)
                 .putString("glow_color", glowColor)
-                .putString("caption", if (caption.isNotEmpty()) caption else null)
+                .putString("caption", captionForIntent)
                 .putLong("changed_at", System.currentTimeMillis())
                 .apply()
+
+            // Notify :wallpaper process via broadcast — SharedPreferences is NOT
+            // multi-process safe, so the engine's cached wallpaper_path won't update
+            // from our .apply() above. The receiver re-writes these values from
+            // inside :wallpaper to sync its cache and trigger the reload.
+            val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
+                .setPackage(applicationContext.packageName)
+                .putExtra("wallpaper_path", path)
+                .putExtra("glow_color", glowColor)
+                .putExtra("caption", captionForIntent)
+            applicationContext.sendBroadcast(notify)
 
             // Advance to next frame (loops back to 0)
             val nextIndex = (currentIndex + 1) % paths.size

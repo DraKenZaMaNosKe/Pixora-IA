@@ -1,6 +1,7 @@
 package com.orbix.pixora
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.work.*
 import java.util.Calendar
@@ -108,6 +109,16 @@ class DayCycleWorker(context: Context, params: WorkerParameters) : Worker(contex
                     .remove("caption")
                     .putLong("changed_at", System.currentTimeMillis())
                     .apply()
+
+                // Notify :wallpaper process — SharedPreferences cache is stale across
+                // processes, see tech_sharedprefs_multi_process.md. Passing null as
+                // caption extra so the receiver clears any existing caption.
+                val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
+                    .setPackage(context.packageName)
+                    .putExtra("wallpaper_path", path)
+                    .putExtra("glow_color", glowColor)
+                    .putExtra("caption", null as String?)
+                context.sendBroadcast(notify)
 
                 prefs.edit().putString("last_period", period).apply()
                 Log.d(TAG, "Wallpaper changed to $period: $path (via live wallpaper)")

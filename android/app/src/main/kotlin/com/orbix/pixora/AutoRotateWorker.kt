@@ -1,6 +1,7 @@
 package com.orbix.pixora
 
 import android.content.Context
+import android.content.Intent
 import android.os.Environment
 import android.os.StatFs
 import android.util.Log
@@ -134,6 +135,15 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
                 .putString("glow_color", glowColor)
                 .putLong("changed_at", System.currentTimeMillis()) // trigger listener
                 .apply()
+
+            // Notify :wallpaper process — SharedPreferences cache is stale across
+            // processes, see tech_sharedprefs_multi_process.md. The receiver
+            // re-applies the values from inside :wallpaper to sync its cache.
+            val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
+                .setPackage(applicationContext.packageName)
+                .putExtra("wallpaper_path", path)
+                .putExtra("glow_color", glowColor)
+            applicationContext.sendBroadcast(notify)
 
             Log.d(TAG, "Wallpaper prefs updated: $path, glow=$glowColor")
             true

@@ -132,6 +132,29 @@ class PixoraWallpaperService : WallpaperService() {
             }
         }
 
+        // Receives wallpaper-path changes from Workers running in the main process
+        // (StoryWorker, AutoRotateWorker, DayCycleWorker). We can't rely on
+        // OnSharedPreferenceChangeListener because SharedPreferences is not
+        // multi-process safe — writes from the main process don't notify :wallpaper
+        // and the cache stays stale. Trick: the Worker puts the new values in Intent
+        // extras, and we re-apply them to prefs from inside :wallpaper. Our own
+        // apply() updates the local cache (disk write is a no-op since the XML
+        // already has these values) AND fires the in-process prefs listener, which
+        // handles the debounced loadWallpaperImage() + createScaledBitmap() for us.
+        private val wallpaperPathReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val newPath = intent?.getStringExtra("wallpaper_path") ?: return
+                val newGlow = intent.getStringExtra("glow_color")
+                val newCaption = intent.getStringExtra("caption")
+                val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
+                val editor = prefs.edit().putString("wallpaper_path", newPath)
+                if (newGlow != null) editor.putString("glow_color", newGlow)
+                editor.putString("caption", newCaption)
+                editor.putLong("changed_at", System.currentTimeMillis())
+                editor.apply()
+            }
+        }
+
         private fun loadOverlaySettings() {
             val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
             showClock = prefs.getBoolean("show_clock", true)
@@ -180,7 +203,30 @@ class PixoraWallpaperService : WallpaperService() {
             registerPrefsListener()
             registerKeyguardReceiver()
             registerOverlaySettingsReceiver()
+            registerWallpaperPathReceiver()
             Log.d(TAG, "Engine onCreate")
+        }
+
+        private fun registerWallpaperPathReceiver() {
+            val filter = IntentFilter("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    applicationContext.registerReceiver(
+                        wallpaperPathReceiver, filter, Context.RECEIVER_NOT_EXPORTED
+                    )
+                } else {
+                    @Suppress("UnspecifiedRegisterReceiverFlag")
+                    applicationContext.registerReceiver(wallpaperPathReceiver, filter)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "wallpaperPathReceiver register failed: ${e.message}")
+            }
+        }
+
+        private fun unregisterWallpaperPathReceiver() {
+            try {
+                applicationContext.unregisterReceiver(wallpaperPathReceiver)
+            } catch (_: Exception) { /* not registered */ }
         }
 
         private fun registerOverlaySettingsReceiver() {
@@ -1067,6 +1113,7 @@ class PixoraWallpaperService : WallpaperService() {
             unregisterPrefsListener()
             unregisterKeyguardReceiver()
             unregisterOverlaySettingsReceiver()
+            unregisterWallpaperPathReceiver()
             synchronized(bitmapLock) {
                 wallpaperBitmap?.recycle()
                 scaledBitmap?.recycle()
