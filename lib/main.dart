@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/credit_service.dart';
+import 'core/services/subscription_service.dart';
 import 'features/aura/services/aura_player_service.dart';
 import 'core/services/wallpaper_stats_service.dart';
 import 'core/theme/app_theme.dart';
@@ -53,6 +54,10 @@ Future<void> main() async {
     await CreditService.instance.init();
     await AuraPlayerService.instance.init();
     AdService.instance.initialize();
+    // Subscription init doesn't block app start — it queries Play Store and
+    // Supabase in parallel. If a user is already signed in, onSignIn will
+    // fire again once session hydrates.
+    unawaited(SubscriptionService.instance.init());
     runApp(const ProviderScope(child: PixoraApp()));
   }, (error, stackTrace) {
     debugPrint('[Pixora] Uncaught error: $error');

@@ -8,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'credit_service.dart';
+import 'subscription_service.dart';
 
 class AuthService {
   AuthService._();
@@ -96,6 +97,12 @@ class AuthService {
     } catch (e) {
       debugPrint('[Auth] CreditService.syncAfterLogin failed: $e');
     }
+    // Fetch subscription status + restore past purchases.
+    try {
+      await SubscriptionService.instance.onSignIn();
+    } catch (e) {
+      debugPrint('[Auth] SubscriptionService.onSignIn failed: $e');
+    }
   }
 
   Future<Map<String, String?>> _collectDeviceInfo() async {
@@ -128,6 +135,7 @@ class AuthService {
       await GoogleSignIn().signOut();
       await _client.auth.signOut();
       await CreditService.instance.onSignOut();
+      await SubscriptionService.instance.onSignOut();
       debugPrint('[Auth] Signed out');
     } catch (e) {
       debugPrint('[Auth] Sign out failed: $e');

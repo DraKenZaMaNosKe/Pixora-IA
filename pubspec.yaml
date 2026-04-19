@@ -1,7 +1,7 @@
 name: pixora
 description: "Pixora IA - Wallpapers, Ringtones & Icon Packs"
 publish_to: 'none'
-version: 1.5.9+25
+version: 1.5.12+28
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
@@ -32,6 +32,7 @@ dependencies:
   package_info_plus: ^8.0.0
   device_info_plus: ^10.1.2
   archive: ^4.0.2
+  in_app_purchase: ^3.2.0
 
 dependency_overrides:
   win32: 5.5.5

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/quality_service.dart';
+import '../../../core/services/subscription_service.dart';
 import '../../../core/services/wallpaper_service.dart';
 import '../../../core/utils/locale_helper.dart';
 import '../../favorites/providers/favorites_provider.dart';
@@ -249,8 +251,193 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           title: 'Made by',
           subtitle: 'Orbix Studio',
         ),
+        const SizedBox(height: 12),
+        const Divider(color: Colors.white12),
+        _SectionHeader(LocaleHelper.pick(
+          es: 'Suscripción',
+          en: 'Subscription',
+        )),
+        _SettingsTile(
+          icon: Icons.verified,
+          title: LocaleHelper.pick(
+            es: 'Reintentar verificación de compra',
+            en: 'Retry purchase verification',
+          ),
+          subtitle: LocaleHelper.pick(
+            es: 'Si acabas de suscribirte pero Pixora Plus no se activó, toca aquí.',
+            en: 'If you just subscribed but Pixora Plus didn\'t activate, tap here.',
+          ),
+          onTap: _retryVerifySubscription,
+        ),
+        const SizedBox(height: 12),
+        const Divider(color: Colors.white12),
+        _SectionHeader(LocaleHelper.pick(
+          es: 'Zona de peligro',
+          en: 'Danger zone',
+        )),
+        _SettingsTile(
+          icon: Icons.delete_forever,
+          title: LocaleHelper.pick(
+            es: 'Eliminar mi cuenta',
+            en: 'Delete my account',
+          ),
+          subtitle: LocaleHelper.pick(
+            es: 'Borra permanentemente tu cuenta y todos tus datos',
+            en: 'Permanently delete your account and all your data',
+          ),
+          onTap: _confirmDeleteAccount,
+          iconColor: Colors.red,
+        ),
+        const SizedBox(height: 40),
       ],
     );
+  }
+
+  Future<void> _retryVerifySubscription() async {
+    final isSpanish = LocaleHelper.isSpanish;
+    // Show a spinner dialog while the retry runs.
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF1a1a1a),
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(isSpanish
+                  ? 'Verificando tu suscripción…'
+                  : 'Verifying your subscription…'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    String resultCode;
+    try {
+      resultCode = await SubscriptionService.instance.retryVerification();
+    } catch (e) {
+      resultCode = 'error:$e';
+    }
+
+    if (!mounted) return;
+    Navigator.of(context, rootNavigator: true).pop(); // close spinner
+
+    final msg = () {
+      if (resultCode == 'not_authenticated') {
+        return isSpanish
+            ? 'Inicia sesión primero para verificar tu suscripción.'
+            : 'Sign in first to verify your subscription.';
+      }
+      if (resultCode == 'no_active_purchase_found') {
+        return isSpanish
+            ? 'No encontré una compra activa. Si acabas de suscribirte, espera 1 min y vuelve a intentar. Si cancelaste, es normal que no aparezca.'
+            : 'No active purchase found. If you just subscribed, wait ~1 min and retry. If you cancelled, it\'s expected.';
+      }
+      if (resultCode.startsWith('ok_seen_')) {
+        final n = resultCode.split('_').last;
+        return isSpanish
+            ? 'Se revisaron $n compra(s). Tu suscripción debería reflejarse en segundos.'
+            : 'Checked $n purchase(s). Your subscription should reflect within seconds.';
+      }
+      return isSpanish
+          ? 'Error al verificar: $resultCode'
+          : 'Verification error: $resultCode';
+    }();
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      duration: const Duration(seconds: 5),
+    ));
+    // Force UI refresh so the AI generator tab reflects any new status.
+    setState(() {});
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    final isSpanish = LocaleHelper.isSpanish;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1a1a1a),
+        title:
+            Text(isSpanish ? '¿Eliminar tu cuenta?' : 'Delete your account?'),
+        content: Text(isSpanish
+            ? 'Esta acción es PERMANENTE. Perderás:\n'
+                '• Todos tus diamantes\n'
+                '• Tu historial de favoritos sincronizados\n'
+                '• Tu historial de generaciones con IA\n'
+                '• Tu suscripción (si tienes una activa, cancélala primero en Google Play)\n\n'
+                '¿Seguro quieres continuar?'
+            : 'This action is PERMANENT. You will lose:\n'
+                '• All your diamonds\n'
+                '• Your synced favorites history\n'
+                '• Your AI generation history\n'
+                '• Your subscription (if you have one active, cancel it in Google Play first)\n\n'
+                'Are you sure you want to continue?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(isSpanish ? 'Cancelar' : 'Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(isSpanish ? 'Eliminar' : 'Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await _performDeleteAccount();
+  }
+
+  Future<void> _performDeleteAccount() async {
+    try {
+      await Supabase.instance.client.rpc('delete_my_account');
+      // RPC succeeded — user row is deleted in auth.users. Sign out cleanly
+      // to clear the local session token.
+      await AuthService.instance.signOut();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(LocaleHelper.pick(
+          es: 'Cuenta eliminada.',
+          en: 'Account deleted.',
+        )),
+        backgroundColor: Colors.green.shade700,
+      ));
+    } on PostgrestException catch (e) {
+      if (!mounted) return;
+      final code = e.message;
+      final msg = code.contains('active_subscription_cancel_first')
+          ? LocaleHelper.pick(
+              es: 'Tienes una suscripción activa. Cancélala primero en Google Play → Suscripciones, y vuelve después.',
+              en: 'You have an active subscription. Cancel it first in Google Play → Subscriptions and come back.',
+            )
+          : LocaleHelper.pick(
+              es: 'No se pudo eliminar la cuenta: ${e.message}',
+              en: 'Could not delete account: ${e.message}',
+            );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(msg),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 6),
+      ));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(LocaleHelper.pick(
+          es: 'Error inesperado: $e',
+          en: 'Unexpected error: $e',
+        )),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   Widget _buildOverlaysSection() {
@@ -678,18 +865,25 @@ class _SettingsTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.onTap,
+    this.iconColor,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
+    final color = iconColor ?? Colors.white54;
     return ListTile(
-      leading: Icon(icon, color: Colors.white54),
-      title: Text(title),
+      leading: Icon(icon, color: color),
+      title: Text(
+        title,
+        style:
+            iconColor == Colors.red ? const TextStyle(color: Colors.red) : null,
+      ),
       subtitle: Text(subtitle, style: const TextStyle(color: Colors.white38)),
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
