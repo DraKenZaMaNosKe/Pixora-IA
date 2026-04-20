@@ -71,12 +71,18 @@ class AquariumRenderer(private val context: Context) {
             }
             if (fileList.isEmpty()) return
 
+            // Decode sprites at reduced resolution to save RAM on mid-range devices.
+            // Sprites are drawn at ~200px wide max, so decoding at 50% is lossless visually.
+            val opts = BitmapFactory.Options().apply {
+                inSampleSize = 2
+                inPreferredConfig = Bitmap.Config.RGB_565
+            }
             val bitmaps = fileList.mapNotNull { filename ->
                 val raw = if (fromFiles) {
-                    BitmapFactory.decodeFile("${cacheDir.absolutePath}/$filename")
+                    BitmapFactory.decodeFile("${cacheDir.absolutePath}/$filename", opts)
                 } else {
                     context.assets.open("$assetFolder/$filename").use { stream ->
-                        BitmapFactory.decodeStream(stream)
+                        BitmapFactory.decodeStream(stream, null, opts)
                     }
                 }
                 if (raw == null) return@mapNotNull null
@@ -90,6 +96,7 @@ class AquariumRenderer(private val context: Context) {
             spriteCache[assetFolder] = bitmaps
             val src = if (fromFiles) "files" else "assets"
             android.util.Log.d("AquariumRenderer", "Loaded ${bitmaps.size} frames from $src:$assetFolder (mirrored=$mirrorOnLoad)")
+            System.gc()
         } catch (e: Exception) {
             android.util.Log.e("AquariumRenderer", "Failed to load sprites: $e")
         }

@@ -108,6 +108,7 @@ class _DayCycleCard extends ConsumerWidget {
           child: Image.network(
             theme.previewUrl,
             fit: BoxFit.cover,
+            cacheWidth: 400,
             errorBuilder: (_, __, ___) => Container(
               color: HudTokens.nightSurface,
               child: const Icon(Icons.image, color: Colors.white24, size: 48),

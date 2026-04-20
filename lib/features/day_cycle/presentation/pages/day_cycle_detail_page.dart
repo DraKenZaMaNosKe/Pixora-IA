@@ -115,6 +115,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
                 style: const TextStyle(fontWeight: FontWeight.bold, shadows: [Shadow(blurRadius: 8, color: Colors.black)])),
               background: Stack(fit: StackFit.expand, children: [
                 Image.network(widget.theme.previewUrl, fit: BoxFit.cover,
+                  cacheWidth: 640,
                   errorBuilder: (_, __, ___) => Container(color: HudTokens.nightSurface)),
                 const DecoratedBox(decoration: BoxDecoration(
                   gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
@@ -217,6 +218,7 @@ class _PeriodPreview extends StatelessWidget {
           height: 90,
           child: Row(children: [
             SizedBox(width: 130, child: Image.network(imageUrl, fit: BoxFit.cover, height: 90,
+              cacheWidth: 260, cacheHeight: 180,
               errorBuilder: (_, __, ___) => Container(color: HudTokens.nightSurface,
                 child: Icon(icon, color: color.withOpacity(0.3), size: 32)))),
             Expanded(child: Padding(padding: const EdgeInsets.all(12),

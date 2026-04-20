@@ -813,6 +813,7 @@ class PixoraWallpaperService : WallpaperService() {
                             bmp.recycle()
                         }
                     }
+                    System.gc()
                     // Force a redraw with the new bitmap (verify surface still valid)
                     handler.post {
                         if (drawing && surfaceHolder?.surface?.isValid == true) drawFrame()

@@ -59,12 +59,16 @@ class JellyfishRenderer(private val context: Context) {
                 return
             }
 
+            val opts = BitmapFactory.Options().apply {
+                inSampleSize = 2
+                inPreferredConfig = Bitmap.Config.RGB_565
+            }
             val bitmaps = fileList.mapNotNull { filename ->
                 if (fromFiles) {
-                    BitmapFactory.decodeFile("${cacheDir.absolutePath}/$filename")
+                    BitmapFactory.decodeFile("${cacheDir.absolutePath}/$filename", opts)
                 } else {
                     context.assets.open("$assetFolder/$filename").use { stream ->
-                        BitmapFactory.decodeStream(stream)
+                        BitmapFactory.decodeStream(stream, null, opts)
                     }
                 }
             }
@@ -74,6 +78,7 @@ class JellyfishRenderer(private val context: Context) {
                 "JellyfishRenderer",
                 "Loaded ${bitmaps.size} frames from $src:$assetFolder"
             )
+            System.gc()
         } catch (e: Exception) {
             android.util.Log.e("JellyfishRenderer", "Failed to load $assetFolder: $e")
         }

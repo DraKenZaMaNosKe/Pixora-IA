@@ -809,6 +809,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
       inner = Image.network(
         g.resultUrl!,
         fit: BoxFit.cover,
+        cacheWidth: 640,
         loadingBuilder: (ctx, child, progress) {
           if (progress == null) return child;
           return AspectRatio(

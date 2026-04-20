@@ -164,6 +164,8 @@ class _BannerPage extends StatelessWidget {
             : CachedNetworkImage(
                 imageUrl: item.imageUrl,
                 fit: BoxFit.cover,
+                memCacheWidth: 640,
+                maxWidthDiskCache: 1080,
                 placeholder: (_, __) => Container(color: HudTokens.nightBg),
                 errorWidget: (_, __, ___) => const _HeroFallback(),
               ),

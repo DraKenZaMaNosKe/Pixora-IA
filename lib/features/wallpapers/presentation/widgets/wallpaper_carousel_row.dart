@@ -95,7 +95,7 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       itemCount: widget.items.length,
-                      cacheExtent: 500,
+                      cacheExtent: 150,
                       itemBuilder: (context, index) {
                         // Staggered entrance per card
                         final stagger = (index * 0.08).clamp(0.0, 0.6);

@@ -17,6 +17,7 @@
     <application
         android:label="Wallpaper PixoraIA"
         android:usesCleartextTraffic="false"
+        android:largeHeap="true"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
