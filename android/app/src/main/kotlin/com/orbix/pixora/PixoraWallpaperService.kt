@@ -381,6 +381,7 @@ class PixoraWallpaperService : WallpaperService() {
                     jellyfishRenderer.loadSprites("aquarium/jellyfish_blue")
                     // Optional species: load if present. Silently skip otherwise.
                     jellyfishRenderer.loadSprites("aquarium/jellyfish_gold")
+                    jellyfishRenderer.loadSprites("aquarium/comb_jelly")
                     if (jellyfishRenderer.jellyCount == 0) {
                         // Blue moon: 2 distant, 3 mid, 1 big foreground
                         jellyfishRenderer.addJellies(
@@ -414,22 +415,36 @@ class PixoraWallpaperService : WallpaperService() {
                                 swayAmpMin = 25f, swayAmpMax = 45f,
                             )
                         }
+                        // Comb jelly (ctenophore): 1 rare iridescent wanderer, very slow + wide sway
+                        if (jellyfishRenderer.hasSprites("aquarium/comb_jelly")) {
+                            jellyfishRenderer.addJellies(
+                                count = 1,
+                                spriteFolder = "aquarium/comb_jelly",
+                                scaleMin = 0.7f, scaleMax = 0.9f,
+                                speedMin = 0.15f, speedMax = 0.3f,
+                                swayAmpMin = 35f, swayAmpMax = 55f,
+                            )
+                        }
                     }
 
                     // Rising bubble streams — calm abyss respiration
                     bubbleRenderer.surfaceWidth = surfaceWidth
                     bubbleRenderer.surfaceHeight = surfaceHeight
 
-                    // Occasional bioluminescent squid (horizontal jetter)
+                    // Occasional deep-sea anglerfish (horizontal drifter).
+                    // No native lure glow — the GIF already bakes a pulsing
+                    // bioluminescent bulb into the animation, and since the
+                    // illicium sways per-frame, a static overlay can't track
+                    // it correctly. The GIF's built-in glow is enough.
                     aquariumRenderer.surfaceWidth = surfaceWidth
                     aquariumRenderer.surfaceHeight = surfaceHeight
-                    aquariumRenderer.loadFishSprites("aquarium/squid_bio")
+                    aquariumRenderer.loadFishSprites("aquarium/angler_fish")
                     if (aquariumRenderer.fishCount == 0) {
                         aquariumRenderer.addFish(
                             count = 1,
-                            spriteFolder = "aquarium/squid_bio",
-                            scaleMin = 0.5f, scaleMax = 0.6f,
-                            speedMin = 0.8f, speedMax = 1.2f,
+                            spriteFolder = "aquarium/angler_fish",
+                            scaleMin = 0.55f, scaleMax = 0.7f,
+                            speedMin = 0.4f, speedMax = 0.7f,
                         )
                     }
 

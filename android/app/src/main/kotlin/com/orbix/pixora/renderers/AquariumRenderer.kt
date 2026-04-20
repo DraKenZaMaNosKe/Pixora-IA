@@ -2,6 +2,7 @@ package com.orbix.pixora.renderers
 
 import android.content.Context
 import android.graphics.*
+import android.os.SystemClock
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -42,6 +43,14 @@ class AquariumRenderer(private val context: Context) {
         var goingRight: Boolean,     // direction
         var scale: Float,            // size multiplier (variety)
         var spriteFolder: String,    // which sprite set to use
+        // Optional lure glow (e.g. for deep-sea anglerfish). Offset in
+        // sprite-local coordinates pointing at the lure bulb when the sprite
+        // is facing LEFT (canonical orientation). Mirror flip at draw time
+        // auto-handles rightward swimmers.
+        var lureOffsetX: Float = 0f,
+        var lureOffsetY: Float = 0f,
+        var lureBaseRadius: Float = 0f,  // 0 disables the glow
+        var lurePhase: Float = 0f,       // seed for the pulse sine
     )
 
     // ── Load sprites from assets OR filesystem ────────────────────
@@ -86,7 +95,9 @@ class AquariumRenderer(private val context: Context) {
         }
     }
 
-    // ── Add fish ─────────────────────────────────────────────────
+    // ── Add fish (with optional bioluminescent lure glow) ────────
+    // `lureOffsetX/Y` are in sprite-local px (0,0 = top-left of the frame,
+    // facing LEFT). `lureRadius` = 0 disables the effect.
     fun addFish(
         count: Int,
         spriteFolder: String = "aquarium/betta",
@@ -94,6 +105,9 @@ class AquariumRenderer(private val context: Context) {
         scaleMax: Float = 1.0f,
         speedMin: Float = 1f,
         speedMax: Float = 3f,
+        lureOffsetX: Float = 0f,
+        lureOffsetY: Float = 0f,
+        lureRadius: Float = 0f,
     ) {
         if (surfaceWidth <= 0 || surfaceHeight <= 0) return
         loadFishSprites(spriteFolder)
@@ -114,12 +128,19 @@ class AquariumRenderer(private val context: Context) {
                 goingRight = goingRight,
                 scale = Random.nextFloat() * (scaleMax - scaleMin) + scaleMin,
                 spriteFolder = spriteFolder,
+                lureOffsetX = lureOffsetX,
+                lureOffsetY = lureOffsetY,
+                lureBaseRadius = lureRadius,
+                lurePhase = Random.nextFloat() * Math.PI.toFloat() * 2f,
             ))
         }
     }
 
     // ── Draw ─────────────────────────────────────────────────────
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
+    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
 
     fun draw(canvas: Canvas) {
         if (surfaceWidth <= 0 || surfaceHeight <= 0) return
@@ -172,8 +193,49 @@ class AquariumRenderer(private val context: Context) {
             }
 
             canvas.drawBitmap(sprite, 0f, 0f, paint)
+
+            // Bioluminescent lure glow (anglerfish, etc.) — drawn INSIDE the
+            // same canvas transform so the flip+scale auto-mirror the glow
+            // position when the fish swims rightward.
+            if (fish.lureBaseRadius > 0f) {
+                val t = SystemClock.uptimeMillis() / 1000f
+                // Pulse: dim 0.7 → bright 1.0, ~1.5 Hz
+                val pulse = 0.85f + 0.15f * sin((t * 3f + fish.lurePhase).toDouble()).toFloat()
+                val r = fish.lureBaseRadius * pulse
+                val cx = fish.lureOffsetX
+                val cy = fish.lureOffsetY
+
+                // Layer 1: outer soft halo (large, faint)
+                glowPaint.shader = RadialGradient(
+                    cx, cy, r * 2.2f,
+                    Color.argb((50 * pulse).toInt(), 240, 221, 158),
+                    Color.argb(0, 240, 221, 158),
+                    Shader.TileMode.CLAMP,
+                )
+                canvas.drawCircle(cx, cy, r * 2.2f, glowPaint)
+
+                // Layer 2: mid warm body
+                glowPaint.shader = RadialGradient(
+                    cx, cy, r * 1.2f,
+                    Color.argb((140 * pulse).toInt(), 255, 215, 106),
+                    Color.argb(0, 255, 215, 106),
+                    Shader.TileMode.CLAMP,
+                )
+                canvas.drawCircle(cx, cy, r * 1.2f, glowPaint)
+
+                // Layer 3: inner bright core (tight, almost white at peak)
+                glowPaint.shader = RadialGradient(
+                    cx, cy, r * 0.45f,
+                    Color.argb((230 * pulse).toInt(), 255, 248, 220),
+                    Color.argb(0, 255, 215, 106),
+                    Shader.TileMode.CLAMP,
+                )
+                canvas.drawCircle(cx, cy, r * 0.45f, glowPaint)
+            }
+
             canvas.restore()
         }
+        glowPaint.shader = null
     }
 
     // ── Position a sprite at a fixed point, fully stationary (for perched owls, etc.) ──

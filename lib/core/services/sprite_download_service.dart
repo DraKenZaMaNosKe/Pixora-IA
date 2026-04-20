@@ -30,6 +30,8 @@ class SpriteDownloadService {
     'jellyfish': [
       'aquarium/jellyfish_blue',
       'aquarium/jellyfish_gold',
+      'aquarium/angler_fish',
+      'aquarium/comb_jelly',
     ],
   };
 
