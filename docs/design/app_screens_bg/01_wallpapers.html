@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Wallpapers · Black & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.hero { margin: 12px 18px 0; position: relative; height: 340px; border: 1px solid var(--gold); border-radius: 4px; overflow: hidden; }
+.hero img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.85) contrast(1.05); }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent 55%); }
+.hero-corners { position: absolute; inset: 4px; pointer-events: none; }
+.hero-corners span { position: absolute; width: 14px; height: 14px; border: 1px solid var(--gold); }
+.hero-corners .tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.hero-corners .tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.hero-corners .bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.hero-corners .br { bottom: 0; right: 0; border-left: none; border-top: none; }
+.hero-body { position: absolute; bottom: 18px; left: 18px; right: 18px; z-index: 2; }
+.hero-eyebrow { font-family: 'Inter'; font-weight: 700; font-size: 10px; color: var(--gold); letter-spacing: 0.35em; text-transform: uppercase; margin-bottom: 6px; }
+.hero-title { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 32px; line-height: 0.95; color: var(--cream); letter-spacing: -0.02em; margin-bottom: 6px; }
+.hero-title .it { font-style: italic; font-weight: 400; color: var(--gold); }
+.hero-desc { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: rgba(240,232,214,0.75); line-height: 1.4; }
+.hero-dots { display: flex; gap: 6px; margin-top: 12px; }
+.hero-dot { width: 14px; height: 2px; background: rgba(201,166,80,0.25); }
+.hero-dot.active { background: var(--gold); width: 28px; }
+.card-row { display: flex; gap: 10px; overflow-x: auto; padding: 0 18px 6px; }
+.card { min-width: 115px; }
+.card-img { width: 115px; height: 160px; position: relative; border: 1px solid var(--divider); overflow: hidden; }
+.card-img img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.85); }
+.card-num { position: absolute; top: 6px; left: 6px; width: 22px; height: 22px; background: var(--ink); border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 900; font-size: 11px; color: var(--gold); }
+.card-badge { position: absolute; top: 6px; right: 6px; padding: 2px 6px; background: var(--gold); font-family: 'Inter'; font-weight: 700; font-size: 8px; color: var(--ink); letter-spacing: 0.15em; }
+.card-heart { position: absolute; bottom: 6px; right: 6px; color: var(--gold); font-size: 14px; }
+.card-title { margin-top: 8px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 13px; color: var(--cream); letter-spacing: -0.01em; }
+.card-sub { margin-top: 2px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 11px; color: var(--gold-dim); }
+.body-scroll { padding-bottom: 80px; }
+</style></head><body>
+<div class="screen-tag"><span class="n">S1 · WALL</span>Wallpapers</div>
+<div class="phone">
+  <div class="notch"><span>9:41</span><span>●●○</span></div>
+  <div class="appbar">
+    <div class="brand">Pix<span class="it">ora</span></div>
+    <div class="diamond-pill"><span class="d">◆</span>120</div>
+  </div>
+  <div class="body-scroll">
+  <div class="hero">
+    <div class="hero-corners"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+    <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=500&q=80">
+    <div class="hero-body">
+      <div class="hero-eyebrow">— No. I · Nature</div>
+      <div class="hero-title">Enchanted <span class="it">forest</span></div>
+      <div class="hero-desc">Moonlit woods with animated fireflies drifting through ancient mossy trees.</div>
+      <div class="hero-dots"><div class="hero-dot active"></div><div class="hero-dot"></div><div class="hero-dot"></div><div class="hero-dot"></div><div class="hero-dot"></div></div>
+    </div>
+  </div>
+  <div class="section-head">
+    <div class="section-title">Trending<span class="it"> now</span></div>
+    <div class="section-more">ver todo</div>
+  </div>
+  <div class="card-row">
+    <div class="card"><div class="card-img"><div class="card-num">I</div><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=230&q=80"><div class="card-heart">♡</div></div><div class="card-title">2B · Automata</div><div class="card-sub">anime · action</div></div>
+    <div class="card"><div class="card-img"><div class="card-num">II</div><div class="card-badge">NEW</div><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=230&q=80"><div class="card-heart">♥</div></div><div class="card-title">Saga Géminis</div><div class="card-sub">saint seiya</div></div>
+    <div class="card"><div class="card-img"><div class="card-num">III</div><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=230&q=80"><div class="card-heart">♡</div></div><div class="card-title">Aku</div><div class="card-sub">samurai jack</div></div>
+  </div>
+  <div class="section-head"><div class="section-title">New<span class="it"> arrivals</span></div><div class="section-more">ver todo</div></div>
+  <div class="card-row">
+    <div class="card"><div class="card-img"><div class="card-num">IV</div><img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=230&q=80"><div class="card-heart">♡</div></div><div class="card-title">Cyber alley</div><div class="card-sub">night · neon</div></div>
+    <div class="card"><div class="card-img"><div class="card-num">V</div><div class="card-badge">NEW</div><img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=230&q=80"><div class="card-heart">♡</div></div><div class="card-title">Dragon</div><div class="card-sub">fire · myth</div></div>
+  </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active"><span class="nav-icon">W</span>Wall</div>
+    <div class="nav-item"><span class="nav-icon">L</span>Live</div>
+    <div class="nav-item"><span class="nav-icon">A</span>Aura</div>
+    <div class="nav-item"><span class="nav-icon">S</span>Stor</div>
+    <div class="nav-item"><span class="nav-icon">D</span>Day</div>
+    <div class="nav-item"><span class="nav-icon">T</span>Ton</div>
+    <div class="nav-item"><span class="nav-icon">I</span>IA</div>
+    <div class="nav-item"><span class="nav-icon">F</span>Fav</div>
+  </div>
+</div>
+</body></html>

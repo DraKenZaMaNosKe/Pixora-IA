@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<title>E · Swiss Braun</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#ff4020; font-weight:900; font-size:18px; letter-spacing:-0.03em; }
+.dir-label::before { content:"E · "; color:#888; font-weight:500; letter-spacing:0.25em; text-transform:uppercase; font-size:11px; font-family:'JetBrains Mono',monospace; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; font-weight:500; font-family:'JetBrains Mono',monospace; }
+.phone {
+  width:320px; height:680px; overflow:hidden; position:relative;
+  --bg:#0d0d0d; --surface:#161616; --text:#eaeaea; --text-dim:#7a7a7a; --accent:#ff4020; --divider:rgba(234,234,234,0.1);
+  background:var(--bg); color:var(--text);
+  box-shadow:0 20px 50px rgba(0,0,0,0.4);
+}
+.phone.light { --bg:#f5f5f3; --surface:#ececea; --text:#0d0d0d; --text-dim:#6a6a6a; --accent:#d92a10; --divider:rgba(13,13,13,0.1); }
+.notch { height:28px; display:flex; justify-content:space-between; padding:10px 22px 0; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500; }
+.topbar { display:flex; justify-content:space-between; align-items:stretch; border-bottom:1px solid var(--divider); }
+.brand-box { padding:14px 18px; border-right:1px solid var(--divider); font-weight:900; font-size:20px; letter-spacing:-0.04em; }
+.brand-box em { color:var(--accent); font-weight:700; font-style:normal; }
+.meta-slot { flex:1; padding:14px 16px; display:flex; align-items:center; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; color:var(--text-dim); text-transform:uppercase; }
+.dia-box { padding:14px 16px; border-left:1px solid var(--divider); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; }
+.dia-box .acc { color:var(--accent); }
+.hero { position:relative; height:280px; overflow:hidden; border-bottom:1px solid var(--divider); }
+.hero img { width:100%; height:100%; object-fit:cover; }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(13,13,13,0.9), transparent 55%); }
+.hero-body { position:absolute; bottom:14px; left:18px; right:18px; color:#fff; z-index:2; }
+.hero-meta-row { display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--accent); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px; }
+.hero-title { font-weight:900; font-size:32px; line-height:0.95; letter-spacing:-0.04em; margin-bottom:6px; text-transform:uppercase; }
+.hero-desc { font-size:11px; opacity:0.75; line-height:1.4; font-family:'JetBrains Mono',monospace; }
+.section-head { padding:16px 18px 10px; border-bottom:1px solid var(--divider); display:flex; justify-content:space-between; align-items:baseline; }
+.section-title { font-weight:900; font-size:14px; letter-spacing:-0.02em; text-transform:uppercase; }
+.section-title span { color:var(--accent); }
+.more { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:var(--accent); letter-spacing:0.1em; text-transform:uppercase; }
+.row { display:flex; gap:0; overflow-x:auto; border-bottom:1px solid var(--divider); }
+.card { min-width:105px; border-right:1px solid var(--divider); padding:10px; }
+.card-img { width:85px; height:120px; overflow:hidden; position:relative; background:var(--surface); }
+.card-img img { width:100%; height:100%; object-fit:cover; }
+.card-badge { position:absolute; top:0; left:0; background:var(--accent); color:#fff; padding:2px 6px; font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; letter-spacing:0.08em; }
+.card-idx { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-dim); margin-top:6px; }
+.card-title { font-size:11px; font-weight:700; letter-spacing:-0.01em; line-height:1.1; }
+.nav { position:absolute; bottom:0; left:0; right:0; border-top:1px solid var(--divider); display:flex; background:var(--bg); }
+.nav-item { flex:1; padding:14px 4px 18px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; border-right:1px solid var(--divider); }
+.nav-item:last-child { border-right:none; }
+.nav-item.active { color:var(--accent); }
+.nav-icon { font-size:14px; font-weight:900; display:block; margin-bottom:3px; font-family:'Inter',sans-serif; }
+</style></head><body>
+<div class="dir-label">Swiss Braun · International Style</div>
+<div class="pair">
+  <template id="ph">
+    <div class="notch"><span>9:41</span><span>●●○</span></div>
+    <div class="topbar"><div class="brand-box">PIX<em>·</em>ORA</div><div class="meta-slot">// HOME · 2026.04.19</div><div class="dia-box"><span class="acc">◆</span>120</div></div>
+    <div class="hero"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+      <div class="hero-body"><div class="hero-meta-row"><span>NATURE · N°01</span><span>9:16</span></div><div class="hero-title">Enchanted<br>Forest</div><div class="hero-desc">&gt; moonlit · fireflies · mossy trees</div></div>
+    </div>
+    <div class="section-head"><div class="section-title">Trending<span> ·</span></div><div class="more">[ ver todo ]</div></div>
+    <div class="row">
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-idx">01 / WAL</div><div class="card-title">2B Automata</div></div>
+      <div class="card"><div class="card-img"><span class="card-badge">NEW</span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-idx">02 / WAL</div><div class="card-title">Saga Géminis</div></div>
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-idx">03 / WAL</div><div class="card-title">Aku</div></div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><span class="nav-icon">◉</span>Wall</div>
+      <div class="nav-item"><span class="nav-icon">▸</span>Live</div>
+      <div class="nav-item"><span class="nav-icon">☽</span>Aura</div>
+      <div class="nav-item"><span class="nav-icon">❒</span>Stor</div>
+      <div class="nav-item"><span class="nav-icon">♪</span>Ton</div>
+      <div class="nav-item"><span class="nav-icon">✦</span>IA</div>
+      <div class="nav-item"><span class="nav-icon">♡</span>Fav</div>
+    </div>
+  </template>
+  <div class="mode-wrap"><div class="mode-label">Día</div><div class="phone light" id="pl"></div></div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div><div class="phone" id="pd"></div></div>
+</div>
+<script>const t=document.getElementById('ph').innerHTML; pl.innerHTML=t; pd.innerHTML=t;</script>
+</body></html>

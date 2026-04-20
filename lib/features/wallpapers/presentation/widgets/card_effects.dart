@@ -190,7 +190,7 @@ class _CardEffectWrapperState extends State<CardEffectWrapper>
             child: Opacity(
               opacity: 0.15,
               child: ColorFiltered(
-                colorFilter: const ColorFilter.mode(Colors.red, BlendMode.modulate),
+                colorFilter: const ColorFilter.mode(HudTokens.goldDeep, BlendMode.modulate),
                 child: widget.child,
               ),
             ),

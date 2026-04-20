@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/design/hud_tokens.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../data/models/shader_wallpaper.dart';
@@ -61,12 +62,12 @@ class RealmPage extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.memory, color: Colors.purple.shade300, size: 18),
+                Icon(Icons.memory, color: HudTokens.goldDeep.shade300, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Generated in real-time by your GPU. No downloads needed. Minimal battery usage.',
-                    style: TextStyle(fontSize: 11, color: Colors.purple.shade200),
+                    style: TextStyle(fontSize: 11, color: HudTokens.goldDeep.shade200),
                   ),
                 ),
               ],
@@ -108,7 +109,7 @@ class _ShaderCard extends StatelessWidget {
   final ShaderWallpaper shader;
   const _ShaderCard({required this.shader});
 
-  Color get _glowColor => parseHexColor(shader.glowColor, fallback: Colors.purple);
+  Color get _glowColor => HudTokens.gold;
 
   IconData get _icon {
     switch (shader.id) {
@@ -286,7 +287,7 @@ class _ShaderCard extends StatelessWidget {
                   } catch (e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                        SnackBar(content: Text('Error: $e'), backgroundColor: HudTokens.goldDeep),
                       );
                     }
                   }

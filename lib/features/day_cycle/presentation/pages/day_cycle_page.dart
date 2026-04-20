@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
+import '../../../../core/widgets/ticket_stub_card.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/day_cycle_providers.dart';
 import '../../data/models/day_cycle_theme.dart';
@@ -19,9 +21,11 @@ class DayCyclePage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            const Icon(Icons.error_outline,
+                color: HudTokens.goldDeep, size: 48),
             const SizedBox(height: 12),
-            const Text('Failed to load themes', style: TextStyle(color: Colors.white70)),
+            const Text('Failed to load themes',
+                style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => ref.invalidate(dayCycleCatalogProvider),
@@ -40,16 +44,21 @@ class DayCyclePage extends ConsumerWidget {
         return Column(
           children: [
             SectionHeroBanner(
-              items: themes.take(5).map((theme) => HeroBannerItem(
-                imageUrl: theme.previewUrl,
-                title: theme.name,
-                subtitle: theme.description,
-                badge: 'DAY CYCLE',
-                accentColor: const Color(0xFF00B4D8),
-              )).toList(),
-              onTap: (i) => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => DayCycleDetailPage(theme: themes[i]),
-              )),
+              items: themes
+                  .take(5)
+                  .map((theme) => HeroBannerItem(
+                        imageUrl: theme.previewUrl,
+                        title: theme.name,
+                        subtitle: theme.description,
+                        badge: 'DAY CYCLE',
+                        accentColor: HudTokens.gold,
+                      ))
+                  .toList(),
+              onTap: (i) => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DayCycleDetailPage(theme: themes[i]),
+                  )),
               height: 0.35,
             ),
             Expanded(
@@ -58,7 +67,8 @@ class DayCyclePage extends ConsumerWidget {
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: themes.length,
-                  itemBuilder: (context, index) => _DayCycleCard(theme: themes[index]),
+                  itemBuilder: (context, index) =>
+                      _DayCycleCard(theme: themes[index]),
                 ),
               ),
             ),
@@ -78,90 +88,30 @@ class _DayCycleCard extends ConsumerWidget {
     final activeId = ref.watch(activeDayCycleIdProvider);
     final isActive = activeId == theme.id;
 
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => DayCycleDetailPage(theme: theme)),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: isActive ? Border.all(color: Colors.greenAccent, width: 2) : null,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            children: [
-              SizedBox(
-                height: 200,
-                width: double.infinity,
-                child: Image.network(theme.previewUrl, fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: const Color(0xFF1A1A2E),
-                    child: const Icon(Icons.image, color: Colors.white24, size: 48),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
-                    ),
-                  ),
-                ),
-              ),
-              // Stats bar
-              Positioned(
-                top: 8,
-                right: isActive ? null : 8,
-                left: isActive ? 8 : null,
-                child: WallpaperStatsBar(
-                  wallpaperId: 'daycycle_${theme.id}',
-                  glowColor: Colors.deepPurple,
-                ),
-              ),
-              if (isActive)
-                Positioned(
-                  top: 12, right: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.greenAccent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text('ACTIVE',
-                      style: TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              Positioned(
-                bottom: 16, left: 16, right: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(theme.name,
-                      style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Text(theme.description,
-                      style: const TextStyle(color: Colors.white70, fontSize: 13),
-                      maxLines: 2, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 8),
-                    Row(children: [
-                      _PeriodChip(icon: Icons.wb_sunny, label: '6-12h', color: Colors.amber),
-                      const SizedBox(width: 6),
-                      _PeriodChip(icon: Icons.wb_cloudy, label: '12-18h', color: Colors.orange),
-                      const SizedBox(width: 6),
-                      _PeriodChip(icon: Icons.nights_stay, label: '18-21h', color: Colors.deepPurple),
-                      const SizedBox(width: 6),
-                      _PeriodChip(icon: Icons.dark_mode, label: '21-6h', color: Colors.indigo),
-                    ]),
-                  ],
-                ),
-              ),
-            ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: SizedBox(
+        height: 320,
+        child: TicketStubCard(
+          admitLabel: isActive ? 'ACTIVE' : 'DAY CYCLE',
+          title: theme.name,
+          category: theme.description.toUpperCase(),
+          isHighlighted: isActive,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => DayCycleDetailPage(theme: theme)),
+          ),
+          overlayTopRight: WallpaperStatsBar(
+            wallpaperId: 'daycycle_${theme.id}',
+            glowColor: HudTokens.gold,
+          ),
+          child: Image.network(
+            theme.previewUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: HudTokens.nightSurface,
+              child: const Icon(Icons.image, color: Colors.white24, size: 48),
+            ),
           ),
         ),
       ),
@@ -173,7 +123,8 @@ class _PeriodChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _PeriodChip({required this.icon, required this.label, required this.color});
+  const _PeriodChip(
+      {required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {

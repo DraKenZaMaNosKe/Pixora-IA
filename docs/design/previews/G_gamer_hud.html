@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<title>G · Gamer HUD</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Rajdhani',sans-serif; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#ff2f1f; font-family:'Orbitron',sans-serif; font-weight:900; font-size:18px; letter-spacing:0.05em; text-transform:uppercase; }
+.dir-label::before { content:"G ·"; color:#888; font-family:'Share Tech Mono',monospace; font-weight:500; letter-spacing:0.2em; font-size:12px; margin-right:6px; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; font-weight:500; font-family:'Share Tech Mono',monospace; }
+.phone {
+  width:320px; height:680px; overflow:hidden; position:relative;
+  --bg:#05080c; --surface:#0d131a; --text:#e8f1ff; --text-dim:#6b7a90; --accent:#ff2f1f; --accent-2:#ffb00a; --divider:rgba(232,241,255,0.1);
+  background:var(--bg); color:var(--text);
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 2px, rgba(232,241,255,0.015) 2px 3px),
+    radial-gradient(ellipse 400px 300px at 50% 0%, rgba(255,47,31,0.15), transparent 60%);
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+  box-shadow:0 20px 50px rgba(255,47,31,0.15);
+}
+.phone.light { --bg:#e8eaed; --surface:#d8dce0; --text:#0a0e14; --text-dim:#5a6574; --accent:#cc1f10; --accent-2:#c88500; --divider:rgba(10,14,20,0.12); background-image: repeating-linear-gradient(0deg, transparent 0 2px, rgba(10,14,20,0.015) 2px 3px), radial-gradient(ellipse 400px 300px at 50% 0%, rgba(204,31,16,0.1), transparent 60%); }
+.notch { height:28px; display:flex; justify-content:space-between; padding:10px 24px 0; font-family:'Share Tech Mono',monospace; font-size:11px; font-weight:500; color:var(--accent-2); }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--divider); }
+.brand-box { display:flex; align-items:center; gap:8px; }
+.hex { width:32px; height:32px; background:var(--accent); clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); display:flex; align-items:center; justify-content:center; font-family:'Orbitron',sans-serif; font-weight:900; color:#fff; font-size:13px; }
+.brand { font-family:'Orbitron',sans-serif; font-weight:900; font-size:18px; letter-spacing:0.03em; text-transform:uppercase; }
+.stats { display:flex; gap:8px; }
+.stat { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); display:flex; align-items:center; gap:3px; }
+.stat .v { color:var(--accent-2); font-weight:700; }
+.hero { position:relative; margin:14px 14px 0; border:2px solid var(--accent); height:280px; overflow:hidden; clip-path:polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px)); }
+.hero img { width:100%; height:100%; object-fit:cover; }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(5,8,12,0.95), transparent 45%); }
+.hero-hud { position:absolute; top:8px; right:8px; background:rgba(5,8,12,0.7); border:1px solid var(--accent); padding:4px 8px; font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--accent); letter-spacing:0.1em; text-transform:uppercase; z-index:3; }
+.hero-body { position:absolute; bottom:12px; left:14px; right:14px; color:#fff; z-index:2; }
+.hero-tag { display:inline-block; padding:3px 8px; background:var(--accent); font-family:'Share Tech Mono',monospace; font-size:9px; font-weight:700; letter-spacing:0.1em; margin-bottom:6px; text-transform:uppercase; color:#fff; }
+.hero-title { font-family:'Orbitron',sans-serif; font-weight:900; font-size:22px; line-height:1; letter-spacing:0.02em; margin-bottom:5px; text-transform:uppercase; }
+.hero-title .acc { color:var(--accent); }
+.hero-desc { font-family:'Share Tech Mono',monospace; font-size:10px; opacity:0.75; line-height:1.4; }
+.bar { height:4px; background:rgba(232,241,255,0.1); margin-top:8px; position:relative; }
+.bar::after { content:""; position:absolute; left:0; top:0; height:100%; width:65%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); }
+.section-head { display:flex; justify-content:space-between; align-items:center; padding:14px 18px 8px; border-bottom:1px solid var(--divider); }
+.section-title { font-family:'Orbitron',sans-serif; font-weight:900; font-size:13px; letter-spacing:0.08em; text-transform:uppercase; }
+.section-title::before { content:"// "; color:var(--accent); }
+.more { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--accent-2); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
+.row { display:flex; gap:8px; overflow-x:auto; padding:10px 14px; }
+.card { min-width:100px; }
+.card-img { width:100px; height:135px; position:relative; overflow:hidden; border:1px solid var(--divider); clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
+.card-img img { width:100%; height:100%; object-fit:cover; }
+.card-badge { position:absolute; top:4px; left:0; background:var(--accent); color:#fff; padding:2px 8px; font-family:'Share Tech Mono',monospace; font-size:8px; font-weight:700; letter-spacing:0.1em; }
+.card-meta { display:flex; justify-content:space-between; margin-top:4px; font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); }
+.card-meta .lvl { color:var(--accent-2); }
+.card-title { margin-top:2px; font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.02em; text-transform:uppercase; }
+.nav { position:absolute; bottom:0; left:0; right:0; border-top:2px solid var(--accent); background:var(--bg); display:flex; }
+.nav-item { flex:1; padding:10px 2px 16px; text-align:center; font-family:'Orbitron',sans-serif; font-size:8px; font-weight:700; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; border-right:1px solid var(--divider); position:relative; }
+.nav-item:last-child { border-right:none; }
+.nav-item.active { color:var(--accent); background:rgba(255,47,31,0.08); }
+.nav-item.active::after { content:""; position:absolute; top:-2px; left:0; right:0; height:2px; background:var(--accent-2); }
+.nav-icon { font-size:13px; display:block; margin-bottom:3px; font-family:'Rajdhani',sans-serif; font-weight:700; }
+</style></head><body>
+<div class="dir-label">GAMER HUD</div>
+<div class="pair">
+  <template id="ph">
+    <div class="notch"><span>[&gt; 09:41</span><span>SIG ●●○</span></div>
+    <div class="topbar">
+      <div class="brand-box"><div class="hex">P</div><div class="brand">PIXORA</div></div>
+      <div class="stats"><div class="stat">XP <span class="v">LV.24</span></div><div class="stat">◆ <span class="v">120</span></div></div>
+    </div>
+    <div class="hero">
+      <div class="hero-hud">▲ LOADED</div>
+      <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+      <div class="hero-body"><span class="hero-tag">NATURE</span><div class="hero-title">Enchanted <span class="acc">Forest</span></div><div class="hero-desc">&gt; moonlit · fireflies · rarity: RARE</div><div class="bar"></div></div>
+    </div>
+    <div class="section-head"><div class="section-title">TRENDING</div><div class="more">[ VIEW ALL ]</div></div>
+    <div class="row">
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-meta"><span>9:16</span><span class="lvl">LV.8</span></div><div class="card-title">2B Automata</div></div>
+      <div class="card"><div class="card-img"><span class="card-badge">NEW</span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-meta"><span>9:16</span><span class="lvl">LV.12</span></div><div class="card-title">Saga Géminis</div></div>
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-meta"><span>9:16</span><span class="lvl">LV.5</span></div><div class="card-title">Aku</div></div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><span class="nav-icon">▣</span>Wall</div>
+      <div class="nav-item"><span class="nav-icon">▶</span>Live</div>
+      <div class="nav-item"><span class="nav-icon">☽</span>Aura</div>
+      <div class="nav-item"><span class="nav-icon">❒</span>Stor</div>
+      <div class="nav-item"><span class="nav-icon">♪</span>Ton</div>
+      <div class="nav-item"><span class="nav-icon">✦</span>IA</div>
+      <div class="nav-item"><span class="nav-icon">♥</span>Fav</div>
+    </div>
+  </template>
+  <div class="mode-wrap"><div class="mode-label">Día</div><div class="phone light" id="pl"></div></div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div><div class="phone" id="pd"></div></div>
+</div>
+<script>const t=document.getElementById('ph').innerHTML; pl.innerHTML=t; pd.innerHTML=t;</script>
+</body></html>

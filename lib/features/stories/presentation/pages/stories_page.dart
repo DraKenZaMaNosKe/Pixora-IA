@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../../core/design/hud_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/utils/color_utils.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
+import '../../../../core/widgets/ticket_stub_card.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/story_providers.dart';
@@ -56,146 +57,74 @@ class StoriesPage extends ConsumerWidget {
         return Column(
           children: [
             SectionHeroBanner(
-              items: stories.take(5).map((story) => HeroBannerItem(
-                imageUrl: story.coverImageUrl,
-                title: story.title,
-                subtitle: '${story.frames.length} frames \u00b7 Every ${story.intervalMinutes} min',
-                badge: story.category,
-              )).toList(),
-              onTap: (i) => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => StoryDetailPage(story: stories[i]),
-              )),
+              items: stories
+                  .take(5)
+                  .map((story) => HeroBannerItem(
+                        imageUrl: story.coverImageUrl,
+                        title: story.title,
+                        subtitle:
+                            '${story.frames.length} frames \u00b7 Every ${story.intervalMinutes} min',
+                        badge: story.category,
+                      ))
+                  .toList(),
+              onTap: (i) => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => StoryDetailPage(story: stories[i]),
+                  )),
             ),
             Expanded(
               child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: stories.length,
-          itemBuilder: (context, index) {
-            final story = stories[index];
-            final isActive = activeId == story.id;
+                padding: const EdgeInsets.all(16),
+                itemCount: stories.length,
+                itemBuilder: (context, index) {
+                  final story = stories[index];
+                  final isActive = activeId == story.id;
 
-            final glowColor = parseHexColor(story.glowColor, fallback: Colors.deepPurple);
+                  final glowColor = HudTokens.gold;
 
-            return GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => StoryDetailPage(story: story),
-                ),
-              ),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: glowColor.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CachedWallpaperImage(imageUrl: story.coverImageUrl),
-                      // Gradient overlay
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.8),
-                            ],
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: SizedBox(
+                      height: 340,
+                      child: TicketStubCard(
+                        admitLabel: isActive ? 'PLAYING' : 'STORY',
+                        title: story.title,
+                        category:
+                            '${story.frames.length} FRAMES · EVERY ${story.intervalMinutes} MIN',
+                        isHighlighted: isActive,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => StoryDetailPage(story: story),
                           ),
                         ),
-                      ),
-                      // Info
-                      Positioned(
-                        bottom: 16,
-                        left: 16,
-                        right: 16,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                if (isActive) ...[
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: glowColor,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Text('PLAYING',
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black)),
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                                Expanded(
-                                  child: Text(
-                                    story.title,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${story.frames.length} frames · Every ${story.intervalMinutes} min',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Stats bar
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: WallpaperStatsBar(
-                          wallpaperId: 'story_${story.id}',
-                          glowColor: glowColor,
-                        ),
-                      ),
-                      // Play icon
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
+                        overlayTopLeft: Container(
+                          width: 34,
+                          height: 34,
                           decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(20),
+                            color: HudTokens.nightBg.withOpacity(0.6),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: glowColor, width: 1),
                           ),
                           child: Icon(
                             isActive ? Icons.pause : Icons.play_arrow,
                             color: glowColor,
-                            size: 20,
+                            size: 18,
                           ),
                         ),
+                        overlayTopRight: WallpaperStatsBar(
+                          wallpaperId: 'story_${story.id}',
+                          glowColor: glowColor,
+                        ),
+                        child: CachedWallpaperImage(
+                          imageUrl: story.coverImageUrl,
+                        ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
             ),
           ],
         );

@@ -24,6 +24,13 @@ Future<void> main() async {
   // Catch all uncaught async errors
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Memory: cap Flutter's in-memory image cache so 4K wallpapers don't
+    // balloon RAM on mid-range devices (Samsung A15 / MediaTek chips crash
+    // around 100 MB of bitmap cache). 100 images × ~0.5 MB each ≈ 50 MB max.
+    PaintingBinding.instance.imageCache.maximumSize = 100;
+    PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
+
     await Hive.initFlutter();
 
     await Supabase.initialize(

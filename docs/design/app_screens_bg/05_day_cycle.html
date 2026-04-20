@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Day Cycle · Black & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.dc-card { margin: 14px 18px 0; position: relative; border: 1px solid var(--gold); overflow: hidden; }
+.dc-hero { position: relative; height: 220px; }
+.dc-hero img { width: 100%; height: 100%; object-fit: cover; }
+.dc-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.92), transparent 50%); }
+.dc-label { position: absolute; top: 14px; left: 14px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--ink); border: 1px solid var(--gold); font-family: 'Inter'; font-weight: 700; font-size: 9px; color: var(--gold); letter-spacing: 0.25em; text-transform: uppercase; }
+.dc-label::before { content: "☀"; font-size: 10px; }
+.dc-body { padding: 16px 18px; background: var(--ink); }
+.dc-eyebrow { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 12px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 4px; }
+.dc-title { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 24px; color: var(--cream); letter-spacing: -0.02em; line-height: 1.05; }
+.dc-title .it { font-style: italic; font-weight: 400; color: var(--gold); }
+.dc-desc { margin-top: 8px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: rgba(240,232,214,0.7); line-height: 1.4; }
+.dc-periods { margin-top: 14px; display: flex; gap: 8px; border-top: 1px solid var(--divider); padding-top: 14px; }
+.period { flex: 1; text-align: center; padding: 10px 4px; border: 1px solid var(--divider); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.period .icon { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; color: var(--gold); line-height: 1; }
+.period .h { font-family: 'Inter'; font-weight: 700; font-size: 10px; color: var(--cream); letter-spacing: 0.1em; }
+.period .t { font-family: 'Inter'; font-size: 8px; color: var(--gold-dim); letter-spacing: 0.2em; text-transform: uppercase; }
+.period.active { background: var(--gold); border-color: var(--gold); }
+.period.active .icon, .period.active .h, .period.active .t { color: var(--ink); }
+.dc-cta { margin-top: 14px; width: 100%; padding: 12px 0; background: var(--gold); color: var(--ink); font-family: 'Playfair Display', serif; font-weight: 900; font-size: 12px; letter-spacing: 0.3em; text-align: center; text-transform: uppercase; }
+.body-scroll { padding-bottom: 80px; }
+</style></head><body>
+<div class="screen-tag"><span class="n">S5 · DAY</span>Day Cycle</div>
+<div class="phone">
+  <div class="notch"><span>9:41</span><span>●●○</span></div>
+  <div class="appbar"><div class="header-title">Day Cycle<span class="ornament">— 4 momentos</span></div><div class="diamond-pill"><span class="d">◆</span>120</div></div>
+  <div class="body-scroll">
+  <div class="dc-card">
+    <div class="dc-hero">
+      <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&q=80">
+      <div class="dc-label">Day Cycle · No. I</div>
+    </div>
+    <div class="dc-body">
+      <div class="dc-eyebrow">— pixel · city</div>
+      <div class="dc-title">Neon <span class="it">District</span></div>
+      <div class="dc-desc">Una ciudad cyberpunk que nunca duerme. Neones, autos voladores y calles empapadas.</div>
+      <div class="dc-periods">
+        <div class="period"><div class="icon">☼</div><div class="h">06:00</div><div class="t">amanece</div></div>
+        <div class="period active"><div class="icon">☀</div><div class="h">13:30</div><div class="t">medio día</div></div>
+        <div class="period"><div class="icon">☾</div><div class="h">19:45</div><div class="t">atardece</div></div>
+        <div class="period"><div class="icon">★</div><div class="h">23:00</div><div class="t">noche</div></div>
+      </div>
+      <div class="dc-cta">▶ Aplicar ciclo</div>
+    </div>
+  </div>
+  <div class="dc-card">
+    <div class="dc-hero">
+      <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&q=80">
+      <div class="dc-label">Day Cycle · No. II</div>
+    </div>
+    <div class="dc-body">
+      <div class="dc-eyebrow">— bioluminiscencia</div>
+      <div class="dc-title">Alien <span class="it">Planet</span></div>
+      <div class="dc-desc">Mundo alienígena con montañas de cristal, soles gemelos e islas flotantes.</div>
+    </div>
+  </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><span class="nav-icon">W</span>Wall</div>
+    <div class="nav-item"><span class="nav-icon">L</span>Live</div>
+    <div class="nav-item"><span class="nav-icon">A</span>Aura</div>
+    <div class="nav-item"><span class="nav-icon">S</span>Stor</div>
+    <div class="nav-item active"><span class="nav-icon">D</span>Day</div>
+    <div class="nav-item"><span class="nav-icon">T</span>Ton</div>
+    <div class="nav-item"><span class="nav-icon">I</span>IA</div>
+    <div class="nav-item"><span class="nav-icon">F</span>Fav</div>
+  </div>
+</div>
+</body></html>

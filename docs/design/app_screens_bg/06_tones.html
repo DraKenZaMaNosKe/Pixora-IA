@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Tones · Black & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.filter-row { display: flex; gap: 8px; padding: 14px 18px 0; overflow-x: auto; }
+.filter { padding: 8px 14px; border: 1px solid var(--divider); font-family: 'Inter'; font-weight: 700; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.filter.active { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+.filter .ic { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; }
+.pack-hero { margin: 14px 18px 0; border: 1px solid var(--gold); padding: 20px; position: relative; background: radial-gradient(circle at right top, rgba(201,166,80,0.1), transparent 60%); }
+.pack-ribbon { display: inline-block; padding: 3px 10px; background: var(--gold); color: var(--ink); font-family: 'Inter'; font-weight: 700; font-size: 9px; letter-spacing: 0.3em; margin-bottom: 12px; }
+.pack-title { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 26px; color: var(--cream); letter-spacing: -0.02em; }
+.pack-title .it { font-style: italic; font-weight: 400; color: var(--gold); }
+.pack-desc { margin-top: 6px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: rgba(240,232,214,0.7); }
+.pack-stats { margin-top: 12px; display: flex; gap: 16px; font-family: 'Inter'; font-size: 10px; color: var(--gold-dim); letter-spacing: 0.15em; text-transform: uppercase; }
+.pack-stats .n { color: var(--gold); font-weight: 700; margin-right: 4px; }
+.pack-cta { margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--gold); color: var(--ink); font-family: 'Playfair Display', serif; font-weight: 900; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; }
+.tone-row { display: flex; gap: 10px; overflow-x: auto; padding: 0 18px 10px; }
+.tone-card { min-width: 150px; border: 1px solid var(--divider); background: var(--ink-2); position: relative; padding: 14px; overflow: hidden; }
+.tone-card::before { content: ""; position: absolute; top: -40%; right: -30%; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(201,166,80,0.12), transparent 70%); }
+.tc-top { display: flex; justify-content: space-between; position: relative; z-index: 2; }
+.tc-num { font-family: 'Inter'; font-weight: 700; font-size: 9px; color: var(--gold); letter-spacing: 0.2em; }
+.tc-badge { padding: 2px 6px; background: var(--gold); color: var(--ink); font-family: 'Inter'; font-weight: 700; font-size: 8px; letter-spacing: 0.15em; }
+.tc-play { margin: 14px auto 8px; width: 50px; height: 50px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 18px; position: relative; z-index: 2; }
+.tc-wave { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 2px; }
+.tc-wave .b { width: 2px; background: rgba(201,166,80,0.3); }
+.tc-wave .b:nth-child(1) { height: 30%; } .tc-wave .b:nth-child(2) { height: 60%; }
+.tc-wave .b:nth-child(3) { height: 90%; } .tc-wave .b:nth-child(4) { height: 50%; } .tc-wave .b:nth-child(5) { height: 75%; }
+.tc-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 14px; color: var(--cream); letter-spacing: -0.01em; text-align: center; position: relative; z-index: 2; }
+.tc-label { margin-top: 3px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 11px; color: var(--gold-dim); text-align: center; position: relative; z-index: 2; }
+.body-scroll { padding-bottom: 80px; }
+</style></head><body>
+<div class="screen-tag"><span class="n">S6 · TON</span>Tones</div>
+<div class="phone">
+  <div class="notch"><span>9:41</span><span>●●○</span></div>
+  <div class="appbar"><div class="header-title">Tones<span class="ornament">— sonido · estilo</span></div><div class="diamond-pill"><span class="d">◆</span>120</div></div>
+  <div class="filter-row">
+    <div class="filter active"><span class="ic">♪</span>All</div>
+    <div class="filter"><span class="ic">✦</span>Ringtones</div>
+    <div class="filter"><span class="ic">✉</span>Messages</div>
+    <div class="filter"><span class="ic">⏰</span>Alarms</div>
+  </div>
+  <div class="pack-hero">
+    <div class="pack-ribbon">PACK · No. IV</div>
+    <div class="pack-title">Retro & <span class="it">Classic</span></div>
+    <div class="pack-desc">16 tonos. Timbres nostálgicos de los 60s a los 90s, alarmas vintage y clásicos Nokia.</div>
+    <div class="pack-stats"><span><span class="n">16</span>TONES</span><span><span class="n">♥</span>2.1k</span><span><span class="n">▸</span>4.8k plays</span></div>
+    <div class="pack-cta">▶ Explore pack</div>
+  </div>
+  <div class="section-head"><div class="section-title">Recommended<span class="it"> for you</span></div><div class="section-more">ver todo</div></div>
+  <div class="tone-row">
+    <div class="tone-card">
+      <div class="tc-top"><div class="tc-num">No. I</div><div class="tc-badge">POPULAR</div></div>
+      <div class="tc-play">
+        <div class="tc-wave"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div>
+        ▶
+      </div>
+      <div class="tc-title">Navi — Hey!</div>
+      <div class="tc-label">2s · notification</div>
+    </div>
+    <div class="tone-card">
+      <div class="tc-top"><div class="tc-num">No. II</div><div class="tc-badge">NEW</div></div>
+      <div class="tc-play">
+        <div class="tc-wave"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div>
+        ▶
+      </div>
+      <div class="tc-title">Heart Container</div>
+      <div class="tc-label">3s · notification</div>
+    </div>
+    <div class="tone-card">
+      <div class="tc-top"><div class="tc-num">No. III</div></div>
+      <div class="tc-play">
+        <div class="tc-wave"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div>
+        ▶
+      </div>
+      <div class="tc-title">Mario Coin</div>
+      <div class="tc-label">1s · alert</div>
+    </div>
+  </div>
+  <div class="ornament-divider"><span class="d">◆</span></div>
+  <div class="section-head"><div class="section-title">Legend of<span class="it"> Zelda</span></div><div class="section-more">see all</div></div>
+  <div class="tone-row">
+    <div class="tone-card">
+      <div class="tc-top"><div class="tc-num">I</div></div>
+      <div class="tc-play">▶</div>
+      <div class="tc-title">Song of Storms</div>
+      <div class="tc-label">4s · ringtone</div>
+    </div>
+    <div class="tone-card">
+      <div class="tc-top"><div class="tc-num">II</div><div class="tc-badge">HOT</div></div>
+      <div class="tc-play">▶</div>
+      <div class="tc-title">Hyrule Theme</div>
+      <div class="tc-label">6s · ringtone</div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><span class="nav-icon">W</span>Wall</div>
+    <div class="nav-item"><span class="nav-icon">L</span>Live</div>
+    <div class="nav-item"><span class="nav-icon">A</span>Aura</div>
+    <div class="nav-item"><span class="nav-icon">S</span>Stor</div>
+    <div class="nav-item"><span class="nav-icon">D</span>Day</div>
+    <div class="nav-item active"><span class="nav-icon">T</span>Ton</div>
+    <div class="nav-item"><span class="nav-icon">I</span>IA</div>
+    <div class="nav-item"><span class="nav-icon">F</span>Fav</div>
+  </div>
+</div>
+</body></html>

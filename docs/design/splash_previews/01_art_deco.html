@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>01 · Art Deco</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,400&family=Poiret+One&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1a1a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;font-family:'Poiret One',sans-serif}
+.tag{position:fixed;top:16px;left:24px;color:#c9a650;font-size:12px;letter-spacing:0.3em;font-family:'Poiret One',sans-serif;text-transform:uppercase}.tag::before{content:"01 · "}
+.phone{width:320px;height:680px;background:#000;border-radius:24px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.phone::before{content:"";position:absolute;inset:8px;border:1px solid #c9a650;border-radius:18px}
+.phone::after{content:"";position:absolute;inset:14px;border:1px solid rgba(201,166,80,0.3);border-radius:14px}
+.deco-top{position:absolute;top:40px;left:0;right:0;text-align:center;color:#c9a650;font-size:22px;letter-spacing:0.5em;animation:fade 2s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.chevron{position:absolute;top:80px;left:50%;transform:translateX(-50%);width:160px;height:30px;display:flex;justify-content:space-between}
+.chevron-line{height:1px;background:linear-gradient(90deg,transparent,#c9a650,transparent);flex:1;align-self:center}
+.chevron-ornament{color:#c9a650;font-size:14px}
+.diamond-wrap{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;margin:40px 0 24px}
+.diamond{position:absolute;width:160px;height:160px;border:2px solid #c9a650;transform:rotate(45deg);animation:rotate 30s linear infinite}
+@keyframes rotate{to{transform:rotate(405deg)}}
+.diamond-inner{position:absolute;width:120px;height:120px;border:1px solid rgba(201,166,80,0.5);transform:rotate(45deg)}
+.p{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:100px;background:linear-gradient(180deg,#f0dd9e,#c9a650 50%,#8a6f33);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;position:relative;z-index:2}
+.title-wrap{text-align:center;position:relative;z-index:2}
+.title{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:38px;color:#f0e8d6;letter-spacing:0.3em;margin-bottom:8px}
+.title .it{font-style:italic;color:#c9a650}
+.divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0}
+.div-line{width:40px;height:1px;background:#c9a650}
+.div-diamond{width:6px;height:6px;background:#c9a650;transform:rotate(45deg)}
+.tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(240,232,214,0.6);letter-spacing:0.2em}
+.deco-bot{position:absolute;bottom:50px;left:0;right:0;text-align:center;color:#c9a650;font-size:18px;letter-spacing:0.8em}
+.year{position:absolute;bottom:24px;left:0;right:0;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;color:#8a7a56;letter-spacing:0.3em}
+</style></head><body>
+<div class="tag">Art Deco Gatsby</div>
+<div class="phone">
+  <div class="deco-top">◆ ◇ ◆ ◇ ◆</div>
+  <div class="chevron"><div class="chevron-line"></div><div class="chevron-ornament">◆</div><div class="chevron-line"></div></div>
+  <div class="diamond-wrap">
+    <div class="diamond"><div class="diamond-inner"></div></div>
+    <div class="p">P</div>
+  </div>
+  <div class="title-wrap">
+    <div class="title">PIX<span class="it">ora</span></div>
+    <div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+    <div class="tagline">la colección</div>
+  </div>
+  <div class="deco-bot">◆ ◇ ◆</div>
+  <div class="year">MMXXVI</div>
+</div>
+</body></html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>A · Apple TV+ Editorial</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#ddd; font-family:'Fraunces',serif; font-size:18px; font-style:italic; }
+.dir-label::before { content:"Dirección A · "; font-family:'Inter'; font-style:normal; font-weight:600; letter-spacing:0.2em; font-size:11px; color:#888; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-family:'Inter'; font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; }
+.phone {
+  width:320px; height:680px; overflow:hidden; border-radius:32px; position:relative;
+  --bg: #0a0908;
+  --surface: #14120f;
+  --text: #f2efe8;
+  --text-dim: #8a857c;
+  --divider: rgba(242,239,232,0.08);
+  --accent: #d8b87e;
+  background: var(--bg); color: var(--text);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+.phone.light {
+  --bg: #f8f5ef;
+  --surface: #efeadf;
+  --text: #17140f;
+  --text-dim: #7a7366;
+  --divider: rgba(23,20,15,0.08);
+  --accent: #8f6a2f;
+}
+.notch { height:28px; display:flex; justify-content:space-between; align-items:center; padding:10px 24px 0; font-size:11px; font-weight:500; }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 10px; }
+.avatar { width:28px; height:28px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:500; color:var(--bg); font-size:14px; }
+.brand { font-family:'Fraunces',serif; font-weight:300; font-style:italic; font-size:17px; letter-spacing:-0.01em; }
+.right-icons { display:flex; gap:10px; align-items:center; }
+.pill { padding:4px 10px; border-radius:100px; border:1px solid var(--divider); font-size:11px; font-weight:500; color:var(--text); display:flex; align-items:center; gap:4px; }
+.pill .dot { width:6px; height:6px; border-radius:50%; background:var(--accent); }
+.icon-btn { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text); font-size:13px; }
+.hero { position:relative; margin:12px 16px 0; height:270px; border-radius:20px; overflow:hidden; }
+.hero img { width:100%; height:100%; object-fit:cover; display:block; }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 40%, transparent 70%); }
+.hero-content { position:absolute; bottom:14px; left:16px; right:16px; color:#fff; z-index:2; }
+.hero-tag { font-family:'Fraunces',serif; font-style:italic; font-weight:300; font-size:10px; letter-spacing:0.25em; text-transform:uppercase; margin-bottom:6px; opacity:0.85; }
+.hero-title { font-family:'Fraunces',serif; font-weight:300; font-size:26px; line-height:1; letter-spacing:-0.01em; margin-bottom:4px; }
+.hero-desc { font-size:10px; opacity:0.7; line-height:1.4; letter-spacing:0.01em; }
+.section { padding: 22px 20px 0; }
+.section-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+.section-title { font-family:'Fraunces',serif; font-weight:300; font-style:italic; font-size:18px; letter-spacing:-0.01em; }
+.section-more { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-dim); }
+.row { display:flex; gap:10px; overflow-x:auto; padding-bottom:10px; }
+.card { min-width:110px; }
+.card-img { width:110px; height:150px; border-radius:12px; overflow:hidden; position:relative; }
+.card-img img { width:100%; height:100%; object-fit:cover; display:block; }
+.card-badge { position:absolute; top:6px; left:6px; background:var(--accent); color:var(--bg); font-size:8px; padding:3px 6px; border-radius:4px; font-weight:700; letter-spacing:0.1em; }
+.card-title { margin-top:6px; font-size:11px; font-weight:500; letter-spacing:0.01em; }
+.nav { position:absolute; bottom:0; left:0; right:0; padding:8px 4px 18px; border-top:1px solid var(--divider); background:var(--bg); display:flex; justify-content:space-around; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:9px; font-weight:500; color:var(--text-dim); letter-spacing:0.02em; flex:1; padding:4px 0; }
+.nav-item.active { color:var(--accent); }
+.nav-item.active::after { content:""; position:absolute; bottom:10px; width:14px; height:1px; background:var(--accent); margin-top:2px; }
+.nav-icon { font-size:14px; font-family:'Fraunces',serif; font-weight:300; }
+</style></head><body>
+<div class="dir-label">Apple TV+ Editorial</div>
+<div class="pair">
+  <div class="mode-wrap"><div class="mode-label">Día</div>
+    <div class="phone light">
+      <div class="notch"><span>9:41</span><span>●●○</span></div>
+      <div class="topbar">
+        <div class="avatar">E</div><div class="brand">Pixora</div>
+        <div class="right-icons"><div class="pill"><span class="dot"></span>120</div><div class="icon-btn">⌕</div></div>
+      </div>
+      <div class="hero"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+        <div class="hero-content"><div class="hero-tag">— Nature</div><div class="hero-title">Enchanted Forest</div><div class="hero-desc">Mystical moonlit forest with animated fireflies drifting through ancient trees.</div></div>
+      </div>
+      <div class="section">
+        <div class="section-head"><div class="section-title">Trending</div><div class="section-more">ver todo →</div></div>
+        <div class="row">
+          <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-title">2B · Automata</div></div>
+          <div class="card"><div class="card-img"><span class="card-badge">NEW</span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-title">Saga Géminis</div></div>
+          <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-title">Aku</div></div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="nav-item active"><div class="nav-icon">◉</div>Wall</div>
+        <div class="nav-item"><div class="nav-icon">▸</div>Live</div>
+        <div class="nav-item"><div class="nav-icon">☽</div>Aura</div>
+        <div class="nav-item"><div class="nav-icon">❒</div>Stor</div>
+        <div class="nav-item"><div class="nav-icon">☀</div>Day</div>
+        <div class="nav-item"><div class="nav-icon">♪</div>Tones</div>
+        <div class="nav-item"><div class="nav-icon">✦</div>IA</div>
+        <div class="nav-item"><div class="nav-icon">♡</div>Fav</div>
+      </div>
+    </div>
+  </div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div>
+    <div class="phone">
+      <div class="notch"><span>9:41</span><span>●●○</span></div>
+      <div class="topbar">
+        <div class="avatar">E</div><div class="brand">Pixora</div>
+        <div class="right-icons"><div class="pill"><span class="dot"></span>120</div><div class="icon-btn">⌕</div></div>
+      </div>
+      <div class="hero"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+        <div class="hero-content"><div class="hero-tag">— Nature</div><div class="hero-title">Enchanted Forest</div><div class="hero-desc">Mystical moonlit forest with animated fireflies drifting through ancient trees.</div></div>
+      </div>
+      <div class="section">
+        <div class="section-head"><div class="section-title">Trending</div><div class="section-more">ver todo →</div></div>
+        <div class="row">
+          <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-title">2B · Automata</div></div>
+          <div class="card"><div class="card-img"><span class="card-badge">NEW</span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-title">Saga Géminis</div></div>
+          <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-title">Aku</div></div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="nav-item active"><div class="nav-icon">◉</div>Wall</div>
+        <div class="nav-item"><div class="nav-icon">▸</div>Live</div>
+        <div class="nav-item"><div class="nav-icon">☽</div>Aura</div>
+        <div class="nav-item"><div class="nav-icon">❒</div>Stor</div>
+        <div class="nav-item"><div class="nav-icon">☀</div>Day</div>
+        <div class="nav-item"><div class="nav-icon">♪</div>Tones</div>
+        <div class="nav-item"><div class="nav-icon">✦</div>IA</div>
+        <div class="nav-item"><div class="nav-icon">♡</div>Fav</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

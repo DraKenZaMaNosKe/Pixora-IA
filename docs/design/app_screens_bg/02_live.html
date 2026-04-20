@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>LIVE · Black & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.hero { margin: 12px 18px 0; position: relative; height: 320px; border: 1px solid var(--gold); overflow: hidden; }
+.hero img { width: 100%; height: 100%; object-fit: cover; }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.92), transparent 50%); }
+.hero-body { position: absolute; bottom: 18px; left: 18px; right: 18px; z-index: 2; }
+.live-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; background: var(--gold); color: var(--ink); font-family: 'Inter'; font-weight: 700; font-size: 9px; letter-spacing: 0.2em; margin-bottom: 8px; }
+.live-badge .dot { width: 6px; height: 6px; background: var(--ink); border-radius: 50%; animation: blink 1.5s infinite; }
+@keyframes blink { 50% { opacity: 0.3; } }
+.hero-title { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 32px; line-height: 0.95; color: var(--cream); letter-spacing: -0.02em; }
+.hero-title .it { font-style: italic; font-weight: 400; color: var(--gold); display: block; }
+.hero-desc { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: rgba(240,232,214,0.75); line-height: 1.4; margin-top: 4px; }
+.explore-btn { margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--gold); color: var(--ink); font-family: 'Playfair Display'; font-weight: 900; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; }
+.play-fab { position: absolute; bottom: 18px; right: 18px; width: 52px; height: 52px; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--ink); z-index: 3; box-shadow: 0 0 24px rgba(201,166,80,0.45); }
+.live-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 18px 80px; }
+.live-card { position: relative; aspect-ratio: 3/4; border: 1px solid var(--divider); overflow: hidden; }
+.live-card img { width: 100%; height: 100%; object-fit: cover; }
+.live-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent 55%); }
+.live-badges { position: absolute; top: 8px; left: 8px; display: flex; gap: 4px; z-index: 2; }
+.lb-live { padding: 2px 6px; background: var(--gold); color: var(--ink); font-family: 'Inter'; font-size: 8px; font-weight: 700; letter-spacing: 0.15em; }
+.lb-new { padding: 2px 6px; background: var(--ink); border: 1px solid var(--gold); color: var(--gold); font-family: 'Inter'; font-size: 8px; font-weight: 700; letter-spacing: 0.15em; }
+.lc-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; background: var(--ink); border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; color: var(--gold); z-index: 2; }
+.lc-body { position: absolute; bottom: 8px; left: 8px; right: 8px; z-index: 2; }
+.lc-title { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 13px; color: var(--cream); letter-spacing: -0.01em; }
+.lc-stats { margin-top: 3px; font-family: 'Inter'; font-size: 9px; color: var(--gold-dim); letter-spacing: 0.1em; }
+</style></head><body>
+<div class="screen-tag"><span class="n">S2 · LIVE</span>Live Wallpapers</div>
+<div class="phone">
+  <div class="notch"><span>9:41</span><span>●●○</span></div>
+  <div class="appbar"><div class="header-title">LIVE<span class="ornament">— en movimiento</span></div><div class="diamond-pill"><span class="d">◆</span>120</div></div>
+  <div class="hero">
+    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&q=80">
+    <div class="hero-body">
+      <div class="live-badge"><span class="dot"></span>LIVE · 4K</div>
+      <div class="hero-title">Cyberpunk<span class="it">rooftop</span></div>
+      <div class="hero-desc">Neon-lit city at night with rain and flying vessels.</div>
+      <div class="explore-btn">▶ Explore</div>
+    </div>
+    <div class="play-fab">▶</div>
+  </div>
+  <div class="section-head"><div class="section-title">Popular<span class="it"> now</span></div><div class="section-more">ver todo</div></div>
+  <div class="live-grid">
+    <div class="live-card">
+      <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=300&q=80">
+      <div class="live-badges"><span class="lb-live">LIVE</span><span class="lb-new">NEW</span></div>
+      <div class="lc-play">▶</div>
+      <div class="lc-body"><div class="lc-title">Cancer Cells</div><div class="lc-stats">7 · 4K · ♥ 2.1k</div></div>
+    </div>
+    <div class="live-card">
+      <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=300&q=80">
+      <div class="live-badges"><span class="lb-live">LIVE</span></div>
+      <div class="lc-play">▶</div>
+      <div class="lc-body"><div class="lc-title">Inside Heart</div><div class="lc-stats">4 · HD · ♥ 1.8k</div></div>
+    </div>
+    <div class="live-card">
+      <img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=300&q=80">
+      <div class="live-badges"><span class="lb-live">LIVE</span></div>
+      <div class="lc-play">▶</div>
+      <div class="lc-body"><div class="lc-title">Dragon Lair</div><div class="lc-stats">12 · 4K · ♥ 3.4k</div></div>
+    </div>
+    <div class="live-card">
+      <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=300&q=80">
+      <div class="live-badges"><span class="lb-live">LIVE</span><span class="lb-new">NEW</span></div>
+      <div class="lc-play">▶</div>
+      <div class="lc-body"><div class="lc-title">Golden Saint</div><div class="lc-stats">5 · HD · ♥ 890</div></div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><span class="nav-icon">W</span>Wall</div>
+    <div class="nav-item active"><span class="nav-icon">L</span>Live</div>
+    <div class="nav-item"><span class="nav-icon">A</span>Aura</div>
+    <div class="nav-item"><span class="nav-icon">S</span>Stor</div>
+    <div class="nav-item"><span class="nav-icon">D</span>Day</div>
+    <div class="nav-item"><span class="nav-icon">T</span>Ton</div>
+    <div class="nav-item"><span class="nav-icon">I</span>IA</div>
+    <div class="nav-item"><span class="nav-icon">F</span>Fav</div>
+  </div>
+</div>
+</body></html>

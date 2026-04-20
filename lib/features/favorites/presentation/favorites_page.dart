@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/catalog_service.dart';
 import '../../wallpapers/presentation/widgets/wallpaper_card.dart';
 import '../providers/favorites_provider.dart';
@@ -9,26 +10,29 @@ class FavoritesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final h = context.hud;
     final favoriteIds = ref.watch(favoritesProvider);
     final allWallpapers = CatalogService.instance.wallpapers;
     final favorites =
         allWallpapers.where((w) => favoriteIds.contains(w.id)).toList();
 
     if (favorites.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.favorite_border, color: Colors.white24, size: 64),
-            SizedBox(height: 12),
+            Icon(Icons.favorite_border, color: h.textDim, size: 48),
+            const SizedBox(height: HudTokens.sp4),
             Text(
-              'No favorites yet',
-              style: TextStyle(color: Colors.white38, fontSize: 16),
+              '// NO_FAVORITES',
+              style: HudTokens.display(
+                  size: 14, color: h.accent, letterSpacing: 0.1),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: HudTokens.sp2),
             Text(
-              'Tap the heart icon on any wallpaper',
-              style: TextStyle(color: Colors.white24, fontSize: 13),
+              'TAP THE HEART ICON ON ANY WALLPAPER',
+              style: HudTokens.mono(
+                  size: 11, color: h.textDim, letterSpacing: 0.15),
             ),
           ],
         ),
@@ -36,11 +40,11 @@ class FavoritesPage extends ConsumerWidget {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(HudTokens.sp3),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
+        mainAxisSpacing: HudTokens.sp3,
+        crossAxisSpacing: HudTokens.sp3,
         childAspectRatio: 0.6,
       ),
       itemCount: favorites.length,

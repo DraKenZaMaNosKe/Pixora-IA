@@ -32,7 +32,7 @@ class PixoraWallpaperService : WallpaperService() {
         @Volatile private var drawing = false
         private var surfaceWidth = 0
         private var surfaceHeight = 0
-        private var glowColor = Color.parseColor("#7C4DFF")
+        private var glowColor = Color.parseColor("#C9A650")
 
         // Bitmap scaling version counter — prevents stale Thread results
         @Volatile private var scaleVersion = 0
@@ -319,7 +319,7 @@ class PixoraWallpaperService : WallpaperService() {
             try {
                 val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
                 val path = prefs.getString("wallpaper_path", null)
-                val color = prefs.getString("glow_color", "#7C4DFF")
+                val color = prefs.getString("glow_color", "#C9A650")
                 val caption = prefs.getString("caption", null)
                 isInteractive = prefs.getBoolean("interactive", false)
 

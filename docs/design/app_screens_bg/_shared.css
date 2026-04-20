@@ -1,0 +1,196 @@
+/* Shared Black & Gold design tokens for all screen mockups. */
+:root {
+  --ink: #000;
+  --ink-2: #0a0604;
+  --ink-3: #151008;
+  --gold: #c9a650;
+  --gold-bright: #f0dd9e;
+  --gold-dim: #8a7a56;
+  --gold-deep: #5a4e36;
+  --cream: #f0e8d6;
+  --divider: rgba(201, 166, 80, 0.2);
+  --divider-soft: rgba(201, 166, 80, 0.08);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #1a1a1a;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+  gap: 14px;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--cream);
+}
+.screen-tag {
+  color: var(--gold);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.screen-tag .n {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  font-size: 11px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+.phone {
+  width: 360px;
+  min-height: 740px;
+  background: var(--ink);
+  border-radius: 32px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.phone::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(201, 166, 80, 0.1);
+  border-radius: 22px;
+  pointer-events: none;
+  z-index: 10;
+}
+.notch {
+  height: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 22px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--cream);
+  font-family: 'Inter', sans-serif;
+}
+.appbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--divider-soft);
+}
+.brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+}
+.brand .it { font-style: italic; color: var(--gold); }
+.header-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--cream);
+  letter-spacing: 0.01em;
+}
+.header-title .ornament {
+  color: var(--gold);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  margin-left: 6px;
+}
+.diamond-pill {
+  padding: 5px 12px;
+  border: 1px solid var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--cream);
+}
+.diamond-pill .d { color: var(--gold); }
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 22px 18px 12px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--cream);
+  letter-spacing: -0.01em;
+}
+.section-title .it {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--gold);
+}
+.section-more {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--ink);
+  border-top: 1px solid var(--gold);
+  display: flex;
+  padding-bottom: 8px;
+}
+.nav-item {
+  flex: 1;
+  padding: 10px 2px 8px;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--gold-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.nav-item.active {
+  color: var(--gold);
+  position: relative;
+}
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 2px;
+  background: var(--gold);
+}
+.nav-icon {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+.nav-item.active .nav-icon { font-style: italic; }
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 18px;
+  color: var(--gold);
+}
+.ornament-divider::before,
+.ornament-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.ornament-divider .d { font-size: 10px; }

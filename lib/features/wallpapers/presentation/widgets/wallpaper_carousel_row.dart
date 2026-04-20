@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/design/hud_tokens.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../../core/utils/color_utils.dart';
@@ -10,8 +11,8 @@ class WallpaperCarouselRow extends StatefulWidget {
   const WallpaperCarouselRow({
     required this.title,
     required this.items,
-    this.cardHeight = 200.0,
-    this.cardWidth = 130.0,
+    this.cardHeight = 260.0,
+    this.cardWidth = 140.0,
     super.key,
   });
 
@@ -61,7 +62,8 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
     return AnimatedBuilder(
       animation: _entranceController,
       builder: (_, __) {
-        final slideValue = Curves.easeOutCubic.transform(_entranceController.value);
+        final slideValue =
+            Curves.easeOutCubic.transform(_entranceController.value);
         final fadeValue = Curves.easeOut.transform(_entranceController.value);
 
         return Opacity(
@@ -97,9 +99,13 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                       itemBuilder: (context, index) {
                         // Staggered entrance per card
                         final stagger = (index * 0.08).clamp(0.0, 0.6);
-                        final cardProgress = ((_entranceController.value - stagger) / (1.0 - stagger)).clamp(0.0, 1.0);
+                        final cardProgress =
+                            ((_entranceController.value - stagger) /
+                                    (1.0 - stagger))
+                                .clamp(0.0, 1.0);
                         final cardFade = Curves.easeOut.transform(cardProgress);
-                        final cardScale = 0.85 + 0.15 * Curves.easeOutBack.transform(cardProgress);
+                        final cardScale = 0.85 +
+                            0.15 * Curves.easeOutBack.transform(cardProgress);
 
                         final wp = widget.items[index];
                         return Opacity(
@@ -143,7 +149,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
   final ScrollController scrollController;
   final int index;
 
-  Color get _glowColor => parseHexColor(wallpaper.glowColor, fallback: Colors.white);
+  Color get _glowColor => HudTokens.gold;
 
   double _getParallaxOffset(BuildContext context) {
     if (!scrollController.hasClients) return 0.0;
@@ -154,6 +160,18 @@ class _ParallaxCarouselCard extends StatelessWidget {
     final cardCenter = cardPosition + width / 2;
     final distFromCenter = (cardCenter - center) / center;
     return distFromCenter * -15.0; // subtle parallax
+  }
+
+  // Deterministic "serial" derived from wallpaper id — X27-AA style.
+  String get _serial {
+    final h = wallpaper.id.hashCode.abs();
+    final hex = h.toRadixString(16).toUpperCase().padLeft(6, '0');
+    return '${hex.substring(0, 3)}-${hex.substring(3, 5)}';
+  }
+
+  String get _lotNumber {
+    final n = wallpaper.id.hashCode.abs() % 1000;
+    return n.toString().padLeft(3, '0');
   }
 
   @override
@@ -171,97 +189,168 @@ class _ParallaxCarouselCard extends StatelessWidget {
         width: width,
         margin: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: _glowColor.withOpacity(0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+          color: HudTokens.nightSurface,
+          border: Border.all(
+            color: HudTokens.gold.withOpacity(0.55),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Top stub header ─────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 5),
+              child: Row(
+                children: [
+                  Text('ADMIT',
+                      style: HudTokens.mono(
+                          size: 7.5,
+                          weight: FontWeight.w700,
+                          color: HudTokens.gold,
+                          letterSpacing: 0.3)),
+                  const Spacer(),
+                  Text('N° $_lotNumber',
+                      style: HudTokens.mono(
+                          size: 7.5,
+                          weight: FontWeight.w700,
+                          color: HudTokens.gold,
+                          letterSpacing: 0.3)),
+                ],
+              ),
+            ),
+            // ── Image panel ─────────────────────
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: ClipRect(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Transform.translate(
+                        offset: Offset(parallaxOffset, 0),
+                        child: Transform.scale(
+                          scale: 1.1,
+                          child: CachedWallpaperImage(
+                              imageUrl: wallpaper.previewUrl),
+                        ),
+                      ),
+                      // Stats bar top-right
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: WallpaperStatsBar(
+                          wallpaperId: wallpaper.id,
+                          glowColor: HudTokens.gold,
+                        ),
+                      ),
+                      // Badge top-left
+                      if (wallpaper.badge != null)
+                        Positioned(
+                          top: 4,
+                          left: 4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 2),
+                            color: HudTokens.gold,
+                            child: Text(
+                              wallpaper.badge!.toUpperCase(),
+                              style: HudTokens.mono(
+                                  size: 8,
+                                  weight: FontWeight.w700,
+                                  color: Colors.black,
+                                  letterSpacing: 0.15),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // ── Dashed gold perforation ─────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+              child: CustomPaint(
+                size: const Size(double.infinity, 1),
+                painter: _CarouselDashPainter(color: HudTokens.gold),
+              ),
+            ),
+            // ── Bottom stub ─────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          wallpaper.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: HudTokens.serif(
+                              size: 11.5,
+                              color: HudTokens.nightText,
+                              fontStyle: FontStyle.italic,
+                              weight: FontWeight.w500,
+                              letterSpacing: 0.02),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(_serial,
+                          style: HudTokens.mono(
+                              size: 7.5,
+                              weight: FontWeight.w700,
+                              color: HudTokens.gold,
+                              letterSpacing: 0.15)),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    wallpaper.category.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: HudTokens.mono(
+                        size: 6.5,
+                        weight: FontWeight.w500,
+                        color: HudTokens.nightTextDim,
+                        letterSpacing: 0.3),
+                  ),
+                ],
+              ),
             ),
           ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Parallax image
-              Transform.translate(
-                offset: Offset(parallaxOffset, 0),
-                child: Transform.scale(
-                  scale: 1.1, // slightly oversized for parallax room
-                  child: CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
-                ),
-              ),
-              // Bottom gradient
-              const Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black87],
-                    ),
-                  ),
-                  child: SizedBox(height: 60),
-                ),
-              ),
-              // Stats bar (views, downloads, like) — TOP right
-              Positioned(
-                top: 6,
-                right: 6,
-                child: WallpaperStatsBar(
-                  wallpaperId: wallpaper.id,
-                  glowColor: _glowColor,
-                ),
-              ),
-              // Name
-              Positioned(
-                bottom: 8,
-                left: 8,
-                right: 8,
-                child: Text(
-                  wallpaper.name,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              // Badge
-              if (wallpaper.badge != null)
-                Positioned(
-                  top: 6,
-                  left: 6,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: _glowColor,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      wallpaper.badge!,
-                      style: const TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
         ),
       ),
     );
   }
+}
+
+/// Dashed gold line for the torn-ticket perforation.
+class _CarouselDashPainter extends CustomPainter {
+  const _CarouselDashPainter({required this.color});
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.0;
+    const dash = 4.0;
+    const gap = 3.0;
+    double x = 0;
+    while (x < size.width) {
+      final end = (x + dash).clamp(0, size.width).toDouble();
+      canvas.drawLine(Offset(x, 0), Offset(end, 0), paint);
+      x += dash + gap;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _CarouselDashPainter old) => old.color != color;
 }
 
 /// Shimmer placeholder for a carousel row while loading.

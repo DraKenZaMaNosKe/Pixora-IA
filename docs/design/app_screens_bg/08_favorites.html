@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Favorites · Black & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.fav-intro { padding: 20px 18px; border-bottom: 1px solid var(--divider-soft); }
+.fav-intro-title { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: var(--gold); letter-spacing: 0.1em; margin-bottom: 4px; }
+.fav-intro-title::before, .fav-intro-title::after { content: " · "; color: var(--gold-dim); }
+.fav-count { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 36px; color: var(--cream); letter-spacing: -0.02em; line-height: 1; }
+.fav-count .it { font-style: italic; font-weight: 400; color: var(--gold); margin-left: 4px; font-size: 28px; }
+.fav-meta { margin-top: 6px; font-family: 'Inter'; font-size: 10px; color: var(--gold-dim); letter-spacing: 0.2em; text-transform: uppercase; }
+.filter-pills { padding: 12px 18px 0; display: flex; gap: 8px; }
+.fp { padding: 5px 12px; border: 1px solid var(--divider); font-family: 'Inter'; font-weight: 700; font-size: 10px; color: var(--gold-dim); letter-spacing: 0.15em; text-transform: uppercase; }
+.fp.active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+.fav-grid { padding: 14px 18px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fv-card { aspect-ratio: 9/16; position: relative; border: 1px solid var(--divider); overflow: hidden; }
+.fv-card img { width: 100%; height: 100%; object-fit: cover; }
+.fv-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent 55%); }
+.fv-num { position: absolute; top: 8px; left: 8px; padding: 3px 7px; background: var(--ink); border: 1px solid var(--gold); font-family: 'Playfair Display'; font-weight: 900; font-size: 9px; color: var(--gold); letter-spacing: 0.15em; z-index: 2; }
+.fv-heart { position: absolute; top: 8px; right: 8px; color: var(--gold); font-size: 18px; z-index: 2; }
+.fv-body { position: absolute; bottom: 8px; left: 8px; right: 8px; z-index: 2; }
+.fv-title { font-family: 'Playfair Display'; font-weight: 700; font-size: 12px; color: var(--cream); letter-spacing: -0.01em; }
+.fv-cat { font-family: 'Cormorant Garamond'; font-style: italic; font-size: 10px; color: var(--gold); letter-spacing: 0.1em; margin-top: 2px; }
+</style></head><body>
+<div class="screen-tag"><span class="n">S8 · FAV</span>Favorites</div>
+<div class="phone">
+  <div class="notch"><span>9:41</span><span>●●○</span></div>
+  <div class="appbar"><div class="header-title">Favorites<span class="ornament">— selección</span></div><div class="diamond-pill"><span class="d">◆</span>120</div></div>
+  <div class="fav-intro">
+    <div class="fav-intro-title">tu colección privada</div>
+    <div class="fav-count">12<span class="it">piezas</span></div>
+    <div class="fav-meta">— Wallpapers · Live · Stories —</div>
+  </div>
+  <div class="filter-pills">
+    <div class="fp active">Todos</div>
+    <div class="fp">Wallpapers</div>
+    <div class="fp">Live</div>
+    <div class="fp">Stories</div>
+  </div>
+  <div class="fav-grid">
+    <div class="fv-card"><div class="fv-num">No. I</div><div class="fv-heart">♥</div><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=300&q=80"><div class="fv-body"><div class="fv-title">2B · Automata</div><div class="fv-cat">anime</div></div></div>
+    <div class="fv-card"><div class="fv-num">No. II</div><div class="fv-heart">♥</div><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=300&q=80"><div class="fv-body"><div class="fv-title">Saga Géminis</div><div class="fv-cat">saint seiya</div></div></div>
+    <div class="fv-card"><div class="fv-num">No. III</div><div class="fv-heart">♥</div><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=300&q=80"><div class="fv-body"><div class="fv-title">Aku</div><div class="fv-cat">samurai</div></div></div>
+    <div class="fv-card"><div class="fv-num">No. IV</div><div class="fv-heart">♥</div><img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=300&q=80"><div class="fv-body"><div class="fv-title">Dragon</div><div class="fv-cat">fantasy</div></div></div>
+    <div class="fv-card"><div class="fv-num">No. V</div><div class="fv-heart">♥</div><img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&q=80"><div class="fv-body"><div class="fv-title">Neon Alley</div><div class="fv-cat">cyberpunk</div></div></div>
+    <div class="fv-card"><div class="fv-num">No. VI</div><div class="fv-heart">♥</div><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=300&q=80"><div class="fv-body"><div class="fv-title">Enchanted</div><div class="fv-cat">nature</div></div></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><span class="nav-icon">W</span>Wall</div>
+    <div class="nav-item"><span class="nav-icon">L</span>Live</div>
+    <div class="nav-item"><span class="nav-icon">A</span>Aura</div>
+    <div class="nav-item"><span class="nav-icon">S</span>Stor</div>
+    <div class="nav-item"><span class="nav-icon">D</span>Day</div>
+    <div class="nav-item"><span class="nav-icon">T</span>Ton</div>
+    <div class="nav-item"><span class="nav-icon">I</span>IA</div>
+    <div class="nav-item active"><span class="nav-icon">F</span>Fav</div>
+  </div>
+</div>
+</body></html>

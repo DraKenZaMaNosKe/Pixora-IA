@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/design/hud_shapes.dart';
+import '../../../core/design/hud_tokens.dart';
+import '../../../core/design/hud_widgets.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/credit_service.dart';
 import '../../ai_generate/presentation/pages/ai_generate_page.dart';
@@ -41,15 +44,15 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   String get _title {
     final titles = [
-      'Pixora IA',
+      'PIXORA',
       if (!Platform.isIOS) 'LIVE',
       if (!Platform.isIOS) 'AURA',
-      if (!Platform.isIOS) 'Stories',
-      if (!Platform.isIOS) 'Day Cycle',
-      if (!Platform.isIOS) 'Tones',
-      if (!Platform.isIOS) 'AI Create',
-      'Favorites',
-      'Settings',
+      if (!Platform.isIOS) 'STORIES',
+      if (!Platform.isIOS) 'DAY CYCLE',
+      if (!Platform.isIOS) 'TONES',
+      if (!Platform.isIOS) 'AI CREATE',
+      'FAVORITES',
+      'SETTINGS',
     ];
     return titles[_currentIndex];
   }
@@ -58,71 +61,78 @@ class _HomePageState extends ConsumerState<HomePage> {
     final auth = AuthService.instance;
 
     if (auth.isLoggedIn) {
-      // Go to settings tab
-      setState(() {
-        _currentIndex = _pages.length - 1; // Settings is last
-      });
+      setState(() => _currentIndex = _pages.length - 1);
       return;
     }
+    _showLoginSheet();
+  }
 
-    // Show login bottom sheet
+  void _showLoginSheet() {
+    final h = context.hud;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: h.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(HudTokens.rSharp)),
       ),
       builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(
+            HudTokens.sp6, HudTokens.sp5, HudTokens.sp6, HudTokens.sp6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(Icons.cloud_sync, size: 48, color: Colors.white.withOpacity(0.3)),
-            const SizedBox(height: 16),
-            const Text(
-              'Sign in to Pixora',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            Text(
+              '// SYNC_CLOUD',
+              style: HudTokens.display(
+                  size: 12, color: h.accent, letterSpacing: 0.1),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: HudTokens.sp3),
+            Text(
+              'SIGN IN TO PIXORA',
+              style: HudTokens.display(
+                  size: 20, color: h.text, letterSpacing: 0.02),
+            ),
+            const SizedBox(height: HudTokens.sp2),
             Text(
               'Sync favorites across devices and track your downloads',
-              style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.5)),
-              textAlign: TextAlign.center,
+              style: HudTokens.body(size: 13, color: h.textDim),
             ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  final success = await AuthService.instance.signInWithGoogle();
-                  if (success && mounted) {
-                    setState(() {});
-                    ref.read(favoritesProvider.notifier).syncWithCloud();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Welcome! Favorites synced.'),
-                        backgroundColor: Colors.green,
+            const SizedBox(height: HudTokens.sp5),
+            HudPrimaryButton(
+              label: 'CONTINUE WITH GOOGLE',
+              icon: Icons.g_mobiledata,
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final success = await AuthService.instance.signInWithGoogle();
+                if (success && mounted) {
+                  setState(() {});
+                  ref.read(favoritesProvider.notifier).syncWithCloud();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '// WELCOME · FAVORITES SYNCED',
+                        style: HudTokens.mono(
+                          size: 11,
+                          color: Colors.white,
+                          weight: FontWeight.w700,
+                          letterSpacing: 0.1,
+                        ),
                       ),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.g_mobiledata, size: 24),
-                label: const Text('Continue with Google', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black87,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-              ),
+                      backgroundColor: HudTokens.okGreen,
+                    ),
+                  );
+                }
+              },
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: HudTokens.sp3),
             Text(
-              'Optional — app works fully without an account',
-              style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.3)),
+              '> OPTIONAL · APP WORKS WITHOUT ACCOUNT',
+              textAlign: TextAlign.center,
+              style: HudTokens.mono(
+                  size: 9, color: h.textDim, letterSpacing: 0.15),
             ),
-            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -131,154 +141,98 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _buildAvatar() {
     final auth = AuthService.instance;
-
-    if (auth.isLoggedIn && auth.avatarUrl != null) {
-      return GestureDetector(
-        onTap: _onAvatarTap,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: CircleAvatar(
+    final h = context.hud;
+    final child = auth.isLoggedIn && auth.avatarUrl != null
+        ? CircleAvatar(
             radius: 16,
             backgroundImage: NetworkImage(auth.avatarUrl!),
-            backgroundColor: const Color(0xFF7C4DFF),
-          ),
-        ),
-      );
-    }
-
+            backgroundColor: h.surface,
+          )
+        : CircleAvatar(
+            radius: 16,
+            backgroundColor: h.surface,
+            child: Icon(Icons.person, size: 18, color: h.textDim),
+          );
     return GestureDetector(
       onTap: _onAvatarTap,
       child: Padding(
-        padding: const EdgeInsets.only(left: 12),
-        child: CircleAvatar(
-          radius: 16,
-          backgroundColor: Colors.white.withOpacity(0.15),
-          child: Icon(
-            Icons.person,
-            size: 18,
-            color: Colors.white.withOpacity(0.6),
-          ),
-        ),
+        padding: const EdgeInsets.only(left: HudTokens.sp3),
+        child: child,
       ),
     );
   }
 
   void _showCreditsSheet() {
+    final h = context.hud;
     final credits = CreditService.instance;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: h.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(HudTokens.rSharp)),
       ),
       builder: (ctx) => ListenableBuilder(
         listenable: credits,
         builder: (ctx, _) => Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(
+              HudTokens.sp6, HudTokens.sp5, HudTokens.sp6, HudTokens.sp6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: 40, height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Balance
+              Text('// CREDITS_WALLET',
+                  style: HudTokens.display(
+                      size: 12, color: h.accent, letterSpacing: 0.1)),
+              const SizedBox(height: HudTokens.sp4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Icon(Icons.diamond, size: 32, color: Color(0xFF7C4DFF)),
-                  const SizedBox(width: 10),
-                  Text(
-                    '${credits.balance}',
-                    style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Text('◆',
+                      style:
+                          TextStyle(fontSize: 32, color: h.accent2, height: 1)),
+                  const SizedBox(width: HudTokens.sp2),
+                  Text('${credits.balance}',
+                      style: HudTokens.display(
+                          size: 44, color: h.text, letterSpacing: -0.02)),
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Credits',
-                style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.5)),
+              const SizedBox(height: HudTokens.sp2),
+              Center(
+                child: Text('BALANCE',
+                    style: HudTokens.mono(
+                        size: 10, color: h.textDim, letterSpacing: 0.3)),
               ),
-              const SizedBox(height: 20),
-              // Stats
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _creditStat('Earned', '${credits.totalEarned}'),
-                    Container(width: 1, height: 30, color: Colors.white12),
-                    _creditStat('Ads Watched', '${credits.adsWatched}'),
-                    Container(width: 1, height: 30, color: Colors.white12),
-                    _creditStat('Per Ad', '+${CreditService.creditsPerAd}'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Promo banner
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF7C4DFF).withOpacity(0.2),
-                      const Color(0xFF00B4D8).withOpacity(0.2),
+              const SizedBox(height: HudTokens.sp5),
+              ClipPath(
+                clipper: const CornerCutClipper(cut: HudTokens.cornerCutSm),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: HudTokens.sp4),
+                  decoration: BoxDecoration(
+                    color: h.surfaceHi,
+                    border: Border.all(color: h.divider, width: 1),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _creditStat('EARNED', '${credits.totalEarned}'),
+                      Container(width: 1, height: 30, color: h.divider),
+                      _creditStat('ADS', '${credits.adsWatched}'),
+                      Container(width: 1, height: 30, color: h.divider),
+                      _creditStat('PER AD', '+${CreditService.creditsPerAd}'),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFF7C4DFF).withOpacity(0.3)),
-                ),
-                child: Column(
-                  children: [
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.auto_awesome, size: 18, color: Color(0xFF00B4D8)),
-                        SizedBox(width: 8),
-                        Text(
-                          'AI Wallpapers — Coming Soon',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Save credits now! Generate wallpapers and ringtones with AI when it launches.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.6),
-                        height: 1.4,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
                 ),
               ),
-              const SizedBox(height: 12),
-              // How to earn
+              const SizedBox(height: HudTokens.sp4),
               Text(
-                'Watch ads while using the app to earn credits automatically',
-                style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.35)),
+                '> WATCH ADS TO EARN DIAMONDS AUTOMATICALLY',
                 textAlign: TextAlign.center,
+                style: HudTokens.mono(
+                    size: 10, color: h.textDim, letterSpacing: 0.15),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: HudTokens.sp3),
             ],
           ),
         ),
@@ -287,141 +241,190 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _creditStat(String label, String value) {
+    final h = context.hud;
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(value,
+            style: HudTokens.display(
+                size: 18, color: h.accent2, letterSpacing: -0.01)),
         const SizedBox(height: 2),
-        Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.4))),
+        Text(label,
+            style:
+                HudTokens.mono(size: 9, color: h.textDim, letterSpacing: 0.2)),
       ],
+    );
+  }
+
+  Widget _buildCreditsBadge() {
+    return ListenableBuilder(
+      listenable: CreditService.instance,
+      builder: (context, _) {
+        final h = context.hud;
+        final credits = CreditService.instance.balance;
+        return GestureDetector(
+          onTap: _showCreditsSheet,
+          child: ClipPath(
+            clipper: const CornerCutClipper(cut: 6),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: HudTokens.sp3, vertical: 5),
+              decoration: BoxDecoration(
+                color: h.surface,
+                border: Border.all(color: h.accent, width: 1.5),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('◆',
+                      style:
+                          TextStyle(fontSize: 13, color: h.accent2, height: 1)),
+                  const SizedBox(width: 5),
+                  Text('$credits',
+                      style: HudTokens.mono(
+                          size: 13,
+                          weight: FontWeight.w700,
+                          color: h.text,
+                          letterSpacing: 0.05)),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    final h = context.hud;
+    final transparent = _isWallpapersTab;
+    return AppBar(
+      backgroundColor: transparent ? Colors.transparent : h.bg,
+      elevation: 0,
+      leading: _buildAvatar(),
+      leadingWidth: 56,
+      title: Text(
+        _title,
+        style: HudTokens.display(
+          size: 18,
+          color: h.text,
+          letterSpacing: 0.04,
+        ),
+      ),
+      actions: [
+        _buildCreditsBadge(),
+        const SizedBox(width: HudTokens.sp2),
+        if (_isWallpapersTab)
+          IconButton(
+            icon: Icon(Icons.search, color: h.text, size: 22),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const WallpaperSearchPage(),
+                ),
+              );
+            },
+          ),
+        const SizedBox(width: HudTokens.sp1),
+      ],
+    );
+  }
+
+  Widget _buildBottomNav() {
+    final h = context.hud;
+    final items = <_NavItemData>[
+      _NavItemData(Icons.image_outlined, 'WALL'),
+      if (!Platform.isIOS) _NavItemData(Icons.play_arrow_rounded, 'LIVE'),
+      if (!Platform.isIOS) _NavItemData(Icons.spa_outlined, 'AURA'),
+      if (!Platform.isIOS) _NavItemData(Icons.auto_stories_outlined, 'STOR'),
+      if (!Platform.isIOS) _NavItemData(Icons.wb_twilight_outlined, 'DAY'),
+      if (!Platform.isIOS) _NavItemData(Icons.music_note_outlined, 'TON'),
+      if (!Platform.isIOS) _NavItemData(Icons.auto_awesome_outlined, 'IA'),
+      _NavItemData(Icons.favorite_outline, 'FAV'),
+      _NavItemData(Icons.settings_outlined, 'SET'),
+    ];
+    return Container(
+      decoration: BoxDecoration(
+        color: h.bg,
+        border: Border(
+            top: BorderSide(color: h.accent, width: HudTokens.borderMed)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            for (var i = 0; i < items.length; i++)
+              Expanded(
+                child: _NavItem(
+                  data: items[i],
+                  active: _currentIndex == i,
+                  onTap: () => setState(() => _currentIndex = i),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
     return Scaffold(
+      backgroundColor: h.bg,
       extendBodyBehindAppBar: _isWallpapersTab,
-      appBar: _isWallpapersTab
-          ? AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: _buildAvatar(),
-              title: const Text(
-                'Pixora IA',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+      appBar: _buildAppBar(),
+      body: IndexedStack(index: _currentIndex, children: _pages),
+      bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+}
+
+class _NavItemData {
+  final IconData icon;
+  final String label;
+  const _NavItemData(this.icon, this.label);
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem(
+      {required this.data, required this.active, required this.onTap});
+  final _NavItemData data;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final h = context.hud;
+    final color = active ? h.accent : h.textDim;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: active ? h.accent.withOpacity(0.08) : null,
+          border: active
+              ? Border(
+                  top: BorderSide(color: h.accent2, width: HudTokens.borderMed),
+                )
+              : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(data.icon, color: color, size: 18),
+            const SizedBox(height: 3),
+            Text(
+              data.label,
+              style: HudTokens.mono(
+                size: 8,
+                weight: FontWeight.w700,
+                color: color,
+                letterSpacing: 0.15,
               ),
-              actions: [
-                // Credits badge
-                ListenableBuilder(
-                  listenable: CreditService.instance,
-                  builder: (context, _) {
-                    final credits = CreditService.instance.balance;
-                    return GestureDetector(
-                      onTap: () => _showCreditsSheet(),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFF7C4DFF), width: 1.5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF7C4DFF).withOpacity(0.3),
-                              blurRadius: 8,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.diamond, size: 16, color: Color(0xFF00E5FF)),
-                            const SizedBox(width: 5),
-                            Text(
-                              '$credits',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(width: 4),
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const WallpaperSearchPage(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            )
-          : AppBar(
-              title: Text(_title),
             ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        type: BottomNavigationBarType.fixed,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.wallpaper),
-            label: 'Wallpapers',
-          ),
-          if (!Platform.isIOS)
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.play_circle_filled),
-              label: 'LIVE',
-            ),
-          if (!Platform.isIOS)
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.spa),
-              label: 'AURA',
-            ),
-          if (!Platform.isIOS)
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.auto_stories),
-              label: 'Stories',
-            ),
-          if (!Platform.isIOS)
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.wb_twilight),
-              label: 'Day Cycle',
-            ),
-          if (!Platform.isIOS)
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.music_note),
-              label: 'Tones',
-            ),
-          if (!Platform.isIOS)
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.auto_awesome),
-              label: 'AI',
-            ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

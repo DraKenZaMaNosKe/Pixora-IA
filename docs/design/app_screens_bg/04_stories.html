@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Stories · Black & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.story-card { margin: 14px 18px 0; position: relative; border: 1px solid var(--gold); overflow: hidden; }
+.story-card.featured { border-width: 2px; }
+.story-hero { position: relative; height: 260px; }
+.story-hero img { width: 100%; height: 100%; object-fit: cover; }
+.story-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.95), transparent 45%); }
+.story-chapter { position: absolute; top: 14px; left: 14px; z-index: 2; padding: 4px 10px; background: var(--gold); color: var(--ink); font-family: 'Inter'; font-weight: 700; font-size: 9px; letter-spacing: 0.3em; }
+.story-count { position: absolute; top: 14px; right: 14px; z-index: 2; padding: 4px 10px; background: var(--ink); border: 1px solid var(--gold); color: var(--gold); font-family: 'Inter'; font-weight: 700; font-size: 9px; letter-spacing: 0.2em; }
+.story-body { padding: 18px; background: linear-gradient(to bottom, rgba(0,0,0,0.85), var(--ink)); position: relative; }
+.story-eyebrow { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 12px; color: var(--gold); letter-spacing: 0.2em; margin-bottom: 4px; }
+.story-title { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 22px; color: var(--cream); letter-spacing: -0.02em; line-height: 1.05; }
+.story-title .it { font-style: italic; font-weight: 400; color: var(--gold); }
+.story-meta { margin-top: 10px; display: flex; gap: 16px; font-family: 'Inter'; font-size: 10px; color: var(--gold-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+.story-meta .n { color: var(--gold); font-weight: 700; margin-right: 4px; }
+.story-actions { margin-top: 14px; display: flex; gap: 10px; }
+.story-btn { flex: 1; padding: 10px 16px; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Playfair Display', serif; font-weight: 900; font-size: 11px; color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase; }
+.story-btn.primary { background: var(--gold); color: var(--ink); }
+.body-scroll { padding-bottom: 80px; }
+</style></head><body>
+<div class="screen-tag"><span class="n">S4 · STOR</span>Stories</div>
+<div class="phone">
+  <div class="notch"><span>9:41</span><span>●●○</span></div>
+  <div class="appbar"><div class="header-title">Stories<span class="ornament">— la colección</span></div><div class="diamond-pill"><span class="d">◆</span>120</div></div>
+  <div class="body-scroll">
+  <div class="story-card featured">
+    <div class="story-hero">
+      <img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=500&q=80">
+      <div class="story-chapter">CAP · I</div>
+      <div class="story-count">7 FRAMES</div>
+    </div>
+    <div class="story-body">
+      <div class="story-eyebrow">— anime · action</div>
+      <div class="story-title">Dragon Ball <span class="it">Super</span></div>
+      <div class="story-meta"><span><span class="n">∞</span>Cada 30 min</span><span><span class="n">♥</span>2.4k</span><span><span class="n">▸</span>890 plays</span></div>
+      <div class="story-actions">
+        <div class="story-btn primary">▶ Explore</div>
+        <div class="story-btn">♡ save</div>
+      </div>
+    </div>
+  </div>
+  <div class="story-card">
+    <div class="story-hero">
+      <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=500&q=80">
+      <div class="story-chapter">CAP · II</div>
+      <div class="story-count">5 FRAMES</div>
+    </div>
+    <div class="story-body">
+      <div class="story-eyebrow">— saint seiya · saga</div>
+      <div class="story-title">Saga de <span class="it">Géminis</span></div>
+      <div class="story-meta"><span><span class="n">∞</span>Cada 45 min</span><span><span class="n">♥</span>1.2k</span><span><span class="n">▸</span>412 plays</span></div>
+      <div class="story-actions">
+        <div class="story-btn primary">▶ Explore</div>
+        <div class="story-btn">♡ save</div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><span class="nav-icon">W</span>Wall</div>
+    <div class="nav-item"><span class="nav-icon">L</span>Live</div>
+    <div class="nav-item"><span class="nav-icon">A</span>Aura</div>
+    <div class="nav-item active"><span class="nav-icon">S</span>Stor</div>
+    <div class="nav-item"><span class="nav-icon">D</span>Day</div>
+    <div class="nav-item"><span class="nav-icon">T</span>Ton</div>
+    <div class="nav-item"><span class="nav-icon">I</span>IA</div>
+    <div class="nav-item"><span class="nav-icon">F</span>Fav</div>
+  </div>
+</div>
+</body></html>

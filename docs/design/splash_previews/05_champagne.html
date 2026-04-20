@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>05 · Champagne Particles</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,400&family=Italiana&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1a1a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;font-family:'Cormorant Garamond',serif}
+.tag{position:fixed;top:16px;left:24px;color:#c9a650;font-size:12px;letter-spacing:0.3em;text-transform:uppercase;font-family:'Italiana',serif}.tag::before{content:"05 · "}
+.phone{width:320px;height:680px;background:radial-gradient(ellipse at center,#1a1208 0%,#000 70%);border-radius:32px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bubbles{position:absolute;inset:0;overflow:hidden}
+.b{position:absolute;border-radius:50%;background:radial-gradient(circle,#f0dd9e,#c9a650);bottom:-20px;animation:rise linear infinite}
+.b.s1{width:4px;height:4px;left:10%;animation-duration:6s;animation-delay:0s}
+.b.s2{width:6px;height:6px;left:25%;animation-duration:8s;animation-delay:-2s;opacity:0.7}
+.b.s3{width:3px;height:3px;left:40%;animation-duration:5s;animation-delay:-1s}
+.b.s4{width:5px;height:5px;left:55%;animation-duration:7s;animation-delay:-3s;opacity:0.6}
+.b.s5{width:4px;height:4px;left:70%;animation-duration:9s;animation-delay:-4s}
+.b.s6{width:7px;height:7px;left:85%;animation-duration:6.5s;animation-delay:-2.5s;opacity:0.5}
+.b.s7{width:3px;height:3px;left:15%;animation-duration:7s;animation-delay:-5s}
+.b.s8{width:5px;height:5px;left:60%;animation-duration:8.5s;animation-delay:-6s;opacity:0.7}
+.b.s9{width:4px;height:4px;left:35%;animation-duration:5.5s;animation-delay:-3.5s}
+.b.s10{width:6px;height:6px;left:78%;animation-duration:7.5s;animation-delay:-4.5s;opacity:0.6}
+@keyframes rise{0%{bottom:-20px;opacity:0}10%{opacity:0.9}100%{bottom:105%;opacity:0;transform:translateX(30px)}}
+.glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(201,166,80,0.25),transparent 60%);animation:breathe 4s infinite ease-in-out;pointer-events:none}
+@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
+.top-ornament{position:absolute;top:60px;color:#c9a650;font-family:'Italiana',serif;font-size:28px;letter-spacing:0.5em;z-index:2;animation:fade 2s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.p-big{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:200px;background:linear-gradient(180deg,#f0dd9e 0%,#c9a650 50%,#8a6f33 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;z-index:2;text-shadow:0 0 40px rgba(201,166,80,0.5);animation:glow 3s ease-in-out infinite}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+.title{font-family:'Italiana',serif;font-size:36px;color:#f0e8d6;letter-spacing:0.3em;margin-top:-10px;z-index:2}
+.line-div{width:50px;height:1px;background:linear-gradient(90deg,transparent,#c9a650,transparent);margin:14px 0;z-index:2}
+.sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(240,232,214,0.65);letter-spacing:0.2em;z-index:2}
+.year{position:absolute;bottom:30px;font-family:'Italiana',serif;font-size:11px;color:#8a7a56;letter-spacing:0.5em;z-index:2}
+</style></head><body>
+<div class="tag">Champagne Particles</div>
+<div class="phone">
+  <div class="bubbles"><div class="b s1"></div><div class="b s2"></div><div class="b s3"></div><div class="b s4"></div><div class="b s5"></div><div class="b s6"></div><div class="b s7"></div><div class="b s8"></div><div class="b s9"></div><div class="b s10"></div></div>
+  <div class="glow"></div>
+  <div class="top-ornament">✦ ✦ ✦</div>
+  <div class="p-big">P</div>
+  <div class="title">PIXORA</div>
+  <div class="line-div"></div>
+  <div class="sub">effervescence · noir</div>
+  <div class="year">— MMXXVI —</div>
+</div>
+</body></html>

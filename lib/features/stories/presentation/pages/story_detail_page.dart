@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/design/hud_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/content/content_manager.dart';
@@ -30,7 +31,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   final _pageController = PageController(viewportFraction: 0.85);
 
   Color get _glowColor =>
-      parseHexColor(widget.story.glowColor, fallback: Colors.deepPurple);
+      HudTokens.gold;  // Was: parseHexColor(glowColor, fallback: deepPurple)
 
   @override
   void initState() {
@@ -305,13 +306,13 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: isFree
-                              ? Colors.green.withOpacity(0.2)
-                              : Colors.orange.withOpacity(0.2),
+                              ? HudTokens.gold.withOpacity(0.2)
+                              : HudTokens.gold.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                               color: isFree
-                                  ? Colors.greenAccent.withOpacity(0.5)
-                                  : Colors.orange.withOpacity(0.5)),
+                                  ? HudTokens.gold.withOpacity(0.5)
+                                  : HudTokens.gold.withOpacity(0.5)),
                         ),
                         child: Text(
                           isFree
@@ -321,8 +322,8 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: isFree
-                                  ? Colors.greenAccent
-                                  : Colors.orangeAccent),
+                                  ? HudTokens.gold
+                                  : HudTokens.gold),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -363,7 +364,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                         fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isActive ? Colors.red.shade800 : glow,
+                    backgroundColor: isActive ? HudTokens.goldDeep : glow,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),

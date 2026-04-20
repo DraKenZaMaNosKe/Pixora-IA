@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Alfa+Slab+One&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<title>H · Retro 70s</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Poppins',sans-serif; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#e89a2f; font-family:'Alfa Slab One',serif; font-size:22px; letter-spacing:-0.01em; }
+.dir-label::before { content:"H · "; font-family:'Poppins'; font-weight:500; letter-spacing:0.25em; text-transform:uppercase; font-size:11px; color:#888; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; font-weight:500; }
+.phone {
+  width:320px; height:680px; overflow:hidden; border-radius:24px; position:relative;
+  --bg:#241810; --surface:#2e1f14; --text:#f4e3c4; --text-dim:#a08a64; --accent:#e89a2f; --accent-2:#c45a3a; --cream:#f4e3c4; --divider:rgba(244,227,196,0.1);
+  background:var(--bg); color:var(--text);
+  box-shadow:0 20px 50px rgba(0,0,0,0.4);
+}
+.phone.light { --bg:#f4e3c4; --surface:#e8d4b0; --text:#2e1f14; --text-dim:#7a6140; --accent:#c77624; --accent-2:#a04428; --cream:#2e1f14; --divider:rgba(46,31,20,0.1); }
+.notch { height:28px; display:flex; justify-content:space-between; padding:10px 22px 0; font-size:11px; font-weight:600; color:var(--text-dim); }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:14px 18px 10px; background:var(--accent); color:#241810; border-radius:24px 24px 0 0; }
+.topbar.topbar-override { background:var(--accent); color:#241810; }
+.phone.light .topbar { color:#241810; }
+.brand { font-family:'Alfa Slab One',serif; font-size:22px; letter-spacing:-0.01em; }
+.pill { padding:6px 12px; background:#241810; color:var(--accent); border-radius:100px; font-family:'Alfa Slab One',serif; font-size:12px; display:flex; align-items:center; gap:5px; }
+.phone.light .pill { background:#2e1f14; color:var(--cream); }
+.hero { margin:12px 14px 0; position:relative; border-radius:18px; overflow:hidden; height:270px; border:4px solid var(--accent); }
+.hero img { width:100%; height:100%; object-fit:cover; filter:saturate(1.1) contrast(1.05); }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(36,24,16,0.92), transparent 50%); }
+.hero-body { position:absolute; bottom:14px; left:14px; right:14px; color:#f4e3c4; z-index:2; }
+.hero-tag { display:inline-block; padding:4px 12px; background:var(--accent-2); color:#f4e3c4; font-family:'Alfa Slab One',serif; font-size:10px; letter-spacing:0.1em; margin-bottom:8px; border-radius:100px; text-transform:uppercase; }
+.hero-title { font-family:'Alfa Slab One',serif; font-size:28px; line-height:0.95; letter-spacing:-0.02em; margin-bottom:6px; }
+.hero-desc { font-size:11px; opacity:0.8; line-height:1.4; }
+.section-head { padding:18px 18px 12px; display:flex; justify-content:space-between; align-items:baseline; }
+.section-title { font-family:'DM Serif Display',serif; font-style:italic; font-size:26px; letter-spacing:-0.02em; color:var(--accent); }
+.more { font-family:'Poppins'; font-size:11px; font-weight:700; color:var(--accent-2); text-transform:uppercase; letter-spacing:0.08em; }
+.row { display:flex; gap:10px; overflow-x:auto; padding:0 18px 10px; }
+.card { min-width:110px; }
+.card-img { width:110px; height:150px; border-radius:14px; overflow:hidden; position:relative; border:3px solid var(--accent); }
+.card-img img { width:100%; height:100%; object-fit:cover; filter:saturate(1.1); }
+.card-badge { position:absolute; top:6px; left:6px; background:var(--accent-2); color:#f4e3c4; padding:2px 8px; border-radius:100px; font-family:'Alfa Slab One',serif; font-size:8px; letter-spacing:0.08em; }
+.card-title { margin-top:6px; font-family:'Alfa Slab One',serif; font-size:12px; letter-spacing:-0.01em; line-height:1.1; }
+.card-sub { font-size:10px; color:var(--text-dim); margin-top:1px; font-style:italic; font-family:'DM Serif Display',serif; }
+.nav { position:absolute; bottom:0; left:0; right:0; background:var(--accent); display:flex; padding:4px; }
+.nav-item { flex:1; padding:8px 2px 12px; text-align:center; font-family:'Poppins'; font-size:8px; font-weight:700; color:rgba(36,24,16,0.55); letter-spacing:0.05em; text-transform:uppercase; border-radius:12px; }
+.nav-item.active { color:#241810; background:var(--cream); }
+.phone.light .nav-item.active { color:#241810; background:#241810; color:var(--cream); }
+.nav-icon { font-family:'Alfa Slab One',serif; font-size:13px; display:block; margin-bottom:2px; }
+</style></head><body>
+<div class="dir-label">Retro 70s · Wes Anderson</div>
+<div class="pair">
+  <template id="ph">
+    <div class="notch"><span>9:41</span><span>●●○</span></div>
+    <div class="topbar"><div class="brand">PIXORA</div><div class="pill">◆ 120</div></div>
+    <div class="hero"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+      <div class="hero-body"><span class="hero-tag">NATURE</span><div class="hero-title">Enchanted Forest</div><div class="hero-desc">Moonlit woods, animated fireflies, ancient mossy trees.</div></div>
+    </div>
+    <div class="section-head"><div class="section-title">Trending<em>.</em></div><div class="more">VER TODO</div></div>
+    <div class="row">
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-title">2B Automata</div><div class="card-sub">anime · action</div></div>
+      <div class="card"><div class="card-img"><span class="card-badge">NEW</span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-title">Saga Géminis</div><div class="card-sub">saint seiya</div></div>
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-title">Aku</div><div class="card-sub">samurai jack</div></div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><span class="nav-icon">◉</span>Wall</div>
+      <div class="nav-item"><span class="nav-icon">▸</span>Live</div>
+      <div class="nav-item"><span class="nav-icon">☽</span>Aura</div>
+      <div class="nav-item"><span class="nav-icon">❒</span>Stor</div>
+      <div class="nav-item"><span class="nav-icon">♪</span>Ton</div>
+      <div class="nav-item"><span class="nav-icon">✦</span>IA</div>
+      <div class="nav-item"><span class="nav-icon">♡</span>Fav</div>
+    </div>
+  </template>
+  <div class="mode-wrap"><div class="mode-label">Día</div><div class="phone light" id="pl"></div></div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div><div class="phone" id="pd"></div></div>
+</div>
+<script>const t=document.getElementById('ph').innerHTML; pl.innerHTML=t; pd.innerHTML=t;</script>
+</body></html>

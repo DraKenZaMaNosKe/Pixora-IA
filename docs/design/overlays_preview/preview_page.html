@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Pixora · Wallpaper Preview Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,900;1,400&family=Italiana&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0604;color:#f0e8d6;min-height:100vh;padding:30px 20px}
+h1{font-family:'Playfair Display',serif;font-weight:900;font-size:30px;color:#f0dd9e;margin-bottom:6px;letter-spacing:-0.02em}
+h1 .it{font-style:italic;font-weight:400;color:#c9a650}
+.intro{color:#8a7a56;margin-bottom:28px;font-size:13px;font-style:italic;font-family:'Cormorant Garamond',serif;max-width:700px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.card{border:1px solid rgba(201,166,80,0.25);background:#000;overflow:hidden}
+.card:hover{border-color:#c9a650}
+.phone{width:100%;aspect-ratio:9/18;overflow:hidden;position:relative;background:#000}
+.phone img{width:100%;height:100%;object-fit:cover}
+.lbl{padding:14px 18px;border-top:1px solid rgba(201,166,80,0.15);background:#0a0604}
+.lbl .t{font-family:'Playfair Display',serif;font-weight:700;font-size:14px;color:#f0e8d6}
+.lbl .d{color:#8a7a56;font-size:11px;margin-top:3px;font-style:italic;font-family:'Cormorant Garamond',serif}
+
+/* ── 01: Editorial Museum Card ─────────────────────────────────── */
+.p01 .topbar{position:absolute;top:0;left:0;right:0;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;z-index:5;background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent)}
+.p01 .close{width:30px;height:30px;border:1px solid #c9a650;display:flex;align-items:center;justify-content:center;color:#c9a650;font-size:14px}
+.p01 .fav{width:30px;height:30px;border:1px solid #c9a650;display:flex;align-items:center;justify-content:center;color:#c9a650}
+.p01 .meta-strip{position:absolute;bottom:0;left:0;right:0;padding:0;z-index:3}
+.p01 .museum-card{background:#000;padding:24px 20px 18px;border-top:1px solid #c9a650}
+.p01 .piece-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12px;color:#c9a650;letter-spacing:0.25em;text-transform:uppercase;margin-bottom:6px}
+.p01 .piece-title{font-family:'Playfair Display',serif;font-weight:900;font-size:26px;color:#f0e8d6;letter-spacing:-0.02em;line-height:1}
+.p01 .piece-title .it{font-style:italic;font-weight:400;color:#c9a650;display:block;margin-top:2px}
+.p01 .piece-desc{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(240,232,214,0.7);margin-top:8px;line-height:1.4}
+.p01 .specs-row{display:flex;gap:16px;margin-top:14px;border-top:1px solid rgba(201,166,80,0.2);padding-top:12px}
+.p01 .spec{flex:1}
+.p01 .spec .k{font-family:'Inter';font-size:9px;color:#8a7a56;letter-spacing:0.25em;text-transform:uppercase}
+.p01 .spec .v{font-family:'Playfair Display';font-weight:700;font-size:14px;color:#c9a650;margin-top:2px}
+.p01 .cta-row{display:flex;gap:10px;margin-top:16px}
+.p01 .cta-main{flex:1;background:#c9a650;color:#000;padding:14px;font-family:'Playfair Display';font-weight:900;font-size:13px;letter-spacing:0.25em;text-align:center;text-transform:uppercase}
+.p01 .cta-ghost{padding:14px 20px;border:1px solid #c9a650;color:#c9a650;font-family:'Inter';font-size:12px;letter-spacing:0.25em;text-transform:uppercase;font-weight:700}
+
+/* ── 02: Auction Listing ──────────────────────────────────────── */
+.p02 .topbar{position:absolute;top:0;left:0;right:0;padding:12px 16px;z-index:5;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(to bottom,rgba(0,0,0,0.85),transparent)}
+.p02 .close{font-family:'Cormorant Garamond';font-style:italic;color:#c9a650;font-size:14px}
+.p02 .lot{font-family:'Inter';font-weight:700;font-size:10px;color:#c9a650;letter-spacing:0.3em}
+.p02 .frame{position:absolute;top:60px;left:24px;right:24px;bottom:260px;border:1px solid #c9a650;padding:6px}
+.p02 .frame-inner{width:100%;height:100%;overflow:hidden;position:relative}
+.p02 .frame-inner img{width:100%;height:100%;object-fit:cover;display:block}
+.p02 .catalog{position:absolute;bottom:0;left:0;right:0;background:#000;padding:20px;border-top:1px solid #c9a650}
+.p02 .lot-title{font-family:'Playfair Display';font-weight:900;font-size:22px;color:#f0e8d6;letter-spacing:-0.02em}
+.p02 .artist{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#c9a650;margin-top:2px}
+.p02 .details{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(201,166,80,0.2)}
+.p02 .d-item{font-family:'Inter';font-size:10px;color:#8a7a56;letter-spacing:0.15em}
+.p02 .d-item b{color:#f0e8d6;font-family:'Cormorant Garamond';font-style:italic;font-weight:400;font-size:13px;letter-spacing:0.02em;display:block;margin-top:2px}
+.p02 .price-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:12px;border-top:1px solid rgba(201,166,80,0.2)}
+.p02 .price-lbl{font-family:'Inter';font-size:10px;color:#8a7a56;letter-spacing:0.25em}
+.p02 .price-v{font-family:'Playfair Display';font-weight:900;font-size:22px;color:#c9a650;letter-spacing:-0.01em}
+.p02 .auction-btn{margin-top:14px;width:100%;background:#c9a650;color:#000;padding:14px;font-family:'Playfair Display';font-weight:900;font-size:13px;letter-spacing:0.25em;text-align:center;text-transform:uppercase}
+
+/* ── 03: Full-Bleed Editorial ──────────────────────────────────── */
+.p03 .topbar{position:absolute;top:0;left:0;right:0;padding:14px 18px;z-index:5;display:flex;justify-content:space-between;align-items:center}
+.p03 .topbar .back{color:#fff;font-size:18px;width:34px;height:34px;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);border:1px solid rgba(201,166,80,0.4);display:flex;align-items:center;justify-content:center}
+.p03 .topbar .right{display:flex;gap:8px}
+.p03 .topbar .btn-g{width:34px;height:34px;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);border:1px solid rgba(201,166,80,0.4);color:#c9a650;display:flex;align-items:center;justify-content:center;font-size:14px}
+.p03 .piece-info{position:absolute;bottom:140px;left:20px;right:20px;color:#fff;z-index:3}
+.p03 .num-big{font-family:'Playfair Display';font-weight:900;font-size:68px;color:#c9a650;line-height:1;letter-spacing:-0.05em;opacity:0.95}
+.p03 .piece-nm{font-family:'Playfair Display';font-weight:900;font-size:32px;color:#fff;letter-spacing:-0.02em;line-height:1;margin-top:4px}
+.p03 .piece-nm .it{font-style:italic;font-weight:400;color:#c9a650;display:block}
+.p03 .piece-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(255,255,255,0.8);margin-top:8px}
+.p03 .bottom-gradient{position:absolute;bottom:0;left:0;right:0;height:260px;background:linear-gradient(to top,rgba(0,0,0,0.95),transparent)}
+.p03 .cta-band{position:absolute;bottom:20px;left:20px;right:20px;z-index:4;display:flex;gap:8px}
+.p03 .cta-main{flex:1;background:#c9a650;color:#000;padding:14px;font-family:'Playfair Display';font-weight:900;font-size:13px;letter-spacing:0.25em;text-align:center;text-transform:uppercase}
+.p03 .cta-small{padding:14px 16px;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);border:1px solid #c9a650;color:#c9a650;font-family:'Inter';font-size:11px;letter-spacing:0.2em;font-weight:700;text-transform:uppercase}
+
+/* ── 04: Fashion Magazine Split ────────────────────────────────── */
+.p04 .hero{position:absolute;top:0;left:0;right:0;height:55%;overflow:hidden}
+.p04 .hero img{width:100%;height:100%;object-fit:cover}
+.p04 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,#000 100%)}
+.p04 .topbar{position:absolute;top:0;left:0;right:0;padding:14px 18px;z-index:5;display:flex;justify-content:space-between}
+.p04 .close-t{color:#fff;font-size:16px;background:rgba(0,0,0,0.6);width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.p04 .folio{font-family:'Playfair Display';font-weight:900;font-size:10px;color:#c9a650;letter-spacing:0.4em;text-transform:uppercase;padding:8px}
+.p04 .editorial{position:absolute;top:55%;left:0;right:0;bottom:0;background:#000;padding:24px 20px}
+.p04 .eyebrow{font-family:'Cormorant Garamond';font-style:italic;font-size:13px;color:#c9a650;letter-spacing:0.2em;margin-bottom:4px}
+.p04 .big-title{font-family:'Playfair Display';font-weight:900;font-size:34px;line-height:0.95;color:#f0e8d6;letter-spacing:-0.03em}
+.p04 .big-title .it{font-style:italic;font-weight:400;color:#c9a650;display:block}
+.p04 .pull-quote{margin-top:14px;padding:12px 16px;border-left:2px solid #c9a650;font-family:'Cormorant Garamond';font-style:italic;font-size:15px;color:#f0e8d6;line-height:1.4}
+.p04 .pull-quote::before{content:"" ";font-size:22px;color:#c9a650;margin-right:4px}
+.p04 .meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(201,166,80,0.2)}
+.p04 .m-cell .k{font-family:'Inter';font-size:9px;color:#8a7a56;letter-spacing:0.25em;text-transform:uppercase}
+.p04 .m-cell .v{font-family:'Playfair Display';font-weight:700;font-size:14px;color:#c9a650;margin-top:2px;letter-spacing:-0.01em}
+.p04 .cta{position:absolute;bottom:20px;left:20px;right:20px;background:#c9a650;color:#000;padding:14px;font-family:'Playfair Display';font-weight:900;font-size:13px;letter-spacing:0.25em;text-align:center;text-transform:uppercase}
+
+/* ── 05: Boutique Tag ──────────────────────────────────────────── */
+.p05 .hero-full{position:absolute;inset:0;overflow:hidden}
+.p05 .hero-full img{width:100%;height:100%;object-fit:cover}
+.p05 .hero-full::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,0.85) 100%)}
+.p05 .topbar{position:absolute;top:0;left:0;right:0;padding:14px 18px;z-index:5;display:flex;justify-content:space-between;align-items:center}
+.p05 .close{width:32px;height:32px;border:1px solid #c9a650;background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);color:#c9a650;display:flex;align-items:center;justify-content:center;font-size:14px}
+.p05 .nr{font-family:'Playfair Display';font-weight:900;font-size:10px;color:#c9a650;letter-spacing:0.3em;background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);padding:7px 12px;border:1px solid rgba(201,166,80,0.5)}
+.p05 .tag{position:absolute;bottom:100px;left:50%;transform:translate(-50%,0);background:#f0e8d6;color:#1a1208;padding:20px 28px;min-width:240px;text-align:center;font-family:'Cormorant Garamond',serif;border:1px solid #c9a650;box-shadow:0 16px 50px rgba(0,0,0,0.6)}
+.p05 .tag::before{content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:10px;height:10px;border:1px solid #c9a650;background:#f0e8d6;border-right:none;border-bottom:none;transform:translateX(-50%) rotate(45deg)}
+.p05 .tag-eyebrow{font-family:'Cormorant Garamond';font-style:italic;font-size:12px;color:#8a6f33;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:4px}
+.p05 .tag-name{font-family:'Playfair Display';font-weight:900;font-size:22px;color:#1a1208;letter-spacing:-0.02em;line-height:1}
+.p05 .tag-name .it{font-style:italic;font-weight:400;color:#8a6f33;display:block}
+.p05 .tag-divider{width:40px;height:1px;background:#c9a650;margin:10px auto}
+.p05 .tag-specs{font-family:'Inter';font-size:9px;color:#5a4e36;letter-spacing:0.2em;text-transform:uppercase;font-weight:500}
+.p05 .bottom-cta{position:absolute;bottom:20px;left:20px;right:20px;z-index:4;display:flex;gap:8px}
+.p05 .cta-main{flex:1;background:#c9a650;color:#000;padding:14px;font-family:'Playfair Display';font-weight:900;font-size:13px;letter-spacing:0.25em;text-align:center;text-transform:uppercase}
+.p05 .cta-ghost{padding:14px 16px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);border:1px solid #c9a650;color:#c9a650;font-family:'Inter';font-size:11px;letter-spacing:0.2em;font-weight:700;text-transform:uppercase}
+</style></head><body>
+<h1>Wallpaper <span class="it">preview · 5 diseños</span></h1>
+<p class="intro">Pantalla que se muestra cuando tocas un wallpaper desde Trending/Favoritos antes de instalar. Cinco formas de presentarlo como pieza editorial en lugar de thumbnail genérico.</p>
+<div class="grid">
+  <div class="card">
+    <div class="phone p01">
+      <img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=600&q=80">
+      <div class="topbar"><div class="close">✕</div><div class="fav">♡</div></div>
+      <div class="meta-strip"><div class="museum-card">
+        <div class="piece-label">— Pieza No. VII</div>
+        <div class="piece-title">Enchanted<span class="it">forest</span></div>
+        <div class="piece-desc">Moonlit woods with animated fireflies drifting through ancient mossy trees. Collection Nature.</div>
+        <div class="specs-row">
+          <div class="spec"><div class="k">RATIO</div><div class="v">9:16</div></div>
+          <div class="spec"><div class="k">RES</div><div class="v">4K</div></div>
+          <div class="spec"><div class="k">ARTIST</div><div class="v">Pixora</div></div>
+        </div>
+        <div class="cta-row">
+          <div class="cta-main">Aplicar · Home</div>
+          <div class="cta-ghost">♡</div>
+        </div>
+      </div></div>
+    </div>
+    <div class="lbl"><div class="t">01 · Museum Card</div><div class="d">Imagen arriba · tarjeta editorial de museo abajo con specs + CTA</div></div>
+  </div>
+  <div class="card">
+    <div class="phone p02">
+      <div class="topbar"><div class="close">← volver</div><div class="lot">LOT · N° 007</div></div>
+      <div class="frame"><div class="frame-inner"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600&q=80"></div></div>
+      <div class="catalog">
+        <div class="lot-title">2B · Automata</div>
+        <div class="artist">— Nier series, original artist</div>
+        <div class="details">
+          <div class="d-item">FORMAT<b>Vertical 9:16</b></div>
+          <div class="d-item">RESOLUTION<b>3840 × 2160</b></div>
+          <div class="d-item">COLLECTION<b>Anime</b></div>
+          <div class="d-item">DATE<b>MMXXVI</b></div>
+        </div>
+        <div class="price-row">
+          <div class="price-lbl">— precio / en Pixora</div>
+          <div class="price-v">GRATIS</div>
+        </div>
+        <div class="auction-btn">Aplicar a mi teléfono</div>
+      </div>
+    </div>
+    <div class="lbl"><div class="t">02 · Auction Listing</div><div class="d">Frame bordado dorado + catálogo estilo subasta Christie's</div></div>
+  </div>
+  <div class="card">
+    <div class="phone p03">
+      <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80">
+      <div class="topbar"><div class="back">←</div><div class="right"><div class="btn-g">♡</div><div class="btn-g">↗</div></div></div>
+      <div class="bottom-gradient"></div>
+      <div class="piece-info">
+        <div class="num-big">VII</div>
+        <div class="piece-nm">Dragon<span class="it">summoned</span></div>
+        <div class="piece-sub">— fire · myth · collection of ancient</div>
+      </div>
+      <div class="cta-band">
+        <div class="cta-main">Aplicar wallpaper</div>
+        <div class="cta-small">♡</div>
+        <div class="cta-small">↗</div>
+      </div>
+    </div>
+    <div class="lbl"><div class="t">03 · Full-Bleed Editorial</div><div class="d">Imagen full-pantalla · número romano gigante · mínimo UI</div></div>
+  </div>
+  <div class="card">
+    <div class="phone p04">
+      <div class="hero"><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&q=80"></div>
+      <div class="topbar"><div class="close-t">✕</div><div class="folio">PIXORA · FOLIO</div></div>
+      <div class="editorial">
+        <div class="eyebrow">Pieza N° VII · Colección Anime</div>
+        <div class="big-title">Saga de<span class="it">Géminis</span></div>
+        <div class="pull-quote">Un santo dorado desciende bajo una luz imposible, como si el universo entero hubiera conspirado para este instante.</div>
+        <div class="meta-grid">
+          <div class="m-cell"><div class="k">ratio</div><div class="v">9:16</div></div>
+          <div class="m-cell"><div class="k">res</div><div class="v">4K</div></div>
+          <div class="m-cell"><div class="k">views</div><div class="v">2,412</div></div>
+        </div>
+      </div>
+      <div class="cta">▼ Aplicar al dispositivo</div>
+    </div>
+    <div class="lbl"><div class="t">04 · Fashion Magazine Split</div><div class="d">50/50 imagen arriba · editorial abajo con pull-quote</div></div>
+  </div>
+  <div class="card">
+    <div class="phone p05">
+      <div class="hero-full"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80"></div>
+      <div class="topbar"><div class="close">✕</div><div class="nr">N° 007</div></div>
+      <div class="tag">
+        <div class="tag-eyebrow">— Nature collection —</div>
+        <div class="tag-name">Enchanted<span class="it">forest</span></div>
+        <div class="tag-divider"></div>
+        <div class="tag-specs">9:16 · 4K · pixora original</div>
+      </div>
+      <div class="bottom-cta">
+        <div class="cta-main">Aplicar</div>
+        <div class="cta-ghost">♡</div>
+        <div class="cta-ghost">↗</div>
+      </div>
+    </div>
+    <div class="lbl"><div class="t">05 · Boutique Tag</div><div class="d">Imagen full-bleed · etiqueta de boutique flotante al centro</div></div>
+  </div>
+</div>
+</body></html>

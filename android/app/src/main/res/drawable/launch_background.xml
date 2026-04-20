@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Modify this file to customize your launch splash screen -->
+<!--
+  Pixora launch screen (Black & Gold).
+  Shown by Android for the ~200 ms while Flutter process boots, before the
+  Flutter splash renders. Kept minimal: solid black + centered gold diamond
+  ornament so the transition to the Art Deco splash feels seamless.
+-->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@android:color/black" />
+    <item android:drawable="@color/launchBg" />
 
-    <!-- You can insert your own image assets here -->
-    <!-- <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@mipmap/launch_image" />
-    </item> -->
+    <item
+        android:gravity="center"
+        android:drawable="@drawable/launch_logo" />
 </layer-list>

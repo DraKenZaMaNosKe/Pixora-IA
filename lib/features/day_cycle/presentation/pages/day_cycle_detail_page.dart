@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/design/hud_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/day_cycle_theme.dart';
 import '../../providers/day_cycle_providers.dart';
@@ -28,10 +29,10 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
   }
 
   final _periods = const [
-    {'label': 'Morning', 'time': '6:00 - 12:00', 'icon': Icons.wb_sunny, 'color': Color(0xFFFFB74D)},
-    {'label': 'Afternoon', 'time': '12:00 - 18:00', 'icon': Icons.wb_cloudy, 'color': Color(0xFFFF8A65)},
-    {'label': 'Evening', 'time': '18:00 - 21:00', 'icon': Icons.nights_stay, 'color': Color(0xFF9575CD)},
-    {'label': 'Night', 'time': '21:00 - 6:00', 'icon': Icons.dark_mode, 'color': Color(0xFF5C6BC0)},
+    {'label': 'Morning', 'time': '6:00 - 12:00', 'icon': Icons.wb_sunny, 'color': HudTokens.goldBright},
+    {'label': 'Afternoon', 'time': '12:00 - 18:00', 'icon': Icons.wb_cloudy, 'color': HudTokens.gold},
+    {'label': 'Evening', 'time': '18:00 - 21:00', 'icon': Icons.nights_stay, 'color': HudTokens.goldDeep},
+    {'label': 'Night', 'time': '21:00 - 6:00', 'icon': Icons.dark_mode, 'color': HudTokens.goldDeep},
   ];
 
   List<String> get _imageUrls => [
@@ -114,7 +115,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
                 style: const TextStyle(fontWeight: FontWeight.bold, shadows: [Shadow(blurRadius: 8, color: Colors.black)])),
               background: Stack(fit: StackFit.expand, children: [
                 Image.network(widget.theme.previewUrl, fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(color: const Color(0xFF1A1A2E))),
+                  errorBuilder: (_, __, ___) => Container(color: HudTokens.nightSurface)),
                 const DecoratedBox(decoration: BoxDecoration(
                   gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
                     colors: [Colors.transparent, Colors.black87]),
@@ -165,7 +166,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
                     child: ElevatedButton(
                       onPressed: _isActivating ? null : (isActive ? _deactivate : _activate),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isActive ? Colors.red.shade700 : const Color(0xFF7C4DFF),
+                        backgroundColor: isActive ? HudTokens.goldDeep : HudTokens.gold,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
@@ -186,7 +187,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
         visible: _isActivating,
         progress: _downloadFraction > 0 ? _downloadFraction : null,
         status: _progressText,
-        accentColor: const Color(0xFF7C4DFF),
+        accentColor: HudTokens.gold,
         phase: _loadingPhase,
       ),
       ]),
@@ -216,7 +217,7 @@ class _PeriodPreview extends StatelessWidget {
           height: 90,
           child: Row(children: [
             SizedBox(width: 130, child: Image.network(imageUrl, fit: BoxFit.cover, height: 90,
-              errorBuilder: (_, __, ___) => Container(color: const Color(0xFF1A1A2E),
+              errorBuilder: (_, __, ___) => Container(color: HudTokens.nightSurface,
                 child: Icon(icon, color: color.withOpacity(0.3), size: 32)))),
             Expanded(child: Padding(padding: const EdgeInsets.all(12),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [

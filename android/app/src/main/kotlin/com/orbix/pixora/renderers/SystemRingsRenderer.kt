@@ -26,7 +26,7 @@ class SystemRingsRenderer(private val context: Context) {
 
     var surfaceWidth = 0
     var surfaceHeight = 0
-    var glowColor = Color.parseColor("#7C4DFF")
+    var glowColor = Color.parseColor("#C9A650")
 
     // User-controlled toggles (set by PixoraWallpaperService from SharedPreferences).
     var showRam = true
@@ -81,8 +81,8 @@ class SystemRingsRenderer(private val context: Context) {
         if (showRam) {
             val ramPct = if (ramTotalGB > 0) ((ramTotalGB - ramAvailableGB) / ramTotalGB * 100f) else 0f
             val ramColor = when {
-                ramPct > 90 -> Color.rgb(255, 50, 50)
-                ramPct > 75 -> Color.rgb(255, 165, 0)
+                ramPct > 90 -> Color.parseColor("#8A6F33")
+                ramPct > 75 -> Color.parseColor("#F0DD9E")
                 else -> glowColor
             }
             drawMiniRing(
@@ -99,8 +99,8 @@ class SystemRingsRenderer(private val context: Context) {
             val storageY = if (showRam) startY + spacing else startY
             val storagePct = if (storageTotalGB > 0) ((storageTotalGB - storageAvailableGB) / storageTotalGB * 100f) else 0f
             val storageColor = when {
-                storagePct > 90 -> Color.rgb(255, 50, 50)
-                storagePct > 75 -> Color.rgb(255, 165, 0)
+                storagePct > 90 -> Color.parseColor("#8A6F33")
+                storagePct > 75 -> Color.parseColor("#F0DD9E")
                 else -> glowColor
             }
             drawMiniRing(

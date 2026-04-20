@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/widgets/ticket_stub_card.dart';
 import '../../../../core/services/preview_player_service.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
@@ -67,7 +69,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('Could not play preview'),
-              backgroundColor: Colors.red),
+              backgroundColor: HudTokens.goldDeep),
         );
       }
     }
@@ -91,11 +93,11 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A2E),
+        backgroundColor: HudTokens.nightSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.settings, color: Colors.amber, size: 24),
+            Icon(Icons.settings, color: HudTokens.goldBright, size: 24),
             SizedBox(width: 10),
             Text('Permission needed', style: TextStyle(fontSize: 17)),
           ],
@@ -117,7 +119,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
               await RingtoneService.instance.requestPermission();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7C4DFF),
+              backgroundColor: HudTokens.gold,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
@@ -136,7 +138,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Download failed'), backgroundColor: Colors.red),
+              content: Text('Download failed'),
+              backgroundColor: HudTokens.goldDeep),
         );
       }
       setState(() => _settingId = null);
@@ -151,7 +154,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           content: Text(success
               ? '${tone.name} set as ${typeNames[type]}!'
               : 'Failed to set ringtone'),
-          backgroundColor: success ? Colors.green : Colors.red,
+          backgroundColor: success ? HudTokens.gold : HudTokens.goldDeep,
         ),
       );
     }
@@ -161,7 +164,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   void _showSetAsDialog(RingtoneTone tone) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: HudTokens.nightSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -205,7 +208,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   Widget _buildSetOption(
       BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: const Color(0xFF7C4DFF)),
+      leading: Icon(icon, color: HudTokens.gold),
       title: Text(label),
       trailing: const Icon(Icons.chevron_right, color: Colors.white24),
       onTap: onTap,
@@ -216,70 +219,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   // ── Helpers ───────────────────────────────────────────────────────
   Color _parseGlow(String hex) => parseHexColor(hex);
 
-  List<Color> _toneGradient(RingtoneTone tone, Color fallback) {
-    final n = tone.name.toLowerCase();
-    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin'))
-      return [const Color(0xFFE52521), const Color(0xFF8B0000)];
-    if (n.contains('goku') ||
-        n.contains('saiyan') ||
-        n.contains('kamehameha') ||
-        n.contains('dbgt'))
-      return [const Color(0xFFFF8C00), const Color(0xFF8B4513)];
-    if (n.contains('zelda') ||
-        n.contains('navi') ||
-        n.contains('hyrule') ||
-        n.contains('fairy') ||
-        n.contains('rupee'))
-      return [const Color(0xFF00FF7F), const Color(0xFF006400)];
-    if (n.contains('homero') || n.contains('simpson'))
-      return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
-    if (n.contains('bob') ||
-        n.contains('esponja') ||
-        n.contains('sponge') ||
-        n.contains('patricio'))
-      return [const Color(0xFFFFEB3B), const Color(0xFF795548)];
-    if (n.contains('death') || n.contains('note'))
-      return [const Color(0xFF9C27B0), const Color(0xFF311B92)];
-    if (n.contains('shrek'))
-      return [const Color(0xFF4CAF50), const Color(0xFF1B5E20)];
-    if (n.contains('nokia') ||
-        n.contains('retro') ||
-        n.contains('vintage') ||
-        n.contains('classic') ||
-        n.contains('rotary'))
-      return [const Color(0xFFFFD700), const Color(0xFF5D4037)];
-    if (n.contains('iphone') ||
-        n.contains('modern') ||
-        n.contains('digital') ||
-        n.contains('future'))
-      return [const Color(0xFF00B4D8), const Color(0xFF0D47A1)];
-    if (n.contains('soft') ||
-        n.contains('gentle') ||
-        n.contains('ambient') ||
-        n.contains('chill') ||
-        n.contains('morning'))
-      return [const Color(0xFF7C4DFF), const Color(0xFF1A237E)];
-    if (n.contains('minecraft'))
-      return [const Color(0xFF4CAF50), const Color(0xFF33691E)];
-    if (n.contains('fnaf'))
-      return [const Color(0xFF7B1FA2), const Color(0xFF12005E)];
-    if (n.contains('hadouken'))
-      return [const Color(0xFF2196F3), const Color(0xFF0D47A1)];
-    if (n.contains('fall guys'))
-      return [const Color(0xFFE91E63), const Color(0xFF880E4F)];
-    if (n.contains('hazbin') || n.contains('alastor'))
-      return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
-    if (n.contains('casa') || n.contains('papel'))
-      return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
-    if (n.contains('pou'))
-      return [const Color(0xFF795548), const Color(0xFF3E2723)];
-    if (n.contains('kill bill'))
-      return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
-    if (n.contains('huawei'))
-      return [const Color(0xFFE53935), const Color(0xFF880E4F)];
-    if (n.contains('havana'))
-      return [const Color(0xFFFF7043), const Color(0xFF4E342E)];
-    return [fallback, fallback.withOpacity(0.3)];
+  List<Color> _toneGradient(RingtoneTone tone, Color glow) {
+    // Black & Gold: ignore per-character brand colors — every tone renders on
+    // a unified gold gradient. Was previously 22 hardcoded palettes.
+    return const [HudTokens.goldDeep, HudTokens.nightBg];
   }
 
   IconData _toneIcon(RingtoneTone tone) {
@@ -342,7 +285,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            const Icon(Icons.error_outline,
+                color: HudTokens.goldDeep, size: 48),
             const SizedBox(height: 12),
             const Text('Failed to load tones',
                 style: TextStyle(color: Colors.white70)),
@@ -429,7 +373,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                           '${pack.tones.length} tones \u00b7 ${pack.description}',
                       badge: pack.category,
                       accentColor: parseHexColor(pack.glowColor,
-                          fallback: const Color(0xFFE50914)),
+                          fallback: HudTokens.gold),
                     ))
                 .toList(),
             onTap: (i) => Navigator.push(
@@ -480,12 +424,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: selected
-                    ? const Color(0xFF7C4DFF)
-                    : const Color(0xFF1A1A2E),
+                color: selected ? HudTokens.gold : HudTokens.nightSurface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: selected ? const Color(0xFF7C4DFF) : Colors.white12,
+                  color: selected ? HudTokens.gold : Colors.white12,
                 ),
               ),
               child: Row(
@@ -537,14 +479,13 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                     'See All',
                     style: TextStyle(
                       fontSize: 13,
-                      color: const Color(0xFF7C4DFF).withOpacity(0.9),
+                      color: HudTokens.gold.withOpacity(0.9),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(width: 2),
                   Icon(Icons.chevron_right,
-                      size: 18,
-                      color: const Color(0xFF7C4DFF).withOpacity(0.9)),
+                      size: 18, color: HudTokens.gold.withOpacity(0.9)),
                 ],
               ),
             ),
@@ -588,6 +529,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
             isSetting: _settingId == tone.id,
             onTap: () => _togglePreview(tone),
             onLongPress: () => _showSetAsDialog(tone),
+            index: i,
           );
         },
       ),
@@ -630,14 +572,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
 const _defaultPreviewAsset = 'assets/tone_preview_default.webp';
 
 Widget _toneBackground(RingtoneTone tone, List<Color> gradient, IconData icon) {
-  final hasImage = tone.previewImageUrl.isNotEmpty;
-  if (hasImage) {
-    return CachedNetworkImage(
-      imageUrl: tone.previewImageUrl,
-      fit: BoxFit.cover,
-      errorWidget: (_, __, ___) => _assetPreview(gradient, icon),
-    );
-  }
+  // Editorial uniform background — no per-tone image, no broken placeholder.
   return _assetPreview(gradient, icon);
 }
 
@@ -664,16 +599,20 @@ Widget _assetPreview(List<Color> gradient, IconData icon) {
 }
 
 // ── Recommended Card ────────────────────────────────────────────────
+/// Editorial Black & Gold card for a tone. Sharp gold frame, numeric index,
+/// Playfair title, serif italic type label. No gradient backgrounds — the
+/// color comes from a subtle breathing-gold glow around the play button.
 class _RecommendedCard extends StatelessWidget {
   final RingtoneTone tone;
-  final Color glow;
-  final List<Color> gradient;
+  final Color glow; // kept for API compat; ignored — always uses gold
+  final List<Color> gradient; // kept for API compat; no longer rendered
   final IconData icon;
   final String? badge;
   final bool isPlaying;
   final bool isSetting;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final int index;
 
   const _RecommendedCard({
     required this.tone,
@@ -685,7 +624,36 @@ class _RecommendedCard extends StatelessWidget {
     required this.isSetting,
     required this.onTap,
     required this.onLongPress,
+    this.index = 0,
   });
+
+  String _roman(int n) {
+    // Supports 1..20 (enough for horizontal card rows).
+    const r = [
+      '',
+      'I',
+      'II',
+      'III',
+      'IV',
+      'V',
+      'VI',
+      'VII',
+      'VIII',
+      'IX',
+      'X',
+      'XI',
+      'XII',
+      'XIII',
+      'XIV',
+      'XV',
+      'XVI',
+      'XVII',
+      'XVIII',
+      'XIX',
+      'XX',
+    ];
+    return n >= 1 && n < r.length ? r[n] : n.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -696,167 +664,128 @@ class _RecommendedCard extends StatelessWidget {
         duration: const Duration(milliseconds: 250),
         width: 150,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: isPlaying
-              ? Border.all(color: glow, width: 2)
-              : Border.all(color: Colors.white.withOpacity(0.06)),
+          color: HudTokens.nightSurface,
+          border: Border.all(
+            color: isPlaying
+                ? HudTokens.goldBright
+                : HudTokens.gold.withOpacity(0.45),
+            width: isPlaying ? 2 : 1,
+          ),
           boxShadow: isPlaying
-              ? [BoxShadow(color: glow.withOpacity(0.4), blurRadius: 16)]
-              : [BoxShadow(color: glow.withOpacity(0.08), blurRadius: 8)],
+              ? [
+                  BoxShadow(
+                    color: HudTokens.gold.withOpacity(0.35),
+                    blurRadius: 22,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Background image
-              _toneBackground(tone, gradient, icon),
-
-              // Dark overlay for readability
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.1),
-                      Colors.black.withOpacity(0.75),
-                    ],
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'No. ${_roman(index + 1)}',
+                  style: TextStyle(
+                    fontFamily: 'serif',
+                    fontStyle: FontStyle.italic,
+                    fontSize: 11,
+                    color: HudTokens.gold,
+                    letterSpacing: 0.15,
                   ),
                 ),
-              ),
-
-              // Badge
-              if (badge != null)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
+                const Spacer(),
+                if (badge != null)
+                  Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: badge == 'POPULAR'
-                          ? const Color(0xFFFF6B35)
-                          : badge == 'NEW'
-                              ? const Color(0xFF00E676)
-                              : const Color(0xFF7C4DFF),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    color: HudTokens.gold,
                     child: Text(
                       badge!,
                       style: const TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                        letterSpacing: 0.2,
                       ),
                     ),
                   ),
-                ),
-
-              // Duration badge top-right
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    tone.durationFormatted,
-                    style: const TextStyle(fontSize: 10, color: Colors.white70),
-                  ),
-                ),
-              ),
-
-              // ── Play/Stop Button (prominent, like RingFlix) ──
-              Center(
-                child: _PlayButton(
-                  isPlaying: isPlaying,
-                  isSetting: isSetting,
-                  glow: glow,
-                  size: 48,
-                ),
-              ),
-
-              // Playing wave
-              if (isPlaying)
-                Positioned(
-                  bottom: 44,
-                  left: 0,
-                  right: 0,
-                  child: Center(child: _MiniWave(color: glow)),
-                ),
-
-              // Stats
-              Positioned(
-                bottom: 42,
-                left: 6,
-                child: WallpaperStatsBar(
-                  wallpaperId: 'tone_${tone.id}',
-                  glowColor: glow,
-                ),
-              ),
-
-              // Bottom info
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        tone.name,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+              ],
+            ),
+            const SizedBox(height: 18),
+            Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (isPlaying)
+                    // Subtle radial breathing glow behind the play button.
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            HudTokens.gold.withOpacity(0.35),
+                            HudTokens.gold.withOpacity(0.0),
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(_typeIconSmall(tone.suggestedType),
-                              size: 10, color: glow),
-                          const SizedBox(width: 4),
-                          Text(
-                            _typeLabel(tone.suggestedType),
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.white.withOpacity(0.5)),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
+                  Container(
+                    width: 54,
+                    height: 54,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: HudTokens.gold, width: 1.2),
+                      color: HudTokens.nightBg,
+                    ),
+                    child: _PlayButton(
+                      isPlaying: isPlaying,
+                      isSetting: isSetting,
+                      glow: HudTokens.gold,
+                      size: 54,
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 14),
+            if (isPlaying)
+              Center(child: _MiniWave(color: HudTokens.gold))
+            else
+              const SizedBox(height: 16),
+            const SizedBox(height: 10),
+            Text(
+              tone.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: 'serif',
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: -0.01,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              '— ${_typeLabel(tone.suggestedType).toLowerCase()} · ${tone.durationFormatted}',
+              style: TextStyle(
+                fontFamily: 'serif',
+                fontStyle: FontStyle.italic,
+                fontSize: 11,
+                color: HudTokens.gold.withOpacity(0.75),
+                letterSpacing: 0.05,
+              ),
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  IconData _typeIconSmall(String type) {
-    switch (type) {
-      case 'ringtone':
-        return Icons.phone_in_talk;
-      case 'notification':
-        return Icons.notifications;
-      case 'alarm':
-        return Icons.alarm;
-      default:
-        return Icons.music_note;
-    }
   }
 
   String _typeLabel(String type) {
@@ -932,11 +861,11 @@ class _PlayButton extends StatelessWidget {
   }
 }
 
-// ── Tone Grid Card ──────────────────────────────────────────────────
+// ── Tone Grid Card (Ticket Stub) ────────────────────────────────────
 class _ToneGridCard extends StatelessWidget {
   final RingtoneTone tone;
-  final Color glow;
-  final List<Color> gradient;
+  final Color glow; // kept for API compat — ignored
+  final List<Color> gradient; // kept for API compat — ignored
   final IconData icon;
   final bool isPlaying;
   final bool isSetting;
@@ -957,101 +886,66 @@ class _ToneGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
       onLongPress: onLongPress,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: isPlaying
-              ? Border.all(color: glow, width: 2)
-              : Border.all(color: Colors.white.withOpacity(0.06)),
-          boxShadow: isPlaying
-              ? [BoxShadow(color: glow.withOpacity(0.35), blurRadius: 14)]
-              : [],
+      child: TicketStubCard(
+        admitLabel: isPlaying ? 'NOW' : 'TONE',
+        title: tone.name,
+        category: tone.durationFormatted.toUpperCase(),
+        isHighlighted: isPlaying,
+        onTap: onTap,
+        overlayTopRight: WallpaperStatsBar(
+          wallpaperId: 'tone_${tone.id}',
+          glowColor: HudTokens.gold,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
+        child: Container(
+          color: HudTokens.nightSurfaceHi,
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Background with default preview image
-              _toneBackground(tone, gradient, icon),
-
-              // Dark gradient overlay
-              Container(
+              // Gold radial glow that pulses when playing.
+              DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+                  gradient: RadialGradient(
                     colors: [
-                      Colors.black.withOpacity(0.05),
-                      Colors.black.withOpacity(0.8),
+                      HudTokens.gold.withOpacity(isPlaying ? 0.4 : 0.15),
+                      Colors.transparent,
                     ],
-                    stops: const [0.35, 1.0],
+                    radius: 0.8,
                   ),
                 ),
               ),
-
-              // Play/stop button (prominent)
+              // Center icon + play ring
               Center(
-                child: _PlayButton(
-                  isPlaying: isPlaying,
-                  isSetting: isSetting,
-                  glow: glow,
-                  size: 40,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, color: HudTokens.gold, size: 26),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: HudTokens.nightBg.withOpacity(0.5),
+                        border: Border.all(color: HudTokens.gold, width: 1),
+                      ),
+                      child: _PlayButton(
+                        isPlaying: isPlaying,
+                        isSetting: isSetting,
+                        glow: HudTokens.gold,
+                        size: 38,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
-              // Playing wave
               if (isPlaying)
                 Positioned(
-                  bottom: 32,
+                  bottom: 6,
                   left: 0,
                   right: 0,
-                  child: Center(child: _MiniWave(color: glow)),
+                  child: Center(child: _MiniWave(color: HudTokens.gold)),
                 ),
-
-              // Stats
-              Positioned(
-                top: 4,
-                right: 4,
-                child: WallpaperStatsBar(
-                  wallpaperId: 'tone_${tone.id}',
-                  glowColor: glow,
-                ),
-              ),
-
-              // Name + duration
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      Text(
-                        tone.name,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        tone.durationFormatted,
-                        style: TextStyle(
-                            fontSize: 9, color: Colors.white.withOpacity(0.5)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -1132,13 +1026,13 @@ class _ShimmerLoading extends StatelessWidget {
                 (i) => Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Shimmer.fromColors(
-                        baseColor: const Color(0xFF1A1A2E),
-                        highlightColor: const Color(0xFF2A2A3E),
+                        baseColor: HudTokens.nightSurface,
+                        highlightColor: HudTokens.nightSurfaceHi,
                         child: Container(
                           width: 90,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A2E),
+                            color: HudTokens.nightSurface,
                             borderRadius: BorderRadius.circular(18),
                           ),
                         ),
@@ -1148,12 +1042,12 @@ class _ShimmerLoading extends StatelessWidget {
           const SizedBox(height: 16),
           // Hero shimmer
           Shimmer.fromColors(
-            baseColor: const Color(0xFF1A1A2E),
-            highlightColor: const Color(0xFF2A2A3E),
+            baseColor: HudTokens.nightSurface,
+            highlightColor: HudTokens.nightSurfaceHi,
             child: Container(
               height: 200,
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1A2E),
+                color: HudTokens.nightSurface,
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
@@ -1161,13 +1055,13 @@ class _ShimmerLoading extends StatelessWidget {
           const SizedBox(height: 24),
           // Section shimmer
           Shimmer.fromColors(
-            baseColor: const Color(0xFF1A1A2E),
-            highlightColor: const Color(0xFF2A2A3E),
+            baseColor: HudTokens.nightSurface,
+            highlightColor: HudTokens.nightSurfaceHi,
             child: Container(
               width: 160,
               height: 20,
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1A2E),
+                color: HudTokens.nightSurface,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -1182,13 +1076,13 @@ class _ShimmerLoading extends StatelessWidget {
                   (i) => Padding(
                         padding: const EdgeInsets.only(right: 12),
                         child: Shimmer.fromColors(
-                          baseColor: const Color(0xFF1A1A2E),
-                          highlightColor: const Color(0xFF2A2A3E),
+                          baseColor: HudTokens.nightSurface,
+                          highlightColor: HudTokens.nightSurfaceHi,
                           child: Container(
                             width: 140,
                             height: 170,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1A1A2E),
+                              color: HudTokens.nightSurface,
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),

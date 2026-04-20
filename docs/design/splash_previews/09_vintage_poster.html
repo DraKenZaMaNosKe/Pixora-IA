@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>09 · Vintage Poster</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,900;1,400;1,900&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1a1a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;font-family:'Playfair Display',serif}
+.tag{position:fixed;top:16px;left:24px;color:#c9a650;font-size:12px;letter-spacing:0.25em;text-transform:uppercase;font-weight:900}.tag::before{content:"09 · ";color:#888}
+.phone{width:320px;height:680px;background:#0a0604;border-radius:6px;overflow:hidden;position:relative;padding:30px}
+.phone::before{content:"";position:absolute;inset:12px;border:3px double #c9a650;pointer-events:none}
+.phone::after{content:"";position:absolute;inset:18px;border:1px solid rgba(201,166,80,0.3);pointer-events:none}
+.content{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 20px;z-index:1}
+.eyebrow{font-family:'Playfair Display',serif;font-weight:900;font-size:10px;color:#c9a650;letter-spacing:0.4em;text-transform:uppercase}
+.eyebrow-divider{width:80px;height:2px;background:#c9a650;margin:10px auto 14px;position:relative}
+.eyebrow-divider::before,.eyebrow-divider::after{content:"◆";position:absolute;top:50%;transform:translateY(-50%);color:#c9a650;font-size:10px;background:#0a0604;padding:0 6px}
+.eyebrow-divider::before{left:-14px}.eyebrow-divider::after{right:-14px}
+.drop-row{display:flex;align-items:flex-start;gap:14px;margin-top:10px}
+.drop-cap{font-family:'Playfair Display',serif;font-weight:900;font-size:140px;line-height:0.85;background:linear-gradient(180deg,#f0dd9e,#c9a650 60%,#8a6f33);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-left:-4px}
+.drop-text{flex:1;text-align:left;padding-top:22px}
+.drop-text .line1{font-family:'Playfair Display',serif;font-weight:900;font-size:28px;color:#f0e8d6;letter-spacing:-0.02em;line-height:1}
+.drop-text .line2{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:22px;color:#c9a650;margin-top:2px}
+.section-divider{width:100%;height:1px;background:#c9a650;margin:20px 0;position:relative}
+.section-divider::before{content:"";position:absolute;top:-3px;left:0;right:0;height:1px;background:rgba(201,166,80,0.4)}
+.feature-list{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.feature{display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:#f0e8d6;letter-spacing:0.05em}
+.feature::before,.feature::after{content:"❦";color:#c9a650;font-size:11px;font-style:normal}
+.featuring{font-family:'Playfair Display',serif;font-weight:900;font-size:12px;color:#c9a650;letter-spacing:0.4em;text-transform:uppercase;margin:16px 0 10px}
+.big-title{margin-top:14px;font-family:'Playfair Display',serif;font-weight:900;font-size:50px;line-height:0.9;letter-spacing:-0.02em}
+.big-title .part{display:block;background:linear-gradient(180deg,#f0dd9e,#c9a650 70%,#8a6f33);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.bottom-strip{margin-top:auto;padding:12px 0;border-top:1px solid #c9a650;border-bottom:1px solid #c9a650;display:flex;justify-content:space-between;font-family:'Playfair Display',serif;font-weight:900;font-size:9px;color:#c9a650;letter-spacing:0.25em;text-transform:uppercase;width:100%}
+.year{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;color:#8a7a56;margin-top:10px;letter-spacing:0.3em}
+</style></head><body>
+<div class="tag">Vintage Poster</div>
+<div class="phone">
+  <div class="content">
+    <div class="eyebrow">Orbix Studio Presents</div>
+    <div class="eyebrow-divider"></div>
+    <div class="drop-row">
+      <div class="drop-cap">P</div>
+      <div class="drop-text"><div class="line1">IXORA</div><div class="line2">la colección</div></div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="featuring">— featuring —</div>
+    <div class="feature-list">
+      <div class="feature">Wallpapers</div>
+      <div class="feature">AI Generation</div>
+      <div class="feature">AURA Wellness</div>
+    </div>
+    <div class="big-title"><span class="part">a new</span><span class="part">chapter</span></div>
+    <div class="bottom-strip"><span>Vol. I</span><span>Mexico</span><span>MMXXVI</span></div>
+    <div class="year">— an Orbix imprint —</div>
+  </div>
+</div>
+</body></html>

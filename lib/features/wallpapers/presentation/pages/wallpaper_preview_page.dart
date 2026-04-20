@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../../../../core/utils/color_utils.dart';
 import '../../../../core/content/content_manager.dart';
 import '../../../../core/content/content_types.dart';
+import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
@@ -12,11 +13,13 @@ import '../../../../core/services/quality_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
-import '../../../../widgets/touch_glow_effect.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../data/models/wallpaper.dart';
 
+/// Auction-listing preview for a wallpaper. Presents the image as a framed
+/// piece with catalog metadata below — as if it were a lot in a fine art
+/// auction house. Black ink background, gold borders, serif typography.
 class WallpaperPreviewPage extends ConsumerStatefulWidget {
   const WallpaperPreviewPage({required this.wallpaper, super.key});
 
@@ -36,33 +39,31 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   @override
   void initState() {
     super.initState();
-    // Track view when user opens wallpaper
     WallpaperStatsService.instance.trackView(widget.wallpaper.id);
   }
 
-  /// Get the file to download based on quality setting.
+  // ── Business logic (unchanged) ────────────────────────────────────────
+
   String get _downloadFile {
     final quality = ref.read(imageQualityProvider);
     if (quality == ImageQuality.lq) return widget.wallpaper.previewFile;
-    return widget.wallpaper.imageFile; // HD and Auto use full image
+    return widget.wallpaper.imageFile;
   }
 
-  Color _parseGlowColor() =>
-      parseHexColor(widget.wallpaper.glowColor, fallback: Colors.white);
-
   void _setLoading(String status, {double progress = 0.0}) {
-    if (mounted)
+    if (mounted) {
       setState(() {
         _loadingStatus = status;
         _downloadProgress = progress;
       });
+    }
   }
 
   Future<void> _applyWallpaper(int target) async {
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
-      _loadingStatus = 'Downloading wallpaper...';
+      _loadingStatus = 'Descargando...';
       _loadingPhase = LoadingPhase.downloading;
     });
 
@@ -84,17 +85,17 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
           switch (phase) {
             case 'downloading':
               _loadingPhase = LoadingPhase.downloading;
-              _loadingStatus = 'Downloading wallpaper...';
+              _loadingStatus = 'Descargando pieza...';
             case 'sprites':
               _loadingPhase = LoadingPhase.sprites;
-              _loadingStatus = 'Downloading animated effects...';
+              _loadingStatus = 'Descargando efectos...';
               _downloadProgress = 0.0;
             case 'installing':
               _loadingPhase = LoadingPhase.installing;
-              _loadingStatus = 'Applying wallpaper...';
+              _loadingStatus = 'Aplicando...';
             case 'done':
               _loadingPhase = LoadingPhase.done;
-              _loadingStatus = 'Wallpaper applied!';
+              _loadingStatus = '¡Pieza aplicada!';
           }
         });
       },
@@ -111,7 +112,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     if (mounted && success) {
       setState(() {
         _loadingPhase = LoadingPhase.done;
-        _loadingStatus = 'Wallpaper applied!';
+        _loadingStatus = '¡Pieza aplicada!';
       });
       await Future.delayed(const Duration(milliseconds: 1200));
     }
@@ -122,7 +123,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
-      _loadingStatus = 'Downloading...';
+      _loadingStatus = 'Descargando...';
     });
     WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
@@ -139,38 +140,37 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(errorMsg ?? 'Download failed'),
-              backgroundColor: Colors.red),
+            content: Text(errorMsg ?? 'Descarga fallida'),
+            backgroundColor: HudTokens.nightSurface,
+          ),
         );
       }
       setState(() => _isApplying = false);
       return;
     }
 
-    // Verify file on disk
     final file = File(path);
     if (!await file.exists()) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('File not found after download'),
-              backgroundColor: Colors.red),
+            content: Text('Archivo no encontrado'),
+            backgroundColor: HudTokens.nightSurface,
+          ),
         );
       }
       setState(() => _isApplying = false);
       return;
     }
 
-    _setLoading('Saving to gallery...', progress: 1.0);
-
+    _setLoading('Guardando en galería...', progress: 1.0);
     final success = await WallpaperService.instance.saveToGallery(path);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text(success ? 'Saved to Photos!' : 'Failed to save to gallery'),
-          backgroundColor: success ? Colors.green.shade700 : Colors.red,
+          content: Text(success ? 'Guardado en Fotos' : 'No se pudo guardar'),
+          backgroundColor: HudTokens.nightSurface,
         ),
       );
     }
@@ -181,21 +181,21 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
-      _loadingStatus = 'Preparing...';
+      _loadingStatus = 'Preparando...';
       _loadingPhase = LoadingPhase.downloading;
     });
 
-    // Request microphone permission for equalizer visualization
     final micStatus = await Permission.microphone.request();
     if (!micStatus.isGranted && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Microphone permission needed for equalizer effect'),
+          content: Text('Micrófono requerido para el ecualizador'),
+          backgroundColor: HudTokens.nightSurface,
         ),
       );
     }
 
-    _setLoading('Downloading wallpaper...');
+    _setLoading('Descargando pieza...');
 
     final success = await ContentManager.instance.downloadAndInstall(
       item: widget.wallpaper.toContentItem(asLive: true),
@@ -209,17 +209,17 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
           switch (phase) {
             case 'downloading':
               _loadingPhase = LoadingPhase.downloading;
-              _loadingStatus = 'Downloading wallpaper...';
+              _loadingStatus = 'Descargando pieza...';
             case 'sprites':
               _loadingPhase = LoadingPhase.sprites;
-              _loadingStatus = 'Downloading animated effects...';
+              _loadingStatus = 'Descargando efectos...';
               _downloadProgress = 0.0;
             case 'installing':
               _loadingPhase = LoadingPhase.installing;
-              _loadingStatus = 'Applying live wallpaper...';
+              _loadingStatus = 'Aplicando live wallpaper...';
             case 'done':
               _loadingPhase = LoadingPhase.done;
-              _loadingStatus = 'Live wallpaper applied!';
+              _loadingStatus = '¡Live wallpaper aplicado!';
           }
         });
       },
@@ -236,7 +236,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     if (mounted && success) {
       setState(() {
         _loadingPhase = LoadingPhase.done;
-        _loadingStatus = 'Live wallpaper applied!';
+        _loadingStatus = '¡Live wallpaper aplicado!';
       });
       await Future.delayed(const Duration(milliseconds: 1200));
     }
@@ -248,8 +248,6 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       _saveToGallery();
       return;
     }
-
-    // Show interstitial ad, then show the apply options
     AdService.instance.showInterstitialAd(
       onAdDismissed: () {
         if (!mounted) return;
@@ -258,269 +256,418 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     );
   }
 
+  // ── UI helpers ────────────────────────────────────────────────────────
+
+  TextStyle _serif(double size,
+          {FontWeight w = FontWeight.w400,
+          FontStyle s = FontStyle.normal,
+          Color? color,
+          double ls = 0.02}) =>
+      GoogleFonts.cormorantGaramond(
+        fontSize: size,
+        fontWeight: w,
+        fontStyle: s,
+        color: color,
+        letterSpacing: ls,
+        height: 1.3,
+      );
+
+  TextStyle _display(double size,
+          {FontWeight w = FontWeight.w900,
+          FontStyle s = FontStyle.normal,
+          Color? color,
+          double ls = -0.02}) =>
+      GoogleFonts.playfairDisplay(
+        fontSize: size,
+        fontWeight: w,
+        fontStyle: s,
+        color: color,
+        letterSpacing: ls,
+        height: 1.1,
+      );
+
+  TextStyle _meta(double size, {Color? color, double ls = 0.25}) =>
+      GoogleFonts.inter(
+        fontSize: size,
+        fontWeight: FontWeight.w500,
+        color: color,
+        letterSpacing: ls,
+      );
+
+  /// Generate a deterministic catalog lot number like "N° 007" from the id.
+  String get _lotNumber {
+    final id = widget.wallpaper.id;
+    final hash = id.hashCode.abs() % 1000;
+    return 'N° ${hash.toString().padLeft(3, '0')}';
+  }
+
+  /// Artist line for the auction feel. Falls back if description empty.
+  String get _artistLine {
+    final desc = widget.wallpaper.description.trim();
+    if (desc.isNotEmpty) return '— $desc';
+    return '— Pixora original collection';
+  }
+
   void _showApplyOptions() {
     final isFree = AdService.instance.isNextActionFree;
     final credits = CreditService.instance.balance;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: HudTokens.nightSurface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
       ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Text('— ',
+                      style: _serif(13,
+                          color: HudTokens.gold, s: FontStyle.italic)),
+                  Text(
+                    'aplicar pieza',
+                    style: _serif(15,
+                        color: HudTokens.gold,
+                        s: FontStyle.italic,
+                        w: FontWeight.w500),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: HudTokens.gold, width: 1),
+                    ),
+                    child: Text(
+                      isFree ? 'SIN AD' : 'CON AD',
+                      style: _meta(9, color: HudTokens.gold, ls: 0.2),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Credits line
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('◆',
+                      style: TextStyle(color: HudTokens.gold, fontSize: 13)),
+                  const SizedBox(width: 5),
+                  Text('$credits diamantes',
+                      style:
+                          _meta(11, color: HudTokens.nightTextDim, ls: 0.15)),
+                  const SizedBox(width: 12),
+                  Text('·', style: _meta(11, color: HudTokens.nightTextDim)),
+                  const SizedBox(width: 12),
+                  Text(
+                    isFree
+                        ? 'próximo sin cobro'
+                        : '+${CreditService.creditsPerAd} por ver',
+                    style: _meta(11, color: HudTokens.nightTextDim, ls: 0.05),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildOption(
+                  Icons.home_outlined, 'Pantalla principal', 'home screen', () {
+                Navigator.pop(context);
+                _applyWallpaper(0);
+              }),
+              _buildOption(
+                  Icons.lock_outline, 'Pantalla de bloqueo', 'lock screen', () {
+                Navigator.pop(context);
+                _applyWallpaper(1);
+              }),
+              _buildOption(
+                  Icons.phone_android_outlined, 'Ambas pantallas', 'both', () {
+                Navigator.pop(context);
+                _applyWallpaper(2);
+              }),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                height: 1,
+                color: HudTokens.nightDivider,
+              ),
+              _buildOption(Icons.auto_awesome_outlined,
+                  'Live wallpaper (con efectos)', 'live + touch', () {
+                Navigator.pop(context);
+                _applyLiveWallpaper();
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOption(
+      IconData icon, String label, String sub, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Set wallpaper as',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 10),
-                // FREE! / Ad badge
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isFree
-                        ? Colors.green.withOpacity(0.2)
-                        : Colors.orange.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isFree
-                          ? Colors.greenAccent.withOpacity(0.5)
-                          : Colors.orange.withOpacity(0.5),
-                    ),
-                  ),
-                  child: Text(
-                    isFree ? 'FREE!' : 'Ad next',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: isFree ? Colors.greenAccent : Colors.orangeAccent,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            if (isFree) ...[
-              const SizedBox(height: 6),
-              Text(
-                'Next wallpaper is ad-free!',
-                style: TextStyle(
-                    fontSize: 12, color: Colors.greenAccent.withOpacity(0.7)),
+            Icon(icon, color: HudTokens.gold, size: 22),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: _display(15,
+                          color: HudTokens.nightText,
+                          w: FontWeight.w700,
+                          ls: -0.01)),
+                  const SizedBox(height: 2),
+                  Text('— $sub',
+                      style: _serif(12,
+                          color: HudTokens.nightTextDim, s: FontStyle.italic)),
+                ],
               ),
-            ],
-            if (!isFree) ...[
-              const SizedBox(height: 6),
-              Text(
-                '+${CreditService.creditsPerAd} credits for watching',
-                style: TextStyle(
-                    fontSize: 12, color: Colors.orangeAccent.withOpacity(0.7)),
-              ),
-            ],
-            // Credits balance
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.diamond, size: 14, color: Color(0xFF7C4DFF)),
-                const SizedBox(width: 4),
-                Text(
-                  '$credits credits',
-                  style:
-                      const TextStyle(fontSize: 12, color: Color(0xFF7C4DFF)),
-                ),
-              ],
             ),
-            const SizedBox(height: 16),
-            _buildOption(Icons.home, 'Home Screen', () {
-              Navigator.pop(context);
-              _applyWallpaper(0);
-            }),
-            _buildOption(Icons.lock, 'Lock Screen', () {
-              Navigator.pop(context);
-              _applyWallpaper(1);
-            }),
-            _buildOption(Icons.phone_android, 'Both', () {
-              Navigator.pop(context);
-              _applyWallpaper(2);
-            }),
-            const Divider(color: Colors.white12),
-            _buildOption(Icons.auto_awesome, 'Live Wallpaper (Touch Effect)',
-                () {
-              Navigator.pop(context);
-              _applyLiveWallpaper();
-            }),
-            const SizedBox(height: 8),
+            Icon(Icons.chevron_right, color: HudTokens.gold.withOpacity(0.5)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOption(IconData icon, String label, VoidCallback onTap) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white70),
-      title: Text(label),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    );
-  }
+  // ── Layout ────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     final isFav = ref.watch(favoritesProvider).contains(widget.wallpaper.id);
-    final glowColor = _parseGlowColor();
+    final w = widget.wallpaper;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: HudTokens.nightBg,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Fullscreen image with touch glow (ignores touch when loading)
-          IgnorePointer(
-            ignoring: _isApplying,
-            child: TouchGlowEffect(
-              glowColor: glowColor,
-              child: InteractiveViewer(
-                minScale: 1.0,
-                maxScale: 3.0,
-                child: CachedWallpaperImage(
-                  imageUrl: widget.wallpaper.fullImageUrl,
+          SafeArea(
+            child: Column(
+              children: [
+                _buildTopBar(isFav),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildFrame(),
+                        const SizedBox(height: 22),
+                        _buildCatalog(w),
+                        const SizedBox(height: 20),
+                        _buildPriceRow(),
+                        const SizedBox(height: 16),
+                        _buildCta(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
-
-          // Loading overlay
           LoadingOverlay(
             visible: _isApplying,
             progress: _downloadProgress > 0 ? _downloadProgress : null,
             status: _loadingStatus,
-            accentColor: glowColor,
+            accentColor: HudTokens.gold,
             phase: _loadingPhase,
           ),
+        ],
+      ),
+    );
+  }
 
-          // Top bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back),
-                      style:
-                          IconButton.styleFrom(backgroundColor: Colors.black54),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () => ref
-                          .read(favoritesProvider.notifier)
-                          .toggle(widget.wallpaper.id),
-                      icon: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_border,
-                        color: isFav ? Colors.redAccent : Colors.white,
-                      ),
-                      style:
-                          IconButton.styleFrom(backgroundColor: Colors.black54),
-                    ),
-                  ],
-                ),
-              ),
+  Widget _buildTopBar(bool isFav) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 6),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () => Navigator.pop(context),
+            child: Row(
+              children: [
+                Icon(Icons.arrow_back_ios_new, color: HudTokens.gold, size: 14),
+                const SizedBox(width: 6),
+                Text('volver',
+                    style: _serif(14,
+                        color: HudTokens.gold,
+                        s: FontStyle.italic,
+                        w: FontWeight.w500)),
+              ],
             ),
           ),
-
-          // Bottom info & apply button
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              border: Border.all(color: HudTokens.gold, width: 1),
+            ),
+            child: Text(
+              'LOT · $_lotNumber',
+              style: _meta(10, color: HudTokens.gold, ls: 0.3),
+            ),
+          ),
+          const SizedBox(width: 8),
+          InkWell(
+            onTap: () => ref
+                .read(favoritesProvider.notifier)
+                .toggle(widget.wallpaper.id),
             child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black],
-                ),
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                border: Border.all(color: HudTokens.gold, width: 1),
               ),
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 40, 20, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.wallpaper.name,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${widget.wallpaper.category} · ${widget.wallpaper.imageSizeFormatted}',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
-                          fontSize: 13,
-                        ),
-                      ),
-                      if (widget.wallpaper.description.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Text(
-                          widget.wallpaper.description,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
-                            fontSize: 12,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton.icon(
-                          onPressed: _isApplying ? null : _showApplyDialog,
-                          icon: Icon(
-                            Platform.isIOS ? Icons.save_alt : Icons.wallpaper,
-                          ),
-                          label: Text(
-                            Platform.isIOS ? 'Save to Photos' : 'Set Wallpaper',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: glowColor,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              alignment: Alignment.center,
+              child: Icon(
+                isFav ? Icons.favorite : Icons.favorite_border,
+                color: HudTokens.gold,
+                size: 14,
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Double gold-bordered frame around the wallpaper image.
+  Widget _buildFrame() {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: HudTokens.gold, width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: AspectRatio(
+          aspectRatio: 9 / 16,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border:
+                  Border.all(color: HudTokens.gold.withOpacity(0.35), width: 1),
+            ),
+            child: CachedWallpaperImage(
+              imageUrl: widget.wallpaper.fullImageUrl,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCatalog(Wallpaper w) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          w.name.toUpperCase(),
+          style: _display(24, color: HudTokens.nightText, ls: -0.02),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          _artistLine,
+          style: _serif(14,
+              color: HudTokens.gold, s: FontStyle.italic, w: FontWeight.w400),
+        ),
+        const SizedBox(height: 18),
+        Container(
+          padding: const EdgeInsets.only(top: 14),
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: HudTokens.gold, width: 1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: _catItem('FORMAT', 'Vertical 9:16'),
+              ),
+              Expanded(
+                child: _catItem('RESOLUTION', w.imageSizeFormatted),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: _catItem('COLLECTION', w.category),
+            ),
+            Expanded(
+              child: _catItem('DATE', 'MMXXVI'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _catItem(String k, String v) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(k, style: _meta(10, color: HudTokens.nightTextDim, ls: 0.2)),
+        const SizedBox(height: 3),
+        Text(
+          v,
+          style: _serif(14,
+              color: HudTokens.nightText,
+              s: FontStyle.italic,
+              w: FontWeight.w400),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriceRow() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: HudTokens.gold, width: 1),
+          bottom: BorderSide(color: HudTokens.gold.withOpacity(0.3), width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Text('— precio / en Pixora',
+              style: _meta(10, color: HudTokens.nightTextDim, ls: 0.25)),
+          const Spacer(),
+          Text(
+            Platform.isIOS ? 'SAVE' : 'GRATIS',
+            style: _display(22,
+                color: HudTokens.gold, w: FontWeight.w900, ls: 0.04),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCta() {
+    return InkWell(
+      onTap: _isApplying ? null : _showApplyDialog,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        color: HudTokens.gold,
+        alignment: Alignment.center,
+        child: Text(
+          Platform.isIOS ? 'GUARDAR EN FOTOS' : 'APLICAR A MI TELÉFONO',
+          style: _display(14,
+              color: HudTokens.nightBg, w: FontWeight.w900, ls: 0.25),
+        ),
       ),
     );
   }

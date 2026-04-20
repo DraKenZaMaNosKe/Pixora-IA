@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>J · Fashion Editorial</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'JetBrains Mono',monospace; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#f0e2a6; font-family:'Bodoni Moda',serif; font-weight:900; font-size:24px; letter-spacing:-0.03em; }
+.dir-label::before { content:"J · "; font-family:'JetBrains Mono'; font-weight:500; letter-spacing:0.25em; text-transform:uppercase; font-size:11px; color:#888; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; font-weight:500; }
+.phone {
+  width:320px; height:680px; overflow:hidden; position:relative;
+  --bg:#0a0a0a; --surface:#121212; --text:#f0e2a6; --text-dim:#8a8575; --accent:#f0e2a6; --divider:rgba(240,226,166,0.15);
+  background:var(--bg); color:var(--text);
+  box-shadow:0 20px 50px rgba(240,226,166,0.1);
+}
+.phone.light { --bg:#f5f2ea; --surface:#ecebe3; --text:#0a0a0a; --text-dim:#6a6558; --accent:#c9a635; --divider:rgba(10,10,10,0.15); }
+.notch { height:28px; display:flex; justify-content:space-between; padding:10px 22px 0; font-size:10px; font-weight:500; letter-spacing:0.1em; color:var(--text-dim); text-transform:uppercase; }
+.topbar { padding:12px 18px; border-bottom:1px solid var(--divider); display:flex; justify-content:space-between; align-items:baseline; }
+.brand { font-family:'Bodoni Moda',serif; font-weight:900; font-size:24px; letter-spacing:-0.04em; }
+.brand em { font-style:italic; font-weight:400; color:var(--accent); }
+.meta { font-family:'JetBrains Mono'; font-size:10px; letter-spacing:0.1em; color:var(--text-dim); text-transform:uppercase; }
+.meta .v { color:var(--accent); font-weight:500; }
+.hero { position:relative; margin:0; height:340px; overflow:hidden; }
+.hero img { width:100%; height:100%; object-fit:cover; filter:saturate(0.9); }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(10,10,10,0.9), transparent 35%); }
+.hero-num { position:absolute; top:14px; right:18px; font-family:'Bodoni Moda',serif; font-weight:900; font-size:40px; letter-spacing:-0.05em; color:rgba(240,226,166,0.9); line-height:1; z-index:2; }
+.hero-top-label { position:absolute; top:18px; left:18px; font-family:'JetBrains Mono'; font-size:9px; letter-spacing:0.3em; text-transform:uppercase; color:rgba(255,255,255,0.9); z-index:2; }
+.hero-body { position:absolute; bottom:16px; left:18px; right:18px; color:#fff; z-index:2; }
+.hero-kind { font-family:'JetBrains Mono'; font-size:9px; letter-spacing:0.3em; text-transform:uppercase; opacity:0.75; margin-bottom:8px; }
+.hero-title { font-family:'Bodoni Moda',serif; font-weight:400; font-style:italic; font-size:42px; line-height:0.9; letter-spacing:-0.03em; margin-bottom:4px; }
+.hero-title strong { font-style:normal; font-weight:900; display:block; letter-spacing:-0.04em; }
+.hero-desc { font-family:'JetBrains Mono'; font-size:10px; opacity:0.65; line-height:1.4; letter-spacing:0.02em; margin-top:8px; }
+.section-head { padding:14px 18px; display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--divider); }
+.section-title { font-family:'Bodoni Moda',serif; font-weight:900; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; }
+.more { font-family:'JetBrains Mono'; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--accent); }
+.row { display:flex; gap:0; overflow-x:auto; }
+.card { min-width:110px; padding:12px; border-right:1px solid var(--divider); }
+.card-img { width:88px; height:120px; overflow:hidden; position:relative; }
+.card-img img { width:100%; height:100%; object-fit:cover; filter:saturate(0.9); }
+.card-idx { font-family:'Bodoni Moda',serif; font-weight:900; font-size:18px; letter-spacing:-0.04em; margin-top:8px; color:var(--accent); }
+.card-title { font-family:'Bodoni Moda',serif; font-weight:400; font-style:italic; font-size:14px; letter-spacing:-0.02em; line-height:1.1; margin-top:2px; }
+.card-sub { font-family:'JetBrains Mono'; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-top:3px; }
+.card.new .card-idx::after { content:" ·"; color:var(--accent); }
+.nav { position:absolute; bottom:0; left:0; right:0; border-top:1px solid var(--divider); background:var(--bg); display:flex; }
+.nav-item { flex:1; padding:12px 2px 16px; text-align:center; font-family:'JetBrains Mono'; font-size:8px; color:var(--text-dim); letter-spacing:0.15em; text-transform:uppercase; }
+.nav-item.active { color:var(--accent); }
+.nav-item.active .nav-icon { border-bottom:1px solid var(--accent); }
+.nav-icon { font-family:'Bodoni Moda',serif; font-weight:900; font-size:14px; display:inline-block; padding-bottom:2px; margin-bottom:3px; }
+</style></head><body>
+<div class="dir-label">Fashion Editorial (Bodoni)</div>
+<div class="pair">
+  <template id="ph">
+    <div class="notch"><span>9:41</span><span>no. 07 · mmxxvi</span></div>
+    <div class="topbar"><div class="brand">PIX<em>ora</em></div><div class="meta">◆ <span class="v">120</span></div></div>
+    <div class="hero">
+      <div class="hero-top-label">— editorial —</div>
+      <div class="hero-num">I</div>
+      <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+      <div class="hero-body">
+        <div class="hero-kind">Nature / Chapter 01</div>
+        <div class="hero-title">Enchanted<strong>FOREST</strong></div>
+        <div class="hero-desc">moonlit woods · animated fireflies drift through<br>ancient mossy trees — a silent choreography</div>
+      </div>
+    </div>
+    <div class="section-head"><div class="section-title">— Trending —</div><div class="more">see all</div></div>
+    <div class="row">
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-idx">01</div><div class="card-title">2B Automata</div><div class="card-sub">anime</div></div>
+      <div class="card new"><div class="card-img"><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-idx">02</div><div class="card-title">Saga Géminis</div><div class="card-sub">new · saint s.</div></div>
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-idx">03</div><div class="card-title">Aku</div><div class="card-sub">samurai jack</div></div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><span class="nav-icon">W</span><br>Wall</div>
+      <div class="nav-item"><span class="nav-icon">L</span><br>Live</div>
+      <div class="nav-item"><span class="nav-icon">A</span><br>Aura</div>
+      <div class="nav-item"><span class="nav-icon">S</span><br>Stor</div>
+      <div class="nav-item"><span class="nav-icon">T</span><br>Ton</div>
+      <div class="nav-item"><span class="nav-icon">I</span><br>IA</div>
+      <div class="nav-item"><span class="nav-icon">F</span><br>Fav</div>
+    </div>
+  </template>
+  <div class="mode-wrap"><div class="mode-label">Día</div><div class="phone light" id="pl"></div></div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div><div class="phone" id="pd"></div></div>
+</div>
+<script>const t=document.getElementById('ph').innerHTML; pl.innerHTML=t; pd.innerHTML=t;</script>
+</body></html>

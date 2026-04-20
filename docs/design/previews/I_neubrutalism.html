@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<title>I · Neu-brutalism Pop</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Archivo',sans-serif; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#ffcc00; font-family:'Archivo Black',sans-serif; font-size:22px; letter-spacing:-0.02em; text-transform:uppercase; }
+.dir-label::before { content:"I · "; font-family:'Archivo'; font-weight:700; letter-spacing:0.25em; font-size:11px; color:#888; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; font-weight:700; font-family:'Archivo',sans-serif; }
+.phone {
+  width:320px; height:680px; overflow:hidden; border-radius:0; position:relative;
+  --bg:#181818; --surface:#ffcc00; --text:#f5f5f0; --text-dim:#999; --accent:#ff3366; --yellow:#ffcc00; --ink:#0a0a0a; --divider:#f5f5f0;
+  background:var(--bg); color:var(--text);
+  border:3px solid var(--text);
+  box-shadow:10px 10px 0 var(--accent), 20px 20px 0 var(--yellow);
+}
+.phone.light { --bg:#fffaf0; --surface:#ffcc00; --text:#0a0a0a; --text-dim:#555; --accent:#ff3366; --yellow:#ffcc00; --ink:#0a0a0a; --divider:#0a0a0a; border:3px solid var(--ink); box-shadow:10px 10px 0 var(--accent), 20px 20px 0 var(--yellow); }
+.notch { height:28px; display:flex; justify-content:space-between; padding:8px 20px 0; font-weight:900; font-family:'Archivo Black'; font-size:12px; }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:3px solid var(--divider); background:var(--yellow); color:var(--ink); }
+.brand { font-family:'Archivo Black'; font-size:24px; letter-spacing:-0.04em; text-transform:uppercase; }
+.brand em { font-style:normal; color:var(--accent); font-family:'Archivo Black'; }
+.pill { padding:6px 12px; background:var(--ink); color:var(--yellow); font-family:'Archivo Black'; font-size:12px; border:2px solid var(--ink); display:flex; align-items:center; gap:5px; }
+.hero { margin:14px 14px 0; position:relative; border:3px solid var(--divider); height:260px; overflow:hidden; box-shadow:6px 6px 0 var(--accent); }
+.hero img { width:100%; height:100%; object-fit:cover; }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(10,10,10,0.92), transparent 50%); }
+.hero-body { position:absolute; bottom:12px; left:12px; right:12px; color:#fff; z-index:2; }
+.hero-tag { display:inline-block; padding:4px 10px; background:var(--accent); color:#fff; font-family:'Archivo Black'; font-size:10px; letter-spacing:0.05em; margin-bottom:8px; text-transform:uppercase; border:2px solid #fff; }
+.hero-title { font-family:'Archivo Black'; font-size:28px; line-height:0.9; letter-spacing:-0.04em; margin-bottom:6px; text-transform:uppercase; }
+.hero-desc { font-size:11px; font-weight:500; line-height:1.4; opacity:0.85; }
+.section-head { padding:14px 14px 8px; display:flex; justify-content:space-between; align-items:baseline; }
+.section-title { font-family:'Archivo Black'; font-size:18px; letter-spacing:-0.03em; text-transform:uppercase; }
+.section-title::before { content:"◆ "; color:var(--accent); }
+.more { font-family:'Archivo Black'; font-size:10px; background:var(--accent); color:#fff; padding:4px 8px; border:2px solid var(--divider); letter-spacing:0.05em; text-transform:uppercase; }
+.row { display:flex; gap:10px; overflow-x:auto; padding:0 14px 10px; }
+.card { min-width:105px; }
+.card-img { width:105px; height:140px; overflow:hidden; position:relative; border:3px solid var(--divider); box-shadow:4px 4px 0 var(--yellow); }
+.card-img img { width:100%; height:100%; object-fit:cover; }
+.card-badge { position:absolute; top:0; left:0; background:var(--yellow); color:var(--ink); padding:3px 8px; font-family:'Archivo Black'; font-size:9px; letter-spacing:0.05em; border-bottom:2px solid var(--ink); border-right:2px solid var(--ink); }
+.card-title { margin-top:8px; font-family:'Archivo Black'; font-size:12px; letter-spacing:-0.02em; line-height:1.1; text-transform:uppercase; }
+.nav { position:absolute; bottom:0; left:0; right:0; border-top:3px solid var(--divider); background:var(--bg); display:flex; }
+.nav-item { flex:1; padding:10px 2px 14px; text-align:center; font-family:'Archivo Black'; font-size:8px; color:var(--text-dim); letter-spacing:0.04em; text-transform:uppercase; border-right:2px solid var(--divider); }
+.nav-item:last-child { border-right:none; }
+.nav-item.active { color:var(--ink); background:var(--yellow); }
+.nav-icon { font-size:14px; display:block; margin-bottom:3px; font-family:'Archivo Black'; }
+</style></head><body>
+<div class="dir-label">Neu-brutalism POP</div>
+<div class="pair">
+  <template id="ph">
+    <div class="notch"><span>9:41</span><span>●●○</span></div>
+    <div class="topbar"><div class="brand">PIX<em>X</em>ORA</div><div class="pill">◆ 120</div></div>
+    <div class="hero"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+      <div class="hero-body"><span class="hero-tag">NATURE</span><div class="hero-title">ENCHANTED<br>FOREST</div><div class="hero-desc">Moonlit woods · animated fireflies · mossy</div></div>
+    </div>
+    <div class="section-head"><div class="section-title">Trending</div><div class="more">VER →</div></div>
+    <div class="row">
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-title">2B Automata</div></div>
+      <div class="card"><div class="card-img"><span class="card-badge">NEW</span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-title">Saga Géminis</div></div>
+      <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-title">Aku</div></div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><span class="nav-icon">◉</span>Wall</div>
+      <div class="nav-item"><span class="nav-icon">▸</span>Live</div>
+      <div class="nav-item"><span class="nav-icon">☽</span>Aura</div>
+      <div class="nav-item"><span class="nav-icon">❒</span>Stor</div>
+      <div class="nav-item"><span class="nav-icon">♪</span>Ton</div>
+      <div class="nav-item"><span class="nav-icon">✦</span>IA</div>
+      <div class="nav-item"><span class="nav-icon">♥</span>Fav</div>
+    </div>
+  </template>
+  <div class="mode-wrap"><div class="mode-label">Día</div><div class="phone light" id="pl"></div></div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div><div class="phone" id="pd"></div></div>
+</div>
+<script>const t=document.getElementById('ph').innerHTML; pl.innerHTML=t; pd.innerHTML=t;</script>
+</body></html>

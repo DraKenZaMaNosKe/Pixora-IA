@@ -160,7 +160,7 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             ?.randomOrNull()
 
         return if (cached != null) {
-            val glowColor = prefs.getString("current_glow", "#7C4DFF") ?: "#7C4DFF"
+            val glowColor = prefs.getString("current_glow", "#C9A650") ?: "#C9A650"
             setWallpaper(cached.absolutePath, glowColor, prefs)
         } else {
             Log.w(TAG, "No cached wallpapers available")

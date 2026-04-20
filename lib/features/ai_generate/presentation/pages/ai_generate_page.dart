@@ -1,8 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../core/design/hud_shapes.dart';
+import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/design/hud_widgets.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/subscription_service.dart';
@@ -32,6 +40,8 @@ class _AIGenerationState {
 }
 
 class _AIGeneratePageState extends State<AIGeneratePage> {
+  static const _nativeChannel = MethodChannel('com.orbix.pixora/wallpaper');
+
   final _promptController = TextEditingController();
   String? _selectedStyle;
   bool _submitting = false;
@@ -39,7 +49,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   _AIGenerationState? _latest;
   RealtimeChannel? _queueChannel;
 
-  final _styles = [
+  final _styles = const [
     'Anime',
     'Cyberpunk',
     'Fantasy',
@@ -53,7 +63,6 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   @override
   void initState() {
     super.initState();
-    // Make sure we have fresh subscription + credits state when the page opens.
     SubscriptionService.instance.refreshStatus();
     _subscribeQueue();
     _loadLastGeneration();
@@ -66,8 +75,8 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
     super.dispose();
   }
 
-  /// Subscribe to Realtime changes on ia_generation_queue filtered by user.
-  /// When a row transitions to processing/done/failed, refresh the visible card.
+  // ── Data flow (unchanged) ─────────────────────────────────────────────
+
   void _subscribeQueue() {
     final uid = Supabase.instance.client.auth.currentUser?.id;
     if (uid == null) return;
@@ -101,8 +110,6 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
         .subscribe();
   }
 
-  /// On page open, show the most recent generation (if any) so users see
-  /// their history across sessions.
   Future<void> _loadLastGeneration() async {
     final uid = Supabase.instance.client.auth.currentUser?.id;
     if (uid == null) return;
@@ -124,37 +131,23 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
           errorMessage: r['error_message'] as String?,
         );
       });
-      // If the latest is still pending, kick the worker — covers rows orphaned
-      // by a previous session crash or pre-worker enqueues.
       if (_latest!.status == 'pending') {
         unawaited(_dispatchWorker(_latest!.id));
       }
-    } catch (_) {
-      // Non-critical; ignore.
-    }
+    } catch (_) {}
   }
 
-  /// Fire-and-forget call to process_ia_queue. The worker does the Gemini call
-  /// and uploads the result; realtime will reflect the status change in the UI.
   Future<void> _dispatchWorker(int queueId) async {
     try {
       await Supabase.instance.client.functions.invoke(
         'process_ia_queue',
         body: {'queue_id': queueId},
       );
-    } catch (_) {
-      // Worker errors surface in the DB row (status=failed) and are handled by
-      // the realtime listener. Swallow here — we don't want to show two errors.
-    }
+    } catch (_) {}
   }
 
-  // ── Gating ──────────────────────────────────────────────────────────
+  // ── Gating ────────────────────────────────────────────────────────────
 
-  /// True if the user can enqueue a generation right now.
-  /// - Not authenticated: no.
-  /// - Has `free_gens_remaining > 0`: yes (they get 2 free trials before paywall).
-  /// - Has active subscription with quota left: yes.
-  /// - Has active subscription but quota out, with >=30 credits: yes (extra path).
   bool get _canGenerateNow {
     final sub = SubscriptionService.instance;
     if (sub.freeGensRemaining > 0) return true;
@@ -167,40 +160,35 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
     final sub = SubscriptionService.instance;
     if (!AuthService.instance.isLoggedIn) {
       return LocaleHelper.pick(
-          es: 'Inicia sesión para generar', en: 'Sign in to generate');
+        es: 'INICIA SESIÓN PARA GENERAR',
+        en: 'SIGN IN TO GENERATE',
+      );
     }
     if (sub.freeGensRemaining > 0) {
       return LocaleHelper.pick(
-        es: 'Generar — ${sub.freeGensRemaining} gratis',
-        en: 'Generate — ${sub.freeGensRemaining} free',
+        es: 'GENERATE · ${sub.freeGensRemaining} FREE',
+        en: 'GENERATE · ${sub.freeGensRemaining} FREE',
       );
     }
     if (!sub.hasAccess) {
       return LocaleHelper.pick(
-        es: 'Suscríbete — \$99 MXN/mes',
-        en: 'Subscribe — \$99 MXN/month',
+        es: 'SUSCRIBIRSE · \$99/MES',
+        en: 'SUBSCRIBE · \$99/MO',
       );
     }
     if (sub.generationsRemaining > 0) {
-      return LocaleHelper.pick(
-        es: 'Generar (${sub.generationsRemaining} restantes este mes)',
-        en: 'Generate (${sub.generationsRemaining} left this month)',
-      );
+      return 'GENERATE · ${sub.generationsRemaining} LEFT';
     }
-    // Out of monthly quota — can use extra credits
     if (CreditService.instance.balance >= 30) {
-      return LocaleHelper.pick(
-        es: 'Generar — 30 créditos extra',
-        en: 'Generate — 30 extra credits',
-      );
+      return 'GENERATE · 30 ◆';
     }
     return LocaleHelper.pick(
-      es: 'Cuota mensual agotada',
-      en: 'Monthly quota reached',
+      es: 'CUOTA AGOTADA',
+      en: 'QUOTA EMPTY',
     );
   }
 
-  // ── Actions ─────────────────────────────────────────────────────────
+  // ── Actions ───────────────────────────────────────────────────────────
 
   Future<void> _handleGeneratePressed() async {
     final sub = SubscriptionService.instance;
@@ -209,14 +197,10 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
       _showLoginPrompt();
       return;
     }
-
-    // No free gens, no subscription → paywall
     if (sub.freeGensRemaining == 0 && !sub.hasAccess) {
       _showPaywall();
       return;
     }
-
-    // Out of monthly quota and insufficient credits → inform
     if (sub.hasAccess &&
         sub.generationsRemaining == 0 &&
         CreditService.instance.balance < 30) {
@@ -227,8 +211,8 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
     final prompt = _promptController.text.trim();
     if (prompt.length < 3) {
       _snack(LocaleHelper.pick(
-        es: 'Describe tu imagen (al menos 3 caracteres).',
-        en: 'Describe your image (at least 3 characters).',
+        es: 'Describe tu imagen (mínimo 3 caracteres).',
+        en: 'Describe your image (3 chars min).',
       ));
       return;
     }
@@ -237,16 +221,9 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
     try {
       final response = await Supabase.instance.client.rpc(
         'enqueue_generation',
-        params: {
-          'p_prompt': prompt,
-          'p_style': _selectedStyle,
-        },
+        params: {'p_prompt': prompt, 'p_style': _selectedStyle},
       );
-      // The server has deducted quota/credits atomically. Refresh state so
-      // the button label updates and the UI reflects the new counter.
-      await Future.wait([
-        SubscriptionService.instance.refreshStatus(),
-      ]);
+      await SubscriptionService.instance.refreshStatus();
       if (!mounted) return;
       final queueId = (response as Map?)?['queue_id'] as int?;
       if (queueId != null) {
@@ -257,220 +234,270 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
             status: 'pending',
           );
         });
-        // Fire the worker — Gemini call + upload happens server-side, realtime
-        // will drive the UI forward.
         unawaited(_dispatchWorker(queueId));
       }
       _snack(
-        LocaleHelper.pick(
-          es: 'Generando...',
-          en: 'Generating...',
-        ),
-        color: Colors.green.shade700,
+        LocaleHelper.pick(es: '// PROCESANDO...', en: '// PROCESSING...'),
+        color: context.hud.accent2,
       );
       _promptController.clear();
     } on PostgrestException catch (e) {
       if (!mounted) return;
-      _snack(_translateError(e.message), color: Colors.red);
+      _snack(_translateError(e.message), color: context.hud.accent);
     } catch (e) {
       if (!mounted) return;
-      _snack(
-          LocaleHelper.pick(
-            es: 'Error inesperado: $e',
-            en: 'Unexpected error: $e',
-          ),
-          color: Colors.red);
+      _snack('ERROR: $e', color: context.hud.accent);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
   }
 
+  // ── Save / Wallpaper / Share ──────────────────────────────────────────
+
+  Future<File?> _downloadResult() async {
+    final url = _latest?.resultUrl;
+    if (url == null) return null;
+    try {
+      final resp = await http.get(Uri.parse(url));
+      if (resp.statusCode != 200) return null;
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/pixora_gen_${_latest!.id}.png');
+      await file.writeAsBytes(resp.bodyBytes);
+      return file;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _onSave() async {
+    final file = await _downloadResult();
+    if (file == null) {
+      _snack('ERROR: no se pudo descargar', color: context.hud.accent);
+      return;
+    }
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      subject: 'Pixora · Generación ${_latest!.id}',
+    );
+  }
+
+  Future<void> _onWallpaper() async {
+    final file = await _downloadResult();
+    if (file == null) {
+      _snack('ERROR: no se pudo descargar', color: context.hud.accent);
+      return;
+    }
+    try {
+      await _nativeChannel.invokeMethod<void>(
+        'setWallpaper',
+        {'path': file.path},
+      );
+      if (mounted) {
+        _snack('▲ WALLPAPER APLICADO', color: context.hud.accent2);
+      }
+    } on PlatformException catch (e) {
+      if (mounted) {
+        _snack('ERROR: ${e.message}', color: context.hud.accent);
+      }
+    }
+  }
+
+  Future<void> _onShare() async {
+    final file = await _downloadResult();
+    if (file == null) {
+      _snack('ERROR: no se pudo descargar', color: context.hud.accent);
+      return;
+    }
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: 'Mira lo que generé con Pixora IA',
+    );
+  }
+
+  // ── Small helpers ─────────────────────────────────────────────────────
+
   String _translateError(String msg) {
     if (msg.contains('prompt_blocked_moderation')) {
-      return LocaleHelper.pick(
-        es: 'Ese prompt no está permitido.',
-        en: 'That prompt is not allowed.',
-      );
+      return 'PROMPT BLOQUEADO · NO PERMITIDO';
     }
     if (msg.contains('subscription_required')) {
-      return LocaleHelper.pick(
-        es: 'Se requiere suscripción activa.',
-        en: 'Active subscription required.',
-      );
+      return 'SE REQUIERE SUSCRIPCIÓN ACTIVA';
     }
     if (msg.contains('insufficient_credits')) {
-      return LocaleHelper.pick(
-        es: 'No tienes suficientes créditos.',
-        en: 'Not enough credits.',
-      );
+      return 'CRÉDITOS INSUFICIENTES';
     }
     if (msg.contains('daily_cap_reached')) {
-      return LocaleHelper.pick(
-        es: 'Alcanzaste el máximo diario (20 generaciones). Vuelve mañana.',
-        en: 'Daily cap reached (20 generations). Come back tomorrow.',
-      );
+      return 'MÁXIMO DIARIO ALCANZADO (20/DÍA)';
     }
     if (msg.contains('too_many_pending')) {
-      return LocaleHelper.pick(
-        es: 'Demasiadas generaciones en cola. Espera a que terminen.',
-        en: 'Too many pending generations. Wait for them to finish.',
-      );
+      return 'DEMASIADAS EN COLA · ESPERA';
     }
-    if (msg.contains('prompt_too_short')) {
-      return LocaleHelper.pick(
-        es: 'El prompt es muy corto (mínimo 3 caracteres).',
-        en: 'Prompt is too short (min 3 chars).',
-      );
-    }
-    if (msg.contains('prompt_too_long')) {
-      return LocaleHelper.pick(
-        es: 'El prompt es muy largo (máx 1000 caracteres).',
-        en: 'Prompt is too long (max 1000 chars).',
-      );
-    }
+    if (msg.contains('prompt_too_short')) return 'PROMPT MUY CORTO (MIN 3)';
+    if (msg.contains('prompt_too_long')) return 'PROMPT MUY LARGO (MAX 1000)';
     return msg;
   }
 
   void _snack(String text, {Color? color}) {
+    final h = context.hud;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text), backgroundColor: color),
+      SnackBar(
+        content: Text(
+          text.toUpperCase(),
+          style: HudTokens.mono(
+            size: 11,
+            weight: FontWeight.w700,
+            color: Colors.white,
+            letterSpacing: 0.1,
+          ),
+        ),
+        backgroundColor: color ?? h.surfaceHi,
+        behavior: SnackBarBehavior.floating,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(HudTokens.rSharp)),
+        ),
+      ),
     );
   }
 
   void _showLoginPrompt() {
+    final h = context.hud;
     showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF1a1a1a),
-        title: Text(LocaleHelper.pick(
-          es: 'Inicia sesión',
-          en: 'Sign in required',
-        )),
-        content: Text(LocaleHelper.pick(
-          es: 'Para generar imágenes con IA necesitas una cuenta de Google. Así protegemos tus créditos y tu suscripción a través de dispositivos.',
-          en: 'Sign in with Google to generate AI images. This protects your credits and subscription across devices.',
-        )),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(LocaleHelper.pick(es: 'Más tarde', en: 'Later')),
+      builder: (_) => Dialog(
+        backgroundColor: h.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(HudTokens.rSharp)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(HudTokens.sp6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '// AUTH_REQUIRED',
+                style: HudTokens.display(
+                  size: 14,
+                  color: h.accent,
+                  letterSpacing: 0.1,
+                ),
+              ),
+              const SizedBox(height: HudTokens.sp3),
+              Text(
+                LocaleHelper.pick(
+                  es: 'Para generar imágenes con IA necesitas una cuenta de Google. Así protegemos tus créditos y tu suscripción a través de dispositivos.',
+                  en: 'Sign in with Google to generate AI images. This protects your credits and subscription across devices.',
+                ),
+                style: HudTokens.body(size: 13, color: h.text),
+              ),
+              const SizedBox(height: HudTokens.sp5),
+              HudGhostButton(
+                label: LocaleHelper.pick(es: 'ENTENDIDO', en: 'OK'),
+                icon: '✓',
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Future<void> _showPaywall() async {
+    final h = context.hud;
     final sub = SubscriptionService.instance;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF14101F),
+      backgroundColor: h.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(HudTokens.rSmall),
+        ),
       ),
       builder: (ctx) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          padding: const EdgeInsets.fromLTRB(
+            HudTokens.sp6,
+            HudTokens.sp5,
+            HudTokens.sp6,
+            HudTokens.sp6,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Icon(Icons.auto_awesome,
-                  size: 42, color: Color(0xFF00E5FF)),
-              const SizedBox(height: 8),
-              Text(
-                LocaleHelper.pick(es: 'Pixora Plus', en: 'Pixora Plus'),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                LocaleHelper.pick(
-                  es: 'Generaciones con IA ilimitadas al mes',
-                  en: 'AI generations every month',
-                ),
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white60),
-              ),
-              const SizedBox(height: 24),
-              _benefit(
-                  Icons.auto_awesome,
-                  LocaleHelper.pick(
-                      es: '100 imágenes al mes con IA',
-                      en: '100 AI images per month')),
-              _benefit(
-                  Icons.card_giftcard,
-                  LocaleHelper.pick(
-                      es: '7 días gratis de prueba', en: '7-day free trial')),
-              _benefit(
-                  Icons.sync_alt,
-                  LocaleHelper.pick(
-                      es: 'Acceso en todos tus dispositivos',
-                      en: 'Access on all your devices')),
-              _benefit(
-                  Icons.cancel_outlined,
-                  LocaleHelper.pick(
-                      es: 'Cancela cuando quieras', en: 'Cancel anytime')),
-              const SizedBox(height: 24),
-              SizedBox(
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: sub.purchaseInFlight
-                      ? null
-                      : () async {
-                          Navigator.of(ctx).pop();
-                          final ok =
-                              await SubscriptionService.instance.buyMonthly();
-                          if (!ok && mounted) {
-                            _snack(LocaleHelper.pick(
-                              es: 'No se pudo abrir el flujo de compra. Revisa que tu cuenta Google Play esté activa.',
-                              en: 'Could not open purchase flow. Check that your Google Play account is active.',
-                            ));
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C4DFF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    color: h.accent,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'P+',
+                      style: HudTokens.display(
+                        size: 13,
+                        color: Colors.white,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ),
-                  child: Text(
-                    LocaleHelper.pick(
-                      es: 'Empezar prueba gratuita · \$99 MXN/mes después',
-                      en: 'Start free trial · \$99 MXN/month after',
+                  const SizedBox(width: HudTokens.sp3),
+                  Text(
+                    'PIXORA PLUS',
+                    style: HudTokens.display(
+                      size: 20,
+                      color: h.text,
+                      letterSpacing: 0.05,
                     ),
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: HudTokens.sp3),
               Text(
                 LocaleHelper.pick(
-                  es: 'Cobro automático al terminar los 7 días. Cancela desde Google Play antes para no pagar.',
-                  en: 'Auto-charged after 7 days. Cancel in Google Play anytime before then to avoid payment.',
+                  es: '100 GENERACIONES IA AL MES · 7 DÍAS GRATIS',
+                  en: '100 AI GENERATIONS / MONTH · 7-DAY TRIAL',
+                ),
+                style: HudTokens.mono(
+                  size: 11,
+                  color: h.accent2,
+                  letterSpacing: 0.15,
+                ),
+              ),
+              const SizedBox(height: HudTokens.sp6),
+              _benefit('◆', 'SYNC CROSS-DEVICE'),
+              _benefit('◆', 'ACCESO A MODELOS PREMIUM'),
+              _benefit('◆', 'CANCELA CUANDO QUIERAS'),
+              const SizedBox(height: HudTokens.sp6),
+              HudPrimaryButton(
+                label: 'EMPEZAR PRUEBA GRATUITA',
+                busy: sub.purchaseInFlight,
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+                  final ok = await SubscriptionService.instance.buyMonthly();
+                  if (!ok && mounted) {
+                    _snack(
+                      LocaleHelper.pick(
+                        es: 'NO SE PUDO ABRIR COMPRA',
+                        en: 'COULD NOT OPEN PURCHASE',
+                      ),
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: HudTokens.sp3),
+              Text(
+                LocaleHelper.pick(
+                  es: 'Cobro automático tras 7 días. Cancela desde Google Play antes de vencer.',
+                  en: 'Auto-charged after 7 days. Cancel in Google Play anytime before.',
                 ),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.white38,
-                  height: 1.4,
+                style: HudTokens.mono(
+                  size: 9,
+                  color: h.textDim,
+                  letterSpacing: 0.1,
                 ),
               ),
             ],
@@ -480,18 +507,17 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
     );
   }
 
-  Widget _benefit(IconData icon, String text) {
+  Widget _benefit(String icon, String text) {
+    final h = context.hud;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: HudTokens.sp2),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF00E5FF), size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(color: Colors.white, fontSize: 15),
-            ),
+          Text(icon, style: TextStyle(color: h.accent2, fontSize: 16)),
+          const SizedBox(width: HudTokens.sp3),
+          Text(
+            text,
+            style: HudTokens.mono(size: 11, color: h.text, letterSpacing: 0.1),
           ),
         ],
       ),
@@ -499,136 +525,91 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   }
 
   void _showQuotaExhausted() {
+    final h = context.hud;
     showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF1a1a1a),
-        title: Text(LocaleHelper.pick(
-          es: 'Cuota mensual agotada',
-          en: 'Monthly quota reached',
-        )),
-        content: Text(LocaleHelper.pick(
-          es: 'Ya usaste las 100 generaciones de este mes. Puedes esperar al próximo ciclo, o gastar 30 créditos (viendo ads) para una generación extra.',
-          en: 'You\'ve used this month\'s 100 generations. Wait for next cycle, or spend 30 credits (earned from ads) for an extra generation.',
-        )),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(LocaleHelper.pick(es: 'Entendido', en: 'OK')),
+      builder: (_) => Dialog(
+        backgroundColor: h.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(HudTokens.rSharp)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(HudTokens.sp6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '// QUOTA_EXHAUSTED',
+                style: HudTokens.display(
+                  size: 14,
+                  color: h.accent,
+                  letterSpacing: 0.1,
+                ),
+              ),
+              const SizedBox(height: HudTokens.sp3),
+              Text(
+                LocaleHelper.pick(
+                  es: 'Ya usaste las 100 generaciones de este mes. Espera al próximo ciclo o gasta 30 diamantes (de ads) para una extra.',
+                  en: 'You\'ve used this month\'s 100. Wait for next cycle or spend 30 diamonds for an extra.',
+                ),
+                style: HudTokens.body(size: 13, color: h.text),
+              ),
+              const SizedBox(height: HudTokens.sp5),
+              HudGhostButton(
+                label: LocaleHelper.pick(es: 'ENTENDIDO', en: 'OK'),
+                icon: '✓',
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  // ── UI ──────────────────────────────────────────────────────────────
+  // ── UI ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
     return Scaffold(
+      backgroundColor: h.bg,
       body: ListenableBuilder(
         listenable: Listenable.merge([
           CreditService.instance,
           SubscriptionService.instance,
         ]),
         builder: (context, _) {
-          final sub = SubscriptionService.instance;
-          final canTap = _canGenerateNow && !_submitting;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(sub),
-                const SizedBox(height: 24),
-                Text(
-                  LocaleHelper.pick(
-                    es: 'Describe tu imagen',
-                    en: 'Describe your image',
+          return CustomPaint(
+            painter: ScanLinesPainter(color: h.text),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                HudTokens.sp5,
+                HudTokens.sp5,
+                HudTokens.sp5,
+                HudTokens.sp8,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeroCard(),
+                  if (_latest != null) ...[
+                    const SizedBox(height: HudTokens.sp6),
+                    _buildResultPanel(_latest!),
+                  ],
+                  const SizedBox(height: HudTokens.sp6),
+                  _buildPromptInput(),
+                  const SizedBox(height: HudTokens.sp5),
+                  _buildStyleGrid(),
+                  const SizedBox(height: HudTokens.sp6),
+                  HudPrimaryButton(
+                    label: _buttonLabel,
+                    busy: _submitting,
+                    onPressed: _handleGeneratePressed,
                   ),
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _promptController,
-                  maxLines: 3,
-                  maxLength: 1000,
-                  decoration: InputDecoration(
-                    hintText: LocaleHelper.pick(
-                      es: 'Un dragón cyberpunk sobre una ciudad neón en la noche...',
-                      en: 'A cyberpunk dragon flying over neon city at night...',
-                    ),
-                    filled: true,
-                    fillColor: Colors.white10,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  LocaleHelper.pick(es: 'Estilo', en: 'Style'),
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _styles.map((style) {
-                    final selected = _selectedStyle == style;
-                    return ChoiceChip(
-                      label: Text(style),
-                      selected: selected,
-                      onSelected: (v) {
-                        setState(() => _selectedStyle = v ? style : null);
-                      },
-                      backgroundColor: Colors.white10,
-                      selectedColor: const Color(0xFF7C4DFF).withOpacity(0.3),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 24),
-                if (_latest != null) ...[
-                  const SizedBox(height: 8),
-                  _buildGenerationCard(_latest!),
-                  const SizedBox(height: 16),
                 ],
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    onPressed: canTap
-                        ? _handleGeneratePressed
-                        : _handleGeneratePressed,
-                    // Note: we route through _handleGeneratePressed even when
-                    // !canGenerate so users get a contextual modal (paywall,
-                    // login prompt, etc) instead of a dead button.
-                    icon: _submitting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.auto_awesome, size: 20),
-                    label: Text(_buttonLabel),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _canGenerateNow
-                          ? const Color(0xFF7C4DFF)
-                          : const Color(0xFF7C4DFF).withOpacity(0.4),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ],
+              ),
             ),
           );
         },
@@ -636,210 +617,347 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
     );
   }
 
-  Widget _buildGenerationCard(_AIGenerationState g) {
-    Widget content;
-    if (g.status == 'done' && g.resultUrl != null) {
-      content = ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: AspectRatio(
-          aspectRatio: 9 / 16,
-          child: Image.network(
-            g.resultUrl!,
-            fit: BoxFit.cover,
-            loadingBuilder: (ctx, child, progress) {
-              if (progress == null) return child;
-              return const Center(
-                child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
-              );
-            },
-            errorBuilder: (_, __, ___) => const SizedBox(
-              height: 200,
-              child: Center(
-                child: Icon(Icons.broken_image, color: Colors.white38),
+  Widget _buildHeroCard() {
+    final h = context.hud;
+    final sub = SubscriptionService.instance;
+    final credits = CreditService.instance.balance;
+    final auth = AuthService.instance;
+
+    String statusLine;
+    if (!auth.isLoggedIn) {
+      statusLine = '> AUTH_REQUIRED';
+    } else if (sub.hasAccess) {
+      statusLine =
+          '> QUOTA: ${sub.generationsRemaining}/${sub.generationsLimit} · MONTH';
+    } else if (sub.freeGensRemaining > 0) {
+      statusLine = '> TRIAL: ${sub.freeGensRemaining} FREE GENS REMAINING';
+    } else {
+      statusLine = '> SUBSCRIBE_TO_UNLOCK';
+    }
+
+    return ClipPath(
+      clipper: const CornerCutClipper(cut: HudTokens.cornerCutLg),
+      child: Container(
+        padding: const EdgeInsets.all(HudTokens.sp5),
+        decoration: BoxDecoration(
+          color: h.surfaceHi,
+          border: Border.all(color: h.accent, width: HudTokens.borderMed),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '// IA GENERATOR',
+                  style: HudTokens.display(
+                    size: 12,
+                    color: h.accent,
+                    letterSpacing: 0.1,
+                  ),
+                ),
+                const Spacer(),
+                HudBadge(
+                  text: 'NANO_BANANA',
+                  color: h.surface,
+                  onColor: h.accent2,
+                ),
+              ],
+            ),
+            const SizedBox(height: HudTokens.sp3),
+            Text(
+              'PIXORA\nIA',
+              style: HudTokens.display(
+                size: 36,
+                color: h.text,
+                letterSpacing: -0.01,
+              ),
+            ),
+            const SizedBox(height: HudTokens.sp4),
+            Text(
+              statusLine,
+              style: HudTokens.mono(
+                size: 11,
+                color: h.textDim,
+                letterSpacing: 0.1,
+              ),
+            ),
+            const SizedBox(height: HudTokens.sp4),
+            Row(
+              children: [
+                HudStatChip(label: '◆', value: '$credits'),
+                const SizedBox(width: HudTokens.sp5),
+                HudStatChip(
+                  label: 'COST',
+                  value: '30 ◆',
+                  color: h.accent,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPromptInput() {
+    final h = context.hud;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '> PROMPT_',
+          style: HudTokens.mono(
+            size: 11,
+            color: h.accent,
+            weight: FontWeight.w700,
+            letterSpacing: 0.15,
+          ),
+        ),
+        const SizedBox(height: HudTokens.sp2),
+        ClipPath(
+          clipper: const CornerCutClipper(cut: HudTokens.cornerCutSm),
+          child: Container(
+            color: h.surface,
+            padding: const EdgeInsets.all(HudTokens.sp3),
+            child: TextField(
+              controller: _promptController,
+              maxLines: 3,
+              maxLength: 1000,
+              style: HudTokens.body(size: 14, color: h.text),
+              cursorColor: h.accent,
+              decoration: InputDecoration(
+                hintText:
+                    'un dragón cyberpunk sobre una ciudad neón en la noche...',
+                hintStyle: HudTokens.body(size: 14, color: h.textDim),
+                border: InputBorder.none,
+                counterStyle: HudTokens.mono(
+                  size: 9,
+                  color: h.textDim,
+                  letterSpacing: 0.1,
+                ),
               ),
             ),
           ),
         ),
-      );
-    } else if (g.status == 'failed') {
-      content = Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.red.withOpacity(0.4)),
+      ],
+    );
+  }
+
+  Widget _buildStyleGrid() {
+    final h = context.hud;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '> STYLE_',
+          style: HudTokens.mono(
+            size: 11,
+            color: h.accent,
+            weight: FontWeight.w700,
+            letterSpacing: 0.15,
+          ),
         ),
-        child: Column(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              LocaleHelper.pick(
-                es: 'La generación falló. Tu cuota no se consumió.',
-                en: 'Generation failed. Your quota was not consumed.',
+        const SizedBox(height: HudTokens.sp2),
+        Wrap(
+          spacing: HudTokens.sp2,
+          runSpacing: HudTokens.sp2,
+          children: _styles.map((style) {
+            final selected = _selectedStyle == style;
+            return GestureDetector(
+              onTap: () =>
+                  setState(() => _selectedStyle = selected ? null : style),
+              child: ClipPath(
+                clipper: const CornerCutClipper(cut: 6),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: HudTokens.sp3,
+                    vertical: HudTokens.sp2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: selected ? h.accent : h.surface,
+                    border: Border.all(
+                      color: selected ? h.accent : h.divider,
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    style.toUpperCase(),
+                    style: HudTokens.mono(
+                      size: 11,
+                      weight: FontWeight.w700,
+                      color: selected ? Colors.white : h.text,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResultPanel(_AIGenerationState g) {
+    final h = context.hud;
+    final isDone = g.status == 'done' && g.resultUrl != null;
+    final isFailed = g.status == 'failed';
+
+    Widget inner;
+    if (isDone) {
+      inner = Image.network(
+        g.resultUrl!,
+        fit: BoxFit.cover,
+        loadingBuilder: (ctx, child, progress) {
+          if (progress == null) return child;
+          return AspectRatio(
+            aspectRatio: 9 / 16,
+            child: Center(
+              child: CircularProgressIndicator(color: h.accent, strokeWidth: 2),
             ),
-            if (g.errorMessage != null) ...[
-              const SizedBox(height: 8),
+          );
+        },
+        errorBuilder: (_, __, ___) => AspectRatio(
+          aspectRatio: 9 / 16,
+          child: Container(
+            color: h.surface,
+            child: Icon(Icons.broken_image, color: h.textDim),
+          ),
+        ),
+      );
+    } else if (isFailed) {
+      inner = AspectRatio(
+        aspectRatio: 9 / 16,
+        child: Container(
+          color: h.surface,
+          padding: const EdgeInsets.all(HudTokens.sp6),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               Text(
-                g.errorMessage!,
+                '× FAILED',
+                style: HudTokens.display(
+                  size: 20,
+                  color: h.accent,
+                  letterSpacing: 0.1,
+                ),
+              ),
+              const SizedBox(height: HudTokens.sp3),
+              Text(
+                LocaleHelper.pick(
+                  es: 'TU CUOTA NO SE CONSUMIÓ',
+                  en: 'YOUR QUOTA WAS REFUNDED',
+                ),
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white38, fontSize: 11),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+                style: HudTokens.mono(
+                  size: 11,
+                  color: h.textDim,
+                  letterSpacing: 0.1,
+                ),
               ),
             ],
-          ],
+          ),
         ),
       );
     } else {
-      // pending or processing — show a shimmer-like spinner
-      content = Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white12),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Color(0xFF00E5FF),
+      // pending or processing
+      inner = AspectRatio(
+        aspectRatio: 9 / 16,
+        child: Container(
+          color: h.surface,
+          padding: const EdgeInsets.all(HudTokens.sp6),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  color: h.accent,
+                  strokeWidth: 2,
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                g.status == 'processing'
-                    ? LocaleHelper.pick(
-                        es: 'Generando imagen...',
-                        en: 'Generating image...',
-                      )
-                    : LocaleHelper.pick(
-                        es: 'En cola...',
-                        en: 'Queued...',
-                      ),
-                style: const TextStyle(color: Colors.white),
+              const SizedBox(height: HudTokens.sp4),
+              Text(
+                g.status == 'processing' ? '> GENERATING...' : '> QUEUED...',
+                style: HudTokens.display(
+                  size: 12,
+                  color: h.accent2,
+                  letterSpacing: 0.1,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          LocaleHelper.pick(
-            es: 'Última generación',
-            en: 'Latest generation',
-          ),
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.white70,
+        Row(
+          children: [
+            Text(
+              '// GEN_${g.id.toString().padLeft(3, '0')}',
+              style: HudTokens.display(
+                size: 12,
+                color: h.accent2,
+                letterSpacing: 0.1,
+              ),
+            ),
+            const Spacer(),
+            HudStatusTag(
+              text: g.status.toUpperCase(),
+              color: isDone
+                  ? HudTokens.okGreen
+                  : isFailed
+                      ? h.accent
+                      : h.accent2,
+            ),
+          ],
+        ),
+        const SizedBox(height: HudTokens.sp3),
+        ClipPath(
+          clipper: const CornerCutClipper(cut: HudTokens.cornerCutMd),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: h.accent, width: HudTokens.borderMed),
+            ),
+            child: inner,
           ),
         ),
-        const SizedBox(height: 8),
-        content,
-      ],
-    );
-  }
-
-  Widget _buildHeader(SubscriptionService sub) {
-    final auth = AuthService.instance;
-    final credits = CreditService.instance.balance;
-
-    String statusText;
-    if (!auth.isLoggedIn) {
-      statusText = LocaleHelper.pick(
-        es: 'Inicia sesión para generar',
-        en: 'Sign in to generate',
-      );
-    } else if (sub.hasAccess) {
-      statusText = LocaleHelper.pick(
-        es: 'Pixora Plus · ${sub.generationsRemaining}/${sub.generationsLimit} este mes',
-        en: 'Pixora Plus · ${sub.generationsRemaining}/${sub.generationsLimit} this month',
-      );
-    } else if (sub.freeGensRemaining > 0) {
-      statusText = LocaleHelper.pick(
-        es: '${sub.freeGensRemaining} generaciones de prueba restantes',
-        en: '${sub.freeGensRemaining} trial generations remaining',
-      );
-    } else {
-      statusText = LocaleHelper.pick(
-        es: 'Suscríbete para generar con IA',
-        en: 'Subscribe to generate with AI',
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2A1655), Color(0xFF0F2A3E)],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: Column(
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+        if (isDone) ...[
+          const SizedBox(height: HudTokens.sp3),
+          Row(
             children: [
-              Icon(Icons.auto_awesome, color: Color(0xFF00E5FF), size: 28),
-              SizedBox(width: 10),
-              Text(
-                'AI Generator',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+              Expanded(
+                child: HudGhostButton(
+                  label: LocaleHelper.pick(es: 'GUARDAR', en: 'SAVE'),
+                  icon: '▼',
+                  onPressed: _onSave,
+                ),
+              ),
+              const SizedBox(width: HudTokens.sp2),
+              Expanded(
+                child: HudGhostButton(
+                  label: 'WALLPAPER',
+                  icon: '◉',
+                  onPressed: _onWallpaper,
+                ),
+              ),
+              const SizedBox(width: HudTokens.sp2),
+              Expanded(
+                child: HudGhostButton(
+                  label: LocaleHelper.pick(es: 'ENVIAR', en: 'SHARE'),
+                  icon: '↗',
+                  onPressed: _onShare,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            statusText,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white70),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.black26,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.diamond, size: 20, color: Color(0xFF00E5FF)),
-                const SizedBox(width: 8),
-                Text(
-                  LocaleHelper.pick(
-                    es: '$credits diamantes',
-                    en: '$credits diamonds',
-                  ),
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
-      ),
+      ],
     );
   }
 }

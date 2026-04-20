@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Settings · Black & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.profile-card { margin: 14px 18px 0; padding: 20px; border: 1px solid var(--gold); background: radial-gradient(circle at right, rgba(201,166,80,0.08), transparent 70%); display: flex; align-items: center; gap: 14px; position: relative; }
+.avatar { width: 56px; height: 56px; border: 1.5px solid var(--gold); border-radius: 50%; background: var(--ink-2); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display'; font-weight: 900; font-size: 22px; color: var(--gold); }
+.profile-info { flex: 1; }
+.profile-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 16px; color: var(--cream); letter-spacing: -0.01em; }
+.profile-email { font-family: 'Inter'; font-size: 11px; color: var(--gold-dim); letter-spacing: 0.05em; margin-top: 2px; }
+.sync-badge { padding: 4px 10px; border: 1px solid var(--gold); font-family: 'Inter'; font-weight: 700; font-size: 9px; color: var(--gold); letter-spacing: 0.2em; display: flex; align-items: center; gap: 4px; }
+.sync-badge::before { content: ""; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
+.sign-out { margin: 10px 18px 0; padding: 12px; border: 1px solid var(--divider); text-align: center; font-family: 'Playfair Display'; font-weight: 700; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-dim); }
+.section-lbl { padding: 24px 18px 8px; display: flex; align-items: baseline; gap: 12px; }
+.section-lbl::before { content: ""; width: 20px; height: 1px; background: var(--gold); }
+.section-lbl-text { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; }
+.section-lbl-text::before { content: "§ "; font-family: 'Playfair Display'; font-weight: 900; font-style: normal; }
+.setting-row { margin: 0 18px; padding: 14px 0; border-bottom: 1px solid var(--divider-soft); display: flex; align-items: center; gap: 12px; }
+.setting-icon { width: 34px; height: 34px; border: 1px solid var(--divider); display: flex; align-items: center; justify-content: center; color: var(--gold); font-family: 'Cormorant Garamond'; font-style: italic; font-size: 18px; }
+.setting-info { flex: 1; }
+.setting-title { font-family: 'Playfair Display'; font-weight: 700; font-size: 14px; color: var(--cream); letter-spacing: -0.01em; }
+.setting-desc { font-family: 'Cormorant Garamond'; font-style: italic; font-size: 12px; color: var(--gold-dim); margin-top: 2px; }
+.toggle { width: 44px; height: 22px; background: var(--ink-2); border: 1px solid var(--divider); border-radius: 12px; position: relative; cursor: pointer; }
+.toggle.on { background: var(--gold); border-color: var(--gold); }
+.toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--gold); border-radius: 50%; transition: transform 0.2s; }
+.toggle.on::after { background: var(--ink); transform: translateX(22px); }
+.body-scroll { padding-bottom: 80px; }
+</style></head><body>
+<div class="screen-tag"><span class="n">S9 · SET</span>Settings</div>
+<div class="phone">
+  <div class="notch"><span>9:41</span><span>●●○</span></div>
+  <div class="appbar"><div class="header-title">Settings<span class="ornament">— preferencias</span></div><div class="diamond-pill"><span class="d">◆</span>120</div></div>
+  <div class="body-scroll">
+  <div class="profile-card">
+    <div class="avatar">E</div>
+    <div class="profile-info">
+      <div class="profile-name">gameover</div>
+      <div class="profile-email">eduardojcr@gmail.com</div>
+    </div>
+    <div class="sync-badge">SYNCED</div>
+  </div>
+  <div class="sign-out">Sign out</div>
+  <div class="section-lbl"><span class="section-lbl-text">Auto-Rotate</span></div>
+  <div class="setting-row">
+    <div class="setting-icon">↻</div>
+    <div class="setting-info"><div class="setting-title">Auto-rotate wallpaper</div><div class="setting-desc">Cambia automáticamente el fondo</div></div>
+    <div class="toggle"></div>
+  </div>
+  <div class="section-lbl"><span class="section-lbl-text">Overlays</span></div>
+  <div class="setting-row">
+    <div class="setting-icon">◷</div>
+    <div class="setting-info"><div class="setting-title">Reloj</div><div class="setting-desc">Reloj decorativo sobre el fondo</div></div>
+    <div class="toggle on"></div>
+  </div>
+  <div class="setting-row">
+    <div class="setting-icon">◈</div>
+    <div class="setting-info"><div class="setting-title">Batería</div><div class="setting-desc">Indicador circular de batería</div></div>
+    <div class="toggle on"></div>
+  </div>
+  <div class="setting-row">
+    <div class="setting-icon">◯</div>
+    <div class="setting-info"><div class="setting-title">RAM</div><div class="setting-desc">Anillo de uso de memoria</div></div>
+    <div class="toggle on"></div>
+  </div>
+  <div class="section-lbl"><span class="section-lbl-text">Calidad</span></div>
+  <div class="setting-row">
+    <div class="setting-icon">4K</div>
+    <div class="setting-info"><div class="setting-title">Alta calidad</div><div class="setting-desc">Imágenes en resolución HD/4K</div></div>
+    <div class="toggle on"></div>
+  </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><span class="nav-icon">W</span>Wall</div>
+    <div class="nav-item"><span class="nav-icon">L</span>Live</div>
+    <div class="nav-item"><span class="nav-icon">A</span>Aura</div>
+    <div class="nav-item"><span class="nav-icon">S</span>Stor</div>
+    <div class="nav-item"><span class="nav-icon">D</span>Day</div>
+    <div class="nav-item"><span class="nav-icon">T</span>Ton</div>
+    <div class="nav-item"><span class="nav-icon">I</span>IA</div>
+    <div class="nav-item"><span class="nav-icon">F</span>Fav</div>
+  </div>
+</div>
+</body></html>

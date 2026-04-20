@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/utils/locale_helper.dart';
 import '../../data/models/aura_track.dart';
@@ -43,7 +44,7 @@ class _AuraPageState extends ConsumerState<AuraPage> {
     final isEs = LocaleHelper.isSpanishContext(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
+      backgroundColor: HudTokens.nightBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -51,7 +52,7 @@ class _AuraPageState extends ConsumerState<AuraPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  const Icon(Icons.spa, color: Color(0xFF7C4DFF), size: 28),
+                  const Icon(Icons.spa, color: HudTokens.gold, size: 28),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -128,7 +129,7 @@ class _AuraPageState extends ConsumerState<AuraPage> {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Center(
                   child: Text('Error: $e',
-                      style: const TextStyle(color: Colors.redAccent)),
+                      style: const TextStyle(color: HudTokens.goldDeep)),
                 ),
               ),
             ),
@@ -173,7 +174,7 @@ class _Segmented extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           height: 38,
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFF7C4DFF) : Colors.transparent,
+            color: selected ? HudTokens.gold : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,

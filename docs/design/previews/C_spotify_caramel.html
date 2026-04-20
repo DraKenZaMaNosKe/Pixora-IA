@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>C · Spotify Caramel</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#d9a066; font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:20px; }
+.dir-label::before { content:"C · "; color:#888; font-weight:500; font-size:12px; letter-spacing:0.25em; text-transform:uppercase; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; font-weight:500; }
+.phone {
+  width:320px; height:680px; overflow:hidden; border-radius:30px; position:relative;
+  --bg:#0d0b08; --surface:#1b1510; --text:#f7efe2; --text-dim:#8a8070; --accent:#d9a066; --accent-2:#f7c98a; --divider:rgba(247,239,226,0.08);
+  background:var(--bg); color:var(--text);
+  box-shadow:0 20px 50px rgba(0,0,0,0.4);
+}
+.phone.light { --bg:#faf3e5; --surface:#f0e6d0; --text:#1b1510; --text-dim:#7a6e55; --accent:#9c6a2a; --accent-2:#c48a3e; --divider:rgba(27,21,16,0.08); }
+.notch { height:28px; display:flex; justify-content:space-between; padding:10px 22px 0; font-size:11px; font-weight:500; }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 8px; }
+.avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:var(--bg); font-weight:800; font-size:14px; }
+.brand { font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:22px; letter-spacing:-0.03em; }
+.pill { padding:6px 12px; border-radius:100px; background:var(--surface); font-size:11px; font-weight:600; display:flex; align-items:center; gap:5px; }
+.pill .dia { color:var(--accent); font-size:13px; }
+.hero { margin:16px 16px 0; border-radius:20px; overflow:hidden; position:relative; height:260px; }
+.hero img { width:100%; height:100%; object-fit:cover; }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(13,11,8,0.92), transparent 50%); }
+.hero-body { position:absolute; bottom:14px; left:16px; right:16px; color:#fff; z-index:2; display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
+.hero-info { flex:1; }
+.hero-tag { display:inline-block; padding:3px 8px; background:var(--accent); color:var(--bg); border-radius:100px; font-size:9px; font-weight:700; letter-spacing:0.1em; margin-bottom:6px; }
+.hero-title { font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:24px; line-height:1; letter-spacing:-0.03em; margin-bottom:4px; }
+.hero-desc { font-size:10px; opacity:0.7; line-height:1.4; }
+.play-fab { width:48px; height:48px; border-radius:50%; background:var(--accent); color:var(--bg); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; box-shadow:0 6px 20px rgba(217,160,102,0.5); }
+.section { padding:22px 20px 0; }
+.section-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+.section-title { font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:20px; letter-spacing:-0.02em; }
+.more { font-size:11px; font-weight:600; color:var(--text-dim); }
+.row { display:flex; gap:10px; overflow-x:auto; padding-bottom:10px; }
+.card { min-width:115px; }
+.card-img { width:115px; height:155px; border-radius:14px; overflow:hidden; position:relative; background:var(--surface); }
+.card-img img { width:100%; height:100%; object-fit:cover; }
+.card-badge { position:absolute; top:7px; left:7px; background:var(--accent-2); color:var(--bg); padding:2px 7px; border-radius:100px; font-size:8px; font-weight:800; letter-spacing:0.08em; }
+.card-title { margin-top:6px; font-size:12px; font-weight:700; letter-spacing:-0.01em; }
+.card-sub { font-size:10px; color:var(--text-dim); margin-top:1px; }
+.nav { position:absolute; bottom:8px; left:16px; right:16px; padding:6px 8px; background:var(--surface); border-radius:24px; display:flex; justify-content:space-around; backdrop-filter:blur(10px); }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:1px; font-size:8px; font-weight:600; color:var(--text-dim); padding:4px 2px; border-radius:12px; flex:1; }
+.nav-item.active { color:var(--bg); background:var(--accent); }
+.nav-icon { font-size:14px; font-weight:800; }
+</style></head><body>
+<div class="dir-label">Spotify Caramel (warm)</div>
+<div class="pair">
+  <template id="ph">
+    <div class="notch"><span>9:41</span><span>●●○</span></div>
+    <div class="topbar"><div style="display:flex; align-items:center; gap:10px;"><div class="avatar">E</div><div class="brand">Pixora</div></div><div class="pill"><span class="dia">◆</span>120</div></div>
+    <div class="hero"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+      <div class="hero-body"><div class="hero-info"><span class="hero-tag">NATURE</span><div class="hero-title">Enchanted Forest</div><div class="hero-desc">Moonlit woods, animated fireflies, ancient mossy trees.</div></div>
+      <div class="play-fab">▶</div></div>
+    </div>
+    <div class="section"><div class="section-head"><div class="section-title">Trending</div><div class="more">Ver todo</div></div>
+      <div class="row">
+        <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-title">2B Automata</div><div class="card-sub">Anime · Action</div></div>
+        <div class="card"><div class="card-img"><span class="card-badge">NEW</span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-title">Saga Géminis</div><div class="card-sub">Saint Seiya</div></div>
+        <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-title">Aku</div><div class="card-sub">Samurai Jack</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><div class="nav-icon">◉</div>Wall</div>
+      <div class="nav-item"><div class="nav-icon">▸</div>Live</div>
+      <div class="nav-item"><div class="nav-icon">☽</div>Aura</div>
+      <div class="nav-item"><div class="nav-icon">❒</div>Stor</div>
+      <div class="nav-item"><div class="nav-icon">♪</div>Ton</div>
+      <div class="nav-item"><div class="nav-icon">✦</div>IA</div>
+      <div class="nav-item"><div class="nav-icon">♡</div>Fav</div>
+    </div>
+  </template>
+  <div class="mode-wrap"><div class="mode-label">Día</div><div class="phone light" id="pl"></div></div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div><div class="phone" id="pd"></div></div>
+</div>
+<script>const t=document.getElementById('ph').innerHTML; pl.innerHTML=t; pd.innerHTML=t;</script>
+</body></html>

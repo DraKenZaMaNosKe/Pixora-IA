@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>AURA · Black & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+<style>
+.tabs { display: flex; gap: 12px; padding: 18px 18px 10px; }
+.tab { flex: 1; padding: 10px 0; text-align: center; font-family: 'Playfair Display', serif; font-weight: 900; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-dim); border: 1px solid var(--divider); cursor: pointer; }
+.tab.active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+.freq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 10px 18px 80px; }
+.freq-card { aspect-ratio: 1; background: var(--ink-2); border: 1px solid var(--divider); position: relative; display: flex; flex-direction: column; padding: 18px 16px; overflow: hidden; }
+.freq-card::before { content: ""; position: absolute; top: -40%; right: -30%; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(201,166,80,0.18), transparent 65%); }
+.freq-corners { position: absolute; top: 6px; right: 6px; bottom: 6px; left: 6px; pointer-events: none; }
+.freq-corners span { position: absolute; width: 10px; height: 10px; border: 1px solid var(--gold); }
+.freq-corners .tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.freq-corners .tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.freq-corners .bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.freq-corners .br { bottom: 0; right: 0; border-left: none; border-top: none; }
+.freq-top { display: flex; justify-content: space-between; position: relative; z-index: 2; }
+.freq-num { font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700; color: var(--gold); letter-spacing: 0.2em; }
+.freq-heart { color: var(--gold-dim); font-size: 14px; }
+.freq-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; z-index: 2; }
+.wave-icon { display: flex; align-items: center; gap: 3px; height: 30px; }
+.wave-icon .bar { width: 2px; background: var(--gold); animation: wave 1.2s infinite ease-in-out; }
+.wave-icon .bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+.wave-icon .bar:nth-child(2) { height: 70%; animation-delay: 0.15s; }
+.wave-icon .bar:nth-child(3) { height: 100%; animation-delay: 0.3s; }
+.wave-icon .bar:nth-child(4) { height: 60%; animation-delay: 0.45s; }
+.wave-icon .bar:nth-child(5) { height: 85%; animation-delay: 0.6s; }
+@keyframes wave { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
+.hz { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 28px; color: var(--cream); letter-spacing: -0.02em; line-height: 1; }
+.hz .unit { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 16px; color: var(--gold); margin-left: 3px; }
+.freq-name { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: var(--cream); letter-spacing: 0.05em; text-align: center; z-index: 2; }
+.freq-duration { font-family: 'Inter'; font-size: 9px; color: var(--gold-dim); letter-spacing: 0.2em; text-align: center; z-index: 2; text-transform: uppercase; }
+</style></head><body>
+<div class="screen-tag"><span class="n">S3 · AURA</span>Wellness Audio</div>
+<div class="phone">
+  <div class="notch"><span>9:41</span><span>●●○</span></div>
+  <div class="appbar"><div class="header-title">AURA<span class="ornament">— sonido · descanso</span></div><div class="diamond-pill"><span class="d">◆</span>120</div></div>
+  <div class="tabs">
+    <div class="tab active">Frecuencias</div>
+    <div class="tab">Naturaleza</div>
+  </div>
+  <div class="freq-grid">
+    <div class="freq-card">
+      <div class="freq-corners"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+      <div class="freq-top"><div class="freq-num">No. I</div><div class="freq-heart">♥</div></div>
+      <div class="freq-center">
+        <div class="wave-icon"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+        <div class="hz">963<span class="unit">Hz</span></div>
+      </div>
+      <div class="freq-name">Consciencia Divina</div>
+      <div class="freq-duration">— 12 MIN —</div>
+    </div>
+    <div class="freq-card">
+      <div class="freq-corners"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+      <div class="freq-top"><div class="freq-num">No. II</div><div class="freq-heart">♡</div></div>
+      <div class="freq-center">
+        <div class="wave-icon"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+        <div class="hz">852<span class="unit">Hz</span></div>
+      </div>
+      <div class="freq-name">Intuición</div>
+      <div class="freq-duration">— 15 MIN —</div>
+    </div>
+    <div class="freq-card">
+      <div class="freq-corners"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+      <div class="freq-top"><div class="freq-num">No. III</div><div class="freq-heart">♥</div></div>
+      <div class="freq-center">
+        <div class="wave-icon"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+        <div class="hz">741<span class="unit">Hz</span></div>
+      </div>
+      <div class="freq-name">Expresión</div>
+      <div class="freq-duration">— 18 MIN —</div>
+    </div>
+    <div class="freq-card">
+      <div class="freq-corners"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+      <div class="freq-top"><div class="freq-num">No. IV</div><div class="freq-heart">♡</div></div>
+      <div class="freq-center">
+        <div class="wave-icon"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+        <div class="hz">639<span class="unit">Hz</span></div>
+      </div>
+      <div class="freq-name">Conexión</div>
+      <div class="freq-duration">— 20 MIN —</div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><span class="nav-icon">W</span>Wall</div>
+    <div class="nav-item"><span class="nav-icon">L</span>Live</div>
+    <div class="nav-item active"><span class="nav-icon">A</span>Aura</div>
+    <div class="nav-item"><span class="nav-icon">S</span>Stor</div>
+    <div class="nav-item"><span class="nav-icon">D</span>Day</div>
+    <div class="nav-item"><span class="nav-icon">T</span>Ton</div>
+    <div class="nav-item"><span class="nav-icon">I</span>IA</div>
+    <div class="nav-item"><span class="nav-icon">F</span>Fav</div>
+  </div>
+</div>
+</body></html>

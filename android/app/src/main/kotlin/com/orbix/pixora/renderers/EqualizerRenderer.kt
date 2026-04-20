@@ -37,7 +37,7 @@ class EqualizerRenderer(private val context: Context? = null) {
 
     var surfaceWidth = 0
     var surfaceHeight = 0
-    var glowColor = Color.parseColor("#7C4DFF")
+    var glowColor = Color.parseColor("#C9A650")
     var animationPhase = 0f
 
     var audioCallback: AudioCallback? = null
@@ -136,7 +136,7 @@ class EqualizerRenderer(private val context: Context? = null) {
     fun draw(canvas: Canvas) {
         if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
-        // Smooth levels
+        // Smooth levels + peak tracking (classic Winamp behavior).
         for (i in 0 until PixoraWallpaperService.BAR_COUNT) {
             val target = currentLevels[i]
             smoothLevels[i] = if (target > smoothLevels[i]) {
@@ -154,12 +154,13 @@ class EqualizerRenderer(private val context: Context? = null) {
             }
         }
 
-        // Winamp style: segmented blocks
+        // Winamp segmented blocks with gold-deep → gold → gold-bright gradient.
         val totalSegments = 20
         val barSpacing = 3f
         val segmentGap = 2f
         val eqWidth = surfaceWidth * 0.50f
-        val barWidth = (eqWidth - barSpacing * (PixoraWallpaperService.BAR_COUNT - 1)) / PixoraWallpaperService.BAR_COUNT
+        val barWidth = (eqWidth - barSpacing * (PixoraWallpaperService.BAR_COUNT - 1)) /
+                PixoraWallpaperService.BAR_COUNT
         val eqStartX = (surfaceWidth - eqWidth) / 2f
         val maxBarHeight = surfaceHeight * 0.20f
         val bottomY = surfaceHeight - surfaceHeight * 0.035f
@@ -178,19 +179,21 @@ class EqualizerRenderer(private val context: Context? = null) {
                 val segTop = segBottom - segmentHeight
                 val fraction = seg.toFloat() / (totalSegments - 1)
 
-                // Winamp colors: green -> yellow -> red
+                // gold-deep → gold → gold-bright (replaces Winamp green→yellow→red).
                 val color = when {
                     fraction < 0.5f -> {
                         val t = fraction / 0.5f
-                        Color.rgb((t * 255).toInt(), 255, 0)
-                    }
-                    fraction < 0.85f -> {
-                        val t = (fraction - 0.5f) / 0.35f
-                        Color.rgb(255, (255 * (1f - t * 0.5f)).toInt(), 0)
+                        val r = (0x8A + (0xC9 - 0x8A) * t).toInt()
+                        val g = (0x6F + (0xA6 - 0x6F) * t).toInt()
+                        val b = (0x33 + (0x50 - 0x33) * t).toInt()
+                        Color.rgb(r, g, b)
                     }
                     else -> {
-                        val t = (fraction - 0.85f) / 0.15f
-                        Color.rgb(255, (128 * (1f - t)).toInt(), 0)
+                        val t = (fraction - 0.5f) / 0.5f
+                        val r = (0xC9 + (0xF0 - 0xC9) * t).toInt()
+                        val g = (0xA6 + (0xDD - 0xA6) * t).toInt()
+                        val b = (0x50 + (0x9E - 0x50) * t).toInt()
+                        Color.rgb(r, g, b)
                     }
                 }
 
@@ -199,7 +202,7 @@ class EqualizerRenderer(private val context: Context? = null) {
                 canvas.drawRect(x, segTop, x + barWidth, segBottom, barPaint)
             }
 
-            // Peak segment
+            // Peak segment (floating cap).
             if (peakLevels[i] > 0.05f) {
                 val peakSeg = (peakLevels[i] * totalSegments).toInt().coerceIn(0, totalSegments - 1)
                 val peakBottom = bottomY - peakSeg * (segmentHeight + segmentGap)

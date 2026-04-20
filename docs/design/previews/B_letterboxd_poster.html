@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<title>B · Letterboxd Poster</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#ddd; font-family:'Playfair Display',serif; font-weight:900; font-size:22px; }
+.dir-label::before { content:"Dirección B · "; font-weight:500; font-family:'Inter'; font-size:11px; letter-spacing:0.25em; color:#888; text-transform:uppercase; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-family:'Inter'; font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; }
+.phone {
+  width:320px; height:680px; overflow:hidden; border-radius:24px; position:relative;
+  --bg:#121010; --surface:#1a1715; --text:#f4ecd8; --text-dim:#8f8678; --accent:#d4633a; --divider:rgba(244,236,216,0.08);
+  background:var(--bg); color:var(--text);
+  box-shadow:0 20px 50px rgba(0,0,0,0.4);
+}
+.phone.light { --bg:#f4ecd8; --surface:#ebe1cc; --text:#1a1715; --text-dim:#6a6154; --accent:#b24a20; --divider:rgba(26,23,21,0.08); }
+.notch { height:28px; display:flex; justify-content:space-between; padding:10px 24px 0; font-size:11px; font-weight:500; }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 8px; border-bottom:1px solid var(--divider); }
+.brand { font-family:'Playfair Display',serif; font-weight:900; font-size:22px; letter-spacing:-0.02em; }
+.brand em { font-weight:400; font-style:italic; color:var(--accent); }
+.icons { display:flex; gap:12px; align-items:center; }
+.chip { padding:5px 10px; border:1px solid var(--accent); color:var(--accent); font-size:10px; font-weight:700; letter-spacing:0.1em; }
+.hero { margin:14px 16px 0; position:relative; border-radius:2px; overflow:hidden; height:300px; border:1px solid var(--divider); }
+.hero img { width:100%; height:100%; object-fit:cover; }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(18,16,16,0.9), transparent 55%); }
+.hero-meta { position:absolute; bottom:14px; left:14px; right:14px; color:#fff; z-index:2; }
+.rating { color:var(--accent); font-weight:900; font-size:10px; letter-spacing:0.2em; margin-bottom:6px; }
+.hero-title { font-family:'Playfair Display',serif; font-weight:900; font-size:28px; line-height:0.95; letter-spacing:-0.02em; margin-bottom:4px; }
+.hero-dir { font-style:italic; font-family:'Playfair Display',serif; font-size:12px; opacity:0.8; font-weight:400; }
+.section { padding:18px 20px 0; }
+.section-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; border-bottom:1px solid var(--divider); padding-bottom:6px; }
+.section-title { font-family:'Playfair Display',serif; font-weight:900; font-size:14px; letter-spacing:0.02em; text-transform:uppercase; }
+.more { color:var(--accent); font-size:10px; font-weight:700; letter-spacing:0.1em; }
+.row { display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; }
+.poster { min-width:96px; }
+.poster-img { width:96px; height:140px; position:relative; overflow:hidden; }
+.poster-img img { width:100%; height:100%; object-fit:cover; }
+.poster-img::after { content:""; position:absolute; inset:0; box-shadow:inset 0 0 0 1px rgba(244,236,216,0.15); }
+.new-dot { position:absolute; top:6px; right:6px; background:var(--accent); width:10px; height:10px; border-radius:50%; }
+.poster-title { margin-top:6px; font-family:'Playfair Display',serif; font-weight:700; font-size:11px; letter-spacing:-0.01em; line-height:1.2; }
+.poster-sub { font-size:9px; opacity:0.6; margin-top:2px; font-style:italic; font-family:'Playfair Display',serif; }
+.nav { position:absolute; bottom:0; left:0; right:0; padding:8px 0 16px; background:var(--bg); border-top:1px solid var(--divider); display:flex; justify-content:space-around; }
+.nav-item { display:flex; flex-direction:column; align-items:center; font-size:8px; font-weight:700; color:var(--text-dim); letter-spacing:0.08em; text-transform:uppercase; }
+.nav-item.active { color:var(--accent); }
+.nav-icon { font-family:'Playfair Display',serif; font-size:13px; font-weight:900; margin-bottom:2px; }
+</style></head><body>
+<div class="dir-label">Letterboxd / Criterion</div>
+<div class="pair">
+  <template id="ph">
+    <div class="notch"><span>9:41</span><span>●●○</span></div>
+    <div class="topbar"><div class="brand">PIXORA<em> ia</em></div><div class="icons"><div class="chip">120 ◆</div></div></div>
+    <div class="hero"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+      <div class="hero-meta"><div class="rating">★★★★★  NATURE</div><div class="hero-title">Enchanted<br>Forest</div><div class="hero-dir">moonlit · fireflies · MMXXVI</div></div>
+    </div>
+    <div class="section"><div class="section-head"><div class="section-title">Trending now</div><div class="more">SEE ALL</div></div>
+      <div class="row">
+        <div class="poster"><div class="poster-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="poster-title">2B Automata</div><div class="poster-sub">anime · action</div></div>
+        <div class="poster"><div class="poster-img"><span class="new-dot"></span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="poster-title">Saga Géminis</div><div class="poster-sub">saint seiya</div></div>
+        <div class="poster"><div class="poster-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="poster-title">Aku</div><div class="poster-sub">samurai jack</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><div class="nav-icon">W</div>Wall</div>
+      <div class="nav-item"><div class="nav-icon">L</div>Live</div>
+      <div class="nav-item"><div class="nav-icon">A</div>Aura</div>
+      <div class="nav-item"><div class="nav-icon">S</div>Stor</div>
+      <div class="nav-item"><div class="nav-icon">D</div>Day</div>
+      <div class="nav-item"><div class="nav-icon">T</div>Ton</div>
+      <div class="nav-item"><div class="nav-icon">I</div>IA</div>
+      <div class="nav-item"><div class="nav-icon">F</div>Fav</div>
+    </div>
+  </template>
+  <div class="mode-wrap"><div class="mode-label">Día</div><div class="phone light" id="ph-light"></div></div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div><div class="phone" id="ph-dark"></div></div>
+</div>
+<script>
+const t = document.getElementById('ph').innerHTML;
+document.getElementById('ph-light').innerHTML = t;
+document.getElementById('ph-dark').innerHTML = t;
+</script>
+</body></html>

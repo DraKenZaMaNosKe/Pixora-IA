@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/design/hud_shapes.dart';
+import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/design/hud_widgets.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
@@ -47,11 +50,12 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
     final bannerAsync = ref.watch(heroBannerProvider);
     final height = MediaQuery.of(context).size.height * 0.52;
 
+    final h = context.hud;
     return bannerAsync.when(
       loading: () => Shimmer.fromColors(
-        baseColor: const Color(0xFF1A1A2E),
-        highlightColor: const Color(0xFF2A2A3E),
-        child: Container(height: height, color: const Color(0xFF1A1A2E)),
+        baseColor: h.surface,
+        highlightColor: h.surfaceHi,
+        child: Container(height: height, color: h.surface),
       ),
       error: (_, __) => SizedBox(height: height),
       data: (wallpapers) {
@@ -85,14 +89,9 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: active ? 24 : 8,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(2),
-                        color: active
-                            ? Colors.white
-                            : Colors.white.withOpacity(0.3),
-                      ),
+                      width: active ? 28 : 8,
+                      height: 3,
+                      color: active ? h.accent : Colors.white.withOpacity(0.25),
                     );
                   }),
                 ),
@@ -110,10 +109,12 @@ class _HeroPage extends StatelessWidget {
   final Wallpaper wallpaper;
   final bool useHD;
 
-  Color get _glowColor => parseHexColor(wallpaper.glowColor, fallback: Colors.deepPurple);
+  Color get _glowColor =>
+      parseHexColor(wallpaper.glowColor, fallback: Colors.deepOrange);
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -125,8 +126,7 @@ class _HeroPage extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           CachedWallpaperImage(imageUrl: wallpaper.browseUrl(useHD)),
-          // Gradient fade to background
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -134,58 +134,60 @@ class _HeroPage extends StatelessWidget {
                 colors: [
                   Colors.transparent,
                   Colors.transparent,
-                  Color(0xCC0A0A0F),
-                  Color(0xFF0A0A0F),
+                  h.bg.withOpacity(0.85),
+                  h.bg,
                 ],
-                stops: [0.0, 0.4, 0.75, 1.0],
+                stops: const [0.0, 0.4, 0.78, 1.0],
               ),
             ),
           ),
+          // HUD status tag top-right
+          Positioned(
+            top: 60,
+            right: 16,
+            child: HudStatusTag(text: '▲ LOADED', color: h.accent),
+          ),
           // Info
           Positioned(
-            bottom: 36,
+            bottom: 44,
             left: 20,
             right: 80,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Category chip
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _glowColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: _glowColor.withOpacity(0.4)),
-                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: HudTokens.sp2, vertical: 3),
+                  color: h.accent,
                   child: Text(
-                    wallpaper.category,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: _glowColor,
+                    wallpaper.category.toUpperCase(),
+                    style: HudTokens.mono(
+                      size: 9,
+                      weight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: 0.15,
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: HudTokens.sp3),
                 Text(
-                  wallpaper.name,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                  wallpaper.name.toUpperCase(),
+                  style: HudTokens.display(
+                    size: 24,
                     color: Colors.white,
-                    height: 1.2,
+                    letterSpacing: -0.01,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (wallpaper.description.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: HudTokens.sp2),
                   Text(
-                    wallpaper.description,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.white.withOpacity(0.6),
+                    '> ${wallpaper.description}',
+                    style: HudTokens.mono(
+                      size: 11,
+                      color: Colors.white.withOpacity(0.7),
+                      letterSpacing: 0.05,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -194,19 +196,18 @@ class _HeroPage extends StatelessWidget {
               ],
             ),
           ),
-          // Preview button
+          // Play button — corner-cut, accent color
           Positioned(
-            bottom: 42,
+            bottom: 48,
             right: 16,
-            child: Container(
-              decoration: BoxDecoration(
-                color: _glowColor,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                child: Icon(Icons.play_arrow_rounded,
-                    color: Colors.black, size: 24),
+            child: ClipPath(
+              clipper: const CornerCutClipper(cut: 8),
+              child: Container(
+                color: h.accent,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: HudTokens.sp4, vertical: HudTokens.sp3),
+                child: const Icon(Icons.play_arrow_rounded,
+                    color: Colors.white, size: 22),
               ),
             ),
           ),

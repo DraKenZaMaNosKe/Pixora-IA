@@ -35,7 +35,7 @@ class StoryWorker(context: Context, params: WorkerParameters) : Worker(context, 
             } catch (_: Exception) { "" }
 
             // Get glow color
-            val glowColor = prefs.getString("glow_color", "#7C4DFF") ?: "#7C4DFF"
+            val glowColor = prefs.getString("glow_color", "#C9A650") ?: "#C9A650"
 
             // Update live wallpaper prefs — written from main process; disk is authoritative.
             val livePrefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)

@@ -1,23 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/utils/color_utils.dart';
+import '../../../../core/design/hud_tokens.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../../widgets/card_live_effect.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 
+/// Ticket Stub wallpaper card — Black & Gold.
+///
+/// Layout (top-to-bottom):
+///   ┌────────────────────────────┐  ← thin gold border
+///   │  ADMIT · ONE     N° 007    │  ← small-caps mono meta
+///   │                            │
+///   │       [wallpaper image]    │  ← main art
+///   │                            │
+///   ├ — — — — — — — — — — — — — ┤  ← dashed gold perforation
+///   │  2B Automata      X27-AA   │  ← title italic + serial
+///   │  ROW D · SEAT 7 · MMXXVI   │  ← seat meta (small caps)
+///   └────────────────────────────┘
 class WallpaperCard extends ConsumerWidget {
   const WallpaperCard({required this.wallpaper, super.key});
 
   final Wallpaper wallpaper;
 
-  Color _parseGlowColor() => parseHexColor(wallpaper.glowColor, fallback: Colors.white);
+  /// Deterministic 6-char "serial number" from the wallpaper id. Looks like
+  /// "X27-AA" style. Pretty much hex of hash, uppercased.
+  String _serial() {
+    final h = wallpaper.id.hashCode.abs();
+    final hex = h.toRadixString(16).toUpperCase().padLeft(6, '0');
+    return '${hex.substring(0, 3)}-${hex.substring(3, 5)}';
+  }
+
+  /// Lot number for the "N° XXX" — small deterministic int.
+  String _lotNumber() {
+    final n = wallpaper.id.hashCode.abs() % 1000;
+    return n.toString().padLeft(3, '0');
+  }
+
+  /// Seat-style line. Uses category + a deterministic row letter.
+  String _seatLine() {
+    final row = String.fromCharCode(
+      65 + (wallpaper.id.hashCode.abs() % 26),
+    );
+    final seat = (wallpaper.id.hashCode.abs() % 30) + 1;
+    return 'ROW $row · SEAT $seat · ${wallpaper.category.toUpperCase()}';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final h = context.hud;
     final isFav = ref.watch(favoritesProvider).contains(wallpaper.id);
-    final glowColor = _parseGlowColor();
 
     return GestureDetector(
       onTap: () {
@@ -28,108 +61,203 @@ class WallpaperCard extends ConsumerWidget {
         );
       },
       child: CardLiveEffect(
-        glowColor: glowColor,
+        glowColor: h.accent,
         effectSeed: wallpaper.id.hashCode,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: glowColor.withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            color: h.surface,
+            border: Border.all(color: h.accent.withOpacity(0.55), width: 1),
           ),
-          child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            fit: StackFit.expand,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
-              // Gradient overlay
-              const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black87],
-                    stops: [0.5, 1.0],
-                  ),
-                ),
-              ),
-              // Badges row (top-left)
-              Positioned(
-                left: 8,
-                top: 8,
+              // ── Top stub: ADMIT · ONE | N° XXX ────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
                 child: Row(
                   children: [
-                    // Panoramic indicator
-                    if (wallpaper.category == 'PANORAMIC')
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                        margin: const EdgeInsets.only(right: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: glowColor.withOpacity(0.6), width: 1),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.panorama_wide_angle, size: 10, color: glowColor),
-                            const SizedBox(width: 3),
-                            Text(
-                              'PANO',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: glowColor,
-                              ),
-                            ),
-                          ],
-                        ),
+                    Text(
+                      'ADMIT · ONE',
+                      style: HudTokens.mono(
+                        size: 8.5,
+                        weight: FontWeight.w700,
+                        color: h.accent,
+                        letterSpacing: 0.3,
                       ),
-                    // Regular badge (NEW, etc.)
-                    if (wallpaper.badge != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: glowColor,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          wallpaper.badge!,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      'N° ${_lotNumber()}',
+                      style: HudTokens.mono(
+                        size: 8.5,
+                        weight: FontWeight.w700,
+                        color: h.accent,
+                        letterSpacing: 0.3,
                       ),
+                    ),
                   ],
                 ),
               ),
-              // Favorite button
-              Positioned(
-                right: 6,
-                top: 6,
-                child: GestureDetector(
-                  onTap: () =>
-                      ref.read(favoritesProvider.notifier).toggle(wallpaper.id),
-                  child: Icon(
-                    isFav ? Icons.favorite : Icons.favorite_border,
-                    color: isFav ? Colors.redAccent : Colors.white70,
-                    size: 22,
+              // ── Image panel ───────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: AspectRatio(
+                  aspectRatio: 9 / 16,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
+                      // NEW / PANORAMIC tags top-left.
+                      if (wallpaper.badge != null ||
+                          wallpaper.category == 'PANORAMIC')
+                        Positioned(
+                          left: 4,
+                          top: 4,
+                          child: Row(
+                            children: [
+                              if (wallpaper.category == 'PANORAMIC')
+                                _tag('PANO', h.goldBright, h.bg),
+                              if (wallpaper.category == 'PANORAMIC' &&
+                                  wallpaper.badge != null)
+                                const SizedBox(width: 4),
+                              if (wallpaper.badge != null)
+                                _tag(wallpaper.badge!.toUpperCase(), h.accent,
+                                    Colors.black),
+                            ],
+                          ),
+                        ),
+                      // Heart favorite top-right — refined typographic glyph.
+                      Positioned(
+                        right: 4,
+                        top: 4,
+                        child: GestureDetector(
+                          onTap: () => ref
+                              .read(favoritesProvider.notifier)
+                              .toggle(wallpaper.id),
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 3),
+                            color: h.bg.withOpacity(0.55),
+                            child: Text(
+                              isFav ? '♥' : '♡',
+                              style: TextStyle(
+                                color: isFav ? h.accent2 : Colors.white70,
+                                fontSize: 14,
+                                height: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              // Title hidden — let the image speak for itself
+              // ── Dashed gold perforation (torn-ticket line) ─
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: CustomPaint(
+                  size: const Size(double.infinity, 1),
+                  painter: _DashedLinePainter(color: h.accent),
+                ),
+              ),
+              // ── Bottom stub: title + serial + seat line ───
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            wallpaper.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: HudTokens.serif(
+                              size: 14,
+                              color: h.text,
+                              fontStyle: FontStyle.italic,
+                              weight: FontWeight.w500,
+                              letterSpacing: 0.02,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _serial(),
+                          style: HudTokens.mono(
+                            size: 9,
+                            weight: FontWeight.w700,
+                            color: h.accent,
+                            letterSpacing: 0.15,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _seatLine(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: HudTokens.mono(
+                        size: 7.5,
+                        weight: FontWeight.w500,
+                        color: h.textDim,
+                        letterSpacing: 0.25,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-        ),
         ),
       ),
     );
   }
+
+  Widget _tag(String text, Color bg, Color fg) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      color: bg,
+      child: Text(
+        text,
+        style: HudTokens.mono(
+          size: 9,
+          weight: FontWeight.w700,
+          color: fg,
+          letterSpacing: 0.15,
+        ),
+      ),
+    );
+  }
+}
+
+/// Flat dashed gold line — the "torn-ticket" perforation between the two stubs.
+class _DashedLinePainter extends CustomPainter {
+  const _DashedLinePainter({required this.color});
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.2;
+    const dash = 5.0;
+    const gap = 3.5;
+    double x = 0;
+    while (x < size.width) {
+      final end = (x + dash).clamp(0, size.width).toDouble();
+      canvas.drawLine(Offset(x, 0), Offset(end, 0), paint);
+      x += dash + gap;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedLinePainter old) => old.color != color;
 }

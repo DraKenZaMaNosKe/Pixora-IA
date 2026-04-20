@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>02 · Filigree</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,400&family=Italiana&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1a1a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;font-family:'Cormorant Garamond',serif}
+.tag{position:fixed;top:16px;left:24px;color:#c9a650;font-size:12px;letter-spacing:0.3em;text-transform:uppercase;font-family:'Italiana',serif}.tag::before{content:"02 · "}
+.phone{width:320px;height:680px;background:radial-gradient(ellipse at top,#1a1208,#000 60%);border-radius:24px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.filigree-top,.filigree-bot{position:absolute;left:40px;right:40px;height:80px;display:flex;align-items:center;justify-content:center;color:#c9a650;font-size:32px;letter-spacing:0.1em;animation:fade 2s ease-out}
+.filigree-top{top:50px}.filigree-bot{bottom:50px;transform:scaleY(-1)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.fil-left,.fil-right{flex:1;font-size:16px;letter-spacing:0.4em}
+.fil-center{padding:0 12px;font-family:'Italiana',serif;font-size:28px}
+.oval{position:relative;width:240px;height:300px;display:flex;align-items:center;justify-content:center;margin:20px 0}
+.oval-border{position:absolute;inset:0;border:1.5px solid #c9a650;border-radius:50%/45%;box-shadow:inset 0 0 30px rgba(201,166,80,0.2),0 0 40px rgba(201,166,80,0.15)}
+.oval-inner{position:absolute;inset:10px;border:1px solid rgba(201,166,80,0.35);border-radius:50%/45%}
+.oval-corner{position:absolute;color:#c9a650;font-size:20px;font-family:'Italiana',serif}
+.oval-corner.tl{top:-6px;left:40px;transform:rotate(-20deg)}
+.oval-corner.tr{top:-6px;right:40px;transform:rotate(20deg) scaleX(-1)}
+.oval-corner.bl{bottom:-6px;left:40px;transform:rotate(20deg) scaleY(-1)}
+.oval-corner.br{bottom:-6px;right:40px;transform:rotate(-20deg) scale(-1,-1)}
+.p{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:120px;background:linear-gradient(180deg,#f0dd9e,#c9a650 60%,#8a6f33);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;z-index:2}
+.title-area{text-align:center;margin-top:16px;z-index:2}
+.title{font-family:'Italiana',serif;font-size:38px;color:#f0e8d6;letter-spacing:0.25em;line-height:1}
+.ornament-line{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;color:#c9a650}
+.ornament-line::before,.ornament-line::after{content:"";width:30px;height:1px;background:#c9a650}
+.tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(240,232,214,0.65);letter-spacing:0.2em}
+.year{position:absolute;bottom:20px;font-family:'Italiana',serif;font-size:11px;color:#8a7a56;letter-spacing:0.4em;left:0;right:0;text-align:center}
+</style></head><body>
+<div class="tag">Ornamental Filigree</div>
+<div class="phone">
+  <div class="filigree-top"><div class="fil-left">∽∽∽</div><div class="fil-center">❦</div><div class="fil-right">∽∽∽</div></div>
+  <div class="oval">
+    <div class="oval-border"><div class="oval-inner"></div></div>
+    <div class="oval-corner tl">~</div><div class="oval-corner tr">~</div>
+    <div class="oval-corner bl">~</div><div class="oval-corner br">~</div>
+    <div class="p">P</div>
+  </div>
+  <div class="title-area">
+    <div class="title">PIXORA</div>
+    <div class="ornament-line"><div class="tagline">atelier</div></div>
+  </div>
+  <div class="filigree-bot"><div class="fil-left">∽∽∽</div><div class="fil-center">❦</div><div class="fil-right">∽∽∽</div></div>
+  <div class="year">EST · MMXXVI</div>
+</div>
+</body></html>

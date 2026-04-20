@@ -23,7 +23,7 @@ class BatteryIndicator(private val context: Context) {
 
     var surfaceWidth = 0
     var surfaceHeight = 0
-    var glowColor = Color.parseColor("#7C4DFF")
+    var glowColor = Color.parseColor("#C9A650")
 
     fun registerBatteryReceiver() {
         if (batteryReceiver != null) return
@@ -66,8 +66,8 @@ class BatteryIndicator(private val context: Context) {
         val b = Color.blue(glowColor)
 
         val arcColor = when {
-            batteryLevel <= 15 -> Color.rgb(255, 50, 50)
-            batteryLevel <= 30 -> Color.rgb(255, 165, 0)
+            batteryLevel <= 15 -> Color.parseColor("#8A6F33")
+            batteryLevel <= 30 -> Color.parseColor("#F0DD9E")
             else -> glowColor
         }
 

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>F · iPhone Liquid Glass</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,'SF Pro Display','Inter',sans-serif; background:#1a1a1a; min-height:100vh; padding:30px; display:flex; flex-direction:column; align-items:center; gap:20px; }
+.dir-label { color:#ff9580; font-weight:700; font-size:19px; letter-spacing:-0.03em; }
+.dir-label::before { content:"F · "; color:#888; font-weight:500; letter-spacing:0.25em; text-transform:uppercase; font-size:11px; }
+.pair { display:flex; gap:18px; }
+.mode-wrap { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.mode-label { font-size:10px; letter-spacing:0.25em; color:#888; text-transform:uppercase; font-weight:500; }
+.phone {
+  width:320px; height:680px; overflow:hidden; border-radius:44px; position:relative;
+  --text:#fff; --text-dim:rgba(255,255,255,0.6); --accent:#ff7a5c; --accent-2:#5ac8fa; --glass:rgba(255,255,255,0.08); --glass-2:rgba(255,255,255,0.12); --border:rgba(255,255,255,0.14);
+  background: #0a0a18;
+  background-image:
+    radial-gradient(ellipse 600px 400px at 20% 0%, rgba(255,122,92,0.4), transparent 55%),
+    radial-gradient(ellipse 500px 500px at 100% 50%, rgba(90,200,250,0.35), transparent 55%),
+    radial-gradient(ellipse 400px 300px at 40% 100%, rgba(255,122,180,0.25), transparent 55%);
+  color:var(--text);
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+.phone.light {
+  --text:#1a0f14; --text-dim:rgba(26,15,20,0.55); --accent:#e85838; --accent-2:#0091cc; --glass:rgba(255,255,255,0.55); --glass-2:rgba(255,255,255,0.75); --border:rgba(26,15,20,0.1);
+  background:#fff5f0;
+  background-image:
+    radial-gradient(ellipse 600px 400px at 20% 0%, rgba(255,170,140,0.55), transparent 55%),
+    radial-gradient(ellipse 500px 500px at 100% 50%, rgba(130,210,255,0.45), transparent 55%),
+    radial-gradient(ellipse 400px 300px at 40% 100%, rgba(255,180,220,0.4), transparent 55%);
+}
+.notch { height:28px; display:flex; justify-content:space-between; padding:12px 28px 0; font-size:12px; font-weight:600; }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 10px; }
+.avatar { width:32px; height:32px; border-radius:50%; background:var(--glass); backdrop-filter:blur(20px); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+.brand { font-size:20px; font-weight:700; letter-spacing:-0.03em; }
+.pill { padding:8px 14px; border-radius:100px; background:var(--glass); backdrop-filter:blur(20px) saturate(1.8); border:1px solid var(--border); font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; }
+.pill .dia { color:var(--accent); }
+.hero { margin:14px 16px 0; border-radius:28px; overflow:hidden; position:relative; height:280px; border:1px solid var(--border); }
+.hero img { width:100%; height:100%; object-fit:cover; }
+.hero::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(10,10,24,0.85), transparent 45%); }
+.hero-body { position:absolute; bottom:14px; left:14px; right:14px; color:#fff; z-index:2; }
+.hero-tag { display:inline-block; padding:5px 11px; background:rgba(255,255,255,0.15); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.2); border-radius:100px; font-size:10px; font-weight:600; letter-spacing:0.05em; margin-bottom:10px; }
+.hero-title { font-size:28px; font-weight:700; line-height:1; letter-spacing:-0.03em; margin-bottom:6px; }
+.hero-desc { font-size:11px; opacity:0.85; line-height:1.4; }
+.section { padding:20px 18px 0; }
+.section-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+.section-title { font-size:19px; font-weight:700; letter-spacing:-0.02em; }
+.more { font-size:13px; font-weight:600; color:var(--accent-2); }
+.row { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; }
+.card { min-width:115px; }
+.card-img { width:115px; height:155px; border-radius:20px; overflow:hidden; position:relative; background:var(--glass); }
+.card-img img { width:100%; height:100%; object-fit:cover; }
+.card-badge { position:absolute; top:8px; left:8px; background:rgba(255,255,255,0.2); backdrop-filter:blur(15px); color:#fff; padding:3px 9px; border-radius:100px; font-size:9px; font-weight:700; letter-spacing:0.05em; border:1px solid rgba(255,255,255,0.25); }
+.card-title { margin-top:8px; font-size:13px; font-weight:600; letter-spacing:-0.01em; }
+.nav { position:absolute; bottom:10px; left:14px; right:14px; padding:6px; background:var(--glass); backdrop-filter:blur(30px) saturate(1.8); border:1px solid var(--border); border-radius:32px; display:flex; justify-content:space-around; }
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:1px; font-size:8px; font-weight:600; color:var(--text-dim); flex:1; padding:5px 2px; border-radius:22px; }
+.nav-item.active { color:#fff; background:var(--accent); }
+.nav-icon { font-size:15px; font-weight:600; }
+</style></head><body>
+<div class="dir-label">iPhone · Liquid Glass (iOS 18-ish)</div>
+<div class="pair">
+  <template id="ph">
+    <div class="notch"><span>9:41</span><span>●●○</span></div>
+    <div class="topbar"><div style="display:flex; align-items:center; gap:10px;"><div class="avatar">E</div><div class="brand">Pixora</div></div><div class="pill"><span class="dia">◆</span>120</div></div>
+    <div class="hero"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80">
+      <div class="hero-body"><div class="hero-tag">Nature</div><div class="hero-title">Enchanted Forest</div><div class="hero-desc">Moonlit woods with animated fireflies drifting through ancient trees.</div></div>
+    </div>
+    <div class="section"><div class="section-head"><div class="section-title">Trending</div><div class="more">Ver todo</div></div>
+      <div class="row">
+        <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&q=80"></div><div class="card-title">2B Automata</div></div>
+        <div class="card"><div class="card-img"><span class="card-badge">NEW</span><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=200&q=80"></div><div class="card-title">Saga Géminis</div></div>
+        <div class="card"><div class="card-img"><img src="https://images.unsplash.com/photo-1542736667-069246bdbc6d?w=200&q=80"></div><div class="card-title">Aku</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><div class="nav-icon">◉</div>Wall</div>
+      <div class="nav-item"><div class="nav-icon">▸</div>Live</div>
+      <div class="nav-item"><div class="nav-icon">☽</div>Aura</div>
+      <div class="nav-item"><div class="nav-icon">❒</div>Stor</div>
+      <div class="nav-item"><div class="nav-icon">♪</div>Ton</div>
+      <div class="nav-item"><div class="nav-icon">✦</div>IA</div>
+      <div class="nav-item"><div class="nav-icon">♡</div>Fav</div>
+    </div>
+  </template>
+  <div class="mode-wrap"><div class="mode-label">Día</div><div class="phone light" id="pl"></div></div>
+  <div class="mode-wrap"><div class="mode-label">Noche</div><div class="phone" id="pd"></div></div>
+</div>
+<script>const t=document.getElementById('ph').innerHTML; pl.innerHTML=t; pd.innerHTML=t;</script>
+</body></html>

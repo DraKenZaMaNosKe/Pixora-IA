@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/quality_service.dart';
@@ -106,7 +107,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             SnackBar(
               content:
                   Text('Auto-rotate ON — $label, every $_intervalMinutes min'),
-              backgroundColor: Colors.green.shade800,
+              backgroundColor: HudTokens.goldDeep,
             ),
           );
         }
@@ -166,9 +167,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     contentPadding: EdgeInsets.zero,
                     secondary: Icon(
                       Icons.autorenew,
-                      color: _autoRotateEnabled
-                          ? Colors.greenAccent
-                          : Colors.white54,
+                      color:
+                          _autoRotateEnabled ? HudTokens.gold : Colors.white54,
                     ),
                     title: const Text('Auto-rotate wallpaper'),
                     subtitle: Text(
@@ -179,7 +179,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                     value: _autoRotateEnabled,
                     onChanged: _toggleAutoRotate,
-                    activeColor: Colors.greenAccent,
+                    activeColor: HudTokens.gold,
                   ),
                   if (_autoRotateEnabled) ...[
                     const SizedBox(height: 4),
@@ -286,7 +286,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             en: 'Permanently delete your account and all your data',
           ),
           onTap: _confirmDeleteAccount,
-          iconColor: Colors.red,
+          iconColor: HudTokens.goldDeep,
         ),
         const SizedBox(height: 40),
       ],
@@ -300,7 +300,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF1a1a1a),
+        backgroundColor: HudTokens.nightSurface,
         content: Row(
           children: [
             const SizedBox(
@@ -364,7 +364,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1a1a1a),
+        backgroundColor: HudTokens.nightSurface,
         title:
             Text(isSpanish ? '¿Eliminar tu cuenta?' : 'Delete your account?'),
         content: Text(isSpanish
@@ -387,7 +387,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: HudTokens.goldDeep),
             child: Text(isSpanish ? 'Eliminar' : 'Delete'),
           ),
         ],
@@ -409,7 +409,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           es: 'Cuenta eliminada.',
           en: 'Account deleted.',
         )),
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: HudTokens.goldDeep,
       ));
     } on PostgrestException catch (e) {
       if (!mounted) return;
@@ -425,7 +425,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(msg),
-        backgroundColor: Colors.red,
+        backgroundColor: HudTokens.goldDeep,
         duration: const Duration(seconds: 6),
       ));
     } catch (e) {
@@ -435,7 +435,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           es: 'Error inesperado: $e',
           en: 'Unexpected error: $e',
         )),
-        backgroundColor: Colors.red,
+        backgroundColor: HudTokens.goldDeep,
       ));
     }
   }
@@ -497,11 +497,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return SwitchListTile(
           contentPadding: EdgeInsets.zero,
           secondary:
-              Icon(t.$2, color: enabled ? Colors.greenAccent : Colors.white54),
+              Icon(t.$2, color: enabled ? HudTokens.gold : Colors.white54),
           title: Text(t.$3),
           subtitle: Text(t.$4, style: const TextStyle(color: Colors.white38)),
           value: enabled,
-          activeColor: Colors.greenAccent,
+          activeColor: HudTokens.gold,
           onChanged: (v) => _setOverlay(key, v),
         );
       }).toList(),
@@ -521,13 +521,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: isSelected
-                ? Border.all(color: const Color(0xFF7C4DFF), width: 1)
+                ? Border.all(color: HudTokens.gold, width: 1)
                 : null,
           ),
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(q.icon,
-                color: isSelected ? const Color(0xFF7C4DFF) : Colors.white38),
+                color: isSelected ? HudTokens.gold : Colors.white38),
             title: Text(q.label,
                 style: TextStyle(
                   color: isSelected ? Colors.white : Colors.white70,
@@ -537,7 +537,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 style: const TextStyle(color: Colors.white38, fontSize: 12)),
             trailing: isSelected
                 ? const Icon(Icons.check_circle,
-                    color: Color(0xFF7C4DFF), size: 20)
+                    color: HudTokens.gold, size: 20)
                 : null,
             onTap: () => ref.read(imageQualityProvider.notifier).setQuality(q),
           ),
@@ -566,7 +566,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   backgroundImage: auth.avatarUrl != null
                       ? NetworkImage(auth.avatarUrl!)
                       : null,
-                  backgroundColor: const Color(0xFF7C4DFF),
+                  backgroundColor: HudTokens.gold,
                   child: auth.avatarUrl == null
                       ? Text(
                           (auth.displayName ?? 'U')[0].toUpperCase(),
@@ -602,13 +602,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.greenAccent.withOpacity(0.15),
+                    color: HudTokens.gold.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
                     'Synced',
                     style: TextStyle(
-                        color: Colors.greenAccent,
+                        color: HudTokens.gold,
                         fontSize: 11,
                         fontWeight: FontWeight.bold),
                   ),
@@ -676,7 +676,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Signed in! Favorites synced.'),
-                      backgroundColor: Colors.green,
+                      backgroundColor: HudTokens.gold,
                     ),
                   );
                 }
@@ -708,7 +708,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   void _showCategoryPicker() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: HudTokens.nightSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -728,7 +728,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   leading: Icon(entry.$3, color: Colors.white54),
                   title: Text(entry.$2),
                   trailing: entry.$1 == _category
-                      ? const Icon(Icons.check, color: Colors.greenAccent)
+                      ? const Icon(Icons.check, color: HudTokens.gold)
                       : null,
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -754,7 +754,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final intervals = [1, 3, 5, 10, 15, 30, 60, 120];
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: HudTokens.nightSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -770,7 +770,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ...intervals.map((mins) => ListTile(
                   title: Text(_intervalLabel(mins)),
                   trailing: mins == _intervalMinutes
-                      ? const Icon(Icons.check, color: Colors.greenAccent)
+                      ? const Icon(Icons.check, color: HudTokens.gold)
                       : null,
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -795,7 +795,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   void _showTargetPicker() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: HudTokens.nightSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -816,7 +816,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   leading: Icon(entry.$3, color: Colors.white54),
                   title: Text(entry.$2),
                   trailing: entry.$1 == _target
-                      ? const Icon(Icons.check, color: Colors.greenAccent)
+                      ? const Icon(Icons.check, color: HudTokens.gold)
                       : null,
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -882,7 +882,7 @@ class _SettingsTile extends StatelessWidget {
       title: Text(
         title,
         style:
-            iconColor == Colors.red ? const TextStyle(color: Colors.red) : null,
+            iconColor == HudTokens.goldDeep ? const TextStyle(color: HudTokens.goldDeep) : null,
       ),
       subtitle: Text(subtitle, style: const TextStyle(color: Colors.white38)),
       onTap: onTap,

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Pixora launch ornament — rendered natively by Android while Flutter boots.
+  Pure vector so it scales crisp at any DPI with zero resource overhead.
+  Design: small gold diamond (Art Deco motif, matches splash Art Deco Gatsby).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+
+    <!-- Outer diamond (thin) -->
+    <path
+        android:strokeColor="#C9A650"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M36,4 L68,36 L36,68 L4,36 Z" />
+
+    <!-- Inner diamond (subtle) -->
+    <path
+        android:strokeColor="#8A6F33"
+        android:strokeWidth="0.6"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M36,12 L60,36 L36,60 L12,36 Z" />
+
+    <!-- Solid center diamond (small, bright gold) -->
+    <path
+        android:fillColor="#F0DD9E"
+        android:pathData="M36,28 L44,36 L36,44 L28,36 Z" />
+
+    <!-- Inner ornament dot -->
+    <path
+        android:fillColor="#0A0604"
+        android:pathData="M36,33 L39,36 L36,39 L33,36 Z" />
+</vector>

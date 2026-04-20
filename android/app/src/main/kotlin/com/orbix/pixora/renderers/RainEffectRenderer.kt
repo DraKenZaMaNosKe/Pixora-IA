@@ -64,7 +64,7 @@ class RainEffectRenderer {
 
     var surfaceWidth = 0
     var surfaceHeight = 0
-    var glowColor = Color.parseColor("#7C4DFF")
+    var glowColor = Color.parseColor("#C9A650")
     var animationPhase = 0f
     var isRainWallpaper = false
     var hasAudio = false

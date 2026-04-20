@@ -1,10 +1,15 @@
 import 'dart:math';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/catalog_service.dart';
 import '../../../core/services/wallpaper_stats_service.dart';
 import '../../home/presentation/home_page.dart';
 
+/// Art Deco Gatsby splash — black tinta + gold diamonds.
+///
+/// Design direction: Black & Gold (master doc §21) · Variant: Art Deco Gatsby.
+/// Luxury 1920s feel with geometric chevrons, rotating diamond, serif italic
+/// typography.
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -12,31 +17,41 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
-  late final AnimationController _controller;
+class _SplashPageState extends State<SplashPage>
+    with TickerProviderStateMixin {
+  // Black & Gold palette (hardcoded in splash so it works before theme loads).
+  static const _ink = Color(0xFF000000);
+  static const _cream = Color(0xFFF0E8D6);
+  static const _gold = Color(0xFFC9A650);
+  static const _goldBright = Color(0xFFF0DD9E);
+  static const _goldDim = Color(0xFF8A7A56);
+  static const _goldDeep = Color(0xFF5A4E36);
+
+  late final AnimationController _diamondController;
+  late final AnimationController _contentController;
   late final AnimationController _exitController;
   bool _loadingDone = false;
   bool _minTimeDone = false;
   bool _exiting = false;
-  String _loadingStatus = 'Starting...';
+  String _loadingStatus = 'LA COLECCIÓN';
   double _loadingProgress = 0.0;
 
   @override
   void initState() {
     super.initState();
-
-    _controller = AnimationController(
+    _diamondController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 30),
     )..repeat();
-
+    _contentController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..forward();
     _exitController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 600),
     );
-
     _preload();
-
     Future.delayed(const Duration(milliseconds: 3000), () {
       _minTimeDone = true;
       _navigateIfReady();
@@ -45,22 +60,39 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
   Future<void> _preload() async {
     try {
-      // Step 1: Fetch catalog
-      if (mounted) setState(() { _loadingStatus = 'Loading catalog...'; _loadingProgress = 0.2; });
+      if (mounted) {
+        setState(() {
+          _loadingStatus = 'CHARGEMENT DU CATALOGUE';
+          _loadingProgress = 0.25;
+        });
+      }
       await CatalogService.instance.fetchCatalog();
 
-      // Step 2: Init stats
-      if (mounted) setState(() { _loadingStatus = 'Loading stats...'; _loadingProgress = 0.5; });
+      if (mounted) {
+        setState(() {
+          _loadingStatus = 'SYNCHRONISATION';
+          _loadingProgress = 0.55;
+        });
+      }
       await WallpaperStatsService.instance.init();
 
-      // Step 3: Init credits
-      if (mounted) setState(() { _loadingStatus = 'Preparing...'; _loadingProgress = 0.8; });
-      await Future.delayed(const Duration(milliseconds: 200));
+      if (mounted) {
+        setState(() {
+          _loadingStatus = 'PRÉPARATION';
+          _loadingProgress = 0.85;
+        });
+      }
+      await Future.delayed(const Duration(milliseconds: 220));
 
-      if (mounted) setState(() { _loadingStatus = 'Ready!'; _loadingProgress = 1.0; });
+      if (mounted) {
+        setState(() {
+          _loadingStatus = 'BIENVENUE';
+          _loadingProgress = 1.0;
+        });
+      }
     } catch (e) {
       debugPrint('[Pixora] Preload error (continuing): $e');
-      if (mounted) setState(() => _loadingStatus = 'Ready!');
+      if (mounted) setState(() => _loadingStatus = 'BIENVENUE');
     }
     _loadingDone = true;
     _navigateIfReady();
@@ -86,42 +118,117 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _diamondController.dispose();
+    _contentController.dispose();
     _exitController.dispose();
     super.dispose();
   }
 
+  TextStyle _display(double size, Color color,
+          {FontWeight w = FontWeight.w300,
+          FontStyle style = FontStyle.normal,
+          double ls = 0.02}) =>
+      GoogleFonts.cormorantGaramond(
+        fontSize: size,
+        fontWeight: w,
+        fontStyle: style,
+        color: color,
+        letterSpacing: ls,
+        height: 1.0,
+      );
+
+  TextStyle _poiret(double size, Color color, {double ls = 0.4}) =>
+      GoogleFonts.poiretOne(
+        fontSize: size,
+        color: color,
+        letterSpacing: ls,
+        height: 1.2,
+      );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050508),
+      backgroundColor: _ink,
       body: AnimatedBuilder(
-        animation: Listenable.merge([_controller, _exitController]),
+        animation: Listenable.merge([_contentController, _exitController]),
         builder: (context, _) {
           final exitOpacity = 1.0 - _exitController.value;
+          final contentOpacity =
+              Curves.easeOut.transform(_contentController.value);
           return Opacity(
             opacity: exitOpacity,
-            child: CustomPaint(
-              painter: _SplashShaderPainter(
-                time: _controller.value * 10,
-                entryProgress: min(1.0, _controller.value * 10 / 2.0),
-              ),
-              size: Size.infinite,
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // "P" letter with shader-like glow
-                    _buildLogo(),
-                    const SizedBox(height: 16),
-                    // "Pixora IA" text
-                    _buildTitle(),
-                    const SizedBox(height: 50),
-                    // Loading dots
-                    _buildLoadingDots(),
-                  ],
+            child: Stack(
+              children: [
+                // Double gold frame — thin, sits inside scaffold.
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: _gold, width: 1),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: _gold.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 36),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Opacity(
+                          opacity: contentOpacity,
+                          child: _buildTopDeco(),
+                        ),
+                        const Spacer(),
+                        Opacity(
+                          opacity: contentOpacity,
+                          child: _buildDiamondLogo(),
+                        ),
+                        const SizedBox(height: 32),
+                        Opacity(
+                          opacity: contentOpacity,
+                          child: _buildTitle(),
+                        ),
+                        const SizedBox(height: 14),
+                        Opacity(
+                          opacity: contentOpacity,
+                          child: _buildDivider(),
+                        ),
+                        const SizedBox(height: 12),
+                        Opacity(
+                          opacity: contentOpacity,
+                          child: _buildTagline(),
+                        ),
+                        const Spacer(),
+                        Opacity(
+                          opacity: contentOpacity,
+                          child: _buildBottomDeco(),
+                        ),
+                        const SizedBox(height: 20),
+                        Opacity(
+                          opacity: contentOpacity,
+                          child: _buildProgress(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         },
@@ -129,54 +236,79 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLogo() {
-    final t = _controller.value * 10;
-    final glow = (sin(t * 1.5) * 0.3 + 0.7);
-    final entry = min(1.0, t / 1.5);
-    final scale = 0.5 + entry * 0.5;
-
-    return Opacity(
-      opacity: entry,
-      child: Transform.scale(
-        scale: scale,
-        child: Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF7C4DFF).withOpacity(0.5 * glow),
-                blurRadius: 40 * glow,
-                spreadRadius: 5 * glow,
-              ),
-              BoxShadow(
-                color: const Color(0xFF00B4D8).withOpacity(0.3 * glow),
-                blurRadius: 60 * glow,
-                spreadRadius: 10 * glow,
-              ),
-            ],
+  /// Chevron row: "— ◆ ◇ ◆ ◇ ◆ —"
+  Widget _buildTopDeco() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var i = 0; i < 5; i++) ...[
+          Text(
+            i.isEven ? '◆' : '◇',
+            style: TextStyle(color: _gold, fontSize: 14, height: 1),
           ),
-          child: Center(
-            child: ShaderMask(
-              shaderCallback: (bounds) => LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color.lerp(const Color(0xFF7C4DFF), const Color(0xFF00B4D8), (sin(t * 0.8) * 0.5 + 0.5))!,
-                  Color.lerp(const Color(0xFF00B4D8), const Color(0xFF7C4DFF), (sin(t * 0.8) * 0.5 + 0.5))!,
-                ],
-              ).createShader(bounds),
-              child: const Text(
-                'P',
-                style: TextStyle(
-                  fontSize: 80,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  height: 1.0,
+          if (i < 4) const SizedBox(width: 14),
+        ],
+      ],
+    );
+  }
+
+  /// Rotating diamond (square rotated 45°) + inner diamond + gold serif "P".
+  Widget _buildDiamondLogo() {
+    return SizedBox(
+      height: 200,
+      child: Center(
+        child: SizedBox(
+          width: 180,
+          height: 180,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Outer rotating diamond.
+              AnimatedBuilder(
+                animation: _diamondController,
+                builder: (context, _) => Transform.rotate(
+                  angle: _diamondController.value * 2 * pi,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: _gold, width: 1.5),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              // Inner static diamond outline.
+              Transform.rotate(
+                angle: pi / 4,
+                child: Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: _gold.withOpacity(0.4),
+                      width: 1,
+                    ),
+                  ),
+                ),
+              ),
+              // The "P".
+              ShaderMask(
+                shaderCallback: (rect) => const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [_goldBright, _gold, _goldDeep],
+                  stops: [0.0, 0.5, 1.0],
+                ).createShader(rect),
+                child: Text(
+                  'P',
+                  style: _display(
+                    120,
+                    Colors.white,
+                    w: FontWeight.w300,
+                    style: FontStyle.italic,
+                    ls: -0.04,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -184,199 +316,99 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   }
 
   Widget _buildTitle() {
-    final t = _controller.value * 10;
-    final entry = max(0.0, min(1.0, (t - 0.8) / 1.0));
-
-    return Opacity(
-      opacity: entry,
-      child: Transform.translate(
-        offset: Offset(0, 10 * (1 - entry)),
-        child: ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [Color(0xFF7C4DFF), Color(0xFF00B4D8), Color(0xFF7C4DFF)],
-          ).createShader(bounds),
-          child: const Text(
-            'Pixora IA',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 4,
+    return Text.rich(
+      TextSpan(
+        style: _display(38, _cream, ls: 0.15, w: FontWeight.w500),
+        children: [
+          const TextSpan(text: 'PIX'),
+          TextSpan(
+            text: 'ora',
+            style: _display(
+              38,
+              _gold,
+              w: FontWeight.w400,
+              style: FontStyle.italic,
+              ls: 0.05,
             ),
           ),
-        ),
+        ],
       ),
+      textAlign: TextAlign.center,
     );
   }
 
-  Widget _buildLoadingDots() {
-    final t = _controller.value * 10;
-    final entry = max(0.0, min(1.0, (t - 1.5) / 0.5));
+  Widget _buildDivider() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(width: 40, height: 1, color: _gold),
+        const SizedBox(width: 10),
+        Transform.rotate(
+          angle: pi / 4,
+          child: Container(width: 5, height: 5, color: _gold),
+        ),
+        const SizedBox(width: 10),
+        Container(width: 40, height: 1, color: _gold),
+      ],
+    );
+  }
 
-    return Opacity(
-      opacity: entry,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 60),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+  Widget _buildTagline() {
+    return Text(
+      'la colección',
+      textAlign: TextAlign.center,
+      style: _display(16, _goldDim,
+          w: FontWeight.w400, style: FontStyle.italic, ls: 0.2),
+    );
+  }
+
+  Widget _buildBottomDeco() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Progress bar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: _loadingProgress > 0 ? _loadingProgress : null,
-                backgroundColor: Colors.white.withOpacity(0.1),
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF7C4DFF)),
-                minHeight: 3,
+            for (var i = 0; i < 3; i++) ...[
+              Text(
+                i == 1 ? '◇' : '◆',
+                style: TextStyle(color: _gold, fontSize: 12, height: 1),
               ),
-            ),
-            const SizedBox(height: 10),
-            // Status text
-            Text(
-              _loadingStatus,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.white.withOpacity(0.35),
-                letterSpacing: 1,
-              ),
-            ),
+              if (i < 2) const SizedBox(width: 18),
+            ],
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Custom painter that creates shader-like background effects
-class _SplashShaderPainter extends CustomPainter {
-  final double time;
-  final double entryProgress;
-  final Random _rng = Random(42);
-  final List<_Particle> _particles = [];
-
-  _SplashShaderPainter({required this.time, required this.entryProgress}) {
-    if (_particles.isEmpty) {
-      for (var i = 0; i < 60; i++) {
-        _particles.add(_Particle(
-          x: _rng.nextDouble(),
-          y: _rng.nextDouble(),
-          speed: 0.2 + _rng.nextDouble() * 0.8,
-          size: 1 + _rng.nextDouble() * 3,
-          phase: _rng.nextDouble() * pi * 2,
-          color: _rng.nextBool() ? 0 : 1, // 0=purple, 1=cyan
-        ));
-      }
-    }
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final cx = w / 2;
-    final cy = h / 2 - 30;
-
-    // Dark background with subtle radial gradient
-    final bgPaint = Paint();
-    bgPaint.shader = ui.Gradient.radial(
-      Offset(cx, cy),
-      w * 0.8,
-      [
-        const Color(0xFF0D0D15),
-        const Color(0xFF050508),
+        const SizedBox(height: 14),
+        Text(
+          'MMXXVI',
+          textAlign: TextAlign.center,
+          style: _poiret(11, _goldDeep, ls: 0.5),
+        ),
       ],
     );
-    canvas.drawRect(Rect.fromLTWH(0, 0, w, h), bgPaint);
-
-    // Energy rings expanding from center
-    final ringPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    for (var i = 0; i < 3; i++) {
-      final ringProgress = ((time * 0.3 + i * 0.33) % 1.0);
-      final radius = ringProgress * w * 0.6;
-      final alpha = ((1 - ringProgress) * 0.15 * entryProgress * 255).toInt().clamp(0, 255);
-      if (alpha <= 0) continue;
-
-      ringPaint.color = i % 2 == 0
-          ? Color.fromARGB(alpha, 124, 77, 255)
-          : Color.fromARGB(alpha, 0, 180, 216);
-      canvas.drawCircle(Offset(cx, cy), radius, ringPaint);
-    }
-
-    // Floating particles
-    final particlePaint = Paint();
-    for (final p in _particles) {
-      final px = p.x * w;
-      final py = p.y * h;
-
-      // Drift upward and wobble
-      final drift = (time * p.speed * 0.1) % 1.0;
-      final wobble = sin(time * 2 + p.phase) * 15;
-      final finalY = (py - drift * h) % h;
-      final finalX = px + wobble;
-
-      // Distance from center affects brightness
-      final dx = finalX - cx;
-      final dy = finalY - cy;
-      final dist = sqrt(dx * dx + dy * dy);
-      final distFade = max(0.0, 1 - dist / (w * 0.5));
-
-      final alpha = (distFade * 0.8 * entryProgress * 255).toInt().clamp(0, 255);
-      if (alpha <= 0) continue;
-
-      final baseColor = p.color == 0
-          ? Color.fromARGB(alpha, 124, 77, 255)
-          : Color.fromARGB(alpha, 0, 180, 216);
-
-      // Glow
-      particlePaint.color = baseColor.withOpacity(baseColor.opacity * 0.3);
-      canvas.drawCircle(Offset(finalX, finalY), p.size * 4, particlePaint);
-
-      // Core
-      particlePaint.color = baseColor;
-      canvas.drawCircle(Offset(finalX, finalY), p.size, particlePaint);
-    }
-
-    // Central nebula glow
-    final nebulaPaint = Paint();
-    final nebulaBreath = sin(time * 1.2) * 0.15 + 0.85;
-    nebulaPaint.shader = ui.Gradient.radial(
-      Offset(cx, cy),
-      w * 0.25 * nebulaBreath,
-      [
-        Color.fromARGB((30 * entryProgress).toInt(), 124, 77, 255),
-        Color.fromARGB((15 * entryProgress).toInt(), 0, 180, 216),
-        const Color(0x00000000),
-      ],
-      [0.0, 0.5, 1.0],
-    );
-    canvas.drawCircle(Offset(cx, cy), w * 0.25 * nebulaBreath, nebulaPaint);
-
-    // Subtle scan line effect
-    final scanPaint = Paint()
-      ..color = Color.fromARGB((8 * entryProgress).toInt(), 255, 255, 255);
-    final scanY = ((time * 0.15) % 1.0) * h;
-    canvas.drawRect(
-      Rect.fromLTWH(0, scanY, w, 2),
-      scanPaint,
-    );
   }
 
-  @override
-  bool shouldRepaint(covariant _SplashShaderPainter oldDelegate) => true;
-}
-
-class _Particle {
-  final double x, y, speed, size, phase;
-  final int color;
-  const _Particle({
-    required this.x,
-    required this.y,
-    required this.speed,
-    required this.size,
-    required this.phase,
-    required this.color,
-  });
+  Widget _buildProgress() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 1,
+          child: Stack(
+            children: [
+              Container(color: _gold.withOpacity(0.2)),
+              FractionallySizedBox(
+                widthFactor: _loadingProgress,
+                child: Container(color: _gold),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          '· $_loadingStatus ·',
+          textAlign: TextAlign.center,
+          style: _poiret(10, _goldDim, ls: 0.5),
+        ),
+      ],
+    );
+  }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../../../core/design/hud_tokens.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -28,8 +29,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   LoadingPhase _toneLoadingPhase = LoadingPhase.downloading;
   StreamSubscription? _playerSub;
 
-  Color get _glowColor =>
-      parseHexColor(widget.pack.glowColor, fallback: Colors.deepPurple);
+  Color get _glowColor => HudTokens
+      .gold; // Was: parseHexColor(pack.glowColor, fallback: deepPurple)
 
   IconData _typeIcon(String type) {
     switch (type) {
@@ -57,70 +58,10 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     }
   }
 
-  List<Color> _toneGradient(RingtoneTone tone) {
-    final n = tone.name.toLowerCase();
-    if (n.contains('mario') || n.contains('yoshi') || n.contains('coin'))
-      return [const Color(0xFFE52521), const Color(0xFF8B0000)];
-    if (n.contains('goku') ||
-        n.contains('saiyan') ||
-        n.contains('kamehameha') ||
-        n.contains('dbgt'))
-      return [const Color(0xFFFF8C00), const Color(0xFF8B4513)];
-    if (n.contains('zelda') ||
-        n.contains('navi') ||
-        n.contains('hyrule') ||
-        n.contains('fairy') ||
-        n.contains('rupee'))
-      return [const Color(0xFF00FF7F), const Color(0xFF006400)];
-    if (n.contains('homero') || n.contains('simpson'))
-      return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
-    if (n.contains('bob') ||
-        n.contains('esponja') ||
-        n.contains('sponge') ||
-        n.contains('patricio'))
-      return [const Color(0xFFFFEB3B), const Color(0xFF795548)];
-    if (n.contains('death') || n.contains('note'))
-      return [const Color(0xFF9C27B0), const Color(0xFF311B92)];
-    if (n.contains('shrek'))
-      return [const Color(0xFF4CAF50), const Color(0xFF1B5E20)];
-    if (n.contains('nokia') ||
-        n.contains('retro') ||
-        n.contains('vintage') ||
-        n.contains('classic') ||
-        n.contains('rotary'))
-      return [const Color(0xFFFFD700), const Color(0xFF5D4037)];
-    if (n.contains('iphone') ||
-        n.contains('modern') ||
-        n.contains('digital') ||
-        n.contains('future'))
-      return [const Color(0xFF00B4D8), const Color(0xFF0D47A1)];
-    if (n.contains('soft') ||
-        n.contains('gentle') ||
-        n.contains('ambient') ||
-        n.contains('chill') ||
-        n.contains('morning'))
-      return [const Color(0xFF7C4DFF), const Color(0xFF1A237E)];
-    if (n.contains('minecraft'))
-      return [const Color(0xFF4CAF50), const Color(0xFF33691E)];
-    if (n.contains('fnaf'))
-      return [const Color(0xFF7B1FA2), const Color(0xFF12005E)];
-    if (n.contains('hadouken'))
-      return [const Color(0xFF2196F3), const Color(0xFF0D47A1)];
-    if (n.contains('fall guys'))
-      return [const Color(0xFFE91E63), const Color(0xFF880E4F)];
-    if (n.contains('hazbin') || n.contains('alastor'))
-      return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
-    if (n.contains('casa') || n.contains('papel'))
-      return [const Color(0xFFD32F2F), const Color(0xFF4A0000)];
-    if (n.contains('pou'))
-      return [const Color(0xFF795548), const Color(0xFF3E2723)];
-    if (n.contains('kill bill'))
-      return [const Color(0xFFFFD700), const Color(0xFF8B6914)];
-    if (n.contains('huawei'))
-      return [const Color(0xFFE53935), const Color(0xFF880E4F)];
-    if (n.contains('havana'))
-      return [const Color(0xFFFF7043), const Color(0xFF4E342E)];
-    return [_glowColor, _glowColor.withOpacity(0.3)];
+  List<Color> _toneGradient(RingtoneTone tone, Color glow) {
+    // Black & Gold: ignore per-character brand colors — every tone renders on
+    // a unified gold gradient. Was previously 22 hardcoded palettes.
+    return const [HudTokens.goldDeep, HudTokens.nightBg];
   }
 
   @override
@@ -169,7 +110,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('Could not play preview'),
-              backgroundColor: Colors.red),
+              backgroundColor: HudTokens.goldDeep),
         );
       }
     }
@@ -200,7 +141,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.settings, color: Colors.amber, size: 24),
+            Icon(Icons.settings, color: HudTokens.goldBright, size: 24),
             SizedBox(width: 10),
             Text('Permission needed', style: TextStyle(fontSize: 17)),
           ],
@@ -342,128 +283,129 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0F),
       body: Stack(children: [
-      CustomScrollView(
-        slivers: [
-          // Header with pack info + default image background
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            backgroundColor: const Color(0xFF0A0A0F),
-            flexibleSpace: FlexibleSpaceBar(
-              title:
-                  Text(widget.pack.name, style: const TextStyle(fontSize: 16)),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Default preview image as background
-                  Image.asset(_defaultPreviewAsset, fit: BoxFit.cover),
-                  // Glow color tint
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          _glowColor.withOpacity(0.4),
-                          _glowColor.withOpacity(0.15),
+        CustomScrollView(
+          slivers: [
+            // Header with pack info + default image background
+            SliverAppBar(
+              expandedHeight: 200,
+              pinned: true,
+              backgroundColor: const Color(0xFF0A0A0F),
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(widget.pack.name,
+                    style: const TextStyle(fontSize: 16)),
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Default preview image as background
+                    Image.asset(_defaultPreviewAsset, fit: BoxFit.cover),
+                    // Glow color tint
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            _glowColor.withOpacity(0.4),
+                            _glowColor.withOpacity(0.15),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Dark gradient for readability
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Content
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 40),
+                          Icon(Icons.library_music,
+                              color: _glowColor, size: 44),
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: Text(
+                              widget.pack.description,
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 12),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _glowColor.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                  color: _glowColor.withOpacity(0.4)),
+                            ),
+                            child: Text(
+                              '${allTones.length} tones  •  Tap to preview',
+                              style: TextStyle(color: _glowColor, fontSize: 11),
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                  // Dark gradient for readability
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.7),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Content
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 40),
-                        Icon(Icons.library_music, color: _glowColor, size: 44),
-                        const SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Text(
-                            widget.pack.description,
-                            style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: 12),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _glowColor.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20),
-                            border:
-                                Border.all(color: _glowColor.withOpacity(0.4)),
-                          ),
-                          child: Text(
-                            '${allTones.length} tones  •  Tap to preview',
-                            style: TextStyle(color: _glowColor, fontSize: 11),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Grid of tone cards — NO staggered animation
-          SliverPadding(
-            padding: const EdgeInsets.all(12),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final tone = allTones[index];
-                  final gradient = _toneGradient(tone);
-                  return _ToneCard(
-                    tone: tone,
-                    glowColor: _glowColor,
-                    gradient: gradient,
-                    typeIcon: _typeIcon(tone.suggestedType),
-                    typeLabel: _typeLabel(tone.suggestedType),
-                    isPlaying: _playingId == tone.id,
-                    isSetting: _settingId == tone.id,
-                    onPlay: () => _togglePreview(tone),
-                    onSetAs: () => _showSetAsDialog(tone),
-                  );
-                },
-                childCount: allTones.length,
-              ),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 0.78,
+            // Grid of tone cards — NO staggered animation
+            SliverPadding(
+              padding: const EdgeInsets.all(12),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final tone = allTones[index];
+                    final gradient = _toneGradient(tone, _glowColor);
+                    return _ToneCard(
+                      tone: tone,
+                      glowColor: _glowColor,
+                      gradient: gradient,
+                      typeIcon: _typeIcon(tone.suggestedType),
+                      typeLabel: _typeLabel(tone.suggestedType),
+                      isPlaying: _playingId == tone.id,
+                      isSetting: _settingId == tone.id,
+                      onPlay: () => _togglePreview(tone),
+                      onSetAs: () => _showSetAsDialog(tone),
+                    );
+                  },
+                  childCount: allTones.length,
+                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 0.78,
+                ),
               ),
             ),
-          ),
 
-          const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
-        ],
-      ),
-      LoadingOverlay(
-        visible: _settingId != null,
-        status: _toneLoadingStatus,
-        accentColor: _glowColor,
-        phase: _toneLoadingPhase,
-      ),
+            const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+          ],
+        ),
+        LoadingOverlay(
+          visible: _settingId != null,
+          status: _toneLoadingStatus,
+          accentColor: _glowColor,
+          phase: _toneLoadingPhase,
+        ),
       ]),
     );
   }

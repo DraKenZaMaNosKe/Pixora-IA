@@ -46,7 +46,7 @@ class CaptionOverlay {
 
     var surfaceWidth = 0
     var surfaceHeight = 0
-    var glowColor = Color.parseColor("#7C4DFF")
+    var glowColor = Color.parseColor("#C9A650")
 
     fun draw(canvas: Canvas) {
         val text = currentCaption ?: return

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>08 · Jewelry Box</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,400&family=Italiana&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1a1a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;font-family:'Italiana',serif}
+.tag{position:fixed;top:16px;left:24px;color:#c9a650;font-size:12px;letter-spacing:0.3em;text-transform:uppercase}.tag::before{content:"08 · ";color:#888}
+.phone{width:320px;height:680px;background:#000;border-radius:24px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.velvet{position:absolute;inset:30px;background:linear-gradient(135deg,#2a1a0a 0%,#0a0604 50%,#2a1a0a 100%);border:2px solid #c9a650;border-radius:8px;box-shadow:inset 0 0 40px rgba(0,0,0,0.8),0 0 30px rgba(201,166,80,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
+.velvet::before{content:"";position:absolute;inset:6px;border:1px solid rgba(201,166,80,0.35);border-radius:4px}
+.label-top{position:absolute;top:20px;padding:4px 16px;background:#0a0604;border:1px solid #c9a650;font-family:'Italiana',serif;font-size:10px;color:#c9a650;letter-spacing:0.4em;text-transform:uppercase;z-index:2}
+.gem-wrap{position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.sparkle{position:absolute;color:#f0dd9e;font-size:14px;animation:sparkle 1.5s infinite}
+.sparkle.s1{top:0;left:20px;animation-delay:0s}
+.sparkle.s2{top:30px;right:20px;animation-delay:0.3s}
+.sparkle.s3{bottom:20px;left:15px;animation-delay:0.6s;font-size:10px}
+.sparkle.s4{bottom:0;right:30px;animation-delay:0.9s}
+.sparkle.s5{top:50%;left:0;animation-delay:1.2s;font-size:10px}
+@keyframes sparkle{0%,100%{opacity:0;transform:scale(0.5)}50%{opacity:1;transform:scale(1.1)}}
+.gem{width:130px;height:130px;background:linear-gradient(135deg,#f0dd9e 0%,#c9a650 40%,#8a6f33 70%,#c9a650);clip-path:polygon(50% 0,100% 38%,82% 100%,18% 100%,0 38%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(201,166,80,0.5),0 0 60px rgba(201,166,80,0.3)}
+.gem-inner{width:100%;height:100%;background:linear-gradient(180deg,rgba(240,221,158,0.3) 0%,transparent 60%);clip-path:polygon(50% 0,100% 38%,82% 100%,18% 100%,0 38%);display:flex;align-items:center;justify-content:center}
+.p{font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:72px;color:#1a1208;line-height:1;letter-spacing:-0.05em;text-shadow:0 1px 0 rgba(240,221,158,0.3)}
+.title-area{text-align:center}
+.title{font-family:'Italiana',serif;font-size:34px;color:#f0e8d6;letter-spacing:0.25em;margin-bottom:8px}
+.divider-line{width:60px;height:1px;background:linear-gradient(90deg,transparent,#c9a650,transparent);margin:10px auto}
+.tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(240,232,214,0.65);letter-spacing:0.2em}
+.label-bot{position:absolute;bottom:30px;padding:4px 16px;background:#0a0604;border:1px solid rgba(201,166,80,0.5);font-family:'Italiana',serif;font-size:9px;color:#8a7a56;letter-spacing:0.4em;text-transform:uppercase}
+</style></head><body>
+<div class="tag">Jewelry Box</div>
+<div class="phone">
+  <div class="velvet">
+    <div class="label-top">Pixora · haute collection</div>
+    <div class="gem-wrap">
+      <div class="sparkle s1">✦</div><div class="sparkle s2">✦</div><div class="sparkle s3">✦</div><div class="sparkle s4">✦</div><div class="sparkle s5">✦</div>
+      <div class="gem"><div class="gem-inner"><div class="p">P</div></div></div>
+    </div>
+    <div class="title-area">
+      <div class="title">PIXORA</div>
+      <div class="divider-line"></div>
+      <div class="tagline">fine · image · atelier</div>
+    </div>
+    <div class="label-bot">No. MMXXVI · limited</div>
+  </div>
+</div>
+</body></html>

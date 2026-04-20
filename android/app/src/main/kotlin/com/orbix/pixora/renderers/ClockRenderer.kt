@@ -17,10 +17,12 @@ class ClockRenderer {
     private val clockArcPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val clockFlashPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    // Pre-allocated Typefaces to avoid allocation per frame
-    private val typefaceBold = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-    private val typefaceLight = Typeface.create("sans-serif-light", Typeface.NORMAL)
-    private val typefaceBoldBold = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD)
+    // Pre-allocated Typefaces. Black & Gold uses SERIF ITALIC to evoke
+    // Cormorant Garamond / Playfair (not in system fonts — Typeface.SERIF
+    // maps to Noto Serif which is a good transitional serif).
+    private val typefaceBold = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+    private val typefaceLight = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+    private val typefaceBoldBold = Typeface.create(Typeface.SERIF, Typeface.BOLD_ITALIC)
 
     var clockStyle = 0
     private var lastMinute = -1
@@ -31,7 +33,14 @@ class ClockRenderer {
 
     var surfaceWidth = 0
     var surfaceHeight = 0
-    var glowColor = Color.parseColor("#7C4DFF")
+
+    // Black & Gold: the clock uses ONE color (gold) regardless of what the
+    // WallpaperService passes in. The `glowColor` setter is retained for API
+    // compat but is effectively a no-op — the getter always returns gold.
+    private val _fixedGold = Color.parseColor("#C9A650")
+    var glowColor: Int
+        get() = _fixedGold
+        set(_) {} // intentionally ignored — no per-wallpaper adaptation
     var animationPhase = 0f
 
     fun draw(canvas: Canvas) {
@@ -66,24 +75,10 @@ class ClockRenderer {
             (sin(animationPhase * speed.toDouble()).toFloat() * 0.5f + 0.5f)
         } else 1f
 
-        // --- Hour change flash effect ---
-        // Only trigger when:
-        //   1. The hour actually changed (hour != lastHour)
-        //   2. It wasn't the first frame after init (lastHour >= 0)
-        //   3. We're within the first minute of the new hour (minute <= 1)
-        //      This prevents the flash from firing when the user unlocks their
-        //      phone 20 minutes after the hour changed — the effect only makes
-        //      sense if the user sees it "live" at :00.
-        if (hour != lastHour && lastHour >= 0 && minute <= 1) {
-            hourFlashAlpha = 1f
-        }
+        // Hour-change flash effect intentionally DISABLED on 2026-04-19 —
+        // user disliked the gold whole-screen flash at :00 of every hour.
+        // lastHour still tracked so future logic can re-introduce if needed.
         lastHour = hour
-        if (hourFlashAlpha > 0f) {
-            clockFlashPaint.color = glowColor
-            clockFlashPaint.alpha = (hourFlashAlpha * 180).toInt()
-            canvas.drawRect(0f, 0f, surfaceWidth.toFloat(), surfaceHeight.toFloat(), clockFlashPaint)
-            hourFlashAlpha = max(0f, hourFlashAlpha - 0.02f)
-        }
 
         // --- Seconds arc (circular progress around time) ---
         val arcRadius = timeSize * 0.85f

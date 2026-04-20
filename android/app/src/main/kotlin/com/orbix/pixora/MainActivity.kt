@@ -56,7 +56,7 @@ class MainActivity : AudioServiceActivity() {
                     }
                     "setLiveWallpaper" -> {
                         val path = call.argument<String>("path")
-                        val glowColor = call.argument<String>("glowColor") ?: "#7C4DFF"
+                        val glowColor = call.argument<String>("glowColor") ?: "#C9A650"
                         val interactive = call.argument<Boolean>("interactive") ?: false
                         if (path != null) {
                             setLiveWallpaper(path, glowColor, interactive)
@@ -100,7 +100,7 @@ class MainActivity : AudioServiceActivity() {
                         val storyId = call.argument<String>("storyId") ?: ""
                         val imagePaths = call.argument<List<String>>("imagePaths") ?: emptyList()
                         val captions = call.argument<List<String>>("captions") ?: emptyList()
-                        val glowColor = call.argument<String>("glowColor") ?: "#7C4DFF"
+                        val glowColor = call.argument<String>("glowColor") ?: "#C9A650"
                         val intervalMinutes = call.argument<Int>("intervalMinutes") ?: 30
                         val success = StoryWorker.startStory(
                             applicationContext, storyId, imagePaths, captions, glowColor, intervalMinutes
@@ -186,7 +186,7 @@ class MainActivity : AudioServiceActivity() {
                         val afternoonPath = call.argument<String>("afternoonPath") ?: ""
                         val eveningPath = call.argument<String>("eveningPath") ?: ""
                         val nightPath = call.argument<String>("nightPath") ?: ""
-                        val glowColor = call.argument<String>("glowColor") ?: "#7C4DFF"
+                        val glowColor = call.argument<String>("glowColor") ?: "#C9A650"
                         val target = call.argument<Int>("target") ?: 0
                         // Stop any active story
                         StoryWorker.stopStory(applicationContext)

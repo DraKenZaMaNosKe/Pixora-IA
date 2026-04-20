@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>06 · Hollywood Title Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,900;1,400&family=Inter:wght@300;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1a1a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;font-family:'Playfair Display',serif}
+.tag{position:fixed;top:16px;left:24px;color:#c9a650;font-size:12px;letter-spacing:0.3em;text-transform:uppercase}.tag::before{content:"06 · ";color:#888}
+.phone{width:320px;height:680px;background:#000;border-radius:24px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.phone::before,.phone::after{content:"";position:absolute;left:0;right:0;background:#0a0604;z-index:3}
+.phone::before{top:0;height:80px;border-bottom:2px solid #c9a650}
+.phone::after{bottom:0;height:80px;border-top:2px solid #c9a650}
+.curtain{position:absolute;inset:80px 0;background:radial-gradient(ellipse at center,#1a1208 0%,#000 70%)}
+.spotlight{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:200px;background:radial-gradient(ellipse,rgba(201,166,80,0.2),transparent 70%);filter:blur(20px)}
+.studio-label{position:absolute;top:30px;left:0;right:0;text-align:center;z-index:4;font-family:'Inter',sans-serif;font-weight:300;font-size:10px;color:#c9a650;letter-spacing:0.6em;text-transform:uppercase;animation:fade 1.5s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.presents{position:absolute;top:55px;left:0;right:0;text-align:center;z-index:4;font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:11px;color:#8a7a56;letter-spacing:0.15em;animation:fade 1.5s 0.2s both ease-out}
+.center-wrap{text-align:center;z-index:2;padding:0 30px;animation:fade 1.5s 0.5s both ease-out}
+.pre{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:13px;color:#8a7a56;letter-spacing:0.2em;margin-bottom:18px}
+.pre-line{display:flex;align-items:center;justify-content:center;gap:10px}
+.pre-line::before,.pre-line::after{content:"";width:20px;height:1px;background:#c9a650}
+.title-big{font-family:'Playfair Display',serif;font-weight:900;font-size:58px;line-height:0.95;background:linear-gradient(180deg,#f0dd9e,#c9a650 60%,#8a6f33);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.01em;text-shadow:0 2px 8px rgba(201,166,80,0.3)}
+.title-big .two{font-style:italic;font-weight:400;display:block;margin-top:4px}
+.sub-tag{margin-top:20px;font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:14px;color:#c9a650;letter-spacing:0.15em}
+.credits{margin-top:40px;font-family:'Inter',sans-serif;font-size:9px;color:#5a4e36;letter-spacing:0.3em;text-transform:uppercase;line-height:2}
+.bottom-label{position:absolute;bottom:40px;left:0;right:0;text-align:center;z-index:4;font-family:'Playfair Display',serif;font-style:italic;font-size:11px;color:#8a7a56;letter-spacing:0.2em}
+.year{position:absolute;bottom:20px;left:0;right:0;text-align:center;z-index:4;font-family:'Inter',sans-serif;font-size:9px;color:#5a4e36;letter-spacing:0.5em;font-weight:300}
+</style></head><body>
+<div class="tag">Hollywood Title Card</div>
+<div class="phone">
+  <div class="studio-label">— orbix studio presents —</div>
+  <div class="presents">a Pixora production</div>
+  <div class="curtain"></div>
+  <div class="spotlight"></div>
+  <div class="center-wrap">
+    <div class="pre"><div class="pre-line">a film by</div></div>
+    <div class="title-big">Pixora<span class="two">la colección</span></div>
+    <div class="sub-tag">— featuring —</div>
+    <div class="credits">wallpapers · AI generation · AURA wellness</div>
+  </div>
+  <div class="bottom-label">— opening · MMXXVI —</div>
+  <div class="year">rated · premium · all ages</div>
+</div>
+</body></html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>04 · Luxury Watch</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1a1a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;font-family:'Inter',sans-serif}
+.tag{position:fixed;top:16px;left:24px;color:#c9a650;font-size:12px;letter-spacing:0.25em;text-transform:uppercase;font-weight:700}.tag::before{content:"04 · ";color:#888}
+.phone{width:320px;height:680px;background:radial-gradient(ellipse at top,#1a1208,#000);border-radius:32px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.crown-label{position:absolute;top:50px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#c9a650;letter-spacing:0.4em;text-transform:uppercase}
+.bezel-wrap{width:260px;height:260px;position:relative;margin:30px 0 20px}
+.bezel-outer{position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,#c9a650,#8a6f33 50%,#c9a650);padding:6px}
+.bezel-mid{width:100%;height:100%;border-radius:50%;background:#0a0704;position:relative}
+.bezel-inner{position:absolute;inset:10px;border:1px solid rgba(201,166,80,0.5);border-radius:50%}
+.tick{position:absolute;top:50%;left:50%;width:2px;height:14px;background:#c9a650;transform-origin:1px 116px}
+.tick-major{height:20px;background:#f0dd9e;width:3px;transform-origin:1.5px 110px}
+.p{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cormorant Garamond',serif;font-weight:600;font-size:100px;background:linear-gradient(180deg,#f0dd9e,#c9a650 50%,#8a6f33);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.second-hand{position:absolute;top:50%;left:50%;width:2px;height:80px;background:#c9a650;transform-origin:bottom center;transform:translate(-50%,-100%);animation:tick 60s steps(60) infinite;box-shadow:0 0 8px #c9a650}
+@keyframes tick{to{transform:translate(-50%,-100%) rotate(360deg)}}
+.center-dot{position:absolute;top:50%;left:50%;width:8px;height:8px;background:#c9a650;border-radius:50%;transform:translate(-50%,-50%);z-index:3}
+.label-top{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:9px;color:#c9a650;letter-spacing:0.3em;text-transform:uppercase;z-index:2}
+.title{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:34px;color:#f0e8d6;letter-spacing:0.2em;margin-top:10px}
+.divider{width:30px;height:1px;background:#c9a650;margin:10px auto}
+.swiss-label{font-family:'Inter',sans-serif;font-size:9px;color:#8a7a56;letter-spacing:0.5em;text-transform:uppercase;font-weight:500}
+.bottom-label{position:absolute;bottom:35px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;color:#8a7a56;letter-spacing:0.3em}
+</style></head><body>
+<div class="tag">Luxury Watch Bezel</div>
+<div class="phone">
+  <div class="crown-label">— Maison horlogère —</div>
+  <div class="bezel-wrap">
+    <div class="bezel-outer"><div class="bezel-mid">
+      <div class="bezel-inner"></div>
+      <div class="tick tick-major" style="transform:translate(-50%,-50%) rotate(0deg)"></div>
+      <div class="tick tick-major" style="transform:translate(-50%,-50%) rotate(90deg)"></div>
+      <div class="tick tick-major" style="transform:translate(-50%,-50%) rotate(180deg)"></div>
+      <div class="tick tick-major" style="transform:translate(-50%,-50%) rotate(270deg)"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(30deg)"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(60deg)"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(120deg)"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(150deg)"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(210deg)"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(240deg)"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(300deg)"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(330deg)"></div>
+      <div class="label-top">atelier</div>
+      <div class="p">P</div>
+      <div class="second-hand"></div>
+      <div class="center-dot"></div>
+    </div></div>
+  </div>
+  <div class="title">PIXORA</div>
+  <div class="divider"></div>
+  <div class="swiss-label">precision · mexico</div>
+  <div class="bottom-label">time · for · art</div>
+</div>
+</body></html>

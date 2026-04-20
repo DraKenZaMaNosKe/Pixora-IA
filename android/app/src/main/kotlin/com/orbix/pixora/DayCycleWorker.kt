@@ -102,7 +102,7 @@ class DayCycleWorker(context: Context, params: WorkerParameters) : Worker(contex
                 // Update live wallpaper prefs — PixoraWallpaperService picks up the change
                 // This enables panoramic scroll for wide images
                 val livePrefs = context.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
-                val glowColor = prefs.getString("glow_color", "#7C4DFF") ?: "#7C4DFF"
+                val glowColor = prefs.getString("glow_color", "#C9A650") ?: "#C9A650"
                 livePrefs.edit()
                     .putString("wallpaper_path", path)
                     .putString("glow_color", glowColor)

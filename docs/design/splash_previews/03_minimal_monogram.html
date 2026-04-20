@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>03 · Minimal Monogram</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,900;1,400&family=Inter:wght@300;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1a1a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;font-family:'Inter',sans-serif}
+.tag{position:fixed;top:16px;left:24px;color:#c9a650;font-size:12px;letter-spacing:0.25em;text-transform:uppercase;font-family:'Playfair Display',serif;font-weight:900}.tag::before{content:"03 · "}
+.phone{width:320px;height:680px;background:#000;border-radius:32px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.corners{position:absolute;inset:24px;pointer-events:none}
+.corner{position:absolute;width:20px;height:20px;border:1px solid #c9a650}
+.corner.tl{top:0;left:0;border-right:none;border-bottom:none}
+.corner.tr{top:0;right:0;border-left:none;border-bottom:none}
+.corner.bl{bottom:0;left:0;border-right:none;border-top:none}
+.corner.br{bottom:0;right:0;border-left:none;border-top:none}
+.top-meta{position:absolute;top:50px;left:0;right:0;text-align:center;font-family:'Inter',sans-serif;font-size:10px;color:#c9a650;letter-spacing:0.4em;text-transform:uppercase;font-weight:500;animation:fadein 1.5s ease-out}
+@keyframes fadein{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.monogram{width:160px;height:160px;position:relative;display:flex;align-items:center;justify-content:center;margin:40px 0 28px;border:1px solid #c9a650;animation:draw 1.5s ease-out 0.3s both}
+@keyframes draw{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+.p{font-family:'Playfair Display',serif;font-weight:900;font-size:110px;color:#c9a650;line-height:1;letter-spacing:-0.05em;text-align:center}
+.mono-label{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);background:#000;padding:0 10px;font-family:'Inter',sans-serif;font-size:8px;color:#c9a650;letter-spacing:0.4em}
+.title{font-family:'Playfair Display',serif;font-weight:900;font-size:44px;color:#f0e8d6;letter-spacing:-0.03em;animation:fadein 1.5s 0.6s both ease-out}
+.title .it{font-style:italic;font-weight:400;color:#c9a650}
+.tagline{margin-top:4px;font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:14px;color:#8a7a56;letter-spacing:0.05em;animation:fadein 1.5s 0.9s both ease-out}
+.bot-meta{position:absolute;bottom:60px;left:0;right:0;text-align:center;font-family:'Inter',sans-serif;font-size:9px;color:#5a4e36;letter-spacing:0.3em;text-transform:uppercase;animation:fadein 1.5s 1.2s both ease-out}
+.copyright{position:absolute;bottom:32px;left:0;right:0;text-align:center;font-family:'Playfair Display',serif;font-style:italic;font-size:10px;color:#5a4e36;letter-spacing:0.15em}
+</style></head><body>
+<div class="tag">Minimal Monogram</div>
+<div class="phone">
+  <div class="corners"><div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div></div>
+  <div class="top-meta">— maison pixora —</div>
+  <div class="monogram">
+    <div class="p">P</div>
+    <div class="mono-label">CREST · 2026</div>
+  </div>
+  <div class="title">Pix<span class="it">ora</span></div>
+  <div class="tagline">— an image house —</div>
+  <div class="bot-meta">WALLPAPERS · AI · AURA</div>
+  <div class="copyright">© Orbix Studio · Mexico</div>
+</div>
+</body></html>

@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../../../../core/design/hud_tokens.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -32,8 +33,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   late Future<bool> _isDownloadedFuture;
   int _controlsToken = 0;
 
-  Color get _glowColor => parseHexColor(widget.wallpaper.glowColor,
-      fallback: const Color(0xFFFF4500));
+  Color get _glowColor => HudTokens.gold;
 
   @override
   void initState() {
@@ -240,7 +240,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Video deleted from device'),
-            backgroundColor: Colors.green,
+            backgroundColor: HudTokens.gold,
           ),
         );
       }
@@ -321,7 +321,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.red,
+                                color: HudTokens.goldDeep,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -559,14 +559,14 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                           horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
                                         color: isFree
-                                            ? Colors.green.withOpacity(0.2)
-                                            : Colors.orange.withOpacity(0.2),
+                                            ? HudTokens.gold.withOpacity(0.2)
+                                            : HudTokens.gold.withOpacity(0.2),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: isFree
-                                                ? Colors.greenAccent
+                                                ? HudTokens.gold
                                                     .withOpacity(0.5)
-                                                : Colors.orange
+                                                : HudTokens.gold
                                                     .withOpacity(0.5)),
                                       ),
                                       child: Text(
@@ -577,8 +577,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
                                             color: isFree
-                                                ? Colors.greenAccent
-                                                : Colors.orangeAccent),
+                                                ? HudTokens.gold
+                                                : HudTokens.gold),
                                       ),
                                     ),
                                     const SizedBox(width: 10),
@@ -607,12 +607,12 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                   child: TextButton.icon(
                                     onPressed: _deleteFromDevice,
                                     icon: Icon(Icons.delete_outline,
-                                        size: 18, color: Colors.red.shade300),
+                                        size: 18, color: HudTokens.goldDeep),
                                     label: Text(
                                       'Delete from device',
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: Colors.red.shade300,
+                                        color: HudTokens.goldDeep,
                                       ),
                                     ),
                                   ),

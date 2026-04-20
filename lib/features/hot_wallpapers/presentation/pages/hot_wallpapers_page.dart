@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
+import '../../../../core/widgets/ticket_stub_card.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../providers/live_wallpaper_providers.dart';
@@ -22,7 +24,7 @@ class HotWallpapersPage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            const Icon(Icons.error_outline, color: HudTokens.gold, size: 48),
             const SizedBox(height: 12),
             const Text('Failed to load live wallpapers',
                 style: TextStyle(color: Colors.white70)),
@@ -67,16 +69,23 @@ class _HotContent extends StatelessWidget {
         children: [
           // ── Hero Banner ──────────────────────────────────────
           SectionHeroBanner(
-            items: items.take(5).map((item) => HeroBannerItem(
-              imageUrl: item.previewUrl,
-              title: item.name,
-              subtitle: item.description,
-              badge: item.category,
-              accentColor: parseHexColor(item.glowColor, fallback: const Color(0xFFE50914)),
-            )).toList(),
-            onTap: (i) => Navigator.push(context, MaterialPageRoute(
-              builder: (_) => LiveWallpaperPreviewPage(wallpaper: items[i]),
-            )),
+            items: items
+                .take(5)
+                .map((item) => HeroBannerItem(
+                      imageUrl: item.previewUrl,
+                      title: item.name,
+                      subtitle: item.description,
+                      badge: item.category,
+                      // Force gold regardless of per-item glowColor to keep
+                      // the Black & Gold system coherent across the catalog.
+                      accentColor: HudTokens.gold,
+                    ))
+                .toList(),
+            onTap: (i) => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => LiveWallpaperPreviewPage(wallpaper: items[i]),
+                )),
           ),
 
           // ── Popular Now ───────────────────────────────────────
@@ -118,7 +127,7 @@ class _HotContent extends StatelessWidget {
                 'See All >',
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.orange.shade300,
+                  color: HudTokens.goldBright,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -169,20 +178,29 @@ class _HotContent extends StatelessWidget {
 
   String _formatCategory(String cat) {
     switch (cat.toUpperCase()) {
-      case 'GAMING': return 'Gaming';
-      case 'ANIME': return 'Anime & Manga';
-      case 'SCIFI': return 'Sci-Fi & Space';
-      case 'NATURE': return 'Nature & Ocean';
-      case 'PIXEL': return 'Pixel Art';
-      case 'HORROR': return 'Horror & Dark';
-      case 'HEROES': return 'Superheroes';
-      case 'CHILL': return 'Chill & Relaxing';
-      default: return cat[0].toUpperCase() + cat.substring(1).toLowerCase();
+      case 'GAMING':
+        return 'Gaming';
+      case 'ANIME':
+        return 'Anime & Manga';
+      case 'SCIFI':
+        return 'Sci-Fi & Space';
+      case 'NATURE':
+        return 'Nature & Ocean';
+      case 'PIXEL':
+        return 'Pixel Art';
+      case 'HORROR':
+        return 'Horror & Dark';
+      case 'HEROES':
+        return 'Superheroes';
+      case 'CHILL':
+        return 'Chill & Relaxing';
+      default:
+        return cat[0].toUpperCase() + cat.substring(1).toLowerCase();
     }
   }
 }
 
-// ── Live Wallpaper Card ─────────────────────────────────────────────
+// ── Live Wallpaper Card (Ticket Stub) ───────────────────────────────
 class _LiveWallpaperCard extends StatelessWidget {
   final LiveWallpaper item;
   final double width;
@@ -194,162 +212,68 @@ class _LiveWallpaperCard extends StatelessWidget {
     required this.height,
   });
 
-  Color get _glowColor => parseHexColor(item.glowColor, fallback: const Color(0xFFFF4500));
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => LiveWallpaperPreviewPage(wallpaper: item),
+    return SizedBox(
+      width: width.isFinite ? width : null,
+      height: height.isFinite ? height : null,
+      child: TicketStubCard(
+        admitLabel: 'LIVE',
+        title: item.name,
+        category: item.category,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LiveWallpaperPreviewPage(wallpaper: item),
+          ),
         ),
-      ),
-      child: Container(
-        width: width.isFinite ? width : null,
-        height: height.isFinite ? height : null,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: _glowColor.withOpacity(0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+        overlayTopLeft: item.badge != null
+            ? Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                color: HudTokens.gold,
+                child: Text(
+                  item.badge!.toUpperCase(),
+                  style: HudTokens.mono(
+                    size: 8,
+                    weight: FontWeight.w700,
+                    color: Colors.black,
+                    letterSpacing: 0.15,
+                  ),
+                ),
+              )
+            : null,
+        overlayTopRight: WallpaperStatsBar(
+          wallpaperId: 'live_${item.id}',
+          glowColor: HudTokens.gold,
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: item.previewUrl,
+              fit: BoxFit.cover,
+              placeholder: (_, __) => Container(color: HudTokens.nightSurface),
+              errorWidget: (_, __, ___) => Container(
+                color: HudTokens.nightSurface,
+                child: const Icon(Icons.play_circle,
+                    color: HudTokens.gold, size: 40),
+              ),
+            ),
+            // Play flourish in the center — thin gold circle, not a solid pill.
+            Center(
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: HudTokens.nightBg.withOpacity(0.45),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: HudTokens.gold, width: 1),
+                ),
+                child: const Icon(Icons.play_arrow_rounded,
+                    color: HudTokens.gold, size: 22),
+              ),
             ),
           ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Preview image
-              CachedNetworkImage(
-                imageUrl: item.previewUrl,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
-                  color: const Color(0xFF1A1A2E),
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  color: const Color(0xFF1A1A2E),
-                  child: Icon(Icons.play_circle, color: _glowColor, size: 40),
-                ),
-              ),
-
-              // Gradient overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.8),
-                    ],
-                    stops: const [0.5, 1.0],
-                  ),
-                ),
-              ),
-
-              // Top row: badges left, stats right
-              Positioned(
-                top: 8,
-                left: 8,
-                right: 8,
-                child: Row(
-                  children: [
-                    // Type badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: item.type == LiveWallpaperType.video
-                            ? Colors.red
-                            : item.type == LiveWallpaperType.image3d
-                                ? Colors.purple
-                                : Colors.green,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Text(
-                        item.typeBadge,
-                        style: const TextStyle(
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    // Extra badge (HOT, NEW)
-                    if (item.badge != null && item.badge != item.typeBadge) ...[
-                      const SizedBox(width: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B35),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          item.badge!,
-                          style: const TextStyle(
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // Play button (center)
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
-                  ),
-                  child: const Icon(Icons.play_arrow_rounded,
-                      color: Colors.white, size: 24),
-                ),
-              ),
-
-              // Bottom: stats + name
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      WallpaperStatsBar(
-                        wallpaperId: 'live_${item.id}',
-                        glowColor: _glowColor,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.name,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -368,12 +292,13 @@ class _ShimmerLoading extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Shimmer.fromColors(
-            baseColor: const Color(0xFF1A1A2E),
-            highlightColor: const Color(0xFF2A2A3E),
+            baseColor: HudTokens.nightSurface,
+            highlightColor: HudTokens.nightSurfaceHi,
             child: Container(
-              width: 200, height: 30,
+              width: 200,
+              height: 30,
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1A2E),
+                color: HudTokens.nightSurface,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -382,20 +307,23 @@ class _ShimmerLoading extends StatelessWidget {
           SizedBox(
             height: 220,
             child: Row(
-              children: List.generate(3, (i) => Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Shimmer.fromColors(
-                  baseColor: const Color(0xFF1A1A2E),
-                  highlightColor: const Color(0xFF2A2A3E),
-                  child: Container(
-                    width: 140, height: 220,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1A1A2E),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-              )),
+              children: List.generate(
+                  3,
+                  (i) => Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Shimmer.fromColors(
+                          baseColor: HudTokens.nightSurface,
+                          highlightColor: HudTokens.nightSurfaceHi,
+                          child: Container(
+                            width: 140,
+                            height: 220,
+                            decoration: BoxDecoration(
+                              color: HudTokens.nightSurface,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      )),
             ),
           ),
         ],
