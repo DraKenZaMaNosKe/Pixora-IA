@@ -8,10 +8,9 @@ import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../core/widgets/loading_overlay.dart';
+import '../../../../core/widgets/ticket_stub_card.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../data/models/ringtone_pack.dart';
-
-const _defaultPreviewAsset = 'assets/tone_preview_default.webp';
 
 class RingtonePackPage extends StatefulWidget {
   final RingtonePack pack;
@@ -297,7 +296,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
                   fit: StackFit.expand,
                   children: [
                     // Default preview image as background
-                    Image.asset(_defaultPreviewAsset, fit: BoxFit.cover),
+                    // [old placeholder asset removed — Black & Gold radial bg in overlaying Container below]
                     // Glow color tint
                     Container(
                       decoration: BoxDecoration(
@@ -414,8 +413,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 // ── Tone Card with default image background ─────────────────────────
 class _ToneCard extends StatelessWidget {
   final RingtoneTone tone;
-  final Color glowColor;
-  final List<Color> gradient;
+  final Color glowColor; // kept for API compat — ignored; uses gold
+  final List<Color> gradient; // kept for API compat — ignored
   final IconData typeIcon;
   final String typeLabel;
   final bool isPlaying;
@@ -437,161 +436,95 @@ class _ToneCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TicketStubCard(
+      admitLabel: isPlaying ? 'NOW' : 'TONE',
+      title: tone.name,
+      category: '${typeLabel.toUpperCase()} · ${tone.durationFormatted}',
+      isHighlighted: isPlaying,
       onTap: onPlay,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: isPlaying
-              ? Border.all(color: glowColor, width: 2)
-              : Border.all(color: Colors.white.withOpacity(0.08)),
-          boxShadow: isPlaying
-              ? [
-                  BoxShadow(
-                      color: glowColor.withOpacity(0.4),
-                      blurRadius: 16,
-                      spreadRadius: 2)
-                ]
-              : [BoxShadow(color: glowColor.withOpacity(0.08), blurRadius: 8)],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Background: default image + color tint
-              Image.asset(_defaultPreviewAsset, fit: BoxFit.cover),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      gradient[0].withOpacity(0.5),
-                      gradient[1].withOpacity(0.4),
-                    ],
-                  ),
+      overlayTopRight: WallpaperStatsBar(
+        wallpaperId: 'tone_${tone.id}',
+        glowColor: HudTokens.gold,
+      ),
+      child: Column(
+        children: [
+          // Image / icon panel — gold radial on dark.
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: HudTokens.nightSurfaceHi,
+                gradient: RadialGradient(
+                  colors: [
+                    HudTokens.gold.withOpacity(isPlaying ? 0.35 : 0.14),
+                    HudTokens.nightSurface,
+                  ],
+                  radius: 0.85,
                 ),
               ),
-
-              // Dark overlay for text
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.05),
-                      Colors.black.withOpacity(0.8),
-                    ],
-                    stops: const [0.35, 1.0],
-                  ),
-                ),
-              ),
-
-              // Stats
-              Positioned(
-                top: 8,
-                right: 8,
-                child: WallpaperStatsBar(
-                  wallpaperId: 'tone_${tone.id}',
-                  glowColor: glowColor,
-                ),
-              ),
-
-              // Duration + type badge (top-left)
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(typeIcon, size: 10, color: glowColor),
-                      const SizedBox(width: 4),
-                      Text(
-                        tone.durationFormatted,
-                        style:
-                            const TextStyle(fontSize: 9, color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Play/Stop button (prominent)
-              Center(
-                child: _PlayStopButton(
-                  isPlaying: isPlaying,
-                  isSetting: isSetting,
-                  glow: glowColor,
-                ),
-              ),
-
-              // Playing wave indicator
-              if (isPlaying)
-                Positioned(
-                  bottom: 50,
-                  left: 0,
-                  right: 0,
-                  child: Center(child: _PlayingWave(color: glowColor)),
-                ),
-
-              // Bottom: name + set button
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        tone.name,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 30,
-                        child: ElevatedButton(
-                          onPressed: isSetting ? null : onSetAs,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: glowColor,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(typeIcon, color: HudTokens.gold, size: 24),
+                        const SizedBox(height: 10),
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: HudTokens.nightBg.withOpacity(0.55),
+                            border: Border.all(color: HudTokens.gold, width: 1),
                           ),
-                          child: Text(
-                            isSetting ? 'Installing...' : 'Set as...',
-                            style: const TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.bold),
+                          child: _PlayStopButton(
+                            isPlaying: isPlaying,
+                            isSetting: isSetting,
+                            glow: HudTokens.gold,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  if (isPlaying)
+                    Positioned(
+                      bottom: 6,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: _PlayingWave(color: HudTokens.gold),
+                      ),
+                    ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          // "Set as..." CTA bar — flat gold under the image panel, above
+          // the perforation. Tapping this specifically triggers set-as
+          // without starting preview playback.
+          GestureDetector(
+            onTap: isSetting ? null : onSetAs,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              margin: const EdgeInsets.only(top: 4),
+              color: isSetting
+                  ? HudTokens.nightSurfaceHi
+                  : HudTokens.gold.withOpacity(0.9),
+              alignment: Alignment.center,
+              child: Text(
+                isSetting ? 'INSTALLING…' : 'SET AS ↗',
+                style: HudTokens.mono(
+                  size: 10,
+                  weight: FontWeight.w700,
+                  color: isSetting ? HudTokens.gold : Colors.black,
+                  letterSpacing: 0.25,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

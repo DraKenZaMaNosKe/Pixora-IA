@@ -372,8 +372,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                       subtitle:
                           '${pack.tones.length} tones \u00b7 ${pack.description}',
                       badge: pack.category,
-                      accentColor: parseHexColor(pack.glowColor,
-                          fallback: HudTokens.gold),
+                      accentColor: HudTokens.gold,
                     ))
                 .toList(),
             onTap: (i) => Navigator.push(
@@ -504,7 +503,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     if (tones.length > 3) badges[tones[3].id] = 'TOP';
 
     return SizedBox(
-      height: 170,
+      height: 200,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -547,7 +546,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           crossAxisCount: 3,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 0.82,
+          childAspectRatio: 0.6,
         ),
         itemCount: tones.length > 6 ? 6 : tones.length,
         itemBuilder: (_, i) {
@@ -568,33 +567,27 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   }
 }
 
-// ── Default preview image helper ────────────────────────────────────
-const _defaultPreviewAsset = 'assets/tone_preview_default.webp';
-
-Widget _toneBackground(RingtoneTone tone, List<Color> gradient, IconData icon) {
-  // Editorial uniform background — no per-tone image, no broken placeholder.
-  return _assetPreview(gradient, icon);
-}
+// ── Default preview helper ──────────────────────────────────────────
+// No bundled asset anymore — the previous `tone_preview_default.webp`
+// was a Supabase-generated placeholder with "DON'T USE UPLOADED BY 25 PIXELS"
+// watermark rendered into the image itself. Now we draw a clean Black & Gold
+// background with a soft radial vignette so it reads as intentional.
+Widget _toneBackground(
+        RingtoneTone tone, List<Color> gradient, IconData icon) =>
+    _assetPreview(gradient, icon);
 
 Widget _assetPreview(List<Color> gradient, IconData icon) {
-  return Stack(
-    fit: StackFit.expand,
-    children: [
-      Image.asset(_defaultPreviewAsset, fit: BoxFit.cover),
-      // Color tint overlay to differentiate each tone
-      Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              gradient[0].withOpacity(0.45),
-              gradient[1].withOpacity(0.35),
-            ],
-          ),
-        ),
+  return Container(
+    decoration: BoxDecoration(
+      color: HudTokens.nightSurfaceHi,
+      gradient: RadialGradient(
+        colors: [
+          HudTokens.gold.withOpacity(0.12),
+          HudTokens.nightSurface,
+        ],
+        radius: 0.95,
       ),
-    ],
+    ),
   );
 }
 

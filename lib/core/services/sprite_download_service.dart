@@ -27,6 +27,10 @@ class SpriteDownloadService {
       'aquarium/firefly/moth_d',
       'aquarium/firefly/owl',
     ],
+    'jellyfish': [
+      'aquarium/jellyfish_blue',
+      'aquarium/jellyfish_gold',
+    ],
   };
 
   Map<String, dynamic>? _manifest;
@@ -157,8 +161,7 @@ class SpriteDownloadService {
                 await outFile.writeAsBytes(file.content as List<int>);
               }
             }
-            debugPrint(
-                '[Pixora] Extracted ${archive.length} files to $folder');
+            debugPrint('[Pixora] Extracted ${archive.length} files to $folder');
             success = true;
             break;
           }

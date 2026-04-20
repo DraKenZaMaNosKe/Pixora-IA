@@ -100,13 +100,15 @@ class PixoraWallpaperService : WallpaperService() {
         private val aquariumRenderer = AquariumRenderer(applicationContext)
         private val bubbleRenderer = BubbleRenderer()
         private val fireflyRenderer = FireflyRenderer()
+        private val jellyfishRenderer = JellyfishRenderer(applicationContext)
         private var isAquariumMode = false
         private var isFireflyMode = false
+        private var isJellyfishMode = false
 
         // Any wallpaper that uses code-driven animated sprites over a static background.
         // Keeps the engine at full FPS so animations and the clock second-hand stay smooth.
         private val hasAnimatedCanvasOverlay: Boolean
-            get() = isAquariumMode || isFireflyMode
+            get() = isAquariumMode || isFireflyMode || isJellyfishMode
 
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
@@ -327,6 +329,7 @@ class PixoraWallpaperService : WallpaperService() {
                 aquariumRenderer.recycle()
                 bubbleRenderer.reset()
                 fireflyRenderer.reset()
+                jellyfishRenderer.recycle()
 
                 // Update caption: show immediately on change, then cycle every 3 min
                 if (caption != captionOverlay.currentCaption) {
@@ -367,6 +370,70 @@ class PixoraWallpaperService : WallpaperService() {
                         aquariumRenderer.setLastFishPosition(surfaceWidth * 0.78f, surfaceHeight * 0.02f)
                     }
                     Log.d(TAG, "Firefly mode activated: 4 luna moths + 1 owl + fireflies (${surfaceWidth}x${surfaceHeight})")
+                }
+
+                // Jellyfish mode: bioluminescent jellies rise through deep-ocean column
+                isJellyfishMode = path?.contains("jellyfish") == true
+                if (isJellyfishMode && surfaceWidth > 0 && surfaceHeight > 0) {
+                    jellyfishRenderer.surfaceWidth = surfaceWidth
+                    jellyfishRenderer.surfaceHeight = surfaceHeight
+                    // Main species: blue moon jellies (always present)
+                    jellyfishRenderer.loadSprites("aquarium/jellyfish_blue")
+                    // Optional species: load if present. Silently skip otherwise.
+                    jellyfishRenderer.loadSprites("aquarium/jellyfish_gold")
+                    if (jellyfishRenderer.jellyCount == 0) {
+                        // Blue moon: 2 distant, 3 mid, 1 big foreground
+                        jellyfishRenderer.addJellies(
+                            count = 2,
+                            spriteFolder = "aquarium/jellyfish_blue",
+                            scaleMin = 0.35f, scaleMax = 0.5f,
+                            speedMin = 0.2f, speedMax = 0.4f,
+                            swayAmpMin = 10f, swayAmpMax = 20f,
+                        )
+                        jellyfishRenderer.addJellies(
+                            count = 3,
+                            spriteFolder = "aquarium/jellyfish_blue",
+                            scaleMin = 0.6f, scaleMax = 0.85f,
+                            speedMin = 0.35f, speedMax = 0.7f,
+                            swayAmpMin = 20f, swayAmpMax = 35f,
+                        )
+                        jellyfishRenderer.addJellies(
+                            count = 1,
+                            spriteFolder = "aquarium/jellyfish_blue",
+                            scaleMin = 1.0f, scaleMax = 1.3f,
+                            speedMin = 0.5f, speedMax = 0.8f,
+                            swayAmpMin = 30f, swayAmpMax = 50f,
+                        )
+                        // Golden lion's mane: 1 hero piece (only spawns if sprites loaded)
+                        if (jellyfishRenderer.hasSprites("aquarium/jellyfish_gold")) {
+                            jellyfishRenderer.addJellies(
+                                count = 1,
+                                spriteFolder = "aquarium/jellyfish_gold",
+                                scaleMin = 0.9f, scaleMax = 1.15f,
+                                speedMin = 0.25f, speedMax = 0.5f,
+                                swayAmpMin = 25f, swayAmpMax = 45f,
+                            )
+                        }
+                    }
+
+                    // Rising bubble streams — calm abyss respiration
+                    bubbleRenderer.surfaceWidth = surfaceWidth
+                    bubbleRenderer.surfaceHeight = surfaceHeight
+
+                    // Occasional bioluminescent squid (horizontal jetter)
+                    aquariumRenderer.surfaceWidth = surfaceWidth
+                    aquariumRenderer.surfaceHeight = surfaceHeight
+                    aquariumRenderer.loadFishSprites("aquarium/squid_bio")
+                    if (aquariumRenderer.fishCount == 0) {
+                        aquariumRenderer.addFish(
+                            count = 1,
+                            spriteFolder = "aquarium/squid_bio",
+                            scaleMin = 0.5f, scaleMax = 0.6f,
+                            speedMin = 0.8f, speedMax = 1.2f,
+                        )
+                    }
+
+                    Log.d(TAG, "Jellyfish mode activated: jellies + bubbles + squid over ocean abyss (${surfaceWidth}x${surfaceHeight})")
                 }
 
                 // Aquarium mode: animated fish over background image
@@ -975,6 +1042,22 @@ class PixoraWallpaperService : WallpaperService() {
                     bubbleRenderer.draw(canvas)
                 }
 
+                // Jellyfish: jellies rising + bubbles + occasional squid
+                if (isJellyfishMode) {
+                    jellyfishRenderer.surfaceWidth = surfaceWidth
+                    jellyfishRenderer.surfaceHeight = surfaceHeight
+                    jellyfishRenderer.draw(canvas)
+                    // Horizontal jetting squid (skipped if no sprites loaded)
+                    aquariumRenderer.surfaceWidth = surfaceWidth
+                    aquariumRenderer.surfaceHeight = surfaceHeight
+                    aquariumRenderer.draw(canvas)
+                    // Rising bubbles on top
+                    bubbleRenderer.surfaceWidth = surfaceWidth
+                    bubbleRenderer.surfaceHeight = surfaceHeight
+                    bubbleRenderer.update()
+                    bubbleRenderer.draw(canvas)
+                }
+
                 rainRenderer.draw(canvas)
                 if (isRainWallpaper) rainRenderer.drawHeadphoneGlow(canvas)
 
@@ -1109,6 +1192,7 @@ class PixoraWallpaperService : WallpaperService() {
             aquariumRenderer.recycle()
             bubbleRenderer.reset()
             fireflyRenderer.reset()
+            jellyfishRenderer.recycle()
             batteryIndicator.release()
             unregisterPrefsListener()
             unregisterKeyguardReceiver()
