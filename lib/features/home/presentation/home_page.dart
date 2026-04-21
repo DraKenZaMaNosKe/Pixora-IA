@@ -6,6 +6,7 @@ import '../../../core/design/hud_tokens.dart';
 import '../../../core/design/hud_widgets.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/credit_service.dart';
+import '../../../core/services/subscription_service.dart';
 import '../../ai_generate/presentation/pages/ai_generate_page.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../favorites/providers/favorites_provider.dart';
@@ -157,7 +158,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       onTap: _onAvatarTap,
       child: Padding(
         padding: const EdgeInsets.only(left: HudTokens.sp3),
-        child: child,
+        child: _PlusHaloAvatar(child: child),
       ),
     );
   }
@@ -422,6 +423,80 @@ class _NavItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Plus-subscriber halo avatar ───────────────────────────────────
+// Wraps the 32px avatar with a breathing gold ring when the user has an
+// active Plus subscription. Listens to SubscriptionService so the halo
+// appears/disappears reactively when status changes.
+class _PlusHaloAvatar extends StatefulWidget {
+  const _PlusHaloAvatar({required this.child});
+  final Widget child;
+
+  @override
+  State<_PlusHaloAvatar> createState() => _PlusHaloAvatarState();
+}
+
+class _PlusHaloAvatarState extends State<_PlusHaloAvatar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: SubscriptionService.instance,
+      builder: (context, _) {
+        final hasPlus = SubscriptionService.instance.status.hasAccess;
+        if (!hasPlus) return widget.child;
+        return AnimatedBuilder(
+          animation: _pulse,
+          builder: (context, _) {
+            final t = _pulse.value; // 0..1..0 reversing
+            final blur = 6.0 + 8.0 * t;
+            final ringOpacity = 0.55 + 0.25 * t;
+            return Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: SweepGradient(
+                  colors: [
+                    HudTokens.goldDeep,
+                    HudTokens.gold,
+                    HudTokens.goldBright,
+                    HudTokens.gold,
+                    HudTokens.goldDeep,
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: HudTokens.gold.withOpacity(ringOpacity * 0.5),
+                    blurRadius: blur,
+                    spreadRadius: 0.5,
+                  ),
+                ],
+              ),
+              child: widget.child,
+            );
+          },
+        );
+      },
     );
   }
 }

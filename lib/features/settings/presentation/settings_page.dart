@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
+import '../../../core/services/subscription_service.dart';
 import '../../../core/services/wallpaper_service.dart';
 import '../../../core/utils/locale_helper.dart';
 import '../../favorites/providers/favorites_provider.dart';
@@ -452,13 +453,21 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        auth.displayName ?? 'User',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              auth.displayName ?? 'User',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const _PlusPill(),
+                        ],
                       ),
                       Text(
                         auth.email ?? '',
@@ -760,6 +769,47 @@ class _SettingsTile extends StatelessWidget {
       subtitle: Text(subtitle, style: const TextStyle(color: Colors.white38)),
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
+    );
+  }
+}
+
+
+// ── Plus subscription pill ─────────────────────────────────────────
+// Small gold chip next to the displayName when the user has an active
+// Pixora Plus subscription. Listens to SubscriptionService reactively.
+class _PlusPill extends StatelessWidget {
+  const _PlusPill();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: SubscriptionService.instance,
+      builder: (context, _) {
+        final hasPlus = SubscriptionService.instance.status.hasAccess;
+        if (!hasPlus) return const SizedBox.shrink();
+        return Container(
+          margin: const EdgeInsets.only(left: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [HudTokens.goldBright, HudTokens.gold],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: const Text(
+            'PLUS',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+              letterSpacing: 1.2,
+              height: 1,
+            ),
+          ),
+        );
+      },
     );
   }
 }
