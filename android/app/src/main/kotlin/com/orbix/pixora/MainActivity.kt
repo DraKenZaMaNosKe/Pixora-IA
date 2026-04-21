@@ -80,7 +80,6 @@ class MainActivity : AudioServiceActivity() {
                                 .putBoolean("interactive", false)
                                 .putLong("changed_at", System.currentTimeMillis())
                                 .apply()
-                            System.gc()
                             android.util.Log.d("PixoraEQ", "Engine reset: caches cleared")
                             result.success(true)
                         } catch (e: Exception) {

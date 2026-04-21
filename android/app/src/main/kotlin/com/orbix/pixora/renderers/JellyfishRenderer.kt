@@ -59,9 +59,10 @@ class JellyfishRenderer(private val context: Context) {
                 return
             }
 
+            // RGB_565 preferred-config omitted — it's a no-op for transparent PNGs
+            // (BitmapFactory ignores the hint when the source has an alpha channel).
             val opts = BitmapFactory.Options().apply {
                 inSampleSize = 2
-                inPreferredConfig = Bitmap.Config.RGB_565
             }
             val bitmaps = fileList.mapNotNull { filename ->
                 if (fromFiles) {
@@ -78,7 +79,6 @@ class JellyfishRenderer(private val context: Context) {
                 "JellyfishRenderer",
                 "Loaded ${bitmaps.size} frames from $src:$assetFolder"
             )
-            System.gc()
         } catch (e: Exception) {
             android.util.Log.e("JellyfishRenderer", "Failed to load $assetFolder: $e")
         }

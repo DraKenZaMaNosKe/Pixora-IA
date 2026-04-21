@@ -129,7 +129,6 @@ class FrameScrubRenderer {
             }
 
             retriever.release()
-            System.gc()
 
             if (extractionCancelled) {
                 isExtracting = false
