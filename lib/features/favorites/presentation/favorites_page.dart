@@ -45,7 +45,9 @@ class FavoritesPage extends ConsumerWidget {
         crossAxisCount: 2,
         mainAxisSpacing: HudTokens.sp3,
         crossAxisSpacing: HudTokens.sp3,
-        childAspectRatio: 0.6,
+        // Ticket card renders ~380 px tall on a ~188 dp card width.
+        // 0.48 gives ~392 dp height = ~12 dp safety margin.
+        childAspectRatio: 0.48,
       ),
       itemCount: favorites.length,
       itemBuilder: (context, index) =>
