@@ -109,7 +109,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 final success = await AuthService.instance.signInWithGoogle();
                 if (success && mounted) {
                   setState(() {});
-                  ref.read(favoritesProvider.notifier).syncWithCloud();
+                  // Favorites auto-sync via FavoritesNotifier's auth listener.
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(

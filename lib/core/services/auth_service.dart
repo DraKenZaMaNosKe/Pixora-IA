@@ -186,6 +186,32 @@ class AuthService {
     }
   }
 
+  /// Fetch the signed-in user's favorites from Supabase (read-only, no merge).
+  /// Returns an empty set if not signed in or on error.
+  Future<Set<String>> fetchRemoteFavorites() async {
+    if (!isLoggedIn) return {};
+    try {
+      final userId = currentUser?.id ?? '';
+      final response = await _client
+          .from('user_favorites')
+          .select('wallpaper_id')
+          .eq('user_id', userId);
+      final favs = <String>{};
+      if (response is List) {
+        for (final r in response) {
+          if (r is Map) {
+            final id = r['wallpaper_id'] as String?;
+            if (id != null) favs.add(id);
+          }
+        }
+      }
+      return favs;
+    } catch (e) {
+      debugPrint('[Auth] Fetch remote favorites failed: $e');
+      return {};
+    }
+  }
+
   /// Add a favorite to Supabase.
   Future<void> addFavoriteRemote(String wallpaperId) async {
     if (!isLoggedIn) return;

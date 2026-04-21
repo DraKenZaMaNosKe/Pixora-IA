@@ -552,8 +552,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 final success = await auth.signInWithGoogle();
                 if (success && mounted) {
                   setState(() {});
-                  // Sync favorites after login
-                  ref.read(favoritesProvider.notifier).syncWithCloud();
+                  // Favorites auto-sync via FavoritesNotifier's auth listener.
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Signed in! Favorites synced.'),
@@ -772,7 +771,6 @@ class _SettingsTile extends StatelessWidget {
     );
   }
 }
-
 
 // ── Plus subscription pill ─────────────────────────────────────────
 // Small gold chip next to the displayName when the user has an active
