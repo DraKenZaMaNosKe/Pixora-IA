@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pixora — VIP badge mockups</title>
+<style>
+  :root {
+    --gold: #C9A650;
+    --gold-bright: #F0DD9E;
+    --gold-deep: #8A6F33;
+    --bg: #0A0604;
+    --surface: #1A1410;
+    --text: #F0E8D6;
+    --text-dim: #8A8074;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #05030A;
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    color: var(--gold-bright);
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 40px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto 30px;
+  }
+  .card {
+    background: var(--bg);
+    border: 1px solid rgba(201, 166, 80, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .card-label {
+    padding: 14px 18px;
+    background: var(--surface);
+    border-bottom: 1px solid rgba(201, 166, 80, 0.15);
+  }
+  .card-label h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    font-style: italic;
+  }
+  .card-label p {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .phone-preview {
+    background: #000;
+    padding: 30px 0 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Simulated home screen with bg image */
+  .phone-preview::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center top, #3D1D1F 0%, #0A0604 70%);
+    opacity: 0.6;
+  }
+  .app-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, rgba(10,6,4,0.8) 0%, transparent 100%);
+  }
+  .avatar-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    position: relative;
+    /* mock: replace with real photo */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%23F0DD9E"/><circle cx="16" cy="13" r="5" fill="%238A6F33"/><path d="M6 30 Q16 20 26 30" fill="%238A6F33"/></svg>');
+    background-size: cover;
+  }
+  .app-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+  .credits {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--gold);
+    border-radius: 20px;
+  }
+  .credits .diamond { color: var(--gold-bright); font-size: 11px; }
+  .credits .num { color: var(--gold-bright); font-weight: 700; font-size: 13px; }
+  .search-icon {
+    margin-left: 10px;
+    color: var(--text);
+    font-size: 16px;
+  }
+  .hero-placeholder {
+    position: relative;
+    height: 220px;
+    margin: 0 16px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #3D1D1F 0%, #0A0604 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 20px;
+    color: var(--text);
+  }
+  .hero-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-style: italic;
+    color: var(--gold-bright);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+
+  /* OPTION A — Corner diamond badge */
+  .badge-a {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    transform: rotate(45deg);
+    border: 2px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 8px rgba(240, 221, 158, 0.5);
+  }
+  .badge-a::before {
+    content: 'V';
+    transform: rotate(-45deg);
+    font-size: 8px;
+    font-weight: 900;
+    color: #000;
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* OPTION B — Breathing gold halo ring */
+  .halo-b {
+    padding: 2px;
+    background: conic-gradient(from 0deg, var(--gold), var(--gold-bright), var(--gold-deep), var(--gold));
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(240, 221, 158, 0.4);
+    animation: pulse-halo 3s ease-in-out infinite;
+  }
+  @keyframes pulse-halo {
+    0%, 100% { box-shadow: 0 0 8px rgba(240, 221, 158, 0.3); }
+    50% { box-shadow: 0 0 16px rgba(240, 221, 158, 0.6); }
+  }
+
+  /* OPTION C — PLUS pill below avatar */
+  .pill-wrap-c {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .pill-c {
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    font-size: 7px;
+    font-weight: 900;
+    color: #000;
+    letter-spacing: 0.12em;
+    line-height: 1;
+  }
+
+  /* Non-subscriber comparison */
+  .non-vip-row {
+    max-width: 1400px;
+    margin: 50px auto 0;
+    padding: 20px;
+    background: rgba(138, 112, 51, 0.08);
+    border: 1px dashed rgba(201, 166, 80, 0.3);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .non-vip-row h3 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .non-vip-row .avatar {
+    margin: 0 auto;
+  }
+
+  .analysis {
+    max-width: 1400px;
+    margin: 40px auto 0;
+    padding: 24px;
+    background: rgba(201, 166, 80, 0.05);
+    border-left: 3px solid var(--gold);
+  }
+  .analysis h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    font-size: 16px;
+    margin-bottom: 14px;
+    letter-spacing: 0.04em;
+  }
+  .analysis ul { list-style: none; padding: 0; }
+  .analysis li {
+    padding: 6px 0;
+    padding-left: 20px;
+    position: relative;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .analysis li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 10px;
+  }
+  .analysis strong { color: var(--gold-bright); }
+</style>
+</head>
+<body>
+
+<h1>Pixora — VIP badge mockups</h1>
+<p class="subtitle">3 alternativas para indicar suscripción activa en el header · mockup a escala real (AppBar 56px)</p>
+
+<div class="row">
+
+  <!-- OPTION A -->
+  <div class="card">
+    <div class="card-label">
+      <h2>A — Diamante oro de esquina</h2>
+      <p>Insignia discreta tipo "verificado" pero en rombo oro con "V". Inspirado en Instagram verified + aesthetic Black & Gold.</p>
+    </div>
+    <div class="phone-preview">
+      <div class="app-bar">
+        <div class="avatar-wrap">
+          <div class="avatar">
+            <div class="badge-a"></div>
+          </div>
+          <div class="app-title">PIXORA</div>
+        </div>
+        <div style="display:flex;align-items:center">
+          <div class="credits"><span class="diamond">◆</span><span class="num">210</span></div>
+          <span class="search-icon">🔍</span>
+        </div>
+      </div>
+      <div class="hero-placeholder"><div class="hero-label">Inside the Heart</div></div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="card">
+    <div class="card-label">
+      <h2>B — Halo oro breathing</h2>
+      <p>Anillo oro iridiscente alrededor del avatar que respira 3 seg. Puro lenguaje luxury. Sin texto, sin chrome extra.</p>
+    </div>
+    <div class="phone-preview">
+      <div class="app-bar">
+        <div class="avatar-wrap">
+          <div class="halo-b">
+            <div class="avatar"></div>
+          </div>
+          <div class="app-title">PIXORA</div>
+        </div>
+        <div style="display:flex;align-items:center">
+          <div class="credits"><span class="diamond">◆</span><span class="num">210</span></div>
+          <span class="search-icon">🔍</span>
+        </div>
+      </div>
+      <div class="hero-placeholder"><div class="hero-label">Inside the Heart</div></div>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="card">
+    <div class="card-label">
+      <h2>C — Pill "PLUS" debajo</h2>
+      <p>Etiqueta oro explícita con texto "PLUS". Como YouTube Premium. Más directo, ocupa un poquito más de espacio vertical.</p>
+    </div>
+    <div class="phone-preview">
+      <div class="app-bar">
+        <div class="avatar-wrap">
+          <div class="pill-wrap-c">
+            <div class="avatar"></div>
+            <div class="pill-c">PLUS</div>
+          </div>
+          <div class="app-title">PIXORA</div>
+        </div>
+        <div style="display:flex;align-items:center">
+          <div class="credits"><span class="diamond">◆</span><span class="num">210</span></div>
+          <span class="search-icon">🔍</span>
+        </div>
+      </div>
+      <div class="hero-placeholder"><div class="hero-label">Inside the Heart</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="non-vip-row">
+  <h3>Cómo se ve el avatar para usuarios SIN suscripción (sin cambios)</h3>
+  <div class="avatar"></div>
+</div>
+
+<div class="analysis">
+  <h3>Mi lectura de cada opción</h3>
+  <ul>
+    <li><strong>A — Diamante de esquina:</strong> la más inmediata y "hacker" de estas. Se lee rápido como "tag de verificación". Pro: reconocible universalmente. Contra: agrega un chromecito visual que el diseño Black &amp; Gold ha evitado cuidadosamente (tú viniste de rediseñar TODO para que fuera minimalista).</li>
+    <li><strong>B — Halo breathing:</strong> la más alineada con tu ADN de diseño. NO agrega elementos nuevos, solo modifica el borde del elemento que ya existe. Se siente premium sin decir "mira qué premium soy". El breathing ≤3 seg es sutil, no distrae. Es lo que haría Cartier.</li>
+    <li><strong>C — Pill PLUS:</strong> la más explícita. Pro: un usuario nuevo que nunca ha visto el patrón entiende de inmediato. Contra: ocupa espacio vertical, puede verse "promocional" en lugar de premium. Se siente más como "estoy usando Premium" que "soy Plus".</li>
+  </ul>
+  <h3 style="margin-top: 24px">Recomendación</h3>
+  <ul>
+    <li><strong>B</strong> para el public-facing (pantalla principal) — consistente con la estética luxury que construimos.</li>
+    <li><strong>C</strong> solo en la pantalla de Settings (junto al info de cuenta) — ahí sí quieres explicitud: "suscrito como PLUS / vence X fecha".</li>
+    <li>Combinar B + C = el user ve el halo siempre, pero en Settings también ve el badge textual cuando revisa status. Mejor de ambos mundos.</li>
+  </ul>
+</div>
+
+</body>
+</html>

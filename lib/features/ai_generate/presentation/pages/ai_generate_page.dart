@@ -180,7 +180,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
       return 'GENERATE · ${sub.generationsRemaining} LEFT';
     }
     if (CreditService.instance.balance >= 30) {
-      return 'GENERATE · 30 ◆';
+      return 'GENERATE · 30 💎';
     }
     return LocaleHelper.pick(
       es: 'CUOTA AGOTADA',
@@ -385,8 +385,8 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
               const SizedBox(height: HudTokens.sp3),
               Text(
                 LocaleHelper.pick(
-                  es: 'Para generar imágenes con IA necesitas una cuenta de Google. Así protegemos tus créditos y tu suscripción a través de dispositivos.',
-                  en: 'Sign in with Google to generate AI images. This protects your credits and subscription across devices.',
+                  es: 'Para generar imágenes con IA necesitas una cuenta de Google. Así protegemos tus diamantes y tu suscripción a través de dispositivos.',
+                  en: 'Sign in with Google to generate AI images. This protects your diamonds and subscription across devices.',
                 ),
                 style: HudTokens.body(size: 13, color: h.text),
               ),
@@ -685,11 +685,11 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
             const SizedBox(height: HudTokens.sp4),
             Row(
               children: [
-                HudStatChip(label: '◆', value: '$credits'),
+                HudStatChip(label: '💎', value: '$credits'),
                 const SizedBox(width: HudTokens.sp5),
                 HudStatChip(
                   label: 'COST',
-                  value: '30 ◆',
+                  value: '30 💎',
                   color: h.accent,
                 ),
               ],

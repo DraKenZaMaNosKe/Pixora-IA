@@ -31,7 +31,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   final _pageController = PageController(viewportFraction: 0.85);
 
   Color get _glowColor =>
-      HudTokens.gold;  // Was: parseHexColor(glowColor, fallback: deepPurple)
+      HudTokens.gold; // Was: parseHexColor(glowColor, fallback: deepPurple)
 
   @override
   void initState() {
@@ -118,9 +118,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
 
       setState(() {
         _loadingPhase = success ? LoadingPhase.done : LoadingPhase.error;
-        _loadingStatus = success
-            ? 'Story started!'
-            : 'Failed to start story';
+        _loadingStatus = success ? 'Story started!' : 'Failed to start story';
       });
       await Future.delayed(const Duration(milliseconds: 1200));
       setState(() => _isStarting = false);
@@ -151,140 +149,140 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(children: [
-      CustomScrollView(
-        slivers: [
-          // Cover image as app bar
-          SliverAppBar(
-            expandedHeight: 300,
-            pinned: true,
-            backgroundColor: Colors.black,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(widget.story.title,
-                  style: const TextStyle(fontSize: 16)),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedWallpaperImage(imageUrl: widget.story.coverImageUrl),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.8),
-                        ],
+        CustomScrollView(
+          slivers: [
+            // Cover image as app bar
+            SliverAppBar(
+              expandedHeight: 300,
+              pinned: true,
+              backgroundColor: Colors.black,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(widget.story.title,
+                    style: const TextStyle(fontSize: 16)),
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedWallpaperImage(imageUrl: widget.story.coverImageUrl),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.8),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Story info
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Description
-                  if (widget.story.description.isNotEmpty)
-                    Text(
-                      widget.story.description,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 14,
+            // Story info
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Description
+                    if (widget.story.description.isNotEmpty)
+                      Text(
+                        widget.story.description,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                  // Stats row
-                  Row(
-                    children: [
-                      _statChip(Icons.photo_library,
-                          '${widget.story.frames.length} frames'),
-                      const SizedBox(width: 12),
-                      _statChip(Icons.timer,
-                          'Every ${widget.story.intervalMinutes} min'),
-                      const SizedBox(width: 12),
-                      _statChip(Icons.schedule,
-                          '~${(widget.story.frames.length * widget.story.intervalMinutes / 60).toStringAsFixed(1)}h total'),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Frames preview label
-                  const Text('Frames',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                ],
-              ),
-            ),
-          ),
-
-          // Frames horizontal pager
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 400,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: widget.story.frames.length,
-                itemBuilder: (context, index) {
-                  final frame = widget.story.frames[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Column(
+                    // Stats row
+                    Row(
                       children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: CachedWallpaperImage(
-                                imageUrl: frame.fullImageUrl),
-                          ),
-                        ),
-                        if (frame.captionEs.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            frame.captionEs,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
-                              fontSize: 12,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                          ),
-                        ],
-                        const SizedBox(height: 4),
-                        Text(
-                          '${index + 1} / ${widget.story.frames.length}',
-                          style: TextStyle(
-                            color: glow.withOpacity(0.7),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        _statChip(Icons.photo_library,
+                            '${widget.story.frames.length} frames'),
+                        const SizedBox(width: 12),
+                        _statChip(Icons.timer,
+                            'Every ${widget.story.intervalMinutes} min'),
+                        const SizedBox(width: 12),
+                        _statChip(Icons.schedule,
+                            '~${(widget.story.frames.length * widget.story.intervalMinutes / 60).toStringAsFixed(1)}h total'),
                       ],
                     ),
-                  );
-                },
+                    const SizedBox(height: 24),
+
+                    // Frames preview label
+                    const Text('Frames',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Bottom spacing
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
-      ),
-      LoadingOverlay(
-        visible: _isStarting,
-        progress: _downloadFraction > 0 ? _downloadFraction : null,
-        status: _loadingStatus,
-        accentColor: glow,
-        phase: _loadingPhase,
-      ),
+            // Frames horizontal pager
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 400,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: widget.story.frames.length,
+                  itemBuilder: (context, index) {
+                    final frame = widget.story.frames[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CachedWallpaperImage(
+                                  imageUrl: frame.fullImageUrl),
+                            ),
+                          ),
+                          if (frame.captionEs.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              frame.captionEs,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.6),
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                            ),
+                          ],
+                          const SizedBox(height: 4),
+                          Text(
+                            '${index + 1} / ${widget.story.frames.length}',
+                            style: TextStyle(
+                              color: glow.withOpacity(0.7),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            // Bottom spacing
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
+        ),
+        LoadingOverlay(
+          visible: _isStarting,
+          progress: _downloadFraction > 0 ? _downloadFraction : null,
+          status: _loadingStatus,
+          accentColor: glow,
+          phase: _loadingPhase,
+        ),
       ]),
 
       // Start/Stop button + ad badge
@@ -321,18 +319,16 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                           style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: isFree
-                                  ? HudTokens.gold
-                                  : HudTokens.gold),
+                              color: isFree ? HudTokens.gold : HudTokens.gold),
                         ),
                       ),
                       const SizedBox(width: 10),
                       const Icon(Icons.diamond,
-                          size: 12, color: Color(0xFF7C4DFF)),
+                          size: 12, color: HudTokens.gold),
                       const SizedBox(width: 3),
                       Text('$credits',
                           style: const TextStyle(
-                              fontSize: 11, color: Color(0xFF7C4DFF))),
+                              fontSize: 11, color: HudTokens.gold)),
                     ],
                   );
                 }),

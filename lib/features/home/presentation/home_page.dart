@@ -181,17 +181,15 @@ class _HomePageState extends ConsumerState<HomePage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('// CREDITS_WALLET',
+              Text('// DIAMONDS_WALLET',
                   style: HudTokens.display(
                       size: 12, color: h.accent, letterSpacing: 0.1)),
               const SizedBox(height: HudTokens.sp4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('◆',
-                      style:
-                          TextStyle(fontSize: 32, color: h.accent2, height: 1)),
+                  Icon(Icons.diamond, size: 38, color: h.accent2),
                   const SizedBox(width: HudTokens.sp2),
                   Text('${credits.balance}',
                       style: HudTokens.display(
@@ -275,9 +273,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('◆',
-                      style:
-                          TextStyle(fontSize: 13, color: h.accent2, height: 1)),
+                  Icon(Icons.diamond, size: 14, color: h.accent2),
                   const SizedBox(width: 5),
                   Text('$credits',
                       style: HudTokens.mono(

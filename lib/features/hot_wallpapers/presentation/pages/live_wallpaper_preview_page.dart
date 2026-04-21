@@ -582,14 +582,13 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    Icon(Icons.diamond,
-                                        size: 12,
-                                        color: const Color(0xFF7C4DFF)),
+                                    const Icon(Icons.diamond,
+                                        size: 12, color: HudTokens.gold),
                                     const SizedBox(width: 3),
                                     Text('$credits',
                                         style: const TextStyle(
                                             fontSize: 11,
-                                            color: Color(0xFF7C4DFF))),
+                                            color: HudTokens.gold)),
                                   ],
                                 ),
                               );

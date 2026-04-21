@@ -351,12 +351,11 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              // Credits line
+              // Diamonds line
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('◆',
-                      style: TextStyle(color: HudTokens.gold, fontSize: 13)),
+                  const Icon(Icons.diamond, color: HudTokens.gold, size: 13),
                   const SizedBox(width: 5),
                   Text('$credits diamantes',
                       style:
