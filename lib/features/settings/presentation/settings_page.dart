@@ -6,7 +6,6 @@ import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/quality_service.dart';
-import '../../../core/services/subscription_service.dart';
 import '../../../core/services/wallpaper_service.dart';
 import '../../../core/utils/locale_helper.dart';
 import '../../favorites/providers/favorites_provider.dart';
@@ -254,24 +253,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         const SizedBox(height: 12),
         const Divider(color: Colors.white12),
         _SectionHeader(LocaleHelper.pick(
-          es: 'Suscripción',
-          en: 'Subscription',
-        )),
-        _SettingsTile(
-          icon: Icons.verified,
-          title: LocaleHelper.pick(
-            es: 'Reintentar verificación de compra',
-            en: 'Retry purchase verification',
-          ),
-          subtitle: LocaleHelper.pick(
-            es: 'Si acabas de suscribirte pero Pixora Plus no se activó, toca aquí.',
-            en: 'If you just subscribed but Pixora Plus didn\'t activate, tap here.',
-          ),
-          onTap: _retryVerifySubscription,
-        ),
-        const SizedBox(height: 12),
-        const Divider(color: Colors.white12),
-        _SectionHeader(LocaleHelper.pick(
           es: 'Zona de peligro',
           en: 'Danger zone',
         )),
@@ -291,72 +272,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         const SizedBox(height: 40),
       ],
     );
-  }
-
-  Future<void> _retryVerifySubscription() async {
-    final isSpanish = LocaleHelper.isSpanish;
-    // Show a spinner dialog while the retry runs.
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        backgroundColor: HudTokens.nightSurface,
-        content: Row(
-          children: [
-            const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(isSpanish
-                  ? 'Verificando tu suscripción…'
-                  : 'Verifying your subscription…'),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    String resultCode;
-    try {
-      resultCode = await SubscriptionService.instance.retryVerification();
-    } catch (e) {
-      resultCode = 'error:$e';
-    }
-
-    if (!mounted) return;
-    Navigator.of(context, rootNavigator: true).pop(); // close spinner
-
-    final msg = () {
-      if (resultCode == 'not_authenticated') {
-        return isSpanish
-            ? 'Inicia sesión primero para verificar tu suscripción.'
-            : 'Sign in first to verify your subscription.';
-      }
-      if (resultCode == 'no_active_purchase_found') {
-        return isSpanish
-            ? 'No encontré una compra activa. Si acabas de suscribirte, espera 1 min y vuelve a intentar. Si cancelaste, es normal que no aparezca.'
-            : 'No active purchase found. If you just subscribed, wait ~1 min and retry. If you cancelled, it\'s expected.';
-      }
-      if (resultCode.startsWith('ok_seen_')) {
-        final n = resultCode.split('_').last;
-        return isSpanish
-            ? 'Se revisaron $n compra(s). Tu suscripción debería reflejarse en segundos.'
-            : 'Checked $n purchase(s). Your subscription should reflect within seconds.';
-      }
-      return isSpanish
-          ? 'Error al verificar: $resultCode'
-          : 'Verification error: $resultCode';
-    }();
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      duration: const Duration(seconds: 5),
-    ));
-    // Force UI refresh so the AI generator tab reflects any new status.
-    setState(() {});
   }
 
   Future<void> _confirmDeleteAccount() async {
@@ -520,9 +435,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ? Colors.white.withOpacity(0.08)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            border: isSelected
-                ? Border.all(color: HudTokens.gold, width: 1)
-                : null,
+            border:
+                isSelected ? Border.all(color: HudTokens.gold, width: 1) : null,
           ),
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -881,8 +795,9 @@ class _SettingsTile extends StatelessWidget {
       leading: Icon(icon, color: color),
       title: Text(
         title,
-        style:
-            iconColor == HudTokens.goldDeep ? const TextStyle(color: HudTokens.goldDeep) : null,
+        style: iconColor == HudTokens.goldDeep
+            ? const TextStyle(color: HudTokens.goldDeep)
+            : null,
       ),
       subtitle: Text(subtitle, style: const TextStyle(color: Colors.white38)),
       onTap: onTap,
