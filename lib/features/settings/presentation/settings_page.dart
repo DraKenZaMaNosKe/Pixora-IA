@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
-import '../../../core/services/quality_service.dart';
 import '../../../core/services/wallpaper_service.dart';
 import '../../../core/utils/locale_helper.dart';
 import '../../favorites/providers/favorites_provider.dart';
@@ -233,10 +232,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         )),
         _buildOverlaysSection(),
         const Divider(color: Colors.white12),
-        const _SectionHeader('Image Quality'),
-        _buildQualitySection(),
-        const SizedBox(height: 12),
-        const Divider(color: Colors.white12),
         const _SectionHeader('General'),
         const Divider(color: Colors.white12),
         const _SectionHeader('About'),
@@ -418,43 +413,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           value: enabled,
           activeColor: HudTokens.gold,
           onChanged: (v) => _setOverlay(key, v),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildQualitySection() {
-    final quality = ref.watch(imageQualityProvider);
-    return Column(
-      children: ImageQuality.values.map((q) {
-        final isSelected = quality == q;
-        return Container(
-          margin: const EdgeInsets.only(bottom: 6),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? Colors.white.withOpacity(0.08)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border:
-                isSelected ? Border.all(color: HudTokens.gold, width: 1) : null,
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            leading: Icon(q.icon,
-                color: isSelected ? HudTokens.gold : Colors.white38),
-            title: Text(q.label,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.white70,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                )),
-            subtitle: Text(q.description,
-                style: const TextStyle(color: Colors.white38, fontSize: 12)),
-            trailing: isSelected
-                ? const Icon(Icons.check_circle,
-                    color: HudTokens.gold, size: 20)
-                : null,
-            onTap: () => ref.read(imageQualityProvider.notifier).setQuality(q),
-          ),
         );
       }).toList(),
     );

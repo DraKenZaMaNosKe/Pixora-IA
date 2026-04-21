@@ -9,7 +9,6 @@ import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
-import '../../../../core/services/quality_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
@@ -44,11 +43,10 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
 
   // ── Business logic (unchanged) ────────────────────────────────────────
 
-  String get _downloadFile {
-    final quality = ref.read(imageQualityProvider);
-    if (quality == ImageQuality.lq) return widget.wallpaper.previewFile;
-    return widget.wallpaper.imageFile;
-  }
+  // Always HD for apply/download — the user will see this on their lock
+  // screen and home. LQ only belongs in browse thumbnails, not the final
+  // installed wallpaper.
+  String get _downloadFile => widget.wallpaper.imageFile;
 
   void _setLoading(String status, {double progress = 0.0}) {
     if (mounted) {

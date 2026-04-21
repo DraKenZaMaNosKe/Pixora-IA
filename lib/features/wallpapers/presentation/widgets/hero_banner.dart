@@ -8,7 +8,6 @@ import '../../../../core/design/hud_widgets.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
-import '../../../../core/services/quality_service.dart';
 import '../../providers/wallpaper_providers.dart';
 import '../pages/wallpaper_preview_page.dart';
 
@@ -61,8 +60,6 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
       data: (wallpapers) {
         if (wallpapers.isEmpty) return SizedBox(height: height);
         _startAutoScroll(wallpapers.length);
-        final quality = ref.watch(imageQualityProvider);
-        final useHD = ImageQualityNotifier.shouldUseHD(quality);
         return SizedBox(
           height: height,
           child: Stack(
@@ -75,7 +72,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
                   _startAutoScroll(wallpapers.length);
                 },
                 itemBuilder: (context, index) =>
-                    _HeroPage(wallpaper: wallpapers[index], useHD: useHD),
+                    _HeroPage(wallpaper: wallpapers[index]),
               ),
               // Dot indicators
               Positioned(
@@ -105,9 +102,8 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
 }
 
 class _HeroPage extends StatelessWidget {
-  const _HeroPage({required this.wallpaper, required this.useHD});
+  const _HeroPage({required this.wallpaper});
   final Wallpaper wallpaper;
-  final bool useHD;
 
   Color get _glowColor =>
       parseHexColor(wallpaper.glowColor, fallback: Colors.deepOrange);
@@ -125,7 +121,7 @@ class _HeroPage extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          CachedWallpaperImage(imageUrl: wallpaper.browseUrl(useHD)),
+          CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
