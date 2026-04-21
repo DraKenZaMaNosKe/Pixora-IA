@@ -48,6 +48,8 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
 
   _AIGenerationState? _latest;
   RealtimeChannel? _queueChannel;
+  StreamSubscription<AuthState>? _authSub;
+  String? _currentUid;
 
   final _styles = const [
     'Anime',
@@ -64,14 +66,31 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   void initState() {
     super.initState();
     SubscriptionService.instance.refreshStatus();
+    _currentUid = Supabase.instance.client.auth.currentUser?.id;
     _subscribeQueue();
     _loadLastGeneration();
+    // Listen for sign-in / sign-out so we never show one user's generation
+    // to another user. On any user change we fully reset local state and
+    // rebind the queue + reload the new user's last generation.
+    _authSub = AuthService.instance.authStateChanges.listen((_) {
+      final newUid = Supabase.instance.client.auth.currentUser?.id;
+      if (newUid == _currentUid) return;
+      _currentUid = newUid;
+      _queueChannel?.unsubscribe();
+      _queueChannel = null;
+      if (mounted) setState(() => _latest = null);
+      if (newUid != null) {
+        _subscribeQueue();
+        _loadLastGeneration();
+      }
+    });
   }
 
   @override
   void dispose() {
     _promptController.dispose();
     _queueChannel?.unsubscribe();
+    _authSub?.cancel();
     super.dispose();
   }
 
