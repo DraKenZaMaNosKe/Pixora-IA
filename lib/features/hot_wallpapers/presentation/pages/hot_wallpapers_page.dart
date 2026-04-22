@@ -253,6 +253,7 @@ class _LiveWallpaperCard extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: item.previewUrl,
               fit: BoxFit.cover,
+              memCacheWidth: 400,
               placeholder: (_, __) => Container(color: HudTokens.nightSurface),
               errorWidget: (_, __, ___) => Container(
                 color: HudTokens.nightSurface,

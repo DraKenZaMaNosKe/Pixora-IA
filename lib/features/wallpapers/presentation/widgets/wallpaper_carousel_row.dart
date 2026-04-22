@@ -88,41 +88,37 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                 // Horizontal list with scroll-driven effects
                 SizedBox(
                   height: widget.cardHeight,
-                  child: AnimatedBuilder(
-                    animation: _scrollController,
-                    builder: (context, _) => ListView.builder(
-                      controller: _scrollController,
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: widget.items.length,
-                      cacheExtent: 150,
-                      itemBuilder: (context, index) {
-                        // Staggered entrance per card
-                        final stagger = (index * 0.08).clamp(0.0, 0.6);
-                        final cardProgress =
-                            ((_entranceController.value - stagger) /
-                                    (1.0 - stagger))
-                                .clamp(0.0, 1.0);
-                        final cardFade = Curves.easeOut.transform(cardProgress);
-                        final cardScale = 0.85 +
-                            0.15 * Curves.easeOutBack.transform(cardProgress);
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: widget.items.length,
+                    cacheExtent: 150,
+                    itemBuilder: (context, index) {
+                      final stagger = (index * 0.08).clamp(0.0, 0.6);
+                      final cardProgress =
+                          ((_entranceController.value - stagger) /
+                                  (1.0 - stagger))
+                              .clamp(0.0, 1.0);
+                      final cardFade = Curves.easeOut.transform(cardProgress);
+                      final cardScale = 0.85 +
+                          0.15 * Curves.easeOutBack.transform(cardProgress);
 
-                        final wp = widget.items[index];
-                        return Opacity(
-                          opacity: cardFade,
-                          child: Transform.scale(
-                            scale: cardScale,
-                            child: _ParallaxCarouselCard(
-                              wallpaper: wp,
-                              width: widget.cardWidth,
-                              height: widget.cardHeight,
-                              scrollController: _scrollController,
-                              index: index,
-                            ),
+                      final wp = widget.items[index];
+                      return Opacity(
+                        opacity: cardFade,
+                        child: Transform.scale(
+                          scale: cardScale,
+                          child: _ParallaxCarouselCard(
+                            wallpaper: wp,
+                            width: widget.cardWidth,
+                            height: widget.cardHeight,
+                            scrollController: _scrollController,
+                            index: index,
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
