@@ -67,14 +67,12 @@ class PixoraFriendsRenderer(private val context: Context) {
 
     fun setState(state: State) {
         if (state == currentState) return
+        val old = currentState
         currentState = state
         frameIndex = 0
         frameTimer = 0
-    }
-
-    /** Preload all four states into memory. Safe to call multiple times. */
-    fun preloadAll() {
-        for (s in State.values()) loadState(s)
+        // Release previous state's bitmaps to save ~5MB RAM per state switch
+        releaseState(old)
     }
 
     fun draw(canvas: Canvas) {
@@ -132,6 +130,10 @@ class PixoraFriendsRenderer(private val context: Context) {
         canvas.scale(scale, scale)
         canvas.drawBitmap(sprite, 0f, 0f, paint)
         canvas.restore()
+    }
+
+    private fun releaseState(state: State) {
+        spriteCache.remove(state)?.forEach { if (!it.isRecycled) it.recycle() }
     }
 
     fun release() {

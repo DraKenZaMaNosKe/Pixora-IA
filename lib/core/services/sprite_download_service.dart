@@ -33,6 +33,12 @@ class SpriteDownloadService {
       'aquarium/angler_fish',
       'aquarium/comb_jelly',
     ],
+    'pixora_island': [
+      'pixora_island/idle',
+      'pixora_island/eat',
+      'pixora_island/sleep',
+      'pixora_island/walk',
+    ],
   };
 
   Map<String, dynamic>? _manifest;
@@ -61,14 +67,17 @@ class SpriteDownloadService {
   Future<Map<String, dynamic>> _fetchManifest() async {
     if (_manifest != null) return _manifest!;
 
-    // Try disk cache first
+    // Try disk cache first (expire after 24h to pick up new entries)
     try {
       final root = await _spritesDir();
       final cacheFile = File('${root.path}/manifest.json');
       if (cacheFile.existsSync()) {
-        _manifest =
-            json.decode(await cacheFile.readAsString()) as Map<String, dynamic>;
-        return _manifest!;
+        final age = DateTime.now().difference(cacheFile.lastModifiedSync());
+        if (age.inHours < 24) {
+          _manifest = json.decode(await cacheFile.readAsString())
+              as Map<String, dynamic>;
+          return _manifest!;
+        }
       }
     } catch (_) {}
 
