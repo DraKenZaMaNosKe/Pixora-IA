@@ -47,9 +47,11 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   bool _submitting = false;
 
   _AIGenerationState? _latest;
+  List<_AIGenerationState> _history = const [];
   RealtimeChannel? _queueChannel;
   StreamSubscription<AuthState>? _authSub;
   String? _currentUid;
+  final _scrollController = ScrollController();
 
   final _styles = const [
     'Anime',
@@ -69,19 +71,26 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
     _currentUid = Supabase.instance.client.auth.currentUser?.id;
     _subscribeQueue();
     _loadLastGeneration();
+    _loadHistory();
     // Listen for sign-in / sign-out so we never show one user's generation
     // to another user. On any user change we fully reset local state and
-    // rebind the queue + reload the new user's last generation.
+    // rebind the queue + reload the new user's last generation AND history.
     _authSub = AuthService.instance.authStateChanges.listen((_) {
       final newUid = Supabase.instance.client.auth.currentUser?.id;
       if (newUid == _currentUid) return;
       _currentUid = newUid;
       _queueChannel?.unsubscribe();
       _queueChannel = null;
-      if (mounted) setState(() => _latest = null);
+      if (mounted) {
+        setState(() {
+          _latest = null;
+          _history = const [];
+        });
+      }
       if (newUid != null) {
         _subscribeQueue();
         _loadLastGeneration();
+        _loadHistory();
       }
     });
   }
@@ -89,6 +98,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   @override
   void dispose() {
     _promptController.dispose();
+    _scrollController.dispose();
     _queueChannel?.unsubscribe();
     _authSub?.cancel();
     super.dispose();
@@ -114,15 +124,27 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
             final row = payload.newRecord;
             final id = row['id'] as int?;
             if (id == null) return;
-            if (_latest != null && _latest!.id != id) return;
+            final updated = _AIGenerationState(
+              id: id,
+              prompt: (row['prompt'] as String?) ?? '',
+              status: (row['status'] as String?) ?? 'pending',
+              resultUrl: row['result_url'] as String?,
+              errorMessage: row['error_message'] as String?,
+            );
             setState(() {
-              _latest = _AIGenerationState(
-                id: id,
-                prompt: (row['prompt'] as String?) ?? '',
-                status: (row['status'] as String?) ?? 'pending',
-                resultUrl: row['result_url'] as String?,
-                errorMessage: row['error_message'] as String?,
-              );
+              // Only mirror into _latest if this is the in-flight gen the
+              // user just submitted.
+              if (_latest != null && _latest!.id == id) {
+                _latest = updated;
+              }
+              // When a gen finishes successfully, insert into history at
+              // the top (newest first) — unless already there.
+              if (updated.status == 'done' && updated.resultUrl != null) {
+                final already = _history.any((e) => e.id == id);
+                if (!already) {
+                  _history = [updated, ..._history];
+                }
+              }
             });
           },
         )
@@ -154,6 +176,51 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
         unawaited(_dispatchWorker(_latest!.id));
       }
     } catch (_) {}
+  }
+
+  /// Loads every successful generation the current user ever made, newest
+  /// first. Source of truth is `ia_generation_queue`; we only pull rows with
+  /// `status='done'` and a non-null `result_url` so broken rows never reach
+  /// the grid.
+  Future<void> _loadHistory() async {
+    final uid = Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) return;
+    try {
+      final rows = await Supabase.instance.client
+          .from('ia_generation_queue')
+          .select('id, prompt, status, result_url, error_message')
+          .eq('user_id', uid)
+          .eq('status', 'done')
+          .not('result_url', 'is', null)
+          .order('created_at', ascending: false)
+          .limit(200);
+      if (!mounted) return;
+      setState(() {
+        _history = (rows as List)
+            .map((r) => _AIGenerationState(
+                  id: r['id'] as int,
+                  prompt: (r['prompt'] as String?) ?? '',
+                  status: (r['status'] as String?) ?? 'done',
+                  resultUrl: r['result_url'] as String?,
+                  errorMessage: r['error_message'] as String?,
+                ))
+            .toList(growable: false);
+      });
+    } catch (_) {}
+  }
+
+  /// Promotes a history item to the result panel and scrolls to the top so
+  /// the user sees the full-size image + action buttons (save / wallpaper /
+  /// share). Reuses the existing preview plumbing end-to-end.
+  void _selectFromHistory(_AIGenerationState item) {
+    setState(() => _latest = item);
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutCubic,
+      );
+    }
   }
 
   Future<void> _dispatchWorker(int queueId) async {
@@ -603,6 +670,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
           return CustomPaint(
             painter: ScanLinesPainter(color: h.text),
             child: SingleChildScrollView(
+              controller: _scrollController,
               padding: const EdgeInsets.fromLTRB(
                 HudTokens.sp5,
                 HudTokens.sp5,
@@ -627,6 +695,11 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
                     busy: _submitting,
                     onPressed: _handleGeneratePressed,
                   ),
+                  if (AuthService.instance.isLoggedIn &&
+                      _history.isNotEmpty) ...[
+                    const SizedBox(height: HudTokens.sp8),
+                    _buildHistoryGrid(),
+                  ],
                 ],
               ),
             ),
@@ -818,6 +891,57 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
     );
   }
 
+  /// Classic Grid — 2-col history of every successful generation. Tap a cell
+  /// to promote it into the result panel above (reuses save / wallpaper /
+  /// share actions). Newest first.
+  Widget _buildHistoryGrid() {
+    final h = context.hud;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Text(
+              '// MIS_CREACIONES',
+              style: HudTokens.display(
+                size: 12,
+                color: h.accent,
+                letterSpacing: 0.1,
+              ),
+            ),
+            const Spacer(),
+            HudBadge(
+              text: '${_history.length}',
+              color: h.surface,
+              onColor: h.accent2,
+            ),
+          ],
+        ),
+        const SizedBox(height: HudTokens.sp3),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: HudTokens.sp2,
+            crossAxisSpacing: HudTokens.sp2,
+            childAspectRatio: 3 / 4,
+          ),
+          itemCount: _history.length,
+          itemBuilder: (context, index) {
+            final item = _history[index];
+            final isSelected = _latest?.id == item.id;
+            return _HistoryCell(
+              item: item,
+              isSelected: isSelected,
+              onTap: () => _selectFromHistory(item),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildResultPanel(_AIGenerationState g) {
     final h = context.hud;
     final isDone = g.status == 'done' && g.resultUrl != null;
@@ -978,6 +1102,66 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// One tile in the Classic Grid history. Isolated widget so repaint stays
+/// local and the grid can lazy-render hundreds of cells without jank.
+class _HistoryCell extends StatelessWidget {
+  const _HistoryCell({
+    required this.item,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final _AIGenerationState item;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final h = context.hud;
+    final url = item.resultUrl;
+    return GestureDetector(
+      onTap: onTap,
+      child: RepaintBoundary(
+        child: Container(
+          decoration: BoxDecoration(
+            color: h.surface,
+            border: Border.all(
+              color: isSelected ? h.accent2 : h.divider,
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: url == null
+              ? Center(
+                  child: Icon(Icons.broken_image, color: h.textDim, size: 24),
+                )
+              : Image.network(
+                  url,
+                  fit: BoxFit.cover,
+                  cacheWidth: 280,
+                  loadingBuilder: (ctx, child, progress) {
+                    if (progress == null) return child;
+                    return Center(
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          color: h.accent,
+                          strokeWidth: 1.5,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (_, __, ___) => Center(
+                    child: Icon(Icons.broken_image, color: h.textDim, size: 24),
+                  ),
+                ),
+        ),
+      ),
     );
   }
 }
