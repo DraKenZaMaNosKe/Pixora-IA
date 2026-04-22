@@ -206,6 +206,65 @@ After any of these, append (don't rewrite) a sub-section to the master `.docx` v
 | New platform pitfall learned | Add to "lecciones aprendidas" so it's not re-learned |
 | AURA track added/removed | §14.3 or §14.4 |
 
+## GitHub Projects sync duty
+
+Board: https://github.com/users/DraKenZaMaNosKe/projects/3 ("Pixora IA + IntraPC Solutions Roadmap"). Keep it in sync alongside the master doc — propose the update, don't act silently. Use `gh` CLI.
+
+| Trigger | Acción |
+|---|---|
+| Release shipped a Play Store (version bump + tag) | Crear issue retroactivo con checklist de lo shippeado → Status `Done` → asignar al milestone correspondiente o crear uno nuevo `v1.X Stability / Feature` |
+| Milestone completado (todos los issues cerrados) | Cerrar el milestone en GitHub + crear el siguiente (p.ej. v1.6.0 → v1.7.0) |
+| Decisión de negocio/infra (monetización, banking, proveedores, legal) | Crear issue en el milestone correspondiente con contexto + dependencias + gating. Ej: `IntraPC Formalizacion` para RFC/cuentas/contabilidad |
+| Nuevo pitfall técnico que nos costó tiempo | Issue con label `documentation` — sirve de log + recordatorio para futuras sesiones |
+| Trabajo arrancado (empezamos a implementar un issue) | Mover a `In Progress` |
+| Trabajo completado localmente pero sin shippear | Mover a `In Progress` (no `Done` — Done es cuando llega a Play Store) |
+
+**Cuándo proponer sync automáticamente (sin que el usuario lo pida):**
+- Al terminar una sesión que shipeó a Play Store → "¿sincronizamos el board?"
+- Al ver que una decisión de negocio se tomó en conversación pero no está en el board
+- Al notar que un issue del board lleva 2+ semanas abierto sin actividad → preguntar si sigue relevante
+
+**Comandos base:**
+```bash
+gh project list --owner DraKenZaMaNosKe
+gh project item-list 3 --owner DraKenZaMaNosKe --limit 100
+gh issue create --repo DraKenZaMaNosKe/Pixora-IA --milestone "v1.X ..." --label "..." --title "..." --body "..."
+gh project item-add 3 --owner DraKenZaMaNosKe --url <issue-url>
+# Project ID: PVT_kwHOAXyhK84BUT3u · Status field: PVTSSF_lAHOAXyhK84BUT3uzhBc84E
+# Options: Todo=f75ad846 · In Progress=47fc9ee4 · Done=98236657
+gh project item-edit --id <item-id> --field-id PVTSSF_lAHOAXyhK84BUT3uzhBc84E --project-id PVT_kwHOAXyhK84BUT3u --single-select-option-id <option-id>
+```
+
+## `orbixprivate` sync duty (cross-machine recovery)
+
+Private repo: https://github.com/DraKenZaMaNosKe/orbixprivate (clonado en `D:/Orbix/orbixprivate/`). Es el respaldo/sync de: user-scope agents, memorias, secretos (`KEYS_LOCAL.md`, `settings.local.json`), y export del doc maestro. Sin este sync, cambiar de máquina = perder contexto.
+
+**Al inicio de sesión en máquina nueva:**
+```bash
+cd /d/Orbix/orbixprivate && git pull && bash scripts/bootstrap.sh
+```
+Esto restaura agente + memorias + secretos a sus ubicaciones en `~/.claude/` y `D:/Orbix/Pixora-IA/`.
+
+**Al cerrar sesión productiva (SIEMPRE proponer esto al usuario):**
+```bash
+cd /d/Orbix/orbixprivate && bash scripts/sync-to-private.sh
+# Review diff, then:
+git add -A && git commit -m "sync: end-of-session YYYY-MM-DD from <home|work> PC" && git push
+```
+
+**Triggers para proponer el sync sin que el usuario lo pida:**
+| Trigger | Prioridad |
+|---|---|
+| Usuario dice "ya me voy a dormir" / "nos vemos mañana" / "cierra sesión" | Alta — sin sync, las memorias nuevas se pierden si se cae el disco |
+| Nueva memoria agregada durante la sesión (feedback/project/tech/reference) | Alta |
+| Nueva versión publicada a Play Store | Media — KEYS_LOCAL puede haber rotado |
+| Más de 3 días sin commits en `orbixprivate` pero con actividad en Pixora | Media |
+| Usuario a punto de cambiar de máquina ("mañana sigo en el trabajo") | Crítica |
+
+**Si hay divergencia con remoto** (otra PC pushed first): `git pull --no-rebase` crea merge commit (CLAUDE.md prohíbe rebase). Los archivos raramente entran en conflicto porque cada máquina toca memorias/secretos distintos.
+
+**NUNCA:** push a `orbixprivate` sin haber corrido primero `sync-to-private.sh` (pushear solo con cambios manuales pierde la captura automática de memorias). NUNCA hacer el repo público — contiene secretos en texto plano.
+
 ## Roadmap & tasks
 
 **All objectives, tasks, and feature plans live in the master document — NOT here.** Key sections: §14 (AURA), §16 (Art Gallery + Cemetery), §17 (LiveCalendar + Zodiac). Don't duplicate them in CLAUDE.md.
