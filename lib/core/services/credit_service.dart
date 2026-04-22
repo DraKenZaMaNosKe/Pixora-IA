@@ -28,7 +28,9 @@ class CreditService extends ChangeNotifier {
   static const _keyTotalEarned = 'total_earned';
   static const _keyAdsWatched = 'ads_watched';
   static const _keyLocalOnly = 'has_local_only_earnings';
+  static const _keyProtectPromptShown = 'protect_prompt_shown';
   static const creditsPerAd = 15;
+  static const protectPromptThreshold = 100;
 
   Box? _box;
   int _balance = 0;
@@ -46,6 +48,20 @@ class CreditService extends ChangeNotifier {
   /// to a server account yet (i.e. earned while signed out).
   bool get hasUnsyncedLocalEarnings =>
       _box?.get(_keyLocalOnly, defaultValue: false) as bool? ?? false;
+
+  /// Whether the "protect your diamonds" soft prompt should be shown now:
+  /// user is signed out, has at least [protectPromptThreshold] local diamonds,
+  /// and we haven't prompted them yet in this install.
+  bool get shouldShowProtectPrompt =>
+      !_isLoggedIn &&
+      _balance >= protectPromptThreshold &&
+      !(_box?.get(_keyProtectPromptShown, defaultValue: false) as bool? ??
+          false);
+
+  /// Mark the protect prompt as shown so we don't nag the user again.
+  Future<void> markProtectPromptShown() async {
+    await _box?.put(_keyProtectPromptShown, true);
+  }
 
   Future<void> init() async {
     _box = await Hive.openBox(_boxName);

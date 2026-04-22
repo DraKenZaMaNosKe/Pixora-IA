@@ -101,14 +101,16 @@ class PixoraWallpaperService : WallpaperService() {
         private val bubbleRenderer = BubbleRenderer()
         private val fireflyRenderer = FireflyRenderer()
         private val jellyfishRenderer = JellyfishRenderer(applicationContext)
+        private val pixoraFriendsRenderer = PixoraFriendsRenderer(applicationContext)
         private var isAquariumMode = false
         private var isFireflyMode = false
         private var isJellyfishMode = false
+        private var isPixoraIslandMode = false
 
         // Any wallpaper that uses code-driven animated sprites over a static background.
         // Keeps the engine at full FPS so animations and the clock second-hand stay smooth.
         private val hasAnimatedCanvasOverlay: Boolean
-            get() = isAquariumMode || isFireflyMode || isJellyfishMode
+            get() = isAquariumMode || isFireflyMode || isJellyfishMode || isPixoraIslandMode
 
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
@@ -330,6 +332,7 @@ class PixoraWallpaperService : WallpaperService() {
                 bubbleRenderer.reset()
                 fireflyRenderer.reset()
                 jellyfishRenderer.recycle()
+                pixoraFriendsRenderer.release()
 
                 // Update caption: show immediately on change, then cycle every 3 min
                 if (caption != captionOverlay.currentCaption) {
@@ -449,6 +452,18 @@ class PixoraWallpaperService : WallpaperService() {
                     }
 
                     Log.d(TAG, "Jellyfish mode activated: jellies + bubbles + squid over ocean abyss (${surfaceWidth}x${surfaceHeight})")
+                }
+
+                // Pixora Island: chibi mascot that cycles idle/walk/eat/sleep by hour
+                isPixoraIslandMode = path?.contains("pixora_island") == true
+                if (isPixoraIslandMode && surfaceWidth > 0 && surfaceHeight > 0) {
+                    pixoraFriendsRenderer.surfaceWidth = surfaceWidth
+                    pixoraFriendsRenderer.surfaceHeight = surfaceHeight
+                    // Sprite native size 240x~400, decoded at half via inSampleSize=2.
+                    // Target ~22% of screen width so the mascot feels present but doesn't
+                    // compete with the scene. At 1080 px screen that's ~237 px wide.
+                    pixoraFriendsRenderer.scale = (surfaceWidth * 0.22f) / 120f
+                    Log.d(TAG, "Pixora Island mode activated: chibi mascot day-cycle (${surfaceWidth}x${surfaceHeight})")
                 }
 
                 // Aquarium mode: animated fish over background image
@@ -1073,6 +1088,13 @@ class PixoraWallpaperService : WallpaperService() {
                     bubbleRenderer.draw(canvas)
                 }
 
+                // Pixora Island: chibi mascot that cycles by hour of day
+                if (isPixoraIslandMode) {
+                    pixoraFriendsRenderer.surfaceWidth = surfaceWidth
+                    pixoraFriendsRenderer.surfaceHeight = surfaceHeight
+                    pixoraFriendsRenderer.draw(canvas)
+                }
+
                 rainRenderer.draw(canvas)
                 if (isRainWallpaper) rainRenderer.drawHeadphoneGlow(canvas)
 
@@ -1208,6 +1230,7 @@ class PixoraWallpaperService : WallpaperService() {
             bubbleRenderer.reset()
             fireflyRenderer.reset()
             jellyfishRenderer.recycle()
+            pixoraFriendsRenderer.release()
             batteryIndicator.release()
             unregisterPrefsListener()
             unregisterKeyguardReceiver()

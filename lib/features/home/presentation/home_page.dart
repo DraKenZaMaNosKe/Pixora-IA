@@ -28,6 +28,35 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   int _currentIndex = 0;
+  bool _protectPromptOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    CreditService.instance.addListener(_onCreditsChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeShowProtectPrompt();
+    });
+  }
+
+  @override
+  void dispose() {
+    CreditService.instance.removeListener(_onCreditsChanged);
+    super.dispose();
+  }
+
+  void _onCreditsChanged() {
+    if (!mounted) return;
+    _maybeShowProtectPrompt();
+  }
+
+  void _maybeShowProtectPrompt() {
+    if (_protectPromptOpen) return;
+    if (!CreditService.instance.shouldShowProtectPrompt) return;
+    _protectPromptOpen = true;
+    CreditService.instance.markProtectPromptShown();
+    _showProtectDiamondsSheet();
+  }
 
   static final _pages = [
     const WallpapersPage(),
@@ -138,6 +167,102 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
       ),
     );
+  }
+
+  void _showProtectDiamondsSheet() {
+    final h = context.hud;
+    final balance = CreditService.instance.balance;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: h.surface,
+      isDismissible: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(HudTokens.rSharp)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(
+            HudTokens.sp6, HudTokens.sp5, HudTokens.sp6, HudTokens.sp6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              '// PROTECT_DIAMONDS',
+              style: HudTokens.display(
+                  size: 12, color: h.accent, letterSpacing: 0.1),
+            ),
+            const SizedBox(height: HudTokens.sp3),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.diamond, size: 34, color: h.accent2),
+                const SizedBox(width: HudTokens.sp2),
+                Text(
+                  '$balance',
+                  style: HudTokens.display(
+                      size: 40, color: h.text, letterSpacing: -0.02),
+                ),
+              ],
+            ),
+            const SizedBox(height: HudTokens.sp2),
+            Text(
+              'YOU HIT 100 DIAMONDS',
+              textAlign: TextAlign.center,
+              style: HudTokens.display(
+                  size: 18, color: h.text, letterSpacing: 0.02),
+            ),
+            const SizedBox(height: HudTokens.sp2),
+            Text(
+              'Sign in so they follow you across devices. If you wipe this '
+              "phone, they're gone.",
+              textAlign: TextAlign.center,
+              style: HudTokens.body(size: 13, color: h.textDim),
+            ),
+            const SizedBox(height: HudTokens.sp5),
+            HudPrimaryButton(
+              label: 'PROTECT WITH GOOGLE',
+              icon: Icons.shield_outlined,
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final success = await AuthService.instance.signInWithGoogle();
+                if (success && mounted) {
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '// DIAMONDS PROTECTED',
+                        style: HudTokens.mono(
+                          size: 11,
+                          color: Colors.white,
+                          weight: FontWeight.w700,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                      backgroundColor: HudTokens.okGreen,
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: HudTokens.sp3),
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(
+                  'MAYBE LATER',
+                  style: HudTokens.mono(
+                      size: 10, color: h.textDim, letterSpacing: 0.25),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).whenComplete(() {
+      _protectPromptOpen = false;
+    });
   }
 
   Widget _buildAvatar() {
