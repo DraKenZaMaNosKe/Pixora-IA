@@ -205,6 +205,9 @@ After any of these, append (don't rewrite) a sub-section to the master `.docx` v
 | New credential added | §11 (never paste the value — reference `KEYS_LOCAL.md`) |
 | New platform pitfall learned | Add to "lecciones aprendidas" so it's not re-learned |
 | AURA track added/removed | §14.3 or §14.4 |
+| Legal / compliance document (Privacy Policy, ToS, licenses, data-safety specs) | §13 (Anexos) — add as §13.X with content spec + URL + acceptance criteria |
+| Daily / milestone progress report | §19+ (next available "Reporte de progreso") |
+| Design system decision (tokens, look-and-feel rationale) | §21 (Sistema de Diseño) |
 
 ## GitHub Projects sync duty
 
