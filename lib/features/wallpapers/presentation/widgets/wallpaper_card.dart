@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
-import '../../../../widgets/card_live_effect.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
@@ -60,162 +59,158 @@ class WallpaperCard extends ConsumerWidget {
           ),
         );
       },
-      child: CardLiveEffect(
-        glowColor: h.accent,
-        effectSeed: wallpaper.id.hashCode,
-        child: Container(
-          decoration: BoxDecoration(
-            color: h.surface,
-            border: Border.all(color: h.accent.withOpacity(0.55), width: 1),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // ── Top stub: ADMIT · ONE | N° XXX ────────────
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
-                child: Row(
-                  children: [
-                    Text(
-                      'ADMIT · ONE',
-                      style: HudTokens.mono(
-                        size: 8.5,
-                        weight: FontWeight.w700,
-                        color: h.accent,
-                        letterSpacing: 0.3,
-                      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: h.surface,
+          border: Border.all(color: h.accent.withOpacity(0.55), width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Top stub: ADMIT · ONE | N° XXX ────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
+              child: Row(
+                children: [
+                  Text(
+                    'ADMIT · ONE',
+                    style: HudTokens.mono(
+                      size: 8.5,
+                      weight: FontWeight.w700,
+                      color: h.accent,
+                      letterSpacing: 0.3,
                     ),
-                    const Spacer(),
-                    Text(
-                      'N° ${_lotNumber()}',
-                      style: HudTokens.mono(
-                        size: 8.5,
-                        weight: FontWeight.w700,
-                        color: h.accent,
-                        letterSpacing: 0.3,
+                  ),
+                  const Spacer(),
+                  Text(
+                    'N° ${_lotNumber()}',
+                    style: HudTokens.mono(
+                      size: 8.5,
+                      weight: FontWeight.w700,
+                      color: h.accent,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // ── Image panel ───────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: AspectRatio(
+                aspectRatio: 9 / 16,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
+                    // NEW / PANORAMIC tags top-left.
+                    if (wallpaper.badge != null ||
+                        wallpaper.category == 'PANORAMIC')
+                      Positioned(
+                        left: 4,
+                        top: 4,
+                        child: Row(
+                          children: [
+                            if (wallpaper.category == 'PANORAMIC')
+                              _tag('PANO', h.goldBright, h.bg),
+                            if (wallpaper.category == 'PANORAMIC' &&
+                                wallpaper.badge != null)
+                              const SizedBox(width: 4),
+                            if (wallpaper.badge != null)
+                              _tag(wallpaper.badge!.toUpperCase(), h.accent,
+                                  Colors.black),
+                          ],
+                        ),
+                      ),
+                    // Heart favorite top-right — refined typographic glyph.
+                    Positioned(
+                      right: 4,
+                      top: 4,
+                      child: GestureDetector(
+                        onTap: () => ref
+                            .read(favoritesProvider.notifier)
+                            .toggle(wallpaper.id),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 3),
+                          color: h.bg.withOpacity(0.55),
+                          child: Text(
+                            isFav ? '♥' : '♡',
+                            style: TextStyle(
+                              color: isFav ? h.accent2 : Colors.white70,
+                              fontSize: 14,
+                              height: 1,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              // ── Image panel ───────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: AspectRatio(
-                  aspectRatio: 9 / 16,
-                  child: Stack(
-                    fit: StackFit.expand,
+            ),
+            // ── Dashed gold perforation (torn-ticket line) ─
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: CustomPaint(
+                size: const Size(double.infinity, 1),
+                painter: _DashedLinePainter(color: h.accent),
+              ),
+            ),
+            // ── Bottom stub: title + serial + seat line ───
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
                     children: [
-                      CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
-                      // NEW / PANORAMIC tags top-left.
-                      if (wallpaper.badge != null ||
-                          wallpaper.category == 'PANORAMIC')
-                        Positioned(
-                          left: 4,
-                          top: 4,
-                          child: Row(
-                            children: [
-                              if (wallpaper.category == 'PANORAMIC')
-                                _tag('PANO', h.goldBright, h.bg),
-                              if (wallpaper.category == 'PANORAMIC' &&
-                                  wallpaper.badge != null)
-                                const SizedBox(width: 4),
-                              if (wallpaper.badge != null)
-                                _tag(wallpaper.badge!.toUpperCase(), h.accent,
-                                    Colors.black),
-                            ],
+                      Expanded(
+                        child: Text(
+                          wallpaper.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: HudTokens.serif(
+                            size: 14,
+                            color: h.text,
+                            fontStyle: FontStyle.italic,
+                            weight: FontWeight.w500,
+                            letterSpacing: 0.02,
                           ),
                         ),
-                      // Heart favorite top-right — refined typographic glyph.
-                      Positioned(
-                        right: 4,
-                        top: 4,
-                        child: GestureDetector(
-                          onTap: () => ref
-                              .read(favoritesProvider.notifier)
-                              .toggle(wallpaper.id),
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 3),
-                            color: h.bg.withOpacity(0.55),
-                            child: Text(
-                              isFav ? '♥' : '♡',
-                              style: TextStyle(
-                                color: isFav ? h.accent2 : Colors.white70,
-                                fontSize: 14,
-                                height: 1,
-                              ),
-                            ),
-                          ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _serial(),
+                        style: HudTokens.mono(
+                          size: 9,
+                          weight: FontWeight.w700,
+                          color: h.accent,
+                          letterSpacing: 0.15,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              // ── Dashed gold perforation (torn-ticket line) ─
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                child: CustomPaint(
-                  size: const Size(double.infinity, 1),
-                  painter: _DashedLinePainter(color: h.accent),
-                ),
-              ),
-              // ── Bottom stub: title + serial + seat line ───
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            wallpaper.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: HudTokens.serif(
-                              size: 14,
-                              color: h.text,
-                              fontStyle: FontStyle.italic,
-                              weight: FontWeight.w500,
-                              letterSpacing: 0.02,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _serial(),
-                          style: HudTokens.mono(
-                            size: 9,
-                            weight: FontWeight.w700,
-                            color: h.accent,
-                            letterSpacing: 0.15,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 4),
+                  Text(
+                    _seatLine(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: HudTokens.mono(
+                      size: 7.5,
+                      weight: FontWeight.w500,
+                      color: h.textDim,
+                      letterSpacing: 0.25,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _seatLine(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: HudTokens.mono(
-                        size: 7.5,
-                        weight: FontWeight.w500,
-                        color: h.textDim,
-                        letterSpacing: 0.25,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -172,8 +172,6 @@ class _ParallaxCarouselCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final parallaxOffset = _getParallaxOffset(context);
-
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -223,8 +221,14 @@ class _ParallaxCarouselCard extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Transform.translate(
-                        offset: Offset(parallaxOffset, 0),
+                      // Parallax listens to scrollController so Transform.translate
+                      // rebuilds on scroll, but the expensive image below does not.
+                      AnimatedBuilder(
+                        animation: scrollController,
+                        builder: (ctx, child) => Transform.translate(
+                          offset: Offset(_getParallaxOffset(ctx), 0),
+                          child: child,
+                        ),
                         child: Transform.scale(
                           scale: 1.1,
                           child: CachedWallpaperImage(

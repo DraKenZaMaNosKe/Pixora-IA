@@ -1,42 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 
 /// Single shared heartbeat that all stats bars listen to.
-/// One AnimationController instead of one per card.
+///
+/// Uses a standalone [Ticker] (not tied to any widget's vsync) so stats-bar
+/// widgets can be disposed in any order without leaving the controller bound
+/// to a dead TickerProvider. The ticker starts when the first listener is
+/// added and stops when the last one is removed — auto-pauses CPU when no
+/// stats bars are on screen.
 class _GlobalHeartbeat {
   static _GlobalHeartbeat? _instance;
   static _GlobalHeartbeat get instance => _instance ??= _GlobalHeartbeat._();
 
   _GlobalHeartbeat._();
 
-  AnimationController? _controller;
+  Ticker? _ticker;
   final _listeners = <VoidCallback>{};
 
-  void _ensureController(TickerProvider vsync) {
-    if (_controller != null) return;
-    _controller = AnimationController(
-      vsync: vsync,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
+  /// 0→1→0 triangle wave on a 2400 ms period (matches the old
+  /// AnimationController(1200ms, reverse: true) shape).
+  double _value = 0.0;
+  double get value => _value;
+
+  void _onTick(Duration elapsed) {
+    final t = (elapsed.inMilliseconds % 2400) / 1200.0;
+    _value = t <= 1.0 ? t : 2.0 - t;
+    for (final cb in _listeners) {
+      cb();
+    }
   }
 
-  double get value => _controller?.value ?? 0.0;
-
-  void addListener(VoidCallback cb, TickerProvider vsync) {
-    _ensureController(vsync);
+  void addListener(VoidCallback cb) {
     _listeners.add(cb);
-    _controller!.addListener(cb);
+    if (_ticker == null) {
+      _ticker = Ticker(_onTick, debugLabel: 'GlobalHeartbeat')..start();
+    }
   }
 
   void removeListener(VoidCallback cb) {
     _listeners.remove(cb);
-    _controller?.removeListener(cb);
     if (_listeners.isEmpty) {
-      _controller?.dispose();
-      _controller = null;
+      _ticker?.dispose();
+      _ticker = null;
+      _value = 0.0;
     }
   }
 }
@@ -56,7 +66,7 @@ class WallpaperStatsBar extends StatefulWidget {
 }
 
 class _WallpaperStatsBarState extends State<WallpaperStatsBar>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final WallpaperStatsService _service;
   StreamSubscription? _sub;
   Map<String, int> _stats = {'likes': 0, 'downloads': 0, 'views': 0};
@@ -94,7 +104,7 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
     _heartbeatCb = () {
       if (mounted) setState(() {});
     };
-    _GlobalHeartbeat.instance.addListener(_heartbeatCb, this);
+    _GlobalHeartbeat.instance.addListener(_heartbeatCb);
 
     _sub = _service.statsStream.listen((allStats) {
       final newStats = allStats[widget.wallpaperId];
@@ -143,8 +153,8 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
     final likes = _stats['likes'] ?? 0;
     final downloads = _stats['downloads'] ?? 0;
     final views = _stats['views'] ?? 0;
-    final beatPhase = Curves.easeInOut
-        .transform(_GlobalHeartbeat.instance.value);
+    final beatPhase =
+        Curves.easeInOut.transform(_GlobalHeartbeat.instance.value);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
@@ -201,8 +211,8 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
                     child: AnimatedBuilder(
                       animation: _bumpController!,
                       builder: (_, __) {
-                        final bump = Curves.elasticOut
-                            .transform(_bumpController!.value);
+                        final bump =
+                            Curves.elasticOut.transform(_bumpController!.value);
                         return Transform.scale(
                           scale: 1.0 + 0.2 * bump,
                           child: Text(
@@ -230,16 +240,14 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
           const SizedBox(width: 2),
           Text(
             WallpaperStatsService.formatCount(views),
-            style:
-                TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.5)),
+            style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.5)),
           ),
           const SizedBox(width: 4),
           Icon(Icons.download, size: 10, color: Colors.white.withOpacity(0.5)),
           const SizedBox(width: 2),
           Text(
             WallpaperStatsService.formatCount(downloads),
-            style:
-                TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.5)),
+            style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.5)),
           ),
         ],
       ),

@@ -111,7 +111,9 @@ class ContentManager {
     final path = await download(item, onProgress: onProgress, onError: onError);
     if (path == null) return false;
 
-    // Phase 2: Download sprites if animated wallpaper theme
+    // Phase 2: Download sprites if animated wallpaper theme.
+    // If sprite download fails we abort — installing without sprites would leave
+    // the user with a silent, animation-less wallpaper and no clear feedback.
     final theme = SpriteDownloadService.instance.detectTheme(item.remoteFile);
     if (theme != null) {
       onPhase?.call('sprites');
@@ -120,6 +122,7 @@ class ContentManager {
       if (!spritesOk) {
         onError?.call(
             'Could not download animated sprites. Check your connection and try again.');
+        return false;
       }
     }
 
