@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1440,initial-scale=1" />
+<title>Pixora — 10 Live Wallpaper Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #000;
+  --surface: #0A0604;
+  --surface2: #151008;
+  --gold: #C9A650;
+  --gold-bright: #F0DD9E;
+  --gold-deep: #8A6F33;
+  --text: #F5EFDE;
+  --text-dim: #8A7A56;
+  --divider: rgba(201,166,80,0.22);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Fraunces', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body {
+  background:
+    radial-gradient(circle at 50% -10%, rgba(201,166,80,0.22) 0%, transparent 45%),
+    radial-gradient(circle at 85% 120%, rgba(240,221,158,0.08) 0%, transparent 50%),
+    var(--bg);
+  padding-bottom: 48px;
+}
+/* grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.79 0 0 0 0 0.65 0 0 0 0 0.31 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+}
+
+/* ───────── Hero ───────── */
+.hero {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 76px 72px 52px;
+  position: relative;
+  overflow: hidden;
+}
+.hero .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  font-weight: 500;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero .eyebrow::before {
+  content: '';
+  width: 28px; height: 1px;
+  background: var(--gold);
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 92px;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  font-variation-settings: 'opsz' 144;
+  color: var(--text);
+  max-width: 940px;
+}
+.hero h1 em {
+  color: var(--gold-bright);
+  font-weight: 600;
+  font-style: italic;
+}
+.hero .subtitle {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--text-dim);
+  font-variation-settings: 'opsz' 48;
+  margin-top: 18px;
+  max-width: 640px;
+  line-height: 1.4;
+}
+.hero .deco-num {
+  position: absolute;
+  right: 48px; top: 40px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 144;
+  font-size: 340px;
+  line-height: 0.85;
+  color: rgba(201,166,80,0.06);
+  letter-spacing: -0.05em;
+  pointer-events: none;
+  z-index: -1;
+}
+.hero .deco-rule {
+  position: absolute;
+  top: 0; bottom: 0; right: 30%;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent 0%, rgba(201,166,80,0.35) 30%,
+    rgba(201,166,80,0.35) 70%, transparent 100%);
+  pointer-events: none;
+}
+.hero .side-hud {
+  position: absolute;
+  top: 76px; right: 72px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: var(--gold-deep);
+  text-align: right;
+  line-height: 1.9;
+}
+.hero .side-hud .bright { color: var(--gold-bright); }
+
+/* ───────── Grid ───────── */
+.grid {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 72px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 26px;
+}
+
+/* ───────── Card (ticket stub) ───────── */
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid rgba(201,166,80,0.45);
+  clip-path: polygon(
+    12px 0, calc(100% - 12px) 0, 100% 12px,
+    100% calc(100% - 12px), calc(100% - 12px) 100%,
+    12px 100%, 0 calc(100% - 12px), 0 12px
+  );
+  display: flex;
+  flex-direction: column;
+  transition: transform .25s ease;
+}
+.card:hover { transform: translateY(-5px); }
+
+.scene {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 220 / 470;
+  overflow: hidden;
+  border-bottom: 1px solid var(--divider);
+}
+/* vignette on every scene */
+.scene::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center,
+    transparent 50%, rgba(0,0,0,0.55) 100%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.meta {
+  padding: 12px 14px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 148px;
+}
+.meta .hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+}
+.badge {
+  padding: 3px 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge.easy { background: #2a5a38; color: #c9f4d4; }
+.badge.med  { background: var(--gold-deep); color: #fff; }
+.badge.hard { background: #5a1a1a; color: #ffc4c4; }
+
+.meta h3 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 19px;
+  color: var(--gold-bright);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin-top: 3px;
+  font-variation-settings: 'opsz' 72;
+}
+.meta .tag {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  font-variation-settings: 'opsz' 24;
+}
+.chips {
+  display: flex;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 4px;
+  flex-wrap: wrap;
+}
+.chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  padding: 3px 6px;
+  border: 1px solid rgba(201,166,80,0.35);
+  color: var(--gold);
+  background: rgba(201,166,80,0.04);
+}
+
+/* Footer */
+.deck-footer {
+  max-width: 1440px;
+  margin: 48px auto 0;
+  padding: 24px 72px 0;
+  text-align: center;
+  border-top: 1px solid var(--divider);
+}
+.deck-footer span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  color: var(--gold-deep);
+  padding-top: 18px;
+  display: inline-block;
+}
+.deck-footer .bright { color: var(--gold-bright); }
+
+/* ═══════════════════════════════════════════════════════════
+   SCENES — each composes a mini-poster in pure CSS
+   ═══════════════════════════════════════════════════════════ */
+
+/* 1. SAKURA ─── pink sunset + torii + pond reflection */
+.s-sakura {
+  background: linear-gradient(180deg,
+    #FFB4C2 0%, #FF8A7B 38%, #FFC59F 72%, #2a1218 100%);
+}
+.s-sakura::before {
+  /* sun glow disc */
+  content: '';
+  position: absolute;
+  top: 28%; left: 50%;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(255,243,210,0.85), transparent 62%);
+  transform: translate(-50%, -50%);
+  filter: blur(2px);
+}
+.s-sakura .mountain {
+  position: absolute;
+  left: 0; right: 0; bottom: 30%;
+  height: 22%;
+  background: #3d1f2c;
+  clip-path: polygon(0% 100%, 14% 40%, 30% 65%, 52% 30%, 72% 55%, 100% 20%, 100% 100%);
+  opacity: 0.9;
+}
+.s-sakura .torii {
+  position: absolute;
+  left: 50%;
+  bottom: 30%;
+  transform: translateX(-50%);
+  width: 70px; height: 70px;
+  z-index: 3;
+}
+.s-sakura .torii .p1, .s-sakura .torii .p2 {
+  position: absolute;
+  bottom: 0; width: 6px; height: 100%;
+  background: #B22222;
+}
+.s-sakura .torii .p1 { left: 8px; }
+.s-sakura .torii .p2 { right: 8px; }
+.s-sakura .torii .top {
+  position: absolute;
+  top: 0; left: -4px; width: 78px; height: 8px;
+  background: #8B1111;
+  box-shadow: 0 12px 0 -1px #B22222;
+}
+.s-sakura .water {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 30%;
+  background: linear-gradient(180deg,
+    rgba(255,130,128,0.55) 0%,
+    rgba(70,22,36,0.9) 100%);
+}
+.s-sakura .water::before {
+  /* reflected torii (flipped) */
+  content: '';
+  position: absolute;
+  left: 50%; top: 2px;
+  transform: translateX(-50%) scaleY(-1);
+  width: 78px; height: 38px;
+  background:
+    linear-gradient(180deg, rgba(178,34,34,0.4) 0 8px, transparent 8px 12px, rgba(178,34,34,0.3) 12px 20px, transparent 20px);
+  filter: blur(1.5px);
+  opacity: 0.7;
+}
+.s-sakura .petal {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #FFD4DC;
+  animation: drift-sakura 8s linear infinite;
+}
+.s-sakura .petal:nth-child(1) { left: 10%; animation-delay: 0s; }
+.s-sakura .petal:nth-child(2) { left: 28%; animation-delay: 1.2s; background: #FFC4D0; }
+.s-sakura .petal:nth-child(3) { left: 46%; animation-delay: 2.4s; width: 3px; height: 3px; }
+.s-sakura .petal:nth-child(4) { left: 64%; animation-delay: 3.6s; background: #FFB4C2; }
+.s-sakura .petal:nth-child(5) { left: 82%; animation-delay: 4.8s; width: 5px; height: 5px; }
+.s-sakura .petal:nth-child(6) { left: 18%; animation-delay: 6s; background: #FFE4E8; }
+@keyframes drift-sakura {
+  0%   { transform: translateY(-10px) translateX(0) rotate(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(500px) translateX(20px) rotate(180deg); opacity: 0; }
+}
+
+/* 2. NEON ─── cyberpunk alley */
+.s-neon {
+  background: linear-gradient(180deg,
+    #080820 0%, #120a28 55%, #1a0a30 85%, #000 100%);
+}
+.s-neon::before {
+  /* building silhouettes */
+  content: '';
+  position: absolute;
+  inset: 20% 0 25% 0;
+  background: #040410;
+  clip-path: polygon(
+    0 100%, 0 35%, 10% 35%, 10% 15%, 25% 15%, 25% 30%, 40% 30%,
+    40% 10%, 55% 10%, 55% 25%, 70% 25%, 70% 5%, 85% 5%,
+    85% 30%, 100% 30%, 100% 100%
+  );
+}
+.s-neon .sign {
+  position: absolute;
+  width: 6px;
+  background: currentColor;
+}
+.s-neon .sign::after {
+  content: '';
+  position: absolute; inset: -3px -8px;
+  background: currentColor;
+  filter: blur(8px);
+  opacity: 0.7;
+}
+.s-neon .sign.s1 { color: #FF2D95; left: 15%; top: 26%; height: 70px; animation: neon-flicker 3.1s infinite; }
+.s-neon .sign.s2 { color: #00E5FF; left: 38%; top: 22%; height: 90px; animation: neon-flicker 2.3s infinite reverse; }
+.s-neon .sign.s3 { color: #FFD447; left: 62%; top: 30%; height: 60px; animation: neon-flicker 4.1s infinite; }
+.s-neon .sign.s4 { color: #FF2D95; left: 82%; top: 24%; height: 78px; animation: neon-flicker 2.9s infinite reverse; }
+@keyframes neon-flicker {
+  0%, 18%, 22%, 100% { opacity: 1; }
+  20% { opacity: 0.3; }
+  50% { opacity: 1; }
+  52% { opacity: 0.8; }
+}
+.s-neon .rain {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(70deg,
+    transparent 0 4px,
+    rgba(255,255,255,0.08) 4px 5px,
+    transparent 5px 14px);
+  animation: rain-fall 0.8s linear infinite;
+}
+@keyframes rain-fall {
+  0% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+.s-neon .floor {
+  position: absolute;
+  left: 0; right: 0; bottom: 0; height: 25%;
+  background: linear-gradient(180deg,
+    rgba(20,10,40,0.7) 0%,
+    rgba(255,45,149,0.18) 50%,
+    rgba(0,229,255,0.15) 100%);
+  filter: blur(4px);
+}
+
+/* 3. CEMETERY ─── moon + tombstones + fog */
+.s-cemetery {
+  background: linear-gradient(180deg,
+    #1a1a2e 0%, #0a0a14 62%, #000 100%);
+}
+.s-cemetery .moon {
+  position: absolute;
+  top: 18%; right: 22%;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: #F5F0D8;
+  box-shadow: 0 0 36px 6px rgba(245,240,216,0.55),
+              0 0 72px 16px rgba(200,200,255,0.18);
+  animation: moon-pulse 4s ease-in-out infinite;
+}
+@keyframes moon-pulse {
+  0%, 100% { box-shadow: 0 0 36px 6px rgba(245,240,216,0.55), 0 0 72px 16px rgba(200,200,255,0.18); }
+  50% { box-shadow: 0 0 44px 8px rgba(245,240,216,0.75), 0 0 84px 22px rgba(200,200,255,0.25); }
+}
+.s-cemetery .tree {
+  position: absolute;
+  left: 8%;
+  bottom: 28%;
+  width: 4px; height: 90px;
+  background: #0a0a0a;
+  transform: skewX(-4deg);
+}
+.s-cemetery .tree::before,
+.s-cemetery .tree::after {
+  content: '';
+  position: absolute;
+  background: #0a0a0a;
+}
+.s-cemetery .tree::before { top: 20px; left: -18px; width: 18px; height: 3px; transform: rotate(-30deg); }
+.s-cemetery .tree::after  { top: 12px; left: 4px;   width: 22px; height: 3px; transform: rotate(40deg); }
+.s-cemetery .tomb {
+  position: absolute;
+  bottom: 18%;
+  background: #2a2a38;
+  border-top-left-radius: 50% 20px;
+  border-top-right-radius: 50% 20px;
+}
+.s-cemetery .t1 { left: 18%; width: 22px; height: 46px; transform: rotate(-3deg); }
+.s-cemetery .t2 { left: 35%; width: 28px; height: 58px; transform: rotate(2deg); background: #33333f; }
+.s-cemetery .t3 { left: 58%; width: 20px; height: 40px; transform: rotate(-5deg); background: #252530; }
+.s-cemetery .t4 { left: 74%; width: 26px; height: 52px; transform: rotate(1deg); background: #2e2e3a; }
+.s-cemetery .fog {
+  position: absolute;
+  left: 0; right: 0; bottom: 8%;
+  height: 40%;
+  background: radial-gradient(ellipse at center bottom,
+    rgba(180,180,200,0.25) 0%,
+    rgba(180,180,200,0.1) 40%,
+    transparent 80%);
+}
+.s-cemetery .ghost {
+  position: absolute;
+  top: 40%; left: 24%;
+  width: 14px; height: 18px;
+  background: rgba(255,255,255,0.75);
+  border-radius: 50% 50% 0 0 / 60% 60% 0 0;
+  filter: blur(0.5px);
+  box-shadow: 0 0 8px rgba(255,255,255,0.5);
+  animation: ghost-bob 3s ease-in-out infinite;
+}
+@keyframes ghost-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* 4. AURORA ─── arctic borealis */
+.s-aurora {
+  background: linear-gradient(180deg,
+    #060f24 0%, #0a1a3a 50%, #102a55 100%);
+  position: relative;
+}
+.s-aurora::before {
+  /* aurora band */
+  content: '';
+  position: absolute;
+  left: -20%; right: -20%;
+  top: 20%; height: 45%;
+  background: linear-gradient(100deg,
+    transparent 0%,
+    rgba(80,255,160,0.5) 20%,
+    rgba(100,200,255,0.5) 45%,
+    rgba(180,140,255,0.45) 65%,
+    rgba(255,120,200,0.3) 85%,
+    transparent 100%);
+  filter: blur(18px);
+  transform: skewY(-8deg);
+  animation: aurora-shift 8s ease-in-out infinite;
+}
+@keyframes aurora-shift {
+  0%, 100% { transform: skewY(-8deg) translateX(0); opacity: 0.9; }
+  50%      { transform: skewY(-5deg) translateX(10px); opacity: 1; }
+}
+.s-aurora::after {
+  /* secondary aurora band */
+  content: '';
+  position: absolute;
+  left: -20%; right: -20%;
+  top: 30%; height: 25%;
+  background: linear-gradient(100deg,
+    transparent 20%,
+    rgba(140,255,200,0.4) 50%,
+    rgba(100,220,255,0.3) 70%,
+    transparent 90%);
+  filter: blur(14px);
+  transform: skewY(4deg);
+  animation: aurora-shift 11s ease-in-out infinite reverse;
+}
+.s-aurora .peak {
+  position: absolute;
+  bottom: 0;
+  background: linear-gradient(180deg, #fff 0%, #cde0ff 30%, #5a7aa8 80%, #2a3a68 100%);
+  clip-path: polygon(0 100%, 40% 40%, 100% 100%);
+}
+.s-aurora .p1 { left: 0;    width: 40%; height: 40%; }
+.s-aurora .p2 { left: 30%;  width: 45%; height: 50%; z-index: 2; clip-path: polygon(0 100%, 45% 25%, 100% 100%); }
+.s-aurora .p3 { right: -5%; width: 45%; height: 35%; clip-path: polygon(0 100%, 55% 30%, 100% 100%); }
+.s-aurora .snow {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow:
+    20px 40px #fff, 60px 20px #fff, 100px 60px #fff,
+    140px 30px #fff, 180px 80px #fff, 30px 120px #fff,
+    90px 100px #fff, 160px 140px #fff, 50px 180px #fff,
+    120px 200px #fff, 200px 180px #fff, 10px 260px #fff;
+  animation: snow-fall 6s linear infinite;
+}
+@keyframes snow-fall {
+  0%   { transform: translateY(-20px); }
+  100% { transform: translateY(440px); }
+}
+
+/* 5. VOLCANO ─── erupting + lava + embers */
+.s-volcano {
+  background: linear-gradient(180deg,
+    #1a0000 0%, #3a0a0a 30%, #8a2a0a 60%, #ff6a00 82%, #2a0000 100%);
+}
+.s-volcano .mountain {
+  position: absolute;
+  left: -10%; right: -10%;
+  bottom: 15%;
+  height: 70%;
+  background: linear-gradient(180deg, #080808 0%, #200808 85%, #400808 100%);
+  clip-path: polygon(0% 100%, 25% 55%, 42% 20%, 55% 5%, 68% 22%, 85% 58%, 100% 100%);
+}
+.s-volcano .glow {
+  position: absolute;
+  top: 15%; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 80px;
+  background: radial-gradient(circle, rgba(255,180,60,0.9), rgba(255,80,20,0.5) 40%, transparent 75%);
+  filter: blur(3px);
+  animation: volcano-pulse 2.2s ease-in-out infinite;
+}
+@keyframes volcano-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.85; }
+  50%      { transform: translateX(-50%) scale(1.18); opacity: 1; }
+}
+.s-volcano .lava {
+  position: absolute;
+  bottom: 8%;
+  width: 6px;
+  background: linear-gradient(180deg, #ffe066 0%, #ff8b1a 40%, #c93a0a 100%);
+  filter: blur(0.5px);
+  box-shadow: 0 0 10px #ff7a1a;
+}
+.s-volcano .l1 { left: 44%; height: 80px; }
+.s-volcano .l2 { left: 52%; height: 60px; width: 4px; }
+.s-volcano .l3 { left: 56%; height: 90px; width: 5px; }
+.s-volcano .ember {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #ffcc44;
+  box-shadow:
+    20px 0 #ffaa22, 60px -40px #ff8822, 100px -20px #ffaa44,
+    140px -60px #ffcc22, 50px -80px #ff9922, 180px -100px #ffbb33,
+    80px -140px #ff8822, 130px -160px #ffcc44;
+  animation: ember-rise 5s linear infinite;
+  bottom: 20%;
+  left: 10%;
+  filter: blur(0.3px);
+}
+@keyframes ember-rise {
+  0%   { transform: translateY(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-320px); opacity: 0; }
+}
+
+/* 6. ZEN ─── bamboo + lantern + ripples */
+.s-zen {
+  background: linear-gradient(180deg,
+    #0a2e2e 0%, #185050 45%, #0a2828 80%, #051616 100%);
+}
+.s-zen .bamboo {
+  position: absolute;
+  bottom: 10%;
+  width: 5px;
+  background: linear-gradient(90deg, #2a4a1a 0%, #4a7a2a 50%, #2a4a1a 100%);
+}
+.s-zen .bamboo::before,
+.s-zen .bamboo::after {
+  content: '';
+  position: absolute;
+  left: -2px; width: 9px; height: 2px;
+  background: #1a3008;
+}
+.s-zen .b1 { left: 8%;  height: 75%; }
+.s-zen .b1::before { top: 30%; }
+.s-zen .b1::after  { top: 62%; }
+.s-zen .b2 { left: 22%; height: 60%; }
+.s-zen .b2::before { top: 40%; }
+.s-zen .b2::after  { top: 75%; }
+.s-zen .b3 { right: 14%; height: 68%; }
+.s-zen .b3::before { top: 35%; }
+.s-zen .b3::after  { top: 70%; }
+.s-zen .lantern {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  bottom: 30%;
+  width: 24px;
+}
+.s-zen .lantern .top  { width: 30px; height: 4px; background: #2a2018; margin-left: -3px; }
+.s-zen .lantern .body { width: 24px; height: 28px;
+  background: radial-gradient(circle, #FFD990 0%, #E69A4A 55%, #8a4a20 100%);
+  box-shadow: 0 0 20px #FFC86A;
+  animation: lantern-pulse 3s ease-in-out infinite;
+}
+@keyframes lantern-pulse {
+  0%, 100% { box-shadow: 0 0 20px #FFC86A; }
+  50%      { box-shadow: 0 0 30px #FFD99A; }
+}
+.s-zen .lantern .base { width: 28px; height: 5px; background: #2a2018; margin-left: -2px; }
+.s-zen .pond {
+  position: absolute;
+  left: 0; right: 0; bottom: 0; height: 22%;
+  background: linear-gradient(180deg, rgba(40,120,120,0.4) 0%, #051818 100%);
+}
+.s-zen .ripple {
+  position: absolute;
+  left: 50%; bottom: 10%;
+  width: 40px; height: 10px;
+  border: 1px solid rgba(200,240,240,0.5);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  animation: ripple-expand 3s ease-out infinite;
+}
+.s-zen .ripple.r2 { animation-delay: 1.5s; }
+@keyframes ripple-expand {
+  0%   { width: 10px; height: 3px; opacity: 0.9; }
+  100% { width: 90px; height: 22px; opacity: 0; }
+}
+
+/* 7. SPACE ─── Earth + Milky Way + stars */
+.s-space {
+  background: #000;
+  position: relative;
+}
+.s-space::before {
+  /* Milky Way streak */
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg,
+    transparent 35%,
+    rgba(180,160,255,0.15) 45%,
+    rgba(255,245,230,0.25) 50%,
+    rgba(180,160,255,0.15) 55%,
+    transparent 65%);
+  filter: blur(6px);
+  opacity: 0.85;
+}
+.s-space .star {
+  position: absolute;
+  width: 1px; height: 1px;
+  background: #fff;
+  box-shadow:
+    12px 20px #fff, 30px 40px #e8e4ff, 50px 15px #fff, 70px 60px #fff,
+    90px 28px #ffeacc, 110px 70px #fff, 130px 40px #fff, 150px 90px #e8e4ff,
+    170px 50px #fff, 190px 100px #fff, 18px 80px #fff, 38px 110px #ffeacc,
+    60px 130px #fff, 85px 150px #e8e4ff, 108px 170px #fff, 135px 180px #fff,
+    160px 200px #fff, 185px 220px #ffeacc, 25px 230px #fff, 55px 250px #fff,
+    100px 270px #e8e4ff, 140px 290px #fff, 175px 310px #fff, 22px 340px #fff,
+    80px 360px #ffeacc, 130px 380px #fff, 170px 400px #fff;
+  animation: twinkle 2s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.s-space .earth {
+  position: absolute;
+  right: -40px; bottom: -40px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #62b2ff 0%, #2b68c8 40%, #0e3880 80%, #04153e 100%);
+  box-shadow:
+    inset -12px -14px 28px rgba(0,0,0,0.6),
+    0 0 28px rgba(80,140,255,0.4);
+}
+.s-space .earth::before {
+  /* continents */
+  content: '';
+  position: absolute; inset: 15% 20% 25% 12%;
+  background:
+    radial-gradient(ellipse 30% 20% at 20% 40%, #3a7a3a 0%, transparent 60%),
+    radial-gradient(ellipse 22% 26% at 55% 25%, #4a8a4a 0%, transparent 60%),
+    radial-gradient(ellipse 18% 14% at 70% 70%, #3a7a3a 0%, transparent 60%);
+  opacity: 0.8;
+}
+.s-space .shooting {
+  position: absolute;
+  top: 18%; left: 20%;
+  width: 2px; height: 2px;
+  background: #fff;
+  box-shadow: 0 0 6px #fff;
+  animation: shoot 6s ease-out infinite;
+}
+@keyframes shoot {
+  0%, 80%  { transform: translate(0, 0); opacity: 0; }
+  85% { opacity: 1; }
+  100% { transform: translate(160px, 80px); opacity: 0; box-shadow: -40px -20px 0 rgba(255,255,255,0.3); }
+}
+
+/* 8. CASTLE ─── dusk + battlements + torches */
+.s-castle {
+  background: linear-gradient(180deg,
+    #3a1a4e 0%, #5a2a3e 30%, #a04a1a 65%, #602008 90%, #1a0800 100%);
+}
+.s-castle .cliff {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 22%;
+  background: #08040a;
+  clip-path: polygon(0 100%, 0 30%, 15% 50%, 40% 25%, 65% 40%, 85% 15%, 100% 35%, 100% 100%);
+}
+.s-castle .castle {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  bottom: 22%;
+  width: 130px; height: 100px;
+  background: #080408;
+  clip-path: polygon(
+    0 100%, 0 55%,
+    10% 55%, 10% 40%, 20% 40%, 20% 55%,
+    30% 55%, 30% 20%, 40% 20%, 40% 0%, 50% 0%, 50% 20%, 60% 20%, 60% 55%,
+    70% 55%, 70% 40%, 80% 40%, 80% 55%,
+    90% 55%, 90% 30%, 100% 30%, 100% 100%
+  );
+}
+.s-castle .torch {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #ffaa22;
+  box-shadow: 0 0 10px 2px #ff8800, 0 0 20px 4px #cc4400;
+  animation: torch-flick 0.3s linear infinite;
+}
+.s-castle .tc1 { left: 43%; bottom: 43%; }
+.s-castle .tc2 { left: 50%; bottom: 56%; animation-delay: 0.1s; }
+.s-castle .tc3 { left: 57%; bottom: 43%; animation-delay: 0.2s; }
+@keyframes torch-flick {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.7; transform: scale(0.85); }
+}
+.s-castle .crow {
+  position: absolute;
+  top: 24%; left: 60%;
+  width: 10px; height: 3px;
+  background: #000;
+  clip-path: polygon(0% 50%, 25% 0%, 50% 50%, 75% 0%, 100% 50%);
+  animation: crow-fly 8s linear infinite;
+}
+@keyframes crow-fly {
+  0%   { transform: translate(0,0); }
+  100% { transform: translate(-220px, -12px); }
+}
+
+/* 9. REEF ─── coral + caustics + bubbles */
+.s-reef {
+  background: linear-gradient(180deg,
+    #00B8D4 0%, #0080a8 45%, #004e6c 80%, #002538 100%);
+}
+.s-reef::before {
+  /* caustic shimmer */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 10%, rgba(255,255,255,0.35), transparent 60%),
+    radial-gradient(ellipse 50% 30% at 70% 5%, rgba(255,255,255,0.25), transparent 70%);
+  filter: blur(2px);
+}
+.s-reef .coral {
+  position: absolute;
+  bottom: 0;
+  border-top-left-radius: 30px 50px;
+  border-top-right-radius: 30px 50px;
+}
+.s-reef .c1 { left: 10%; width: 22px; height: 80px; background: linear-gradient(180deg, #ff5a8a, #aa2050); }
+.s-reef .c2 { left: 30%; width: 16px; height: 55px; background: linear-gradient(180deg, #ff9a4a, #c04a20); }
+.s-reef .c3 { left: 48%; width: 26px; height: 100px; background: linear-gradient(180deg, #ff4a6a, #80102a); }
+.s-reef .c4 { left: 72%; width: 18px; height: 65px; background: linear-gradient(180deg, #ffaa5a, #a85028); }
+.s-reef .c5 { left: 88%; width: 14px; height: 48px; background: linear-gradient(180deg, #ff6a9a, #a02050); }
+.s-reef .seabed {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 10%;
+  background: linear-gradient(180deg, rgba(200,220,200,0.3), rgba(80,100,80,0.8));
+}
+.s-reef .bubble {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  border: 1.2px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.1);
+  animation: bubble-rise 4s ease-in infinite;
+}
+.s-reef .bubble:nth-child(1)  { left: 20%; bottom: 0; animation-delay: 0s; }
+.s-reef .bubble:nth-child(2)  { left: 40%; bottom: 0; animation-delay: 1.2s; width: 4px; height: 4px; }
+.s-reef .bubble:nth-child(3)  { left: 55%; bottom: 0; animation-delay: 2.4s; width: 8px; height: 8px; }
+.s-reef .bubble:nth-child(4)  { left: 75%; bottom: 0; animation-delay: 0.8s; width: 5px; height: 5px; }
+.s-reef .bubble:nth-child(5)  { left: 90%; bottom: 0; animation-delay: 3.1s; }
+@keyframes bubble-rise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0.9; }
+  100% { transform: translateY(-400px) translateX(6px); opacity: 0; }
+}
+
+/* 10. FAIRY ─── dreamy garden + sparkles */
+.s-fairy {
+  background: linear-gradient(180deg,
+    #d44aa8 0%, #a06cc9 35%, #f4b8c9 65%, #6a3058 100%);
+}
+.s-fairy::before {
+  /* dreamy glow */
+  content: '';
+  position: absolute;
+  top: 20%; left: 50%;
+  transform: translateX(-50%);
+  width: 160px; height: 140px;
+  background: radial-gradient(circle,
+    rgba(255,230,250,0.5) 0%, rgba(255,200,240,0.2) 40%, transparent 70%);
+  filter: blur(6px);
+}
+.s-fairy .flower {
+  position: absolute;
+  border-radius: 50%;
+}
+.s-fairy .f1 { left: 12%; bottom: 6%; width: 38px; height: 38px;
+  background: radial-gradient(circle, #ffe8f4 0%, #ff9ac8 50%, #a85090 100%);
+  box-shadow: 0 0 16px rgba(255,180,220,0.6); }
+.s-fairy .f2 { right: 8%; bottom: 18%; width: 52px; height: 52px;
+  background: radial-gradient(circle, #fff4d8 0%, #ffd080 50%, #c09030 100%);
+  box-shadow: 0 0 22px rgba(255,220,150,0.6); }
+.s-fairy .f3 { left: 40%; bottom: 8%; width: 30px; height: 30px;
+  background: radial-gradient(circle, #fff 0%, #e8c4ff 50%, #8050c8 100%);
+  box-shadow: 0 0 14px rgba(220,180,255,0.6); }
+.s-fairy .mush {
+  position: absolute;
+  bottom: 0;
+  width: 14px;
+}
+.s-fairy .mush .cap {
+  width: 20px; height: 10px;
+  background: #d04a6a;
+  border-radius: 50% 50% 0 0;
+  margin-left: -3px;
+  box-shadow: inset -2px -2px 3px rgba(0,0,0,0.2);
+}
+.s-fairy .mush .stem { width: 14px; height: 12px; background: #f4e4c8; }
+.s-fairy .mush.m1 { left: 28%; bottom: 2%; }
+.s-fairy .mush.m2 { right: 30%; bottom: 8%; transform: scale(0.8); }
+.s-fairy .dust {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: #FFE494;
+  border-radius: 50%;
+  box-shadow:
+    0 0 6px #FFD76A,
+    20px 30px 0 0 #FFE494, 20px 30px 4px 0 #FFD76A,
+    50px 60px #FFE494, 80px 20px #FFECA4,
+    110px 80px #FFE494, 140px 40px #FFD76A, 30px 120px #FFECA4,
+    70px 140px #FFE494, 100px 180px #FFD76A, 150px 120px #FFE494,
+    40px 200px #FFECA4, 130px 220px #FFE494, 160px 260px #FFD76A;
+  animation: sparkle 3s ease-in-out infinite;
+}
+@keyframes sparkle {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.4); }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="deco-num">10</div>
+  <div class="deco-rule"></div>
+  <div class="side-hud">
+    <div><span class="bright">◆</span> PIXORA · STUDIO</div>
+    <div>CONCEPT DECK · 2026-04</div>
+    <div>ORBIX · PIXORA-IA</div>
+  </div>
+  <div class="eyebrow">PIXORA · CONCEPT DECK</div>
+  <h1>Ten live wallpaper <em>concepts.</em></h1>
+  <p class="subtitle">Art-directed, sprite-ready, render-tested. Pick two to ship next.</p>
+</header>
+
+<section class="grid">
+
+  <!-- 1. Cherry Blossom -->
+  <article class="card">
+    <div class="scene s-sakura">
+      <div class="mountain"></div>
+      <div class="torii"><div class="p1"></div><div class="p2"></div><div class="top"></div></div>
+      <div class="water"></div>
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 01 / 10</span><span class="badge med">MED</span></div>
+      <h3>Cherry Blossom</h3>
+      <p class="tag">Torii silhouette, pond reflection, petals that drift forever.</p>
+      <div class="chips"><span class="chip">MAIKO</span><span class="chip">GARZAS</span><span class="chip">KOI</span></div>
+    </div>
+  </article>
+
+  <!-- 2. Neon Alley -->
+  <article class="card">
+    <div class="scene s-neon">
+      <div class="sign s1"></div><div class="sign s2"></div>
+      <div class="sign s3"></div><div class="sign s4"></div>
+      <div class="rain"></div>
+      <div class="floor"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 02 / 10</span><span class="badge hard">HARD</span></div>
+      <h3>Neon Alley</h3>
+      <p class="tag">Cyberpunk rain, magenta + cyan signs flickering on wet asphalt.</p>
+      <div class="chips"><span class="chip">DRONES</span><span class="chip">GATO</span><span class="chip">HOLO</span></div>
+    </div>
+  </article>
+
+  <!-- 3. Haunted Cemetery -->
+  <article class="card">
+    <div class="scene s-cemetery">
+      <div class="moon"></div>
+      <div class="tree"></div>
+      <div class="tomb t1"></div><div class="tomb t2"></div>
+      <div class="tomb t3"></div><div class="tomb t4"></div>
+      <div class="fog"></div>
+      <div class="ghost"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 03 / 10</span><span class="badge med">MED</span></div>
+      <h3>Haunted Cemetery</h3>
+      <p class="tag">Full-moon graveyard with slow drifting fog and a wandering ghost.</p>
+      <div class="chips"><span class="chip">FANTASMAS</span><span class="chip">CUERVO</span><span class="chip">BATS</span></div>
+    </div>
+  </article>
+
+  <!-- 4. Ice Aurora -->
+  <article class="card">
+    <div class="scene s-aurora">
+      <div class="peak p1"></div><div class="peak p2"></div><div class="peak p3"></div>
+      <div class="snow"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 04 / 10</span><span class="badge easy">EASY</span></div>
+      <h3>Ice Aurora</h3>
+      <p class="tag">Rolling aurora borealis over glacier peaks, snowfall below.</p>
+      <div class="chips"><span class="chip">POLAR</span><span class="chip">ZORRO</span><span class="chip">PINGÜINOS</span></div>
+    </div>
+  </article>
+
+  <!-- 5. Volcanic Dragon -->
+  <article class="card">
+    <div class="scene s-volcano">
+      <div class="mountain"></div>
+      <div class="glow"></div>
+      <div class="lava l1"></div><div class="lava l2"></div><div class="lava l3"></div>
+      <div class="ember"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 05 / 10</span><span class="badge hard">HARD</span></div>
+      <h3>Volcanic Dragon</h3>
+      <p class="tag">Erupting caldera, molten lava, embers rising through the smoke.</p>
+      <div class="chips"><span class="chip">DRAGÓN</span><span class="chip">LAVA</span><span class="chip">EMBERS</span></div>
+    </div>
+  </article>
+
+  <!-- 6. Zen Koi Pond -->
+  <article class="card">
+    <div class="scene s-zen">
+      <div class="bamboo b1"></div><div class="bamboo b2"></div><div class="bamboo b3"></div>
+      <div class="lantern"><div class="top"></div><div class="body"></div><div class="base"></div></div>
+      <div class="pond"></div>
+      <div class="ripple"></div><div class="ripple r2"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 06 / 10</span><span class="badge easy">EASY</span></div>
+      <h3>Zen Koi Pond</h3>
+      <p class="tag">Bamboo grove, stone lantern glowing, koi quietly circling.</p>
+      <div class="chips"><span class="chip">KOI</span><span class="chip">LIBÉLULA</span><span class="chip">GATO</span></div>
+    </div>
+  </article>
+
+  <!-- 7. Space Observatory -->
+  <article class="card">
+    <div class="scene s-space">
+      <div class="star"></div>
+      <div class="shooting"></div>
+      <div class="earth"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 07 / 10</span><span class="badge med">MED</span></div>
+      <h3>Space Observatory</h3>
+      <p class="tag">Low-earth orbit view, Milky Way streak, drifting astronaut.</p>
+      <div class="chips"><span class="chip">ASTRONAUTA</span><span class="chip">ISS</span><span class="chip">STARS</span></div>
+    </div>
+  </article>
+
+  <!-- 8. Medieval Castle -->
+  <article class="card">
+    <div class="scene s-castle">
+      <div class="cliff"></div>
+      <div class="castle"></div>
+      <div class="torch tc1"></div><div class="torch tc2"></div><div class="torch tc3"></div>
+      <div class="crow"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 08 / 10</span><span class="badge hard">HARD</span></div>
+      <h3>Medieval Castle</h3>
+      <p class="tag">Dusk fortress on a cliff, dragons circling, torches flickering.</p>
+      <div class="chips"><span class="chip">DRAGÓN</span><span class="chip">CABALLERO</span><span class="chip">CUERVOS</span></div>
+    </div>
+  </article>
+
+  <!-- 9. Coral Reef -->
+  <article class="card">
+    <div class="scene s-reef">
+      <div class="coral c1"></div><div class="coral c2"></div>
+      <div class="coral c3"></div><div class="coral c4"></div><div class="coral c5"></div>
+      <div class="seabed"></div>
+      <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+      <div class="bubble"></div><div class="bubble"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 09 / 10</span><span class="badge easy">EASY</span></div>
+      <h3>Coral Reef Kingdom</h3>
+      <p class="tag">Sunlit reef with mantas gliding, clownfish darting, octopus hiding.</p>
+      <div class="chips"><span class="chip">MANTA</span><span class="chip">PULPO</span><span class="chip">PAYASO</span></div>
+    </div>
+  </article>
+
+  <!-- 10. Fairy Garden -->
+  <article class="card">
+    <div class="scene s-fairy">
+      <div class="flower f1"></div>
+      <div class="flower f2"></div>
+      <div class="flower f3"></div>
+      <div class="mush m1"><div class="cap"></div><div class="stem"></div></div>
+      <div class="mush m2"><div class="cap"></div><div class="stem"></div></div>
+      <div class="dust"></div>
+    </div>
+    <div class="meta">
+      <div class="hud"><span>NO. 10 / 10</span><span class="badge med">MED</span></div>
+      <h3>Fairy Garden</h3>
+      <p class="tag">Oversized flowers, twilight sky, golden pixie dust in the air.</p>
+      <div class="chips"><span class="chip">HADAS</span><span class="chip">MARIPOSAS</span><span class="chip">GNOMO</span></div>
+    </div>
+  </article>
+
+</section>
+
+<footer class="deck-footer">
+  <span>PIPELINE · <span class="bright">GEMINI</span> background ↦ <span class="bright">GROK</span> make video ↦ <span class="bright">CAPCUT</span> chroma-key ↦ <span class="bright">KOTLIN</span> renderer</span>
+</footer>
+
+</body>
+</html>
