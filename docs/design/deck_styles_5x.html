@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1440,initial-scale=1" />
+<title>Pixora — 5 Live Wallpaper Effects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #000;
+  --surface: #0A0604;
+  --gold: #C9A650;
+  --gold-bright: #F0DD9E;
+  --gold-deep: #8A6F33;
+  --text: #F5EFDE;
+  --text-dim: #8A7A56;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background:
+    radial-gradient(circle at 50% -10%, rgba(201,166,80,0.2) 0%, transparent 45%),
+    var(--bg);
+  color: var(--text);
+  font-family: 'Fraunces', serif;
+  overflow-x: hidden;
+}
+img { display: block; }
+
+/* ─── page chrome ─── */
+.hero {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 76px 72px 40px;
+  text-align: center;
+  border-bottom: 1px dashed rgba(201,166,80,0.2);
+}
+.hero .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 18px;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 72px;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  font-variation-settings: 'opsz' 144;
+}
+.hero h1 em {
+  color: var(--gold-bright);
+  font-weight: 600;
+  font-style: italic;
+}
+.hero .sub {
+  font-style: italic;
+  font-size: 18px;
+  color: var(--text-dim);
+  margin-top: 14px;
+  font-variation-settings: 'opsz' 36;
+}
+
+/* ─── picker ─── */
+.picker {
+  position: sticky;
+  top: 0;
+  background: rgba(0,0,0,0.92);
+  backdrop-filter: blur(14px);
+  z-index: 100;
+  padding: 14px 72px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.picker .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  margin-right: 12px;
+}
+.picker a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-decoration: none;
+  color: #aaa;
+  padding: 7px 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 0.2s;
+}
+.picker a:hover {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+  background: rgba(201,166,80,0.08);
+}
+
+/* ─── effect sections ─── */
+.fx {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 80px 72px;
+  border-bottom: 1px dashed rgba(201,166,80,0.15);
+}
+.fx-head {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.fx-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 72px;
+  color: var(--gold);
+  font-variation-settings: 'opsz' 144;
+  line-height: 1;
+}
+.fx-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-style: italic;
+  font-size: 42px;
+  color: var(--gold-bright);
+  letter-spacing: -0.02em;
+}
+.fx-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--gold-deep);
+  margin-left: auto;
+}
+.fx-desc {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text-dim);
+  max-width: 660px;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+/* ─── phone pair layout ─── */
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  justify-items: center;
+}
+.phone {
+  width: 320px;
+  position: relative;
+}
+.phone .frame {
+  position: relative;
+  background: #000;
+  border: 3px solid #1a1a1a;
+  border-radius: 36px;
+  padding: 10px;
+  box-shadow:
+    0 0 0 2px #333,
+    0 30px 60px rgba(0,0,0,0.7),
+    0 0 80px rgba(201,166,80,0.08);
+}
+.phone .notch {
+  position: absolute;
+  top: 14px; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 20px;
+  background: #000;
+  border-radius: 0 0 14px 14px;
+  z-index: 10;
+}
+.phone .screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/19.5;
+  overflow: hidden;
+  border-radius: 26px;
+  background: #000;
+}
+.phone .screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.phone .fx-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+/* Status bar suggestion */
+.phone .status {
+  position: absolute;
+  top: 14px; left: 20px; right: 20px;
+  display: flex;
+  justify-content: space-between;
+  color: #fff;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 12px;
+  z-index: 11;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+.phone .clock {
+  position: absolute;
+  top: 22%; left: 0; right: 0;
+  text-align: center;
+  color: #fff;
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 72px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+  z-index: 11;
+  letter-spacing: -0.02em;
+}
+.phone .date {
+  position: absolute;
+  top: 40%; left: 0; right: 0;
+  text-align: center;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  z-index: 11;
+  opacity: 0.85;
+}
+.phone .caption {
+  text-align: center;
+  margin-top: 18px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--gold-bright);
+}
+.phone .fx-chips {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.phone .fx-chips span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  padding: 3px 8px;
+  border: 1px solid rgba(201,166,80,0.4);
+  color: var(--gold);
+  background: rgba(201,166,80,0.05);
+}
+
+/* ═══════════════════════════════════════════════════
+   EFFECT 01 · MINIMAL EMBERS — subtle particles only
+   ═══════════════════════════════════════════════════ */
+.fx-01 .ember {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #ffcc44;
+  box-shadow: 0 0 8px #ffaa22;
+  bottom: -10px;
+  animation: ember-up 5s linear infinite;
+  filter: blur(0.3px);
+}
+.fx-01 .ember:nth-child(1) { left: 20%; animation-delay: 0s; }
+.fx-01 .ember:nth-child(2) { left: 35%; animation-delay: 1s; background: #ffaa22; }
+.fx-01 .ember:nth-child(3) { left: 50%; animation-delay: 2s; }
+.fx-01 .ember:nth-child(4) { left: 65%; animation-delay: 3s; width: 4px; height: 4px; }
+.fx-01 .ember:nth-child(5) { left: 80%; animation-delay: 4s; }
+.fx-01 .ember:nth-child(6) { left: 15%; animation-delay: 2.5s; background: #ffdd88; }
+.fx-01 .ember:nth-child(7) { left: 70%; animation-delay: 0.5s; width: 2px; height: 2px; }
+@keyframes ember-up {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-640px) translateX(12px); opacity: 0; }
+}
+
+.fx-01 .torch {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #ffaa22;
+  box-shadow: 0 0 8px 2px #ff8800, 0 0 16px 4px #cc4400;
+  animation: torch-flick 0.4s linear infinite;
+}
+.fx-01 .torch.t1 { top: 46%; left: 44%; }
+.fx-01 .torch.t2 { top: 40%; left: 50%; animation-delay: 0.1s; }
+.fx-01 .torch.t3 { top: 46%; left: 56%; animation-delay: 0.2s; }
+.fx-01 .torch.t4 { top: 36%; left: 51%; animation-delay: 0.15s; }
+@keyframes torch-flick {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* ═══════════════════════════════════════════════════
+   EFFECT 02 · ATMOSPHERIC — drifting fog + smoke
+   ═══════════════════════════════════════════════════ */
+.fx-02 .mist {
+  position: absolute;
+  left: -50%; right: -50%;
+  width: 200%; height: 40%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.18) 0%, transparent 70%);
+  animation: mist-drift 20s linear infinite;
+}
+.fx-02 .mist.m1 { bottom: 5%; }
+.fx-02 .mist.m2 { bottom: 20%; animation-delay: -7s; animation-duration: 26s; }
+.fx-02 .mist.m3 { bottom: 35%; animation-delay: -14s; animation-duration: 32s; height: 30%; }
+@keyframes mist-drift {
+  0%   { transform: translateX(-25%); }
+  100% { transform: translateX(25%); }
+}
+.fx-02 .smoke {
+  position: absolute;
+  inset: 40% 20% 30% 30%;
+  background: radial-gradient(ellipse at center, rgba(80,40,20,0.35) 0%, transparent 70%);
+  animation: smoke-rise 14s ease-in-out infinite;
+  filter: blur(6px);
+}
+@keyframes smoke-rise {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50%      { transform: translateY(-20px) scale(1.1); opacity: 0.8; }
+}
+
+/* ═══════════════════════════════════════════════════
+   EFFECT 03 · CINEMATIC DRAMA — lightning/flashes + rain
+   ═══════════════════════════════════════════════════ */
+.fx-03 .flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,240,220,0.6);
+  opacity: 0;
+  animation: lightning 7s infinite;
+  mix-blend-mode: screen;
+}
+@keyframes lightning {
+  0%, 96%, 100% { opacity: 0; }
+  97%, 98% { opacity: 0.9; }
+  97.5%, 98.5% { opacity: 0; }
+}
+.fx-03 .rain {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(75deg,
+    transparent 0 5px,
+    rgba(180,210,255,0.14) 5px 6px,
+    transparent 6px 18px);
+  animation: rain-fall 0.7s linear infinite;
+}
+@keyframes rain-fall {
+  0%   { transform: translateY(-30px); }
+  100% { transform: translateY(0); }
+}
+.fx-03 .red-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 55%, rgba(255,100,40,0.25) 0%, transparent 60%);
+  animation: redpulse 3.2s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+@keyframes redpulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.1); }
+}
+
+/* ═══════════════════════════════════════════════════
+   EFFECT 04 · BREATHING — gentle scale + global particles
+   ═══════════════════════════════════════════════════ */
+.fx-04 .breathe {
+  position: absolute; inset: 0;
+  animation: breathe-zoom 8s ease-in-out infinite;
+}
+.fx-04 .breathe img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes breathe-zoom {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50%      { transform: scale(1.04); filter: brightness(1.08); }
+}
+.fx-04 .spark {
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: #FFE494;
+  box-shadow: 0 0 6px 1px rgba(255,230,160,0.7);
+  animation: twinkle 3s ease-in-out infinite;
+}
+.fx-04 .spark:nth-child(1) { top: 15%; left: 20%; }
+.fx-04 .spark:nth-child(2) { top: 22%; left: 70%; animation-delay: 0.5s; }
+.fx-04 .spark:nth-child(3) { top: 35%; left: 45%; animation-delay: 1s; }
+.fx-04 .spark:nth-child(4) { top: 50%; left: 80%; animation-delay: 1.5s; }
+.fx-04 .spark:nth-child(5) { top: 60%; left: 30%; animation-delay: 2s; }
+.fx-04 .spark:nth-child(6) { top: 72%; left: 60%; animation-delay: 2.5s; }
+.fx-04 .spark:nth-child(7) { top: 85%; left: 25%; animation-delay: 0.8s; }
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.8); }
+}
+
+/* ═══════════════════════════════════════════════════
+   EFFECT 05 · MAGICAL — glowing god-rays + color shift
+   ═══════════════════════════════════════════════════ */
+.fx-05 .rays {
+  position: absolute;
+  inset: 0;
+  background:
+    conic-gradient(from 180deg at 50% 0%,
+      transparent 0deg,
+      rgba(255,220,120,0.15) 20deg,
+      transparent 40deg,
+      rgba(255,220,120,0.1) 70deg,
+      transparent 95deg,
+      rgba(255,220,120,0.15) 120deg,
+      transparent 145deg,
+      rgba(255,220,120,0.1) 200deg,
+      transparent 230deg);
+  mix-blend-mode: soft-light;
+  animation: rays-shift 12s ease-in-out infinite;
+}
+@keyframes rays-shift {
+  0%, 100% { transform: rotate(0deg); opacity: 0.6; }
+  50%      { transform: rotate(5deg); opacity: 0.9; }
+}
+.fx-05 .aurora {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(255,150,200,0.12) 0%,
+    rgba(120,180,255,0.12) 40%,
+    transparent 70%);
+  mix-blend-mode: screen;
+  animation: color-wash 10s ease-in-out infinite;
+}
+@keyframes color-wash {
+  0%, 100% { opacity: 0.6; filter: hue-rotate(0deg); }
+  50%      { opacity: 0.9; filter: hue-rotate(40deg); }
+}
+.fx-05 .orb {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, rgba(255,230,180,0.8) 40%, transparent 70%);
+  box-shadow: 0 0 20px rgba(255,220,160,0.6);
+  animation: orb-float 6s ease-in-out infinite;
+}
+.fx-05 .orb:nth-child(3) { top: 30%; left: 25%; }
+.fx-05 .orb:nth-child(4) { top: 50%; left: 70%; animation-delay: 2s; }
+.fx-05 .orb:nth-child(5) { top: 70%; left: 40%; animation-delay: 4s; }
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50%      { transform: translateY(-24px); opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">// PIXORA · LIVE EFFECT PROTOTYPES</div>
+  <h1>5 ways to make them <em>alive.</em></h1>
+  <p class="sub">Phone mockups with CSS-animated overlays simulating what the Kotlin renderer will produce. Pick your favorite vibe.</p>
+</header>
+
+<div class="picker">
+  <span class="label">// PICK ONE ↓</span>
+  <a href="#fx1">01 MINIMAL EMBERS</a>
+  <a href="#fx2">02 ATMOSPHERIC</a>
+  <a href="#fx3">03 CINEMATIC DRAMA</a>
+  <a href="#fx4">04 BREATHING LIFE</a>
+  <a href="#fx5">05 MAGICAL GLOW</a>
+</div>
+
+<!-- ═══════ 01 MINIMAL EMBERS ═══════ -->
+<section class="fx fx-01" id="fx1">
+  <div class="fx-head">
+    <div class="fx-num">01</div>
+    <div class="fx-title">Minimal Embers</div>
+    <div class="fx-tag">PURE PARTICLES · LOW CPU</div>
+  </div>
+  <p class="fx-desc">
+    Clean subtle motion — orange embers rising from the volcano summit, torches flickering in the fortress windows. Nothing else moves. Matches the existing Aquarium / Jellyfish aesthetic. Battery-friendly.
+  </p>
+  <div class="pair">
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="concepts/volcano_dragon_full.webp" alt="Volcano Dragon" />
+          <div class="fx-layer">
+            <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+            <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+            <div class="ember"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Volcano Dragon</div>
+      <div class="fx-chips"><span>EMBERS</span><span>7 PARTICLES</span></div>
+    </div>
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="concepts/dusk_fortress_full.webp" alt="Dusk Fortress" />
+          <div class="fx-layer">
+            <div class="torch t1"></div><div class="torch t2"></div>
+            <div class="torch t3"></div><div class="torch t4"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Dusk Fortress</div>
+      <div class="fx-chips"><span>TORCHES</span><span>FLICKER</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 02 ATMOSPHERIC ═══════ -->
+<section class="fx fx-02" id="fx2">
+  <div class="fx-head">
+    <div class="fx-num">02</div>
+    <div class="fx-title">Atmospheric</div>
+    <div class="fx-tag">FOG · SMOKE · DEPTH</div>
+  </div>
+  <p class="fx-desc">
+    Layered volumetric motion — smoke columns rising from the volcano, mist drifting across the fortress valley. More painterly, more presence. Like the scene is breathing.
+  </p>
+  <div class="pair">
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="concepts/volcano_dragon_full.webp" alt="Volcano Dragon" />
+          <div class="fx-layer">
+            <div class="smoke"></div>
+            <div class="mist m1"></div><div class="mist m2"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Volcano Dragon</div>
+      <div class="fx-chips"><span>SMOKE</span><span>MIST × 2</span></div>
+    </div>
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="concepts/dusk_fortress_full.webp" alt="Dusk Fortress" />
+          <div class="fx-layer">
+            <div class="mist m1"></div><div class="mist m2"></div><div class="mist m3"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Dusk Fortress</div>
+      <div class="fx-chips"><span>MIST × 3</span><span>DRIFT</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 03 CINEMATIC DRAMA ═══════ -->
+<section class="fx fx-03" id="fx3">
+  <div class="fx-head">
+    <div class="fx-num">03</div>
+    <div class="fx-title">Cinematic Drama</div>
+    <div class="fx-tag">LIGHTNING · RAIN · PULSE</div>
+  </div>
+  <p class="fx-desc">
+    Maximalist weather — volcano throbs with eruption pulses; fortress gets struck by lightning every 7 seconds with diagonal rain sweeping through. High-impact "whoa-look-at-that" moments.
+  </p>
+  <div class="pair">
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="concepts/volcano_dragon_full.webp" alt="Volcano Dragon" />
+          <div class="fx-layer">
+            <div class="red-flash"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Volcano Dragon</div>
+      <div class="fx-chips"><span>ERUPTION PULSE</span></div>
+    </div>
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="concepts/dusk_fortress_full.webp" alt="Dusk Fortress" />
+          <div class="fx-layer">
+            <div class="rain"></div>
+            <div class="flash"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Dusk Fortress</div>
+      <div class="fx-chips"><span>RAIN</span><span>LIGHTNING</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 04 BREATHING LIFE ═══════ -->
+<section class="fx fx-04" id="fx4">
+  <div class="fx-head">
+    <div class="fx-num">04</div>
+    <div class="fx-title">Breathing Life</div>
+    <div class="fx-tag">GLOBAL SCALE · TWINKLE</div>
+  </div>
+  <p class="fx-desc">
+    The whole image gently breathes — scales from 1.0 to 1.04 over 8 seconds, brightness pulses. Sparks twinkle across the scene at different phases. Feels alive without any specific animation happening.
+  </p>
+  <div class="pair">
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="breathe"><img src="concepts/volcano_dragon_full.webp" alt="Volcano Dragon" /></div>
+          <div class="fx-layer">
+            <div class="spark"></div><div class="spark"></div><div class="spark"></div>
+            <div class="spark"></div><div class="spark"></div><div class="spark"></div>
+            <div class="spark"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Volcano Dragon</div>
+      <div class="fx-chips"><span>BREATHE</span><span>SPARKS</span></div>
+    </div>
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="breathe"><img src="concepts/dusk_fortress_full.webp" alt="Dusk Fortress" /></div>
+          <div class="fx-layer">
+            <div class="spark"></div><div class="spark"></div><div class="spark"></div>
+            <div class="spark"></div><div class="spark"></div><div class="spark"></div>
+            <div class="spark"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Dusk Fortress</div>
+      <div class="fx-chips"><span>BREATHE</span><span>SPARKS</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 05 MAGICAL GLOW ═══════ -->
+<section class="fx fx-05" id="fx5">
+  <div class="fx-head">
+    <div class="fx-num">05</div>
+    <div class="fx-title">Magical Glow</div>
+    <div class="fx-tag">GOD-RAYS · ORBS · HUE SHIFT</div>
+  </div>
+  <p class="fx-desc">
+    Ethereal — rotating god-rays from the top, floating glowing orbs drifting through the scene, subtle hue wash that cycles. Mystical, dreamlike. Leans into the fantasy of the concept.
+  </p>
+  <div class="pair">
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="concepts/volcano_dragon_full.webp" alt="Volcano Dragon" />
+          <div class="fx-layer">
+            <div class="rays"></div>
+            <div class="aurora"></div>
+            <div class="orb"></div><div class="orb"></div><div class="orb"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Volcano Dragon</div>
+      <div class="fx-chips"><span>GOD-RAYS</span><span>ORBS × 3</span><span>HUE WASH</span></div>
+    </div>
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <img src="concepts/dusk_fortress_full.webp" alt="Dusk Fortress" />
+          <div class="fx-layer">
+            <div class="rays"></div>
+            <div class="aurora"></div>
+            <div class="orb"></div><div class="orb"></div><div class="orb"></div>
+          </div>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">Dusk Fortress</div>
+      <div class="fx-chips"><span>GOD-RAYS</span><span>ORBS × 3</span><span>HUE WASH</span></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

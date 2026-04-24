@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1440,initial-scale=1" />
+<title>Pixora — Canvas vs Shader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #000;
+  --surface: #0A0604;
+  --gold: #C9A650;
+  --gold-bright: #F0DD9E;
+  --gold-deep: #8A6F33;
+  --text: #F5EFDE;
+  --text-dim: #8A7A56;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background:
+    radial-gradient(circle at 50% -10%, rgba(201,166,80,0.2) 0%, transparent 45%),
+    var(--bg);
+  color: var(--text);
+  font-family: 'Fraunces', serif;
+  overflow-x: hidden;
+}
+
+.hero {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 76px 72px 40px;
+  text-align: center;
+}
+.hero .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 18px;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 72px;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-variation-settings: 'opsz' 144;
+}
+.hero h1 em { color: var(--gold-bright); font-weight: 600; font-style: italic; }
+.hero .sub {
+  font-style: italic;
+  font-size: 18px;
+  color: var(--text-dim);
+  margin-top: 14px;
+  font-variation-settings: 'opsz' 36;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 80px 72px;
+  border-top: 1px dashed rgba(201,166,80,0.15);
+}
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+.tier-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  padding: 4px 10px;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+.section-head h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-style: italic;
+  font-size: 48px;
+  color: var(--gold-bright);
+  letter-spacing: -0.02em;
+}
+.section p.desc {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text-dim);
+  max-width: 720px;
+  margin-bottom: 40px;
+  line-height: 1.55;
+}
+.tag-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.tag-row span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  padding: 3px 8px;
+  background: rgba(201,166,80,0.08);
+  color: var(--gold);
+  border: 1px solid rgba(201,166,80,0.3);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  justify-items: center;
+}
+.phone {
+  width: 340px;
+  position: relative;
+}
+.phone .frame {
+  position: relative;
+  background: #000;
+  border: 3px solid #1a1a1a;
+  border-radius: 36px;
+  padding: 10px;
+  box-shadow:
+    0 0 0 2px #333,
+    0 30px 60px rgba(0,0,0,0.7),
+    0 0 80px rgba(201,166,80,0.08);
+}
+.phone .notch {
+  position: absolute;
+  top: 14px; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 20px;
+  background: #000;
+  border-radius: 0 0 14px 14px;
+  z-index: 10;
+}
+.phone .screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/19.5;
+  overflow: hidden;
+  border-radius: 26px;
+  background: #000;
+}
+.phone canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.phone .status {
+  position: absolute;
+  top: 14px; left: 20px; right: 20px;
+  display: flex;
+  justify-content: space-between;
+  color: #fff;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 12px;
+  z-index: 11;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+.phone .clock {
+  position: absolute;
+  top: 22%; left: 0; right: 0;
+  text-align: center;
+  color: #fff;
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 76px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+  z-index: 11;
+  letter-spacing: -0.02em;
+}
+.phone .date {
+  position: absolute;
+  top: 40%; left: 0; right: 0;
+  text-align: center;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  z-index: 11;
+  opacity: 0.85;
+}
+.phone .caption {
+  text-align: center;
+  margin-top: 18px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--gold-bright);
+}
+.phone .caption small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-style: normal;
+}
+
+.compare-note {
+  margin-top: 48px;
+  padding: 22px 28px;
+  background: rgba(201,166,80,0.05);
+  border-left: 3px solid var(--gold);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+}
+.compare-note strong {
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+.compare-note code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: rgba(0,0,0,0.4);
+  padding: 2px 6px;
+  color: var(--gold);
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">// PIXORA · TECHNIQUE SHOWDOWN</div>
+  <h1>Canvas vs <em>Shader.</em></h1>
+  <p class="sub">
+    Same images, two different rendering tiers. Both map 1:1 to what the Android Kotlin
+    app can produce. Pick the ceiling you want.
+  </p>
+</header>
+
+<!-- ═══════ TIER A · CANVAS 2D ═══════ -->
+<section class="section">
+  <div class="section-head">
+    <span class="tier-badge">TIER A</span>
+    <h2>Canvas 2D · Particle Physics</h2>
+  </div>
+  <p class="desc">
+    JavaScript + Canvas 2D. Real particle system with velocity, deceleration, life cycles —
+    exactly what <code>VolcanoRenderer.kt</code> does natively. 36 embers, 5 torches,
+    ash motes drifting. Same math, rendered in browser.
+  </p>
+  <div class="pair">
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <canvas id="volcano-canvas" width="340" height="737"></canvas>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">
+        Volcano Dragon
+        <small>36 EMBERS · SUMMIT GLOW</small>
+      </div>
+    </div>
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <canvas id="fortress-canvas" width="340" height="737"></canvas>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">
+        Dusk Fortress
+        <small>5 TORCHES · ASH DRIFT</small>
+      </div>
+    </div>
+  </div>
+  <div class="compare-note">
+    <strong>Maps to:</strong> <code>VolcanoRenderer.kt</code> / <code>DuskFortressRenderer.kt</code> (already written).
+    <strong>Portability:</strong> 1:1. The JavaScript here and the Kotlin native use the same
+    drawCircle / velocity / life loop.
+  </div>
+</section>
+
+<!-- ═══════ TIER B · WEBGL SHADER ═══════ -->
+<section class="section">
+  <div class="section-head">
+    <span class="tier-badge">TIER B</span>
+    <h2>WebGL Fragment Shader · Procedural FX</h2>
+  </div>
+  <p class="desc">
+    GLSL fragment shader runs on the GPU. Heat distortion over the volcano (pixel
+    displacement based on a heat map). Volumetric fog rolling across the fortress
+    valley (procedural noise over time). Things that are impossible in CSS and
+    expensive in Canvas 2D — cheap on a shader.
+  </p>
+  <div class="pair">
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <canvas id="volcano-shader" width="340" height="737"></canvas>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">
+        Volcano Dragon
+        <small>HEAT DISTORTION + EMBERS</small>
+      </div>
+    </div>
+    <div class="phone">
+      <div class="frame">
+        <div class="notch"></div>
+        <div class="screen">
+          <canvas id="fortress-shader" width="340" height="737"></canvas>
+          <div class="status"><span>9:41</span><span>●●●</span></div>
+          <div class="clock">9:41</div>
+          <div class="date">WED · 22 APR</div>
+        </div>
+      </div>
+      <div class="caption">
+        Dusk Fortress
+        <small>VOLUMETRIC FOG + GLOW</small>
+      </div>
+    </div>
+  </div>
+  <div class="compare-note">
+    <strong>Maps to:</strong> <code>GLShaderRenderer.kt</code> (Pixora already supports this tier — used by firefly / aquarium).
+    <strong>Portability:</strong> Same GLSL 100 runs in both. We literally copy-paste the fragment shader.
+    <strong>Trade-off:</strong> Slightly higher battery draw, but looks noticeably more advanced.
+  </div>
+</section>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// TIER A · CANVAS 2D — replica of VolcanoRenderer.kt / DuskFortressRenderer.kt
+// ═══════════════════════════════════════════════════════════
+
+function startCanvas2D(canvasId, imageSrc, kind) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = imageSrc;
+
+  let embers = [];
+  let motes = [];
+  let torches = [];
+  let glowPhase = 0;
+  let flickerPhase = 0;
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function spawnEmber() {
+    const summitX = W * 0.5;
+    const summitY = H * 0.55;
+    const angle = (Math.random() - 0.5) * 0.8;
+    const speed = rand(0.7, 2.0);
+    const life = rand(0.6, 1.3);
+    embers.push({
+      x: summitX + (Math.random() - 0.5) * W * 0.12,
+      y: summitY + (Math.random() - 0.5) * 40,
+      vx: Math.sin(angle) * speed * 0.3,
+      vy: -speed * 1.4,
+      r: rand(1.4, 3.6),
+      life, maxLife: life,
+      color: ['#FFB040', '#FF8820', '#FFCC60', '#FF6A10'][Math.floor(Math.random() * 4)],
+    });
+  }
+
+  function spawnMote() {
+    const life = rand(0.7, 1.2);
+    motes.push({
+      x: Math.random() * W,
+      y: H * (0.82 + Math.random() * 0.18),
+      vy: -rand(0.25, 0.75),
+      drift: rand(0.15, 0.55),
+      phase: Math.random() * Math.PI * 2,
+      r: rand(0.8, 2.4),
+      life, maxLife: life,
+    });
+  }
+
+  // Torch positions (normalized) calibrated to fortress image
+  if (kind === 'fortress') {
+    torches = [
+      [0.50, 0.44], [0.54, 0.38], [0.47, 0.41], [0.58, 0.48], [0.52, 0.33]
+    ];
+  }
+
+  for (let i = 0; i < 36; i++) spawnEmber();
+  for (let i = 0; i < 28; i++) spawnMote();
+
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    if (img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, 0, 0, W, H);
+    }
+
+    if (kind === 'volcano') {
+      // Summit glow pulse
+      glowPhase += 0.03;
+      const glowA = Math.floor(110 + 60 * Math.sin(glowPhase));
+      const gradient = ctx.createRadialGradient(W*0.5, H*0.51, 0, W*0.5, H*0.51, W*0.12);
+      gradient.addColorStop(0, `rgba(255, 140, 40, ${glowA/255 * 0.8})`);
+      gradient.addColorStop(1, 'rgba(255, 140, 40, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(W*0.5, H*0.51, W*0.14, 0, Math.PI*2);
+      ctx.fill();
+
+      // Embers
+      embers = embers.filter(e => {
+        e.x += e.vx;
+        e.y += e.vy;
+        e.vy *= 0.994;
+        e.life -= 0.012;
+        if (e.life <= 0 || e.y < -20) return false;
+        const alpha = Math.max(0, Math.min(1, e.life / e.maxLife));
+        ctx.fillStyle = e.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.r, 0, Math.PI*2);
+        ctx.fill();
+        return true;
+      });
+      while (embers.length < 36) spawnEmber();
+    }
+
+    if (kind === 'fortress') {
+      // Torches
+      flickerPhase += 0.18;
+      torches.forEach((t, i) => {
+        const phase = flickerPhase + i * 1.17;
+        const intensity = 0.65 + 0.35 * Math.sin(phase);
+        const alpha = Math.max(0, Math.min(0.88, intensity * 0.8));
+        const cx = W * t[0], cy = H * t[1];
+        // outer glow
+        ctx.fillStyle = `rgba(255, 150, 60, ${alpha * 0.35})`;
+        ctx.beginPath(); ctx.arc(cx, cy, W*0.018, 0, Math.PI*2); ctx.fill();
+        // middle
+        ctx.fillStyle = `rgba(255, 180, 90, ${alpha * 0.6})`;
+        ctx.beginPath(); ctx.arc(cx, cy, W*0.010, 0, Math.PI*2); ctx.fill();
+        // core
+        ctx.fillStyle = `rgba(255, 220, 140, ${alpha})`;
+        ctx.beginPath(); ctx.arc(cx, cy, W*0.005, 0, Math.PI*2); ctx.fill();
+      });
+
+      // Ash motes
+      motes = motes.filter(m => {
+        m.phase += 0.04;
+        m.x += Math.sin(m.phase) * m.drift;
+        m.y += m.vy;
+        m.life -= 0.006;
+        if (m.life <= 0 || m.y < -10) return false;
+        const alpha = Math.max(0, Math.min(0.78, m.life / m.maxLife * 0.78));
+        ctx.fillStyle = `rgba(220, 180, 120, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, m.r, 0, Math.PI*2);
+        ctx.fill();
+        return true;
+      });
+      while (motes.length < 28) spawnMote();
+    }
+
+    requestAnimationFrame(frame);
+  }
+  img.onload = frame;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TIER B · WEBGL SHADER — procedural heat distortion + fog
+// ═══════════════════════════════════════════════════════════
+
+function startWebGLShader(canvasId, imageSrc, kind) {
+  const canvas = document.getElementById(canvasId);
+  const gl = canvas.getContext('webgl');
+  if (!gl) { console.error('No WebGL'); return; }
+
+  const vsSrc = `
+    attribute vec2 position;
+    varying vec2 vUv;
+    void main() {
+      vUv = position * 0.5 + 0.5;
+      gl_Position = vec4(position, 0.0, 1.0);
+    }
+  `;
+
+  const fsSrc = `
+    precision mediump float;
+    varying vec2 vUv;
+    uniform sampler2D tex;
+    uniform float time;
+    uniform int mode; // 0 = volcano, 1 = fortress
+
+    // cheap noise
+    float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      vec2 u = f*f*(3.0-2.0*f);
+      return mix(mix(hash(i), hash(i+vec2(1,0)), u.x),
+                 mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), u.x), u.y);
+    }
+    float fbm(vec2 p) {
+      float v = 0.0;
+      float a = 0.5;
+      for(int i = 0; i < 4; i++) {
+        v += a * noise(p);
+        p *= 2.0;
+        a *= 0.5;
+      }
+      return v;
+    }
+
+    void main() {
+      vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
+
+      if (mode == 0) {
+        // VOLCANO: heat distortion near summit
+        float heat = smoothstep(0.35, 0.6, 1.0 - uv.y) * smoothstep(0.1, 0.5, abs(0.5 - uv.x) * -2.0 + 1.0);
+        float dist = noise(vec2(uv.x * 10.0, uv.y * 20.0 - time * 2.0)) * 0.012 * heat;
+        vec2 distortedUv = uv + vec2(dist, 0.0);
+        vec4 col = texture2D(tex, distortedUv);
+
+        // Embers as glow dots
+        for (int i = 0; i < 16; i++) {
+          float fi = float(i);
+          vec2 ep = vec2(
+            0.5 + sin(fi * 1.3 + time * 0.3) * 0.12,
+            0.45 - mod(time * 0.25 + fi * 0.11, 1.0) * 0.55
+          );
+          float d = distance(uv, ep);
+          float ember = 0.008 / (d + 0.002);
+          ember *= smoothstep(0.45, 0.0, d) * (0.3 + sin(time * 5.0 + fi) * 0.2);
+          col.rgb += vec3(1.0, 0.55, 0.15) * ember * 0.8;
+        }
+
+        // Summit pulse
+        float glow = 0.05 / (distance(uv, vec2(0.5, 0.45)) + 0.04);
+        glow *= 0.5 + 0.3 * sin(time * 1.5);
+        col.rgb += vec3(1.0, 0.5, 0.15) * glow * 0.25;
+
+        gl_FragColor = col;
+      } else {
+        // FORTRESS: rolling volumetric fog
+        vec4 col = texture2D(tex, uv);
+        float fogMask = smoothstep(0.55, 1.0, uv.y);
+        float fogShape = fbm(vec2(uv.x * 4.0 + time * 0.08, uv.y * 3.0 - time * 0.04));
+        float fog = fogShape * fogMask;
+        col.rgb = mix(col.rgb, vec3(0.55, 0.6, 0.72), fog * 0.5);
+
+        // Torch glow pulses near castle
+        vec2 tp[5];
+        tp[0] = vec2(0.50, 0.56); tp[1] = vec2(0.54, 0.62);
+        tp[2] = vec2(0.47, 0.59); tp[3] = vec2(0.58, 0.52); tp[4] = vec2(0.52, 0.67);
+        for (int i = 0; i < 5; i++) {
+          float fi = float(i);
+          float flick = 0.6 + 0.4 * sin(time * 4.0 + fi * 2.7);
+          float d = distance(uv, tp[i]);
+          float g = 0.005 / (d + 0.002) * flick;
+          col.rgb += vec3(1.0, 0.6, 0.25) * g * 0.9;
+        }
+
+        // Moon halo
+        vec2 moonP = vec2(0.76, 0.18);
+        float md = distance(uv, moonP);
+        float moonGlow = 0.008 / (md + 0.004);
+        col.rgb += vec3(0.9, 0.9, 1.0) * moonGlow * 0.15;
+
+        gl_FragColor = col;
+      }
+    }
+  `;
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.error('shader error:', gl.getShaderInfoLog(s));
+    }
+    return s;
+  }
+  const vs = compile(gl.VERTEX_SHADER, vsSrc);
+  const fs = compile(gl.FRAGMENT_SHADER, fsSrc);
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+  const posLoc = gl.getAttribLocation(prog, 'position');
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+  const texLoc = gl.getUniformLocation(prog, 'tex');
+  const timeLoc = gl.getUniformLocation(prog, 'time');
+  const modeLoc = gl.getUniformLocation(prog, 'mode');
+
+  const tex = gl.createTexture();
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.uniform1i(texLoc, 0);
+    gl.uniform1i(modeLoc, kind === 'volcano' ? 0 : 1);
+
+    const start = performance.now();
+    function loop() {
+      gl.uniform1f(timeLoc, (performance.now() - start) / 1000);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      requestAnimationFrame(loop);
+    }
+    loop();
+  };
+  img.src = imageSrc;
+}
+
+// Kick them all off
+startCanvas2D('volcano-canvas', 'concepts/volcano_dragon_full.webp', 'volcano');
+startCanvas2D('fortress-canvas', 'concepts/dusk_fortress_full.webp', 'fortress');
+startWebGLShader('volcano-shader', 'concepts/volcano_dragon_full.webp', 'volcano');
+startWebGLShader('fortress-shader', 'concepts/dusk_fortress_full.webp', 'fortress');
+</script>
+
+</body>
+</html>
