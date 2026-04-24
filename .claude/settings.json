@@ -101,7 +101,7 @@
       "Bash(adb -s :* install:*)",
       "Bash(adb -s :* uninstall com.orbix.pixora)",
       "Bash(adb -s :* exec-out:*)",
-      "Bash(adb -s :* wait-for-device)",
+      "Bash(adb :* wait-for-device)",
 
       "Bash(python:*)",
       "Bash(ffmpeg:*)",

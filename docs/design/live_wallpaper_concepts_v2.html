@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora IA — Live Wallpaper Concepts v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #C9A650;
+    --gold-bright: #F0DD9E;
+    --gold-deep: #8A6F33;
+    --night-bg: #0A0A0F;
+    --night-surface: #12121A;
+  }
+
+  body {
+    background: var(--night-bg);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 20px auto 0;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-style: italic;
+    font-size: 42px;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-deep));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .header p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold);
+    opacity: 0.7;
+    font-size: 16px;
+    margin-top: 8px;
+    letter-spacing: 0.15em;
+  }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    padding: 20px 40px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--night-surface);
+    border: 1px solid rgba(201,166,80,0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(201,166,80,0.15);
+  }
+
+  /* Phone frame */
+  .phone {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9/16;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+  }
+
+  /* Card info */
+  .card-info {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(201,166,80,0.1);
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--gold-bright);
+  }
+  .card-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  .card-chips {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(201,166,80,0.3);
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .chip.diff-easy { background: rgba(80,200,120,0.15); border-color: rgba(80,200,120,0.3); color: #50c878; }
+  .chip.diff-med { background: rgba(201,166,80,0.15); }
+  .chip.diff-hard { background: rgba(200,80,80,0.15); border-color: rgba(200,80,80,0.3); color: #e06060; }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 1: Samurai Cherry Blossom
+     ════════════════════════════════════════════════════════════ */
+  .scene-samurai {
+    background: linear-gradient(180deg, #1a0a2e 0%, #2d1b4e 30%, #4a2a5e 50%, #1a0a2e 100%);
+  }
+  .scene-samurai .moon {
+    position: absolute;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, #ffe8c0 0%, #ffcc70 40%, transparent 70%);
+    border-radius: 50%;
+    top: 12%; right: 18%;
+    box-shadow: 0 0 60px rgba(255,204,112,0.3);
+  }
+  .scene-samurai .mountain {
+    position: absolute;
+    bottom: 25%;
+    width: 100%; height: 40%;
+    background: linear-gradient(180deg, #1a0a2e, #0d0518);
+    clip-path: polygon(0% 100%, 15% 30%, 30% 60%, 50% 10%, 70% 50%, 85% 25%, 100% 100%);
+  }
+  .scene-samurai .ground {
+    position: absolute;
+    bottom: 0; width: 100%; height: 28%;
+    background: linear-gradient(180deg, #0d0518, #060210);
+  }
+  .scene-samurai .tree {
+    position: absolute;
+    bottom: 20%; left: 10%;
+    width: 4px; height: 35%;
+    background: #1a0a15;
+  }
+  .scene-samurai .tree::after {
+    content: '';
+    position: absolute;
+    top: -20px; left: -40px;
+    width: 84px; height: 60px;
+    background: radial-gradient(ellipse, rgba(255,150,180,0.6) 0%, rgba(255,100,140,0.3) 40%, transparent 70%);
+    border-radius: 50%;
+  }
+  @keyframes petal-fall {
+    0% { transform: translate(0, -20px) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.8; }
+    100% { transform: translate(60px, 500px) rotate(360deg); opacity: 0; }
+  }
+  .scene-samurai .petal {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: #ffb0c8;
+    border-radius: 50% 0 50% 50%;
+    animation: petal-fall linear infinite;
+    opacity: 0;
+  }
+  .scene-samurai .petal:nth-child(1) { left: 10%; top: -5%; animation-duration: 6s; animation-delay: 0s; }
+  .scene-samurai .petal:nth-child(2) { left: 30%; top: -8%; animation-duration: 7s; animation-delay: 1s; }
+  .scene-samurai .petal:nth-child(3) { left: 50%; top: -3%; animation-duration: 5.5s; animation-delay: 2s; }
+  .scene-samurai .petal:nth-child(4) { left: 70%; top: -6%; animation-duration: 8s; animation-delay: 0.5s; }
+  .scene-samurai .petal:nth-child(5) { left: 85%; top: -4%; animation-duration: 6.5s; animation-delay: 3s; }
+  .scene-samurai .petal:nth-child(6) { left: 20%; top: -7%; animation-duration: 7.5s; animation-delay: 1.5s; }
+  .scene-samurai .petal:nth-child(7) { left: 60%; top: -9%; animation-duration: 5s; animation-delay: 4s; }
+  .scene-samurai .petal:nth-child(8) { left: 40%; top: -2%; animation-duration: 9s; animation-delay: 2.5s; }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 2: Neon Cyberpunk Alley
+     ════════════════════════════════════════════════════════════ */
+  .scene-cyber {
+    background: linear-gradient(180deg, #0a0015 0%, #150025 50%, #0a0a1a 100%);
+  }
+  .scene-cyber .building {
+    position: absolute;
+    bottom: 0;
+    background: #0a0a15;
+  }
+  .scene-cyber .building.b1 { left: 0; width: 35%; height: 85%; }
+  .scene-cyber .building.b2 { right: 0; width: 30%; height: 90%; }
+  .scene-cyber .neon-sign {
+    position: absolute;
+    padding: 4px 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    border-radius: 2px;
+    animation: neon-flicker 3s ease-in-out infinite;
+  }
+  .scene-cyber .neon-sign.n1 {
+    top: 15%; left: 5%;
+    color: #ff2d95;
+    text-shadow: 0 0 10px #ff2d95, 0 0 30px #ff2d95;
+    border: 1px solid #ff2d95;
+  }
+  .scene-cyber .neon-sign.n2 {
+    top: 30%; right: 5%;
+    color: #00f0ff;
+    text-shadow: 0 0 10px #00f0ff, 0 0 30px #00f0ff;
+    border: 1px solid #00f0ff;
+  }
+  .scene-cyber .neon-sign.n3 {
+    top: 50%; left: 8%;
+    color: #ff6b00;
+    text-shadow: 0 0 10px #ff6b00, 0 0 20px #ff6b00;
+    border: 1px solid #ff6b00;
+    animation-delay: 1.5s;
+  }
+  @keyframes neon-flicker {
+    0%, 100% { opacity: 1; }
+    5% { opacity: 0.3; }
+    6% { opacity: 1; }
+    50% { opacity: 1; }
+    52% { opacity: 0.5; }
+    53% { opacity: 1; }
+  }
+  .scene-cyber .rain-line {
+    position: absolute;
+    width: 1px;
+    height: 15px;
+    background: rgba(100,180,255,0.4);
+    animation: cyber-rain 0.8s linear infinite;
+  }
+  @keyframes cyber-rain {
+    0% { transform: translateY(-20px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(600px); opacity: 0; }
+  }
+  .scene-cyber .rain-line:nth-child(n+10) { left: 38%; animation-delay: 0.1s; }
+  .scene-cyber .rain-line:nth-child(n+11) { left: 42%; animation-delay: 0.3s; }
+  .scene-cyber .rain-line:nth-child(n+12) { left: 46%; animation-delay: 0.5s; }
+  .scene-cyber .rain-line:nth-child(n+13) { left: 50%; animation-delay: 0.2s; }
+  .scene-cyber .rain-line:nth-child(n+14) { left: 55%; animation-delay: 0.7s; }
+  .scene-cyber .rain-line:nth-child(n+15) { left: 60%; animation-delay: 0.4s; }
+  .scene-cyber .puddle {
+    position: absolute;
+    bottom: 5%;
+    left: 30%; width: 40%; height: 8%;
+    background: linear-gradient(180deg, rgba(0,240,255,0.1), rgba(255,45,149,0.08));
+    border-radius: 50%;
+    filter: blur(3px);
+    animation: puddle-glow 4s ease-in-out infinite alternate;
+  }
+  @keyframes puddle-glow {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 3: Arctic Aurora Borealis
+     ════════════════════════════════════════════════════════════ */
+  .scene-aurora {
+    background: linear-gradient(180deg, #020510 0%, #0a1525 40%, #152535 60%, #e8e8f0 95%, #fff 100%);
+  }
+  .scene-aurora .aurora-band {
+    position: absolute;
+    top: 10%; left: -20%; right: -20%;
+    height: 40%;
+    background: linear-gradient(90deg,
+      rgba(0,255,100,0) 0%,
+      rgba(0,255,100,0.15) 20%,
+      rgba(0,200,255,0.2) 40%,
+      rgba(100,0,255,0.15) 60%,
+      rgba(0,255,150,0.1) 80%,
+      rgba(0,255,100,0) 100%
+    );
+    filter: blur(20px);
+    animation: aurora-shift 8s ease-in-out infinite alternate;
+  }
+  @keyframes aurora-shift {
+    0% { transform: translateX(-10%) skewY(-3deg); opacity: 0.6; }
+    50% { transform: translateX(10%) skewY(3deg); opacity: 1; }
+    100% { transform: translateX(-5%) skewY(-1deg); opacity: 0.8; }
+  }
+  .scene-aurora .aurora-band:nth-child(2) {
+    top: 15%;
+    animation-delay: -3s;
+    background: linear-gradient(90deg,
+      rgba(100,0,255,0) 0%,
+      rgba(0,200,255,0.12) 30%,
+      rgba(0,255,200,0.18) 50%,
+      rgba(200,0,255,0.1) 70%,
+      rgba(0,255,100,0) 100%
+    );
+  }
+  @keyframes snow-fall {
+    0% { transform: translate(0, -10px); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translate(20px, 600px); opacity: 0; }
+  }
+  .scene-aurora .snow {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: white;
+    border-radius: 50%;
+    animation: snow-fall linear infinite;
+    opacity: 0;
+  }
+  .scene-aurora .snow:nth-child(3) { left: 15%; animation-duration: 8s; animation-delay: 0s; }
+  .scene-aurora .snow:nth-child(4) { left: 35%; animation-duration: 10s; animation-delay: 2s; }
+  .scene-aurora .snow:nth-child(5) { left: 55%; animation-duration: 7s; animation-delay: 1s; }
+  .scene-aurora .snow:nth-child(6) { left: 75%; animation-duration: 9s; animation-delay: 3s; }
+  .scene-aurora .snow:nth-child(7) { left: 90%; animation-duration: 11s; animation-delay: 0.5s; }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 4: Volcanic Dragon Lair
+     ════════════════════════════════════════════════════════════ */
+  .scene-volcano {
+    background: linear-gradient(180deg, #1a0500 0%, #2a0a00 30%, #4a1500 50%, #ff4500 80%, #ff6a00 100%);
+  }
+  .scene-volcano .lava-glow {
+    position: absolute;
+    bottom: 0; width: 100%; height: 30%;
+    background: radial-gradient(ellipse at 50% 100%, rgba(255,100,0,0.8) 0%, rgba(255,50,0,0.4) 40%, transparent 70%);
+    animation: lava-pulse 3s ease-in-out infinite alternate;
+  }
+  @keyframes lava-pulse {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+  @keyframes ember-rise {
+    0% { transform: translate(0, 0) scale(1); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(var(--dx), -500px) scale(0.3); opacity: 0; }
+  }
+  .scene-volcano .ember {
+    position: absolute;
+    bottom: 20%;
+    width: 4px; height: 4px;
+    background: #ffaa00;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #ff6600;
+    animation: ember-rise linear infinite;
+    opacity: 0;
+  }
+  .scene-volcano .ember:nth-child(1) { left: 20%; --dx: 15px; animation-duration: 4s; animation-delay: 0s; }
+  .scene-volcano .ember:nth-child(2) { left: 40%; --dx: -10px; animation-duration: 3.5s; animation-delay: 0.8s; }
+  .scene-volcano .ember:nth-child(3) { left: 55%; --dx: 20px; animation-duration: 5s; animation-delay: 1.5s; }
+  .scene-volcano .ember:nth-child(4) { left: 70%; --dx: -5px; animation-duration: 3s; animation-delay: 0.3s; }
+  .scene-volcano .ember:nth-child(5) { left: 35%; --dx: 8px; animation-duration: 4.5s; animation-delay: 2s; }
+  .scene-volcano .ember:nth-child(6) { left: 80%; --dx: -15px; animation-duration: 3.8s; animation-delay: 1s; }
+  .scene-volcano .dragon-silhouette {
+    position: absolute;
+    top: 15%; left: 50%;
+    transform: translateX(-50%);
+    font-size: 60px;
+    opacity: 0.15;
+    filter: blur(1px);
+    animation: dragon-hover 6s ease-in-out infinite;
+  }
+  @keyframes dragon-hover {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-15px); }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 5: Zen Koi Pond
+     ════════════════════════════════════════════════════════════ */
+  .scene-koi {
+    background: linear-gradient(180deg, #0a1a15 0%, #0d2a20 30%, #1a4a35 60%, #0d2a20 100%);
+    overflow: hidden;
+  }
+  .scene-koi .water-surface {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 30px,
+      rgba(100,200,180,0.05) 30px,
+      rgba(100,200,180,0.05) 31px
+    );
+    animation: water-ripple 4s ease-in-out infinite;
+  }
+  @keyframes water-ripple {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
+  .scene-koi .lily-pad {
+    position: absolute;
+    width: 40px; height: 25px;
+    background: rgba(30,120,60,0.6);
+    border-radius: 50%;
+    border: 1px solid rgba(50,150,80,0.4);
+  }
+  .scene-koi .lily-pad:nth-child(2) { top: 30%; left: 15%; }
+  .scene-koi .lily-pad:nth-child(3) { top: 55%; right: 20%; width: 35px; height: 22px; }
+  .scene-koi .lily-pad:nth-child(4) { top: 70%; left: 40%; width: 30px; height: 18px; }
+  .scene-koi .koi {
+    position: absolute;
+    width: 30px; height: 12px;
+    border-radius: 50% 50% 40% 40%;
+    animation: koi-swim 10s ease-in-out infinite;
+  }
+  .scene-koi .koi.orange {
+    background: linear-gradient(90deg, #ff6a00, #ff9500);
+    top: 40%; left: -30px;
+  }
+  .scene-koi .koi.white {
+    background: linear-gradient(90deg, #f0e8d8, #fff);
+    top: 60%; left: -30px;
+    animation-delay: -3s;
+    animation-duration: 12s;
+  }
+  @keyframes koi-swim {
+    0% { transform: translate(0, 0) rotate(5deg); }
+    25% { transform: translate(120px, -20px) rotate(-5deg); }
+    50% { transform: translate(250px, 10px) rotate(3deg); }
+    75% { transform: translate(350px, -10px) rotate(-3deg); }
+    100% { transform: translate(500px, 0) rotate(5deg); }
+  }
+  .scene-koi .ripple {
+    position: absolute;
+    width: 20px; height: 10px;
+    border: 1px solid rgba(150,220,200,0.3);
+    border-radius: 50%;
+    animation: ripple-expand 3s ease-out infinite;
+  }
+  @keyframes ripple-expand {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(3); opacity: 0; }
+  }
+  .scene-koi .ripple:nth-child(8) { top: 35%; left: 30%; animation-delay: 0s; }
+  .scene-koi .ripple:nth-child(9) { top: 50%; left: 60%; animation-delay: 1.5s; }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 6: Haunted Victorian Cemetery
+     ════════════════════════════════════════════════════════════ */
+  .scene-cemetery {
+    background: linear-gradient(180deg, #0a0a15 0%, #151520 40%, #1a1a2a 70%, #0d0d18 100%);
+  }
+  .scene-cemetery .fog {
+    position: absolute;
+    bottom: 20%; left: -50%; right: -50%;
+    height: 30%;
+    background: radial-gradient(ellipse, rgba(150,150,180,0.15) 0%, transparent 60%);
+    animation: fog-drift 12s ease-in-out infinite alternate;
+  }
+  @keyframes fog-drift {
+    0% { transform: translateX(-10%); }
+    100% { transform: translateX(10%); }
+  }
+  .scene-cemetery .tombstone {
+    position: absolute;
+    bottom: 18%;
+    width: 20px; height: 35px;
+    background: #2a2a35;
+    border-radius: 8px 8px 0 0;
+  }
+  .scene-cemetery .tombstone::after {
+    content: ''; position: absolute;
+    top: 8px; left: 5px;
+    width: 10px; height: 15px;
+    border: 1px solid rgba(100,100,120,0.3);
+    border-radius: 4px 4px 0 0;
+  }
+  .scene-cemetery .tombstone:nth-child(1) { left: 15%; height: 40px; }
+  .scene-cemetery .tombstone:nth-child(2) { left: 40%; height: 30px; }
+  .scene-cemetery .tombstone:nth-child(3) { left: 65%; height: 45px; }
+  .scene-cemetery .tombstone:nth-child(4) { left: 82%; height: 28px; }
+  .scene-cemetery .ghost {
+    position: absolute;
+    top: 25%; left: 30%;
+    width: 20px; height: 30px;
+    background: radial-gradient(ellipse at 50% 30%, rgba(200,200,255,0.3), transparent);
+    border-radius: 50% 50% 30% 30%;
+    animation: ghost-float 5s ease-in-out infinite;
+    filter: blur(1px);
+  }
+  @keyframes ghost-float {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+    50% { transform: translate(20px, -30px) scale(1.1); opacity: 0.7; }
+  }
+  .scene-cemetery .cemetery-moon {
+    position: absolute;
+    top: 8%; right: 15%;
+    width: 50px; height: 50px;
+    background: radial-gradient(circle, #e8e0d0 0%, #c8c0b0 30%, transparent 70%);
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(200,190,170,0.2);
+  }
+  @keyframes lightning-flash {
+    0%, 95%, 100% { opacity: 0; }
+    96%, 98% { opacity: 0.3; }
+    97% { opacity: 0; }
+  }
+  .scene-cemetery .lightning {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(180,180,220,0.1);
+    animation: lightning-flash 8s linear infinite;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 7: Deep Space Observatory
+     ════════════════════════════════════════════════════════════ */
+  .scene-space {
+    background: radial-gradient(ellipse at 40% 30%, #0a0520 0%, #050210 40%, #020108 100%);
+  }
+  @keyframes star-twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+  .scene-space .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: star-twinkle ease-in-out infinite;
+  }
+  .scene-space .star:nth-child(1) { top: 8%; left: 12%; animation-duration: 3s; }
+  .scene-space .star:nth-child(2) { top: 15%; left: 45%; animation-duration: 4s; animation-delay: 1s; }
+  .scene-space .star:nth-child(3) { top: 22%; left: 78%; animation-duration: 2.5s; animation-delay: 0.5s; }
+  .scene-space .star:nth-child(4) { top: 35%; left: 25%; animation-duration: 5s; animation-delay: 2s; }
+  .scene-space .star:nth-child(5) { top: 42%; left: 65%; animation-duration: 3.5s; animation-delay: 0.8s; width: 3px; height: 3px; }
+  .scene-space .star:nth-child(6) { top: 10%; left: 88%; animation-duration: 4.5s; }
+  .scene-space .star:nth-child(7) { top: 55%; left: 15%; animation-duration: 3s; animation-delay: 1.5s; }
+  .scene-space .star:nth-child(8) { top: 5%; left: 55%; animation-duration: 6s; }
+  .scene-space .nebula {
+    position: absolute;
+    top: 20%; left: 10%;
+    width: 60%; height: 30%;
+    background: radial-gradient(ellipse, rgba(100,0,200,0.15) 0%, rgba(0,100,200,0.1) 40%, transparent 70%);
+    filter: blur(15px);
+    animation: nebula-pulse 10s ease-in-out infinite alternate;
+  }
+  @keyframes nebula-pulse {
+    0% { opacity: 0.5; transform: scale(1); }
+    100% { opacity: 0.8; transform: scale(1.1); }
+  }
+  .scene-space .earth {
+    position: absolute;
+    bottom: 15%; right: 10%;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle at 30% 30%, #4a8bc2 0%, #2a5a8a 40%, #1a3a5a 70%, #0a1a2a 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(74,139,194,0.3), inset -15px -5px 20px rgba(0,0,0,0.5);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 8: Enchanted Mushroom Forest
+     ════════════════════════════════════════════════════════════ */
+  .scene-mushroom {
+    background: linear-gradient(180deg, #05100a 0%, #0a1a10 30%, #0d2015 60%, #081510 100%);
+  }
+  .scene-mushroom .mush {
+    position: absolute;
+    bottom: 20%;
+  }
+  .scene-mushroom .mush .cap {
+    width: 35px; height: 20px;
+    background: radial-gradient(ellipse at 50% 80%, #ff4488, #cc2266);
+    border-radius: 50% 50% 10% 10%;
+    box-shadow: 0 0 15px rgba(255,68,136,0.4);
+    animation: mush-glow 3s ease-in-out infinite alternate;
+  }
+  .scene-mushroom .mush .stem {
+    width: 8px; height: 20px;
+    background: #d8c8a0;
+    margin: 0 auto;
+    border-radius: 0 0 3px 3px;
+  }
+  @keyframes mush-glow {
+    0% { box-shadow: 0 0 10px rgba(255,68,136,0.3); }
+    100% { box-shadow: 0 0 25px rgba(255,68,136,0.6); }
+  }
+  .scene-mushroom .mush:nth-child(1) { left: 10%; }
+  .scene-mushroom .mush:nth-child(2) { left: 45%; bottom: 25%; }
+  .scene-mushroom .mush:nth-child(2) .cap { width: 50px; height: 28px; background: radial-gradient(ellipse at 50% 80%, #44ff88, #22cc66); box-shadow: 0 0 20px rgba(68,255,136,0.4); }
+  .scene-mushroom .mush:nth-child(3) { right: 15%; bottom: 22%; }
+  .scene-mushroom .mush:nth-child(3) .cap { width: 28px; height: 16px; background: radial-gradient(ellipse at 50% 80%, #8844ff, #6622cc); box-shadow: 0 0 15px rgba(136,68,255,0.4); }
+  .scene-mushroom .fairy-dust {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: #ffee88;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #ffee88;
+    animation: fairy-float 6s ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes fairy-float {
+    0% { transform: translate(0, 0); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 0.8; }
+    100% { transform: translate(30px, -80px); opacity: 0; }
+  }
+  .scene-mushroom .fairy-dust:nth-child(4) { bottom: 30%; left: 20%; animation-delay: 0s; }
+  .scene-mushroom .fairy-dust:nth-child(5) { bottom: 35%; left: 50%; animation-delay: 2s; }
+  .scene-mushroom .fairy-dust:nth-child(6) { bottom: 28%; left: 75%; animation-delay: 4s; }
+  .scene-mushroom .fairy-dust:nth-child(7) { bottom: 40%; left: 35%; animation-delay: 1s; }
+  .scene-mushroom .fairy-dust:nth-child(8) { bottom: 32%; left: 60%; animation-delay: 3s; }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 9: Egyptian Temple
+     ════════════════════════════════════════════════════════════ */
+  .scene-egypt {
+    background: linear-gradient(180deg, #1a0f05 0%, #2a1a0a 30%, #3a2510 50%, #c8a050 90%, #d4aa55 100%);
+  }
+  .scene-egypt .pyramid {
+    position: absolute;
+    bottom: 25%; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 80px solid #8a6a30;
+  }
+  .scene-egypt .torch {
+    position: absolute;
+    bottom: 30%;
+    width: 4px; height: 25px;
+    background: #4a3a20;
+  }
+  .scene-egypt .torch::after {
+    content: '';
+    position: absolute;
+    top: -12px; left: -5px;
+    width: 14px; height: 14px;
+    background: radial-gradient(circle, #ffaa00 0%, #ff6600 40%, transparent 70%);
+    border-radius: 50%;
+    animation: torch-flicker 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes torch-flicker {
+    0% { transform: scale(0.8) translateY(1px); opacity: 0.8; }
+    100% { transform: scale(1.1) translateY(-2px); opacity: 1; }
+  }
+  .scene-egypt .torch:nth-child(2) { left: 18%; }
+  .scene-egypt .torch:nth-child(3) { right: 18%; }
+  .scene-egypt .hieroglyph {
+    position: absolute;
+    font-size: 14px;
+    color: rgba(201,166,80,0.2);
+    animation: glyph-glow 4s ease-in-out infinite alternate;
+  }
+  @keyframes glyph-glow {
+    0% { color: rgba(201,166,80,0.15); text-shadow: none; }
+    100% { color: rgba(201,166,80,0.5); text-shadow: 0 0 8px rgba(201,166,80,0.3); }
+  }
+  .scene-egypt .hieroglyph:nth-child(5) { top: 15%; left: 10%; animation-delay: 0s; }
+  .scene-egypt .hieroglyph:nth-child(6) { top: 25%; right: 12%; animation-delay: 1s; }
+  .scene-egypt .hieroglyph:nth-child(7) { top: 40%; left: 8%; animation-delay: 2s; }
+  @keyframes sand-blow {
+    0% { transform: translateX(-100%); opacity: 0; }
+    50% { opacity: 0.3; }
+    100% { transform: translateX(200%); opacity: 0; }
+  }
+  .scene-egypt .sand {
+    position: absolute;
+    bottom: 22%;
+    width: 100%; height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(200,170,80,0.3), transparent);
+    animation: sand-blow 6s linear infinite;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENE 10: Steampunk Clockwork
+     ════════════════════════════════════════════════════════════ */
+  .scene-steampunk {
+    background: radial-gradient(circle at 50% 50%, #1a1510 0%, #0d0a08 100%);
+  }
+  .scene-steampunk .gear {
+    position: absolute;
+    border: 3px solid rgba(180,150,80,0.4);
+    border-radius: 50%;
+    animation: gear-spin linear infinite;
+  }
+  .scene-steampunk .gear::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30%;
+    height: 30%;
+    border: 2px solid rgba(180,150,80,0.3);
+    border-radius: 50%;
+  }
+  @keyframes gear-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes gear-spin-rev {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+  }
+  .scene-steampunk .gear.g1 {
+    width: 100px; height: 100px;
+    top: 20%; left: 15%;
+    animation-duration: 15s;
+  }
+  .scene-steampunk .gear.g2 {
+    width: 70px; height: 70px;
+    top: 15%; right: 20%;
+    animation: gear-spin-rev 10s linear infinite;
+    border-color: rgba(200,170,90,0.3);
+  }
+  .scene-steampunk .gear.g3 {
+    width: 50px; height: 50px;
+    top: 50%; left: 40%;
+    animation-duration: 8s;
+  }
+  .scene-steampunk .gear.g4 {
+    width: 120px; height: 120px;
+    bottom: 15%; right: 10%;
+    animation-duration: 20s;
+    border-color: rgba(180,150,80,0.2);
+  }
+  .scene-steampunk .steam {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: rgba(200,200,200,0.2);
+    border-radius: 50%;
+    animation: steam-rise 3s ease-out infinite;
+    opacity: 0;
+  }
+  @keyframes steam-rise {
+    0% { transform: translate(0, 0) scale(1); opacity: 0; }
+    30% { opacity: 0.5; }
+    100% { transform: translate(10px, -100px) scale(3); opacity: 0; }
+  }
+  .scene-steampunk .steam:nth-child(5) { bottom: 40%; left: 30%; animation-delay: 0s; }
+  .scene-steampunk .steam:nth-child(6) { bottom: 35%; left: 60%; animation-delay: 1s; }
+  .scene-steampunk .steam:nth-child(7) { bottom: 45%; left: 50%; animation-delay: 2s; }
+  .scene-steampunk .steam:nth-child(8) { bottom: 38%; left: 70%; animation-delay: 0.5s; }
+  .scene-steampunk .clock-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px; height: 40px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(201,166,80,0.3);
+  }
+  .scene-steampunk .clock-hand {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 2px; height: 15px;
+    background: var(--gold);
+    transform-origin: bottom center;
+    animation: clock-tick 4s linear infinite;
+  }
+  @keyframes clock-tick {
+    0% { transform: translateX(-50%) rotate(0deg); }
+    100% { transform: translateX(-50%) rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Live Wallpaper Concepts</h1>
+  <p>Pixora IA &middot; v2.0 Roadmap &middot; MMXXVI</p>
+</div>
+
+<div class="grid">
+
+  <!-- 1. Samurai Cherry Blossom -->
+  <div class="card">
+    <div class="phone scene-samurai">
+      <div class="moon"></div>
+      <div class="mountain"></div>
+      <div class="ground"></div>
+      <div class="tree"></div>
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal"></div><div class="petal"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Samurai Cherry Blossom</div>
+      <div class="card-desc">Moonlit temple garden with drifting sakura petals and distant mountains</div>
+      <div class="card-chips">
+        <span class="chip diff-med">MEDIUM</span>
+        <span class="chip">Petals</span>
+        <span class="chip">Moon</span>
+        <span class="chip">Parallax</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Neon Cyberpunk Alley -->
+  <div class="card">
+    <div class="phone scene-cyber">
+      <div class="building b1"></div>
+      <div class="building b2"></div>
+      <div class="neon-sign n1">RAMEN</div>
+      <div class="neon-sign n2">CYBER</div>
+      <div class="neon-sign n3">24H</div>
+      <div class="rain-line" style="left:38%"></div>
+      <div class="rain-line" style="left:42%"></div>
+      <div class="rain-line" style="left:46%;animation-delay:0.3s"></div>
+      <div class="rain-line" style="left:50%;animation-delay:0.5s"></div>
+      <div class="rain-line" style="left:55%;animation-delay:0.2s"></div>
+      <div class="rain-line" style="left:60%;animation-delay:0.7s"></div>
+      <div class="puddle"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Neon Cyberpunk Alley</div>
+      <div class="card-desc">Rain-soaked alley with flickering neon signs and puddle reflections</div>
+      <div class="card-chips">
+        <span class="chip diff-hard">HARD</span>
+        <span class="chip">Rain</span>
+        <span class="chip">Neon</span>
+        <span class="chip">Reflections</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Arctic Aurora -->
+  <div class="card">
+    <div class="phone scene-aurora">
+      <div class="aurora-band"></div>
+      <div class="aurora-band"></div>
+      <div class="snow"></div><div class="snow"></div><div class="snow"></div>
+      <div class="snow"></div><div class="snow"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Arctic Aurora</div>
+      <div class="card-desc">Northern lights dancing over snowy tundra with gentle snowfall</div>
+      <div class="card-chips">
+        <span class="chip diff-easy">EASY</span>
+        <span class="chip">Aurora</span>
+        <span class="chip">Snow</span>
+        <span class="chip">Code-only</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Volcanic Dragon Lair -->
+  <div class="card">
+    <div class="phone scene-volcano">
+      <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+      <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+      <div class="lava-glow"></div>
+      <div class="dragon-silhouette">&#x1F409;</div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Volcanic Dragon Lair</div>
+      <div class="card-desc">Molten lava, rising embers, and a dragon silhouette hovering above</div>
+      <div class="card-chips">
+        <span class="chip diff-hard">HARD</span>
+        <span class="chip">Embers</span>
+        <span class="chip">Dragon</span>
+        <span class="chip">Lava glow</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Zen Koi Pond -->
+  <div class="card">
+    <div class="phone scene-koi">
+      <div class="water-surface"></div>
+      <div class="lily-pad"></div><div class="lily-pad"></div><div class="lily-pad"></div>
+      <div class="koi orange"></div>
+      <div class="koi white"></div>
+      <div class="ripple"></div><div class="ripple"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Zen Koi Pond</div>
+      <div class="card-desc">Tranquil pond with koi fish gliding between lily pads</div>
+      <div class="card-chips">
+        <span class="chip diff-med">MEDIUM</span>
+        <span class="chip">Koi sprites</span>
+        <span class="chip">Ripples</span>
+        <span class="chip">Touch</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Haunted Cemetery -->
+  <div class="card">
+    <div class="phone scene-cemetery">
+      <div class="cemetery-moon"></div>
+      <div class="tombstone"></div><div class="tombstone"></div>
+      <div class="tombstone"></div><div class="tombstone"></div>
+      <div class="ghost"></div>
+      <div class="fog"></div>
+      <div class="lightning"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Haunted Cemetery</div>
+      <div class="card-desc">Fog drifting between tombstones, ghosts floating, occasional lightning</div>
+      <div class="card-chips">
+        <span class="chip diff-med">MEDIUM</span>
+        <span class="chip">Ghosts</span>
+        <span class="chip">Fog</span>
+        <span class="chip">Lightning</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Deep Space Observatory -->
+  <div class="card">
+    <div class="phone scene-space">
+      <div class="star"></div><div class="star"></div><div class="star"></div>
+      <div class="star"></div><div class="star"></div><div class="star"></div>
+      <div class="star"></div><div class="star"></div>
+      <div class="nebula"></div>
+      <div class="earth"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Deep Space Observatory</div>
+      <div class="card-desc">View from a space station — Earth below, twinkling stars, nebula</div>
+      <div class="card-chips">
+        <span class="chip diff-easy">EASY</span>
+        <span class="chip">Stars</span>
+        <span class="chip">Nebula</span>
+        <span class="chip">Earth</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Enchanted Mushroom Forest -->
+  <div class="card">
+    <div class="phone scene-mushroom">
+      <div class="mush"><div class="cap"></div><div class="stem"></div></div>
+      <div class="mush"><div class="cap"></div><div class="stem"></div></div>
+      <div class="mush"><div class="cap"></div><div class="stem"></div></div>
+      <div class="fairy-dust"></div><div class="fairy-dust"></div>
+      <div class="fairy-dust"></div><div class="fairy-dust"></div>
+      <div class="fairy-dust"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Enchanted Mushroom Forest</div>
+      <div class="card-desc">Bioluminescent mushrooms glowing in a dark forest with fairy dust</div>
+      <div class="card-chips">
+        <span class="chip diff-easy">EASY</span>
+        <span class="chip">Glow</span>
+        <span class="chip">Particles</span>
+        <span class="chip">Code-only</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Egyptian Temple -->
+  <div class="card">
+    <div class="phone scene-egypt">
+      <div class="pyramid"></div>
+      <div class="torch"></div><div class="torch"></div>
+      <div class="sand"></div>
+      <div class="hieroglyph">&#x1330B;</div>
+      <div class="hieroglyph">&#x130B8;</div>
+      <div class="hieroglyph">&#x13171;</div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Egyptian Temple</div>
+      <div class="card-desc">Pyramid under desert stars, flickering torches, sand drifting</div>
+      <div class="card-chips">
+        <span class="chip diff-med">MEDIUM</span>
+        <span class="chip">Torches</span>
+        <span class="chip">Sand</span>
+        <span class="chip">Hieroglyphs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Steampunk Clockwork -->
+  <div class="card">
+    <div class="phone scene-steampunk">
+      <div class="gear g1"></div>
+      <div class="gear g2"></div>
+      <div class="gear g3"></div>
+      <div class="gear g4"></div>
+      <div class="steam"></div><div class="steam"></div>
+      <div class="steam"></div><div class="steam"></div>
+      <div class="clock-center">
+        <div class="clock-hand"></div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-title">Steampunk Clockwork</div>
+      <div class="card-desc">Brass gears rotating, steam venting, central clock ticking</div>
+      <div class="card-chips">
+        <span class="chip diff-easy">EASY</span>
+        <span class="chip">Gears</span>
+        <span class="chip">Steam</span>
+        <span class="chip">Code-only</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

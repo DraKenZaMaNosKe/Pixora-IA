@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pixora — Volcano Dragon + Dusk Fortress Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --gold: #C9A650;
+    --gold-bright: #F0DD9E;
+    --gold-deep: #8A6F33;
+  }
+  body {
+    background: #060608;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 32px;
+    margin: 50px 0 10px;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-deep));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    color: var(--gold);
+    opacity: 0.5;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    margin-bottom: 40px;
+  }
+  .phones {
+    display: flex;
+    gap: 50px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0 20px 60px;
+  }
+  .phone-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .phone-label {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--gold-bright);
+  }
+  .phone-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    max-width: 250px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  /* Phone frame */
+  .phone {
+    position: relative;
+    width: 280px;
+    height: 600px;
+    border-radius: 32px;
+    overflow: hidden;
+    border: 2px solid rgba(201,166,80,0.25);
+    box-shadow: 0 10px 60px rgba(0,0,0,0.6), 0 0 40px rgba(201,166,80,0.08);
+  }
+  .phone img.bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .phone .fx-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  /* ═══ Volcano FX ═══ */
+  .volcano-glow {
+    position: absolute;
+    left: 50%; top: 42%;
+    transform: translateX(-50%);
+    width: 100px; height: 60px;
+    background: radial-gradient(ellipse, rgba(255,140,40,0.5) 0%, rgba(255,100,20,0.2) 40%, transparent 70%);
+    border-radius: 50%;
+    animation: v-glow 3s ease-in-out infinite alternate;
+  }
+  @keyframes v-glow {
+    0% { opacity: 0.5; transform: translateX(-50%) scale(0.9); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+  }
+  .volcano-glow-inner {
+    position: absolute;
+    left: 50%; top: 43%;
+    transform: translateX(-50%);
+    width: 50px; height: 30px;
+    background: radial-gradient(ellipse, rgba(255,200,100,0.6) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: v-glow 3s ease-in-out infinite alternate;
+    animation-delay: 0.5s;
+  }
+
+  @keyframes ember-up {
+    0% { transform: translate(0, 0) scale(1); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 0.6; }
+    100% { transform: translate(var(--ex), -350px) scale(0.3); opacity: 0; }
+  }
+  .ember {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--ec);
+    box-shadow: 0 0 6px var(--ec);
+    animation: ember-up linear infinite;
+    opacity: 0;
+  }
+  .ember:nth-child(1)  { left: 45%; top: 44%; --ec: #FFB040; --ex: 10px;  animation-duration: 3.5s; animation-delay: 0s; }
+  .ember:nth-child(2)  { left: 50%; top: 45%; --ec: #FF8820; --ex: -8px;  animation-duration: 4s;   animation-delay: 0.5s; }
+  .ember:nth-child(3)  { left: 48%; top: 43%; --ec: #FFCC60; --ex: 15px;  animation-duration: 3s;   animation-delay: 1s; }
+  .ember:nth-child(4)  { left: 52%; top: 46%; --ec: #FF6A10; --ex: -12px; animation-duration: 4.5s; animation-delay: 0.3s; }
+  .ember:nth-child(5)  { left: 47%; top: 44%; --ec: #FFB040; --ex: 5px;   animation-duration: 3.8s; animation-delay: 1.5s; }
+  .ember:nth-child(6)  { left: 53%; top: 45%; --ec: #FFCC60; --ex: -6px;  animation-duration: 3.2s; animation-delay: 0.8s; }
+  .ember:nth-child(7)  { left: 46%; top: 43%; --ec: #FF8820; --ex: 18px;  animation-duration: 5s;   animation-delay: 2s; }
+  .ember:nth-child(8)  { left: 51%; top: 44%; --ec: #FF6A10; --ex: -3px;  animation-duration: 3.6s; animation-delay: 0.2s; }
+  .ember:nth-child(9)  { left: 49%; top: 46%; --ec: #FFB040; --ex: 8px;   animation-duration: 4.2s; animation-delay: 1.2s; }
+  .ember:nth-child(10) { left: 54%; top: 45%; --ec: #FFCC60; --ex: -14px; animation-duration: 3.4s; animation-delay: 0.7s; }
+  .ember:nth-child(11) { left: 44%; top: 43%; --ec: #FF8820; --ex: 20px;  animation-duration: 4.8s; animation-delay: 1.8s; }
+  .ember:nth-child(12) { left: 50%; top: 44%; --ec: #FF6A10; --ex: 0px;   animation-duration: 3.3s; animation-delay: 2.5s; }
+
+  /* ═══ Fortress FX ═══ */
+  @keyframes torch-flicker {
+    0%, 100% { opacity: 0.6; transform: scale(0.9); }
+    30% { opacity: 1; transform: scale(1.1); }
+    60% { opacity: 0.75; transform: scale(0.95); }
+    80% { opacity: 1; transform: scale(1.05); }
+  }
+  .torch {
+    position: absolute;
+    border-radius: 50%;
+  }
+  .torch .glow-outer {
+    position: absolute;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,150,60,0.35) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    animation: torch-flicker 2s ease-in-out infinite;
+  }
+  .torch .glow-mid {
+    position: absolute;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,180,90,0.5) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    animation: torch-flicker 2s ease-in-out infinite;
+    animation-delay: 0.3s;
+  }
+  .torch .glow-core {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,220,140,0.9);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 8px rgba(255,200,100,0.6);
+    animation: torch-flicker 1.5s ease-in-out infinite;
+    animation-delay: 0.1s;
+  }
+  .torch:nth-child(1) { left: 50%; top: 44%; }
+  .torch:nth-child(1) .glow-outer { animation-delay: 0s; }
+  .torch:nth-child(2) { left: 54%; top: 38%; }
+  .torch:nth-child(2) .glow-outer { animation-delay: 0.5s; }
+  .torch:nth-child(3) { left: 47%; top: 41%; }
+  .torch:nth-child(3) .glow-outer { animation-delay: 1s; }
+  .torch:nth-child(4) { left: 58%; top: 48%; }
+  .torch:nth-child(4) .glow-outer { animation-delay: 0.7s; }
+  .torch:nth-child(5) { left: 52%; top: 33%; }
+  .torch:nth-child(5) .glow-outer { animation-delay: 1.3s; }
+
+  @keyframes ash-drift {
+    0% { transform: translate(0, 0); opacity: 0; }
+    15% { opacity: 0.6; }
+    85% { opacity: 0.3; }
+    100% { transform: translate(var(--ax), -250px); opacity: 0; }
+  }
+  .ash {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: rgba(220,180,120,0.5);
+    border-radius: 50%;
+    animation: ash-drift linear infinite;
+    opacity: 0;
+  }
+  .ash:nth-child(6)  { left: 20%; bottom: 10%; --ax: 8px;  animation-duration: 7s;  animation-delay: 0s; }
+  .ash:nth-child(7)  { left: 40%; bottom: 5%;  --ax: -5px; animation-duration: 8s;  animation-delay: 1s; }
+  .ash:nth-child(8)  { left: 60%; bottom: 8%;  --ax: 12px; animation-duration: 6s;  animation-delay: 2s; }
+  .ash:nth-child(9)  { left: 75%; bottom: 12%; --ax: -8px; animation-duration: 9s;  animation-delay: 0.5s; }
+  .ash:nth-child(10) { left: 30%; bottom: 3%;  --ax: 6px;  animation-duration: 7.5s; animation-delay: 3s; }
+  .ash:nth-child(11) { left: 55%; bottom: 7%;  --ax: -10px; animation-duration: 8.5s; animation-delay: 1.5s; }
+  .ash:nth-child(12) { left: 85%; bottom: 15%; --ax: 4px;  animation-duration: 6.5s; animation-delay: 2.5s; }
+  .ash:nth-child(13) { left: 15%; bottom: 6%;  --ax: -3px; animation-duration: 10s;  animation-delay: 4s; }
+
+  /* Hide Gemini watermark (bottom-right corner of source images) */
+  .watermark-cover {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 60px; height: 24px;
+    background: linear-gradient(135deg, transparent 0%, #0a0500 40%);
+    z-index: 10;
+  }
+  .fortress-wm {
+    background: linear-gradient(135deg, transparent 0%, #0d0a12 40%);
+  }
+
+  /* Heat distortion zone — covers top 55% of volcano phone */
+  .heat-zone {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 58%;
+    filter: url(#heat-distort);
+    overflow: hidden;
+    border-radius: 32px 32px 0 0;
+  }
+  .heat-zone img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 172%; /* stretch to cover full phone height ratio */
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG filter for heat distortion -->
+<svg style="position:absolute;width:0;height:0">
+  <defs>
+    <filter id="heat-distort">
+      <feTurbulence type="turbulence" baseFrequency="0.015 0.08" numOctaves="3" seed="2" result="turb">
+        <animate attributeName="baseFrequency" dur="4s" values="0.015 0.08;0.02 0.1;0.015 0.08" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="turb" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+<h1>Live Wallpaper Preview</h1>
+<div class="subtitle">BACKGROUND + ANIMATED FX OVERLAY</div>
+
+<div class="phones">
+
+  <!-- Dusk Fortress -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <img class="bg" src="img/fortress.webp" alt="Dusk Fortress">
+      <div class="watermark-cover fortress-wm"></div>
+      <div class="fx-layer">
+        <div class="torch"><div class="glow-outer"></div><div class="glow-mid"></div><div class="glow-core"></div></div>
+        <div class="torch"><div class="glow-outer"></div><div class="glow-mid"></div><div class="glow-core"></div></div>
+        <div class="torch"><div class="glow-outer"></div><div class="glow-mid"></div><div class="glow-core"></div></div>
+        <div class="torch"><div class="glow-outer"></div><div class="glow-mid"></div><div class="glow-core"></div></div>
+        <div class="torch"><div class="glow-outer"></div><div class="glow-mid"></div><div class="glow-core"></div></div>
+        <div class="ash"></div><div class="ash"></div><div class="ash"></div>
+        <div class="ash"></div><div class="ash"></div><div class="ash"></div>
+        <div class="ash"></div><div class="ash"></div>
+      </div>
+    </div>
+    <div class="phone-label">Dusk Fortress</div>
+    <div class="phone-sub">5 antorchas flickeando en las ventanas + 28 motes de ceniza subiendo del valle</div>
+  </div>
+
+  <!-- Volcano Dragon -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <img class="bg" src="img/volcano.webp" alt="Volcano Dragon">
+      <div class="watermark-cover"></div>
+      <!-- Heat distortion — same image duplicated, filtered, clipped to top half -->
+      <div class="heat-zone">
+        <img src="img/volcano.webp" alt="">
+      </div>
+      <div class="fx-layer">
+        <div class="volcano-glow"></div>
+        <div class="volcano-glow-inner"></div>
+        <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+        <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+        <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+        <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+      </div>
+    </div>
+    <div class="phone-label">Volcano Dragon</div>
+    <div class="phone-sub">36 brasas subiendo de la cumbre + glow pulsante de erupcion + dragon silueta</div>
+  </div>
+
+</div>
+
+</body>
+</html>
