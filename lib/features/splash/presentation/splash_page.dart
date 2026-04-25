@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/services/catalog_index_service.dart';
 import '../../../core/services/catalog_service.dart';
 import '../../../core/services/shader_download_service.dart';
 import '../../../core/services/wallpaper_stats_service.dart';
@@ -86,6 +88,13 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       // Bootstrap shaders (~7 KB total) so they're ready when applied.
       // Fire-and-forget: failure here doesn't block navigation.
       unawaited(ShaderDownloadService.instance.ensureBootstrapShaders());
+      // v1.7 catalog index validation — fire-and-forget, logs result.
+      unawaited(CatalogIndexService.instance.getItems().then((items) {
+        debugPrint(
+            '[Pixora] CatalogIndex v${CatalogIndexService.instance.version} '
+            '→ ${items.length} items: '
+            '${items.map((e) => "${e.id}(${e.type})").join(", ")}');
+      }));
       await Future.delayed(const Duration(milliseconds: 220));
 
       if (mounted) {
