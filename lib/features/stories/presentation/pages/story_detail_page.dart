@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/design/hud_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/utils/color_utils.dart';
 import '../../../../core/content/content_manager.dart';
 import '../../../../core/content/content_types.dart';
 import '../../../../core/content/content_url_resolver.dart';

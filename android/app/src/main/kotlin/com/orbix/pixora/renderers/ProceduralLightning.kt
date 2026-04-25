@@ -3,7 +3,8 @@ package com.orbix.pixora.renderers
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Path
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 
 /**
@@ -11,10 +12,9 @@ import kotlin.random.Random
  * frames looked muddy. Three-strike envelope across a configurable
  * duration: initial strike, mid re-strike, late mini-strike, then fade.
  *
- * Usage:
- *   private val lightning = ProceduralLightning()
- *   if (shouldFire) lightning.start(tick, durationTicks=120, w, h)
- *   lightning.draw(canvas, tick)
+ * Each strike is built as a collection of Segments (line + width factor),
+ * not a single Path, so tips actually taper. Main bolt forks recursively
+ * (depth 2) with a sideways bias to mimic natural lightning branching.
  */
 class ProceduralLightning {
     var active: Boolean = false
@@ -24,7 +24,14 @@ class ProceduralLightning {
     private var durationTicks = 120L
     private var surfaceW = 0
     private var surfaceH = 0
-    private val path = Path()
+
+    private data class Segment(
+        val x1: Float, val y1: Float,
+        val x2: Float, val y2: Float,
+        val widthFactor: Float,
+    )
+
+    private val segments = mutableListOf<Segment>()
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
@@ -43,28 +50,74 @@ class ProceduralLightning {
     fun stop() { active = false }
 
     private fun regenerate() {
-        path.reset()
+        segments.clear()
         if (surfaceW <= 0) return
+
         val startX = surfaceW * (0.2f + Random.nextFloat() * 0.6f)
         val endX = startX + (Random.nextFloat() - 0.5f) * surfaceW * 0.3f
-        val endY = surfaceH * (0.4f + Random.nextFloat() * 0.2f)
-        val segs = 14
-        path.moveTo(startX, 0f)
+        val endY = surfaceH * (0.42f + Random.nextFloat() * 0.18f)
+        val mainSegs = 20
+        val dy = endY / mainSegs
+        val dx = (endX - startX) / mainSegs
         var x = startX
         var y = 0f
-        val dy = endY / segs
-        val dx = (endX - startX) / segs
-        for (i in 1..segs) {
-            x += dx + (Random.nextFloat() - 0.5f) * surfaceW * 0.06f
-            y += dy
-            path.lineTo(x, y)
-            if (Random.nextFloat() < 0.20f && i in 3..(segs - 2)) {
-                val forkLen = surfaceH * (0.04f + Random.nextFloat() * 0.05f)
-                val fx = x + (Random.nextFloat() - 0.5f) * surfaceW * 0.10f
-                path.moveTo(x, y)
-                path.lineTo(fx, y + forkLen)
-                path.moveTo(x, y)
+        for (i in 1..mainSegs) {
+            val nx = x + dx + (Random.nextFloat() - 0.5f) * surfaceW * 0.07f
+            val ny = y + dy
+            // Main trunk tapers from 1.0 at top → 0.55 at bottom
+            val w = 1f - (i.toFloat() / mainSegs) * 0.45f
+            segments.add(Segment(x, y, nx, ny, w))
+            // Forks more likely in upper middle (30-70% of bolt height)
+            val forkChance = if (i in (mainSegs / 4)..(mainSegs * 3 / 4)) 0.55f else 0.25f
+            if (Random.nextFloat() < forkChance) {
+                generateFork(
+                    nx, ny,
+                    depth = 1,
+                    maxDepth = 2,
+                    maxLen = surfaceH * (0.05f + Random.nextFloat() * 0.06f),
+                    widthSeed = 0.55f,
+                    sideBias = if (Random.nextBoolean()) 1f else -1f,
+                )
             }
+            x = nx
+            y = ny
+        }
+    }
+
+    private fun generateFork(
+        ox: Float, oy: Float,
+        depth: Int, maxDepth: Int,
+        maxLen: Float,
+        widthSeed: Float,
+        sideBias: Float,
+    ) {
+        val forkSegs = 5 + Random.nextInt(4)
+        val baseAngle = sideBias * (0.4f + Random.nextFloat() * 0.5f)  // mostly sideways
+        val stepLen = maxLen / forkSegs
+        var fx = ox
+        var fy = oy
+        for (j in 1..forkSegs) {
+            val t = j.toFloat() / forkSegs
+            val jitter = (Random.nextFloat() - 0.5f) * 0.45f
+            val angle = baseAngle + jitter
+            val nx = fx + sin(angle.toDouble()).toFloat() * stepLen
+            val ny = fy + cos(angle.toDouble()).toFloat() * stepLen * 0.7f + stepLen * 0.35f
+            // Taper aggressively toward the tip
+            val w = (widthSeed * (1f - t * 0.85f)).coerceAtLeast(0.08f)
+            segments.add(Segment(fx, fy, nx, ny, w))
+            // Recursive sub-fork (only if deeper allowed)
+            if (depth < maxDepth && j in 2 until forkSegs - 1 && Random.nextFloat() < 0.30f) {
+                generateFork(
+                    nx, ny,
+                    depth = depth + 1,
+                    maxDepth = maxDepth,
+                    maxLen = maxLen * 0.5f,
+                    widthSeed = widthSeed * 0.55f,
+                    sideBias = if (Random.nextBoolean()) 1f else -1f,
+                )
+            }
+            fx = nx
+            fy = ny
         }
     }
 
@@ -97,17 +150,28 @@ class ProceduralLightning {
         canvas.drawRect(0f, 0f, surfaceW.toFloat(), surfaceH.toFloat(), flashPaint)
 
         val alpha = (255 * intensity).toInt().coerceIn(0, 255)
-        // Outer glow
-        paint.strokeWidth = surfaceW * 0.018f
-        paint.color = Color.argb((alpha * 0.25f).toInt().coerceIn(0, 255), 180, 210, 255)
-        canvas.drawPath(path, paint)
-        // Mid layer
-        paint.strokeWidth = surfaceW * 0.008f
-        paint.color = Color.argb((alpha * 0.7f).toInt().coerceIn(0, 255), 220, 230, 255)
-        canvas.drawPath(path, paint)
-        // Bright core
-        paint.strokeWidth = surfaceW * 0.003f
+        val outerBase = surfaceW * 0.020f
+        val midBase = surfaceW * 0.009f
+        val coreBase = surfaceW * 0.0030f
+
+        // Three layered passes for glow effect — each segment scaled by its widthFactor
+        // Outer halo (blue, semi-transparent)
+        paint.color = Color.argb((alpha * 0.22f).toInt().coerceIn(0, 255), 170, 200, 255)
+        for (s in segments) {
+            paint.strokeWidth = (outerBase * s.widthFactor).coerceAtLeast(1f)
+            canvas.drawLine(s.x1, s.y1, s.x2, s.y2, paint)
+        }
+        // Mid layer (light blue)
+        paint.color = Color.argb((alpha * 0.65f).toInt().coerceIn(0, 255), 215, 230, 255)
+        for (s in segments) {
+            paint.strokeWidth = (midBase * s.widthFactor).coerceAtLeast(0.8f)
+            canvas.drawLine(s.x1, s.y1, s.x2, s.y2, paint)
+        }
+        // Bright white core
         paint.color = Color.argb(alpha, 255, 255, 255)
-        canvas.drawPath(path, paint)
+        for (s in segments) {
+            paint.strokeWidth = (coreBase * s.widthFactor).coerceAtLeast(0.5f)
+            canvas.drawLine(s.x1, s.y1, s.x2, s.y2, paint)
+        }
     }
 }

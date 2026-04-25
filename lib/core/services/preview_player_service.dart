@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import '../../features/aura/services/aura_player_service.dart';
 
 /// Previews tones and short audio clips using AuraPlayerService's AudioPlayer.

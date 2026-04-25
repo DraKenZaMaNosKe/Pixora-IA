@@ -9,7 +9,6 @@ import '../../../core/services/credit_service.dart';
 import '../../../core/services/subscription_service.dart';
 import '../../ai_generate/presentation/pages/ai_generate_page.dart';
 import '../../favorites/presentation/favorites_page.dart';
-import '../../favorites/providers/favorites_provider.dart';
 import '../../settings/presentation/settings_page.dart';
 import '../../stories/presentation/pages/stories_page.dart';
 import '../../day_cycle/presentation/pages/day_cycle_page.dart';

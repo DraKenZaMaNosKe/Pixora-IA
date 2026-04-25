@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/design/hud_tokens.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
-import '../../../../core/utils/color_utils.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 import 'wallpaper_stats_bar.dart';

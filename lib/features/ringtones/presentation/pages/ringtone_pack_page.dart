@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../../../../core/services/preview_player_service.dart';
-import '../../../../core/utils/color_utils.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../core/widgets/loading_overlay.dart';

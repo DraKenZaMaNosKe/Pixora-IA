@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/design/hud_tokens.dart';
-import '../../../../core/utils/color_utils.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../../core/widgets/ticket_stub_card.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';

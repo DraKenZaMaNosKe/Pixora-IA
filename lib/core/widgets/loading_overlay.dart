@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 import '../../core/design/hud_tokens.dart';
 
 enum LoadingPhase { downloading, sprites, installing, done, error }

@@ -217,7 +217,15 @@ class ShaderWallpaperService : WallpaperService() {
             try {
                 EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)
 
-                val source = applicationContext.assets.open("shaders/$name.glsl").bufferedReader().readText()
+                // filesDir-first lookup: shaders are downloaded by ShaderDownloadService
+                // and cached at filesDir/shaders/<name>.glsl. Asset fallback kept for
+                // safety only — after v1.6.0 the APK no longer ships any .glsl.
+                val cached = java.io.File(applicationContext.filesDir, "shaders/$name.glsl")
+                val source = if (cached.isFile) {
+                    cached.readText()
+                } else {
+                    applicationContext.assets.open("shaders/$name.glsl").bufferedReader().readText()
+                }
 
                 val vert = compile(GLES20.GL_VERTEX_SHADER, VERT_SRC)
                 val frag = compile(GLES20.GL_FRAGMENT_SHADER, source)

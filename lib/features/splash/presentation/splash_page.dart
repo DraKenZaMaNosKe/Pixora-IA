@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/catalog_service.dart';
+import '../../../core/services/shader_download_service.dart';
 import '../../../core/services/wallpaper_stats_service.dart';
 import '../../home/presentation/home_page.dart';
 
@@ -17,8 +19,7 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage>
-    with TickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   // Black & Gold palette (hardcoded in splash so it works before theme loads).
   static const _ink = Color(0xFF000000);
   static const _cream = Color(0xFFF0E8D6);
@@ -82,6 +83,9 @@ class _SplashPageState extends State<SplashPage>
           _loadingProgress = 0.85;
         });
       }
+      // Bootstrap shaders (~7 KB total) so they're ready when applied.
+      // Fire-and-forget: failure here doesn't block navigation.
+      unawaited(ShaderDownloadService.instance.ensureBootstrapShaders());
       await Future.delayed(const Duration(milliseconds: 220));
 
       if (mounted) {

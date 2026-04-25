@@ -194,14 +194,17 @@ class GLShaderRenderer(private val context: Context) {
     }
 
     /**
-     * Load shader from assets folder.
+     * Load shader from filesDir/<assetPath> first (downloaded by
+     * ShaderDownloadService), falling back to bundled APK assets only as
+     * a safety net — post-v1.6.0 there are no shaders bundled.
      */
     fun loadShaderFromAsset(assetPath: String): Boolean {
         return try {
-            val source = context.assets.open(assetPath).use { input ->
-                input.bufferedReader().use { reader ->
-                    reader.readText()
-                }
+            val cached = java.io.File(context.filesDir, assetPath)
+            val source = if (cached.isFile) {
+                cached.readText()
+            } else {
+                context.assets.open(assetPath).bufferedReader().use { it.readText() }
             }
             loadShader(source)
         } catch (e: Exception) {

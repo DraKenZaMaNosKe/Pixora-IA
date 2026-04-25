@@ -13,7 +13,7 @@ import kotlin.random.Random
  *
  * Layers:
  *   - Background image (drawn by PixoraWallpaperService before this renderer)
- *   - Particle FX (embers rising + summit glow pulse)
+ *   - Particle FX (embers rising)
  *   - Sprite layer (2 dragons orbiting + 3 bats + cinematic phoenix + lightning)
  *
  * Cinematic events:
@@ -28,10 +28,8 @@ class VolcanoRenderer(private val context: Context) {
     // ── Particle state ─────────────────────────────────
     private val embers = mutableListOf<Ember>()
     private var initialized = false
-    private var glowPhase = 0f
 
     private val emberPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
-    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
 
     private data class Ember(
         var x: Float, var y: Float,
@@ -91,7 +89,6 @@ class VolcanoRenderer(private val context: Context) {
         tick++
 
         // Particle layer
-        drawSummitGlow(canvas)
         drawEmbers(canvas)
 
         // Cinematic events (drawn BEFORE sprites so dragons are on top of lightning)
@@ -106,19 +103,6 @@ class VolcanoRenderer(private val context: Context) {
     }
 
     // ── Particle FX ────────────────────────────────────
-
-    private fun drawSummitGlow(canvas: Canvas) {
-        val summitX = surfaceWidth * 0.5f
-        val summitY = surfaceHeight * 0.55f
-        glowPhase += 0.03f
-        val glowAlpha = (110 + 60 * sin(glowPhase.toDouble())).toInt().coerceIn(0, 255)
-        glowPaint.color = Color.argb(glowAlpha, 255, 140, 40)
-        canvas.drawCircle(summitX, summitY - surfaceHeight * 0.04f,
-            surfaceWidth * 0.12f, glowPaint)
-        glowPaint.color = Color.argb((glowAlpha * 0.5).toInt(), 255, 200, 120)
-        canvas.drawCircle(summitX, summitY - surfaceHeight * 0.04f,
-            surfaceWidth * 0.07f, glowPaint)
-    }
 
     private fun drawEmbers(canvas: Canvas) {
         val it = embers.iterator()
@@ -140,19 +124,23 @@ class VolcanoRenderer(private val context: Context) {
     }
 
     private fun spawnEmber(n: Int) {
-        val summitX = surfaceWidth * 0.5f
-        val summitY = surfaceHeight * 0.55f
+        // Crater (boca del volcán) — top of the eruption column
+        val craterX = surfaceWidth * 0.5f
+        val craterY = surfaceHeight * 0.45f
         val colors = intArrayOf(0xFFFFB040.toInt(), 0xFFFF8820.toInt(),
             0xFFFFCC60.toInt(), 0xFFFF6A10.toInt())
         repeat(n) {
-            val angle = Random.nextFloat() * 0.8f - 0.4f
-            val speed = Random.nextFloat() * 1.3f + 0.7f
+            val angle = Random.nextFloat() * 0.6f - 0.3f
+            val speed = Random.nextFloat() * 1.4f + 1.0f
             val life = Random.nextFloat() * 0.7f + 0.6f
             embers.add(Ember(
-                x = summitX + (Random.nextFloat() - 0.5f) * surfaceWidth * 0.12f,
-                y = summitY + (Random.nextFloat() - 0.5f) * 40f,
-                vx = sin(angle.toDouble()).toFloat() * speed * 0.3f,
-                vy = -speed * 1.4f,
+                // Narrow horizontal spread (~6% of screen width — the crater mouth)
+                x = craterX + (Random.nextFloat() - 0.5f) * surfaceWidth * 0.06f,
+                // Tight vertical jitter so they all start at the mouth
+                y = craterY + (Random.nextFloat() - 0.5f) * 18f,
+                vx = sin(angle.toDouble()).toFloat() * speed * 0.25f,
+                // Stronger upward thrust to follow the eruption column
+                vy = -speed * 1.8f,
                 radius = Random.nextFloat() * 2.2f + 1.4f,
                 life = life, maxLife = life,
                 color = colors[Random.nextInt(colors.size)],
@@ -241,7 +229,6 @@ class VolcanoRenderer(private val context: Context) {
     fun reset() {
         embers.clear()
         initialized = false
-        glowPhase = 0f
         phoenixActive = false
         procLightning.stop()
         tick = 0
