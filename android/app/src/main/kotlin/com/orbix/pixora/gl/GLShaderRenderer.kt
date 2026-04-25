@@ -1,12 +1,15 @@
 package com.orbix.pixora.gl
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.opengl.EGL14
 import android.opengl.EGLConfig
 import android.opengl.EGLContext
 import android.opengl.EGLDisplay
 import android.opengl.EGLSurface
 import android.opengl.GLES20
+import android.opengl.GLUtils
 import android.util.Log
 import android.view.SurfaceHolder
 import java.nio.ByteBuffer
@@ -52,6 +55,10 @@ class GLShaderRenderer(private val context: Context) {
     // Uniforms
     private var uTime = -1
     private var uResolution = -1
+    private var uTex = -1            // optional sampler2D for shaders that sample a background
+
+    // Optional background texture (TEXTURE0)
+    private var bgTextureId = 0
 
     // State
     private var startTime = System.nanoTime()
@@ -176,8 +183,9 @@ class GLShaderRenderer(private val context: Context) {
             // Get uniform locations
             uTime = GLES20.glGetUniformLocation(program, "uTime")
             uResolution = GLES20.glGetUniformLocation(program, "uResolution")
+            uTex = GLES20.glGetUniformLocation(program, "uTex")
 
-            Log.d(TAG, "Shader compiled OK (uTime=$uTime, uRes=$uResolution)")
+            Log.d(TAG, "Shader compiled OK (uTime=$uTime, uRes=$uResolution, uTex=$uTex)")
             return true
         } catch (e: Exception) {
             Log.e(TAG, "loadShader failed: ${e.message}")
@@ -203,6 +211,56 @@ class GLShaderRenderer(private val context: Context) {
     }
 
     /**
+     * Load a background texture from a Bitmap. Call AFTER init() and AFTER loadShader().
+     * Bound to TEXTURE0 and exposed to the shader as `uniform sampler2D uTex;`.
+     * Shaders that don't declare uTex are unaffected.
+     */
+    fun setBackgroundTexture(bitmap: Bitmap): Boolean {
+        if (!isInitialized) return false
+        try {
+            EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)
+            // Drop previous texture if present
+            if (bgTextureId != 0) {
+                val ids = intArrayOf(bgTextureId)
+                GLES20.glDeleteTextures(1, ids, 0)
+                bgTextureId = 0
+            }
+            val ids = IntArray(1)
+            GLES20.glGenTextures(1, ids, 0)
+            bgTextureId = ids[0]
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bgTextureId)
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE)
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE)
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
+            Log.d(TAG, "BG texture uploaded: ${bitmap.width}x${bitmap.height} -> tex=$bgTextureId")
+            return true
+        } catch (e: Exception) {
+            Log.e(TAG, "setBackgroundTexture failed: ${e.message}")
+            return false
+        }
+    }
+
+    /**
+     * Convenience: load a background texture from an asset path.
+     * Decodes the bitmap, uploads to GL, then recycles the bitmap.
+     */
+    fun setBackgroundTextureFromAsset(assetPath: String): Boolean {
+        return try {
+            val bmp = context.assets.open(assetPath).use { input ->
+                BitmapFactory.decodeStream(input)
+            } ?: return false
+            val ok = setBackgroundTexture(bmp)
+            bmp.recycle()
+            ok
+        } catch (e: Exception) {
+            Log.e(TAG, "setBackgroundTextureFromAsset($assetPath) failed: ${e.message}")
+            false
+        }
+    }
+
+    /**
      * Render one frame. Call this from your render loop.
      */
     fun drawFrame() {
@@ -221,6 +279,13 @@ class GLShaderRenderer(private val context: Context) {
             // Set uniforms
             if (uTime >= 0) GLES20.glUniform1f(uTime, time)
             if (uResolution >= 0) GLES20.glUniform2f(uResolution, width.toFloat(), height.toFloat())
+
+            // Bind background texture to TEXTURE0 if shader requests uTex
+            if (uTex >= 0 && bgTextureId != 0) {
+                GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bgTextureId)
+                GLES20.glUniform1i(uTex, 0)
+            }
 
             // Draw fullscreen quad
             val posAttrib = GLES20.glGetAttribLocation(program, "aPosition")
@@ -257,6 +322,14 @@ class GLShaderRenderer(private val context: Context) {
      * Release all GL resources.
      */
     fun release() {
+        if (bgTextureId != 0) {
+            try {
+                EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)
+                val ids = intArrayOf(bgTextureId)
+                GLES20.glDeleteTextures(1, ids, 0)
+            } catch (_: Exception) {}
+            bgTextureId = 0
+        }
         if (program != 0) {
             GLES20.glDeleteProgram(program)
             program = 0
