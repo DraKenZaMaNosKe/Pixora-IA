@@ -102,15 +102,20 @@ class PixoraWallpaperService : WallpaperService() {
         private val fireflyRenderer = FireflyRenderer()
         private val jellyfishRenderer = JellyfishRenderer(applicationContext)
         private val pixoraFriendsRenderer = PixoraFriendsRenderer(applicationContext)
+        private val volcanoRenderer = VolcanoRenderer(applicationContext)
+        private val duskFortressRenderer = DuskFortressRenderer(applicationContext)
         private var isAquariumMode = false
         private var isFireflyMode = false
         private var isJellyfishMode = false
         private var isPixoraIslandMode = false
+        private var isVolcanoMode = false
+        private var isDuskFortressMode = false
 
         // Any wallpaper that uses code-driven animated sprites over a static background.
         // Keeps the engine at full FPS so animations and the clock second-hand stay smooth.
         private val hasAnimatedCanvasOverlay: Boolean
-            get() = isAquariumMode || isFireflyMode || isJellyfishMode || isPixoraIslandMode
+            get() = isAquariumMode || isFireflyMode || isJellyfishMode || isPixoraIslandMode ||
+                isVolcanoMode || isDuskFortressMode
 
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
@@ -333,6 +338,8 @@ class PixoraWallpaperService : WallpaperService() {
                 fireflyRenderer.reset()
                 jellyfishRenderer.recycle()
                 pixoraFriendsRenderer.release()
+                volcanoRenderer.release()
+                duskFortressRenderer.release()
 
                 // Update caption: show immediately on change, then cycle every 3 min
                 if (caption != captionOverlay.currentCaption) {
@@ -464,6 +471,24 @@ class PixoraWallpaperService : WallpaperService() {
                     // compete with the scene. At 1080 px screen that's ~237 px wide.
                     pixoraFriendsRenderer.scale = (surfaceWidth * 0.22f) / 120f
                     Log.d(TAG, "Pixora Island mode activated: chibi mascot day-cycle (${surfaceWidth}x${surfaceHeight})")
+                }
+
+                // Volcano Dragon: 2 dragons orbiting + bats + cinematic phoenix + lightning
+                isVolcanoMode = path?.contains("volcano_dragon") == true
+                if (isVolcanoMode && surfaceWidth > 0 && surfaceHeight > 0) {
+                    volcanoRenderer.surfaceWidth = surfaceWidth
+                    volcanoRenderer.surfaceHeight = surfaceHeight
+                    volcanoRenderer.ensureLoaded()
+                    Log.d(TAG, "Volcano Dragon mode activated (${surfaceWidth}x${surfaceHeight})")
+                }
+
+                // Dusk Fortress: owl + crows + bat swarm + dragon orbiting tower + lightning + wisps
+                isDuskFortressMode = path?.contains("dusk_fortress") == true
+                if (isDuskFortressMode && surfaceWidth > 0 && surfaceHeight > 0) {
+                    duskFortressRenderer.surfaceWidth = surfaceWidth
+                    duskFortressRenderer.surfaceHeight = surfaceHeight
+                    duskFortressRenderer.ensureLoaded()
+                    Log.d(TAG, "Dusk Fortress mode activated (${surfaceWidth}x${surfaceHeight})")
                 }
 
                 // Aquarium mode: animated fish over background image
@@ -1095,6 +1120,20 @@ class PixoraWallpaperService : WallpaperService() {
                     pixoraFriendsRenderer.draw(canvas)
                 }
 
+                // Volcano Dragon: dragons + bats + cinematic phoenix + lightning
+                if (isVolcanoMode) {
+                    volcanoRenderer.surfaceWidth = surfaceWidth
+                    volcanoRenderer.surfaceHeight = surfaceHeight
+                    volcanoRenderer.draw(canvas)
+                }
+
+                // Dusk Fortress: owl + crows + bat swarm + dragon + lightning + wisps
+                if (isDuskFortressMode) {
+                    duskFortressRenderer.surfaceWidth = surfaceWidth
+                    duskFortressRenderer.surfaceHeight = surfaceHeight
+                    duskFortressRenderer.draw(canvas)
+                }
+
                 rainRenderer.draw(canvas)
                 if (isRainWallpaper) rainRenderer.drawHeadphoneGlow(canvas)
 
@@ -1231,6 +1270,8 @@ class PixoraWallpaperService : WallpaperService() {
             fireflyRenderer.reset()
             jellyfishRenderer.recycle()
             pixoraFriendsRenderer.release()
+            volcanoRenderer.release()
+            duskFortressRenderer.release()
             batteryIndicator.release()
             unregisterPrefsListener()
             unregisterKeyguardReceiver()
