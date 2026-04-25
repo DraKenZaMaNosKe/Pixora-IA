@@ -39,6 +39,18 @@ class SpriteDownloadService {
       'pixora_island/sleep',
       'pixora_island/walk',
     ],
+    'volcano_dragon': [
+      'v160_sprites/dragon_main',
+      'v160_sprites/dragon_secondary',
+      'v160_sprites/bat',
+      'v160_sprites/phoenix',
+    ],
+    'dusk_fortress': [
+      'v160_sprites/owl',
+      'v160_sprites/crow',
+      'v160_sprites/bat',
+      'v160_sprites/dragon_main',
+    ],
   };
 
   Map<String, dynamic>? _manifest;

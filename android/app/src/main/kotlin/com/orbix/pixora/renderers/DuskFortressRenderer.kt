@@ -56,7 +56,7 @@ class DuskFortressRenderer(private val context: Context) {
     private val crow = SpriteSheet(context, "v160_sprites/crow")
     private val bat = SpriteSheet(context, "v160_sprites/bat")
     private val dragon = SpriteSheet(context, "v160_sprites/dragon_main")
-    private val lightning = SpriteSheet(context, "v160_sprites/lightning")
+    private val procLightning = ProceduralLightning()
 
     private var tick = 0L
 
@@ -83,8 +83,6 @@ class DuskFortressRenderer(private val context: Context) {
     private var dragonAngle = 0f
 
     // Lightning cinematic
-    private var lightningActive = false
-    private var lightningStartTick = 0L
     private val lightningInterval = 14 * 60L
     private val lightningDuration = 2 * 60L
 
@@ -95,7 +93,6 @@ class DuskFortressRenderer(private val context: Context) {
         if (!crow.loaded) crow.load(framesPerTick = 2)
         if (!bat.loaded) bat.load(framesPerTick = 2)
         if (!dragon.loaded) dragon.load(framesPerTick = 2)
-        if (!lightning.loaded) lightning.load(framesPerTick = 1)
     }
 
     fun draw(canvas: Canvas) {
@@ -259,30 +256,18 @@ class DuskFortressRenderer(private val context: Context) {
         dragonAngle += 0.014f
         val dx = cx + cos(dragonAngle.toDouble()).toFloat() * r
         val dy = cy + sin(dragonAngle.toDouble()).toFloat() * r * 0.5f
-        val flip = sin(dragonAngle.toDouble()) < 0
+        // Sprite faces right by default; flip when moving left (sin > 0 in this orbit)
+        val flip = sin(dragonAngle.toDouble()) > 0
         dragon.drawAt(canvas, dx, dy, scale = surfaceWidth * 0.0010f, flipX = flip)
     }
 
     // ── Cinematic lightning ────────────────────────────
 
     private fun drawLightning(canvas: Canvas) {
-        if (!lightningActive && tick > 0 && tick % lightningInterval == 0L) {
-            lightningActive = true
-            lightningStartTick = tick
-            lightning.reset()
+        if (!procLightning.active && tick > 0 && tick % lightningInterval == 0L) {
+            procLightning.start(tick, lightningDuration, surfaceWidth, surfaceHeight)
         }
-        if (lightningActive) {
-            lightning.advance()
-            val elapsed = tick - lightningStartTick
-            val t = elapsed.toFloat() / lightningDuration
-            val alpha = (255 * if (t < 0.1f) t / 0.1f
-                              else if (t > 0.7f) (1 - (t - 0.7f) / 0.3f).coerceAtLeast(0f)
-                              else 1f).toInt().coerceIn(0, 255)
-            lightning.drawAt(canvas,
-                surfaceWidth * 0.30f, surfaceHeight * 0.18f,
-                scale = surfaceWidth * 0.0024f, alpha = alpha)
-            if (elapsed >= lightningDuration) lightningActive = false
-        }
+        procLightning.draw(canvas, tick)
     }
 
     // ── Lifecycle ──────────────────────────────────────
@@ -295,7 +280,7 @@ class DuskFortressRenderer(private val context: Context) {
         for (i in crowPhases.indices) crowPhases[i] = i * 0.4f
         dragonAngle = 0f
         batSwarmActive = false
-        lightningActive = false
+        procLightning.stop()
         tick = 0
     }
 
@@ -305,7 +290,7 @@ class DuskFortressRenderer(private val context: Context) {
         crow.release()
         bat.release()
         dragon.release()
-        lightning.release()
+        procLightning.stop()
         initialized = false
     }
 }

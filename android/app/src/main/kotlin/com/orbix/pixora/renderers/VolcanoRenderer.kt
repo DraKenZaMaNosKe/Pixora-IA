@@ -46,7 +46,7 @@ class VolcanoRenderer(private val context: Context) {
     private val dragonSecondary = SpriteSheet(context, "v160_sprites/dragon_secondary")
     private val bat = SpriteSheet(context, "v160_sprites/bat")
     private val phoenix = SpriteSheet(context, "v160_sprites/phoenix")
-    private val lightning = SpriteSheet(context, "v160_sprites/lightning")
+    private val procLightning = ProceduralLightning()
 
     // Frame counter (60fps assumed) — drives cinematic event timers
     private var tick = 0L
@@ -58,8 +58,6 @@ class VolcanoRenderer(private val context: Context) {
     private val phoenixDurationTicks = 5 * 60L    // 5s sequence
 
     // Lightning one-shot state
-    private var lightningActive = false
-    private var lightningStartTick = 0L
     private val lightningIntervalTicks = 10 * 60L // every 10s
     private val lightningDurationTicks = 2 * 60L  // 2s
 
@@ -81,7 +79,6 @@ class VolcanoRenderer(private val context: Context) {
         if (!dragonSecondary.loaded) dragonSecondary.load(framesPerTick = 2)
         if (!bat.loaded) bat.load(framesPerTick = 2)
         if (!phoenix.loaded) phoenix.load(framesPerTick = 2)
-        if (!lightning.loaded) lightning.load(framesPerTick = 1)
     }
 
     fun draw(canvas: Canvas) {
@@ -173,8 +170,8 @@ class VolcanoRenderer(private val context: Context) {
         dragonMainAngle += 0.012f
         val dx = cx + cos(dragonMainAngle.toDouble()).toFloat() * rMain
         val dy = cy + sin(dragonMainAngle.toDouble()).toFloat() * rMain * 0.6f
-        // Flip when going right-to-left for correct facing
-        val flipMain = sin(dragonMainAngle.toDouble()) < 0
+        // Sprite faces right by default; flip when moving left (sin > 0 in this orbit)
+        val flipMain = sin(dragonMainAngle.toDouble()) > 0
         dragonMain.advance()
         dragonMain.drawAt(canvas, dx, dy,
             scale = surfaceWidth * 0.0014f,
@@ -185,7 +182,8 @@ class VolcanoRenderer(private val context: Context) {
         dragonSecAngle -= 0.008f
         val sx = cx + cos(dragonSecAngle.toDouble()).toFloat() * rSec
         val sy = cy + sin(dragonSecAngle.toDouble()).toFloat() * rSec * 0.55f
-        val flipSec = sin(dragonSecAngle.toDouble()) > 0
+        // Reverse orbit direction → flip when moving left (sin < 0 here)
+        val flipSec = sin(dragonSecAngle.toDouble()) < 0
         dragonSecondary.advance()
         dragonSecondary.drawAt(canvas, sx, sy,
             scale = surfaceWidth * 0.0009f,
@@ -208,24 +206,10 @@ class VolcanoRenderer(private val context: Context) {
     // ── Cinematic events ───────────────────────────────
 
     private fun drawLightning(canvas: Canvas) {
-        if (!lightningActive && tick > 0 && tick % lightningIntervalTicks == 0L) {
-            lightningActive = true
-            lightningStartTick = tick
-            lightning.reset()
+        if (!procLightning.active && tick > 0 && tick % lightningIntervalTicks == 0L) {
+            procLightning.start(tick, lightningDurationTicks, surfaceWidth, surfaceHeight)
         }
-        if (lightningActive) {
-            lightning.advance()
-            val elapsed = tick - lightningStartTick
-            // Fade in/out across 2s
-            val t = elapsed.toFloat() / lightningDurationTicks
-            val alpha = (255 * if (t < 0.1f) t / 0.1f
-                              else if (t > 0.7f) (1 - (t - 0.7f) / 0.3f).coerceAtLeast(0f)
-                              else 1f).toInt().coerceIn(0, 255)
-            lightning.drawAt(canvas,
-                surfaceWidth * 0.55f, surfaceHeight * 0.18f,
-                scale = surfaceWidth * 0.0024f, alpha = alpha)
-            if (elapsed >= lightningDurationTicks) lightningActive = false
-        }
+        procLightning.draw(canvas, tick)
     }
 
     private fun drawPhoenix(canvas: Canvas) {
@@ -259,7 +243,7 @@ class VolcanoRenderer(private val context: Context) {
         initialized = false
         glowPhase = 0f
         phoenixActive = false
-        lightningActive = false
+        procLightning.stop()
         tick = 0
     }
 
@@ -269,7 +253,7 @@ class VolcanoRenderer(private val context: Context) {
         dragonSecondary.release()
         bat.release()
         phoenix.release()
-        lightning.release()
+        procLightning.stop()
         initialized = false
     }
 }
