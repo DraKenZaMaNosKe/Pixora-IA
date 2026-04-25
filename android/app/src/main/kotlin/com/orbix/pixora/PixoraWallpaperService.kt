@@ -102,20 +102,21 @@ class PixoraWallpaperService : WallpaperService() {
         private val fireflyRenderer = FireflyRenderer()
         private val jellyfishRenderer = JellyfishRenderer(applicationContext)
         private val pixoraFriendsRenderer = PixoraFriendsRenderer(applicationContext)
-        private val volcanoRenderer = VolcanoRenderer(applicationContext)
-        private val duskFortressRenderer = DuskFortressRenderer(applicationContext)
+        private val canvasSceneRenderer =
+            com.orbix.pixora.scene.CanvasSceneRenderer(applicationContext)
         private var isAquariumMode = false
         private var isFireflyMode = false
         private var isJellyfishMode = false
         private var isPixoraIslandMode = false
-        private var isVolcanoMode = false
-        private var isDuskFortressMode = false
+        // Data-driven scene mode (volcano_dragon, dusk_fortress, and any future
+        // canvas_scene wallpaper). Activated by the 'scene_id' SharedPreference.
+        private var isCanvasSceneMode = false
 
         // Any wallpaper that uses code-driven animated sprites over a static background.
         // Keeps the engine at full FPS so animations and the clock second-hand stay smooth.
         private val hasAnimatedCanvasOverlay: Boolean
             get() = isAquariumMode || isFireflyMode || isJellyfishMode || isPixoraIslandMode ||
-                isVolcanoMode || isDuskFortressMode
+                isCanvasSceneMode
 
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
@@ -338,8 +339,7 @@ class PixoraWallpaperService : WallpaperService() {
                 fireflyRenderer.reset()
                 jellyfishRenderer.recycle()
                 pixoraFriendsRenderer.release()
-                volcanoRenderer.release()
-                duskFortressRenderer.release()
+                canvasSceneRenderer.release()
 
                 // Update caption: show immediately on change, then cycle every 3 min
                 if (caption != captionOverlay.currentCaption) {
@@ -473,22 +473,24 @@ class PixoraWallpaperService : WallpaperService() {
                     Log.d(TAG, "Pixora Island mode activated: chibi mascot day-cycle (${surfaceWidth}x${surfaceHeight})")
                 }
 
-                // Volcano Dragon: 2 dragons orbiting + bats + cinematic phoenix + lightning
-                isVolcanoMode = path?.contains("volcano_dragon") == true
-                if (isVolcanoMode && surfaceWidth > 0 && surfaceHeight > 0) {
-                    volcanoRenderer.surfaceWidth = surfaceWidth
-                    volcanoRenderer.surfaceHeight = surfaceHeight
-                    volcanoRenderer.ensureLoaded()
-                    Log.d(TAG, "Volcano Dragon mode activated (${surfaceWidth}x${surfaceHeight})")
-                }
-
-                // Dusk Fortress: owl + crows + bat swarm + dragon orbiting tower + lightning + wisps
-                isDuskFortressMode = path?.contains("dusk_fortress") == true
-                if (isDuskFortressMode && surfaceWidth > 0 && surfaceHeight > 0) {
-                    duskFortressRenderer.surfaceWidth = surfaceWidth
-                    duskFortressRenderer.surfaceHeight = surfaceHeight
-                    duskFortressRenderer.ensureLoaded()
-                    Log.d(TAG, "Dusk Fortress mode activated (${surfaceWidth}x${surfaceHeight})")
+                // Data-driven canvas scenes (volcano_dragon, dusk_fortress, and any
+                // future canvas_scene wallpaper). Activated by 'scene_id' pref set
+                // from MainActivity.setLiveWallpaper(sceneId=...). The wallpaper
+                // path remains the standard background image; the scene spec drives
+                // the FX overlay (sprites, particles, events).
+                val sceneId = prefs.getString("scene_id", null)
+                isCanvasSceneMode = !sceneId.isNullOrBlank()
+                if (isCanvasSceneMode && surfaceWidth > 0 && surfaceHeight > 0) {
+                    canvasSceneRenderer.surfaceWidth = surfaceWidth
+                    canvasSceneRenderer.surfaceHeight = surfaceHeight
+                    val ok = canvasSceneRenderer.loadSpec(sceneId!!)
+                    if (ok) {
+                        canvasSceneRenderer.ensureLoaded()
+                        Log.d(TAG, "Canvas scene activated: $sceneId (${surfaceWidth}x${surfaceHeight})")
+                    } else {
+                        Log.w(TAG, "Canvas scene failed to load: $sceneId — falling back")
+                        isCanvasSceneMode = false
+                    }
                 }
 
                 // Aquarium mode: animated fish over background image
@@ -1120,18 +1122,12 @@ class PixoraWallpaperService : WallpaperService() {
                     pixoraFriendsRenderer.draw(canvas)
                 }
 
-                // Volcano Dragon: dragons + bats + cinematic phoenix + lightning
-                if (isVolcanoMode) {
-                    volcanoRenderer.surfaceWidth = surfaceWidth
-                    volcanoRenderer.surfaceHeight = surfaceHeight
-                    volcanoRenderer.draw(canvas)
-                }
-
-                // Dusk Fortress: owl + crows + bat swarm + dragon + lightning + wisps
-                if (isDuskFortressMode) {
-                    duskFortressRenderer.surfaceWidth = surfaceWidth
-                    duskFortressRenderer.surfaceHeight = surfaceHeight
-                    duskFortressRenderer.draw(canvas)
+                // Data-driven canvas scenes (volcano_dragon, dusk_fortress, and
+                // any future canvas_scene wallpaper)
+                if (isCanvasSceneMode) {
+                    canvasSceneRenderer.surfaceWidth = surfaceWidth
+                    canvasSceneRenderer.surfaceHeight = surfaceHeight
+                    canvasSceneRenderer.draw(canvas)
                 }
 
                 rainRenderer.draw(canvas)
@@ -1270,8 +1266,7 @@ class PixoraWallpaperService : WallpaperService() {
             fireflyRenderer.reset()
             jellyfishRenderer.recycle()
             pixoraFriendsRenderer.release()
-            volcanoRenderer.release()
-            duskFortressRenderer.release()
+            canvasSceneRenderer.release()
             batteryIndicator.release()
             unregisterPrefsListener()
             unregisterKeyguardReceiver()

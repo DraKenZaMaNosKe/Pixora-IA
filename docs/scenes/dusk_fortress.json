@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "dusk_fortress",
+  "type": "canvas_scene",
+  "title": {
+    "en": "Dusk Fortress",
+    "es": "Fortaleza al Anochecer"
+  },
+
+  "background": {
+    "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_dusk_fortress.webp",
+    "scroll": false
+  },
+
+  "sprites": [
+    {
+      "name": "owl",
+      "manifest_key": "v160_sprites/owl",
+      "behavior": "translate",
+      "default_facing": "right",
+      "frame_skip": 3,
+      "params": {
+        "from": [-0.10, 0.12],
+        "to": [1.10, 0.12],
+        "duration_s": 22.0,
+        "scale": 0.0009
+      }
+    },
+    {
+      "name": "crow_a",
+      "manifest_key": "v160_sprites/crow",
+      "behavior": "translate",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "from": [-0.10, 0.22],
+        "to": [1.10, 0.22],
+        "duration_s": 12.0,
+        "scale": 0.00065
+      }
+    },
+    {
+      "name": "crow_b",
+      "manifest_key": "v160_sprites/crow",
+      "behavior": "translate",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "from": [1.10, 0.28],
+        "to": [-0.10, 0.28],
+        "duration_s": 15.0,
+        "scale": 0.00065
+      }
+    },
+    {
+      "name": "crow_c",
+      "manifest_key": "v160_sprites/crow",
+      "behavior": "translate",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "from": [-0.10, 0.18],
+        "to": [1.10, 0.18],
+        "duration_s": 9.8,
+        "scale": 0.00065
+      }
+    },
+    {
+      "name": "dragon",
+      "manifest_key": "v160_sprites/dragon_main",
+      "behavior": "orbit",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "cx": 0.55,
+        "cy": 0.36,
+        "radius_x": 0.18,
+        "radius_y": 0.09,
+        "angular_speed": 0.014,
+        "scale": 0.0010,
+        "alpha": 255
+      }
+    },
+    {
+      "name": "bat",
+      "manifest_key": "v160_sprites/bat",
+      "behavior": "preload",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {}
+    }
+  ],
+
+  "particles": [
+    {
+      "kind": "motes",
+      "params": {
+        "count": 28,
+        "drift": 0.4,
+        "vy_min": -0.75,
+        "vy_max": -0.25,
+        "color": "#FFDCB478",
+        "max_alpha": 200
+      }
+    },
+    {
+      "kind": "wisps",
+      "params": {
+        "anchors": [[0.18, 0.86], [0.36, 0.92], [0.55, 0.88], [0.72, 0.94], [0.86, 0.90]],
+        "color": "#FFC8E6FF",
+        "radius": 0.018,
+        "wobble_amplitude": 8.0
+      }
+    }
+  ],
+
+  "events": [
+    {
+      "kind": "bat_swarm",
+      "sprite": "bat",
+      "interval_s": 12,
+      "duration_s": 5,
+      "params": {
+        "origin": [0.52, 0.32],
+        "count": 5,
+        "speed": 1.4,
+        "scale": 0.0008
+      }
+    },
+    {
+      "kind": "lightning_procedural",
+      "interval_s": 14,
+      "duration_s": 2,
+      "params": {}
+    }
+  ]
+}

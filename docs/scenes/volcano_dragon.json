@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "id": "volcano_dragon",
+  "type": "canvas_scene",
+  "title": {
+    "en": "Volcano Dragon",
+    "es": "Dragón del Volcán"
+  },
+
+  "background": {
+    "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_volcano_dragon.webp",
+    "scroll": false
+  },
+
+  "sprites": [
+    {
+      "name": "dragon_main",
+      "manifest_key": "v160_sprites/dragon_main",
+      "behavior": "orbit",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "cx": 0.5,
+        "cy": 0.45,
+        "radius_x": 0.32,
+        "radius_y": 0.192,
+        "angular_speed": 0.012,
+        "scale": 0.0014,
+        "alpha": 255
+      }
+    },
+    {
+      "name": "dragon_secondary",
+      "manifest_key": "v160_sprites/dragon_secondary",
+      "behavior": "orbit",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "cx": 0.5,
+        "cy": 0.45,
+        "radius_x": 0.42,
+        "radius_y": 0.231,
+        "angular_speed": -0.008,
+        "scale": 0.0009,
+        "alpha": 200
+      }
+    },
+    {
+      "name": "bat",
+      "manifest_key": "v160_sprites/bat",
+      "behavior": "wander",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "anchors": [[0.20, 0.18], [0.82, 0.22], [0.50, 0.12]],
+        "wander_amplitude": [0.04, 0.02],
+        "scale": 0.0010,
+        "alpha": 255
+      }
+    },
+    {
+      "name": "phoenix",
+      "manifest_key": "v160_sprites/phoenix",
+      "behavior": "preload",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {}
+    }
+  ],
+
+  "particles": [
+    {
+      "kind": "embers",
+      "params": {
+        "spawn_x": 0.5,
+        "spawn_y": 0.45,
+        "spread_x": 0.06,
+        "spread_y_jitter_px": 18,
+        "count": 36,
+        "speed": 1.8,
+        "angular_spread": 0.6,
+        "colors": ["#FFFFB040", "#FFFF8820", "#FFFFCC60", "#FFFF6A10"]
+      }
+    }
+  ],
+
+  "events": [
+    {
+      "kind": "phoenix",
+      "sprite": "phoenix",
+      "interval_s": 25,
+      "duration_s": 5,
+      "params": {
+        "x": 0.5,
+        "y_start": 0.95,
+        "y_end": 0.20,
+        "scale": 0.0028
+      }
+    },
+    {
+      "kind": "lightning_procedural",
+      "interval_s": 10,
+      "duration_s": 2,
+      "params": {}
+    }
+  ]
+}

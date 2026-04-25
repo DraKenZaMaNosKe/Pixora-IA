@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 /// Servicio para aplicar wallpapers (Android) o guardar en galería (iOS).
 ///
@@ -65,14 +67,37 @@ class WallpaperService {
 
   /// Activa el Live Wallpaper con efecto touch glow.
   /// Abre el selector de Android para confirmar.
+  ///
+  /// [sceneId] — when set, activates the data-driven CanvasSceneRenderer
+  /// using a spec previously cached at filesDir/scene_specs/<id>.json
+  /// by SceneSpecService. The Kotlin side reads it on engine boot.
   Future<bool> setLiveWallpaper(String filePath, String glowColor,
-      {bool interactive = false}) async {
+      {bool interactive = false, String? sceneId}) async {
     if (!Platform.isAndroid) return false;
+    // TEMP v1.7 bring-up: auto-detect known canvas_scene wallpapers from
+    // path so we can validate the data-driven renderer end-to-end before
+    // wiring the catalog index. Remove once index is live.
+    var resolvedScene = sceneId;
+    if (resolvedScene == null) {
+      for (final candidate in _knownCanvasScenes.keys) {
+        if (filePath.contains(candidate)) {
+          resolvedScene = candidate;
+          await _ensureSceneSpecCached(candidate);
+          break;
+        }
+      }
+    }
     try {
-      final result = await _channel.invokeMethod<bool>(
-        'setLiveWallpaper',
-        {'path': filePath, 'glowColor': glowColor, 'interactive': interactive},
-      );
+      final args = <String, Object?>{
+        'path': filePath,
+        'glowColor': glowColor,
+        'interactive': interactive,
+      };
+      if (resolvedScene != null && resolvedScene.isNotEmpty) {
+        args['sceneId'] = resolvedScene;
+      }
+      final result =
+          await _channel.invokeMethod<bool>('setLiveWallpaper', args);
       return result ?? false;
     } on PlatformException catch (e) {
       debugPrint('[WallpaperService] setLiveWallpaper error: ${e.message}');
@@ -80,6 +105,36 @@ class WallpaperService {
     } catch (e) {
       debugPrint('[WallpaperService] setLiveWallpaper unexpected error: $e');
       return false;
+    }
+  }
+
+  // TEMP v1.7 bring-up — id → public spec URL. Replace with catalog index.
+  static const _knownCanvasScenes = <String, String>{
+    'volcano_dragon':
+        'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-scenes/volcano_dragon.json',
+    'dusk_fortress':
+        'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-scenes/dusk_fortress.json',
+  };
+
+  Future<void> _ensureSceneSpecCached(String sceneId) async {
+    try {
+      final support = await getApplicationSupportDirectory();
+      final dir = Directory('${support.path}/scene_specs');
+      if (!await dir.exists()) await dir.create(recursive: true);
+      final file = File('${dir.path}/$sceneId.json');
+      if (file.existsSync() && file.lengthSync() > 100) return; // cached
+      final url = _knownCanvasScenes[sceneId]!;
+      final r =
+          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 15));
+      if (r.statusCode == 200 && r.bodyBytes.length > 100) {
+        await file.writeAsBytes(r.bodyBytes);
+        debugPrint('[WallpaperService] cached scene spec: $sceneId '
+            '(${r.bodyBytes.length} B)');
+      } else {
+        debugPrint('[WallpaperService] scene spec fetch HTTP ${r.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('[WallpaperService] scene spec fetch error: $e');
     }
   }
 

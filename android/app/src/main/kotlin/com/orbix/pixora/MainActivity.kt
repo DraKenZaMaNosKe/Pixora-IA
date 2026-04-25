@@ -58,8 +58,13 @@ class MainActivity : AudioServiceActivity() {
                         val path = call.argument<String>("path")
                         val glowColor = call.argument<String>("glowColor") ?: "#C9A650"
                         val interactive = call.argument<Boolean>("interactive") ?: false
+                        // Optional: data-driven canvas scene id. When provided, the
+                        // wallpaper service activates CanvasSceneRenderer with the
+                        // spec previously cached at filesDir/scene_specs/<id>.json
+                        // by Dart's SceneSpecService.
+                        val sceneId = call.argument<String>("sceneId")
                         if (path != null) {
-                            setLiveWallpaper(path, glowColor, interactive)
+                            setLiveWallpaper(path, glowColor, interactive, sceneId)
                             result.success(true)
                         } else {
                             result.error("INVALID_ARG", "Path is required", null)
@@ -412,7 +417,12 @@ class MainActivity : AudioServiceActivity() {
         }
     }
 
-    private fun setLiveWallpaper(imagePath: String, glowColor: String, interactive: Boolean = false) {
+    private fun setLiveWallpaper(
+        imagePath: String,
+        glowColor: String,
+        interactive: Boolean = false,
+        sceneId: String? = null,
+    ) {
         // Stop any active story/day cycle to prevent them from overriding this wallpaper
         StoryWorker.stopStory(applicationContext)
         DayCycleWorker.stop(applicationContext)
@@ -421,13 +431,17 @@ class MainActivity : AudioServiceActivity() {
         // Use commit() (not apply()) so the file is flushed BEFORE we kill the wallpaper
         // process — otherwise the respawned process might read stale prefs.
         val prefs = getSharedPreferences("pixora_live", 0)
-        prefs.edit()
+        val edit = prefs.edit()
             .putString("wallpaper_path", imagePath)
             .putString("glow_color", glowColor)
             .putBoolean("interactive", interactive)
             .remove("caption")
             .putLong("changed_at", System.currentTimeMillis())
-            .commit()
+        // Scene id drives the data-driven CanvasSceneRenderer. Cleared
+        // explicitly when null so previous scene mode doesn't persist.
+        if (sceneId.isNullOrBlank()) edit.remove("scene_id")
+        else edit.putString("scene_id", sceneId)
+        edit.commit()
 
         // Kill the wallpaper engine process so Android recreates it with a fresh Surface.
         // This is mandatory because Canvas (image/explore) and MediaPlayer (video) cannot
