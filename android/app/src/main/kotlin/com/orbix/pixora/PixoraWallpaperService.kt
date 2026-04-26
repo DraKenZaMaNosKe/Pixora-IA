@@ -104,6 +104,11 @@ class PixoraWallpaperService : WallpaperService() {
         private val pixoraFriendsRenderer = PixoraFriendsRenderer(applicationContext)
         private val canvasSceneRenderer =
             com.orbix.pixora.scene.CanvasSceneRenderer(applicationContext)
+        // Universal Pixora "P" 3D logo. Renders LAST on every wallpaper
+        // type so the brand mark is consistent across the entire app.
+        private val brandingLogo =
+            com.orbix.pixora.scene.BrandingLogo(applicationContext)
+        private var brandingTick = 0L
         private var isAquariumMode = false
         private var isFireflyMode = false
         private var isJellyfishMode = false
@@ -1154,6 +1159,18 @@ class PixoraWallpaperService : WallpaperService() {
                 }
                 if (!isLocked) captionOverlay.draw(canvas)
                 drawGlowEffects(canvas)
+
+                // Pixora "P" 3D branding signature — universal, drawn last
+                // so it sits on top of every other layer. Hidden on lock
+                // screen so it doesn't compete with the system clock.
+                if (!isLocked) {
+                    brandingTick++
+                    // Refresh per-scene overrides each frame (cheap — JSON
+                    // already parsed). When current wallpaper isn't a
+                    // canvas_scene the override is null and defaults apply.
+                    brandingLogo.loadFrom(canvasSceneRenderer.brandingOverride)
+                    brandingLogo.draw(canvas, surfaceWidth, surfaceHeight, brandingTick)
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "drawFrame error: ${e.message}")
             } finally {
@@ -1267,6 +1284,7 @@ class PixoraWallpaperService : WallpaperService() {
             jellyfishRenderer.recycle()
             pixoraFriendsRenderer.release()
             canvasSceneRenderer.release()
+            brandingLogo.release()
             batteryIndicator.release()
             unregisterPrefsListener()
             unregisterKeyguardReceiver()

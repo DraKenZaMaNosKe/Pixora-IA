@@ -26,6 +26,8 @@ data class SceneSpec(
     val sprites: List<SpriteDef>,
     val particles: List<ParticleDef>,
     val events: List<EventDef>,
+    /** Optional per-scene overrides for the BrandingLogo (P 3D signature). */
+    val brandingJson: JSONObject?,
 ) {
     companion object {
         private const val TAG = "SceneSpec"
@@ -54,6 +56,7 @@ data class SceneSpec(
                 events = parseList(j.optJSONArray("events")) {
                     EventDef.parse(it)
                 },
+                brandingJson = j.optJSONObject("branding"),
             )
         } catch (e: Exception) {
             Log.e(TAG, "parse failed: $e")

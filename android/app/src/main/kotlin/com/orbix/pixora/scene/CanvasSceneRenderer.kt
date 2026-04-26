@@ -33,6 +33,11 @@ class CanvasSceneRenderer(private val context: Context) {
     private val spriteControllers = mutableListOf<SpriteController>()
     private val particleSystems = mutableListOf<ParticleSystem>()
     private val events = mutableListOf<SceneEvent>()
+    // The Pixora "P" 3D logo signature is owned globally by
+    // PixoraWallpaperService so it appears on every wallpaper, not only
+    // canvas_scenes. CanvasSceneRenderer just exposes spec.branding
+    // overrides for the scenes that want to relocate it.
+    val brandingOverride: org.json.JSONObject? get() = spec?.brandingJson
 
     /** Currently-loaded scene id, or null if none. */
     val currentSceneId: String? get() = loadedFor
@@ -133,6 +138,8 @@ class CanvasSceneRenderer(private val context: Context) {
                 else -> Unit  // already drawn in pre-sprite pass
             }
         }
+
+        // Pixora "P" 3D logo is drawn by PixoraWallpaperService (universal).
     }
 
     fun reset() {

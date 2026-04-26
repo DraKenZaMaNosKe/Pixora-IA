@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pixora · Touch Trail · 10 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #000;
+  --surface: #0A0604;
+  --surface-2: #151008;
+  --gold: #C9A650;
+  --gold-bright: #F0DD9E;
+  --gold-deep: #8A6F33;
+  --text: #F5EFDE;
+  --text-dim: #8A7A56;
+  --serif: "Fraunces", serif;
+  --mono: "JetBrains Mono", monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--ink); color: var(--text); font-family: var(--serif); min-height: 100vh; overflow-x: hidden; }
+body::before { content: ""; position: fixed; inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(201,166,80,0.10), transparent 70%),
+              radial-gradient(circle at 10% 90%, rgba(201,166,80,0.05), transparent 50%);
+  animation: glowPulse 12s ease-in-out infinite; pointer-events: none; z-index: 0;
+}
+@keyframes glowPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+main { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 40px 56px 32px; }
+
+header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--gold); display: flex; align-items: center; gap: 14px; }
+.eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--gold); opacity: 0.5; }
+h1 { font-family: var(--serif); font-size: 68px; font-weight: 600; font-variation-settings: "opsz" 144;
+  letter-spacing: -0.025em; line-height: 0.94; color: var(--text);
+  background: linear-gradient(to right, var(--text) 0%, var(--gold-bright) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--text-dim); max-width: 720px; line-height: 1.4; margin-top: 4px; }
+.subtitle em { color: var(--gold-bright); font-style: italic; }
+
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; margin-bottom: 36px; }
+
+.card { display: flex; flex-direction: column; gap: 10px; opacity: 0;
+  animation: cardIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.card:nth-child(1) { animation-delay: 0.05s; } .card:nth-child(2) { animation-delay: 0.10s; }
+.card:nth-child(3) { animation-delay: 0.15s; } .card:nth-child(4) { animation-delay: 0.20s; }
+.card:nth-child(5) { animation-delay: 0.25s; } .card:nth-child(6) { animation-delay: 0.30s; }
+.card:nth-child(7) { animation-delay: 0.35s; } .card:nth-child(8) { animation-delay: 0.40s; }
+.card:nth-child(9) { animation-delay: 0.45s; } .card:nth-child(10) { animation-delay: 0.50s; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+.canvas-frame {
+  position: relative; width: 100%; aspect-ratio: 9 / 16;
+  background: var(--surface);
+  border: 1px solid var(--gold-deep);
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px),
+    calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+  cursor: crosshair; overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+.canvas-frame:hover { box-shadow: 0 0 0 1px var(--gold), 0 8px 30px rgba(201,166,80,0.20); }
+.canvas-frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* Hint overlay shown until first interaction */
+.canvas-frame .hint {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 9px; color: var(--text-dim); letter-spacing: 0.15em;
+  pointer-events: none; opacity: 0.7; text-align: center; padding: 0 12px;
+}
+.canvas-frame.touched .hint { opacity: 0; }
+
+.label .num { font-family: var(--mono); font-size: 9px; font-weight: 500; color: var(--gold); letter-spacing: 0.16em; }
+.label .num::after { content: ""; display: inline-block; width: 14px; height: 1px; background: var(--gold-deep); vertical-align: middle; margin-left: 6px; }
+.label .name { font-family: var(--serif); font-style: italic; font-size: 16px; font-weight: 500; color: var(--text); line-height: 1.15; margin-top: 2px; }
+.label .tag { font-family: var(--mono); font-size: 9px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.04em; line-height: 1.4; }
+
+footer { margin-top: 24px; padding: 20px 0 8px; border-top: 1px solid rgba(138,111,51,0.2);
+  text-align: center; font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.16em; }
+footer .gold { color: var(--gold-bright); }
+</style>
+</head>
+<body>
+
+<main>
+  <header>
+    <div class="eyebrow">// PIXORA · TOUCH TRAIL · 10 CONCEPTOS</div>
+    <h1>Elige el toque</h1>
+    <p class="subtitle">Pasa el cursor sobre cada canvas para ver el efecto en vivo. <em>El que escojas se renderiza en el wallpaper</em> cuando arrastras el dedo en la pantalla.</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <div class="canvas-frame" data-fx="aurora"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 01</span><div class="name">Aurora Ribbon</div><div class="tag">// SMOOTH FLOWING · COLOR-SHIFT · CINEMATIC</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="sparks"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 02</span><div class="name">Magic Sparks</div><div class="tag">// BURST · FIREFLY DUST · WAND-LIKE</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="comet"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 03</span><div class="name">Comet Trail</div><div class="tag">// BRIGHT HEAD · TAPERED TAIL · COSMIC</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="mercury"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 04</span><div class="name">Liquid Mercury</div><div class="tag">// METALLIC · ELASTIC LAG · HEAVY</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="lightning"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 05</span><div class="name">Lightning</div><div class="tag">// JAGGED ELECTRIC · PROCEDURAL · INTENSE</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="petals"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 06</span><div class="name">Sakura Petals</div><div class="tag">// FALLING PINK PETALS · GENTLE · ZEN</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="smoke"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 07</span><div class="name">Smoke Wisps</div><div class="tag">// SOFT GREY · RISING · DISSIPATING</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="ink"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 08</span><div class="name">Ink Wash</div><div class="tag">// SUMI-E · BLEED · ORGANIC</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="stardust"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 09</span><div class="name">Star Dust</div><div class="tag">// 4-POINT STARS · TWINKLE · ETHEREAL</div></div>
+    </article>
+    <article class="card">
+      <div class="canvas-frame" data-fx="pixora"><canvas></canvas><div class="hint">PASA EL CURSOR</div></div>
+      <div class="label"><span class="num">NO. 10</span><div class="name">Pixora Gold</div><div class="tag">// BRAND COLOR · SPIRALING · LUXURY</div></div>
+    </article>
+  </section>
+
+  <footer>HOVER YOUR FAVORITE — TELL ME THE NUMBER AND <span class="gold">I'LL WIRE IT INTO THE WALLPAPER</span></footer>
+</main>
+
+<script>
+// ────────────────────────────────────────────────────────────────────
+// Each FX is a render function: (ctx, w, h, points, sparks, dt, t) → void
+// `points` = array of {x, y, time} — recent mouse positions
+// `sparks` = array of mutable particles each FX manages
+// All FX share the same input feed (mouse move on canvas)
+// ────────────────────────────────────────────────────────────────────
+
+function setupCanvas(frame, fxName) {
+  const canvas = frame.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+  // Match canvas pixels to display size (devicePixelRatio for sharpness)
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = r.width * dpr;
+    canvas.height = r.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const points = []; // {x, y, time}
+  const sparks = []; // free-form per-FX
+  let lastInput = 0;
+  let touched = false;
+
+  function pushPoint(e) {
+    const r = canvas.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    points.push({ x, y, time: performance.now() });
+    if (points.length > 80) points.shift();
+    lastInput = performance.now();
+    if (!touched) { frame.classList.add('touched'); touched = true; }
+    if (FX[fxName].onTouch) FX[fxName].onTouch(x, y, sparks);
+  }
+  canvas.addEventListener('mousemove', pushPoint);
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    pushPoint(e.touches[0]);
+  }, { passive: false });
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    pushPoint(e.touches[0]);
+    if (FX[fxName].onDown) FX[fxName].onDown(
+      e.touches[0].clientX - canvas.getBoundingClientRect().left,
+      e.touches[0].clientY - canvas.getBoundingClientRect().top, sparks);
+  }, { passive: false });
+  canvas.addEventListener('mousedown', e => {
+    const r = canvas.getBoundingClientRect();
+    if (FX[fxName].onDown) FX[fxName].onDown(e.clientX - r.left, e.clientY - r.top, sparks);
+  });
+
+  let lastT = performance.now();
+  function tick(now) {
+    const dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    // Drop ancient points (>2s)
+    while (points.length && now - points[0].time > 2000) points.shift();
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+    FX[fxName].render(ctx, w, h, points, sparks, dt, now);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ────────────────────────────────────────────────────────────────────
+// FX library
+// ────────────────────────────────────────────────────────────────────
+const FX = {};
+
+// Helper — clear with slight motion-trail fade
+function fadeClear(ctx, w, h, alpha = 0.35) {
+  ctx.fillStyle = `rgba(10, 6, 4, ${alpha})`;
+  ctx.fillRect(0, 0, w, h);
+}
+
+// 1. AURORA — flowing color-shifting ribbon through smoothed points
+FX.aurora = {
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.18);
+    if (points.length < 2) return;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1], b = points[i];
+      const age = (t - b.time) / 1500;
+      if (age > 1) continue;
+      const alpha = 1 - age;
+      const hue = (t * 0.05 + i * 6) % 360;
+      ctx.strokeStyle = `hsla(${hue}, 90%, 65%, ${alpha * 0.85})`;
+      ctx.lineWidth = 14 * alpha + 2;
+      ctx.shadowColor = `hsl(${hue}, 90%, 70%)`;
+      ctx.shadowBlur = 18 * alpha;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+  }
+};
+
+// 2. SPARKS — magic firefly burst that follows finger
+FX.sparks = {
+  onTouch(x, y, sparks) {
+    for (let i = 0; i < 2; i++) sparks.push(this._spark(x, y));
+  },
+  onDown(x, y, sparks) {
+    for (let i = 0; i < 8; i++) sparks.push(this._spark(x, y));
+  },
+  _spark(x, y) {
+    const a = Math.random() * Math.PI * 2;
+    const s = 30 + Math.random() * 80;
+    return {
+      x, y,
+      vx: Math.cos(a) * s, vy: Math.sin(a) * s - 30,
+      life: 0, maxLife: 0.6 + Math.random() * 0.6,
+      hue: 40 + Math.random() * 30,
+      r: 1.5 + Math.random() * 2.5,
+    };
+  },
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.22);
+    // Spawn sparks following mouse if no explicit input handler fired
+    const last = points[points.length - 1];
+    if (last && t - last.time < 100 && Math.random() < 0.5) {
+      sparks.push(this._spark(last.x, last.y));
+    }
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i];
+      s.life += dt;
+      if (s.life > s.maxLife) { sparks.splice(i, 1); continue; }
+      s.x += s.vx * dt; s.y += s.vy * dt;
+      s.vy += 90 * dt; // gravity
+      const a = 1 - s.life / s.maxLife;
+      ctx.fillStyle = `hsla(${s.hue}, 100%, ${65 + a * 20}%, ${a})`;
+      ctx.shadowColor = `hsl(${s.hue}, 100%, 70%)`;
+      ctx.shadowBlur = 10 * a;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r * a + 0.5, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+  }
+};
+
+// 3. COMET — bright head + long fading tail
+FX.comet = {
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.20);
+    if (points.length < 2) return;
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1], b = points[i];
+      const age = (t - b.time) / 1200;
+      if (age > 1) continue;
+      const alpha = 1 - age;
+      ctx.strokeStyle = `rgba(180, 220, 255, ${alpha * 0.7})`;
+      ctx.lineWidth = 8 * alpha;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = '#9CD9FF'; ctx.shadowBlur = 12 * alpha;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    // Bright head
+    const last = points[points.length - 1];
+    if (last && t - last.time < 200) {
+      const grd = ctx.createRadialGradient(last.x, last.y, 0, last.x, last.y, 18);
+      grd.addColorStop(0, '#FFFFFF');
+      grd.addColorStop(0.4, '#9CD9FF');
+      grd.addColorStop(1, 'rgba(80, 180, 255, 0)');
+      ctx.fillStyle = grd;
+      ctx.shadowBlur = 30; ctx.shadowColor = '#9CD9FF';
+      ctx.beginPath(); ctx.arc(last.x, last.y, 18, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+  }
+};
+
+// 4. MERCURY — sluggish metallic blob with elastic chase
+FX.mercury = {
+  pos: null,
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.30);
+    const target = points[points.length - 1];
+    if (!target) return;
+    if (!this.pos) this.pos = { x: target.x, y: target.y };
+    // Lerp toward target (sluggish)
+    this.pos.x += (target.x - this.pos.x) * 0.15;
+    this.pos.y += (target.y - this.pos.y) * 0.15;
+    // Multiple stacked circles for depth
+    const grd = ctx.createRadialGradient(this.pos.x - 6, this.pos.y - 6, 1, this.pos.x, this.pos.y, 22);
+    grd.addColorStop(0, '#F5F5F5');
+    grd.addColorStop(0.5, '#A8AFB8');
+    grd.addColorStop(1, '#3A4048');
+    ctx.fillStyle = grd;
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 4;
+    ctx.beginPath(); ctx.arc(this.pos.x, this.pos.y, 22, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    // Tiny droplet trail behind
+    if (points.length >= 2) {
+      const prev = points[points.length - 2];
+      ctx.fillStyle = 'rgba(168, 175, 184, 0.4)';
+      ctx.beginPath(); ctx.arc(prev.x, prev.y, 5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+};
+
+// 5. LIGHTNING — jagged electric line between recent points
+FX.lightning = {
+  bolts: [],
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.25);
+    if (points.length >= 2) {
+      // Generate a jagged path through recent 8 points
+      const recent = points.slice(-8);
+      const jagged = [];
+      for (let i = 0; i < recent.length - 1; i++) {
+        const a = recent[i], b = recent[i + 1];
+        const segs = 4;
+        for (let s = 0; s <= segs; s++) {
+          const tt = s / segs;
+          const x = a.x + (b.x - a.x) * tt + (Math.random() - 0.5) * 8;
+          const y = a.y + (b.y - a.y) * tt + (Math.random() - 0.5) * 8;
+          jagged.push({ x, y });
+        }
+      }
+      // Outer glow stroke
+      ctx.strokeStyle = 'rgba(180, 220, 255, 0.4)';
+      ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.shadowColor = '#A0E0FF'; ctx.shadowBlur = 20;
+      ctx.beginPath(); ctx.moveTo(jagged[0].x, jagged[0].y);
+      for (const p of jagged) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      // Bright core
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.5; ctx.shadowBlur = 0;
+      ctx.beginPath(); ctx.moveTo(jagged[0].x, jagged[0].y);
+      for (const p of jagged) ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+  }
+};
+
+// 6. PETALS — sakura petals fall from touch
+FX.petals = {
+  onTouch(x, y, sparks) {
+    if (Math.random() < 0.3) sparks.push(this._petal(x, y));
+  },
+  _petal(x, y) {
+    return {
+      x, y, vx: (Math.random() - 0.5) * 30, vy: 10 + Math.random() * 20,
+      life: 0, maxLife: 2.5 + Math.random() * 1,
+      angle: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 4,
+      size: 4 + Math.random() * 3,
+      hue: 340 + Math.random() * 25,
+    };
+  },
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.20);
+    const last = points[points.length - 1];
+    if (last && t - last.time < 100 && Math.random() < 0.4) {
+      sparks.push(this._petal(last.x, last.y));
+    }
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const p = sparks[i];
+      p.life += dt;
+      if (p.life > p.maxLife) { sparks.splice(i, 1); continue; }
+      p.vy += 30 * dt; p.vx += Math.sin(t * 0.005 + p.angle) * 12 * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.angle += p.spin * dt;
+      const a = 1 - p.life / p.maxLife;
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.angle);
+      ctx.fillStyle = `hsla(${p.hue}, 80%, 80%, ${a * 0.85})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+};
+
+// 7. SMOKE — soft particles rise + grow + fade
+FX.smoke = {
+  onTouch(x, y, sparks) {
+    sparks.push(this._puff(x, y));
+  },
+  _puff(x, y) {
+    return {
+      x, y, vx: (Math.random() - 0.5) * 10, vy: -20 - Math.random() * 20,
+      life: 0, maxLife: 1.4, r: 6 + Math.random() * 4,
+      hue: 200 + Math.random() * 40, sat: 10 + Math.random() * 20,
+    };
+  },
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.15);
+    const last = points[points.length - 1];
+    if (last && t - last.time < 100) sparks.push(this._puff(last.x, last.y));
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const p = sparks[i]; p.life += dt;
+      if (p.life > p.maxLife) { sparks.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      const a = (1 - p.life / p.maxLife) * 0.5;
+      const r = p.r * (1 + p.life * 1.5);
+      const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+      grd.addColorStop(0, `hsla(${p.hue}, ${p.sat}%, 75%, ${a})`);
+      grd.addColorStop(1, `hsla(${p.hue}, ${p.sat}%, 75%, 0)`);
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+};
+
+// 8. INK — sumi-e brush stroke that bleeds + fades
+FX.ink = {
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.05); // very slow fade so ink lingers
+    if (points.length < 2) return;
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1], b = points[i];
+      const age = (t - b.time) / 2500;
+      if (age > 1) continue;
+      const alpha = (1 - age) * 0.6;
+      // Vary line width with speed (slow = thick, fast = thin)
+      const dist = Math.hypot(b.x - a.x, b.y - a.y);
+      const width = Math.max(1, 14 - dist * 0.2) * (1 - age * 0.4);
+      ctx.strokeStyle = `rgba(20, 20, 25, ${alpha})`;
+      ctx.lineWidth = width; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      // Bleed: a fainter wider stroke under
+      ctx.strokeStyle = `rgba(20, 20, 25, ${alpha * 0.25})`;
+      ctx.lineWidth = width * 2.2;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  }
+};
+
+// 9. STAR DUST — 4-pointed twinkling stars in finger's wake
+FX.stardust = {
+  onTouch(x, y, sparks) {
+    if (Math.random() < 0.6) sparks.push(this._star(x, y));
+  },
+  _star(x, y) {
+    return {
+      x: x + (Math.random() - 0.5) * 10,
+      y: y + (Math.random() - 0.5) * 10,
+      vy: (Math.random() - 0.7) * 10,
+      vx: (Math.random() - 0.5) * 10,
+      life: 0, maxLife: 1.2 + Math.random() * 0.8,
+      size: 3 + Math.random() * 4,
+      twinklePhase: Math.random() * 6.28,
+    };
+  },
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.18);
+    const last = points[points.length - 1];
+    if (last && t - last.time < 100 && Math.random() < 0.7) sparks.push(this._star(last.x, last.y));
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i]; s.life += dt;
+      if (s.life > s.maxLife) { sparks.splice(i, 1); continue; }
+      s.x += s.vx * dt; s.y += s.vy * dt;
+      const ageA = 1 - s.life / s.maxLife;
+      const twinkle = 0.5 + 0.5 * Math.sin(t * 0.012 + s.twinklePhase);
+      const a = ageA * twinkle;
+      const r = s.size;
+      // 4-pointed star
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.fillStyle = `rgba(255, 245, 200, ${a})`;
+      ctx.shadowColor = '#FFE082'; ctx.shadowBlur = 8 * a;
+      ctx.beginPath();
+      ctx.moveTo(0, -r); ctx.lineTo(r * 0.3, -r * 0.3);
+      ctx.lineTo(r, 0); ctx.lineTo(r * 0.3, r * 0.3);
+      ctx.lineTo(0, r); ctx.lineTo(-r * 0.3, r * 0.3);
+      ctx.lineTo(-r, 0); ctx.lineTo(-r * 0.3, -r * 0.3);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+    ctx.shadowBlur = 0;
+  }
+};
+
+// 10. PIXORA GOLD — gold particles spiraling around finger
+FX.pixora = {
+  onTouch(x, y, sparks) {
+    if (Math.random() < 0.4) sparks.push(this._gold(x, y));
+  },
+  _gold(x, y) {
+    return {
+      x, y, life: 0, maxLife: 1.0 + Math.random() * 0.6,
+      angle: Math.random() * Math.PI * 2, radius: 8 + Math.random() * 10,
+      angleSpeed: (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 3),
+      drift: 25 + Math.random() * 20,
+      size: 1.5 + Math.random() * 2,
+      hue: 40 + Math.random() * 12,
+    };
+  },
+  render(ctx, w, h, points, sparks, dt, t) {
+    fadeClear(ctx, w, h, 0.20);
+    const last = points[points.length - 1];
+    if (last && t - last.time < 100) {
+      // Spiral particles around the finger
+      sparks.push(this._gold(last.x, last.y));
+      // Bright halo at finger
+      const grd = ctx.createRadialGradient(last.x, last.y, 0, last.x, last.y, 16);
+      grd.addColorStop(0, 'rgba(240, 221, 158, 0.8)');
+      grd.addColorStop(0.5, 'rgba(201, 166, 80, 0.4)');
+      grd.addColorStop(1, 'rgba(201, 166, 80, 0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.arc(last.x, last.y, 16, 0, Math.PI * 2); ctx.fill();
+    }
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i]; s.life += dt;
+      if (s.life > s.maxLife) { sparks.splice(i, 1); continue; }
+      s.angle += s.angleSpeed * dt;
+      const a = 1 - s.life / s.maxLife;
+      // Spiral outward from spawn point
+      const rNow = s.radius + s.life * s.drift;
+      const px = s.x + Math.cos(s.angle) * rNow;
+      const py = s.y + Math.sin(s.angle) * rNow - s.life * 15;
+      ctx.fillStyle = `hsla(${s.hue}, 80%, ${65 + a * 15}%, ${a})`;
+      ctx.shadowColor = `hsl(${s.hue}, 90%, 70%)`;
+      ctx.shadowBlur = 8 * a;
+      ctx.beginPath(); ctx.arc(px, py, s.size * a + 0.5, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+  }
+};
+
+// Boot
+document.querySelectorAll('.canvas-frame').forEach(frame => {
+  const fx = frame.dataset.fx;
+  if (FX[fx]) setupCanvas(frame, fx);
+});
+</script>
+
+</body>
+</html>

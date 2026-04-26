@@ -36,6 +36,8 @@ class CapabilityRegistry {
     'snow',
     'rain',
     'wisps',
+    'glass_drops',
+    'fireflies',
   };
 
   /// canvas_scene vocabulary — cinematic events the renderer knows.

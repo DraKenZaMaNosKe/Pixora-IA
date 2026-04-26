@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pixora · Bosque Lluvioso · 5 Candidatos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #000;
+  --surface: #0A0604;
+  --surface-2: #151008;
+  --gold: #C9A650;
+  --gold-bright: #F0DD9E;
+  --gold-deep: #8A6F33;
+  --gold-shadow: #5A4720;
+  --text: #F5EFDE;
+  --text-dim: #8A7A56;
+  --serif: "Fraunces", serif;
+  --mono: "JetBrains Mono", monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--serif);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Atmospheric backdrop — radial gold pulse + corner glints */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 30%, rgba(201, 166, 80, 0.10), transparent 70%),
+    radial-gradient(circle at 10% 90%, rgba(201, 166, 80, 0.05), transparent 50%),
+    radial-gradient(circle at 90% 10%, rgba(240, 221, 158, 0.04), transparent 50%);
+  animation: glowPulse 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Subtle film grain */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 2px);
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+main {
+  position: relative;
+  z-index: 2;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 48px 56px 32px;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+header {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 44px;
+  position: relative;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.5;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: 76px;
+  font-weight: 600;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.025em;
+  line-height: 0.94;
+  color: var(--text);
+  background: linear-gradient(to right, var(--text) 0%, var(--gold-bright) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--text-dim);
+  font-weight: 400;
+  max-width: 720px;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.subtitle em {
+  color: var(--gold-bright);
+  font-style: italic;
+}
+
+/* Diagonal art-deco ribbon */
+.ribbon {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  width: 90px;
+  height: 90px;
+}
+
+.ribbon::before, .ribbon::after {
+  content: "";
+  position: absolute;
+  background: var(--gold-deep);
+}
+.ribbon::before {
+  width: 1px; height: 90px;
+  right: 30px;
+  transform: rotate(20deg);
+  opacity: 0.5;
+}
+.ribbon::after {
+  width: 1px; height: 60px;
+  right: 50px; top: 10px;
+  transform: rotate(20deg);
+  opacity: 0.3;
+}
+
+/* ── Grid of 5 phones ────────────────────────────────────── */
+.phones {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 30px;
+  margin-bottom: 36px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+/* Phone frame — art-deco corner-cut */
+.phone {
+  position: relative;
+  width: 220px;
+  height: 480px;
+  border: 1px solid var(--gold-deep);
+  background: var(--surface);
+  overflow: hidden;
+  /* Art-deco notch corners */
+  clip-path: polygon(
+    14px 0, calc(100% - 14px) 0,
+    100% 14px, 100% calc(100% - 14px),
+    calc(100% - 14px) 100%, 14px 100%,
+    0 calc(100% - 14px), 0 14px
+  );
+  transition: filter 0.4s ease, box-shadow 0.4s ease;
+  filter: brightness(0.95);
+  box-shadow:
+    0 0 0 1px transparent,
+    0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.card:hover .phone {
+  filter: brightness(1.1);
+  box-shadow:
+    0 0 0 2px var(--gold),
+    0 20px 60px rgba(201, 166, 80, 0.25);
+}
+
+/* The wallpaper image fills the phone */
+.phone img.wallpaper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Rain canvas — JS paints individual drops on this layer */
+.phone canvas.rain-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: screen;
+}
+
+/* Subtle wet-screen vignette — darker edges, like rain on glass */
+.phone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 90% 100% at 50% 60%,
+    transparent 60%, rgba(0, 20, 40, 0.18) 100%);
+  z-index: 2;
+}
+
+/* Android status bar — subtle, integrated */
+.status-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  z-index: 3;
+}
+
+.status-bar .left {
+  font-feature-settings: "tnum";
+  letter-spacing: 0.04em;
+}
+
+.status-bar .right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+}
+
+.status-bar .right::before {
+  content: "•••";
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-right: 2px;
+}
+
+/* Clock widget — Samsung One UI style */
+.clock {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.clock .time {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-variation-settings: "opsz" 60;
+  font-size: 38px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  letter-spacing: -0.01em;
+  font-feature-settings: "tnum";
+}
+
+.clock .date {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.12em;
+  margin-top: 6px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* ── Label under each phone ─────────────────────────────── */
+.label {
+  margin-top: 16px;
+  text-align: left;
+  width: 220px;
+}
+
+.label .num-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.label .num {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.16em;
+}
+
+.label .num::after {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--gold-deep);
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+.label .name {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.label .tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 300;
+  color: var(--text-dim);
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+footer {
+  margin-top: 32px;
+  padding: 24px 0 12px;
+  border-top: 1px solid rgba(138, 111, 51, 0.2);
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.16em;
+}
+
+footer .gold-mark {
+  color: var(--gold-bright);
+}
+
+/* Staggered card reveal */
+.card {
+  opacity: 0;
+  animation: cardIn 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+.card:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header reveal */
+header > * {
+  opacity: 0;
+  animation: cardIn 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+header .eyebrow { animation-delay: 0s; }
+header h1 { animation-delay: 0.1s; }
+header .subtitle { animation-delay: 0.2s; }
+</style>
+</head>
+<body>
+
+<main>
+  <header>
+    <div class="eyebrow">// PIXORA · BOSQUE LLUVIOSO · 5 CANDIDATOS</div>
+    <h1>Elige el bosque</h1>
+    <p class="subtitle">Cada imagen va con sprites animados <em>(cuervos, luciérnagas)</em> + lluvia procedural encima.</p>
+    <div class="ribbon"></div>
+  </header>
+
+  <section class="phones">
+    <article class="card">
+      <div class="phone">
+        <img class="wallpaper" src="concepts/forest/forest_1.png" alt="Dense Fog">
+        <canvas class="rain-canvas" width="220" height="480"></canvas>
+        <div class="status-bar"><span class="left">11:59</span><span class="right">88%</span></div>
+        <div class="clock"><div class="time">02:20</div><div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label">
+        <div class="num-row"><span class="num">NO. 01</span></div>
+        <div class="name">Niebla Densa</div>
+        <div class="tag">// HEAVY MIST · GHOSTLY TREES · INTIMATE QUIET</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="phone">
+        <img class="wallpaper" src="concepts/forest/forest_2.png" alt="Golden Beams">
+        <canvas class="rain-canvas" width="220" height="480"></canvas>
+        <div class="status-bar"><span class="left">11:59</span><span class="right">88%</span></div>
+        <div class="clock"><div class="time">02:20</div><div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label">
+        <div class="num-row"><span class="num">NO. 02</span></div>
+        <div class="name">Rayos Dorados</div>
+        <div class="tag">// SUN BEAMS THROUGH CANOPY · WARM · DIVINE</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="phone">
+        <img class="wallpaper" src="concepts/forest/forest_3.png" alt="Mossy Earthy">
+        <canvas class="rain-canvas" width="220" height="480"></canvas>
+        <div class="status-bar"><span class="left">11:59</span><span class="right">88%</span></div>
+        <div class="clock"><div class="time">02:20</div><div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label">
+        <div class="num-row"><span class="num">NO. 03</span></div>
+        <div class="name">Musgo y Tierra</div>
+        <div class="tag">// REDWOODS · MOSS-COVERED · LUSH PRIMORDIAL</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="phone">
+        <img class="wallpaper" src="concepts/forest/forest_4.png" alt="Misty Pond">
+        <canvas class="rain-canvas" width="220" height="480"></canvas>
+        <div class="status-bar"><span class="left">11:59</span><span class="right">88%</span></div>
+        <div class="clock"><div class="time">02:20</div><div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label">
+        <div class="num-row"><span class="num">NO. 04</span></div>
+        <div class="name">Estanque Brumoso</div>
+        <div class="tag">// REFLECTIVE POND · CALM · CONTEMPLATIVE</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="phone">
+        <img class="wallpaper" src="concepts/forest/forest_5.png" alt="Wind and Leaves">
+        <canvas class="rain-canvas" width="220" height="480"></canvas>
+        <div class="status-bar"><span class="left">11:59</span><span class="right">88%</span></div>
+        <div class="clock"><div class="time">02:20</div><div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label">
+        <div class="num-row"><span class="num">NO. 05</span></div>
+        <div class="name">Viento y Hojas</div>
+        <div class="tag">// LEAVES IN MOTION · DROPLETS · ALIVE</div>
+      </div>
+    </article>
+  </section>
+
+  <footer>
+    TAP YOUR FAVORITE — I'LL INTEGRATE IT AS THE NEXT <span class="gold-mark">DATA-DRIVEN CANVAS_SCENE</span>
+  </footer>
+</main>
+
+<script>
+// Per-phone rain renderer — individual diagonal drops, 3 depth tiers
+function makeRain(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const drops = [];
+  // 3 tiers: near (bright, fast, big), mid, far (dim, slow, blurred)
+  const tiers = [
+    { count: 28, speed: [9, 14], len: [12, 22], width: 1.4, alpha: 0.85 },
+    { count: 36, speed: [6, 10], len: [8, 16],  width: 1.0, alpha: 0.55 },
+    { count: 24, speed: [3, 6],  len: [6, 12],  width: 0.8, alpha: 0.30 },
+  ];
+  const angle = 12 * Math.PI / 180; // diagonal tilt
+  const dx = Math.sin(angle), dy = Math.cos(angle);
+  for (const t of tiers) {
+    for (let i = 0; i < t.count; i++) {
+      drops.push({
+        x: Math.random() * (W + 60) - 30,
+        y: Math.random() * H,
+        speed: t.speed[0] + Math.random() * (t.speed[1] - t.speed[0]),
+        len: t.len[0] + Math.random() * (t.len[1] - t.len[0]),
+        width: t.width,
+        alpha: t.alpha,
+      });
+    }
+  }
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (const d of drops) {
+      // Move along diagonal
+      d.x += dx * d.speed;
+      d.y += dy * d.speed;
+      if (d.y > H + 20 || d.x < -30 || d.x > W + 30) {
+        d.y = -20 - Math.random() * 40;
+        d.x = Math.random() * (W + 60) - 30;
+      }
+      // Draw streak as gradient line
+      const x2 = d.x - dx * d.len;
+      const y2 = d.y - dy * d.len;
+      const grad = ctx.createLinearGradient(d.x, d.y, x2, y2);
+      grad.addColorStop(0, `rgba(230, 240, 255, ${d.alpha})`);
+      grad.addColorStop(1, `rgba(230, 240, 255, 0)`);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = d.width;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+document.querySelectorAll('canvas.rain-canvas').forEach(makeRain);
+</script>
+
+</body>
+</html>

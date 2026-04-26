@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "bosque_lluvioso",
+  "type": "canvas_scene",
+  "title": {
+    "en": "Rainy Forest",
+    "es": "Bosque Lluvioso"
+  },
+  "tags": ["nature", "forest", "rainy", "calm", "wellness"],
+  "category": "nature",
+  "featured": true,
+
+  "background": {
+    "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_bosque_lluvioso.webp",
+    "preview_url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_bosque_lluvioso_preview.webp",
+    "scroll": false
+  },
+
+  "sprites": [
+    {
+      "name": "crow_high",
+      "manifest_key": "v160_sprites/crow",
+      "behavior": "translate",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "from": [-0.10, 0.18],
+        "to": [1.10, 0.16],
+        "duration_s": 18.0,
+        "scale": 0.0006,
+        "alpha": 220
+      }
+    },
+    {
+      "name": "crow_low",
+      "manifest_key": "v160_sprites/crow",
+      "behavior": "translate",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "from": [1.10, 0.30],
+        "to": [-0.10, 0.32],
+        "duration_s": 26.0,
+        "scale": 0.00055,
+        "alpha": 200
+      }
+    }
+  ],
+
+  "particles": [
+    {
+      "kind": "rain",
+      "params": {
+        "count": 110,
+        "angle_deg": -12,
+        "speed": 1.0,
+        "length_px": 22,
+        "color": "#FFE6F0FF",
+        "near_alpha": 0.85
+      }
+    },
+    {
+      "kind": "fireflies",
+      "params": {
+        "count": 26,
+        "size_min_px": 3,
+        "size_max_px": 6,
+        "halo_mul": 6,
+        "color": "#FFFFD27A",
+        "pulse_speed": 0.045,
+        "drift_amp": 0.7,
+        "vy_min": -0.5,
+        "vy_max": -0.15,
+        "spawn_top": 0.35,
+        "spawn_bottom": 0.95
+      }
+    },
+    {
+      "kind": "glass_drops",
+      "params": {
+        "count": 14,
+        "size_min_px": 6,
+        "size_max_px": 18,
+        "color": "#FFEAF2FF",
+        "spawn_top": 0.0,
+        "spawn_bottom": 0.35,
+        "fall_speed": 1.0,
+        "trail": true,
+        "wobble_px": 0.5,
+        "sit_min_s": 0.8,
+        "sit_max_s": 3.0
+      }
+    }
+  ],
+
+  "events": []
+}

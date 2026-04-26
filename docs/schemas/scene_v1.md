@@ -165,6 +165,8 @@ For sprites + particle FX wallpapers (Volcano Dragon, Dusk Fortress, Aquarium, P
 | `snow` | `count, fall_speed, drift, size_range` | Falling flakes. |
 | `rain` | `count, density, angle_deg, length_px` | Diagonal streaks. |
 | `wisps` | `anchors:[[x,y],…], color, radius, wobble_amplitude` | Fixed-position glowing orbs with subtle wobble. Valley fog, lantern halos, mystic lights. |
+| `glass_drops` | `count, size_min/max_px, color, spawn_top/bottom, fall_speed, trail, wobble_px, sit_min/max_s` | Water droplets sitting on the screen surface, sliding down with gravity, leaving wet trails. "Rain on a window" effect. |
+| `fireflies` | `count, size_min/max_px, halo_mul, color, pulse_speed, drift_amp, vy_min/max, spawn_top/bottom` | Glowing pulsing particles drifting upward. Bright core + soft radial halo. For night forests, magic gardens, fairy scenes. |
 
 ### Event kinds (vocabulary cerrado v1)
 
@@ -248,6 +250,32 @@ Add these to the spec to request them. If user denies (or the sensor is missing)
 ### Custom uniforms (Tier 4) — declared per-scene
 
 Anything else lives in `"uniforms"`. Supported types: `float`, `vec2`, `vec3`, `vec4`, `int`, `mat4`. The engine binds them by name+type once at shader-load time.
+
+---
+
+## Branding signature (Pixora "P" 3D logo)
+
+Every `canvas_scene` automatically renders the gold "P" logo spinning in
+3D (Y-axis rotation via `android.graphics.Camera.rotateY()`) at the
+bottom-right by default. Inspired by the RARE N64 intro.
+
+Override via the optional top-level `branding` block:
+
+```json
+"branding": {
+  "enabled": true,           // default true
+  "x": 0.92,                 // normalized 0..1, default 0.92 (right edge)
+  "y": 0.945,                // normalized 0..1, default 0.945 (where Gemini watermark used to live)
+  "size": 0.07,              // fraction of surface width, default 0.07
+  "rotation_speed": 0.020    // radians/frame; 0.020 ≈ one rev per ~5 seconds
+}
+```
+
+To disable on a scene where the brand mark would clash:
+
+```json
+"branding": { "enabled": false }
+```
 
 ---
 

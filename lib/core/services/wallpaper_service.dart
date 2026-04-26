@@ -114,6 +114,8 @@ class WallpaperService {
         'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-scenes/volcano_dragon.json',
     'dusk_fortress':
         'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-scenes/dusk_fortress.json',
+    'bosque_lluvioso':
+        'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-scenes/bosque_lluvioso.json',
   };
 
   Future<void> _ensureSceneSpecCached(String sceneId) async {
