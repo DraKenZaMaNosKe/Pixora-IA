@@ -1,7 +1,10 @@
 package com.orbix.pixora.scene
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Paint
 import android.util.Log
 import com.orbix.pixora.renderers.SpriteSheet
 import java.io.File
@@ -33,6 +36,15 @@ class CanvasSceneRenderer(private val context: Context) {
     private val spriteControllers = mutableListOf<SpriteController>()
     private val particleSystems = mutableListOf<ParticleSystem>()
     private val events = mutableListOf<SceneEvent>()
+    private val layerBitmaps = mutableListOf<Pair<ImageLayerDef, Bitmap>>()
+    private val layerPaint = Paint(Paint.FILTER_BITMAP_FLAG)
+
+    /** Latest gyroscope-driven offset in pixels (set by PixoraWallpaperService). */
+    @Volatile var tiltX: Float = 0f
+    @Volatile var tiltY: Float = 0f
+
+    /** True when the scene has its own image_layers (so wallpaper service skips bg draw). */
+    val hasParallax: Boolean get() = spec?.hasParallax == true
     // The Pixora "P" 3D logo signature is owned globally by
     // PixoraWallpaperService so it appears on every wallpaper, not only
     // canvas_scenes. CanvasSceneRenderer just exposes spec.branding
@@ -61,6 +73,8 @@ class CanvasSceneRenderer(private val context: Context) {
         spriteControllers.clear()
         particleSystems.clear()
         events.clear()
+        for ((_, b) in layerBitmaps) if (!b.isRecycled) b.recycle()
+        layerBitmaps.clear()
         loadedFor = sceneId
         spec = parsed
         Log.d(TAG, "Loaded scene '$sceneId' (${parsed.sprites.size} sprites, " +
@@ -71,6 +85,22 @@ class CanvasSceneRenderer(private val context: Context) {
     /** Lazy-load all SpriteSheets the spec needs from filesDir. */
     fun ensureLoaded() {
         val s = spec ?: return
+        // Load image layers (parallax) — read from filesDir/scene_layers/<id>/<key>.webp
+        if (layerBitmaps.isEmpty() && s.imageLayers.isNotEmpty()) {
+            val layerDir = File(context.filesDir, "scene_layers/${s.id}")
+            for (layer in s.imageLayers.sortedBy { it.z }) {
+                val f = File(layerDir, "${layer.key}.webp")
+                if (!f.isFile) {
+                    Log.w(TAG, "Image layer file missing: ${f.absolutePath}")
+                    continue
+                }
+                val bmp = BitmapFactory.decodeFile(f.absolutePath)
+                if (bmp != null) {
+                    layerBitmaps.add(layer to bmp)
+                    Log.d(TAG, "Loaded layer ${layer.key} ${bmp.width}x${bmp.height} pf=${layer.parallaxFactor}")
+                }
+            }
+        }
         // Load all sprite manifest_keys (each used by 0+ controllers/events).
         // Fullscreen sprites use sampleSize=1 to keep all source detail
         // (otherwise the 2x decode downscale + later upscale = mush).
@@ -110,12 +140,22 @@ class CanvasSceneRenderer(private val context: Context) {
         }
     }
 
-    /** Per-frame draw. Background is drawn by PixoraWallpaperService BEFORE this. */
+    /** Per-frame draw. Background is drawn by PixoraWallpaperService BEFORE this,
+     *  EXCEPT when this scene has image_layers (then bg is skipped and we draw
+     *  layers here in z-order with gyroscope-driven parallax offsets). */
     fun draw(canvas: Canvas) {
         if (surfaceWidth <= 0 || surfaceHeight <= 0) return
         if (spec == null) return
         ensureLoaded()
         tick++
+
+        // Parallax image layers (drawn first — behind everything else)
+        if (layerBitmaps.isNotEmpty()) {
+            for ((def, bmp) in layerBitmaps) {
+                if (bmp.isRecycled) continue
+                drawLayerCentered(canvas, bmp, def.parallaxFactor)
+            }
+        }
 
         // Order: particles first (they're "behind" sprites), then events
         // that should appear behind sprites (lightning), then sprites, then
@@ -131,8 +171,20 @@ class CanvasSceneRenderer(private val context: Context) {
             }
         }
 
-        // Sprites
-        for (c in spriteControllers) c.draw(canvas, surfaceWidth, surfaceHeight, tick)
+        // Sprites — sprites in parallax scenes inherit the layer offset matching
+        // their declared parallax_factor (read from sprite params, default 1.0
+        // so the sprite stays "stuck" to the foreground layer e.g. orb in hands).
+        for (c in spriteControllers) {
+            val pf = c.def.params.f("parallax_factor", 1f)
+            if (pf > 0.001f) {
+                canvas.save()
+                canvas.translate(tiltX * pf, tiltY * pf)
+                c.draw(canvas, surfaceWidth, surfaceHeight, tick)
+                canvas.restore()
+            } else {
+                c.draw(canvas, surfaceWidth, surfaceHeight, tick)
+            }
+        }
 
         // Hero events on top (phoenix, lightning_sprite, bat_swarm)
         for (e in events) {
@@ -148,6 +200,26 @@ class CanvasSceneRenderer(private val context: Context) {
         // Pixora "P" 3D logo is drawn by PixoraWallpaperService (universal).
     }
 
+    /** Draw a layer bitmap centered on the surface with cover-fit + parallax offset.
+     *  The bitmap is scaled to cover the surface, then offset by tilt * factor.
+     *  Bitmaps oversized relative to surface (e.g. 1300x2600 vs 1080x2340 phone)
+     *  give the parallax slack so edges don't show black during tilt. */
+    private fun drawLayerCentered(canvas: Canvas, bmp: Bitmap, factor: Float) {
+        val sw = surfaceWidth.toFloat()
+        val sh = surfaceHeight.toFloat()
+        val bw = bmp.width.toFloat()
+        val bh = bmp.height.toFloat()
+        // Cover fit: scale by max ratio so bitmap fully covers surface
+        val scale = maxOf(sw / bw, sh / bh)
+        val drawW = bw * scale
+        val drawH = bh * scale
+        // Center the scaled bitmap, then apply gyro offset
+        val left = (sw - drawW) / 2f + tiltX * factor
+        val top = (sh - drawH) / 2f + tiltY * factor
+        val dst = android.graphics.RectF(left, top, left + drawW, top + drawH)
+        canvas.drawBitmap(bmp, null, dst, layerPaint)
+    }
+
     fun reset() {
         tick = 0
         for (p in particleSystems) p.reset()
@@ -160,6 +232,8 @@ class CanvasSceneRenderer(private val context: Context) {
         events.clear()
         for (s in sheets.values) s.release()
         sheets.clear()
+        for ((_, b) in layerBitmaps) if (!b.isRecycled) b.recycle()
+        layerBitmaps.clear()
         spec = null
         loadedFor = null
     }

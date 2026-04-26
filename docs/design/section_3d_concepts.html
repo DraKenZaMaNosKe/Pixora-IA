@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · Nueva Sección 3D · 5 Diseños</title>
+<meta name="viewport" content="width=1920">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,300;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000; --surface:#0A0604; --surface-2:#151008; --surface-3:#1F1810;
+    --gold:#C9A650; --gold-bright:#F0DD9E; --gold-deep:#8A6F33;
+    --text:#F5EFDE; --dim:#8A7A56; --energy:#5BC7FF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:'Fraunces',serif;min-height:100vh}
+  body{
+    background:
+      radial-gradient(ellipse 1100px 700px at 50% -20%, rgba(91,199,255,.10), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 50% 110%, rgba(201,166,80,.08), transparent 65%),
+      var(--bg);
+  }
+  body::after{
+    content:""; position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.04;mix-blend-mode:overlay;
+    background-image: radial-gradient(rgba(245,239,222,.6) 0.5px, transparent 0.5px);
+    background-size:3px 3px;
+  }
+
+  header{ max-width:1820px; margin:0 auto; padding:64px 40px 28px; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--energy); display:flex; align-items:center; gap:14px; margin-bottom:18px;
+  }
+  .eyebrow::before,.eyebrow::after{ content:"";flex:0 0 60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep)); }
+  .eyebrow::after{ background:linear-gradient(90deg,var(--gold-deep),transparent); }
+  h1{
+    font-family:'Fraunces',serif;font-weight:600;font-style:italic;
+    font-size:84px;line-height:.95;letter-spacing:-.02em;margin-bottom:18px;
+    font-variation-settings:"opsz" 144;
+  }
+  h1 .accent{
+    background:linear-gradient(180deg,#9FE0FF 0%, var(--gold-bright) 50%, var(--gold-deep) 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .subtitle{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:21px;line-height:1.4;color:var(--dim);max-width:1200px;
+  }
+  .subtitle em{ color:var(--gold-bright);font-style:normal;font-weight:400 }
+
+  .divider{
+    max-width:1820px;margin:36px auto 0;padding:0 40px;
+    display:flex;align-items:center;gap:14px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;
+  }
+  .divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep),transparent)}
+
+  main{
+    max-width:1820px; margin:36px auto 0; padding:0 40px 80px;
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:24px;
+  }
+
+  /* Each "phone preview" — represents the 3D section seen on a phone */
+  .device{
+    position:relative;
+    width:340px; height:720px;
+    background:#000;
+    border:1.5px solid var(--gold-deep);
+    border-radius:42px;
+    overflow:hidden;
+    box-shadow: 0 0 0 1px rgba(201,166,80,.18), 0 30px 80px -20px rgba(0,0,0,.95);
+  }
+  .device::before, .device::after{
+    content:"";position:absolute;width:18px;height:18px;border:1px solid var(--gold);
+    z-index:7;pointer-events:none;opacity:.55;
+  }
+  .device::before{ top:10px;left:10px;border-right:none;border-bottom:none; }
+  .device::after{ bottom:10px;right:10px;border-left:none;border-top:none; }
+
+  .screen{
+    position:absolute; inset:0;
+    background:var(--surface);
+    color:var(--text);
+    overflow:hidden;
+  }
+
+  /* Common header inside device */
+  .dev-status{
+    height:24px; padding:6px 14px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(245,239,222,.65);
+    letter-spacing:.06em;
+  }
+
+  .dev-topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 18px 8px;
+  }
+  .dev-topbar .logo{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+    font-size:18px; color:var(--gold-bright); letter-spacing:.04em;
+    font-variation-settings:"opsz" 48;
+  }
+  .dev-topbar .icons{ display:flex; gap:8px; }
+  .dev-topbar .ico{
+    width:22px; height:22px; border-radius:50%;
+    background:var(--surface-3); border:1px solid var(--gold-deep);
+  }
+
+  /* Section title across all variants */
+  .sec-title{ padding:8px 18px 6px; }
+  .sec-title .badge{
+    display:inline-block; padding:3px 10px;
+    border:1px solid var(--energy); border-radius:999px;
+    font-family:'JetBrains Mono',monospace; font-size:8.5px; letter-spacing:.18em;
+    color:var(--energy); text-transform:uppercase; margin-bottom:8px;
+  }
+  .sec-title .h{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:38px; line-height:.95; color:var(--text);
+    font-variation-settings:"opsz" 144; letter-spacing:-.02em;
+  }
+  .sec-title .h .accent{
+    background:linear-gradient(180deg,#9FE0FF 0%, var(--energy) 60%, #1B7AB0 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .sec-title .desc{
+    margin-top:6px;
+    font-family:'JetBrains Mono',monospace; font-size:9px;
+    color:var(--dim); letter-spacing:.04em; text-transform:lowercase;
+  }
+
+  /* Bottom nav bar (Pixora style) */
+  .botnav{
+    position:absolute; bottom:0; left:0; right:0; height:44px;
+    background:rgba(10,6,4,.94); border-top:1px solid var(--gold-deep);
+    display:flex; justify-content:space-around; align-items:center;
+    padding:0 4px;
+  }
+  .botnav .tab{
+    flex:1; text-align:center;
+    font-family:'JetBrains Mono',monospace; font-size:7px; letter-spacing:.06em;
+    color:var(--dim); text-transform:uppercase;
+  }
+  .botnav .tab.active{ color:var(--gold-bright); font-weight:500; }
+  .botnav .tab.active::before{
+    content:""; display:block; width:18px; height:1px; background:var(--gold-bright);
+    margin:0 auto 3px;
+  }
+  .botnav .tab .ico{ display:block; width:14px; height:14px; margin:0 auto 2px; opacity:.5; }
+  .botnav .tab.active .ico{ opacity:1; }
+
+  /* ─────── Wallpaper card (parallax preview) — used in all variants ─────── */
+  .wp{
+    position:relative; overflow:hidden;
+    border:1px solid var(--gold-deep); border-radius:14px;
+    background:#000;
+    cursor:crosshair;
+  }
+  .wp .layer{
+    position:absolute; inset:-30px;
+    background-size:cover; background-position:center;
+    transition: transform 100ms ease-out;
+    will-change: transform;
+  }
+  .wp .layer.sky{
+    background-image:url('concepts/parallax_goku_wide/thumb_sky_wide.webp');
+    z-index:1;
+  }
+  .wp .layer.goku{
+    background-image:url('concepts/parallax_goku_wide/thumb_goku_wide.webp');
+    z-index:2;
+  }
+  .wp .gif{
+    position:absolute; left:50%; top:34%;
+    width:48%; height:24%;
+    transform: translate(-50%, -50%);
+    background: url('concepts/parallax_goku_wide/genkidama.gif') center/contain no-repeat;
+    z-index:3; mix-blend-mode:screen; pointer-events:none;
+  }
+  .wp .meta{
+    position:absolute; left:8px; bottom:6px; right:8px;
+    z-index:5;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .wp .meta .name{
+    font-family:'Fraunces',serif;font-style:italic;font-size:11px;
+    color:var(--gold-bright); text-shadow:0 1px 2px rgba(0,0,0,.7);
+  }
+  .wp .badge3d{
+    font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.18em;
+    padding:2px 6px; border:1px solid var(--energy); border-radius:999px;
+    color:var(--energy); background:rgba(0,0,0,.5); text-transform:uppercase;
+  }
+
+  .meta-card{
+    margin-top:16px; text-align:center; width:340px;
+  }
+  .meta-card .num{ font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--energy);letter-spacing:.18em; }
+  .meta-card .name{
+    margin-top:6px;font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:18px;line-height:1.15;color:var(--text); font-variation-settings:"opsz" 48;
+  }
+  .meta-card .tagline{
+    margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:9px;
+    color:var(--dim); line-height:1.45;letter-spacing:.04em;text-transform:lowercase;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     VARIANT 1 — HERO CINEMA: single big featured + scroll
+     ═══════════════════════════════════════════════════════════════════════ */
+  .v1 .hero{
+    height:380px; margin:8px 14px 0; border-radius:18px; overflow:hidden;
+    position:relative; border:1.5px solid var(--gold-deep);
+  }
+  .v1 .hero-overlay{
+    position:absolute; left:0; right:0; bottom:0;
+    padding:18px 16px 14px;
+    background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.85) 70%);
+    z-index:5;
+  }
+  .v1 .hero-overlay .name{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+    font-size:24px; color:var(--gold-bright);
+    font-variation-settings:"opsz" 144;
+  }
+  .v1 .hero-overlay .desc{
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    color:rgba(245,239,222,.7); margin-top:4px; letter-spacing:.04em;
+  }
+  .v1 .hero-overlay .cta{
+    display:inline-block; margin-top:8px;
+    padding:6px 14px; background:var(--gold); color:#000;
+    border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:9px;
+    letter-spacing:.18em; text-transform:uppercase; font-weight:500;
+  }
+  .v1 .next-row{
+    margin-top:14px; padding:0 14px;
+    font-family:'JetBrains Mono',monospace; font-size:9px;
+    color:var(--dim); letter-spacing:.18em; text-transform:uppercase;
+  }
+  .v1 .grid{
+    margin-top:8px; padding:0 14px;
+    display:grid; grid-template-columns:repeat(2,1fr); gap:8px;
+  }
+  .v1 .grid .wp{ height:140px; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     VARIANT 2 — BENTO GRID: asymmetric cards
+     ═══════════════════════════════════════════════════════════════════════ */
+  .v2 .bento{
+    margin:10px 14px 0;
+    display:grid; grid-template-columns:1fr 1fr; grid-template-rows:240px 140px 140px;
+    gap:8px;
+  }
+  .v2 .bento .wp:nth-child(1){ grid-row:1; grid-column:span 2; }
+  .v2 .bento .wp:nth-child(2){ grid-row:2; grid-column:1; }
+  .v2 .bento .wp:nth-child(3){ grid-row:2; grid-column:2; }
+  .v2 .bento .wp:nth-child(4){ grid-row:3; grid-column:span 2; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     VARIANT 3 — CAROUSEL: featured + horizontal scroll
+     ═══════════════════════════════════════════════════════════════════════ */
+  .v3 .featured{
+    height:300px; margin:8px 14px 0; border-radius:14px; overflow:hidden;
+    position:relative; border:1px solid var(--gold);
+  }
+  .v3 .label{
+    margin:18px 14px 6px;
+    font-family:'JetBrains Mono',monospace; font-size:9px;
+    color:var(--dim); letter-spacing:.18em; text-transform:uppercase;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .v3 .label .nav{ display:flex; gap:6px; }
+  .v3 .label .nav span{
+    width:18px; height:18px; border:1px solid var(--gold-deep); border-radius:4px;
+    display:flex; align-items:center; justify-content:center; color:var(--gold);
+    font-size:11px;
+  }
+  .v3 .scroll{
+    margin:0 14px; display:flex; gap:8px; overflow-x:auto; padding-bottom:8px;
+  }
+  .v3 .scroll::-webkit-scrollbar{ height:3px; }
+  .v3 .scroll::-webkit-scrollbar-thumb{ background:var(--gold-deep); border-radius:2px; }
+  .v3 .scroll .wp{ flex:0 0 130px; height:200px; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     VARIANT 4 — MAGAZINE EDITORIAL
+     ═══════════════════════════════════════════════════════════════════════ */
+  .v4 .mag{
+    margin:8px 14px 0;
+    display:grid; grid-template-columns:1.4fr 1fr; grid-template-rows:300px 200px;
+    gap:8px;
+  }
+  .v4 .mag .wp:nth-child(1){ grid-row:1/span 2; grid-column:1; }
+  .v4 .mag .wp:nth-child(2){ grid-row:1; grid-column:2; }
+  .v4 .mag .wp:nth-child(3){ grid-row:2; grid-column:2; }
+  .v4 .editorial-text{
+    margin:14px 14px 0;
+    padding:12px; border-left:2px solid var(--gold);
+    font-family:'Fraunces',serif; font-style:italic; font-size:11px;
+    color:var(--dim); line-height:1.5;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     VARIANT 5 — PREMIUM VAULT (minimalist gallery)
+     ═══════════════════════════════════════════════════════════════════════ */
+  .v5 .vault{
+    margin:10px 14px 0;
+    border:1px solid var(--gold-deep); border-radius:14px; padding:12px;
+    background: linear-gradient(180deg, rgba(201,166,80,.04) 0%, transparent 100%);
+  }
+  .v5 .vault .wp{ height:380px; border-radius:10px; }
+  .v5 .vault .info{
+    margin-top:10px; padding:0 4px;
+  }
+  .v5 .vault .info .nm{
+    font-family:'Fraunces',serif;font-style:italic;font-size:18px; color:var(--gold-bright);
+  }
+  .v5 .vault .info .ds{
+    font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);
+    margin-top:3px; letter-spacing:.04em;
+  }
+  .v5 .vault .actions{
+    margin-top:10px; display:flex; gap:6px;
+  }
+  .v5 .vault .actions button{
+    flex:1; padding:8px; border:1px solid var(--gold-deep); border-radius:6px;
+    background:var(--surface-2); color:var(--gold-bright);
+    font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:.18em;
+    text-transform:uppercase; cursor:pointer;
+  }
+  .v5 .vault .actions button.primary{
+    background:var(--gold); color:#000; border-color:var(--gold);
+  }
+  .v5 .swipe-hint{
+    margin-top:14px; text-align:center;
+    font-family:'JetBrains Mono',monospace; font-size:8px;
+    color:var(--dim); letter-spacing:.18em; text-transform:uppercase;
+  }
+
+  footer{
+    max-width:1820px;margin:8px auto 60px;padding:0 40px;
+    text-align:center;font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.16em;color:var(--dim);text-transform:lowercase;
+  }
+  footer .arrow{color:var(--energy);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">// PIXORA · NUEVA SECCIÓN <span style="color:var(--gold-bright)">3D · PARALLAX</span> · 5 DISEÑOS</div>
+  <h1>Una <span class="accent">tab</span> aparte para los wallpapers vivos</h1>
+  <p class="subtitle">
+    Section premium dedicada a wallpapers <em>parallax con giroscopio</em>. Cinco maneras
+    de presentarla, cada una con la Goku Genkidama como featured. Hover sobre las imágenes
+    para simular el efecto 3D real.
+  </p>
+</header>
+
+<div class="divider">
+  <span>// 5 LAYOUTS</span>
+  <span class="line"></span>
+  <span>// HOVER + MOUSE PARA PARALLAX</span>
+  <span class="line"></span>
+  <span>// PIXORA BLACK & GOLD</span>
+</div>
+
+<main>
+
+  <!-- ═════════════════════ 1: HERO CINEMA ═════════════════════ -->
+  <div>
+    <div class="device">
+      <div class="screen v1">
+        <div class="dev-status"><span>11:59</span><span>● ▼ ▌</span></div>
+        <div class="dev-topbar">
+          <div class="logo">PIXORA</div>
+          <div class="icons"><div class="ico"></div><div class="ico"></div></div>
+        </div>
+        <div class="sec-title">
+          <span class="badge">3D · TILT TO SEE</span>
+          <div class="h">El <span class="accent">universo</span><br>se mueve.</div>
+          <div class="desc">5 piezas premium · giroscopio</div>
+        </div>
+        <div class="hero wp">
+          <div class="layer sky"></div>
+          <div class="layer goku"></div>
+          <div class="gif"></div>
+          <div class="hero-overlay">
+            <div class="name">Goku Genkidama</div>
+            <div class="desc">spirit bomb activa · 3 capas + tormenta · 4K</div>
+            <div class="cta">▸ APLICAR</div>
+          </div>
+        </div>
+        <div class="next-row">// MÁS EN 3D</div>
+        <div class="grid">
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:60%;height:30%"></div></div>
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:60%;height:30%"></div></div>
+        </div>
+        <div class="botnav">
+          <div class="tab"><span class="ico" style="background:#666"></span>WALL</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>LIVE</div>
+          <div class="tab active"><span class="ico" style="background:var(--energy)"></span>3D</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>AURA</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>FAV</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 01</div>
+      <div class="name">Hero Cinema</div>
+      <div class="tagline">una pieza grande arriba, dos sugeridas abajo · simple y dramático</div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════ 2: BENTO GRID ═════════════════════ -->
+  <div>
+    <div class="device">
+      <div class="screen v2">
+        <div class="dev-status"><span>11:59</span><span>● ▼ ▌</span></div>
+        <div class="dev-topbar">
+          <div class="logo">PIXORA</div>
+          <div class="icons"><div class="ico"></div><div class="ico"></div></div>
+        </div>
+        <div class="sec-title">
+          <span class="badge">3D · BENTO</span>
+          <div class="h">Mundos <span class="accent">vivos</span></div>
+          <div class="desc">tilt para entrar a cada uno</div>
+        </div>
+        <div class="bento">
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif"></div>
+            <div class="meta"><span class="name">Goku Genkidama</span><span class="badge3d">3D · NEW</span></div></div>
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:55%;height:28%"></div>
+            <div class="meta"><span class="name">Spirit</span><span class="badge3d">3D</span></div></div>
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:55%;height:28%"></div>
+            <div class="meta"><span class="name">Storm</span><span class="badge3d">3D</span></div></div>
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:55%;height:28%"></div>
+            <div class="meta"><span class="name">Vortex</span><span class="badge3d">3D · PRO</span></div></div>
+        </div>
+        <div class="botnav">
+          <div class="tab"><span class="ico" style="background:#666"></span>WALL</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>LIVE</div>
+          <div class="tab active"><span class="ico" style="background:var(--energy)"></span>3D</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>AURA</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>FAV</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 02</div>
+      <div class="name">Bento Grid</div>
+      <div class="tagline">layout asimétrico · feature grande + 3 piezas chicas · denso visual</div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════ 3: CAROUSEL ═════════════════════ -->
+  <div>
+    <div class="device">
+      <div class="screen" style="position:relative;">
+        <div class="dev-status"><span>11:59</span><span>● ▼ ▌</span></div>
+        <div class="dev-topbar">
+          <div class="logo">PIXORA</div>
+          <div class="icons"><div class="ico"></div><div class="ico"></div></div>
+        </div>
+        <div class="sec-title">
+          <span class="badge">3D · TRENDING</span>
+          <div class="h">Premium <span class="accent">3D</span></div>
+          <div class="desc">scroll horizontal por categorías</div>
+        </div>
+        <div class="v3">
+          <div class="featured wp">
+            <div class="layer sky"></div><div class="layer goku"></div><div class="gif"></div>
+            <div class="meta"><span class="name">Goku Genkidama · FEATURED</span><span class="badge3d">3D · TILT</span></div>
+          </div>
+          <div class="label">
+            <span>// ANIME · 3D</span>
+            <div class="nav"><span>‹</span><span>›</span></div>
+          </div>
+          <div class="scroll">
+            <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:55%;height:25%"></div></div>
+            <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:55%;height:25%"></div></div>
+            <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:55%;height:25%"></div></div>
+          </div>
+          <div class="label" style="margin-top:8px">
+            <span>// CINEMÁTICOS · 3D</span>
+            <div class="nav"><span>‹</span><span>›</span></div>
+          </div>
+          <div class="scroll">
+            <div class="wp"><div class="layer sky"></div><div class="layer goku"></div></div>
+            <div class="wp"><div class="layer sky"></div><div class="layer goku"></div></div>
+          </div>
+        </div>
+        <div class="botnav">
+          <div class="tab"><span class="ico" style="background:#666"></span>WALL</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>LIVE</div>
+          <div class="tab active"><span class="ico" style="background:var(--energy)"></span>3D</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>AURA</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>FAV</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 03</div>
+      <div class="name">Carousel</div>
+      <div class="tagline">featured grande + scroll horizontal por categorías · familiar (estilo netflix)</div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════ 4: MAGAZINE EDITORIAL ═════════════════════ -->
+  <div>
+    <div class="device">
+      <div class="screen v4">
+        <div class="dev-status"><span>11:59</span><span>● ▼ ▌</span></div>
+        <div class="dev-topbar">
+          <div class="logo">PIXORA</div>
+          <div class="icons"><div class="ico"></div><div class="ico"></div></div>
+        </div>
+        <div class="sec-title">
+          <span class="badge">3D · EDITORIAL</span>
+          <div class="h">Profundidad <span class="accent">curada</span></div>
+          <div class="desc">el equipo de Pixora elige · semanal</div>
+        </div>
+        <div class="mag">
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif"></div>
+            <div class="meta"><span class="name">Goku Genkidama</span><span class="badge3d">★ EDITOR'S PICK</span></div></div>
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:60%;height:30%"></div></div>
+          <div class="wp"><div class="layer sky"></div><div class="layer goku"></div><div class="gif" style="width:60%;height:30%"></div></div>
+        </div>
+        <div class="editorial-text">
+          "el spirit bomb cobra vida cuando inclinas el teléfono. dos capas con depth real."
+          <br><br>— pixora editorial
+        </div>
+        <div class="botnav">
+          <div class="tab"><span class="ico" style="background:#666"></span>WALL</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>LIVE</div>
+          <div class="tab active"><span class="ico" style="background:var(--energy)"></span>3D</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>AURA</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>FAV</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 04</div>
+      <div class="name">Magazine Editorial</div>
+      <div class="tagline">layout tipo revista · pieza dominante + 2 columnas · texto editorial</div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════ 5: PREMIUM VAULT ═════════════════════ -->
+  <div>
+    <div class="device">
+      <div class="screen v5">
+        <div class="dev-status"><span>11:59</span><span>● ▼ ▌</span></div>
+        <div class="dev-topbar">
+          <div class="logo">PIXORA</div>
+          <div class="icons"><div class="ico"></div><div class="ico"></div></div>
+        </div>
+        <div class="sec-title">
+          <span class="badge">3D · VAULT · 1 / 12</span>
+          <div class="h">Una pieza, <span class="accent">presente</span></div>
+        </div>
+        <div class="vault">
+          <div class="wp">
+            <div class="layer sky"></div><div class="layer goku"></div><div class="gif"></div>
+          </div>
+          <div class="info">
+            <div class="nm">Goku Genkidama</div>
+            <div class="ds">parallax 3 capas · sky + goku + orb · gyroscopio · 4K</div>
+          </div>
+          <div class="actions">
+            <button>VER</button>
+            <button class="primary">▸ APLICAR</button>
+          </div>
+        </div>
+        <div class="swipe-hint">‹ swipe para la siguiente pieza ›</div>
+        <div class="botnav">
+          <div class="tab"><span class="ico" style="background:#666"></span>WALL</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>LIVE</div>
+          <div class="tab active"><span class="ico" style="background:var(--energy)"></span>3D</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>AURA</div>
+          <div class="tab"><span class="ico" style="background:#666"></span>FAV</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 05</div>
+      <div class="name">Premium Vault</div>
+      <div class="tagline">una pieza a la vez · gallery slow · feel exclusivo · swipe entre obras</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  cada uno tendría tab "3D" en el bottom nav · dime el número y arranco la implementación + parallax real <span class="arrow">→</span>
+</footer>
+
+<script>
+  // Apply parallax effect to all .wp cards
+  document.querySelectorAll('.wp').forEach(wp => {
+    const sky = wp.querySelector('.layer.sky');
+    const goku = wp.querySelector('.layer.goku');
+    if (!sky || !goku) return;
+    wp.addEventListener('mousemove', e => {
+      const r = wp.getBoundingClientRect();
+      const nx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      const ny = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      sky.style.transform = `translate(${-nx * 12}px, ${-ny * 6}px)`;
+      goku.style.transform = `translate(${-nx * 22}px, ${-ny * 10}px)`;
+    });
+    wp.addEventListener('mouseleave', () => {
+      sky.style.transform = 'translate(0,0)';
+      goku.style.transform = 'translate(0,0)';
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · Goku Genkidama WIDE Parallax · 5 Variantes</title>
+<meta name="viewport" content="width=1440">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,300;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000; --surface:#0A0604;
+    --gold:#C9A650; --gold-bright:#F0DD9E; --gold-deep:#8A6F33;
+    --text:#F5EFDE; --dim:#8A7A56;
+    --energy:#5BC7FF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:'Fraunces',serif;min-height:100vh}
+  body{
+    background:
+      radial-gradient(ellipse 1100px 700px at 50% -20%, rgba(91,199,255,.12), transparent 60%),
+      radial-gradient(ellipse 600px 400px at 50% 110%, rgba(201,166,80,.06), transparent 65%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  body::after{
+    content:""; position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.04;mix-blend-mode:overlay;
+    background-image: radial-gradient(rgba(245,239,222,.6) 0.5px, transparent 0.5px);
+    background-size:3px 3px;
+  }
+
+  header{ max-width:1320px; margin:0 auto; padding:64px 40px 28px; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--energy); display:flex; align-items:center; gap:14px; margin-bottom:18px;
+  }
+  .eyebrow::before,.eyebrow::after{ content:"";flex:0 0 60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep)); }
+  .eyebrow::after{ background:linear-gradient(90deg,var(--gold-deep),transparent); }
+  h1{
+    font-family:'Fraunces',serif;font-weight:600;font-style:italic;
+    font-size:84px;line-height:.95;letter-spacing:-.02em;margin-bottom:18px;
+    font-variation-settings:"opsz" 144;
+  }
+  h1 .accent{
+    background:linear-gradient(180deg,#9FE0FF 0%, var(--energy) 60%, #1B7AB0 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .subtitle{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:21px;line-height:1.4;color:var(--dim);max-width:880px;
+  }
+  .subtitle em{ color:#9FE0FF;font-style:normal;font-weight:400 }
+
+  .divider{
+    max-width:1320px;margin:36px auto 0;padding:0 40px;
+    display:flex;align-items:center;gap:14px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;
+  }
+  .divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep),transparent)}
+
+  .instruction{
+    max-width:1320px;margin:18px auto 0;padding:0 40px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--energy);text-align:center;
+  }
+  .badge-wide{
+    display:inline-block;padding:3px 10px;border:1px solid var(--energy);border-radius:999px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--energy);
+    margin-left:10px;
+  }
+
+  main{
+    max-width:1320px;margin:36px auto 0;padding:0 40px 80px;
+    display:grid;grid-template-columns:repeat(5,1fr);gap:28px;
+  }
+
+  .card{ display:flex;flex-direction:column;align-items:center; }
+
+  .phone{
+    position:relative; width:220px; height:480px; background:#000;
+    border:1px solid var(--gold-deep); border-radius:34px; overflow:hidden;
+    box-shadow: 0 0 0 1px rgba(201,166,80,.18), 0 30px 80px -20px rgba(0,0,0,.9);
+    cursor: crosshair; transition: box-shadow .35s ease, border-color .35s ease;
+  }
+  .phone:hover{
+    border-color:var(--energy);
+    box-shadow: 0 0 0 2px var(--energy), 0 40px 90px -10px rgba(91,199,255,.25);
+  }
+  .phone::before, .phone::after{
+    content:"";position:absolute;width:14px;height:14px;border:1px solid var(--gold);
+    z-index:6;pointer-events:none;opacity:.55;
+  }
+  .phone::before{ top:8px;left:8px;border-right:none;border-bottom:none; }
+  .phone::after{ bottom:8px;right:8px;border-left:none;border-top:none; }
+
+  /* Phone window is 220x480. Layers extend 200px beyond on each side via inset:-200,
+     so layer is 620x880. Background-size: cover ensures the BG always fills the layer
+     (no dead zones in the visible phone area). On mouse move we shift the layer
+     up to ±200px which reveals the wider BG. */
+  .layer{
+    position:absolute;
+    inset:-200px;
+    background-size:cover; background-position:center;
+    will-change: transform;
+    transition: transform 80ms ease-out;
+  }
+  .layer.sky{
+    background-image:url('concepts/parallax_goku_wide/thumb_sky_wide.webp');
+    z-index:1;
+  }
+  .layer.goku{
+    background-image:url('concepts/parallax_goku_wide/thumb_goku_wide.webp');
+    z-index:3;
+  }
+
+  /* Status bar */
+  .statusbar{
+    position:absolute;top:0;left:0;right:0;height:26px;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:6px 16px; font-family:'JetBrains Mono',monospace; font-size:9px;
+    color:rgba(255,255,255,.78); text-shadow:0 1px 2px rgba(0,0,0,.7);
+    z-index:5; letter-spacing:.06em;
+  }
+  .statusbar .icons{display:flex;gap:5px;align-items:center}
+  .statusbar .dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.6)}
+  .statusbar .batt{ display:inline-block;width:14px;height:7px;border:1px solid rgba(255,255,255,.7);border-radius:1px;position:relative; }
+  .statusbar .batt::before{ content:"";position:absolute;left:1px;top:1px;bottom:1px;width:9px;background:rgba(255,255,255,.7); }
+  .statusbar .batt::after{ content:"";position:absolute;right:-2px;top:2px;width:1px;height:3px;background:rgba(255,255,255,.7); }
+
+  .clock-widget{
+    position:absolute;top:60px;left:0;right:0;
+    text-align:center;color:rgba(255,255,255,.94);
+    text-shadow:0 2px 4px rgba(0,0,0,.6); z-index:5;
+  }
+  .clock-widget .time{ font-family:'Fraunces',serif;font-weight:300;font-style:italic; font-size:32px;line-height:1;letter-spacing:-.02em; font-variation-settings:"opsz" 144; }
+  .clock-widget .date{ font-family:'JetBrains Mono',monospace;font-size:8px; color:rgba(255,255,255,.78);letter-spacing:.14em;text-transform:lowercase;margin-top:4px; }
+
+  /* Variant 4 — energy particles around sphere area */
+  .energy-particles{
+    position:absolute; top:25%; left:34%; width:32%; height:14%;
+    pointer-events:none; z-index:4;
+  }
+  .energy-particles .ep{
+    position:absolute; width:3px; height:3px; border-radius:50%;
+    background:radial-gradient(circle, #9FE0FF, transparent 70%);
+    animation: float 2.5s infinite ease-in-out;
+  }
+  @keyframes float {
+    0%,100%{ transform:translate(0,0); opacity:0 }
+    20%{ opacity:.9 }
+    100%{ transform:translate(var(--tx),var(--ty)); opacity:0 }
+  }
+
+  /* Variant 5 — lightning */
+  @keyframes lightning {
+    0%,90%,100%{ opacity:0 }
+    92%,94%{ opacity:.8 }
+    93%{ opacity:0 }
+  }
+  .lightning-overlay{
+    position:absolute; inset:0; z-index:2;
+    background:linear-gradient(180deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 45%);
+    mix-blend-mode:screen; opacity:0;
+    animation: lightning 5.5s infinite;
+  }
+
+  .meta{ margin-top:22px; text-align:center; width:220px; }
+  .meta .num{ font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--energy);letter-spacing:.18em; }
+  .meta .name{
+    margin-top:6px;font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:18px;line-height:1.15;color:var(--text); font-variation-settings:"opsz" 48;
+  }
+  .meta .tagline{
+    margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:9px;
+    color:var(--dim); line-height:1.45;letter-spacing:.04em;text-transform:lowercase;
+  }
+  .meta .chip{
+    display:inline-block;margin-top:10px;padding:4px 10px;
+    border:1px solid var(--gold-deep); border-radius:999px;
+    font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.18em;color:var(--energy);
+    text-transform:uppercase;
+  }
+
+  footer{
+    max-width:1320px;margin:8px auto 60px;padding:0 40px;
+    text-align:center;font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.16em;color:var(--dim);text-transform:lowercase;
+  }
+  footer .arrow{color:var(--energy);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">// PIXORA · GOKU GENKIDAMA · 5 VARIANTES PARALLAX <span class="badge-wide">WIDE 3000x2700</span></div>
+  <h1>Spirit Bomb <span class="accent">Wide 3D</span></h1>
+  <p class="subtitle">
+    Ahora el cielo es <em>3000×2700</em> — el celular es solo la "ventana".
+    Al inclinar el teléfono (o mover el mouse aquí abajo), revelas el <em>resto</em> del mundo:
+    más rayos, más nubes, más montañas escondidas en los bordes.
+  </p>
+</header>
+
+<div class="divider">
+  <span>// 5 OPCIONES</span>
+  <span class="line"></span>
+  <span>// MUEVE EL MOUSE LENTAMENTE PARA VER CUÁNTO REVELA</span>
+  <span class="line"></span>
+  <span>// TAP TO INSPECT</span>
+</div>
+
+<div class="instruction">↑ Pasa el mouse sobre los teléfonos y muévelo a los bordes — ahora hay MUCHO más mundo escondido ↑</div>
+
+<main>
+
+  <!-- 1: Subtle 3D — premium feel -->
+  <div class="card">
+    <div class="phone" data-variant="subtle" data-sky-shift="40" data-goku-shift="60">
+      <div class="layer sky"></div>
+      <div class="layer goku"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="batt"></span></span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">domingo, 26 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 01</div>
+      <div class="name">Sutil 3D</div>
+      <div class="tagline">parallax discreto · sky 40 · goku 60 · premium feel</div>
+      <div class="chip">REFINED</div>
+    </div>
+  </div>
+
+  <!-- 2: Cinematic Strong -->
+  <div class="card">
+    <div class="phone" data-variant="cinematic" data-sky-shift="100" data-goku-shift="160">
+      <div class="layer sky"></div>
+      <div class="layer goku"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="batt"></span></span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">domingo, 26 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 02</div>
+      <div class="name">Cinematic Brutal</div>
+      <div class="tagline">parallax fuerte · sky 100 · goku 160 · te marea (en buena onda)</div>
+    </div>
+  </div>
+
+  <!-- 3: Hero locked — Goku barely moves, world spins around -->
+  <div class="card">
+    <div class="phone" data-variant="hero" data-sky-shift="130" data-goku-shift="20">
+      <div class="layer sky"></div>
+      <div class="layer goku"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="batt"></span></span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">domingo, 26 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 03</div>
+      <div class="name">Hero Anclado</div>
+      <div class="tagline">goku queda fijo (20px) · cielo se mueve mucho (130px) · efecto épico</div>
+    </div>
+  </div>
+
+  <!-- 4: Energy Aura -->
+  <div class="card">
+    <div class="phone" data-variant="aura" data-sky-shift="60" data-goku-shift="100">
+      <div class="layer sky"></div>
+      <div class="energy-particles" id="ep-host"></div>
+      <div class="layer goku"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="batt"></span></span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">domingo, 26 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 04</div>
+      <div class="name">Energy Aura</div>
+      <div class="tagline">parallax medio + 16 partículas de energía azul saliendo del sphere</div>
+    </div>
+  </div>
+
+  <!-- 5: Storm Lightning -->
+  <div class="card">
+    <div class="phone" data-variant="storm" data-sky-shift="90" data-goku-shift="140">
+      <div class="layer sky"></div>
+      <div class="lightning-overlay"></div>
+      <div class="layer goku"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="batt"></span></span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">domingo, 26 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 05</div>
+      <div class="name">Storm Lightning</div>
+      <div class="tagline">parallax fuerte + flash de relámpago cada ~5s</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  ya con el cielo wide se siente como wallpaper iOS · dime el número y lo subo a Pixora <span class="arrow">→</span>
+</footer>
+
+<script>
+  document.querySelectorAll('.phone').forEach(phone => {
+    const skyLayer = phone.querySelector('.layer.sky');
+    const gokuLayer = phone.querySelector('.layer.goku');
+    const skyShift = parseFloat(phone.dataset.skyShift || 40);
+    const gokuShift = parseFloat(phone.dataset.gokuShift || 60);
+
+    skyLayer.style.transform = 'translate(0,0)';
+    gokuLayer.style.transform = 'translate(0,0)';
+
+    phone.addEventListener('mousemove', e => {
+      const rect = phone.getBoundingClientRect();
+      const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+      const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+      skyLayer.style.transform = `translate(${-nx * skyShift}px, ${-ny * skyShift * 0.4}px)`;
+      gokuLayer.style.transform = `translate(${-nx * gokuShift}px, ${-ny * gokuShift * 0.4}px)`;
+    });
+    phone.addEventListener('mouseleave', () => {
+      skyLayer.style.transform = 'translate(0,0)';
+      gokuLayer.style.transform = 'translate(0,0)';
+    });
+  });
+
+  // Energy particles for variant 4
+  const ep = document.getElementById('ep-host');
+  if (ep) {
+    for (let i = 0; i < 16; i++) {
+      const p = document.createElement('span');
+      p.className = 'ep';
+      p.style.left = (Math.random() * 100) + '%';
+      p.style.top = (Math.random() * 100) + '%';
+      p.style.setProperty('--tx', ((Math.random() - 0.5) * 60) + 'px');
+      p.style.setProperty('--ty', ((Math.random() - 1.0) * 80) + 'px');
+      p.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
+      p.style.animationDelay = (Math.random() * -2.5) + 's';
+      ep.appendChild(p);
+    }
+  }
+</script>
+</body>
+</html>

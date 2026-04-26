@@ -119,12 +119,51 @@ class SceneSpecService {
       } catch (e) {
         debugPrint('[SceneSpec] ${entry.id}: disk write failed: $e');
       }
+      // Also fetch any parallax image_layers and cache them so the native
+      // CanvasSceneRenderer can read them from filesDir/scene_layers/<id>/<key>.webp
+      await _fetchImageLayers(entry.id, json);
       debugPrint(
           '[SceneSpec] ${entry.id}: cached (${r.bodyBytes.length} bytes)');
       return json;
     } catch (e) {
       debugPrint('[SceneSpec] ${entry.id}: fetch error $e');
       return null;
+    }
+  }
+
+  /// Download each image_layer URL referenced in the spec to
+  /// filesDir/scene_layers/<sceneId>/<key>.webp. Idempotent — skips already
+  /// cached files. Native side reads these directly via BitmapFactory.
+  Future<void> _fetchImageLayers(
+      String sceneId, Map<String, dynamic> spec) async {
+    final layers = spec['image_layers'];
+    if (layers is! List || layers.isEmpty) return;
+    try {
+      final support = await getApplicationSupportDirectory();
+      final dir = Directory('${support.path}/scene_layers/$sceneId');
+      await dir.create(recursive: true);
+      for (final l in layers) {
+        if (l is! Map) continue;
+        final key = l['key'] as String?;
+        final url = l['url'] as String?;
+        if (key == null || url == null) continue;
+        final out = File('${dir.path}/$key.webp');
+        if (out.existsSync() && out.lengthSync() > 1024) continue;
+        try {
+          final r = await http
+              .get(Uri.parse(url))
+              .timeout(const Duration(seconds: 30));
+          if (r.statusCode == 200 && r.bodyBytes.length > 1024) {
+            await out.writeAsBytes(r.bodyBytes);
+            debugPrint(
+                '[SceneSpec] $sceneId/$key: cached layer (${r.bodyBytes.length} bytes)');
+          }
+        } catch (e) {
+          debugPrint('[SceneSpec] $sceneId/$key: layer fetch error $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('[SceneSpec] $sceneId: image_layers cache dir error $e');
     }
   }
 

@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · iOS Style Theme · 5 Diseños</title>
+<meta name="viewport" content="width=1920">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400;1,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body {
+    background:#000;
+    color:#fff;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 1100px 700px at 50% -20%, rgba(0,122,255,.10), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 50% 110%, rgba(255,45,85,.08), transparent 65%),
+      #000;
+  }
+
+  header { max-width:1820px; margin:0 auto; padding:64px 40px 28px; }
+  .eyebrow {
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:#0A84FF; display:flex; align-items:center; gap:14px; margin-bottom:18px;
+  }
+  .eyebrow::before, .eyebrow::after { content:""; flex:0 0 60px; height:1px; background:linear-gradient(90deg,transparent,rgba(10,132,255,.4)); }
+  .eyebrow::after { background:linear-gradient(90deg,rgba(10,132,255,.4),transparent); }
+  h1 {
+    font-family:'Inter',sans-serif; font-weight:800;
+    font-size:84px; line-height:.95; letter-spacing:-.04em; margin-bottom:18px;
+    color:#fff;
+  }
+  h1 .accent {
+    background:linear-gradient(180deg,#5AC8FA 0%, #007AFF 50%, #5856D6 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .subtitle {
+    font-family:'Inter',sans-serif; font-weight:300;
+    font-size:21px; line-height:1.4; color:rgba(255,255,255,.55); max-width:1200px;
+  }
+  .subtitle em { color:#5AC8FA; font-style:normal; font-weight:500; }
+
+  .divider {
+    max-width:1820px; margin:36px auto 0; padding:0 40px;
+    display:flex; align-items:center; gap:14px;
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.18em;
+    color:rgba(255,255,255,.4); text-transform:uppercase;
+  }
+  .divider .line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent); }
+
+  main {
+    max-width:1820px; margin:36px auto 0; padding:0 40px 80px;
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:24px;
+  }
+
+  /* iPhone-shaped device */
+  .device {
+    position:relative; width:340px; height:720px;
+    border-radius:48px; overflow:hidden;
+    box-shadow: 0 0 0 8px #1a1a1a, 0 30px 80px -20px rgba(0,0,0,.95);
+  }
+  .device .notch {
+    position:absolute; top:8px; left:50%; transform:translateX(-50%);
+    width:120px; height:30px; background:#000; border-radius:18px; z-index:100;
+  }
+
+  .screen { position:absolute; inset:0; overflow:hidden; }
+
+  .ios-status {
+    position:absolute; top:0; left:0; right:0; height:46px;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 28px 0;
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+    z-index:50;
+  }
+
+  /* Common bottom tab bar (iOS) */
+  .ios-tabbar {
+    position:absolute; bottom:0; left:0; right:0; height:78px;
+    backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+    background:rgba(20,20,22,.72); border-top:.5px solid rgba(255,255,255,.12);
+    display:flex; justify-content:space-around; padding:8px 4px 24px;
+    z-index:40;
+  }
+  .ios-tabbar .tab {
+    flex:1; text-align:center; cursor:pointer;
+    font-family:'Inter',sans-serif; font-size:10px; font-weight:500;
+    color:rgba(255,255,255,.4);
+  }
+  .ios-tabbar .tab .ico {
+    display:block; width:26px; height:26px; margin:0 auto 4px;
+    border-radius:6px; background:rgba(255,255,255,.18);
+  }
+  .ios-tabbar .tab.active { color:#0A84FF; }
+  .ios-tabbar .tab.active .ico { background:#0A84FF; }
+
+  .meta-card {
+    margin-top:16px; text-align:center; width:340px;
+  }
+  .meta-card .num {
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:#5AC8FA; letter-spacing:.18em;
+  }
+  .meta-card .name {
+    margin-top:6px; font-family:'Inter',sans-serif; font-weight:600;
+    font-size:18px; line-height:1.15; color:#fff;
+  }
+  .meta-card .tagline {
+    margin-top:6px; font-family:'JetBrains Mono',monospace; font-size:9px;
+    color:rgba(255,255,255,.4); line-height:1.45; letter-spacing:.04em;
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════
+     V1 — APPLE MUSIC STYLE
+     Light system grays + bold labels + colorful album-art-style cards
+     ════════════════════════════════════════════════════════════════════════ */
+  .v1 .screen { background:#000; color:#fff; }
+  .v1 .ios-status { color:#fff; }
+  .v1 .topbar { padding:60px 18px 12px; }
+  .v1 .topbar .title {
+    font-family:'Inter',sans-serif; font-weight:800; font-size:34px; letter-spacing:-.03em;
+  }
+  .v1 .topbar .sub {
+    font-family:'Inter',sans-serif; font-weight:500; font-size:13px;
+    color:rgba(255,255,255,.5); margin-top:2px;
+  }
+  .v1 .search {
+    margin:14px 18px 18px;
+    background:rgba(255,255,255,.10); border-radius:11px; padding:9px 14px;
+    color:rgba(255,255,255,.5); font-size:14px;
+    display:flex; gap:8px; align-items:center;
+  }
+  .v1 .search::before { content:"🔍"; font-size:13px; opacity:.7; }
+  .v1 .featured {
+    margin:0 18px 18px; border-radius:14px; overflow:hidden;
+    aspect-ratio:1; position:relative;
+    box-shadow:0 12px 28px rgba(0,0,0,.5);
+  }
+  .v1 .featured img { width:100%; height:100%; object-fit:cover; display:block; }
+  .v1 .featured .gradient {
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 50%, rgba(0,0,0,.8) 100%);
+    display:flex; flex-direction:column; justify-content:flex-end; padding:14px;
+  }
+  .v1 .featured .ttl {
+    font-family:'Inter',sans-serif; font-weight:700; font-size:18px; color:#fff;
+  }
+  .v1 .featured .desc {
+    font-family:'Inter',sans-serif; font-weight:500; font-size:11px; color:rgba(255,255,255,.7); margin-top:2px;
+  }
+  .v1 .row-title {
+    padding:0 18px; margin-bottom:8px;
+    font-family:'Inter',sans-serif; font-weight:700; font-size:20px; letter-spacing:-.02em;
+  }
+  .v1 .scroll-row {
+    padding-left:18px; display:flex; gap:10px; overflow-x:auto;
+    padding-bottom:8px; scrollbar-width:none;
+  }
+  .v1 .scroll-row::-webkit-scrollbar { display:none; }
+  .v1 .scroll-row .item { flex:0 0 110px; }
+  .v1 .scroll-row .item .thumb {
+    width:110px; height:110px; border-radius:10px; overflow:hidden;
+    background:#1a1a1a;
+  }
+  .v1 .scroll-row .item .thumb img { width:100%; height:100%; object-fit:cover; }
+  .v1 .scroll-row .item .nm {
+    margin-top:6px; font-family:'Inter',sans-serif; font-weight:600; font-size:12px;
+  }
+  .v1 .scroll-row .item .a {
+    font-family:'Inter',sans-serif; font-size:11px; color:rgba(255,255,255,.55);
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════
+     V2 — GLASSMORPHISM iOS 16+
+     Vibrant background + frosted glass cards + blur
+     ════════════════════════════════════════════════════════════════════════ */
+  .v2 .screen {
+    background:
+      radial-gradient(circle at 25% 20%, rgba(255,107,107,.5) 0%, transparent 40%),
+      radial-gradient(circle at 75% 75%, rgba(91,132,255,.5) 0%, transparent 40%),
+      linear-gradient(135deg, #2a1a4a 0%, #1a2440 50%, #2a1a3a 100%);
+    color:#fff;
+  }
+  .v2 .topbar { padding:60px 18px 8px; }
+  .v2 .topbar .title {
+    font-family:'Inter',sans-serif; font-weight:800; font-size:30px; letter-spacing:-.03em;
+  }
+  .v2 .glass-search {
+    margin:12px 18px 16px; padding:10px 14px;
+    background:rgba(255,255,255,.16); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-radius:14px; border:.5px solid rgba(255,255,255,.25);
+    color:rgba(255,255,255,.85); font-size:14px;
+    display:flex; gap:8px; align-items:center;
+  }
+  .v2 .glass-search::before { content:"⌕"; font-size:16px; }
+  .v2 .grid2 {
+    margin:0 18px 14px;
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  }
+  .v2 .glass-card {
+    background:rgba(255,255,255,.14); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border:.5px solid rgba(255,255,255,.2); border-radius:18px; padding:6px;
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+  }
+  .v2 .glass-card .thumb {
+    aspect-ratio:9/16; border-radius:12px; overflow:hidden; background:#000;
+  }
+  .v2 .glass-card .thumb img { width:100%; height:100%; object-fit:cover; }
+  .v2 .glass-card .lbl {
+    padding:6px 4px 4px;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:11px;
+    color:rgba(255,255,255,.95);
+  }
+  .v2 .glass-card .meta {
+    padding:0 4px 4px; font-family:'Inter',sans-serif; font-size:9px;
+    color:rgba(255,255,255,.6);
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════
+     V3 — APP STORE TODAY (Editorial)
+     Big hero card + story-format cards
+     ════════════════════════════════════════════════════════════════════════ */
+  .v3 .screen { background:#000; color:#fff; }
+  .v3 .topbar { padding:60px 18px 14px; display:flex; justify-content:space-between; align-items:flex-end; }
+  .v3 .topbar .day {
+    font-family:'Inter',sans-serif; font-weight:600; font-size:11px;
+    color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:.06em;
+  }
+  .v3 .topbar .title {
+    font-family:'Inter',sans-serif; font-weight:800; font-size:30px; letter-spacing:-.03em;
+    margin-top:2px;
+  }
+  .v3 .topbar .avatar {
+    width:36px; height:36px; border-radius:50%; background:#888;
+    border:2px solid rgba(255,255,255,.5);
+  }
+  .v3 .editorial-card {
+    margin:0 18px 18px; border-radius:20px; overflow:hidden; position:relative;
+    aspect-ratio:3/4; box-shadow:0 16px 32px rgba(0,0,0,.5);
+  }
+  .v3 .editorial-card img { width:100%; height:100%; object-fit:cover; display:block; }
+  .v3 .editorial-card .overlay {
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 30%, rgba(0,0,0,.85) 100%);
+    padding:18px; display:flex; flex-direction:column; justify-content:flex-end;
+  }
+  .v3 .editorial-card .tag {
+    font-family:'Inter',sans-serif; font-weight:700; font-size:10px; letter-spacing:.1em;
+    text-transform:uppercase; color:#5AC8FA; margin-bottom:6px;
+  }
+  .v3 .editorial-card .ttl {
+    font-family:'Playfair Display',serif; font-weight:600; font-style:italic;
+    font-size:26px; line-height:1.05; color:#fff;
+  }
+  .v3 .editorial-card .desc {
+    font-family:'Inter',sans-serif; font-size:12px; color:rgba(255,255,255,.85);
+    margin-top:6px; max-width:75%;
+  }
+  .v3 .editorial-card .cta {
+    align-self:flex-start; margin-top:12px;
+    background:rgba(255,255,255,.95); color:#000;
+    padding:8px 16px; border-radius:18px;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:11px;
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════
+     V4 — VIBRANT LIGHT
+     Light mode with bright accent colors
+     ════════════════════════════════════════════════════════════════════════ */
+  .v4 .screen { background:#F2F2F7; color:#000; }
+  .v4 .ios-status { color:#000; }
+  .v4 .ios-tabbar {
+    background:rgba(245,245,247,.8); border-top:.5px solid rgba(0,0,0,.08);
+    color:#999;
+  }
+  .v4 .ios-tabbar .tab { color:#999; }
+  .v4 .ios-tabbar .tab .ico { background:#bbb; }
+  .v4 .ios-tabbar .tab.active { color:#FF2D55; }
+  .v4 .ios-tabbar .tab.active .ico { background:#FF2D55; }
+  .v4 .topbar { padding:60px 18px 8px; }
+  .v4 .topbar .title {
+    font-family:'Inter',sans-serif; font-weight:800; font-size:34px; color:#000; letter-spacing:-.03em;
+  }
+  .v4 .topbar .sub {
+    font-family:'Inter',sans-serif; font-weight:500; font-size:13px;
+    color:rgba(0,0,0,.55); margin-top:2px;
+  }
+  .v4 .pills {
+    margin:14px 18px 14px;
+    display:flex; gap:8px; flex-wrap:wrap;
+  }
+  .v4 .pill {
+    padding:7px 14px; border-radius:18px;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:12px;
+    background:#fff; color:#333; border:1px solid rgba(0,0,0,.06);
+  }
+  .v4 .pill.active { background:#FF2D55; color:#fff; border-color:#FF2D55; }
+  .v4 .grid {
+    margin:0 18px 14px; display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  }
+  .v4 .grid .card {
+    background:#fff; border-radius:14px; overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+  }
+  .v4 .grid .card .thumb {
+    aspect-ratio:9/16; background:#000; overflow:hidden;
+  }
+  .v4 .grid .card .thumb img { width:100%; height:100%; object-fit:cover; }
+  .v4 .grid .card .body { padding:8px 10px 10px; }
+  .v4 .grid .card .nm {
+    font-family:'Inter',sans-serif; font-weight:700; font-size:12px; color:#000;
+  }
+  .v4 .grid .card .auth {
+    font-family:'Inter',sans-serif; font-size:10px; color:rgba(0,0,0,.5); margin-top:1px;
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════
+     V5 — DARK LIQUID iPadOS
+     Dark mode with translucent vibrant panels and soft glow
+     ════════════════════════════════════════════════════════════════════════ */
+  .v5 .screen {
+    background:
+      radial-gradient(circle at 30% 0%, rgba(50,40,80,.8) 0%, transparent 50%),
+      radial-gradient(circle at 70% 100%, rgba(40,50,80,.8) 0%, transparent 50%),
+      #050610;
+    color:#fff;
+  }
+  .v5 .topbar { padding:60px 18px 14px; }
+  .v5 .topbar .title {
+    font-family:'Inter',sans-serif; font-weight:800; font-size:32px; letter-spacing:-.03em;
+    background:linear-gradient(90deg, #fff 0%, rgba(255,255,255,.7) 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .v5 .topbar .sub {
+    font-family:'Inter',sans-serif; font-weight:400; font-size:13px;
+    color:rgba(255,255,255,.5); margin-top:2px;
+  }
+  .v5 .liquid-grid {
+    margin:14px 18px;
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  }
+  .v5 .liquid-card {
+    background:rgba(255,255,255,.06); backdrop-filter:blur(40px) saturate(180%);
+    -webkit-backdrop-filter:blur(40px) saturate(180%);
+    border:.5px solid rgba(255,255,255,.12);
+    border-radius:20px; overflow:hidden; padding:6px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  .v5 .liquid-card.hero { grid-column:span 2; padding:8px; }
+  .v5 .liquid-card .thumb {
+    aspect-ratio:9/16; border-radius:14px; overflow:hidden; background:#000;
+  }
+  .v5 .liquid-card.hero .thumb { aspect-ratio:16/10; }
+  .v5 .liquid-card .thumb img { width:100%; height:100%; object-fit:cover; }
+  .v5 .liquid-card .info { padding:8px 6px 4px; display:flex; align-items:center; gap:8px; }
+  .v5 .liquid-card .info .dot {
+    width:8px; height:8px; border-radius:50%;
+    background:#5AC8FA; box-shadow:0 0 8px #5AC8FA;
+  }
+  .v5 .liquid-card .info .nm {
+    font-family:'Inter',sans-serif; font-weight:600; font-size:12px;
+  }
+  .v5 .liquid-card .info .badge {
+    margin-left:auto; padding:3px 8px; border-radius:8px;
+    background:rgba(91,199,255,.2); color:#5AC8FA; font-size:9px; font-weight:600;
+  }
+
+  footer {
+    max-width:1820px; margin:8px auto 60px; padding:0 40px; text-align:center;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.16em;
+    color:rgba(255,255,255,.4); text-transform:lowercase;
+  }
+  footer .arrow { color:#5AC8FA; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">// PIXORA · iOS-STYLE THEME ALTERNATIVE · 5 DISEÑOS</div>
+  <h1>El otro <span class="accent">feeling</span></h1>
+  <p class="subtitle">
+    Cinco interpretaciones de Pixora con look-and-feel <em>iOS</em>. El usuario podrá elegir
+    entre el actual <em>Black & Gold</em> o este nuevo en Settings → Tema. Cada mockup
+    muestra la sección Wallpapers (la más visitada).
+  </p>
+</header>
+
+<div class="divider">
+  <span>// 5 INTERPRETACIONES</span>
+  <span class="line"></span>
+  <span>// SF PRO · GLASSMORPHISM · BLUR</span>
+  <span class="line"></span>
+  <span>// REPRESENTATIVE PAGE</span>
+</div>
+
+<main>
+
+  <!-- ═════════ V1: APPLE MUSIC STYLE ═════════ -->
+  <div>
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v1">
+        <div class="ios-status"><span>9:41</span><span>● ▼ ▌</span></div>
+        <div class="topbar">
+          <div class="title">Wallpapers</div>
+          <div class="sub">para ti · 248 piezas</div>
+        </div>
+        <div class="search">Buscar wallpapers</div>
+        <div class="featured">
+          <img src="concepts/parallax_goku_wide/thumb_goku_wide.webp" alt="">
+          <div class="gradient">
+            <div class="ttl">Goku Genkidama</div>
+            <div class="desc">3D · Anime · Premium</div>
+          </div>
+        </div>
+        <div class="row-title">Recién agregados</div>
+        <div class="scroll-row">
+          <div class="item"><div class="thumb"><img src="concepts/parallax_goku_wide/thumb_goku_wide.webp"></div><div class="nm">Spirit Bomb</div><div class="a">Anime · 3D</div></div>
+          <div class="item"><div class="thumb" style="background:linear-gradient(135deg,#1a2456,#3d2b6e)"></div><div class="nm">Storm Vortex</div><div class="a">Cinematic</div></div>
+          <div class="item"><div class="thumb" style="background:linear-gradient(135deg,#0d3a4c,#1a6e8d)"></div><div class="nm">Pacific</div><div class="a">Nature</div></div>
+        </div>
+      </div>
+      <div class="ios-tabbar">
+        <div class="tab active"><span class="ico"></span>Wallpapers</div>
+        <div class="tab"><span class="ico"></span>Live</div>
+        <div class="tab"><span class="ico"></span>3D</div>
+        <div class="tab"><span class="ico"></span>AURA</div>
+        <div class="tab"><span class="ico"></span>Tú</div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 01</div>
+      <div class="name">Apple Music</div>
+      <div class="tagline">títulos grandes bold · search bar gris · scroll horizontal · familiar</div>
+    </div>
+  </div>
+
+  <!-- ═════════ V2: GLASSMORPHISM iOS 16+ ═════════ -->
+  <div>
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v2">
+        <div class="ios-status"><span>9:41</span><span>● ▼ ▌</span></div>
+        <div class="topbar">
+          <div class="title">Galería</div>
+        </div>
+        <div class="glass-search">Buscar...</div>
+        <div class="grid2">
+          <div class="glass-card">
+            <div class="thumb"><img src="concepts/parallax_goku_wide/thumb_goku_wide.webp"></div>
+            <div class="lbl">Goku Genkidama</div>
+            <div class="meta">3D Premium</div>
+          </div>
+          <div class="glass-card">
+            <div class="thumb" style="background:linear-gradient(180deg,#1a2456,#3d2b6e)"></div>
+            <div class="lbl">Storm</div>
+            <div class="meta">Cinematic</div>
+          </div>
+          <div class="glass-card">
+            <div class="thumb" style="background:linear-gradient(180deg,#0d3a4c,#1a6e8d)"></div>
+            <div class="lbl">Ocean</div>
+            <div class="meta">Nature</div>
+          </div>
+          <div class="glass-card">
+            <div class="thumb" style="background:linear-gradient(180deg,#3a1a4c,#6e2b8d)"></div>
+            <div class="lbl">Aurora</div>
+            <div class="meta">Live</div>
+          </div>
+        </div>
+      </div>
+      <div class="ios-tabbar">
+        <div class="tab active"><span class="ico"></span>Wallpapers</div>
+        <div class="tab"><span class="ico"></span>Live</div>
+        <div class="tab"><span class="ico"></span>3D</div>
+        <div class="tab"><span class="ico"></span>AURA</div>
+        <div class="tab"><span class="ico"></span>Tú</div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 02</div>
+      <div class="name">Glassmorphism</div>
+      <div class="tagline">cards translúcidos blur · fondo colorido · estilo iOS Control Center</div>
+    </div>
+  </div>
+
+  <!-- ═════════ V3: APP STORE TODAY ═════════ -->
+  <div>
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v3">
+        <div class="ios-status"><span>9:41</span><span>● ▼ ▌</span></div>
+        <div class="topbar">
+          <div>
+            <div class="day">Domingo · 26 abril</div>
+            <div class="title">Wallpapers</div>
+          </div>
+          <div class="avatar"></div>
+        </div>
+        <div class="editorial-card">
+          <img src="concepts/parallax_goku_wide/thumb_goku_wide.webp" alt="">
+          <div class="overlay">
+            <div class="tag">EDITOR'S PICK</div>
+            <div class="ttl">El Spirit Bomb,<br>en tu pantalla</div>
+            <div class="desc">Tres capas con depth real. Inclina el teléfono y ve cómo se mueve.</div>
+            <div class="cta">Aplicar →</div>
+          </div>
+        </div>
+      </div>
+      <div class="ios-tabbar">
+        <div class="tab active"><span class="ico"></span>Wallpapers</div>
+        <div class="tab"><span class="ico"></span>Live</div>
+        <div class="tab"><span class="ico"></span>3D</div>
+        <div class="tab"><span class="ico"></span>AURA</div>
+        <div class="tab"><span class="ico"></span>Tú</div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 03</div>
+      <div class="name">App Store Today</div>
+      <div class="tagline">card editorial gigante · Playfair italic · feel revista premium</div>
+    </div>
+  </div>
+
+  <!-- ═════════ V4: VIBRANT LIGHT ═════════ -->
+  <div>
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v4">
+        <div class="ios-status"><span>9:41</span><span>● ▼ ▌</span></div>
+        <div class="topbar">
+          <div class="title">Wallpapers</div>
+          <div class="sub">descubre algo nuevo</div>
+        </div>
+        <div class="pills">
+          <div class="pill active">Para ti</div>
+          <div class="pill">Anime</div>
+          <div class="pill">3D</div>
+          <div class="pill">Live</div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <div class="thumb"><img src="concepts/parallax_goku_wide/thumb_goku_wide.webp"></div>
+            <div class="body">
+              <div class="nm">Goku Genkidama</div>
+              <div class="auth">3D · Pixora</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="thumb" style="background:linear-gradient(180deg,#1a2456,#3d2b6e)"></div>
+            <div class="body">
+              <div class="nm">Storm Vortex</div>
+              <div class="auth">Cinematic</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="thumb" style="background:linear-gradient(180deg,#0d3a4c,#1a6e8d)"></div>
+            <div class="body">
+              <div class="nm">Pacific</div>
+              <div class="auth">Nature</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="thumb" style="background:linear-gradient(180deg,#3a1a4c,#6e2b8d)"></div>
+            <div class="body">
+              <div class="nm">Aurora</div>
+              <div class="auth">Live</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ios-tabbar">
+        <div class="tab active"><span class="ico"></span>Wallpapers</div>
+        <div class="tab"><span class="ico"></span>Live</div>
+        <div class="tab"><span class="ico"></span>3D</div>
+        <div class="tab"><span class="ico"></span>AURA</div>
+        <div class="tab"><span class="ico"></span>Tú</div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 04</div>
+      <div class="name">Vibrant Light</div>
+      <div class="tagline">light mode · pills naranjas · cards blancos · descubrible y limpio</div>
+    </div>
+  </div>
+
+  <!-- ═════════ V5: DARK LIQUID iPadOS ═════════ -->
+  <div>
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v5">
+        <div class="ios-status"><span>9:41</span><span>● ▼ ▌</span></div>
+        <div class="topbar">
+          <div class="title">Wallpapers</div>
+          <div class="sub">curated experience</div>
+        </div>
+        <div class="liquid-grid">
+          <div class="liquid-card hero">
+            <div class="thumb"><img src="concepts/parallax_goku_wide/thumb_goku_wide.webp"></div>
+            <div class="info">
+              <div class="dot"></div>
+              <div class="nm">Goku Genkidama</div>
+              <div class="badge">3D · NEW</div>
+            </div>
+          </div>
+          <div class="liquid-card">
+            <div class="thumb" style="background:linear-gradient(180deg,#1a2456,#3d2b6e)"></div>
+            <div class="info"><div class="dot"></div><div class="nm">Storm</div></div>
+          </div>
+          <div class="liquid-card">
+            <div class="thumb" style="background:linear-gradient(180deg,#0d3a4c,#1a6e8d)"></div>
+            <div class="info"><div class="dot"></div><div class="nm">Pacific</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ios-tabbar">
+        <div class="tab active"><span class="ico"></span>Wallpapers</div>
+        <div class="tab"><span class="ico"></span>Live</div>
+        <div class="tab"><span class="ico"></span>3D</div>
+        <div class="tab"><span class="ico"></span>AURA</div>
+        <div class="tab"><span class="ico"></span>Tú</div>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="num">// NO. 05</div>
+      <div class="name">Dark Liquid iPadOS</div>
+      <div class="tagline">dark mode · panels translúcidos blur saturate · feel iPad pro premium</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  cada uno reemplazaría toda la app si el user lo selecciona en Settings → Tema visual <span class="arrow">→</span>
+</footer>
+
+</body>
+</html>

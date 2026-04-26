@@ -23,12 +23,18 @@ data class SceneSpec(
     val type: String,
     val backgroundUrl: String?,
     val backgroundScroll: Boolean,
+    /** Optional parallax image layers drawn in z-order. Each layer can have
+     *  its own gyroscope-driven parallax_factor. When non-empty, the wallpaper
+     *  service skips the standard bg draw and these are used instead. */
+    val imageLayers: List<ImageLayerDef>,
     val sprites: List<SpriteDef>,
     val particles: List<ParticleDef>,
     val events: List<EventDef>,
     /** Optional per-scene overrides for the BrandingLogo (P 3D signature). */
     val brandingJson: JSONObject?,
 ) {
+    val hasParallax: Boolean get() = imageLayers.isNotEmpty()
+
     companion object {
         private const val TAG = "SceneSpec"
 
@@ -47,6 +53,9 @@ data class SceneSpec(
                 backgroundUrl = j.optJSONObject("background")?.optString("url"),
                 backgroundScroll = j.optJSONObject("background")
                     ?.optBoolean("scroll", false) ?: false,
+                imageLayers = parseList(j.optJSONArray("image_layers")) {
+                    ImageLayerDef.parse(it)
+                },
                 sprites = parseList(j.optJSONArray("sprites")) {
                     SpriteDef.parse(it)
                 },
@@ -97,6 +106,27 @@ data class SpriteDef(
                 defaultFacing = j.optString("default_facing", "right"),
                 params = j.optJSONObject("params") ?: JSONObject(),
                 frameSkip = j.optInt("frame_skip", 2),
+            )
+        } catch (e: Exception) { null }
+    }
+}
+
+/** A parallax image layer. URL points to the source on Supabase; the
+ *  Dart side downloads it to filesDir/scene_layers/<scene_id>/<key>.webp
+ *  before activating the wallpaper, where the renderer reads it. */
+data class ImageLayerDef(
+    val key: String,
+    val url: String,
+    val parallaxFactor: Float,
+    val z: Int,
+) {
+    companion object {
+        fun parse(j: JSONObject): ImageLayerDef? = try {
+            ImageLayerDef(
+                key = j.getString("key"),
+                url = j.getString("url"),
+                parallaxFactor = j.f("parallax_factor", 1f),
+                z = j.optInt("z", 0),
             )
         } catch (e: Exception) { null }
     }

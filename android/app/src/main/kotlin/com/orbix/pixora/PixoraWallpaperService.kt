@@ -7,6 +7,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.graphics.*
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -116,6 +120,90 @@ class PixoraWallpaperService : WallpaperService() {
         // Data-driven scene mode (volcano_dragon, dusk_fortress, and any future
         // canvas_scene wallpaper). Activated by the 'scene_id' SharedPreference.
         private var isCanvasSceneMode = false
+
+        // ── Gyroscope (parallax) ───────────────────────────────────────────
+        // Reads device rotation and feeds smoothed (tilt_x, tilt_y) pixel offsets
+        // to the canvas scene renderer. Only registered when a parallax-enabled
+        // canvas_scene is active (saves battery for static wallpapers).
+        private var sensorManager: SensorManager? = null
+        private var gyroSensor: Sensor? = null
+        private var sensorMode = 0  // 1=ROTATION_VECTOR, 2=GAME_ROTATION, 3=ACCELEROMETER
+        private var gyroRegistered = false
+        @Volatile private var tiltXNorm = 0f
+        @Volatile private var tiltYNorm = 0f
+        private val tiltAmpX get() = (surfaceWidth * 0.07f).coerceAtLeast(40f)
+        private val tiltAmpY get() = (surfaceHeight * 0.07f).coerceAtLeast(60f)
+
+        private val gyroListener = object : SensorEventListener {
+            override fun onAccuracyChanged(s: Sensor?, a: Int) {}
+            override fun onSensorChanged(e: SensorEvent) {
+                val rawX: Float
+                val rawY: Float
+                when (sensorMode) {
+                    1, 2 -> {
+                        // ROTATION_VECTOR / GAME_ROTATION_VECTOR: values[0..3] is a
+                        // quaternion. We approximate roll/pitch from x/y components.
+                        rawX = (-e.values[1] * 2f).coerceIn(-1f, 1f)
+                        rawY = (-e.values[0] * 2f).coerceIn(-1f, 1f)
+                    }
+                    3 -> {
+                        // Accelerometer fallback: x/y are gravity components in m/s².
+                        // ±9.8 = phone fully tilted. Normalize to [-1, +1].
+                        rawX = (e.values[0] / 9.81f).coerceIn(-1f, 1f)
+                        rawY = (-e.values[1] / 9.81f).coerceIn(-1f, 1f)
+                    }
+                    else -> return
+                }
+                val alpha = 0.12f
+                tiltXNorm += (rawX - tiltXNorm) * alpha
+                tiltYNorm += (rawY - tiltYNorm) * alpha
+                canvasSceneRenderer.tiltX = tiltXNorm * tiltAmpX
+                canvasSceneRenderer.tiltY = tiltYNorm * tiltAmpY
+            }
+        }
+
+        private fun registerGyroIfNeeded() {
+            if (gyroRegistered) return
+            if (sensorManager == null) {
+                sensorManager = applicationContext.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+            }
+            val sm = sensorManager
+            if (sm == null) {
+                Log.w(TAG, "SensorManager unavailable — parallax disabled")
+                return
+            }
+            // Try in priority order: GAME_ROTATION_VECTOR (best) → ROTATION_VECTOR
+            // → ACCELEROMETER (universal fallback that every phone has).
+            var s = sm.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
+            sensorMode = 2
+            if (s == null) {
+                s = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+                sensorMode = 1
+            }
+            if (s == null) {
+                s = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+                sensorMode = 3
+            }
+            if (s == null) {
+                Log.w(TAG, "No usable sensor found (rotation/accel) — parallax disabled")
+                sensorMode = 0
+                return
+            }
+            gyroSensor = s
+            sm.registerListener(gyroListener, s, SensorManager.SENSOR_DELAY_GAME)
+            gyroRegistered = true
+            val modeName = when (sensorMode) { 1->"ROTATION_VECTOR"; 2->"GAME_ROTATION_VECTOR"; 3->"ACCELEROMETER"; else->"?" }
+            Log.d(TAG, "Sensor registered: ${s.name} (mode=$modeName)")
+        }
+
+        private fun unregisterGyro() {
+            if (!gyroRegistered) return
+            sensorManager?.unregisterListener(gyroListener)
+            gyroRegistered = false
+            sensorMode = 0
+            tiltXNorm = 0f; tiltYNorm = 0f
+            canvasSceneRenderer.tiltX = 0f; canvasSceneRenderer.tiltY = 0f
+        }
 
         // Any wallpaper that uses code-driven animated sprites over a static background.
         // Keeps the engine at full FPS so animations and the clock second-hand stay smooth.
@@ -514,10 +602,19 @@ class PixoraWallpaperService : WallpaperService() {
                     if (ok) {
                         canvasSceneRenderer.ensureLoaded()
                         Log.d(TAG, "Canvas scene activated: $sceneId (${surfaceWidth}x${surfaceHeight})")
+                        // Register gyroscope only for parallax-enabled scenes
+                        if (canvasSceneRenderer.hasParallax) {
+                            registerGyroIfNeeded()
+                        } else {
+                            unregisterGyro()
+                        }
                     } else {
                         Log.w(TAG, "Canvas scene failed to load: $sceneId — falling back")
                         isCanvasSceneMode = false
+                        unregisterGyro()
                     }
+                } else {
+                    unregisterGyro()
                 }
 
                 // Aquarium mode: animated fish over background image
@@ -1104,6 +1201,11 @@ class PixoraWallpaperService : WallpaperService() {
                 // Frame mode: draw extracted frame instead of wallpaper bitmap
                 if (isFrameMode && frameScrubRenderer.isReady) {
                     frameScrubRenderer.draw(canvas)
+                } else if (isCanvasSceneMode && canvasSceneRenderer.hasParallax) {
+                    // Parallax scenes draw their own image_layers — skip the bg
+                    // bitmap to avoid double-drawing. Clear to black first so any
+                    // edge pixels (if a layer doesn't fully cover) don't leak.
+                    canvas.drawColor(android.graphics.Color.BLACK)
                 } else {
                     drawBackground(canvas)
                 }
@@ -1278,6 +1380,7 @@ class PixoraWallpaperService : WallpaperService() {
 
         override fun onDestroy() {
             drawing = false
+            unregisterGyro()
             handler.removeCallbacks(drawRunnable)
             pendingReload?.let { handler.removeCallbacks(it) }
             equalizerRenderer.releaseVisualizer()

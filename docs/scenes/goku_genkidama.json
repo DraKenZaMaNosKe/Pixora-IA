@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "goku_genkidama",
+  "type": "canvas_scene",
+  "title": {
+    "en": "Goku Genkidama",
+    "es": "Goku Genkidama"
+  },
+  "tags": [
+    "dragonball",
+    "goku",
+    "genkidama",
+    "anime",
+    "spirit_bomb",
+    "live",
+    "animated"
+  ],
+  "category": "anime",
+  "featured": true,
+  "background": {
+    "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_goku_genkidama.webp",
+    "preview_url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_goku_genkidama_preview.webp",
+    "scroll": false
+  },
+  "sprites": [
+    {
+      "name": "orb",
+      "manifest_key": "goku_genkidama_orb",
+      "behavior": "static",
+      "frame_skip": 2,
+      "params": {
+        "x": 0.488,
+        "y": 0.3603,
+        "scale": 0.00038,
+        "alpha": 255
+      }
+    }
+  ],
+  "particles": [],
+  "events": [
+    {
+      "kind": "flash_overlay",
+      "interval_s": 2.5,
+      "duration_s": 0.4,
+      "params": {
+        "color": "#E8F4FF",
+        "peak_alpha": 90
+      }
+    }
+  ]
+}

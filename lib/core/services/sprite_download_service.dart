@@ -57,6 +57,9 @@ class SpriteDownloadService {
     'bosque_lluvioso': [
       'v160_sprites/crow',
     ],
+    'goku_genkidama': [
+      'goku_genkidama_orb',
+    ],
   };
 
   Map<String, dynamic>? _manifest;

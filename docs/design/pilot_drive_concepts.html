@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · Pilot Drive · 5 Candidatos</title>
+<meta name="viewport" content="width=1440">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,300;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000;
+    --surface:#0A0604;
+    --surface-2:#151008;
+    --gold:#C9A650;
+    --gold-bright:#F0DD9E;
+    --gold-deep:#8A6F33;
+    --text:#F5EFDE;
+    --dim:#8A7A56;
+    --night:#070506;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:'Fraunces',serif;min-height:100vh;overflow-x:hidden}
+  body{
+    background:
+      radial-gradient(ellipse 1100px 700px at 50% -20%, rgba(201,166,80,.10), transparent 60%),
+      radial-gradient(ellipse 600px 400px at 50% 110%, rgba(201,166,80,.06), transparent 65%),
+      var(--bg);
+    background-attachment: fixed;
+    animation: ambient 12s ease-in-out infinite alternate;
+  }
+  @keyframes ambient{
+    0%{background-position:50% 0%, 50% 100%, 0 0}
+    100%{background-position:50% 4%, 50% 96%, 0 0}
+  }
+
+  /* grain overlay */
+  body::after{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.045;mix-blend-mode:overlay;
+    background-image: radial-gradient(rgba(245,239,222,.6) 0.5px, transparent 0.5px);
+    background-size:3px 3px;
+  }
+
+  header{
+    max-width:1320px;margin:0 auto;padding:64px 40px 28px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--gold);
+    display:flex;align-items:center;gap:14px;margin-bottom:18px;
+  }
+  .eyebrow::before,.eyebrow::after{
+    content:"";flex:0 0 60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep));
+  }
+  .eyebrow::after{background:linear-gradient(90deg,var(--gold-deep),transparent)}
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;font-style:italic;
+    font-size:84px;line-height:.95;letter-spacing:-.02em;
+    color:var(--text);
+    margin-bottom:18px;
+    font-variation-settings:"opsz" 144;
+  }
+  h1 .accent{
+    color:var(--gold-bright);
+    font-style:italic;
+    background:linear-gradient(180deg,var(--gold-bright) 0%, var(--gold) 60%, var(--gold-deep) 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .subtitle{
+    font-family:'Fraunces',serif;
+    font-style:italic;font-weight:300;
+    font-size:21px;line-height:1.4;color:var(--dim);
+    max-width:880px;
+  }
+  .subtitle em{color:var(--gold-bright);font-style:normal;font-weight:400}
+
+  /* divider */
+  .divider{
+    max-width:1320px;margin:36px auto 0;padding:0 40px;
+    display:flex;align-items:center;gap:14px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;
+  }
+  .divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep),transparent)}
+
+  /* grid */
+  main{
+    max-width:1320px;margin:48px auto 0;padding:0 40px 80px;
+    display:grid;grid-template-columns:repeat(5,1fr);gap:28px;
+  }
+
+  .card{
+    display:flex;flex-direction:column;align-items:center;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1);
+    cursor:pointer;
+  }
+  .card:hover{transform:translateY(-6px)}
+
+  /* phone frame */
+  .phone{
+    position:relative;
+    width:220px;height:480px;
+    background:#000;
+    border:1px solid var(--gold-deep);
+    border-radius:34px;
+    overflow:hidden;
+    box-shadow:
+      0 0 0 1px rgba(201,166,80,.18),
+      0 30px 80px -20px rgba(0,0,0,.9),
+      inset 0 0 0 1px rgba(245,239,222,.04);
+    transition:box-shadow .35s ease, border-color .35s ease;
+  }
+  .card:hover .phone{
+    border-color:var(--gold-bright);
+    box-shadow:
+      0 0 0 2px var(--gold-bright),
+      0 40px 90px -10px rgba(201,166,80,.25),
+      inset 0 0 0 1px rgba(245,239,222,.08);
+  }
+  /* art-deco notch corner */
+  .phone::before, .phone::after{
+    content:"";
+    position:absolute; width:14px; height:14px;
+    border:1px solid var(--gold);
+    z-index:6;
+    pointer-events:none;
+    opacity:.55;
+  }
+  .phone::before{
+    top:8px;left:8px;border-right:none;border-bottom:none;
+  }
+  .phone::after{
+    bottom:8px;right:8px;border-left:none;border-top:none;
+  }
+
+  .wallpaper{
+    position:absolute;inset:0;
+    background-size:cover;background-position:center;
+  }
+  .wallpaper.w1{background-image:url('concepts/pilot_drive/01_milky_way.webp')}
+  .wallpaper.w2{background-image:url('concepts/pilot_drive/02_tokyo.webp')}
+  .wallpaper.w3{background-image:url('concepts/pilot_drive/03_coast.webp')}
+  .wallpaper.w4{background-image:url('concepts/pilot_drive/04_snowy.webp')}
+  .wallpaper.w5{background-image:url('concepts/pilot_drive/05_synthwave.webp')}
+
+  /* status bar */
+  .statusbar{
+    position:absolute;top:0;left:0;right:0;height:26px;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:6px 16px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.78);
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
+    z-index:5;
+    letter-spacing:.06em;
+  }
+  .statusbar .icons{display:flex;gap:5px;align-items:center}
+  .statusbar .dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.6)}
+  .statusbar .batt{
+    display:inline-block;width:14px;height:7px;border:1px solid rgba(255,255,255,.7);border-radius:1px;position:relative;
+  }
+  .statusbar .batt::before{
+    content:"";position:absolute;left:1px;top:1px;bottom:1px;width:9px;background:rgba(255,255,255,.7);
+  }
+  .statusbar .batt::after{
+    content:"";position:absolute;right:-2px;top:2px;width:1px;height:3px;background:rgba(255,255,255,.7);
+  }
+
+  /* clock widget (Samsung One UI style) */
+  .clock-widget{
+    position:absolute;top:78px;left:0;right:0;
+    text-align:center;color:rgba(255,255,255,.94);
+    text-shadow:0 2px 4px rgba(0,0,0,.6);
+    z-index:5;
+  }
+  .clock-widget .time{
+    font-family:'Fraunces',serif;font-weight:300;font-style:italic;
+    font-size:36px;line-height:1;letter-spacing:-.02em;
+    font-variation-settings:"opsz" 144;
+  }
+  .clock-widget .date{
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    color:rgba(255,255,255,.78);
+    letter-spacing:.14em;text-transform:lowercase;margin-top:4px;
+  }
+
+  /* rain overlay */
+  .rain{
+    position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4;
+    opacity:.55;mix-blend-mode:screen;
+  }
+  .streak{
+    position:absolute;width:1px;height:55px;
+    background:linear-gradient(180deg, transparent, rgba(220,235,255,.55), transparent);
+    transform:rotate(12deg);
+    animation: fall linear infinite;
+  }
+  @keyframes fall{
+    0%{transform:translate(0,-80px) rotate(12deg);opacity:0}
+    20%{opacity:.9}
+    100%{transform:translate(40px,520px) rotate(12deg);opacity:0}
+  }
+
+  /* gold reflection line on the inside top edge of the phone (rain hitting glass) */
+  .phone .glare{
+    position:absolute;top:0;left:0;right:0;height:46px;
+    background:linear-gradient(180deg, rgba(255,255,255,.10), transparent 90%);
+    z-index:3;pointer-events:none;
+  }
+
+  /* card meta */
+  .meta{
+    margin-top:22px;text-align:center;
+    width:220px;
+  }
+  .meta .num{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);
+    letter-spacing:.18em;
+  }
+  .meta .name{
+    margin-top:6px;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:18px;line-height:1.15;color:var(--text);
+    font-variation-settings:"opsz" 48;
+  }
+  .meta .tagline{
+    margin-top:6px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    color:var(--dim);
+    line-height:1.45;letter-spacing:.04em;
+    text-transform:lowercase;
+  }
+  .meta .chip{
+    display:inline-block;margin-top:10px;
+    padding:4px 10px;
+    border:1px solid var(--gold-deep);
+    border-radius:999px;
+    font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.18em;color:var(--gold-bright);
+    text-transform:uppercase;
+  }
+
+  footer{
+    max-width:1320px;margin:8px auto 60px;padding:0 40px;
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+    color:var(--dim);text-transform:lowercase;
+  }
+  footer .arrow{color:var(--gold);}
+
+  /* small responsive: ignore (designed for desktop preview) */
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">// PIXORA · PILOT DRIVE · 5 CANDIDATOS</div>
+  <h1>Elige el <span class="accent">camino</span></h1>
+  <p class="subtitle">
+    El cockpit anime queda <em>fijo</em> en pantalla — solo cambia el horizonte detrás del parabrisas.
+    El piloto manejando es siempre el mismo, lo que decides es <em>a dónde maneja</em>.
+  </p>
+</header>
+
+<div class="divider">
+  <span>// 5 OPCIONES</span>
+  <span class="line"></span>
+  <span>// COCKPIT FULLSCREEN 1080×2340</span>
+  <span class="line"></span>
+  <span>// TAP TO INSPECT</span>
+</div>
+
+<main>
+
+  <!-- 1 -->
+  <div class="card">
+    <div class="phone">
+      <div class="wallpaper w1"></div>
+      <div class="rain" data-streaks="18"></div>
+      <div class="glare"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="batt"></span>
+        </span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">sábado, 25 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 01</div>
+      <div class="name">Vía Láctea</div>
+      <div class="tagline">desierto nocturno · estrellas reales · vibe road-trip espacial</div>
+      <div class="chip">ACTUAL</div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="card">
+    <div class="phone">
+      <div class="wallpaper w2"></div>
+      <div class="rain" data-streaks="20"></div>
+      <div class="glare"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="batt"></span>
+        </span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">sábado, 25 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 02</div>
+      <div class="name">Tokio Neón</div>
+      <div class="tagline">ciudad cyberpunk · letreros verticales · pink + cyan glow</div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="card">
+    <div class="phone">
+      <div class="wallpaper w3"></div>
+      <div class="rain" data-streaks="16"></div>
+      <div class="glare"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="batt"></span>
+        </span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">sábado, 25 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 03</div>
+      <div class="name">Costa Pacífico</div>
+      <div class="tagline">atardecer naranja · sol bajo · reflejo en el mar</div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="card">
+    <div class="phone">
+      <div class="wallpaper w4"></div>
+      <div class="rain" data-streaks="22"></div>
+      <div class="glare"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="batt"></span>
+        </span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">sábado, 25 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 04</div>
+      <div class="name">Paso Nevado</div>
+      <div class="tagline">montaña fría · pinos oscuros · luna + nieve flotando</div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="card">
+    <div class="phone">
+      <div class="wallpaper w5"></div>
+      <div class="rain" data-streaks="20"></div>
+      <div class="glare"></div>
+      <div class="statusbar">
+        <span>11:59</span>
+        <span class="icons">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="batt"></span>
+        </span>
+      </div>
+      <div class="clock-widget">
+        <div class="time">02:20</div>
+        <div class="date">sábado, 25 abril</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 05</div>
+      <div class="name">Synthwave Outrun</div>
+      <div class="tagline">grid retro 80s · sol partido · perspectiva infinita</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  tap your favorite — me dices el número y lo subo como Pilot Drive final <span class="arrow">→</span>
+</footer>
+
+<script>
+  // procedurally inject rain streaks per card
+  document.querySelectorAll('.rain').forEach(layer=>{
+    const n = parseInt(layer.dataset.streaks||'18',10);
+    for(let i=0;i<n;i++){
+      const s = document.createElement('span');
+      s.className = 'streak';
+      const left = Math.random()*100;
+      const top  = -10 - Math.random()*60;
+      const dur  = (1.2 + Math.random()*1.6).toFixed(2);
+      const delay= (Math.random()*-2.5).toFixed(2);
+      const op   = (0.35 + Math.random()*0.5).toFixed(2);
+      const h    = (40 + Math.random()*45)|0;
+      s.style.left = left+'%';
+      s.style.top  = top+'px';
+      s.style.height = h+'px';
+      s.style.animationDuration = dur+'s';
+      s.style.animationDelay = delay+'s';
+      s.style.opacity = op;
+      layer.appendChild(s);
+    }
+  });
+</script>
+</body>
+</html>
