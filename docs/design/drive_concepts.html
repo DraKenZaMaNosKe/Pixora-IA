@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pixora · Carretera Nocturna · 5 Combos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #000; --surface: #0A0604; --gold: #C9A650;
+  --gold-bright: #F0DD9E; --gold-deep: #8A6F33;
+  --text: #F5EFDE; --text-dim: #8A7A56;
+  --serif: "Fraunces", serif; --mono: "JetBrains Mono", monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--ink); color: var(--text); font-family: var(--serif); min-height: 100vh; overflow-x: hidden; }
+body::before { content: ""; position: fixed; inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(201,166,80,0.10), transparent 70%),
+              radial-gradient(circle at 10% 90%, rgba(201,166,80,0.05), transparent 50%);
+  animation: glowPulse 12s ease-in-out infinite; pointer-events: none; z-index: 0;
+}
+@keyframes glowPulse { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
+main { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 40px 56px 32px; }
+
+header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--gold); display: flex; align-items: center; gap: 14px; }
+.eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--gold); opacity: 0.5; }
+h1 { font-family: var(--serif); font-size: 70px; font-weight: 600; font-variation-settings: "opsz" 144;
+  letter-spacing: -0.025em; line-height: 0.94;
+  background: linear-gradient(to right, var(--text) 0%, var(--gold-bright) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--text-dim); max-width: 740px; line-height: 1.4; margin-top: 4px; }
+.subtitle em { color: var(--gold-bright); font-style: italic; }
+
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; margin-bottom: 30px; }
+
+.card { display: flex; flex-direction: column; gap: 10px; opacity: 0;
+  animation: cardIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.card:nth-child(1) { animation-delay: 0.05s; } .card:nth-child(2) { animation-delay: 0.15s; }
+.card:nth-child(3) { animation-delay: 0.25s; } .card:nth-child(4) { animation-delay: 0.35s; }
+.card:nth-child(5) { animation-delay: 0.45s; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+.phone {
+  position: relative; width: 100%; aspect-ratio: 9 / 16;
+  background: var(--surface); border: 1px solid var(--gold-deep);
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px),
+    calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px);
+  overflow: hidden; transition: filter 0.3s ease, box-shadow 0.3s ease;
+  filter: brightness(0.97);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+.card:hover .phone { filter: brightness(1.1); box-shadow: 0 0 0 2px var(--gold), 0 18px 50px rgba(201,166,80,0.25); }
+.phone img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.phone canvas.fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.phone .clock { position: absolute; top: 38px; left: 0; right: 0; text-align: center;
+  font-family: var(--serif); font-weight: 400; font-variation-settings: "opsz" 60;
+  font-size: 30px; color: rgba(255,255,255,0.95); text-shadow: 0 2px 6px rgba(0,0,0,0.7); }
+.phone .clock .date { font-family: var(--mono); font-size: 8px; color: rgba(255,255,255,0.78);
+  letter-spacing: 0.12em; margin-top: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
+.phone .status { position: absolute; top: 8px; left: 0; right: 0; padding: 0 14px;
+  display: flex; justify-content: space-between; font-family: var(--mono); font-size: 9px;
+  color: rgba(255,255,255,0.85); text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+
+.label .num { font-family: var(--mono); font-size: 9px; font-weight: 500; color: var(--gold); letter-spacing: 0.16em; }
+.label .num::after { content: ""; display: inline-block; width: 14px; height: 1px; background: var(--gold-deep); vertical-align: middle; margin-left: 6px; }
+.label .name { font-family: var(--serif); font-style: italic; font-size: 16px; font-weight: 500; color: var(--text); line-height: 1.15; margin-top: 2px; }
+.label .tag { font-family: var(--mono); font-size: 9px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.04em; line-height: 1.4; }
+
+footer { margin-top: 24px; padding: 20px 0 8px; border-top: 1px solid rgba(138,111,51,0.2);
+  text-align: center; font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.16em; }
+footer .gold { color: var(--gold-bright); }
+</style>
+</head>
+<body>
+
+<main>
+  <header>
+    <div class="eyebrow">// PIXORA · CARRETERA NOCTURNA · 5 COMBOS DE FX</div>
+    <h1>Elige el feel</h1>
+    <p class="subtitle">Mismo bg en los 5. Lo que cambia es el <em>combo de partículas</em> que el motor procedural pinta encima — sin GIFs, sin re-bajar nada.</p>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <div class="phone">
+        <img class="bg" src="concepts/drive/bg.webp" alt="">
+        <canvas class="fx" data-fx="stars" width="220" height="391"></canvas>
+        <div class="status"><span>11:59</span><span>88%</span></div>
+        <div class="clock">02:20<div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label"><span class="num">NO. 01</span><div class="name">Estrellas Vivas</div><div class="tag">// SOLO ESTRELLAS · CALMA · CONTEMPLATIVO</div></div>
+    </article>
+
+    <article class="card">
+      <div class="phone">
+        <img class="bg" src="concepts/drive/bg.webp" alt="">
+        <canvas class="fx" data-fx="distant" width="220" height="391"></canvas>
+        <div class="status"><span>11:59</span><span>88%</span></div>
+        <div class="clock">02:20<div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label"><span class="num">NO. 02</span><div class="name">Luces Lejanas</div><div class="tag">// TAILLIGHTS DISPERSOS · SUTIL · SOLITARIO</div></div>
+    </article>
+
+    <article class="card">
+      <div class="phone">
+        <img class="bg" src="concepts/drive/bg.webp" alt="">
+        <canvas class="fx" data-fx="traffic" width="220" height="391"></canvas>
+        <div class="status"><span>11:59</span><span>88%</span></div>
+        <div class="clock">02:20<div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label"><span class="num">NO. 03</span><div class="name">Tráfico Denso</div><div class="tag">// AUTOPISTA VIVA · MUCHAS LUCES · URBANO</div></div>
+    </article>
+
+    <article class="card">
+      <div class="phone">
+        <img class="bg" src="concepts/drive/bg.webp" alt="">
+        <canvas class="fx" data-fx="rainy" width="220" height="391"></canvas>
+        <div class="status"><span>11:59</span><span>88%</span></div>
+        <div class="clock">02:20<div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label"><span class="num">NO. 04</span><div class="name">Lluvia Suave</div><div class="tag">// LLUVIA + GOTAS EN VENTANA · COZY</div></div>
+    </article>
+
+    <article class="card">
+      <div class="phone">
+        <img class="bg" src="concepts/drive/bg.webp" alt="">
+        <canvas class="fx" data-fx="storm" width="220" height="391"></canvas>
+        <div class="status"><span>11:59</span><span>88%</span></div>
+        <div class="clock">02:20<div class="date">SÁB · 25 ABR</div></div>
+      </div>
+      <div class="label"><span class="num">NO. 05</span><div class="name">Tormenta</div><div class="tag">// LLUVIA + RAYOS + LUCES · DRAMÁTICO</div></div>
+    </article>
+  </section>
+
+  <footer>HOVER OVER EACH PHONE — TELL ME EL NÚMERO Y LO PUBLICO COMO <span class="gold">CARRETERA_NOCTURNA.JSON</span></footer>
+</main>
+
+<script>
+// ────────────────────────────────────────────────────────────────────
+// Mini renderer mimicking Kotlin oncoming_lights / fireflies / rain /
+// glass_drops / lightning — same params/behavior so the preview really
+// reflects what you'll see on device.
+// ────────────────────────────────────────────────────────────────────
+
+function setup(canvas, fxName) {
+  const ctx = canvas.getContext('2d');
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  const state = { lights: [], stars: [], rain: [], drops: [], bolt: null, boltTime: 0 };
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+    ctx.clearRect(0, 0, w, h);
+    FX[fxName](ctx, w, h, state, dt, now);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// Helpers
+function spawnLight(state, w, h, hueWarm, spread) {
+  const sideAngle = (Math.random() - 0.5) * (spread * Math.PI / 180);
+  const angle = Math.PI / 2 + sideAngle;
+  let color;
+  if (!hueWarm) color = 'rgb(240, 240, 220)';
+  else if (Math.random() < 0.30) color = `rgb(255, ${40+Math.random()*60}, ${40+Math.random()*30})`;
+  else color = `rgb(255, ${220+Math.random()*35}, ${140+Math.random()*80})`;
+  state.lights.push({ t: 0, angle, color, isPair: Math.random() < 0.5 });
+}
+function drawLights(ctx, w, h, state, dt, params) {
+  const cx = w * (params.vx ?? 0.5), cy = h * (params.vy ?? 0.42);
+  const maxR = Math.hypot(w * 0.7, h * 0.85);
+  // Spawn
+  state._spawnAcc = (state._spawnAcc || 0) + (params.spawnRate || 1.8) * dt;
+  while (state._spawnAcc >= 1 && state.lights.length < (params.count || 16)) {
+    spawnLight(state, w, h, params.hueWarm !== false, params.spread || 45);
+    state._spawnAcc -= 1;
+  }
+  // Pre-pop on first frame
+  if (state.lights.length === 0 && !state._init) {
+    for (let i = 0; i < (params.count || 16) * 0.4; i++) {
+      spawnLight(state, w, h, params.hueWarm !== false, params.spread || 45);
+      state.lights[state.lights.length - 1].t = Math.random() * 0.9;
+    }
+    state._init = true;
+  }
+  for (let i = state.lights.length - 1; i >= 0; i--) {
+    const l = state.lights[i];
+    l.t += 0.012 * (params.speed || 0.55);
+    if (l.t >= 1) { state.lights.splice(i, 1); continue; }
+    const tEased = l.t * l.t * 0.7 + l.t * 0.3;
+    const r = maxR * tEased;
+    const x = cx + Math.sin(l.angle) * r;
+    const y = cy + Math.cos(l.angle) * r;
+    if (x < -50 || x > w + 50 || y > h + 50) { state.lights.splice(i, 1); continue; }
+    const sz = (params.minSize || 1) + ((params.maxSize || 12) - (params.minSize || 1)) * tEased;
+    const alpha = l.t < 0.1 ? l.t / 0.1 : (l.t > 0.85 ? 1 - (l.t - 0.85) / 0.15 : 1);
+    ctx.fillStyle = l.color.replace('rgb', 'rgba').replace(')', `,${alpha * 0.4})`);
+    ctx.beginPath(); ctx.arc(x, y, sz * 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = l.color.replace('rgb', 'rgba').replace(')', `,${alpha})`);
+    ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI * 2); ctx.fill();
+    if (l.isPair && tEased > 0.05) {
+      const perp = l.angle + Math.PI / 2; const off = sz * 1.8;
+      const px = x + Math.sin(perp) * off; const py = y + Math.cos(perp) * off;
+      ctx.fillStyle = l.color.replace('rgb', 'rgba').replace(')', `,${alpha * 0.4})`);
+      ctx.beginPath(); ctx.arc(px, py, sz * 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = l.color.replace('rgb', 'rgba').replace(')', `,${alpha})`);
+      ctx.beginPath(); ctx.arc(px, py, sz, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+}
+function drawStars(ctx, w, h, state, dt, now, count = 32) {
+  if (state.stars.length === 0) {
+    for (let i = 0; i < count; i++) state.stars.push({
+      x: Math.random() * w, y: Math.random() * h * 0.30,
+      size: 1.5 + Math.random() * 2,
+      phase: Math.random() * 6.28,
+    });
+  }
+  for (const s of state.stars) {
+    s.phase += 0.025;
+    const tw = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(s.phase));
+    ctx.fillStyle = `rgba(234, 242, 255, ${tw * 0.95})`;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+    // Halo
+    ctx.fillStyle = `rgba(234, 242, 255, ${tw * 0.25})`;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.size * 3, 0, Math.PI * 2); ctx.fill();
+  }
+}
+function drawRain(ctx, w, h, state, dt) {
+  if (state.rain.length === 0) {
+    for (let i = 0; i < 40; i++) state.rain.push({
+      x: -50 + Math.random() * (w + 100),
+      y: -50 + Math.random() * (h + 100),
+      speed: 220 + Math.random() * 130,
+      len: 12 + Math.random() * 8,
+    });
+  }
+  const angle = -12 * Math.PI / 180;
+  const dx = Math.sin(angle), dy = Math.cos(angle);
+  ctx.strokeStyle = 'rgba(230, 240, 255, 0.7)';
+  ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+  for (const r of state.rain) {
+    r.x += dx * r.speed * dt; r.y += dy * r.speed * dt;
+    if (r.y > h + 30 || r.x < -30 || r.x > w + 30) {
+      r.y = -30 - Math.random() * 30; r.x = -30 + Math.random() * (w + 60);
+    }
+    const x2 = r.x - dx * r.len, y2 = r.y - dy * r.len;
+    ctx.beginPath(); ctx.moveTo(r.x, r.y); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+}
+function drawDrops(ctx, w, h, state, dt) {
+  if (state.drops.length === 0) {
+    for (let i = 0; i < 8; i++) state.drops.push({
+      x: Math.random() * w, y: Math.random() * h * 0.4,
+      vy: 0, r: 4 + Math.random() * 8,
+      sit: 30 + Math.random() * 90,
+      spawnY: 0,
+    });
+    state.drops.forEach(d => d.spawnY = d.y);
+  }
+  for (const d of state.drops) {
+    if (d.sit > 0) d.sit--;
+    else { d.vy += 0.18; d.y += d.vy; }
+    if (d.y - d.r > h) { d.x = Math.random() * w; d.y = -d.r; d.spawnY = -d.r; d.vy = 0; d.sit = 30 + Math.random() * 90; }
+    // Trail
+    if (d.y > d.spawnY + 4) {
+      const grd = ctx.createLinearGradient(d.x, d.spawnY, d.x, d.y);
+      grd.addColorStop(0, 'rgba(234, 242, 255, 0)');
+      grd.addColorStop(1, 'rgba(234, 242, 255, 0.3)');
+      ctx.strokeStyle = grd; ctx.lineWidth = d.r * 0.45;
+      ctx.beginPath(); ctx.moveTo(d.x, d.spawnY); ctx.lineTo(d.x, d.y); ctx.stroke();
+    }
+    // Shadow
+    ctx.fillStyle = 'rgba(15, 25, 40, 0.3)'; ctx.beginPath(); ctx.arc(d.x, d.y, d.r * 1.1, 0, Math.PI * 2); ctx.fill();
+    // Lens
+    ctx.fillStyle = 'rgba(234, 242, 255, 0.6)'; ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+    // Highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.beginPath(); ctx.arc(d.x - d.r * 0.32, d.y - d.r * 0.32, d.r * 0.28, 0, Math.PI * 2); ctx.fill();
+  }
+}
+function drawLightning(ctx, w, h, state, dt, now) {
+  if (state.boltTime === 0 && Math.random() < 0.005) {
+    state.boltTime = now;
+    state.bolt = [];
+    let x = Math.random() * w * 0.6 + w * 0.2, y = 0;
+    state.bolt.push({ x, y });
+    while (y < h * 0.6) {
+      x += (Math.random() - 0.5) * w * 0.08;
+      y += h * 0.04 + Math.random() * h * 0.04;
+      state.bolt.push({ x, y });
+    }
+  }
+  if (state.boltTime > 0) {
+    const age = (now - state.boltTime) / 200;
+    if (age > 1) { state.boltTime = 0; state.bolt = null; return; }
+    const a = 1 - age * 0.5;
+    // Sky flash
+    ctx.fillStyle = `rgba(255, 255, 255, ${a * 0.18})`;
+    ctx.fillRect(0, 0, w, h);
+    // Bolt
+    ctx.strokeStyle = `rgba(180, 220, 255, ${a * 0.4})`; ctx.lineWidth = 4;
+    ctx.beginPath();
+    state.bolt.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    state.bolt.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────
+const FX = {
+  stars: (ctx, w, h, state, dt, now) => {
+    drawStars(ctx, w, h, state, dt, now, 50);
+  },
+  distant: (ctx, w, h, state, dt, now) => {
+    drawStars(ctx, w, h, state, dt, now, 32);
+    drawLights(ctx, w, h, state, dt, { count: 6, speed: 0.4, spawnRate: 0.8, spread: 30 });
+  },
+  traffic: (ctx, w, h, state, dt, now) => {
+    drawStars(ctx, w, h, state, dt, now, 28);
+    drawLights(ctx, w, h, state, dt, { count: 24, speed: 0.7, spawnRate: 3.5, spread: 55 });
+  },
+  rainy: (ctx, w, h, state, dt, now) => {
+    drawStars(ctx, w, h, state, dt, now, 12);
+    drawLights(ctx, w, h, state, dt, { count: 8, speed: 0.5, spawnRate: 1.0, spread: 40 });
+    drawRain(ctx, w, h, state, dt);
+    drawDrops(ctx, w, h, state, dt);
+  },
+  storm: (ctx, w, h, state, dt, now) => {
+    drawLights(ctx, w, h, state, dt, { count: 12, speed: 0.6, spawnRate: 2.0, spread: 50 });
+    drawRain(ctx, w, h, state, dt);
+    drawDrops(ctx, w, h, state, dt);
+    drawLightning(ctx, w, h, state, dt, now);
+  },
+};
+
+document.querySelectorAll('canvas.fx').forEach(c => setup(c, c.dataset.fx));
+</script>
+
+</body>
+</html>

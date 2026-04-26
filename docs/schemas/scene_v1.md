@@ -167,6 +167,8 @@ For sprites + particle FX wallpapers (Volcano Dragon, Dusk Fortress, Aquarium, P
 | `wisps` | `anchors:[[x,y],…], color, radius, wobble_amplitude` | Fixed-position glowing orbs with subtle wobble. Valley fog, lantern halos, mystic lights. |
 | `glass_drops` | `count, size_min/max_px, color, spawn_top/bottom, fall_speed, trail, wobble_px, sit_min/max_s` | Water droplets sitting on the screen surface, sliding down with gravity, leaving wet trails. "Rain on a window" effect. |
 | `fireflies` | `count, size_min/max_px, halo_mul, color, pulse_speed, drift_amp, vy_min/max, spawn_top/bottom` | Glowing pulsing particles drifting upward. Bright core + soft radial halo. For night forests, magic gardens, fairy scenes. |
+| `oncoming_lights` | `count, vanish_x/y, speed, spawn_rate, hue_warm, spread_deg, min/max_size_px` | Lights stream from a horizon vanishing point toward the camera, growing in size & brightness. Headlights come in pairs. Creates "we're driving forward" illusion when paired with a static driving wallpaper bg. |
+| `perspective_posts` | `vanish_x/y, left/right_end_x/y, interval_s, travel_s, max_height_px, width_ratio, color, sides, style` | **Outrun / Pole Position-style** rhythmic posts (street lamps, road dashes, telephone poles) emerging from the vanishing point at fixed intervals, growing as they approach. `style` = "rect" \| "line" \| "diamond". Strongest "driving forward" sensation. |
 
 ### Event kinds (vocabulary cerrado v1)
 

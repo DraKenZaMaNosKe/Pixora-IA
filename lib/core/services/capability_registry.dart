@@ -38,6 +38,8 @@ class CapabilityRegistry {
     'wisps',
     'glass_drops',
     'fireflies',
+    'oncoming_lights',
+    'perspective_posts',
   };
 
   /// canvas_scene vocabulary — cinematic events the renderer knows.

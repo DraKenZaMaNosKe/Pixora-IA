@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
+import 'catalog_index_service.dart';
+import 'scene_spec_service.dart';
 
 /// Servicio para aplicar wallpapers (Android) o guardar en galería (iOS).
 ///
@@ -68,25 +68,15 @@ class WallpaperService {
   /// Activa el Live Wallpaper con efecto touch glow.
   /// Abre el selector de Android para confirmar.
   ///
-  /// [sceneId] — when set, activates the data-driven CanvasSceneRenderer
-  /// using a spec previously cached at filesDir/scene_specs/<id>.json
-  /// by SceneSpecService. The Kotlin side reads it on engine boot.
+  /// [sceneId] — caller can pre-resolve the canvas_scene id. Otherwise this
+  /// method derives it from the wallpaper filename by looking up the
+  /// catalog index — if the matching entry is a `canvas_scene`, the spec
+  /// is cached to filesDir and `sceneId` is passed to the native engine.
   Future<bool> setLiveWallpaper(String filePath, String glowColor,
       {bool interactive = false, String? sceneId}) async {
     if (!Platform.isAndroid) return false;
-    // TEMP v1.7 bring-up: auto-detect known canvas_scene wallpapers from
-    // path so we can validate the data-driven renderer end-to-end before
-    // wiring the catalog index. Remove once index is live.
-    var resolvedScene = sceneId;
-    if (resolvedScene == null) {
-      for (final candidate in _knownCanvasScenes.keys) {
-        if (filePath.contains(candidate)) {
-          resolvedScene = candidate;
-          await _ensureSceneSpecCached(candidate);
-          break;
-        }
-      }
-    }
+    final resolvedScene =
+        sceneId ?? await _resolveCanvasSceneFromPath(filePath);
     try {
       final args = <String, Object?>{
         'path': filePath,
@@ -108,36 +98,35 @@ class WallpaperService {
     }
   }
 
-  // TEMP v1.7 bring-up — id → public spec URL. Replace with catalog index.
-  static const _knownCanvasScenes = <String, String>{
-    'volcano_dragon':
-        'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-scenes/volcano_dragon.json',
-    'dusk_fortress':
-        'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-scenes/dusk_fortress.json',
-    'bosque_lluvioso':
-        'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-scenes/bosque_lluvioso.json',
-  };
-
-  Future<void> _ensureSceneSpecCached(String sceneId) async {
+  /// Look up the wallpaper filename in the catalog index. If it's a
+  /// canvas_scene, fetch the spec to filesDir and return the scene id
+  /// (so the native engine activates CanvasSceneRenderer).
+  ///
+  /// Tries the basename as-is AND with the "pixora_" prefix stripped
+  /// (because dynamic_catalog ids are prefixed but scene specs aren't).
+  Future<String?> _resolveCanvasSceneFromPath(String filePath) async {
     try {
-      final support = await getApplicationSupportDirectory();
-      final dir = Directory('${support.path}/scene_specs');
-      if (!await dir.exists()) await dir.create(recursive: true);
-      final file = File('${dir.path}/$sceneId.json');
-      if (file.existsSync() && file.lengthSync() > 100) return; // cached
-      final url = _knownCanvasScenes[sceneId]!;
-      final r =
-          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 15));
-      if (r.statusCode == 200 && r.bodyBytes.length > 100) {
-        await file.writeAsBytes(r.bodyBytes);
-        debugPrint('[WallpaperService] cached scene spec: $sceneId '
-            '(${r.bodyBytes.length} B)');
-      } else {
-        debugPrint('[WallpaperService] scene spec fetch HTTP ${r.statusCode}');
+      // Extract basename without extension
+      final fname = filePath.split(RegExp(r'[\\/]')).last;
+      final basename = fname.contains('.')
+          ? fname.substring(0, fname.lastIndexOf('.'))
+          : fname;
+      final candidates = <String>{
+        basename,
+        if (basename.startsWith('pixora_')) basename.substring(7),
+      };
+      for (final id in candidates) {
+        final entry = await CatalogIndexService.instance.findById(id);
+        if (entry != null && entry.type == 'canvas_scene') {
+          // Cache the spec to filesDir so native side can read it
+          await SceneSpecService.instance.fetch(entry);
+          return id;
+        }
       }
     } catch (e) {
-      debugPrint('[WallpaperService] scene spec fetch error: $e');
+      debugPrint('[WallpaperService] resolveCanvasScene error: $e');
     }
+    return null;
   }
 
   /// Reset the live wallpaper engine — releases all codecs, bitmaps, players.

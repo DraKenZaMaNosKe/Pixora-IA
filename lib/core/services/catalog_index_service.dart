@@ -58,6 +58,16 @@ class CatalogIndexService {
   /// Current index version, or null if not loaded yet.
   int? get version => _version;
 
+  /// Find a single entry by id. Returns null if unknown OR if the item's
+  /// type/schema isn't supported by this client build.
+  Future<CatalogIndexEntry?> findById(String id) async {
+    final items = await getItems();
+    for (final it in items) {
+      if (it.id == id) return it;
+    }
+    return null;
+  }
+
   /// Returns items filtered to one type (e.g. 'canvas_scene').
   Future<List<CatalogIndexEntry>> ofType(String type) async {
     final items = await getItems();

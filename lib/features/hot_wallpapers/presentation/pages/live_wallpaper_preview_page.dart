@@ -28,7 +28,11 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   String _loadingStatus = '';
   LoadingPhase _loadingPhase = LoadingPhase.downloading;
   bool _showControls = true;
-  bool _interactiveMode = false; // false = Auto Play, true = Touch scrub
+  // Auto Play mode removed (Apr 2026) — all live wallpapers now ship as
+  // Explore-only (touch scrub through frames). Saved bytes + better UX.
+  // The `false` branch in apply() still exists as a safety fallback for
+  // wallpapers that don't have remote frames yet.
+  final bool _interactiveMode = true;
   late Future<bool> _isDownloadedFuture;
   int _controlsToken = 0;
 
@@ -37,8 +41,6 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   @override
   void initState() {
     super.initState();
-    // Force Explore mode for explore-only videos
-    if (widget.wallpaper.exploreOnly) _interactiveMode = true;
     _isDownloadedFuture = _isDownloaded();
     WallpaperStatsService.instance.trackView('live_${widget.wallpaper.id}');
     _scheduleAutoHide();
@@ -389,8 +391,9 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                               ),
                             ),
                             const SizedBox(height: 14),
-                            // Mode toggle: Auto Play / Explore (hidden for explore-only)
-                            if (!widget.wallpaper.exploreOnly)
+                            // Mode toggle removed (Apr 2026) — all live
+                            // wallpapers are now Explore-only.
+                            if (false)
                               Container(
                                 margin: const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.all(4),
@@ -402,8 +405,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                   children: [
                                     Expanded(
                                       child: GestureDetector(
-                                        onTap: () => setState(
-                                            () => _interactiveMode = false),
+                                        onTap: () => setState(() {}),
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 10),
@@ -444,8 +446,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                     ),
                                     Expanded(
                                       child: GestureDetector(
-                                        onTap: () => setState(
-                                            () => _interactiveMode = true),
+                                        onTap: () => setState(() {}),
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 10),

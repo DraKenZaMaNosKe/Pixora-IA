@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.Shader
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -28,6 +29,8 @@ sealed class ParticleSystem(val def: ParticleDef) {
             "wisps" -> WispSystem(def)
             "glass_drops" -> GlassDropsSystem(def)
             "fireflies" -> FireflySystem(def)
+            "oncoming_lights" -> OncomingLightsSystem(def)
+            "perspective_posts" -> PerspectivePostsSystem(def)
             else -> null
         }
     }
@@ -542,6 +545,285 @@ class FireflySystem(def: ParticleDef) : ParticleSystem(def) {
                 pulsePhase = Random.nextFloat() * 6.28f,
                 radius = r,
             ))
+        }
+    }
+}
+
+/* ── Oncoming lights (perspective lights streaming from horizon toward camera)
+   Simulates oncoming car headlights / tail lights / streetlamps streaming
+   from a vanishing point on the horizon, growing in size and brightness as
+   they approach the bottom of the screen. Creates "we're driving forward"
+   illusion when combined with a static driving wallpaper bg.
+
+   params:
+     count             max simultaneous lights (default 18)
+     vanish_x/y        normalized 0..1, vanishing point on horizon (default 0.5, 0.4)
+     speed             how fast lights travel (default 1.0)
+     spawn_rate        new lights per second (default 4)
+     hue_warm          true = headlights+tail lights yellow/red, false = cool white (default true)
+     spread_deg        angular spread from vanishing point (default 60 degrees)
+     min_size_px       starting size at vanish point (default 1)
+     max_size_px       size when arriving at edge (default 14)
+*/
+class OncomingLightsSystem(def: ParticleDef) : ParticleSystem(def) {
+    private val count = def.params.i("count", 18)
+    private val vanishX = def.params.f("vanish_x", 0.5f)
+    private val vanishY = def.params.f("vanish_y", 0.40f)
+    private val speed = def.params.f("speed", 1.0f)
+    private val spawnRate = def.params.f("spawn_rate", 4f)
+    private val hueWarm = def.params.b("hue_warm", true)
+    private val spreadDeg = def.params.f("spread_deg", 60f)
+    private val minSize = def.params.f("min_size_px", 1f)
+    private val maxSize = def.params.f("max_size_px", 14f)
+
+    private data class Light(
+        var t: Float,            // 0..1 progress from vanish point to edge
+        val angleRad: Float,     // direction angle from vanish point
+        val color: Int,          // pre-rolled color
+        val isPair: Boolean,     // headlights come in pairs (offset slightly)
+    )
+
+    private val lights = mutableListOf<Light>()
+    private var initialized = false
+    private var spawnAccumulator = 0f
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+
+    override fun reset() { lights.clear(); initialized = false; spawnAccumulator = 0f }
+
+    private fun spawnOne(): Light {
+        // Bias direction so most lights go down-and-out (matching road perspective)
+        val sideAngle = (Random.nextFloat() - 0.5f) * Math.toRadians(spreadDeg.toDouble()).toFloat()
+        // Angle from vanishing point: pointing DOWN with sideways bias
+        val angle = (Math.PI / 2.0).toFloat() + sideAngle
+        val color = pickColor()
+        return Light(t = 0f, angleRad = angle, color = color, isPair = Random.nextFloat() < 0.5f)
+    }
+
+    private fun pickColor(): Int {
+        if (!hueWarm) {
+            // Cool white streetlamp / oncoming xenon
+            val warmth = Random.nextFloat()
+            return Color.argb(255, 240, 240, (240 - warmth * 30).toInt())
+        }
+        // Warm: 70% yellow-white headlight, 30% red tail light
+        return if (Random.nextFloat() < 0.30f) {
+            Color.argb(255, 255, (40 + Random.nextFloat() * 60).toInt(), (40 + Random.nextFloat() * 30).toInt())
+        } else {
+            Color.argb(255, 255, (220 + Random.nextFloat() * 35).toInt(), (140 + Random.nextFloat() * 80).toInt())
+        }
+    }
+
+    override fun draw(canvas: Canvas, surfaceW: Int, surfaceH: Int, tick: Long) {
+        if (!initialized) {
+            // Pre-populate so it doesn't start empty
+            repeat((count * 0.4f).toInt()) {
+                val l = spawnOne()
+                l.t = Random.nextFloat() * 0.9f
+                lights.add(l)
+            }
+            initialized = true
+        }
+
+        val dt = 1f / 60f
+        // Spawn new lights at a steady rate
+        spawnAccumulator += spawnRate * dt
+        while (spawnAccumulator >= 1f && lights.size < count) {
+            lights.add(spawnOne())
+            spawnAccumulator -= 1f
+        }
+
+        val sw = surfaceW.toFloat()
+        val sh = surfaceH.toFloat()
+        val cx = sw * vanishX
+        val cy = sh * vanishY
+        // Maximum travel distance from vanishing point to a corner
+        val maxR = hypot(sw * 0.7f, sh * 0.85f)
+
+        val it = lights.iterator()
+        while (it.hasNext()) {
+            val l = it.next()
+            l.t += 0.012f * speed
+            if (l.t >= 1f) { it.remove(); continue }
+            // Easing: lights accelerate as they get closer (perspective foreshortening)
+            val tEased = l.t * l.t * 0.7f + l.t * 0.3f
+            val r = maxR * tEased
+            val x = cx + sin(l.angleRad.toDouble()).toFloat() * r
+            val y = cy + cos(l.angleRad.toDouble()).toFloat() * r
+            // Skip if went off-screen sideways (shouldn't happen often with bias)
+            if (x < -50f || x > sw + 50f || y > sh + 50f) {
+                it.remove(); continue
+            }
+            val sizeGrow = minSize + (maxSize - minSize) * tEased
+            // Fade in fast, hold, fade out a bit at the very end
+            val alpha = when {
+                l.t < 0.1f -> l.t / 0.1f
+                l.t > 0.85f -> 1f - (l.t - 0.85f) / 0.15f
+                else -> 1f
+            }.coerceIn(0f, 1f)
+            // Halo
+            paint.color = Color.argb((alpha * 100).toInt(),
+                Color.red(l.color), Color.green(l.color), Color.blue(l.color))
+            canvas.drawCircle(x, y, sizeGrow * 2.5f, paint)
+            // Core
+            paint.color = Color.argb((alpha * 255).toInt(),
+                Color.red(l.color), Color.green(l.color), Color.blue(l.color))
+            canvas.drawCircle(x, y, sizeGrow, paint)
+            // If pair (e.g. headlights), draw second light slightly offset
+            if (l.isPair && tEased > 0.05f) {
+                val perpAngle = l.angleRad + (Math.PI / 2.0).toFloat()
+                val pairOffset = sizeGrow * 1.8f
+                val px = x + sin(perpAngle.toDouble()).toFloat() * pairOffset
+                val py = y + cos(perpAngle.toDouble()).toFloat() * pairOffset
+                paint.color = Color.argb((alpha * 100).toInt(),
+                    Color.red(l.color), Color.green(l.color), Color.blue(l.color))
+                canvas.drawCircle(px, py, sizeGrow * 2.5f, paint)
+                paint.color = Color.argb((alpha * 255).toInt(),
+                    Color.red(l.color), Color.green(l.color), Color.blue(l.color))
+                canvas.drawCircle(px, py, sizeGrow, paint)
+            }
+        }
+    }
+}
+
+/* ── Perspective posts (Outrun / Pole Position-style) ────────────────
+   Rectangular posts (street lamps, road dashes, telephone poles) emerging
+   from a vanishing point at fixed intervals, growing in size as they
+   approach the camera, then sliding off-screen. Steady rhythm = strong
+   "we're driving forward" sensation.
+
+   params:
+     vanish_x/y         normalized vanishing point (default 0.5, 0.42)
+     left_end_x/y       normalized off-screen end position for left posts
+                        (default -0.05, 1.05 = bottom-left corner)
+     right_end_x/y      same for right posts (default 1.05, 1.05)
+     interval_s         seconds between successive posts (default 0.8)
+     travel_s           seconds for one post to travel from vanish→edge
+                        (default 3.0)
+     max_height_px      visual height when arriving at the edge
+                        (default 80)
+     width_ratio        post width as fraction of its current height
+                        (default 0.18 → tall slim posts)
+     color              "#AARRGGBB" (default warm white #FFFFFFC8)
+     sides              "left" | "right" | "both" (default "both")
+     style              "rect" | "line" | "diamond" (default "rect")
+*/
+class PerspectivePostsSystem(def: ParticleDef) : ParticleSystem(def) {
+    private val vanishX = def.params.f("vanish_x", 0.5f)
+    private val vanishY = def.params.f("vanish_y", 0.42f)
+    private val leftEndX = def.params.f("left_end_x", -0.05f)
+    private val leftEndY = def.params.f("left_end_y", 1.05f)
+    private val rightEndX = def.params.f("right_end_x", 1.05f)
+    private val rightEndY = def.params.f("right_end_y", 1.05f)
+    private val intervalSec = def.params.f("interval_s", 0.8f)
+    private val travelSec = def.params.f("travel_s", 3.0f)
+    private val maxHeightPx = def.params.f("max_height_px", 80f)
+    private val widthRatio = def.params.f("width_ratio", 0.18f)
+    private val color = try { Color.parseColor(def.params.s("color", "#FFFFFFC8")) }
+        catch (_: Exception) { 0xFFFFFFC8.toInt() }
+    private val sides = def.params.s("sides", "both")
+    private val style = def.params.s("style", "rect")
+
+    private data class Post(var t: Float, val side: Int)
+    private val posts = mutableListOf<Post>()
+    private var spawnAcc = 0f
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+
+    override fun reset() { posts.clear(); spawnAcc = 0f }
+
+    override fun draw(canvas: Canvas, surfaceW: Int, surfaceH: Int, tick: Long) {
+        val dt = 1f / 60f
+        val sw = surfaceW.toFloat()
+        val sh = surfaceH.toFloat()
+        // Spawn at fixed interval — pre-pop a few in flight so it doesn't start empty
+        if (posts.isEmpty() && spawnAcc == 0f) {
+            // Pre-stagger: 4 posts already in transit at different t values
+            val n = (travelSec / intervalSec).toInt().coerceAtLeast(2)
+            for (i in 0 until n) {
+                val t = (i.toFloat() / n)
+                if (sides == "both" || sides == "left") posts.add(Post(t, -1))
+                if (sides == "both" || sides == "right") posts.add(Post(t, +1))
+            }
+        }
+        spawnAcc += dt
+        while (spawnAcc >= intervalSec) {
+            spawnAcc -= intervalSec
+            if (sides == "both" || sides == "left") posts.add(Post(0f, -1))
+            if (sides == "both" || sides == "right") posts.add(Post(0f, +1))
+        }
+        val it = posts.iterator()
+        while (it.hasNext()) {
+            val p = it.next()
+            p.t += dt / travelSec
+            if (p.t >= 1f) { it.remove(); continue }
+            // Easing: nonlinear so posts "rush" near camera (perspective foreshortening)
+            val tEased = p.t * p.t * 0.7f + p.t * 0.3f
+            val endX = if (p.side < 0) leftEndX else rightEndX
+            val endY = if (p.side < 0) leftEndY else rightEndY
+            val x = sw * (vanishX + (endX - vanishX) * tEased)
+            val baseY = sh * (vanishY + (endY - vanishY) * tEased)
+            val height = maxHeightPx * tEased + 2f
+            val width = height * widthRatio
+            val alpha = when {
+                p.t < 0.05f -> p.t / 0.05f
+                p.t > 0.92f -> ((1f - (p.t - 0.92f) / 0.08f).coerceAtLeast(0f))
+                else -> 1f
+            }
+            paint.color = Color.argb(
+                ((alpha * Color.alpha(color)) / 255f * 255).toInt().coerceIn(0, 255),
+                Color.red(color), Color.green(color), Color.blue(color),
+            )
+            // Soft glow halo for visibility against bright bg
+            paint.color = Color.argb(
+                (alpha * 80).toInt().coerceIn(0, 255),
+                Color.red(color), Color.green(color), Color.blue(color),
+            )
+            when (style) {
+                "diamond" -> {
+                    val pathD = android.graphics.Path()
+                    pathD.moveTo(x, baseY - height)
+                    pathD.lineTo(x + width, baseY - height / 2f)
+                    pathD.lineTo(x, baseY)
+                    pathD.lineTo(x - width, baseY - height / 2f)
+                    pathD.close()
+                    canvas.drawPath(pathD, paint)
+                }
+                "line" -> {
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = width
+                    canvas.drawLine(x, baseY - height, x, baseY, paint)
+                    paint.style = Paint.Style.FILL
+                }
+                else -> {
+                    canvas.drawRect(x - width * 1.4f, baseY - height,
+                        x + width * 1.4f, baseY, paint)
+                }
+            }
+            // Bright core (drawn on top)
+            paint.color = Color.argb(
+                (alpha * Color.alpha(color)).toInt().coerceIn(0, 255),
+                Color.red(color), Color.green(color), Color.blue(color),
+            )
+            when (style) {
+                "diamond" -> {
+                    val pathD = android.graphics.Path()
+                    pathD.moveTo(x, baseY - height)
+                    pathD.lineTo(x + width * 0.6f, baseY - height / 2f)
+                    pathD.lineTo(x, baseY)
+                    pathD.lineTo(x - width * 0.6f, baseY - height / 2f)
+                    pathD.close()
+                    canvas.drawPath(pathD, paint)
+                }
+                "line" -> {
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = width * 0.5f
+                    canvas.drawLine(x, baseY - height, x, baseY, paint)
+                    paint.style = Paint.Style.FILL
+                }
+                else -> {
+                    canvas.drawRect(x - width / 2f, baseY - height,
+                        x + width / 2f, baseY, paint)
+                }
+            }
         }
     }
 }
