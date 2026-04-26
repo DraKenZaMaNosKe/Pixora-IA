@@ -28,7 +28,10 @@ class PixoraWallpaperService : WallpaperService() {
         private val handler = Handler(Looper.getMainLooper())
         private var wallpaperBitmap: Bitmap? = null
         @Volatile private var scaledBitmap: Bitmap? = null
-        private val glowDots = mutableListOf<GlowDot>()
+        // Touch trail renderer — user-selectable, swapped when pref changes.
+        private var touchTrail: com.orbix.pixora.touch.TouchTrailRenderer =
+            com.orbix.pixora.touch.TouchTrailRegistry.create(
+                com.orbix.pixora.touch.TouchTrailRegistry.DEFAULT_ID)
         @Volatile private var drawing = false
         private var surfaceWidth = 0
         private var surfaceHeight = 0
@@ -86,9 +89,6 @@ class PixoraWallpaperService : WallpaperService() {
         // For loop fade-in/out, bake it into the video file with ffmpeg:
         //   ffmpeg -i in.mp4 -vf "fade=in:0:12,fade=out:st=4.5:d=0.5" out.mp4
         private var cachedDuration = 0L
-
-        // Pre-allocated paint for glow dots
-        private val glowDotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
         // Renderers
         private val clockRenderer = ClockRenderer()
@@ -177,6 +177,17 @@ class PixoraWallpaperService : WallpaperService() {
             showEqualizer = prefs.getBoolean("show_equalizer", true)
             systemRings.showRam = prefs.getBoolean("show_ram", true)
             systemRings.showStorage = prefs.getBoolean("show_storage", true)
+            // Touch trail style picker — reload on broadcast too, not just on
+            // wallpaper switch, so the change is instant from Settings.
+            val trailStyle = prefs.getString(
+                com.orbix.pixora.touch.TouchTrailRegistry.PREF_KEY,
+                com.orbix.pixora.touch.TouchTrailRegistry.DEFAULT_ID,
+            ) ?: com.orbix.pixora.touch.TouchTrailRegistry.DEFAULT_ID
+            if (touchTrail.id != trailStyle) {
+                touchTrail.reset()
+                touchTrail = com.orbix.pixora.touch.TouchTrailRegistry.create(trailStyle)
+                Log.d(TAG, "Touch trail switched to: $trailStyle")
+            }
         }
 
         // Set true only for the "last frame before sleep" so the cached frame Android
@@ -337,6 +348,17 @@ class PixoraWallpaperService : WallpaperService() {
                 val color = prefs.getString("glow_color", "#C9A650")
                 val caption = prefs.getString("caption", null)
                 isInteractive = prefs.getBoolean("interactive", false)
+
+                // User-selected touch trail style — swap if changed
+                val trailStyle = prefs.getString(
+                    com.orbix.pixora.touch.TouchTrailRegistry.PREF_KEY,
+                    com.orbix.pixora.touch.TouchTrailRegistry.DEFAULT_ID,
+                ) ?: com.orbix.pixora.touch.TouchTrailRegistry.DEFAULT_ID
+                if (touchTrail.id != trailStyle) {
+                    touchTrail.reset()
+                    touchTrail = com.orbix.pixora.touch.TouchTrailRegistry.create(trailStyle)
+                    Log.d(TAG, "Touch trail switched to: $trailStyle")
+                }
 
                 // Reset animated overlay state on wallpaper change
                 aquariumRenderer.recycle()
@@ -1057,12 +1079,16 @@ class PixoraWallpaperService : WallpaperService() {
             }
 
             when (event.action) {
-                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                    glowDots.add(GlowDot(event.x, event.y, System.currentTimeMillis(), glowColor))
-                    if (!drawing) {
-                        drawing = true
-                        handler.post(drawRunnable)
-                    }
+                MotionEvent.ACTION_DOWN -> {
+                    touchTrail.onDown(event.x, event.y)
+                    if (!drawing) { drawing = true; handler.post(drawRunnable) }
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    touchTrail.onMove(event.x, event.y)
+                    if (!drawing) { drawing = true; handler.post(drawRunnable) }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    touchTrail.onUp()
                 }
             }
         }
@@ -1182,11 +1208,10 @@ class PixoraWallpaperService : WallpaperService() {
             animationPhase += 0.05f
 
             val now = System.currentTimeMillis()
-            glowDots.removeAll { now - it.startTime > GLOW_DURATION }
 
             // Switch to idle mode (low fps) when no audio and no touch
             val scrolling = isPanoramic && abs(scrollVelocity) > 0.5f
-            if (!equalizerRenderer.hasAudio && glowDots.isEmpty() && !isRainWallpaper && !scrolling && !hasAnimatedCanvasOverlay) {
+            if (!equalizerRenderer.hasAudio && !touchTrail.isActive && !isRainWallpaper && !scrolling && !hasAnimatedCanvasOverlay) {
                 equalizerRenderer.silentFrames++
                 if (equalizerRenderer.silentFrames > 30 && !idleMode) {
                     idleMode = true
@@ -1232,30 +1257,9 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         private fun drawGlowEffects(canvas: Canvas) {
-            val now = System.currentTimeMillis()
-            for (dot in glowDots) {
-                val elapsed = now - dot.startTime
-                val progress = (elapsed.toFloat() / GLOW_DURATION).coerceIn(0f, 1f)
-                val radius = MAX_RADIUS * progress
-                val alpha = ((1f - progress) * 0.45f * 255).toInt().coerceIn(0, 255)
-                if (alpha <= 0 || radius <= 0f) continue
-
-                val dr = Color.red(dot.color)
-                val dg = Color.green(dot.color)
-                val db = Color.blue(dot.color)
-
-                glowDotPaint.shader = RadialGradient(
-                    dot.x, dot.y, radius,
-                    intArrayOf(
-                        Color.argb(alpha, dr, dg, db),
-                        Color.argb((alpha * 0.3f).toInt(), dr, dg, db),
-                        Color.argb(0, dr, dg, db)
-                    ),
-                    floatArrayOf(0f, 0.5f, 1f),
-                    Shader.TileMode.CLAMP
-                )
-                canvas.drawCircle(dot.x, dot.y, radius, glowDotPaint)
-            }
+            // Delegated to the user-selectable TouchTrailRenderer.
+            // brandingTick doubles as the trail tick — both increment per frame.
+            touchTrail.draw(canvas, surfaceWidth, surfaceHeight, brandingTick, glowColor)
         }
 
         override fun onSurfaceDestroyed(holder: SurfaceHolder?) {
@@ -1302,12 +1306,8 @@ class PixoraWallpaperService : WallpaperService() {
         }
     }
 
-    data class GlowDot(val x: Float, val y: Float, val startTime: Long, val color: Int)
-
     companion object {
         private const val TAG = "PixoraEQ"
-        const val GLOW_DURATION = 700L
-        const val MAX_RADIUS = 120f
         const val BAR_COUNT = 6
         const val FRAME_DELAY = 33L // ~30fps
         const val IDLE_FRAME_DELAY = 1000L

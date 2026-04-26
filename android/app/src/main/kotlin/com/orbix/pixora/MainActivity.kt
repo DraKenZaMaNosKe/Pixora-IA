@@ -248,6 +248,21 @@ class MainActivity : AudioServiceActivity() {
                         sendBroadcast(intent)
                         result.success(true)
                     }
+                    "getTouchTrail" -> {
+                        val prefs = getSharedPreferences("pixora_live", 0)
+                        result.success(prefs.getString("touch_trail_style", "aurora"))
+                    }
+                    "setTouchTrail" -> {
+                        val style = call.argument<String>("style") ?: "aurora"
+                        val prefs = getSharedPreferences("pixora_live", 0)
+                        prefs.edit().putString("touch_trail_style", style).apply()
+                        // Reuse the existing overlay-changed broadcast — wallpaper
+                        // engine listens to it and re-reads the trail pref too.
+                        val intent = Intent("com.orbix.pixora.OVERLAY_SETTINGS_CHANGED")
+                            .setPackage(packageName)
+                        sendBroadcast(intent)
+                        result.success(true)
+                    }
                     "setRingtone" -> {
                         val path = call.argument<String>("path") ?: ""
                         val title = call.argument<String>("title") ?: "Pixora Ringtone"

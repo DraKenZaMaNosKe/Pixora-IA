@@ -36,12 +36,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     'equalizer': true,
   };
 
+  // User-picked touch trail style (gold dust, aurora, lightning, etc.)
+  String _touchTrail = 'aurora';
+
   @override
   void initState() {
     super.initState();
     _loadStatus();
     _loadVersion();
     _loadOverlays();
+    _loadTouchTrail();
+  }
+
+  Future<void> _loadTouchTrail() async {
+    final v = await WallpaperService.instance.getTouchTrail();
+    if (!mounted) return;
+    setState(() => _touchTrail = v);
+  }
+
+  Future<void> _setTouchTrail(String style) async {
+    setState(() => _touchTrail = style);
+    final ok = await WallpaperService.instance.setTouchTrail(style);
+    if (!ok && mounted) {
+      // revert if native call failed
+      final actual = await WallpaperService.instance.getTouchTrail();
+      if (mounted) setState(() => _touchTrail = actual);
+    }
   }
 
   Future<void> _loadOverlays() async {
@@ -228,6 +248,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
         const Divider(color: Colors.white12),
         _SectionHeader(LocaleHelper.pick(
+          es: 'Efecto al tocar',
+          en: 'Touch effect',
+        )),
+        _buildTouchTrailSection(),
+        const Divider(color: Colors.white12),
+        _SectionHeader(LocaleHelper.pick(
           es: 'Overlays del wallpaper',
           en: 'Wallpaper overlays',
         )),
@@ -349,6 +375,84 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         backgroundColor: HudTokens.goldDeep,
       ));
     }
+  }
+
+  Widget _buildTouchTrailSection() {
+    // (id, icon, name ES/EN, tagline ES/EN)
+    final List<(String, IconData, String, String)> trails = [
+      (
+        'aurora',
+        Icons.gradient,
+        LocaleHelper.pick(es: 'Aurora', en: 'Aurora'),
+        LocaleHelper.pick(
+            es: 'Cinta de colores cambiantes', en: 'Color-shifting ribbon')
+      ),
+      (
+        'sparks',
+        Icons.auto_awesome,
+        LocaleHelper.pick(es: 'Chispas', en: 'Sparks'),
+        LocaleHelper.pick(
+            es: 'Estallido mágico que cae', en: 'Magic burst that falls')
+      ),
+      (
+        'comet',
+        Icons.bedtime_outlined,
+        LocaleHelper.pick(es: 'Cometa', en: 'Comet'),
+        LocaleHelper.pick(
+            es: 'Cabeza brillante + cola azul', en: 'Bright head + blue tail')
+      ),
+      (
+        'lightning',
+        Icons.bolt,
+        LocaleHelper.pick(es: 'Rayo', en: 'Lightning'),
+        LocaleHelper.pick(
+            es: 'Líneas eléctricas jagged', en: 'Jagged electric lines')
+      ),
+      (
+        'petals',
+        Icons.local_florist,
+        LocaleHelper.pick(es: 'Pétalos', en: 'Petals'),
+        LocaleHelper.pick(
+            es: 'Pétalos sakura cayendo', en: 'Falling sakura petals')
+      ),
+      (
+        'stardust',
+        Icons.star_outline,
+        LocaleHelper.pick(es: 'Polvo de estrellas', en: 'Stardust'),
+        LocaleHelper.pick(es: 'Estrellas parpadeantes', en: 'Twinkling stars')
+      ),
+      (
+        'pixora_gold',
+        Icons.workspace_premium,
+        LocaleHelper.pick(es: 'Oro Pixora', en: 'Pixora Gold'),
+        LocaleHelper.pick(
+            es: 'Espiral dorada con halo', en: 'Gold spiral with halo')
+      ),
+    ];
+
+    return Column(
+      children: trails.map((t) {
+        final id = t.$1;
+        final selected = _touchTrail == id;
+        return RadioListTile<String>(
+          contentPadding: EdgeInsets.zero,
+          secondary:
+              Icon(t.$2, color: selected ? HudTokens.gold : Colors.white54),
+          title: Text(t.$3,
+              style: TextStyle(
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                color: selected ? HudTokens.gold : Colors.white,
+              )),
+          subtitle: Text(t.$4, style: const TextStyle(color: Colors.white38)),
+          value: id,
+          groupValue: _touchTrail,
+          activeColor: HudTokens.gold,
+          onChanged: (v) {
+            if (v != null) _setTouchTrail(v);
+          },
+        );
+      }).toList(),
+    );
   }
 
   Widget _buildOverlaysSection() {

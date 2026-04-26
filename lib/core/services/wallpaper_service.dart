@@ -174,6 +174,45 @@ class WallpaperService {
     }
   }
 
+  // ── Touch trail picker ────────────────────────────────────────────
+
+  /// All available touch trail style ids, in display order.
+  static const List<String> touchTrailIds = [
+    'aurora',
+    'sparks',
+    'comet',
+    'lightning',
+    'petals',
+    'stardust',
+    'pixora_gold',
+  ];
+
+  /// Read the user's current touch trail style ('aurora' if never set).
+  Future<String> getTouchTrail() async {
+    if (!Platform.isAndroid) return 'aurora';
+    try {
+      final r = await _channel.invokeMethod<String>('getTouchTrail');
+      return r ?? 'aurora';
+    } catch (e) {
+      debugPrint('[WallpaperService] getTouchTrail error: $e');
+      return 'aurora';
+    }
+  }
+
+  /// Set the touch trail style. Broadcasts to :wallpaper so the change
+  /// applies instantly without requiring an app restart.
+  Future<bool> setTouchTrail(String style) async {
+    if (!Platform.isAndroid) return false;
+    try {
+      final r =
+          await _channel.invokeMethod<bool>('setTouchTrail', {'style': style});
+      return r ?? false;
+    } catch (e) {
+      debugPrint('[WallpaperService] setTouchTrail error: $e');
+      return false;
+    }
+  }
+
   /// Toggle a single overlay. Writes to prefs and broadcasts to the :wallpaper
   /// process so the change is reflected immediately, no app restart needed.
   Future<bool> setOverlayVisibility(String key, bool value) async {
