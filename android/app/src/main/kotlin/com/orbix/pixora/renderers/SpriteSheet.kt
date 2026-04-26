@@ -43,7 +43,14 @@ class SpriteSheet(
     val width: Int get() = if (bitmaps.isEmpty()) 0 else bitmaps[0].width
     val height: Int get() = if (bitmaps.isEmpty()) 0 else bitmaps[0].height
 
-    fun load(framesPerTick: Int = 2): Boolean {
+    /**
+     * Load sprite frames into RAM.
+     * @param framesPerTick how many render frames to wait before advancing
+     * @param sampleSize Bitmap decoder downscale factor (1 = full resolution,
+     *   2 = half resolution = ~4x less RAM). Use 1 for fullscreen sprites
+     *   (e.g. anime cockpit) so they don't pixelate when stretched.
+     */
+    fun load(framesPerTick: Int = 2, sampleSize: Int = 2): Boolean {
         if (loaded) return true
         this.framesPerTick = framesPerTick
         try {
@@ -65,7 +72,7 @@ class SpriteSheet(
                 Log.w("SpriteSheet", "No frames in $folder")
                 return false
             }
-            val opts = BitmapFactory.Options().apply { inSampleSize = 2 }
+            val opts = BitmapFactory.Options().apply { inSampleSize = sampleSize }
             for (name in fileList) {
                 val bmp = if (fromFiles) {
                     BitmapFactory.decodeFile("${cacheDir.absolutePath}/$name", opts)
@@ -78,7 +85,7 @@ class SpriteSheet(
             }
             loaded = bitmaps.isNotEmpty()
             Log.d("SpriteSheet", "Loaded ${bitmaps.size} frames from $folder " +
-                "(${if (fromFiles) "files" else "assets"}) ${width}x${height}")
+                "(${if (fromFiles) "files" else "assets"}) ${width}x${height} sample=$sampleSize")
             return loaded
         } catch (e: Exception) {
             Log.e("SpriteSheet", "Failed loading $folder: $e")

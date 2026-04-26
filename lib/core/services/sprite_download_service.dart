@@ -51,6 +51,12 @@ class SpriteDownloadService {
       'v160_sprites/bat',
       'v160_sprites/dragon_main',
     ],
+    'anime_drive': [
+      'anime_cockpit',
+    ],
+    'bosque_lluvioso': [
+      'v160_sprites/crow',
+    ],
   };
 
   Map<String, dynamic>? _manifest;

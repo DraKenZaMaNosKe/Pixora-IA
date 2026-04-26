@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "anime_drive",
+  "type": "canvas_scene",
+  "title": {
+    "en": "Anime Drive",
+    "es": "Anime Drive"
+  },
+  "tags": ["anime", "driving", "stars", "milky_way", "cockpit", "live", "animated"],
+  "category": "lifestyle",
+  "featured": true,
+
+  "background": {
+    "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_carretera_nocturna.webp",
+    "preview_url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_carretera_nocturna_preview.webp",
+    "scroll": false
+  },
+
+  "sprites": [
+    {
+      "name": "cockpit",
+      "manifest_key": "anime_cockpit",
+      "behavior": "static",
+      "default_facing": "right",
+      "frame_skip": 2,
+      "params": {
+        "fullscreen": true,
+        "alpha": 255
+      }
+    }
+  ],
+
+  "particles": [
+    {
+      "kind": "fireflies",
+      "params": {
+        "count": 50,
+        "size_min_px": 1.2,
+        "size_max_px": 2.5,
+        "halo_mul": 3,
+        "color": "#FFEAF2FF",
+        "pulse_speed": 0.025,
+        "drift_amp": 0.04,
+        "vy_min": -0.02,
+        "vy_max": 0.02,
+        "spawn_top": 0.0,
+        "spawn_bottom": 0.30
+      }
+    }
+  ],
+
+  "events": []
+}

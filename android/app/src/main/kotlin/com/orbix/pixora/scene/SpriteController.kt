@@ -140,6 +140,9 @@ class TranslateController(def: SpriteDef, sheet: SpriteSheet) :
  * Sprite stays in place; only the frame animates.
  *
  * params: x, y, scale, alpha
+ *         fullscreen (bool, default false) — if true, the sprite is
+ *           scaled to FILL the surface (e.g. anime cockpit overlay)
+ *           and x/y/scale are ignored.
  */
 class StaticController(def: SpriteDef, sheet: SpriteSheet) :
     SpriteController(def, sheet) {
@@ -149,12 +152,24 @@ class StaticController(def: SpriteDef, sheet: SpriteSheet) :
     private val scale = def.params.f("scale", 0.0010f)
     private val alpha = def.params.i("alpha", 255)
     private val flipX = def.params.b("flip_x", false)
+    private val fullscreen = def.params.b("fullscreen", false)
 
     override fun draw(canvas: Canvas, surfaceW: Int, surfaceH: Int, tick: Long) {
         sheet.advance()
-        sheet.drawAt(canvas, surfaceW * x, surfaceH * y,
-            scale = surfaceW * scale,
-            flipX = flipX,
-            alpha = alpha)
+        if (fullscreen) {
+            // Fill the entire surface — sprite drawn centered, scaled to
+            // the larger of (surfaceW/bmpW, surfaceH/bmpH) so it covers.
+            val bmpW = sheet.width.coerceAtLeast(1)
+            val bmpH = sheet.height.coerceAtLeast(1)
+            val sx = surfaceW.toFloat() / bmpW
+            val sy = surfaceH.toFloat() / bmpH
+            val s = maxOf(sx, sy)
+            sheet.drawAt(canvas, surfaceW / 2f, surfaceH / 2f,
+                scale = s, flipX = flipX, alpha = alpha)
+        } else {
+            sheet.drawAt(canvas, surfaceW * x, surfaceH * y,
+                scale = surfaceW * scale,
+                flipX = flipX, alpha = alpha)
+        }
     }
 }

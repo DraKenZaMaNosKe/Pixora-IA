@@ -98,6 +98,12 @@ class WallpaperService {
     }
   }
 
+  /// Public wrapper around the catalog_index lookup. Used by installers
+  /// (e.g. StaticWallpaperInstaller) to upgrade a static IMAGE apply into
+  /// a live canvas_scene apply when the basename matches a canvas_scene.
+  Future<String?> resolveCanvasSceneFromPath(String filePath) =>
+      _resolveCanvasSceneFromPath(filePath);
+
   /// Look up the wallpaper filename in the catalog index. If it's a
   /// canvas_scene, fetch the spec to filesDir and return the scene id
   /// (so the native engine activates CanvasSceneRenderer).

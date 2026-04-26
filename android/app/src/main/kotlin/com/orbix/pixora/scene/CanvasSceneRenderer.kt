@@ -71,11 +71,17 @@ class CanvasSceneRenderer(private val context: Context) {
     /** Lazy-load all SpriteSheets the spec needs from filesDir. */
     fun ensureLoaded() {
         val s = spec ?: return
-        // Load all sprite manifest_keys (each used by 0+ controllers/events)
+        // Load all sprite manifest_keys (each used by 0+ controllers/events).
+        // Fullscreen sprites use sampleSize=1 to keep all source detail
+        // (otherwise the 2x decode downscale + later upscale = mush).
         for (sp in s.sprites) {
             sheets.getOrPut(sp.name) {
+                val isFullscreen = sp.params.optBoolean("fullscreen", false)
                 SpriteSheet(context, sp.manifestKey).also {
-                    if (!it.loaded) it.load(framesPerTick = sp.frameSkip)
+                    if (!it.loaded) it.load(
+                        framesPerTick = sp.frameSkip,
+                        sampleSize = if (isFullscreen) 1 else 2,
+                    )
                 }
             }
         }

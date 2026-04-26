@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "pilot_drive_snowy",
+  "type": "canvas_scene",
+  "title": {
+    "en": "Pilot Drive",
+    "es": "Pilot Drive"
+  },
+  "tags": ["anime", "driving", "snow", "mountain", "night", "cockpit", "live", "animated"],
+  "category": "lifestyle",
+  "featured": true,
+
+  "background": {
+    "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_pilot_drive_snowy.webp",
+    "preview_url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_pilot_drive_snowy_preview.webp",
+    "scroll": false
+  },
+
+  "sprites": [],
+
+  "particles": [
+    {
+      "kind": "fireflies",
+      "params": {
+        "count": 55,
+        "size_min_px": 1.0,
+        "size_max_px": 2.4,
+        "halo_mul": 3,
+        "color": "#EAF2FFFF",
+        "pulse_speed": 0.022,
+        "drift_amp": 0.012,
+        "vy_min": -0.006,
+        "vy_max": 0.006,
+        "spawn_top": 0.20,
+        "spawn_bottom": 0.30,
+        "spawn_left": 0.42,
+        "spawn_right": 0.98
+      }
+    },
+    {
+      "kind": "fireflies",
+      "params": {
+        "count": 16,
+        "size_min_px": 2.5,
+        "size_max_px": 4.0,
+        "halo_mul": 5,
+        "color": "#FFF8DCFF",
+        "pulse_speed": 0.018,
+        "drift_amp": 0.010,
+        "vy_min": -0.004,
+        "vy_max": 0.004,
+        "spawn_top": 0.21,
+        "spawn_bottom": 0.28,
+        "spawn_left": 0.45,
+        "spawn_right": 0.96
+      }
+    }
+  ],
+
+  "events": []
+}

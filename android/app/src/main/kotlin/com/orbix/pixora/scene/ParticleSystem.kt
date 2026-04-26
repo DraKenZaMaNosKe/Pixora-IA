@@ -481,6 +481,8 @@ class FireflySystem(def: ParticleDef) : ParticleSystem(def) {
     private val vyMax = def.params.f("vy_max", -0.1f)
     private val spawnTop = def.params.f("spawn_top", 0.4f)
     private val spawnBottom = def.params.f("spawn_bottom", 1.0f)
+    private val spawnLeft = def.params.f("spawn_left", 0f)
+    private val spawnRight = def.params.f("spawn_right", 1f)
 
     private data class Firefly(
         var x: Float, var y: Float,
@@ -505,7 +507,9 @@ class FireflySystem(def: ParticleDef) : ParticleSystem(def) {
             f.pulsePhase += pulseSpeed
             f.x += sin(f.driftPhase.toDouble()).toFloat() * driftAmp
             f.y += f.vy
-            if (f.y < -20f || f.x < -20f || f.x > w + 20f) {
+            val minX = w * spawnLeft - 20f
+            val maxX = w * spawnRight + 20f
+            if (f.y < -20f || f.x < minX || f.x > maxX) {
                 respawn(f, w, h)
             }
             // Pulse intensity 0.25 .. 1.0 (never goes fully dark — fireflies are visible even at min)
@@ -527,7 +531,7 @@ class FireflySystem(def: ParticleDef) : ParticleSystem(def) {
     }
 
     private fun respawn(f: Firefly, w: Float, h: Float) {
-        f.x = Random.nextFloat() * w
+        f.x = w * (spawnLeft + Random.nextFloat() * (spawnRight - spawnLeft))
         f.y = h * (spawnTop + Random.nextFloat() * (spawnBottom - spawnTop))
         f.vy = vyMin + Random.nextFloat() * (vyMax - vyMin)
         f.radius = sizeMin + Random.nextFloat() * (sizeMax - sizeMin)
@@ -538,7 +542,7 @@ class FireflySystem(def: ParticleDef) : ParticleSystem(def) {
         repeat(count) {
             val r = sizeMin + Random.nextFloat() * (sizeMax - sizeMin)
             flies.add(Firefly(
-                x = Random.nextFloat() * w,
+                x = w * (spawnLeft + Random.nextFloat() * (spawnRight - spawnLeft)),
                 y = h * (spawnTop + Random.nextFloat() * (spawnBottom - spawnTop)),
                 vy = vyMin + Random.nextFloat() * (vyMax - vyMin),
                 driftPhase = Random.nextFloat() * 6.28f,
