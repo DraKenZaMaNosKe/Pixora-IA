@@ -144,7 +144,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
   final ScrollController scrollController;
   final int index;
 
-  Color get _glowColor => HudTokens.gold;
+  Color _glowColor(BuildContext context) => context.hud.accent;
 
   double _getParallaxOffset(BuildContext context) {
     if (!scrollController.hasClients) return 0.0;
@@ -182,9 +182,9 @@ class _ParallaxCarouselCard extends StatelessWidget {
         width: width,
         margin: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
-          color: HudTokens.nightSurface,
+          color: context.hud.surface,
           border: Border.all(
-            color: HudTokens.gold.withOpacity(0.55),
+            color: context.hud.accent.withOpacity(0.55),
             width: 1,
           ),
         ),
@@ -200,14 +200,14 @@ class _ParallaxCarouselCard extends StatelessWidget {
                       style: HudTokens.mono(
                           size: 7.5,
                           weight: FontWeight.w700,
-                          color: HudTokens.gold,
+                          color: context.hud.accent,
                           letterSpacing: 0.3)),
                   const Spacer(),
                   Text('N° $_lotNumber',
                       style: HudTokens.mono(
                           size: 7.5,
                           weight: FontWeight.w700,
-                          color: HudTokens.gold,
+                          color: context.hud.accent,
                           letterSpacing: 0.3)),
                 ],
               ),
@@ -240,7 +240,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
                         right: 4,
                         child: WallpaperStatsBar(
                           wallpaperId: wallpaper.id,
-                          glowColor: HudTokens.gold,
+                          glowColor: context.hud.accent,
                         ),
                       ),
                       // Badge top-left
@@ -251,7 +251,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 5, vertical: 2),
-                            color: HudTokens.gold,
+                            color: context.hud.accent,
                             child: Text(
                               wallpaper.badge!.toUpperCase(),
                               style: HudTokens.mono(
@@ -272,7 +272,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
               child: CustomPaint(
                 size: const Size(double.infinity, 1),
-                painter: _CarouselDashPainter(color: HudTokens.gold),
+                painter: _CarouselDashPainter(color: context.hud.accent),
               ),
             ),
             // ── Bottom stub ─────────────────────
@@ -292,7 +292,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: HudTokens.serif(
                               size: 11.5,
-                              color: HudTokens.nightText,
+                              color: context.hud.text,
                               fontStyle: FontStyle.italic,
                               weight: FontWeight.w500,
                               letterSpacing: 0.02),
@@ -303,7 +303,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
                           style: HudTokens.mono(
                               size: 7.5,
                               weight: FontWeight.w700,
-                              color: HudTokens.gold,
+                              color: context.hud.accent,
                               letterSpacing: 0.15)),
                     ],
                   ),
@@ -315,7 +315,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
                     style: HudTokens.mono(
                         size: 6.5,
                         weight: FontWeight.w500,
-                        color: HudTokens.nightTextDim,
+                        color: context.hud.textDim,
                         letterSpacing: 0.3),
                   ),
                 ],

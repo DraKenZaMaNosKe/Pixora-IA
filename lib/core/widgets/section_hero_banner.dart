@@ -23,7 +23,7 @@ class HeroBannerItem {
     required this.title,
     this.subtitle = '',
     this.badge = '',
-    this.accentColor = HudTokens.gold, // Netflix red
+    this.accentColor = HudTokens.gold, // default accent — overridden per item
   });
 }
 
@@ -166,7 +166,7 @@ class _BannerPage extends StatelessWidget {
                 fit: BoxFit.cover,
                 memCacheWidth: 640,
                 maxWidthDiskCache: 1080,
-                placeholder: (_, __) => Container(color: HudTokens.nightBg),
+                placeholder: (_, __) => Container(color: context.hud.bg),
                 errorWidget: (_, __, ___) => const _HeroFallback(),
               ),
 
@@ -258,7 +258,7 @@ class _BannerPage extends StatelessWidget {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                color: HudTokens.gold,
+                color: context.hud.accent,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -267,15 +267,15 @@ class _BannerPage extends StatelessWidget {
                       style: HudTokens.display(
                         size: 12,
                         weight: FontWeight.w900,
-                        color: HudTokens.nightBg,
+                        color: context.hud.bg,
                         letterSpacing: 0.3,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       '→',
                       style: TextStyle(
-                        color: HudTokens.nightBg,
+                        color: context.hud.bg,
                         fontSize: 16,
                         height: 1,
                         fontWeight: FontWeight.w700,
@@ -299,12 +299,12 @@ class _HeroFallback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: RadialGradient(
           radius: 1.1,
           colors: [
-            Color(0xFF1A140A),
-            HudTokens.nightBg,
+            const Color(0xFF1A140A),
+            context.hud.bg,
           ],
         ),
       ),
@@ -316,7 +316,7 @@ class _HeroFallback extends StatelessWidget {
             height: 72,
             decoration: BoxDecoration(
               border: Border.all(
-                color: HudTokens.gold.withOpacity(0.55),
+                color: context.hud.accent.withOpacity(0.55),
                 width: 1.5,
               ),
             ),
@@ -329,7 +329,7 @@ class _HeroFallback extends StatelessWidget {
                     fontFamily: 'serif',
                     fontStyle: FontStyle.italic,
                     fontSize: 34,
-                    color: HudTokens.goldBright.withOpacity(0.75),
+                    color: context.hud.accent2.withOpacity(0.75),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
