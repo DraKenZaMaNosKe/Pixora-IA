@@ -149,23 +149,28 @@ class _Segmented extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: h.isIosStyle ? h.surface : Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: h.isIosStyle
+            ? null
+            : Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Row(
         children: [
-          _seg(AuraCategory.frequency, isEs ? 'Frecuencias' : 'Frequencies'),
-          _seg(AuraCategory.nature, isEs ? 'Naturaleza' : 'Nature'),
+          _seg(context, AuraCategory.frequency,
+              isEs ? 'Frecuencias' : 'Frequencies'),
+          _seg(context, AuraCategory.nature, isEs ? 'Naturaleza' : 'Nature'),
         ],
       ),
     );
   }
 
-  Widget _seg(AuraCategory cat, String label) {
+  Widget _seg(BuildContext context, AuraCategory cat, String label) {
+    final h = context.hud;
     final selected = value == cat;
     return Expanded(
       child: GestureDetector(
@@ -174,16 +179,28 @@ class _Segmented extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           height: 38,
           decoration: BoxDecoration(
-            color: selected ? HudTokens.gold : Colors.transparent,
+            color: selected
+                ? (h.isIosStyle ? h.bg : h.accent)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
+            boxShadow: selected && h.isIosStyle
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
           ),
           alignment: Alignment.center,
           child: Text(
             label,
             style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: selected ? Colors.white : Colors.white.withOpacity(0.55),
+              fontWeight: FontWeight.w600,
+              color:
+                  selected ? (h.isIosStyle ? h.text : Colors.white) : h.textDim,
             ),
           ),
         ),
