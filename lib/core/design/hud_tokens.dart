@@ -71,8 +71,7 @@ class HudTokens {
     FontStyle? fontStyle,
   }) =>
       _isIosTheme
-          ? TextStyle(
-              fontFamily: 'Geist',
+          ? GoogleFonts.inter(
               fontSize: size,
               fontWeight: weight,
               color: color,
@@ -99,8 +98,7 @@ class HudTokens {
     FontStyle fontStyle = FontStyle.italic,
   }) =>
       _isIosTheme
-          ? TextStyle(
-              fontFamily: 'Geist',
+          ? GoogleFonts.inter(
               fontSize: size,
               fontWeight: weight,
               color: color,
@@ -125,8 +123,7 @@ class HudTokens {
     double letterSpacing = 0.01,
   }) =>
       _isIosTheme
-          ? TextStyle(
-              fontFamily: 'Geist',
+          ? GoogleFonts.inter(
               fontSize: size,
               fontWeight: weight,
               color: color,
@@ -149,8 +146,7 @@ class HudTokens {
     double letterSpacing = 0.2,
   }) =>
       _isIosTheme
-          ? TextStyle(
-              fontFamily: 'GeistMono',
+          ? GoogleFonts.jetBrainsMono(
               fontSize: size,
               fontWeight: weight,
               color: color,
@@ -252,9 +248,13 @@ class HudTheme extends ThemeExtension<HudTheme> {
     accent: HudTokens.gold,
     accent2: HudTokens.goldBright,
     isDark: true,
-    displayFontFamily: 'Geist',
-    bodyFontFamily: 'Geist',
-    monoFontFamily: 'Geist',
+    // Empty = let Flutter use default font. Black & Gold's signature
+    // typography (Playfair / Cormorant / Inter) is applied via the
+    // HudTokens.display/serif/body/mono helpers — those use google_fonts
+    // package which loads asynchronously and works reliably.
+    displayFontFamily: '',
+    bodyFontFamily: '',
+    monoFontFamily: '',
   );
 
   static const HudTheme day = HudTheme(
@@ -267,9 +267,13 @@ class HudTheme extends ThemeExtension<HudTheme> {
     accent: HudTokens.goldDay,
     accent2: HudTokens.goldDeep,
     isDark: false,
-    displayFontFamily: 'Geist',
-    bodyFontFamily: 'Geist',
-    monoFontFamily: 'Geist',
+    // Empty = let Flutter use default font. Black & Gold's signature
+    // typography (Playfair / Cormorant / Inter) is applied via the
+    // HudTokens.display/serif/body/mono helpers — those use google_fonts
+    // package which loads asynchronously and works reliably.
+    displayFontFamily: '',
+    bodyFontFamily: '',
+    monoFontFamily: '',
   );
 
   /// iOS White ("Apple Store Fresh") — picked by user 2026-04-26.
@@ -286,9 +290,10 @@ class HudTheme extends ThemeExtension<HudTheme> {
     accent: HudTokens.iosAccent,
     accent2: HudTokens.iosAccent2,
     isDark: false,
-    displayFontFamily: 'Geist',
-    bodyFontFamily: 'Geist',
-    monoFontFamily: 'GeistMono',
+    // Use Inter (Apple uses Inter on dev pages — feel iOS without bundling)
+    displayFontFamily: 'Inter',
+    bodyFontFamily: 'Inter',
+    monoFontFamily: 'JetBrains Mono',
   );
 
   @override
