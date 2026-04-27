@@ -172,6 +172,14 @@ class _HeroPage extends StatelessWidget {
                     size: 24,
                     color: Colors.white,
                     letterSpacing: -0.01,
+                  ).copyWith(
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        blurRadius: 12,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -182,8 +190,16 @@ class _HeroPage extends StatelessWidget {
                     '> ${wallpaper.description}',
                     style: HudTokens.mono(
                       size: 11,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.92),
                       letterSpacing: 0.05,
+                    ).copyWith(
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          blurRadius: 8,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

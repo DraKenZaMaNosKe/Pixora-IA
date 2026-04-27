@@ -6,6 +6,7 @@ import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
+import 'wallpaper_stats_bar.dart';
 
 /// Wallpaper card — switches layout per active theme:
 ///   - Black & Gold / Cream Day → "Ticket Stub" (admit-one ticket metaphor)
@@ -132,32 +133,13 @@ class _IosCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                  // Heart on circular blurred bg (iOS-style)
+                  // Stats bar top-right (likes/views/downloads)
                   Positioned(
                     right: 8,
                     top: 8,
-                    child: GestureDetector(
-                      onTap: onToggleFav,
-                      behavior: HitTestBehavior.opaque,
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.85),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 6,
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          isFav ? Icons.favorite : Icons.favorite_border,
-                          size: 16,
-                          color: isFav ? const Color(0xFFFF3B30) : h.textDim,
-                        ),
-                      ),
+                    child: WallpaperStatsBar(
+                      wallpaperId: wallpaper.id,
+                      glowColor: h.accent,
                     ),
                   ),
                 ],
