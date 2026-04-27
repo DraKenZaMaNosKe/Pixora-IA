@@ -189,18 +189,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     secondary: Icon(
                       Icons.autorenew,
                       color:
-                          _autoRotateEnabled ? HudTokens.gold : Colors.white54,
+                          _autoRotateEnabled ? context.hud.accent : Colors.white54,
                     ),
                     title: const Text('Auto-rotate wallpaper'),
                     subtitle: Text(
                       _autoRotateEnabled
                           ? 'Changes every ${_intervalLabel(_intervalMinutes)}'
                           : 'Automatically change your wallpaper',
-                      style: const TextStyle(color: Colors.white38),
+                      style: TextStyle(color: context.hud.textDim),
                     ),
                     value: _autoRotateEnabled,
                     onChanged: _toggleAutoRotate,
-                    activeColor: HudTokens.gold,
+                    activeColor: context.hud.accent,
                   ),
                   if (_autoRotateEnabled) ...[
                     const SizedBox(height: 4),
@@ -440,16 +440,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return RadioListTile<String>(
           contentPadding: EdgeInsets.zero,
           secondary:
-              Icon(t.$2, color: selected ? HudTokens.gold : Colors.white54),
+              Icon(t.$2, color: selected ? context.hud.accent : Colors.white54),
           title: Text(t.$3,
               style: TextStyle(
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                color: selected ? HudTokens.gold : Colors.white,
+                color: selected ? context.hud.accent : Colors.white,
               )),
-          subtitle: Text(t.$4, style: const TextStyle(color: Colors.white38)),
+          subtitle: Text(t.$4, style: TextStyle(color: context.hud.textDim)),
           value: id,
           groupValue: _touchTrail,
-          activeColor: HudTokens.gold,
+          activeColor: context.hud.accent,
           onChanged: (v) {
             if (v != null) _setTouchTrail(v);
           },
@@ -515,11 +515,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return SwitchListTile(
           contentPadding: EdgeInsets.zero,
           secondary:
-              Icon(t.$2, color: enabled ? HudTokens.gold : Colors.white54),
+              Icon(t.$2, color: enabled ? context.hud.accent : Colors.white54),
           title: Text(t.$3),
-          subtitle: Text(t.$4, style: const TextStyle(color: Colors.white38)),
+          subtitle: Text(t.$4, style: TextStyle(color: context.hud.textDim)),
           value: enabled,
-          activeColor: HudTokens.gold,
+          activeColor: context.hud.accent,
           onChanged: (v) => _setOverlay(key, v),
         );
       }).toList(),
@@ -550,8 +550,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   child: auth.avatarUrl == null
                       ? Text(
                           (auth.displayName ?? 'U')[0].toUpperCase(),
-                          style: const TextStyle(
-                              fontSize: 20, color: Colors.white),
+                          style: TextStyle(
+                              fontSize: 20, color: context.hud.text),
                         )
                       : null,
                 ),
@@ -566,10 +566,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             child: Text(
                               auth.displayName ?? 'User',
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: context.hud.text,
                               ),
                             ),
                           ),
@@ -593,10 +593,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     color: HudTokens.gold.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Synced',
                     style: TextStyle(
-                        color: HudTokens.gold,
+                        color: context.hud.accent,
                         fontSize: 11,
                         fontWeight: FontWeight.bold),
                   ),
@@ -639,10 +639,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           Icon(Icons.cloud_sync,
               size: 40, color: Colors.white.withOpacity(0.3)),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Sign in to sync favorites',
             style: TextStyle(
-                fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
+                fontSize: 15, fontWeight: FontWeight.w600, color: context.hud.text),
           ),
           const SizedBox(height: 4),
           Text(
@@ -712,10 +712,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               (null, 'All categories', Icons.photo_library),
               ('PANORAMIC', 'Panoramic only', Icons.panorama_wide_angle),
             ].map((entry) => ListTile(
-                  leading: Icon(entry.$3, color: Colors.white54),
+                  leading: Icon(entry.$3, color: context.hud.textDim),
                   title: Text(entry.$2),
                   trailing: entry.$1 == _category
-                      ? const Icon(Icons.check, color: HudTokens.gold)
+                      ? Icon(Icons.check, color: context.hud.accent)
                       : null,
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -757,7 +757,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ...intervals.map((mins) => ListTile(
                   title: Text(_intervalLabel(mins)),
                   trailing: mins == _intervalMinutes
-                      ? const Icon(Icons.check, color: HudTokens.gold)
+                      ? Icon(Icons.check, color: context.hud.accent)
                       : null,
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -800,10 +800,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               (1, 'Lock screen', Icons.lock),
               (2, 'Both screens', Icons.phone_android),
             ].map((entry) => ListTile(
-                  leading: Icon(entry.$3, color: Colors.white54),
+                  leading: Icon(entry.$3, color: context.hud.textDim),
                   title: Text(entry.$2),
                   trailing: entry.$1 == _target
-                      ? const Icon(Icons.check, color: HudTokens.gold)
+                      ? Icon(Icons.check, color: context.hud.accent)
                       : null,
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -839,7 +839,7 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         h.isIosStyle ? title.toUpperCase() : title,
         style: GoogleFonts.getFont(
-          h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily,
+          (h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily).isEmpty ? 'Inter' : (h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily),
           fontSize: h.isIosStyle ? 11 : 13,
           fontWeight: FontWeight.w600,
           letterSpacing: h.isIosStyle ? 1.0 : 0.0,
@@ -893,7 +893,7 @@ class _SettingsTile extends StatelessWidget {
                     Text(
                       title,
                       style: GoogleFonts.getFont(
-                        h.bodyFontFamily,
+              h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: isDanger ? HudTokens.goldDeep : h.text,
@@ -904,7 +904,7 @@ class _SettingsTile extends StatelessWidget {
                       Text(
                         subtitle,
                         style: GoogleFonts.getFont(
-                          h.monoFontFamily,
+              h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
                           fontSize: 12,
                           color: h.textDim,
                           letterSpacing: 0.2,
@@ -998,7 +998,7 @@ class _ThemePickerSection extends StatelessWidget {
               child: Text(
                 LocaleHelper.pick(es: 'TEMA VISUAL', en: 'VISUAL THEME'),
                 style: GoogleFonts.getFont(
-                  h.monoFontFamily,
+              h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
                   fontSize: 11,
                   letterSpacing: 2.4,
                   color: h.textDim,
@@ -1065,7 +1065,7 @@ class _ThemeOption extends StatelessWidget {
                   Text(
                     ThemeService.labelFor(id),
                     style: GoogleFonts.getFont(
-                      h.bodyFontFamily,
+              h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: h.text,
@@ -1075,7 +1075,7 @@ class _ThemeOption extends StatelessWidget {
                   Text(
                     ThemeService.taglineFor(id),
                     style: GoogleFonts.getFont(
-                      h.monoFontFamily,
+              h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
                       fontSize: 10,
                       letterSpacing: 0.6,
                       color: h.textDim,
