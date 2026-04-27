@@ -21,7 +21,7 @@ class DayCyclePage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline,
+            Icon(Icons.error_outline,
                 color: HudTokens.goldDeep, size: 48),
             const SizedBox(height: 12),
             const Text('Failed to load themes',
@@ -51,7 +51,7 @@ class DayCyclePage extends ConsumerWidget {
                         title: theme.name,
                         subtitle: theme.description,
                         badge: 'DAY CYCLE',
-                        accentColor: HudTokens.gold,
+                        accentColor: context.hud.accent,
                       ))
                   .toList(),
               onTap: (i) => Navigator.push(
@@ -103,14 +103,14 @@ class _DayCycleCard extends ConsumerWidget {
           ),
           overlayTopRight: WallpaperStatsBar(
             wallpaperId: 'daycycle_${theme.id}',
-            glowColor: HudTokens.gold,
+            glowColor: context.hud.accent,
           ),
           child: Image.network(
             theme.previewUrl,
             fit: BoxFit.cover,
             cacheWidth: 400,
             errorBuilder: (_, __, ___) => Container(
-              color: HudTokens.nightSurface,
+              color: context.hud.surface,
               child: const Icon(Icons.image, color: Colors.white24, size: 48),
             ),
           ),

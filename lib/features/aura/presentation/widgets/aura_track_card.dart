@@ -70,10 +70,10 @@ class AuraTrackCard extends StatelessWidget {
       onTap: onTap,
       overlayTopRight: WallpaperStatsBar(
         wallpaperId: 'aura_${track.id}',
-        glowColor: HudTokens.gold,
+        glowColor: context.hud.accent,
       ),
       child: Container(
-        color: HudTokens.nightSurfaceHi,
+        color: context.hud.surfaceHi,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -82,7 +82,7 @@ class AuraTrackCard extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: [
-                    HudTokens.gold.withOpacity(isPlaying ? 0.4 : 0.18),
+                    context.hud.accent.withOpacity(isPlaying ? 0.4 : 0.18),
                     Colors.transparent,
                   ],
                   radius: 0.75,
@@ -96,7 +96,7 @@ class AuraTrackCard extends StatelessWidget {
                   Icon(
                     isFreq ? Icons.graphic_eq : _natureIcon,
                     size: 44,
-                    color: HudTokens.gold,
+                    color: context.hud.accent,
                   ),
                   if (isFreq) ...[
                     const SizedBox(height: 6),
@@ -105,7 +105,7 @@ class AuraTrackCard extends StatelessWidget {
                       style: HudTokens.display(
                         size: 28,
                         weight: FontWeight.w900,
-                        color: HudTokens.nightText,
+                        color: context.hud.text,
                         letterSpacing: -0.02,
                       ),
                     ),
@@ -113,7 +113,7 @@ class AuraTrackCard extends StatelessWidget {
                       'Hz',
                       style: HudTokens.serif(
                         size: 13,
-                        color: HudTokens.gold,
+                        color: context.hud.accent,
                         fontStyle: FontStyle.italic,
                       ),
                     ),

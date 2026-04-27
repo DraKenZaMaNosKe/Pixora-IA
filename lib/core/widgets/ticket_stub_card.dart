@@ -91,17 +91,17 @@ class TicketStubCard extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: HudTokens.nightSurface,
+          color: context.hud.surface,
           border: Border.all(
             color: isHighlighted
-                ? HudTokens.goldBright
-                : HudTokens.gold.withOpacity(0.55),
+                ? context.hud.accent2
+                : context.hud.accent.withOpacity(0.55),
             width: isHighlighted ? 2 : 1,
           ),
           boxShadow: isHighlighted
               ? [
                   BoxShadow(
-                    color: HudTokens.gold.withOpacity(0.4),
+                    color: context.hud.accent.withOpacity(0.4),
                     blurRadius: 18,
                   ),
                 ]
@@ -121,7 +121,7 @@ class TicketStubCard extends StatelessWidget {
                     style: HudTokens.mono(
                       size: 8,
                       weight: FontWeight.w700,
-                      color: HudTokens.gold,
+                      color: context.hud.accent,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -131,7 +131,7 @@ class TicketStubCard extends StatelessWidget {
                     style: HudTokens.mono(
                       size: 8,
                       weight: FontWeight.w700,
-                      color: HudTokens.gold,
+                      color: context.hud.accent,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -181,7 +181,7 @@ class TicketStubCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: HudTokens.serif(
                             size: 12,
-                            color: HudTokens.nightText,
+                            color: context.hud.text,
                             fontStyle: FontStyle.italic,
                             weight: FontWeight.w500,
                             letterSpacing: 0.02,
@@ -194,7 +194,7 @@ class TicketStubCard extends StatelessWidget {
                         style: HudTokens.mono(
                           size: 7.5,
                           weight: FontWeight.w700,
-                          color: HudTokens.gold,
+                          color: context.hud.accent,
                           letterSpacing: 0.15,
                         ),
                       ),
@@ -208,7 +208,7 @@ class TicketStubCard extends StatelessWidget {
                     style: HudTokens.mono(
                       size: 7,
                       weight: FontWeight.w500,
-                      color: HudTokens.nightTextDim,
+                      color: context.hud.textDim,
                       letterSpacing: 0.3,
                     ),
                   ),

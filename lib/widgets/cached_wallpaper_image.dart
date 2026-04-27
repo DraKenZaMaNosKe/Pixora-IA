@@ -39,15 +39,15 @@ class CachedWallpaperImage extends StatelessWidget {
       maxWidthDiskCache: 1080,
       fadeInDuration: const Duration(milliseconds: 160),
       placeholder: (context, url) => Shimmer.fromColors(
-        baseColor: HudTokens.nightSurface,
-        highlightColor: HudTokens.nightSurfaceHi,
-        child: Container(color: HudTokens.nightSurface),
+        baseColor: context.hud.surface,
+        highlightColor: context.hud.surfaceHi,
+        child: Container(color: context.hud.surface),
       ),
       errorWidget: (context, url, error) => Container(
-        color: HudTokens.nightSurface,
+        color: context.hud.surface,
         child: Icon(
           Icons.broken_image,
-          color: HudTokens.gold.withOpacity(0.3),
+          color: context.hud.accent.withOpacity(0.3),
           size: 40,
         ),
       ),
