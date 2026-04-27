@@ -71,7 +71,8 @@ class HudTokens {
     FontStyle? fontStyle,
   }) =>
       _isIosTheme
-          ? GoogleFonts.getFont('Geist', 
+          ? TextStyle(
+              fontFamily: 'Geist',
               fontSize: size,
               fontWeight: weight,
               color: color,
@@ -98,7 +99,8 @@ class HudTokens {
     FontStyle fontStyle = FontStyle.italic,
   }) =>
       _isIosTheme
-          ? GoogleFonts.getFont('Geist', 
+          ? TextStyle(
+              fontFamily: 'Geist',
               fontSize: size,
               fontWeight: weight,
               color: color,
@@ -123,7 +125,8 @@ class HudTokens {
     double letterSpacing = 0.01,
   }) =>
       _isIosTheme
-          ? GoogleFonts.getFont('Geist', 
+          ? TextStyle(
+              fontFamily: 'Geist',
               fontSize: size,
               fontWeight: weight,
               color: color,
@@ -146,7 +149,8 @@ class HudTokens {
     double letterSpacing = 0.2,
   }) =>
       _isIosTheme
-          ? GoogleFonts.getFont('Geist Mono', 
+          ? TextStyle(
+              fontFamily: 'GeistMono',
               fontSize: size,
               fontWeight: weight,
               color: color,
@@ -270,6 +274,8 @@ class HudTheme extends ThemeExtension<HudTheme> {
 
   /// iOS White ("Apple Store Fresh") — picked by user 2026-04-26.
   /// Phase 1 ships colors + font tokens. Per-widget font migration = Phase 2.
+  /// Geist + GeistMono are bundled as asset fonts (assets/fonts/geist/*.ttf,
+  /// registered in pubspec). DO NOT change names without updating pubspec.
   static const HudTheme iosWhite = HudTheme(
     bg: HudTokens.iosBg,
     surface: HudTokens.iosSurface,
