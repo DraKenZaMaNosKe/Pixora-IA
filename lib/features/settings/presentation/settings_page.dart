@@ -6,6 +6,7 @@ import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/subscription_service.dart';
+import '../../../core/services/theme_service.dart';
 import '../../../core/services/wallpaper_service.dart';
 import '../../../core/utils/locale_helper.dart';
 import '../../favorites/providers/favorites_provider.dart';
@@ -260,6 +261,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _buildOverlaysSection(),
         const Divider(color: Colors.white12),
         const _SectionHeader('General'),
+        const _ThemePickerSection(),
         const Divider(color: Colors.white12),
         const _SectionHeader('About'),
         _SettingsTile(
@@ -912,6 +914,165 @@ class _PlusPill extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// "Tema visual" — three-option theme picker (Black & Gold / Cream Day / iOS White).
+/// Phase 1 of iOS theme implementation.
+class _ThemePickerSection extends StatelessWidget {
+  const _ThemePickerSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final h = context.hud;
+    return ListenableBuilder(
+      listenable: ThemeService.instance,
+      builder: (context, _) {
+        final activeId = ThemeService.instance.activeId;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+              child: Text(
+                LocaleHelper.pick(es: 'TEMA VISUAL', en: 'VISUAL THEME'),
+                style: TextStyle(
+                  fontFamily: h.monoFontFamily,
+                  fontSize: 11,
+                  letterSpacing: 2.4,
+                  color: h.textDim,
+                ),
+              ),
+            ),
+            for (final id in ThemeService.allIds)
+              _ThemeOption(
+                id: id,
+                active: id == activeId,
+                onTap: () => ThemeService.instance.setTheme(id),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ThemeOption extends StatelessWidget {
+  const _ThemeOption({
+    required this.id,
+    required this.active,
+    required this.onTap,
+  });
+  final String id;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final h = context.hud;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: h.divider, width: 0.5),
+          ),
+          color:
+              active ? h.surfaceHi.withValues(alpha: 0.5) : Colors.transparent,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: active ? h.accent : h.divider,
+                  width: 1.5,
+                ),
+                color: active ? h.accent : Colors.transparent,
+              ),
+              child: active ? Icon(Icons.check, size: 14, color: h.bg) : null,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ThemeService.labelFor(id),
+                    style: TextStyle(
+                      fontFamily: h.bodyFontFamily,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: h.text,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    ThemeService.taglineFor(id),
+                    style: TextStyle(
+                      fontFamily: h.monoFontFamily,
+                      fontSize: 10,
+                      letterSpacing: 0.6,
+                      color: h.textDim,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _SwatchPreview(themeId: id),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SwatchPreview extends StatelessWidget {
+  const _SwatchPreview({required this.themeId});
+  final String themeId;
+
+  @override
+  Widget build(BuildContext context) {
+    HudTheme preview;
+    switch (themeId) {
+      case 'iosWhite':
+        preview = HudTheme.iosWhite;
+        break;
+      case 'day':
+        preview = HudTheme.day;
+        break;
+      default:
+        preview = HudTheme.night;
+    }
+    return Container(
+      width: 44,
+      height: 28,
+      decoration: BoxDecoration(
+        color: preview.bg,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: preview.divider, width: 1),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: 6,
+            top: 6,
+            bottom: 6,
+            child: Container(
+              width: 10,
+              decoration: BoxDecoration(
+                color: preview.accent,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
