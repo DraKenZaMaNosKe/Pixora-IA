@@ -193,6 +193,11 @@ class HudTheme extends ThemeExtension<HudTheme> {
   Color get gold => accent;
   Color get goldBright => accent2;
 
+  /// True for iOS White theme — widgets that need to render a different layout
+  /// (e.g. wallpaper cards switch from "Ticket Stub" to clean iOS card) check
+  /// this flag instead of comparing colors directly.
+  bool get isIosStyle => bg == HudTokens.iosBg;
+
   static const HudTheme night = HudTheme(
     bg: HudTokens.nightBg,
     surface: HudTokens.nightSurface,

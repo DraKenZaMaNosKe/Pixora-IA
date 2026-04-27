@@ -539,12 +539,25 @@ class _NavItem extends StatelessWidget {
     final h = context.hud;
     final color = active ? h.accent : h.textDim;
     return InkWell(
-      onTap: onTap,
-      child: Container(
+      onTap: () {
+        // Haptic feedback on tab tap — tiny detail that makes navigation
+        // "feel right" per user request "la navegacion tiene que disfrutarse".
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      splashColor: h.accent.withValues(alpha: 0.15),
+      highlightColor: h.accent.withValues(alpha: 0.06),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: active ? h.accent.withOpacity(0.08) : null,
-          border: active
+          color: active
+              ? (h.isIosStyle
+                  ? h.accent.withValues(alpha: 0.10)
+                  : h.accent.withValues(alpha: 0.08))
+              : null,
+          border: active && !h.isIosStyle
               ? Border(
                   top: BorderSide(color: h.accent2, width: HudTokens.borderMed),
                 )
@@ -553,15 +566,22 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(data.icon, color: color, size: 18),
+            // iOS-style: subtle scale on active
+            AnimatedScale(
+              scale: active ? 1.08 : 1.0,
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutBack,
+              child: Icon(data.icon, color: color, size: 18),
+            ),
             const SizedBox(height: 3),
             Text(
               data.label,
-              style: HudTokens.mono(
-                size: 8,
-                weight: FontWeight.w700,
+              style: TextStyle(
+                fontFamily: h.monoFontFamily,
+                fontSize: h.isIosStyle ? 9 : 8,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                 color: color,
-                letterSpacing: 0.15,
+                letterSpacing: h.isIosStyle ? 0.4 : 0.15,
               ),
             ),
           ],
