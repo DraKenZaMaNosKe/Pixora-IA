@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/design/hud_shapes.dart';
 import '../../../core/design/hud_tokens.dart';
@@ -13,6 +14,7 @@ import '../../settings/presentation/settings_page.dart';
 import '../../stories/presentation/pages/stories_page.dart';
 import '../../day_cycle/presentation/pages/day_cycle_page.dart';
 import '../../hot_wallpapers/presentation/pages/hot_wallpapers_page.dart';
+import '../../parallax_wallpapers/presentation/pages/parallax_wallpapers_page.dart';
 import '../../aura/presentation/pages/aura_page.dart';
 import '../../ringtones/presentation/pages/ringtones_page.dart';
 import '../../wallpapers/presentation/pages/wallpaper_search_page.dart';
@@ -60,6 +62,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   static final _pages = [
     const WallpapersPage(),
     if (!Platform.isIOS) const HotWallpapersPage(),
+    if (!Platform.isIOS) const ParallaxWallpapersPage(),
     if (!Platform.isIOS) const AuraPage(),
     if (!Platform.isIOS) const StoriesPage(),
     if (!Platform.isIOS) const DayCyclePage(),
@@ -75,6 +78,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final titles = [
       'PIXORA',
       if (!Platform.isIOS) 'LIVE',
+      if (!Platform.isIOS) '3D',
       if (!Platform.isIOS) 'AURA',
       if (!Platform.isIOS) 'STORIES',
       if (!Platform.isIOS) 'DAY CYCLE',
@@ -456,6 +460,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final items = <_NavItemData>[
       _NavItemData(Icons.image_outlined, 'WALL'),
       if (!Platform.isIOS) _NavItemData(Icons.play_arrow_rounded, 'LIVE'),
+      if (!Platform.isIOS) _NavItemData(Icons.threed_rotation_rounded, '3D'),
       if (!Platform.isIOS) _NavItemData(Icons.spa_outlined, 'AURA'),
       if (!Platform.isIOS) _NavItemData(Icons.auto_stories_outlined, 'STOR'),
       if (!Platform.isIOS) _NavItemData(Icons.wb_twilight_outlined, 'DAY'),
@@ -491,12 +496,27 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final h = context.hud;
-    return Scaffold(
-      backgroundColor: h.bg,
-      extendBodyBehindAppBar: _isWallpapersTab,
-      appBar: _buildAppBar(),
-      body: IndexedStack(index: _currentIndex, children: _pages),
-      bottomNavigationBar: _buildBottomNav(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: h.isDark
+          ? SystemUiOverlayStyle.light.copyWith(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.light,
+              systemNavigationBarColor: h.bg,
+              systemNavigationBarIconBrightness: Brightness.light,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+              systemNavigationBarColor: h.bg,
+              systemNavigationBarIconBrightness: Brightness.dark,
+            ),
+      child: Scaffold(
+        backgroundColor: h.bg,
+        extendBodyBehindAppBar: _isWallpapersTab,
+        appBar: _buildAppBar(),
+        body: IndexedStack(index: _currentIndex, children: _pages),
+        bottomNavigationBar: _buildBottomNav(),
+      ),
     );
   }
 }
