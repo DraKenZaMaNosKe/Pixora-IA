@@ -838,8 +838,8 @@ class _SectionHeader extends StatelessWidget {
           h.isIosStyle ? 22 : 16, 0, h.isIosStyle ? 8 : 8),
       child: Text(
         h.isIosStyle ? title.toUpperCase() : title,
-        style: TextStyle(
-          fontFamily: h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily,
+        style: GoogleFonts.getFont(
+          h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily,
           fontSize: h.isIosStyle ? 11 : 13,
           fontWeight: FontWeight.w600,
           letterSpacing: h.isIosStyle ? 1.0 : 0.0,
@@ -892,7 +892,8 @@ class _SettingsTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.getFont(h.bodyFontFamily,
+                      style: GoogleFonts.getFont(
+                        h.bodyFontFamily,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: isDanger ? HudTokens.goldDeep : h.text,
@@ -902,7 +903,8 @@ class _SettingsTile extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: GoogleFonts.getFont(h.monoFontFamily,
+                        style: GoogleFonts.getFont(
+                          h.monoFontFamily,
                           fontSize: 12,
                           color: h.textDim,
                           letterSpacing: 0.2,
@@ -995,7 +997,8 @@ class _ThemePickerSection extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
               child: Text(
                 LocaleHelper.pick(es: 'TEMA VISUAL', en: 'VISUAL THEME'),
-                style: GoogleFonts.getFont(h.monoFontFamily,
+                style: GoogleFonts.getFont(
+                  h.monoFontFamily,
                   fontSize: 11,
                   letterSpacing: 2.4,
                   color: h.textDim,
@@ -1061,7 +1064,8 @@ class _ThemeOption extends StatelessWidget {
                 children: [
                   Text(
                     ThemeService.labelFor(id),
-                    style: GoogleFonts.getFont(h.bodyFontFamily,
+                    style: GoogleFonts.getFont(
+                      h.bodyFontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: h.text,
@@ -1070,7 +1074,8 @@ class _ThemeOption extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     ThemeService.taglineFor(id),
-                    style: GoogleFonts.getFont(h.monoFontFamily,
+                    style: GoogleFonts.getFont(
+                      h.monoFontFamily,
                       fontSize: 10,
                       letterSpacing: 0.6,
                       color: h.textDim,
