@@ -116,7 +116,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
               background: Stack(fit: StackFit.expand, children: [
                 Image.network(widget.theme.previewUrl, fit: BoxFit.cover,
                   cacheWidth: 640,
-                  errorBuilder: (_, __, ___) => Container(color: HudTokens.nightSurface)),
+                  errorBuilder: (_, __, ___) => Container(color: context.hud.surface)),
                 const DecoratedBox(decoration: BoxDecoration(
                   gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
                     colors: [Colors.transparent, Colors.black87]),
@@ -167,7 +167,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
                     child: ElevatedButton(
                       onPressed: _isActivating ? null : (isActive ? _deactivate : _activate),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isActive ? HudTokens.goldDeep : HudTokens.gold,
+                        backgroundColor: isActive ? HudTokens.goldDeep : context.hud.accent,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
@@ -188,7 +188,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
         visible: _isActivating,
         progress: _downloadFraction > 0 ? _downloadFraction : null,
         status: _progressText,
-        accentColor: HudTokens.gold,
+        accentColor: context.hud.accent,
         phase: _loadingPhase,
       ),
       ]),
@@ -219,7 +219,7 @@ class _PeriodPreview extends StatelessWidget {
           child: Row(children: [
             SizedBox(width: 130, child: Image.network(imageUrl, fit: BoxFit.cover, height: 90,
               cacheWidth: 260, cacheHeight: 180,
-              errorBuilder: (_, __, ___) => Container(color: HudTokens.nightSurface,
+              errorBuilder: (_, __, ___) => Container(color: context.hud.surface,
                 child: Icon(icon, color: color.withOpacity(0.3), size: 32)))),
             Expanded(child: Padding(padding: const EdgeInsets.all(12),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [

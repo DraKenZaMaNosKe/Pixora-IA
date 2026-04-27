@@ -44,7 +44,7 @@ class _AuraPageState extends ConsumerState<AuraPage> {
     final isEs = LocaleHelper.isSpanishContext(context);
 
     return Scaffold(
-      backgroundColor: HudTokens.nightBg,
+      backgroundColor: context.hud.bg,
       body: SafeArea(
         child: Column(
           children: [
@@ -52,7 +52,7 @@ class _AuraPageState extends ConsumerState<AuraPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  const Icon(Icons.spa, color: HudTokens.gold, size: 28),
+                  Icon(Icons.spa, color: context.hud.accent, size: 28),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(

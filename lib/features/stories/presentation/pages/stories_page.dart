@@ -81,7 +81,7 @@ class StoriesPage extends ConsumerWidget {
                   final story = stories[index];
                   final isActive = activeId == story.id;
 
-                  final glowColor = HudTokens.gold;
+                  final glowColor = context.hud.accent;
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -103,7 +103,7 @@ class StoriesPage extends ConsumerWidget {
                           width: 34,
                           height: 34,
                           decoration: BoxDecoration(
-                            color: HudTokens.nightBg.withOpacity(0.6),
+                            color: context.hud.bg.withOpacity(0.6),
                             shape: BoxShape.circle,
                             border: Border.all(color: glowColor, width: 1),
                           ),

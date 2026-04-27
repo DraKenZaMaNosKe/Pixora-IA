@@ -36,7 +36,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   late Future<bool> _isDownloadedFuture;
   int _controlsToken = 0;
 
-  Color get _glowColor => HudTokens.gold;
+  Color get _glowColor => context.hud.accent;
 
   @override
   void initState() {
@@ -239,9 +239,9 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
           _isDownloadedFuture = _isDownloaded();
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Video deleted from device'),
-            backgroundColor: HudTokens.gold,
+            backgroundColor: context.hud.accent,
           ),
         );
       }
@@ -559,14 +559,14 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                           horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
                                         color: isFree
-                                            ? HudTokens.gold.withOpacity(0.2)
-                                            : HudTokens.gold.withOpacity(0.2),
+                                            ? context.hud.accent.withOpacity(0.2)
+                                            : context.hud.accent.withOpacity(0.2),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: isFree
-                                                ? HudTokens.gold
+                                                ? context.hud.accent
                                                     .withOpacity(0.5)
-                                                : HudTokens.gold
+                                                : context.hud.accent
                                                     .withOpacity(0.5)),
                                       ),
                                       child: Text(
@@ -577,18 +577,18 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
                                             color: isFree
-                                                ? HudTokens.gold
-                                                : HudTokens.gold),
+                                                ? context.hud.accent
+                                                : context.hud.accent),
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    const Icon(Icons.diamond,
-                                        size: 12, color: HudTokens.gold),
+                                    Icon(Icons.diamond,
+                                        size: 12, color: context.hud.accent),
                                     const SizedBox(width: 3),
                                     Text('$credits',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontSize: 11,
-                                            color: HudTokens.gold)),
+                                            color: context.hud.accent)),
                                   ],
                                 ),
                               );

@@ -30,7 +30,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   final _pageController = PageController(viewportFraction: 0.85);
 
   Color get _glowColor =>
-      HudTokens.gold; // Was: parseHexColor(glowColor, fallback: deepPurple)
+      context.hud.accent; // Was: parseHexColor(glowColor, fallback: deepPurple)
 
   @override
   void initState() {
@@ -303,13 +303,13 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: isFree
-                              ? HudTokens.gold.withOpacity(0.2)
-                              : HudTokens.gold.withOpacity(0.2),
+                              ? context.hud.accent.withOpacity(0.2)
+                              : context.hud.accent.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                               color: isFree
-                                  ? HudTokens.gold.withOpacity(0.5)
-                                  : HudTokens.gold.withOpacity(0.5)),
+                                  ? context.hud.accent.withOpacity(0.5)
+                                  : context.hud.accent.withOpacity(0.5)),
                         ),
                         child: Text(
                           isFree
@@ -318,16 +318,16 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                           style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: isFree ? HudTokens.gold : HudTokens.gold),
+                              color: isFree ? context.hud.accent : context.hud.accent),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Icon(Icons.diamond,
-                          size: 12, color: HudTokens.gold),
+                      Icon(Icons.diamond,
+                          size: 12, color: context.hud.accent),
                       const SizedBox(width: 3),
                       Text('$credits',
-                          style: const TextStyle(
-                              fontSize: 11, color: HudTokens.gold)),
+                          style: TextStyle(
+                              fontSize: 11, color: context.hud.accent)),
                     ],
                   );
                 }),

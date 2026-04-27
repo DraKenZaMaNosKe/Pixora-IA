@@ -59,7 +59,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   List<Color> _toneGradient(RingtoneTone tone, Color glow) {
     // Black & Gold: ignore per-character brand colors — every tone renders on
     // a unified gold gradient. Was previously 22 hardcoded palettes.
-    return const [HudTokens.goldDeep, HudTokens.nightBg];
+    return [HudTokens.goldDeep, Theme.of(context).extension<HudTheme>()?.bg ?? HudTokens.nightBg];
   }
 
   @override
@@ -137,9 +137,9 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A2E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.settings, color: HudTokens.goldBright, size: 24),
+            Icon(Icons.settings, color: context.hud.accent2, size: 24),
             SizedBox(width: 10),
             Text('Permission needed', style: TextStyle(fontSize: 17)),
           ],
@@ -443,7 +443,7 @@ class _ToneCard extends StatelessWidget {
       onTap: onPlay,
       overlayTopRight: WallpaperStatsBar(
         wallpaperId: 'tone_${tone.id}',
-        glowColor: HudTokens.gold,
+        glowColor: context.hud.accent,
       ),
       child: Column(
         children: [
@@ -451,11 +451,11 @@ class _ToneCard extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: HudTokens.nightSurfaceHi,
+                color: context.hud.surfaceHi,
                 gradient: RadialGradient(
                   colors: [
-                    HudTokens.gold.withOpacity(isPlaying ? 0.35 : 0.14),
-                    HudTokens.nightSurface,
+                    context.hud.accent.withOpacity(isPlaying ? 0.35 : 0.14),
+                    context.hud.surface,
                   ],
                   radius: 0.85,
                 ),
@@ -467,20 +467,20 @@ class _ToneCard extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(typeIcon, color: HudTokens.gold, size: 24),
+                        Icon(typeIcon, color: context.hud.accent, size: 24),
                         const SizedBox(height: 10),
                         Container(
                           width: 46,
                           height: 46,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: HudTokens.nightBg.withOpacity(0.55),
-                            border: Border.all(color: HudTokens.gold, width: 1),
+                            color: context.hud.bg.withOpacity(0.55),
+                            border: Border.all(color: context.hud.accent, width: 1),
                           ),
                           child: _PlayStopButton(
                             isPlaying: isPlaying,
                             isSetting: isSetting,
-                            glow: HudTokens.gold,
+                            glow: context.hud.accent,
                           ),
                         ),
                       ],
@@ -492,7 +492,7 @@ class _ToneCard extends StatelessWidget {
                       left: 0,
                       right: 0,
                       child: Center(
-                        child: _PlayingWave(color: HudTokens.gold),
+                        child: _PlayingWave(color: context.hud.accent),
                       ),
                     ),
                 ],
@@ -509,15 +509,15 @@ class _ToneCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               margin: const EdgeInsets.only(top: 4),
               color: isSetting
-                  ? HudTokens.nightSurfaceHi
-                  : HudTokens.gold.withOpacity(0.9),
+                  ? context.hud.surfaceHi
+                  : context.hud.accent.withOpacity(0.9),
               alignment: Alignment.center,
               child: Text(
                 isSetting ? 'INSTALLING…' : 'SET AS ↗',
                 style: HudTokens.mono(
                   size: 10,
                   weight: FontWeight.w700,
-                  color: isSetting ? HudTokens.gold : Colors.black,
+                  color: isSetting ? context.hud.accent : Colors.black,
                   letterSpacing: 0.25,
                 ),
               ),

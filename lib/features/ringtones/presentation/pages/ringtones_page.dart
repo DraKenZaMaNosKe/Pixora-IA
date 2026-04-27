@@ -92,11 +92,11 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: HudTokens.nightSurface,
+        backgroundColor: context.hud.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.settings, color: HudTokens.goldBright, size: 24),
+            Icon(Icons.settings, color: context.hud.accent2, size: 24),
             SizedBox(width: 10),
             Text('Permission needed', style: TextStyle(fontSize: 17)),
           ],
@@ -118,7 +118,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
               await RingtoneService.instance.requestPermission();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: HudTokens.gold,
+              backgroundColor: context.hud.accent,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
@@ -153,7 +153,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           content: Text(success
               ? '${tone.name} set as ${typeNames[type]}!'
               : 'Failed to set ringtone'),
-          backgroundColor: success ? HudTokens.gold : HudTokens.goldDeep,
+          backgroundColor: success ? context.hud.accent : HudTokens.goldDeep,
         ),
       );
     }
@@ -163,7 +163,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   void _showSetAsDialog(RingtoneTone tone) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: HudTokens.nightSurface,
+      backgroundColor: context.hud.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -207,7 +207,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   Widget _buildSetOption(
       BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: HudTokens.gold),
+      leading: Icon(icon, color: context.hud.accent),
       title: Text(label),
       trailing: const Icon(Icons.chevron_right, color: Colors.white24),
       onTap: onTap,
@@ -221,7 +221,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   List<Color> _toneGradient(RingtoneTone tone, Color glow) {
     // Black & Gold: ignore per-character brand colors — every tone renders on
     // a unified gold gradient. Was previously 22 hardcoded palettes.
-    return const [HudTokens.goldDeep, HudTokens.nightBg];
+    return [HudTokens.goldDeep, Theme.of(context).extension<HudTheme>()?.bg ?? HudTokens.nightBg];
   }
 
   IconData _toneIcon(RingtoneTone tone) {
@@ -284,7 +284,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline,
+            Icon(Icons.error_outline,
                 color: HudTokens.goldDeep, size: 48),
             const SizedBox(height: 12),
             const Text('Failed to load tones',
@@ -371,7 +371,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                       subtitle:
                           '${pack.tones.length} tones \u00b7 ${pack.description}',
                       badge: pack.category,
-                      accentColor: HudTokens.gold,
+                      accentColor: context.hud.accent,
                     ))
                 .toList(),
             onTap: (i) => Navigator.push(
@@ -422,10 +422,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: selected ? HudTokens.gold : HudTokens.nightSurface,
+                color: selected ? context.hud.accent : context.hud.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: selected ? HudTokens.gold : Colors.white12,
+                  color: selected ? context.hud.accent : Colors.white12,
                 ),
               ),
               child: Row(
@@ -477,13 +477,13 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                     'See All',
                     style: TextStyle(
                       fontSize: 13,
-                      color: HudTokens.gold.withOpacity(0.9),
+                      color: context.hud.accent.withOpacity(0.9),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(width: 2),
                   Icon(Icons.chevron_right,
-                      size: 18, color: HudTokens.gold.withOpacity(0.9)),
+                      size: 18, color: context.hud.accent.withOpacity(0.9)),
                 ],
               ),
             ),
@@ -656,17 +656,17 @@ class _RecommendedCard extends StatelessWidget {
         duration: const Duration(milliseconds: 250),
         width: 150,
         decoration: BoxDecoration(
-          color: HudTokens.nightSurface,
+          color: context.hud.surface,
           border: Border.all(
             color: isPlaying
-                ? HudTokens.goldBright
-                : HudTokens.gold.withOpacity(0.45),
+                ? context.hud.accent2
+                : context.hud.accent.withOpacity(0.45),
             width: isPlaying ? 2 : 1,
           ),
           boxShadow: isPlaying
               ? [
                   BoxShadow(
-                    color: HudTokens.gold.withOpacity(0.35),
+                    color: context.hud.accent.withOpacity(0.35),
                     blurRadius: 22,
                     spreadRadius: 1,
                   ),
@@ -685,7 +685,7 @@ class _RecommendedCard extends StatelessWidget {
                     fontFamily: 'serif',
                     fontStyle: FontStyle.italic,
                     fontSize: 11,
-                    color: HudTokens.gold,
+                    color: context.hud.accent,
                     letterSpacing: 0.15,
                   ),
                 ),
@@ -694,7 +694,7 @@ class _RecommendedCard extends StatelessWidget {
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    color: HudTokens.gold,
+                    color: context.hud.accent,
                     child: Text(
                       badge!,
                       style: const TextStyle(
@@ -721,8 +721,8 @@ class _RecommendedCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            HudTokens.gold.withOpacity(0.35),
-                            HudTokens.gold.withOpacity(0.0),
+                            context.hud.accent.withOpacity(0.35),
+                            context.hud.accent.withOpacity(0.0),
                           ],
                         ),
                       ),
@@ -732,13 +732,13 @@ class _RecommendedCard extends StatelessWidget {
                     height: 54,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: HudTokens.gold, width: 1.2),
-                      color: HudTokens.nightBg,
+                      border: Border.all(color: context.hud.accent, width: 1.2),
+                      color: context.hud.bg,
                     ),
                     child: _PlayButton(
                       isPlaying: isPlaying,
                       isSetting: isSetting,
-                      glow: HudTokens.gold,
+                      glow: context.hud.accent,
                       size: 54,
                     ),
                   ),
@@ -747,7 +747,7 @@ class _RecommendedCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             if (isPlaying)
-              Center(child: _MiniWave(color: HudTokens.gold))
+              Center(child: _MiniWave(color: context.hud.accent))
             else
               const SizedBox(height: 16),
             const SizedBox(height: 10),
@@ -770,7 +770,7 @@ class _RecommendedCard extends StatelessWidget {
                 fontFamily: 'serif',
                 fontStyle: FontStyle.italic,
                 fontSize: 11,
-                color: HudTokens.gold.withOpacity(0.75),
+                color: context.hud.accent.withOpacity(0.75),
                 letterSpacing: 0.05,
               ),
             ),
@@ -887,10 +887,10 @@ class _ToneGridCard extends StatelessWidget {
         onTap: onTap,
         overlayTopRight: WallpaperStatsBar(
           wallpaperId: 'tone_${tone.id}',
-          glowColor: HudTokens.gold,
+          glowColor: context.hud.accent,
         ),
         child: Container(
-          color: HudTokens.nightSurfaceHi,
+          color: context.hud.surfaceHi,
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -899,7 +899,7 @@ class _ToneGridCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      HudTokens.gold.withOpacity(isPlaying ? 0.4 : 0.15),
+                      context.hud.accent.withOpacity(isPlaying ? 0.4 : 0.15),
                       Colors.transparent,
                     ],
                     radius: 0.8,
@@ -911,20 +911,20 @@ class _ToneGridCard extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(icon, color: HudTokens.gold, size: 26),
+                    Icon(icon, color: context.hud.accent, size: 26),
                     const SizedBox(height: 8),
                     Container(
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: HudTokens.nightBg.withOpacity(0.5),
-                        border: Border.all(color: HudTokens.gold, width: 1),
+                        color: context.hud.bg.withOpacity(0.5),
+                        border: Border.all(color: context.hud.accent, width: 1),
                       ),
                       child: _PlayButton(
                         isPlaying: isPlaying,
                         isSetting: isSetting,
-                        glow: HudTokens.gold,
+                        glow: context.hud.accent,
                         size: 38,
                       ),
                     ),
@@ -936,7 +936,7 @@ class _ToneGridCard extends StatelessWidget {
                   bottom: 6,
                   left: 0,
                   right: 0,
-                  child: Center(child: _MiniWave(color: HudTokens.gold)),
+                  child: Center(child: _MiniWave(color: context.hud.accent)),
                 ),
             ],
           ),
@@ -1018,13 +1018,13 @@ class _ShimmerLoading extends StatelessWidget {
                 (i) => Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Shimmer.fromColors(
-                        baseColor: HudTokens.nightSurface,
-                        highlightColor: HudTokens.nightSurfaceHi,
+                        baseColor: context.hud.surface,
+                        highlightColor: context.hud.surfaceHi,
                         child: Container(
                           width: 90,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: HudTokens.nightSurface,
+                            color: context.hud.surface,
                             borderRadius: BorderRadius.circular(18),
                           ),
                         ),
@@ -1034,12 +1034,12 @@ class _ShimmerLoading extends StatelessWidget {
           const SizedBox(height: 16),
           // Hero shimmer
           Shimmer.fromColors(
-            baseColor: HudTokens.nightSurface,
-            highlightColor: HudTokens.nightSurfaceHi,
+            baseColor: context.hud.surface,
+            highlightColor: context.hud.surfaceHi,
             child: Container(
               height: 200,
               decoration: BoxDecoration(
-                color: HudTokens.nightSurface,
+                color: context.hud.surface,
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
@@ -1047,13 +1047,13 @@ class _ShimmerLoading extends StatelessWidget {
           const SizedBox(height: 24),
           // Section shimmer
           Shimmer.fromColors(
-            baseColor: HudTokens.nightSurface,
-            highlightColor: HudTokens.nightSurfaceHi,
+            baseColor: context.hud.surface,
+            highlightColor: context.hud.surfaceHi,
             child: Container(
               width: 160,
               height: 20,
               decoration: BoxDecoration(
-                color: HudTokens.nightSurface,
+                color: context.hud.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -1068,13 +1068,13 @@ class _ShimmerLoading extends StatelessWidget {
                   (i) => Padding(
                         padding: const EdgeInsets.only(right: 12),
                         child: Shimmer.fromColors(
-                          baseColor: HudTokens.nightSurface,
-                          highlightColor: HudTokens.nightSurfaceHi,
+                          baseColor: context.hud.surface,
+                          highlightColor: context.hud.surfaceHi,
                           child: Container(
                             width: 140,
                             height: 170,
                             decoration: BoxDecoration(
-                              color: HudTokens.nightSurface,
+                              color: context.hud.surface,
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),

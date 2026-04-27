@@ -23,7 +23,7 @@ class HotWallpapersPage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: HudTokens.gold, size: 48),
+            Icon(Icons.error_outline, color: context.hud.accent, size: 48),
             const SizedBox(height: 12),
             const Text('Failed to load live wallpapers',
                 style: TextStyle(color: Colors.white70)),
@@ -77,7 +77,7 @@ class _HotContent extends StatelessWidget {
                       badge: item.category,
                       // Force gold regardless of per-item glowColor to keep
                       // the Black & Gold system coherent across the catalog.
-                      accentColor: HudTokens.gold,
+                      accentColor: context.hud.accent,
                     ))
                 .toList(),
             onTap: (i) => Navigator.push(
@@ -230,7 +230,7 @@ class _LiveWallpaperCard extends StatelessWidget {
         overlayTopLeft: item.badge != null
             ? Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                color: HudTokens.gold,
+                color: context.hud.accent,
                 child: Text(
                   item.badge!.toUpperCase(),
                   style: HudTokens.mono(
@@ -244,7 +244,7 @@ class _LiveWallpaperCard extends StatelessWidget {
             : null,
         overlayTopRight: WallpaperStatsBar(
           wallpaperId: 'live_${item.id}',
-          glowColor: HudTokens.gold,
+          glowColor: context.hud.accent,
         ),
         child: Stack(
           fit: StackFit.expand,
@@ -253,11 +253,11 @@ class _LiveWallpaperCard extends StatelessWidget {
               imageUrl: item.previewUrl,
               fit: BoxFit.cover,
               memCacheWidth: 400,
-              placeholder: (_, __) => Container(color: HudTokens.nightSurface),
+              placeholder: (_, __) => Container(color: context.hud.surface),
               errorWidget: (_, __, ___) => Container(
-                color: HudTokens.nightSurface,
-                child: const Icon(Icons.play_circle,
-                    color: HudTokens.gold, size: 40),
+                color: context.hud.surface,
+                child: Icon(Icons.play_circle,
+                    color: context.hud.accent, size: 40),
               ),
             ),
             // Play flourish in the center — thin gold circle, not a solid pill.
@@ -266,12 +266,12 @@ class _LiveWallpaperCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: HudTokens.nightBg.withOpacity(0.45),
+                  color: context.hud.bg.withOpacity(0.45),
                   shape: BoxShape.circle,
-                  border: Border.all(color: HudTokens.gold, width: 1),
+                  border: Border.all(color: context.hud.accent, width: 1),
                 ),
-                child: const Icon(Icons.play_arrow_rounded,
-                    color: HudTokens.gold, size: 22),
+                child: Icon(Icons.play_arrow_rounded,
+                    color: context.hud.accent, size: 22),
               ),
             ),
           ],
@@ -293,13 +293,13 @@ class _ShimmerLoading extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Shimmer.fromColors(
-            baseColor: HudTokens.nightSurface,
-            highlightColor: HudTokens.nightSurfaceHi,
+            baseColor: context.hud.surface,
+            highlightColor: context.hud.surfaceHi,
             child: Container(
               width: 200,
               height: 30,
               decoration: BoxDecoration(
-                color: HudTokens.nightSurface,
+                color: context.hud.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -313,13 +313,13 @@ class _ShimmerLoading extends StatelessWidget {
                   (i) => Padding(
                         padding: const EdgeInsets.only(right: 12),
                         child: Shimmer.fromColors(
-                          baseColor: HudTokens.nightSurface,
-                          highlightColor: HudTokens.nightSurfaceHi,
+                          baseColor: context.hud.surface,
+                          highlightColor: context.hud.surfaceHi,
                           child: Container(
                             width: 140,
                             height: 220,
                             decoration: BoxDecoration(
-                              color: HudTokens.nightSurface,
+                              color: context.hud.surface,
                               borderRadius: BorderRadius.circular(14),
                             ),
                           ),
