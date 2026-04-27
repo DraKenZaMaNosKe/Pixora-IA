@@ -10,10 +10,15 @@ class AppTheme {
 
   static ThemeData get night => _buildTheme(HudTheme.night);
   static ThemeData get day => _buildTheme(HudTheme.day);
+  static ThemeData get iosWhite => _buildTheme(HudTheme.iosWhite);
 
   /// Back-compat alias so existing code referencing `AppTheme.dark` keeps working
   /// during the incremental migration to HUD.
   static ThemeData get dark => night;
+
+  /// Build a ThemeData from any HudTheme — used by ThemeService at the
+  /// MaterialApp root to swap themes live.
+  static ThemeData forHud(HudTheme h) => _buildTheme(h);
 
   static ThemeData _buildTheme(HudTheme h) {
     return ThemeData(

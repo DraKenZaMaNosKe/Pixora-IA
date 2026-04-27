@@ -9,6 +9,7 @@ import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/credit_service.dart';
 import 'core/services/subscription_service.dart';
+import 'core/services/theme_service.dart';
 import 'features/aura/services/aura_player_service.dart';
 import 'core/services/wallpaper_stats_service.dart';
 import 'core/theme/app_theme.dart';
@@ -58,6 +59,7 @@ Future<void> main() async {
       ),
     ));
 
+    await ThemeService.instance.init();
     await CreditService.instance.init();
     await AuraPlayerService.instance.init();
     AdService.instance.initialize();
@@ -102,11 +104,16 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pixora IA',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      home: const SplashPage(),
+    return ListenableBuilder(
+      listenable: ThemeService.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'Pixora IA',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.forHud(ThemeService.instance.currentTheme),
+          home: const SplashPage(),
+        );
+      },
     );
   }
 }
