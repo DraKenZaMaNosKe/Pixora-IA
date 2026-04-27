@@ -615,39 +615,70 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   }
 
   Widget _catItem(String k, String v) {
+    final h = context.hud;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(k, style: _meta(10, color: context.hud.textDim, ls: 0.2)),
+        Text(
+          h.isIosStyle ? k : k,
+          style: HudTokens.mono(
+            size: h.isIosStyle ? 11 : 10,
+            color: h.textDim,
+            letterSpacing: h.isIosStyle ? 0.4 : 0.2,
+            weight: FontWeight.w500,
+          ),
+        ),
         const SizedBox(height: 3),
         Text(
           v,
-          style: _serif(14,
-              color: context.hud.text, s: FontStyle.italic, w: FontWeight.w400),
+          style: h.isIosStyle
+              ? HudTokens.body(
+                  size: 15,
+                  weight: FontWeight.w600,
+                  color: h.text,
+                  letterSpacing: -0.2,
+                )
+              : _serif(14,
+                  color: h.text, s: FontStyle.italic, w: FontWeight.w400),
         ),
       ],
     );
   }
 
   Widget _buildPriceRow() {
+    final h = context.hud;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: context.hud.accent, width: 1),
-          bottom:
-              BorderSide(color: context.hud.accent.withOpacity(0.3), width: 1),
+          top: BorderSide(color: h.divider, width: h.isIosStyle ? 0.5 : 1),
+          bottom: BorderSide(
+              color: h.isIosStyle ? h.divider : h.accent.withValues(alpha: 0.3),
+              width: h.isIosStyle ? 0.5 : 1),
         ),
       ),
       child: Row(
         children: [
-          Text('— precio / en Pixora',
-              style: _meta(10, color: context.hud.textDim, ls: 0.25)),
+          Text(
+            h.isIosStyle ? 'Precio' : '— precio / en Pixora',
+            style: HudTokens.mono(
+              size: h.isIosStyle ? 12 : 10,
+              color: h.textDim,
+              letterSpacing: h.isIosStyle ? -0.1 : 0.25,
+              weight: FontWeight.w500,
+            ),
+          ),
           const Spacer(),
           Text(
-            Platform.isIOS ? 'SAVE' : 'GRATIS',
-            style: _display(22,
-                color: context.hud.accent, w: FontWeight.w900, ls: 0.04),
+            Platform.isIOS ? 'Save' : (h.isIosStyle ? 'Gratis' : 'GRATIS'),
+            style: h.isIosStyle
+                ? HudTokens.body(
+                    size: 18,
+                    weight: FontWeight.w700,
+                    color: h.accent,
+                    letterSpacing: -0.3,
+                  )
+                : _display(22, color: h.accent, w: FontWeight.w900, ls: 0.04),
           ),
         ],
       ),
@@ -655,18 +686,42 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   }
 
   Widget _buildCta() {
+    final h = context.hud;
+    final label = Platform.isIOS ? 'GUARDAR EN FOTOS' : 'APLICAR A MI TELÉFONO';
     return InkWell(
       onTap: _isApplying ? null : _showApplyDialog,
+      borderRadius: h.isIosStyle ? BorderRadius.circular(14) : null,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        color: context.hud.accent,
-        alignment: Alignment.center,
-        child: Text(
-          Platform.isIOS ? 'GUARDAR EN FOTOS' : 'APLICAR A MI TELÉFONO',
-          style:
-              _display(14, color: context.hud.bg, w: FontWeight.w900, ls: 0.25),
+        padding: EdgeInsets.symmetric(vertical: h.isIosStyle ? 14 : 16),
+        decoration: BoxDecoration(
+          color: h.accent,
+          borderRadius: h.isIosStyle ? BorderRadius.circular(14) : null,
+          boxShadow: h.isIosStyle
+              ? [
+                  BoxShadow(
+                    color: h.accent.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
+        alignment: Alignment.center,
+        child: h.isIosStyle
+            ? Text(
+                Platform.isIOS ? 'Guardar en Fotos' : 'Aplicar wallpaper',
+                style: HudTokens.body(
+                  size: 16,
+                  weight: FontWeight.w600,
+                  color: Colors.white,
+                  letterSpacing: -0.2,
+                ),
+              )
+            : Text(
+                label,
+                style: _display(14, color: h.bg, w: FontWeight.w900, ls: 0.25),
+              ),
       ),
     );
   }
