@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/theme_service.dart';
 
 /// Black & Gold design tokens.
 ///
@@ -55,8 +56,13 @@ class HudTokens {
   static const Color infoBlue = Color(0xFFC9A650);
 
   // ── Typography ────────────────────────────────────────────────────────
-  /// Display — Playfair Display (serif, luxurious, editorial).
-  /// Use for hero titles, H1, big numerics.
+  /// True when the active theme is iOS White. Used by all the typography
+  /// helpers below to pick the iOS sans-serif (Geist) instead of the
+  /// editorial serif stack (Playfair / Cormorant). Read once per call so
+  /// theme switches propagate next frame.
+  static bool get _isIosTheme => ThemeService.instance.currentTheme.isIosStyle;
+
+  /// Display — serif (Playfair) for Black & Gold / Day, sans (Geist) for iOS.
   static TextStyle display({
     required double size,
     FontWeight weight = FontWeight.w900,
@@ -64,16 +70,26 @@ class HudTokens {
     double letterSpacing = -0.01,
     FontStyle? fontStyle,
   }) =>
-      GoogleFonts.playfairDisplay(
-        fontSize: size,
-        fontWeight: weight,
-        color: color,
-        letterSpacing: letterSpacing,
-        fontStyle: fontStyle,
-        height: 1.05,
-      );
+      _isIosTheme
+          ? GoogleFonts.getFont('Geist', 
+              fontSize: size,
+              fontWeight: weight,
+              color: color,
+              letterSpacing: letterSpacing,
+              fontStyle: fontStyle,
+              height: 1.05,
+            )
+          : GoogleFonts.playfairDisplay(
+              fontSize: size,
+              fontWeight: weight,
+              color: color,
+              letterSpacing: letterSpacing,
+              fontStyle: fontStyle,
+              height: 1.05,
+            );
 
-  /// Serif italic — Cormorant Garamond (editorial, elegant, taglines).
+  /// Serif italic — Cormorant for editorial themes, italic Geist for iOS
+  /// (since iOS doesn't do italic serif headlines naturally).
   static TextStyle serif({
     required double size,
     FontWeight weight = FontWeight.w400,
@@ -81,45 +97,69 @@ class HudTokens {
     double letterSpacing = 0.02,
     FontStyle fontStyle = FontStyle.italic,
   }) =>
-      GoogleFonts.cormorantGaramond(
-        fontSize: size,
-        fontWeight: weight,
-        color: color,
-        letterSpacing: letterSpacing,
-        fontStyle: fontStyle,
-        height: 1.3,
-      );
+      _isIosTheme
+          ? GoogleFonts.getFont('Geist', 
+              fontSize: size,
+              fontWeight: weight,
+              color: color,
+              letterSpacing: letterSpacing,
+              fontStyle: fontStyle,
+              height: 1.3,
+            )
+          : GoogleFonts.cormorantGaramond(
+              fontSize: size,
+              fontWeight: weight,
+              color: color,
+              letterSpacing: letterSpacing,
+              fontStyle: fontStyle,
+              height: 1.3,
+            );
 
-  /// Body — Inter (clean sans-serif, for UI labels, descriptions).
+  /// Body — Inter for editorial themes, Geist for iOS.
   static TextStyle body({
     required double size,
     FontWeight weight = FontWeight.w500,
     Color? color,
     double letterSpacing = 0.01,
   }) =>
-      GoogleFonts.inter(
-        fontSize: size,
-        fontWeight: weight,
-        color: color,
-        letterSpacing: letterSpacing,
-        height: 1.35,
-      );
+      _isIosTheme
+          ? GoogleFonts.getFont('Geist', 
+              fontSize: size,
+              fontWeight: weight,
+              color: color,
+              letterSpacing: letterSpacing,
+              height: 1.35,
+            )
+          : GoogleFonts.inter(
+              fontSize: size,
+              fontWeight: weight,
+              color: color,
+              letterSpacing: letterSpacing,
+              height: 1.35,
+            );
 
-  /// Mono — Inter with wide letter-spacing (for stats, counts, tiny labels).
-  /// Aliased from body with wide tracking for consistency.
+  /// Mono — Inter wide for editorial, Geist Mono for iOS.
   static TextStyle mono({
     required double size,
     FontWeight weight = FontWeight.w700,
     Color? color,
     double letterSpacing = 0.2,
   }) =>
-      GoogleFonts.inter(
-        fontSize: size,
-        fontWeight: weight,
-        color: color,
-        letterSpacing: letterSpacing,
-        height: 1.3,
-      );
+      _isIosTheme
+          ? GoogleFonts.getFont('Geist Mono', 
+              fontSize: size,
+              fontWeight: weight,
+              color: color,
+              letterSpacing: letterSpacing,
+              height: 1.4,
+            )
+          : GoogleFonts.inter(
+              fontSize: size,
+              fontWeight: weight,
+              color: color,
+              letterSpacing: letterSpacing,
+              height: 1.3,
+            );
 
   // ── Spacing ───────────────────────────────────────────────────────────
   static const double sp1 = 4;
