@@ -139,7 +139,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMsg ?? 'Descarga fallida'),
-            backgroundColor: HudTokens.nightSurface,
+            backgroundColor: context.hud.surface,
           ),
         );
       }
@@ -151,9 +151,9 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     if (!await file.exists()) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Archivo no encontrado'),
-            backgroundColor: HudTokens.nightSurface,
+          SnackBar(
+            content: const Text('Archivo no encontrado'),
+            backgroundColor: context.hud.surface,
           ),
         );
       }
@@ -168,7 +168,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(success ? 'Guardado en Fotos' : 'No se pudo guardar'),
-          backgroundColor: HudTokens.nightSurface,
+          backgroundColor: context.hud.surface,
         ),
       );
     }
@@ -186,9 +186,9 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     final micStatus = await Permission.microphone.request();
     if (!micStatus.isGranted && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Micrófono requerido para el ecualizador'),
-          backgroundColor: HudTokens.nightSurface,
+        SnackBar(
+          content: const Text('Micrófono requerido para el ecualizador'),
+          backgroundColor: context.hud.surface,
         ),
       );
     }
@@ -312,7 +312,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: HudTokens.nightSurface,
+      backgroundColor: context.hud.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
       ),
@@ -328,11 +328,11 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                 children: [
                   Text('— ',
                       style: _serif(13,
-                          color: HudTokens.gold, s: FontStyle.italic)),
+                          color: context.hud.accent, s: FontStyle.italic)),
                   Text(
                     'aplicar pieza',
                     style: _serif(15,
-                        color: HudTokens.gold,
+                        color: context.hud.accent,
                         s: FontStyle.italic,
                         w: FontWeight.w500),
                   ),
@@ -341,11 +341,11 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      border: Border.all(color: HudTokens.gold, width: 1),
+                      border: Border.all(color: context.hud.accent, width: 1),
                     ),
                     child: Text(
                       isFree ? 'SIN AD' : 'CON AD',
-                      style: _meta(9, color: HudTokens.gold, ls: 0.2),
+                      style: _meta(9, color: context.hud.accent, ls: 0.2),
                     ),
                   ),
                 ],
@@ -355,19 +355,18 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.diamond, color: HudTokens.gold, size: 13),
+                  Icon(Icons.diamond, color: context.hud.accent, size: 13),
                   const SizedBox(width: 5),
                   Text('$credits diamantes',
-                      style:
-                          _meta(11, color: HudTokens.nightTextDim, ls: 0.15)),
+                      style: _meta(11, color: context.hud.textDim, ls: 0.15)),
                   const SizedBox(width: 12),
-                  Text('·', style: _meta(11, color: HudTokens.nightTextDim)),
+                  Text('·', style: _meta(11, color: context.hud.textDim)),
                   const SizedBox(width: 12),
                   Text(
                     isFree
                         ? 'próximo sin cobro'
                         : '+${CreditService.creditsPerAd} por ver',
-                    style: _meta(11, color: HudTokens.nightTextDim, ls: 0.05),
+                    style: _meta(11, color: context.hud.textDim, ls: 0.05),
                   ),
                 ],
               ),
@@ -390,7 +389,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 height: 1,
-                color: HudTokens.nightDivider,
+                color: context.hud.divider,
               ),
               _buildOption(Icons.auto_awesome_outlined,
                   'Live wallpaper (con efectos)', 'live + touch', () {
@@ -412,7 +411,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            Icon(icon, color: HudTokens.gold, size: 22),
+            Icon(icon, color: context.hud.accent, size: 22),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -420,17 +419,18 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                 children: [
                   Text(label,
                       style: _display(15,
-                          color: HudTokens.nightText,
+                          color: context.hud.text,
                           w: FontWeight.w700,
                           ls: -0.01)),
                   const SizedBox(height: 2),
                   Text('— $sub',
                       style: _serif(12,
-                          color: HudTokens.nightTextDim, s: FontStyle.italic)),
+                          color: context.hud.textDim, s: FontStyle.italic)),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: HudTokens.gold.withOpacity(0.5)),
+            Icon(Icons.chevron_right,
+                color: context.hud.accent.withOpacity(0.5)),
           ],
         ),
       ),
@@ -445,7 +445,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     final w = widget.wallpaper;
 
     return Scaffold(
-      backgroundColor: HudTokens.nightBg,
+      backgroundColor: context.hud.bg,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -477,7 +477,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
             visible: _isApplying,
             progress: _downloadProgress > 0 ? _downloadProgress : null,
             status: _loadingStatus,
-            accentColor: HudTokens.gold,
+            accentColor: context.hud.accent,
             phase: _loadingPhase,
           ),
         ],
@@ -494,11 +494,12 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
             onTap: () => Navigator.pop(context),
             child: Row(
               children: [
-                Icon(Icons.arrow_back_ios_new, color: HudTokens.gold, size: 14),
+                Icon(Icons.arrow_back_ios_new,
+                    color: context.hud.accent, size: 14),
                 const SizedBox(width: 6),
                 Text('volver',
                     style: _serif(14,
-                        color: HudTokens.gold,
+                        color: context.hud.accent,
                         s: FontStyle.italic,
                         w: FontWeight.w500)),
               ],
@@ -508,11 +509,11 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              border: Border.all(color: HudTokens.gold, width: 1),
+              border: Border.all(color: context.hud.accent, width: 1),
             ),
             child: Text(
               'LOT · $_lotNumber',
-              style: _meta(10, color: HudTokens.gold, ls: 0.3),
+              style: _meta(10, color: context.hud.accent, ls: 0.3),
             ),
           ),
           const SizedBox(width: 8),
@@ -524,12 +525,12 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
               width: 30,
               height: 30,
               decoration: BoxDecoration(
-                border: Border.all(color: HudTokens.gold, width: 1),
+                border: Border.all(color: context.hud.accent, width: 1),
               ),
               alignment: Alignment.center,
               child: Icon(
                 isFav ? Icons.favorite : Icons.favorite_border,
-                color: HudTokens.gold,
+                color: context.hud.accent,
                 size: 14,
               ),
             ),
@@ -543,7 +544,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   Widget _buildFrame() {
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: HudTokens.gold, width: 1),
+        border: Border.all(color: context.hud.accent, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(6),
@@ -551,8 +552,8 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
           aspectRatio: 9 / 16,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              border:
-                  Border.all(color: HudTokens.gold.withOpacity(0.35), width: 1),
+              border: Border.all(
+                  color: context.hud.accent.withOpacity(0.35), width: 1),
             ),
             child: CachedWallpaperImage(
               imageUrl: widget.wallpaper.fullImageUrl,
@@ -569,20 +570,22 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       children: [
         Text(
           w.name.toUpperCase(),
-          style: _display(24, color: HudTokens.nightText, ls: -0.02),
+          style: _display(24, color: context.hud.text, ls: -0.02),
         ),
         const SizedBox(height: 4),
         Text(
           _artistLine,
           style: _serif(14,
-              color: HudTokens.gold, s: FontStyle.italic, w: FontWeight.w400),
+              color: context.hud.accent,
+              s: FontStyle.italic,
+              w: FontWeight.w400),
         ),
         const SizedBox(height: 18),
         Container(
           padding: const EdgeInsets.only(top: 14),
           decoration: BoxDecoration(
             border: Border(
-              top: BorderSide(color: HudTokens.gold, width: 1),
+              top: BorderSide(color: context.hud.accent, width: 1),
             ),
           ),
           child: Row(
@@ -615,14 +618,12 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(k, style: _meta(10, color: HudTokens.nightTextDim, ls: 0.2)),
+        Text(k, style: _meta(10, color: context.hud.textDim, ls: 0.2)),
         const SizedBox(height: 3),
         Text(
           v,
           style: _serif(14,
-              color: HudTokens.nightText,
-              s: FontStyle.italic,
-              w: FontWeight.w400),
+              color: context.hud.text, s: FontStyle.italic, w: FontWeight.w400),
         ),
       ],
     );
@@ -633,19 +634,20 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: HudTokens.gold, width: 1),
-          bottom: BorderSide(color: HudTokens.gold.withOpacity(0.3), width: 1),
+          top: BorderSide(color: context.hud.accent, width: 1),
+          bottom:
+              BorderSide(color: context.hud.accent.withOpacity(0.3), width: 1),
         ),
       ),
       child: Row(
         children: [
           Text('— precio / en Pixora',
-              style: _meta(10, color: HudTokens.nightTextDim, ls: 0.25)),
+              style: _meta(10, color: context.hud.textDim, ls: 0.25)),
           const Spacer(),
           Text(
             Platform.isIOS ? 'SAVE' : 'GRATIS',
             style: _display(22,
-                color: HudTokens.gold, w: FontWeight.w900, ls: 0.04),
+                color: context.hud.accent, w: FontWeight.w900, ls: 0.04),
           ),
         ],
       ),
@@ -658,12 +660,12 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        color: HudTokens.gold,
+        color: context.hud.accent,
         alignment: Alignment.center,
         child: Text(
           Platform.isIOS ? 'GUARDAR EN FOTOS' : 'APLICAR A MI TELÉFONO',
-          style: _display(14,
-              color: HudTokens.nightBg, w: FontWeight.w900, ls: 0.25),
+          style:
+              _display(14, color: context.hud.bg, w: FontWeight.w900, ls: 0.25),
         ),
       ),
     );
