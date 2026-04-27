@@ -831,14 +831,18 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
     return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 8),
+      padding: EdgeInsets.fromLTRB(h.isIosStyle ? 20 : 0,
+          h.isIosStyle ? 22 : 16, 0, h.isIosStyle ? 8 : 8),
       child: Text(
-        title,
+        h.isIosStyle ? title.toUpperCase() : title,
         style: TextStyle(
-          fontSize: 13,
+          fontFamily: h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily,
+          fontSize: h.isIosStyle ? 11 : 13,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.primary,
+          letterSpacing: h.isIosStyle ? 1.0 : 0.0,
+          color: h.isIosStyle ? h.textDim : h.accent,
         ),
       ),
     );
@@ -862,16 +866,71 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = iconColor ?? Colors.white54;
+    final h = context.hud;
+    final defaultIcon = h.isIosStyle ? h.accent : h.textDim;
+    final iconClr = iconColor ?? defaultIcon;
+    final isDanger = iconColor == HudTokens.goldDeep;
+
+    if (h.isIosStyle) {
+      return InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: h.divider, width: 0.5),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: iconClr, size: 20),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontFamily: h.bodyFontFamily,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: isDanger ? HudTokens.goldDeep : h.text,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontFamily: h.monoFontFamily,
+                          fontSize: 12,
+                          color: h.textDim,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (onTap != null)
+                Icon(Icons.chevron_right_rounded, color: h.textDim, size: 20),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Black & Gold / Day — original ListTile look
     return ListTile(
-      leading: Icon(icon, color: color),
+      leading: Icon(icon, color: iconClr),
       title: Text(
         title,
-        style: iconColor == HudTokens.goldDeep
+        style: isDanger
             ? const TextStyle(color: HudTokens.goldDeep)
-            : null,
+            : TextStyle(color: h.text),
       ),
-      subtitle: Text(subtitle, style: const TextStyle(color: Colors.white38)),
+      subtitle: Text(subtitle, style: TextStyle(color: h.textDim)),
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
     );
