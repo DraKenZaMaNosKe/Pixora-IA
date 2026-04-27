@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/design/hud_shapes.dart';
@@ -576,8 +577,7 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               data.label,
-              style: TextStyle(
-                fontFamily: h.monoFontFamily,
+              style: GoogleFonts.getFont(h.monoFontFamily,
                 fontSize: h.isIosStyle ? 9 : 8,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                 color: color,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
@@ -173,8 +174,8 @@ class _IosCard extends StatelessWidget {
                   wallpaper.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: h.bodyFontFamily,
+                  style: GoogleFonts.getFont(
+                    h.bodyFontFamily,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: h.text,
@@ -188,8 +189,8 @@ class _IosCard extends StatelessWidget {
                       : wallpaper.category.toLowerCase(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: h.monoFontFamily,
+                  style: GoogleFonts.getFont(
+                    h.monoFontFamily,
                     fontSize: 10,
                     color: h.textDim,
                     letterSpacing: 0.2,
@@ -219,8 +220,8 @@ class _IosPill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          fontFamily: 'Geist',
+        style: GoogleFonts.getFont(
+          'Geist',
           fontSize: 9,
           fontWeight: FontWeight.w700,
           color: Colors.white,

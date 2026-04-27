@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -891,8 +892,7 @@ class _SettingsTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        fontFamily: h.bodyFontFamily,
+                      style: GoogleFonts.getFont(h.bodyFontFamily,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: isDanger ? HudTokens.goldDeep : h.text,
@@ -902,8 +902,7 @@ class _SettingsTile extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: TextStyle(
-                          fontFamily: h.monoFontFamily,
+                        style: GoogleFonts.getFont(h.monoFontFamily,
                           fontSize: 12,
                           color: h.textDim,
                           letterSpacing: 0.2,
@@ -996,8 +995,7 @@ class _ThemePickerSection extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
               child: Text(
                 LocaleHelper.pick(es: 'TEMA VISUAL', en: 'VISUAL THEME'),
-                style: TextStyle(
-                  fontFamily: h.monoFontFamily,
+                style: GoogleFonts.getFont(h.monoFontFamily,
                   fontSize: 11,
                   letterSpacing: 2.4,
                   color: h.textDim,
@@ -1063,8 +1061,7 @@ class _ThemeOption extends StatelessWidget {
                 children: [
                   Text(
                     ThemeService.labelFor(id),
-                    style: TextStyle(
-                      fontFamily: h.bodyFontFamily,
+                    style: GoogleFonts.getFont(h.bodyFontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: h.text,
@@ -1073,8 +1070,7 @@ class _ThemeOption extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     ThemeService.taglineFor(id),
-                    style: TextStyle(
-                      fontFamily: h.monoFontFamily,
+                    style: GoogleFonts.getFont(h.monoFontFamily,
                       fontSize: 10,
                       letterSpacing: 0.6,
                       color: h.textDim,

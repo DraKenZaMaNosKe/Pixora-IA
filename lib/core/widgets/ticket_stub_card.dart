@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../design/hud_tokens.dart';
 
@@ -141,8 +142,7 @@ class TicketStubCard extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: h.bodyFontFamily,
+                    style: GoogleFonts.getFont(h.bodyFontFamily,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: h.text,
@@ -154,8 +154,7 @@ class TicketStubCard extends StatelessWidget {
                     extraSeatLine ?? category.toLowerCase(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: h.monoFontFamily,
+                    style: GoogleFonts.getFont(h.monoFontFamily,
                       fontSize: 10,
                       color: h.textDim,
                       letterSpacing: 0.2,
