@@ -486,34 +486,56 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   }
 
   Widget _buildTopBar(bool isFav) {
+    final h = context.hud;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 6),
       child: Row(
         children: [
           InkWell(
             onTap: () => Navigator.pop(context),
-            child: Row(
-              children: [
-                Icon(Icons.arrow_back_ios_new,
-                    color: context.hud.accent, size: 14),
-                const SizedBox(width: 6),
-                Text('volver',
-                    style: _serif(14,
-                        color: context.hud.accent,
-                        s: FontStyle.italic,
-                        w: FontWeight.w500)),
-              ],
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.arrow_back_ios_new,
+                      color: h.accent, size: h.isIosStyle ? 16 : 14),
+                  const SizedBox(width: 4),
+                  Text(
+                    h.isIosStyle ? 'Atrás' : 'volver',
+                    style: h.isIosStyle
+                        ? HudTokens.body(
+                            size: 16,
+                            weight: FontWeight.w500,
+                            color: h.accent,
+                            letterSpacing: -0.2,
+                          )
+                        : _serif(14,
+                            color: h.accent,
+                            s: FontStyle.italic,
+                            w: FontWeight.w500),
+                  ),
+                ],
+              ),
             ),
           ),
           const Spacer(),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              border: Border.all(color: context.hud.accent, width: 1),
+              color: h.isIosStyle ? h.surface : Colors.transparent,
+              borderRadius: BorderRadius.circular(h.isIosStyle ? 999 : 0),
+              border:
+                  h.isIosStyle ? null : Border.all(color: h.accent, width: 1),
             ),
             child: Text(
-              'LOT · $_lotNumber',
-              style: _meta(10, color: context.hud.accent, ls: 0.3),
+              h.isIosStyle ? 'N° $_lotNumber' : 'LOT · $_lotNumber',
+              style: HudTokens.mono(
+                size: 10,
+                color: h.isIosStyle ? h.textDim : h.accent,
+                letterSpacing: h.isIosStyle ? 0.4 : 0.3,
+                weight: FontWeight.w500,
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -521,17 +543,22 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
             onTap: () => ref
                 .read(favoritesProvider.notifier)
                 .toggle(widget.wallpaper.id),
+            borderRadius: h.isIosStyle ? BorderRadius.circular(999) : null,
             child: Container(
-              width: 30,
-              height: 30,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                border: Border.all(color: context.hud.accent, width: 1),
+                color: h.isIosStyle ? h.surface : Colors.transparent,
+                shape: h.isIosStyle ? BoxShape.circle : BoxShape.rectangle,
+                border:
+                    h.isIosStyle ? null : Border.all(color: h.accent, width: 1),
               ),
               alignment: Alignment.center,
               child: Icon(
                 isFav ? Icons.favorite : Icons.favorite_border,
-                color: context.hud.accent,
-                size: 14,
+                color:
+                    isFav && h.isIosStyle ? const Color(0xFFFF3B30) : h.accent,
+                size: 16,
               ),
             ),
           ),
@@ -540,11 +567,36 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     );
   }
 
-  /// Double gold-bordered frame around the wallpaper image.
+  /// Double gold-bordered frame around the wallpaper image (or rounded
+  /// shadow card in iOS).
   Widget _buildFrame() {
+    final h = context.hud;
+    if (h.isIosStyle) {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: AspectRatio(
+            aspectRatio: 9 / 16,
+            child: CachedWallpaperImage(
+              imageUrl: widget.wallpaper.fullImageUrl,
+            ),
+          ),
+        ),
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: context.hud.accent, width: 1),
+        border: Border.all(color: h.accent, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(6),
@@ -552,8 +604,8 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
           aspectRatio: 9 / 16,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              border: Border.all(
-                  color: context.hud.accent.withOpacity(0.35), width: 1),
+              border:
+                  Border.all(color: h.accent.withValues(alpha: 0.35), width: 1),
             ),
             child: CachedWallpaperImage(
               imageUrl: widget.wallpaper.fullImageUrl,
@@ -565,36 +617,55 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
   }
 
   Widget _buildCatalog(Wallpaper w) {
+    final h = context.hud;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          w.name.toUpperCase(),
-          style: _display(24, color: context.hud.text, ls: -0.02),
+          h.isIosStyle ? w.name : w.name.toUpperCase(),
+          style: h.isIosStyle
+              ? HudTokens.body(
+                  size: 28,
+                  weight: FontWeight.w700,
+                  color: h.text,
+                  letterSpacing: -0.6,
+                )
+              : _display(24, color: h.text, ls: -0.02),
         ),
         const SizedBox(height: 4),
         Text(
-          _artistLine,
-          style: _serif(14,
-              color: context.hud.accent,
-              s: FontStyle.italic,
-              w: FontWeight.w400),
+          h.isIosStyle
+              ? widget.wallpaper.description.isNotEmpty
+                  ? widget.wallpaper.description
+                  : 'Pixora original collection'
+              : _artistLine,
+          style: h.isIosStyle
+              ? HudTokens.body(
+                  size: 14,
+                  weight: FontWeight.w400,
+                  color: h.textDim,
+                  letterSpacing: -0.1,
+                )
+              : _serif(14,
+                  color: h.accent, s: FontStyle.italic, w: FontWeight.w400),
         ),
         const SizedBox(height: 18),
         Container(
           padding: const EdgeInsets.only(top: 14),
           decoration: BoxDecoration(
             border: Border(
-              top: BorderSide(color: context.hud.accent, width: 1),
+              top: BorderSide(color: h.divider, width: h.isIosStyle ? 0.5 : 1),
             ),
           ),
           child: Row(
             children: [
               Expanded(
-                child: _catItem('FORMAT', 'Vertical 9:16'),
+                child: _catItem(
+                    h.isIosStyle ? 'FORMATO' : 'FORMAT', 'Vertical 9:16'),
               ),
               Expanded(
-                child: _catItem('RESOLUTION', w.imageSizeFormatted),
+                child: _catItem(h.isIosStyle ? 'RESOLUCIÓN' : 'RESOLUTION',
+                    w.imageSizeFormatted),
               ),
             ],
           ),
@@ -603,10 +674,11 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
         Row(
           children: [
             Expanded(
-              child: _catItem('COLLECTION', w.category),
+              child: _catItem(
+                  h.isIosStyle ? 'COLECCIÓN' : 'COLLECTION', w.category),
             ),
             Expanded(
-              child: _catItem('DATE', 'MMXXVI'),
+              child: _catItem(h.isIosStyle ? 'AÑO' : 'DATE', 'MMXXVI'),
             ),
           ],
         ),
