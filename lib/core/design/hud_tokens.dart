@@ -252,8 +252,8 @@ class HudTheme extends ThemeExtension<HudTheme> {
     accent: HudTokens.gold,
     accent2: HudTokens.goldBright,
     isDark: true,
-    displayFontFamily: 'Fraunces',
-    bodyFontFamily: 'Fraunces',
+    displayFontFamily: 'Geist',
+    bodyFontFamily: 'Geist',
     monoFontFamily: 'JetBrainsMono',
   );
 
@@ -267,8 +267,8 @@ class HudTheme extends ThemeExtension<HudTheme> {
     accent: HudTokens.goldDay,
     accent2: HudTokens.goldDeep,
     isDark: false,
-    displayFontFamily: 'Fraunces',
-    bodyFontFamily: 'Fraunces',
+    displayFontFamily: 'Geist',
+    bodyFontFamily: 'Geist',
     monoFontFamily: 'JetBrainsMono',
   );
 

@@ -68,3 +68,6 @@ flutter:
     - family: GeistMono
       fonts:
         - asset: assets/fonts/geist/GeistMono-Variable.ttf
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/jetbrains/JetBrainsMono-Variable.ttf
