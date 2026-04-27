@@ -254,7 +254,7 @@ class HudTheme extends ThemeExtension<HudTheme> {
     isDark: true,
     displayFontFamily: 'Geist',
     bodyFontFamily: 'Geist',
-    monoFontFamily: 'JetBrainsMono',
+    monoFontFamily: 'Geist',
   );
 
   static const HudTheme day = HudTheme(
@@ -269,7 +269,7 @@ class HudTheme extends ThemeExtension<HudTheme> {
     isDark: false,
     displayFontFamily: 'Geist',
     bodyFontFamily: 'Geist',
-    monoFontFamily: 'JetBrainsMono',
+    monoFontFamily: 'Geist',
   );
 
   /// iOS White ("Apple Store Fresh") — picked by user 2026-04-26.
