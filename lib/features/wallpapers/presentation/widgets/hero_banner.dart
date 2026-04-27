@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
@@ -212,27 +213,44 @@ class _HeroPage extends StatelessWidget {
               ],
             ),
           ),
-          // Play button — iOS rounded pill / Black & Gold corner-cut
+          // Play button — iOS frosted glass with mint glow / B&G corner-cut
           Positioned(
             bottom: 48,
             right: 16,
             child: h.isIosStyle
-                ? Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: h.accent,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: h.accent.withValues(alpha: 0.35),
-                          blurRadius: 14,
-                          offset: const Offset(0, 4),
+                ? ClipOval(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white.withOpacity(0.28),
+                              h.accent.withOpacity(0.42),
+                            ],
+                          ),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.45),
+                            width: 0.8,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: h.accent.withValues(alpha: 0.5),
+                              blurRadius: 18,
+                              spreadRadius: -2,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                      ],
+                        child: const Icon(Icons.play_arrow_rounded,
+                            color: Colors.white, size: 30),
+                      ),
                     ),
-                    child: const Icon(Icons.play_arrow_rounded,
-                        color: Colors.white, size: 28),
                   )
                 : ClipPath(
                     clipper: const CornerCutClipper(cut: 8),

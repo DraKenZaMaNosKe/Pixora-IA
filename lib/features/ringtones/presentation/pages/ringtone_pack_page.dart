@@ -27,8 +27,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   LoadingPhase _toneLoadingPhase = LoadingPhase.downloading;
   StreamSubscription? _playerSub;
 
-  Color get _glowColor => HudTokens
-      .gold; // Was: parseHexColor(pack.glowColor, fallback: deepPurple)
+  Color get _glowColor =>
+      context.hud.accent; // theme-aware (mint in iOS, gold in B&G)
 
   IconData _typeIcon(String type) {
     switch (type) {
@@ -59,7 +59,10 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   List<Color> _toneGradient(RingtoneTone tone, Color glow) {
     // Black & Gold: ignore per-character brand colors — every tone renders on
     // a unified gold gradient. Was previously 22 hardcoded palettes.
-    return [HudTokens.goldDeep, Theme.of(context).extension<HudTheme>()?.bg ?? HudTokens.nightBg];
+    return [
+      HudTokens.goldDeep,
+      Theme.of(context).extension<HudTheme>()?.bg ?? HudTokens.nightBg
+    ];
   }
 
   @override
@@ -277,9 +280,11 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   @override
   Widget build(BuildContext context) {
     final allTones = widget.pack.tones;
+    final h = context.hud;
+    final isIos = h.isIosStyle;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
+      backgroundColor: h.bg,
       body: Stack(children: [
         CustomScrollView(
           slivers: [
@@ -287,29 +292,32 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
             SliverAppBar(
               expandedHeight: 200,
               pinned: true,
-              backgroundColor: const Color(0xFF0A0A0F),
+              backgroundColor: h.bg,
+              foregroundColor: isIos ? h.text : Colors.white,
+              iconTheme: IconThemeData(color: isIos ? h.text : Colors.white),
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(widget.pack.name,
-                    style: const TextStyle(fontSize: 16)),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isIos ? h.text : Colors.white)),
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Default preview image as background
-                    // [old placeholder asset removed — Black & Gold radial bg in overlaying Container below]
-                    // Glow color tint
+                    // Glow color tint — softer in iOS
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            _glowColor.withOpacity(0.4),
-                            _glowColor.withOpacity(0.15),
+                            _glowColor.withOpacity(isIos ? 0.18 : 0.4),
+                            _glowColor.withOpacity(isIos ? 0.06 : 0.15),
                           ],
                         ),
                       ),
                     ),
-                    // Dark gradient for readability
+                    // Bottom fade to bg for readability
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -317,7 +325,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.7),
+                            h.bg.withOpacity(0.75),
                           ],
                         ),
                       ),
@@ -336,24 +344,37 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
                             child: Text(
                               widget.pack.description,
                               style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
-                                  fontSize: 12),
+                                  color: isIos
+                                      ? h.textDim
+                                      : Colors.white.withOpacity(0.7),
+                                  fontSize: 12,
+                                  height: 1.35),
                               textAlign: TextAlign.center,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 4),
+                                horizontal: 12, vertical: 5),
                             decoration: BoxDecoration(
-                              color: _glowColor.withOpacity(0.2),
+                              color: isIos
+                                  ? h.surface
+                                  : _glowColor.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                  color: _glowColor.withOpacity(0.4)),
+                                  color: isIos
+                                      ? h.divider
+                                      : _glowColor.withOpacity(0.4),
+                                  width: isIos ? 0.5 : 1),
                             ),
                             child: Text(
                               '${allTones.length} tones  •  Tap to preview',
-                              style: TextStyle(color: _glowColor, fontSize: 11),
+                              style: TextStyle(
+                                  color: isIos ? h.text : _glowColor,
+                                  fontSize: 11,
+                                  fontWeight: isIos
+                                      ? FontWeight.w600
+                                      : FontWeight.normal),
                             ),
                           ),
                         ],
@@ -475,7 +496,8 @@ class _ToneCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: context.hud.bg.withOpacity(0.55),
-                            border: Border.all(color: context.hud.accent, width: 1),
+                            border:
+                                Border.all(color: context.hud.accent, width: 1),
                           ),
                           child: _PlayStopButton(
                             isPlaying: isPlaying,

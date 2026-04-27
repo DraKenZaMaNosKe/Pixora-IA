@@ -37,8 +37,10 @@ class HudTokens {
   static const Color iosText = Color(0xFF1C1C1E); // near-black
   static const Color iosTextDim = Color(0xFF8E8E93); // system gray
   static const Color iosDivider = Color(0x1F3C3C43); // hairline border 12%
-  static const Color iosAccent = Color(0xFF007AFF); // iOS system blue
-  static const Color iosAccent2 = Color(0xFF34C759); // iOS system green
+  static const Color iosAccent =
+      Color(0xFF00C896); // mint green — picked over iOS blue 2026-04-26
+  static const Color iosAccent2 =
+      Color(0xFF00A878); // deeper teal for highlights/contrast
 
   // Accents — gold family.
   static const Color goldBright = Color(0xFFF0DD9E); // highlight

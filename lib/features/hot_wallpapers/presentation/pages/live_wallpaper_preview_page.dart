@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import '../../../../core/design/hud_tokens.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -248,6 +249,109 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     }
   }
 
+  Widget _buildApplyCta() {
+    final isIos = context.hud.isIosStyle;
+    final accent = _glowColor;
+    final label = _isApplying
+        ? (_downloadProgress > 0
+            ? 'Downloading ${(_downloadProgress * 100).toInt()}%'
+            : 'Preparing...')
+        : 'Set as Live Wallpaper';
+
+    Widget content() => Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_isApplying)
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  value: _downloadProgress > 0 ? _downloadProgress : null,
+                  strokeWidth: 2,
+                  color: isIos ? accent : Colors.white,
+                ),
+              )
+            else
+              Icon(Icons.download,
+                  size: 20, color: isIos ? accent : Colors.white),
+            const SizedBox(width: 10),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: isIos ? Colors.white : Colors.white,
+                letterSpacing: isIos ? -0.1 : 0.2,
+              ),
+            ),
+          ],
+        );
+
+    if (!isIos) {
+      // Black & Gold — solid accent
+      return SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: ElevatedButton(
+          onPressed: _isApplying ? null : _applyLiveWallpaper,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: accent,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: content(),
+        ),
+      );
+    }
+
+    // iOS — frosted glass with mint accent glow
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _isApplying ? null : _applyLiveWallpaper,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withOpacity(0.22),
+                      accent.withOpacity(0.28),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.35),
+                    width: 0.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accent.withOpacity(0.35),
+                      blurRadius: 20,
+                      spreadRadius: -4,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: content(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final w = widget.wallpaper;
@@ -488,61 +592,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                   ],
                                 ),
                               ),
-                            // Apply button
-                            SizedBox(
-                              width: double.infinity,
-                              height: 52,
-                              child: ElevatedButton(
-                                onPressed:
-                                    _isApplying ? null : _applyLiveWallpaper,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _glowColor,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                child: _isApplying
-                                    ? Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              value: _downloadProgress > 0
-                                                  ? _downloadProgress
-                                                  : null,
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Text(
-                                            _downloadProgress > 0
-                                                ? 'Downloading ${(_downloadProgress * 100).toInt()}%'
-                                                : 'Preparing...',
-                                          ),
-                                        ],
-                                      )
-                                    : const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.download, size: 20),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            'Set as Live Wallpaper',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                              ),
-                            ),
+                            // Apply button — glassmorphism for iOS, solid for B&G
+                            _buildApplyCta(),
                             // Ad status + credits
                             Builder(builder: (_) {
                               final isFree =
@@ -559,8 +610,10 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                           horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
                                         color: isFree
-                                            ? context.hud.accent.withOpacity(0.2)
-                                            : context.hud.accent.withOpacity(0.2),
+                                            ? context.hud.accent
+                                                .withOpacity(0.2)
+                                            : context.hud.accent
+                                                .withOpacity(0.2),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: isFree

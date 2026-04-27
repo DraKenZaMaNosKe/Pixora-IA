@@ -45,9 +45,10 @@ class FavoritesPage extends ConsumerWidget {
         crossAxisCount: 2,
         mainAxisSpacing: HudTokens.sp3,
         crossAxisSpacing: HudTokens.sp3,
-        // iOS card is shorter (no top "ADMIT" stub + no bottom dashed line),
-        // ticket card needs more vertical room for its chrome.
-        childAspectRatio: h.isIosStyle ? 0.62 : 0.46,
+        // iOS card has 9:16 image + ~52px of title/meta padding underneath.
+        // Ticket card has 9:16 image + ADMIT header + dashed line + meta.
+        // Both need similar vertical room — iOS slightly tighter.
+        childAspectRatio: h.isIosStyle ? 0.45 : 0.46,
       ),
       itemCount: favorites.length,
       itemBuilder: (context, index) =>

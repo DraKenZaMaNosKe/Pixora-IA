@@ -113,12 +113,19 @@ class MainActivity : AudioServiceActivity() {
                         if (success && imagePaths.isNotEmpty()) {
                             val firstCaption = if (captions.isNotEmpty()) captions[0] else null
                             val prefs = getSharedPreferences("pixora_live", 0)
+                            // commit() (sync) so the file is flushed BEFORE killing the
+                            // wallpaper process — apply() races with the kill and the
+                            // respawned engine may read stale prefs.
+                            // ALSO clear scene_id + interactive so a previously-active
+                            // parallax/scene wallpaper doesn't override the story frame.
                             prefs.edit()
                                 .putString("wallpaper_path", imagePaths[0])
                                 .putString("glow_color", glowColor)
                                 .putString("caption", firstCaption)
+                                .remove("scene_id")
+                                .putBoolean("interactive", false)
                                 .putLong("changed_at", System.currentTimeMillis())
-                                .apply()
+                                .commit()
 
                             // Kill the :wallpaper process so its stale SharedPreferences cache
                             // is discarded. SharedPreferences is NOT multi-process safe —
@@ -200,6 +207,16 @@ class MainActivity : AudioServiceActivity() {
                             glowColor, target,
                         )
                         if (success) {
+                            // Clear scene_id + interactive so a previously-active parallax
+                            // wallpaper doesn't override the day-cycle frame. Use commit()
+                            // so the file is flushed BEFORE killing the process.
+                            val livePrefs = getSharedPreferences("pixora_live", 0)
+                            livePrefs.edit()
+                                .remove("scene_id")
+                                .putBoolean("interactive", false)
+                                .putLong("changed_at", System.currentTimeMillis())
+                                .commit()
+
                             // Same multi-process cache reason as startStory —
                             // force :wallpaper to respawn with fresh prefs.
                             killWallpaperProcess()

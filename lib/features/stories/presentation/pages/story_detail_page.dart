@@ -144,9 +144,11 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   Widget build(BuildContext context) {
     final isActive = ref.watch(activeStoryIdProvider) == widget.story.id;
     final glow = _glowColor;
+    final h = context.hud;
+    final isIos = h.isIosStyle;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: h.bg,
       body: Stack(children: [
         CustomScrollView(
           slivers: [
@@ -154,10 +156,16 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
             SliverAppBar(
               expandedHeight: 300,
               pinned: true,
-              backgroundColor: Colors.black,
+              backgroundColor: h.bg,
+              foregroundColor: isIos ? h.text : Colors.white,
+              iconTheme: IconThemeData(color: isIos ? h.text : Colors.white),
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(widget.story.title,
-                    style: const TextStyle(fontSize: 16)),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isIos ? h.text : Colors.white,
+                    )),
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -169,7 +177,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.8),
+                            h.bg.withOpacity(0.85),
                           ],
                         ),
                       ),
@@ -191,21 +199,22 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                       Text(
                         widget.story.description,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: h.textDim,
                           fontSize: 14,
+                          height: 1.4,
                         ),
                       ),
                     const SizedBox(height: 12),
 
-                    // Stats row
-                    Row(
+                    // Stats row — Wrap so chips reflow instead of overflowing
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
                       children: [
                         _statChip(Icons.photo_library,
                             '${widget.story.frames.length} frames'),
-                        const SizedBox(width: 12),
                         _statChip(Icons.timer,
                             'Every ${widget.story.intervalMinutes} min'),
-                        const SizedBox(width: 12),
                         _statChip(Icons.schedule,
                             '~${(widget.story.frames.length * widget.story.intervalMinutes / 60).toStringAsFixed(1)}h total'),
                       ],
@@ -213,9 +222,11 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                     const SizedBox(height: 24),
 
                     // Frames preview label
-                    const Text('Frames',
+                    Text('Frames',
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: h.text)),
                     const SizedBox(height: 12),
                   ],
                 ),
@@ -237,9 +248,25 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                         children: [
                           Expanded(
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: CachedWallpaperImage(
-                                  imageUrl: frame.fullImageUrl),
+                              borderRadius:
+                                  BorderRadius.circular(isIos ? 16 : 12),
+                              child: Container(
+                                decoration: isIos
+                                    ? BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.08),
+                                            blurRadius: 14,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      )
+                                    : null,
+                                child: CachedWallpaperImage(
+                                    imageUrl: frame.fullImageUrl),
+                              ),
                             ),
                           ),
                           if (frame.captionEs.isNotEmpty) ...[
@@ -247,7 +274,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                             Text(
                               frame.captionEs,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
+                                color: h.textDim,
                                 fontSize: 12,
                               ),
                               textAlign: TextAlign.center,
@@ -258,7 +285,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                           Text(
                             '${index + 1} / ${widget.story.frames.length}',
                             style: TextStyle(
-                              color: glow.withOpacity(0.7),
+                              color: glow,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -318,12 +345,13 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                           style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: isFree ? context.hud.accent : context.hud.accent),
+                              color: isFree
+                                  ? context.hud.accent
+                                  : context.hud.accent),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Icon(Icons.diamond,
-                          size: 12, color: context.hud.accent),
+                      Icon(Icons.diamond, size: 12, color: context.hud.accent),
                       const SizedBox(width: 3),
                       Text('$credits',
                           style: TextStyle(
@@ -374,20 +402,26 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
   }
 
   Widget _statChip(IconData icon, String label) {
+    final h = context.hud;
+    final isIos = h.isIosStyle;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(
+          horizontal: isIos ? 12 : 10, vertical: isIos ? 7 : 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: isIos ? h.surface : Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(20),
+        border: isIos ? Border.all(color: h.divider, width: 0.5) : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: _glowColor),
-          const SizedBox(width: 4),
+          const SizedBox(width: 5),
           Text(label,
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.7), fontSize: 11)),
+                  color: isIos ? h.text : Colors.white.withOpacity(0.7),
+                  fontSize: 11,
+                  fontWeight: isIos ? FontWeight.w500 : FontWeight.normal)),
         ],
       ),
     );
