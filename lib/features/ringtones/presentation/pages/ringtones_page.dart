@@ -66,9 +66,9 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       if (mounted) {
         setState(() => _playingId = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
               content: Text('Could not play preview'),
-              backgroundColor: HudTokens.goldDeep),
+              backgroundColor: context.hud.accent),
         );
       }
     }
@@ -136,9 +136,9 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     if (path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
               content: Text('Download failed'),
-              backgroundColor: HudTokens.goldDeep),
+              backgroundColor: context.hud.accent),
         );
       }
       setState(() => _settingId = null);
@@ -285,7 +285,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.error_outline,
-                color: HudTokens.goldDeep, size: 48),
+                color: context.hud.accent, size: 48),
             const SizedBox(height: 12),
             const Text('Failed to load tones',
                 style: TextStyle(color: Colors.white70)),
@@ -299,9 +299,9 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       ),
       data: (packs) {
         if (packs.isEmpty) {
-          return const Center(
+          return Center(
             child: Text('No tones available yet',
-                style: TextStyle(color: Colors.white54)),
+                style: TextStyle(color: context.hud.textDim)),
           );
         }
         return _buildDiscoveryView(packs);
@@ -433,14 +433,14 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                 children: [
                   Icon(icon,
                       size: 16,
-                      color: selected ? Colors.white : Colors.white54),
+                      color: selected ? Colors.white : context.hud.textDim),
                   const SizedBox(width: 6),
                   Text(
                     label,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                      color: selected ? Colors.white : Colors.white54,
+                      color: selected ? Colors.white : context.hud.textDim,
                     ),
                   ),
                 ],

@@ -142,7 +142,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
                       border: Border.all(color: Colors.white12),
                     ),
                     child: Row(children: [
-                      const Icon(Icons.access_time, color: Colors.white54, size: 20),
+                      Icon(Icons.access_time, color: context.hud.textDim, size: 20),
                       const SizedBox(width: 8),
                       Text('Current period: $currentPeriod', style: const TextStyle(color: Colors.white70, fontSize: 13)),
                     ]),
@@ -161,7 +161,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
                   const SizedBox(height: 24),
                   if (_progressText.isNotEmpty)
                     Padding(padding: const EdgeInsets.only(bottom: 12),
-                      child: Center(child: Text(_progressText, style: const TextStyle(color: Colors.white54, fontSize: 13)))),
+                      child: Center(child: Text(_progressText, style: TextStyle(color: context.hud.textDim, fontSize: 13)))),
                   SizedBox(
                     width: double.infinity, height: 52,
                     child: ElevatedButton(
@@ -235,7 +235,7 @@ class _PeriodPreview extends StatelessWidget {
                   ],
                 ]),
                 const SizedBox(height: 4),
-                Text(time, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                Text(time, style: TextStyle(color: context.hud.textDim, fontSize: 12)),
               ]))),
           ]),
         ),

@@ -22,7 +22,7 @@ class DayCyclePage extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.error_outline,
-                color: HudTokens.goldDeep, size: 48),
+                color: context.hud.accent, size: 48),
             const SizedBox(height: 12),
             const Text('Failed to load themes',
                 style: TextStyle(color: Colors.white70)),
@@ -36,9 +36,9 @@ class DayCyclePage extends ConsumerWidget {
       ),
       data: (themes) {
         if (themes.isEmpty) {
-          return const Center(
+          return Center(
             child: Text('No day cycle themes available yet',
-                style: TextStyle(color: Colors.white54)),
+                style: TextStyle(color: context.hud.textDim)),
           );
         }
         return Column(

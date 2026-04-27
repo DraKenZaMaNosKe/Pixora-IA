@@ -171,6 +171,120 @@ class _ParallaxCarouselCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
+    if (h.isIosStyle) return _buildIosCard(context);
+    return _buildTicketCard(context);
+  }
+
+  Widget _buildIosCard(BuildContext context) {
+    final h = context.hud;
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => WallpaperPreviewPage(wallpaper: wallpaper),
+        ),
+      ),
+      child: Container(
+        width: width,
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        decoration: BoxDecoration(
+          color: h.bg,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(14)),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    AnimatedBuilder(
+                      animation: scrollController,
+                      builder: (ctx, child) => Transform.translate(
+                        offset: Offset(_getParallaxOffset(ctx), 0),
+                        child: child,
+                      ),
+                      child: Transform.scale(
+                        scale: 1.1,
+                        child: CachedWallpaperImage(
+                            imageUrl: wallpaper.previewUrl),
+                      ),
+                    ),
+                    if (wallpaper.badge != null)
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: h.accent,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            wallpaper.badge!.toUpperCase(),
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 9, 10, 11),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    wallpaper.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: HudTokens.body(
+                      size: 13,
+                      weight: FontWeight.w600,
+                      color: h.text,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    wallpaper.category.toLowerCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: HudTokens.mono(
+                      size: 10,
+                      weight: FontWeight.w400,
+                      color: h.textDim,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTicketCard(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -184,7 +298,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.hud.surface,
           border: Border.all(
-            color: context.hud.accent.withOpacity(0.55),
+            color: context.hud.accent.withValues(alpha: 0.55),
             width: 1,
           ),
         ),

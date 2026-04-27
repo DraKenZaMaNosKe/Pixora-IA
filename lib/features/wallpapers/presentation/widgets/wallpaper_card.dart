@@ -175,7 +175,7 @@ class _IosCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.getFont(
-                    h.bodyFontFamily,
+              h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: h.text,
@@ -190,7 +190,7 @@ class _IosCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.getFont(
-                    h.monoFontFamily,
+              h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
                     fontSize: 10,
                     color: h.textDim,
                     letterSpacing: 0.2,

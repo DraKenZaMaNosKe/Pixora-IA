@@ -95,9 +95,9 @@ class _AuraPageState extends ConsumerState<AuraPage> {
               child: list.when(
                 data: (tracks) {
                   if (tracks.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Text('No tracks yet',
-                          style: TextStyle(color: Colors.white54)),
+                          style: TextStyle(color: context.hud.textDim)),
                     );
                   }
                   return ListenableBuilder(
