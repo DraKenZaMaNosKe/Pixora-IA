@@ -5,6 +5,7 @@ import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 import 'wallpaper_stats_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WallpaperCarouselRow extends StatefulWidget {
   const WallpaperCarouselRow({
@@ -234,8 +235,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
                           ),
                           child: Text(
                             wallpaper.badge!.toUpperCase(),
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
+                            style: GoogleFonts.inter(
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -244,6 +244,15 @@ class _ParallaxCarouselCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    // Stats bar (likes/views/downloads) top-right
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: WallpaperStatsBar(
+                        wallpaperId: wallpaper.id,
+                        glowColor: h.accent,
+                      ),
+                    ),
                   ],
                 ),
               ),
