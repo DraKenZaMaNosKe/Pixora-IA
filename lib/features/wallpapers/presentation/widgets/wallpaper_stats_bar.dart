@@ -150,16 +150,28 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
     final likes = _stats['likes'] ?? 0;
     final downloads = _stats['downloads'] ?? 0;
     final views = _stats['views'] ?? 0;
     final beatPhase =
         Curves.easeInOut.transform(_GlobalHeartbeat.instance.value);
+    // iOS: light blurred pill on white bg. Black & Gold: dark pill.
+    final pillBg = h.isIosStyle
+        ? Colors.white.withValues(alpha: 0.85)
+        : Colors.black.withValues(alpha: 0.55);
+    final iconColor =
+        h.isIosStyle ? h.textDim : Colors.white.withValues(alpha: 0.5);
+    final likeColor = h.isIosStyle
+        ? const Color(0xFFFF3B30) // iOS system red for liked heart
+        : HudTokens.goldDeep;
+    final likeIdleColor =
+        h.isIosStyle ? h.textDim : HudTokens.goldDeep.withValues(alpha: 0.7);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.55),
+        color: pillBg,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -181,7 +193,7 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
                       top: -10,
                       child: _LikeParticles(
                         controller: _particleController!,
-                        color: HudTokens.goldDeep,
+                        color: likeColor,
                       ),
                     ),
                   AnimatedBuilder(
@@ -199,9 +211,7 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
                         child: Icon(
                           Icons.favorite,
                           size: 14,
-                          color: _liked
-                              ? HudTokens.goldDeep
-                              : HudTokens.goldDeep.withOpacity(0.7),
+                          color: _liked ? likeColor : likeIdleColor,
                         ),
                       );
                     },
@@ -219,9 +229,7 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
                             WallpaperStatsService.formatCount(likes),
                             style: TextStyle(
                               fontSize: 9,
-                              color: _liked
-                                  ? HudTokens.goldDeep
-                                  : Colors.white.withOpacity(0.7),
+                              color: _liked ? likeColor : iconColor,
                               fontWeight:
                                   _liked ? FontWeight.bold : FontWeight.normal,
                             ),
@@ -235,19 +243,18 @@ class _WallpaperStatsBarState extends State<WallpaperStatsBar>
             ),
           ),
           const SizedBox(width: 4),
-          Icon(Icons.visibility,
-              size: 10, color: Colors.white.withOpacity(0.5)),
+          Icon(Icons.visibility, size: 10, color: iconColor),
           const SizedBox(width: 2),
           Text(
             WallpaperStatsService.formatCount(views),
-            style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.5)),
+            style: TextStyle(fontSize: 9, color: iconColor),
           ),
           const SizedBox(width: 4),
-          Icon(Icons.download, size: 10, color: Colors.white.withOpacity(0.5)),
+          Icon(Icons.download, size: 10, color: iconColor),
           const SizedBox(width: 2),
           Text(
             WallpaperStatsService.formatCount(downloads),
-            style: TextStyle(fontSize: 9, color: Colors.white.withOpacity(0.5)),
+            style: TextStyle(fontSize: 9, color: iconColor),
           ),
         ],
       ),
