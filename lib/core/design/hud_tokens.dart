@@ -248,13 +248,9 @@ class HudTheme extends ThemeExtension<HudTheme> {
     accent: HudTokens.gold,
     accent2: HudTokens.goldBright,
     isDark: true,
-    // Empty = let Flutter use default font. Black & Gold's signature
-    // typography (Playfair / Cormorant / Inter) is applied via the
-    // HudTokens.display/serif/body/mono helpers — those use google_fonts
-    // package which loads asynchronously and works reliably.
-    displayFontFamily: '',
-    bodyFontFamily: '',
-    monoFontFamily: '',
+    displayFontFamily: 'Inter',
+    bodyFontFamily: 'Inter',
+    monoFontFamily: 'Inter',
   );
 
   static const HudTheme day = HudTheme(
@@ -267,13 +263,9 @@ class HudTheme extends ThemeExtension<HudTheme> {
     accent: HudTokens.goldDay,
     accent2: HudTokens.goldDeep,
     isDark: false,
-    // Empty = let Flutter use default font. Black & Gold's signature
-    // typography (Playfair / Cormorant / Inter) is applied via the
-    // HudTokens.display/serif/body/mono helpers — those use google_fonts
-    // package which loads asynchronously and works reliably.
-    displayFontFamily: '',
-    bodyFontFamily: '',
-    monoFontFamily: '',
+    displayFontFamily: 'Inter',
+    bodyFontFamily: 'Inter',
+    monoFontFamily: 'Inter',
   );
 
   /// iOS White ("Apple Store Fresh") — picked by user 2026-04-26.
