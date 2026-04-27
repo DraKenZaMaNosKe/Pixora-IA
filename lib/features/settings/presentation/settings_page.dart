@@ -188,8 +188,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     contentPadding: EdgeInsets.zero,
                     secondary: Icon(
                       Icons.autorenew,
-                      color:
-                          _autoRotateEnabled ? context.hud.accent : Colors.white54,
+                      color: _autoRotateEnabled
+                          ? context.hud.accent
+                          : Colors.white54,
                     ),
                     title: const Text('Auto-rotate wallpaper'),
                     subtitle: Text(
@@ -550,8 +551,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   child: auth.avatarUrl == null
                       ? Text(
                           (auth.displayName ?? 'U')[0].toUpperCase(),
-                          style: TextStyle(
-                              fontSize: 20, color: context.hud.text),
+                          style:
+                              TextStyle(fontSize: 20, color: context.hud.text),
                         )
                       : null,
                 ),
@@ -642,7 +643,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           Text(
             'Sign in to sync favorites',
             style: TextStyle(
-                fontSize: 15, fontWeight: FontWeight.w600, color: context.hud.text),
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: context.hud.text),
           ),
           const SizedBox(height: 4),
           Text(
@@ -839,7 +842,9 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         h.isIosStyle ? title.toUpperCase() : title,
         style: GoogleFonts.getFont(
-          (h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily).isEmpty ? 'Inter' : (h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily),
+          (h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily).isEmpty
+              ? 'Inter'
+              : (h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily),
           fontSize: h.isIosStyle ? 11 : 13,
           fontWeight: FontWeight.w600,
           letterSpacing: h.isIosStyle ? 1.0 : 0.0,
@@ -869,8 +874,10 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final h = context.hud;
     final defaultIcon = h.isIosStyle ? h.accent : h.textDim;
-    final iconClr = iconColor ?? defaultIcon;
     final isDanger = iconColor == HudTokens.goldDeep;
+    final iconClr = isDanger
+        ? (h.isIosStyle ? const Color(0xFFFF3B30) : HudTokens.goldDeep)
+        : (iconColor ?? defaultIcon);
 
     if (h.isIosStyle) {
       return InkWell(
@@ -893,10 +900,14 @@ class _SettingsTile extends StatelessWidget {
                     Text(
                       title,
                       style: GoogleFonts.getFont(
-              h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
+                        h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: isDanger ? HudTokens.goldDeep : h.text,
+                        color: isDanger
+                            ? (h.isIosStyle
+                                ? const Color(0xFFFF3B30)
+                                : HudTokens.goldDeep)
+                            : h.text,
                       ),
                     ),
                     if (subtitle.isNotEmpty) ...[
@@ -904,7 +915,7 @@ class _SettingsTile extends StatelessWidget {
                       Text(
                         subtitle,
                         style: GoogleFonts.getFont(
-              h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
+                          h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
                           fontSize: 12,
                           color: h.textDim,
                           letterSpacing: 0.2,
@@ -998,7 +1009,7 @@ class _ThemePickerSection extends StatelessWidget {
               child: Text(
                 LocaleHelper.pick(es: 'TEMA VISUAL', en: 'VISUAL THEME'),
                 style: GoogleFonts.getFont(
-              h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
+                  h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
                   fontSize: 11,
                   letterSpacing: 2.4,
                   color: h.textDim,
@@ -1065,7 +1076,7 @@ class _ThemeOption extends StatelessWidget {
                   Text(
                     ThemeService.labelFor(id),
                     style: GoogleFonts.getFont(
-              h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
+                      h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: h.text,
@@ -1075,7 +1086,7 @@ class _ThemeOption extends StatelessWidget {
                   Text(
                     ThemeService.taglineFor(id),
                     style: GoogleFonts.getFont(
-              h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
+                      h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
                       fontSize: 10,
                       letterSpacing: 0.6,
                       color: h.textDim,
