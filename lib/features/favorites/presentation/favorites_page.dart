@@ -41,14 +41,13 @@ class FavoritesPage extends ConsumerWidget {
 
     return GridView.builder(
       padding: const EdgeInsets.all(HudTokens.sp3),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: HudTokens.sp3,
         crossAxisSpacing: HudTokens.sp3,
-        // Ticket card renders ~400 dp tall on a ~188 dp card width (image
-        // forces 9:16 → tall content). 0.46 gives ~409 dp card height so
-        // the 3.7 px overflow we were seeing at 0.48 is gone with margin.
-        childAspectRatio: 0.46,
+        // iOS card is shorter (no top "ADMIT" stub + no bottom dashed line),
+        // ticket card needs more vertical room for its chrome.
+        childAspectRatio: h.isIosStyle ? 0.62 : 0.46,
       ),
       itemCount: favorites.length,
       itemBuilder: (context, index) =>
