@@ -82,6 +82,96 @@ class TicketStubCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
+    if (h.isIosStyle) return _buildIosCard(context);
+    return _buildTicketCard(context);
+  }
+
+  /// iOS Photos-app inspired card. Used when iOS White theme is active.
+  /// Drops the ticket metaphor entirely — just a clean image card with title.
+  Widget _buildIosCard(BuildContext context) {
+    final h = context.hud;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: h.bg,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color:
+                  Colors.black.withValues(alpha: isHighlighted ? 0.16 : 0.06),
+              blurRadius: isHighlighted ? 18 : 12,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border:
+              isHighlighted ? Border.all(color: h.accent, width: 1.5) : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Image with rounded top corners
+            Expanded(
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(14)),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    child,
+                    if (overlayTopLeft != null)
+                      Positioned(top: 8, left: 8, child: overlayTopLeft!),
+                    if (overlayTopRight != null)
+                      Positioned(top: 8, right: 8, child: overlayTopRight!),
+                  ],
+                ),
+              ),
+            ),
+            // Title + meta in iOS style
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 9, 10, 11),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: h.bodyFontFamily,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: h.text,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    extraSeatLine ?? category.toLowerCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: h.monoFontFamily,
+                      fontSize: 10,
+                      color: h.textDim,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Original Pixora Black & Gold "Ticket Stub" card.
+  Widget _buildTicketCard(BuildContext context) {
     final lot = lotNumber ?? _autoLot();
     final ser = serial ?? _autoSerial();
 
@@ -95,13 +185,13 @@ class TicketStubCard extends StatelessWidget {
           border: Border.all(
             color: isHighlighted
                 ? context.hud.accent2
-                : context.hud.accent.withOpacity(0.55),
+                : context.hud.accent.withValues(alpha: 0.55),
             width: isHighlighted ? 2 : 1,
           ),
           boxShadow: isHighlighted
               ? [
                   BoxShadow(
-                    color: context.hud.accent.withOpacity(0.4),
+                    color: context.hud.accent.withValues(alpha: 0.4),
                     blurRadius: 18,
                   ),
                 ]
