@@ -152,16 +152,20 @@ class _HeroPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: HudTokens.sp2, vertical: 3),
-                  color: h.accent,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: h.isIosStyle ? 10 : HudTokens.sp2,
+                      vertical: h.isIosStyle ? 4 : 3),
+                  decoration: BoxDecoration(
+                    color: h.accent,
+                    borderRadius: BorderRadius.circular(h.isIosStyle ? 999 : 0),
+                  ),
                   child: Text(
                     wallpaper.category.toUpperCase(),
                     style: HudTokens.mono(
                       size: 9,
                       weight: FontWeight.w700,
                       color: Colors.white,
-                      letterSpacing: 0.15,
+                      letterSpacing: h.isIosStyle ? 0.6 : 0.15,
                     ),
                   ),
                 ),
@@ -208,20 +212,38 @@ class _HeroPage extends StatelessWidget {
               ],
             ),
           ),
-          // Play button — corner-cut, accent color
+          // Play button — iOS rounded pill / Black & Gold corner-cut
           Positioned(
             bottom: 48,
             right: 16,
-            child: ClipPath(
-              clipper: const CornerCutClipper(cut: 8),
-              child: Container(
-                color: h.accent,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: HudTokens.sp4, vertical: HudTokens.sp3),
-                child: const Icon(Icons.play_arrow_rounded,
-                    color: Colors.white, size: 22),
-              ),
-            ),
+            child: h.isIosStyle
+                ? Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: h.accent,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: h.accent.withValues(alpha: 0.35),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.play_arrow_rounded,
+                        color: Colors.white, size: 28),
+                  )
+                : ClipPath(
+                    clipper: const CornerCutClipper(cut: 8),
+                    child: Container(
+                      color: h.accent,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: HudTokens.sp4, vertical: HudTokens.sp3),
+                      child: const Icon(Icons.play_arrow_rounded,
+                          color: Colors.white, size: 22),
+                    ),
+                  ),
           ),
         ],
       ),

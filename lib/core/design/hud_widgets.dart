@@ -27,54 +27,70 @@ class HudPrimaryButton extends StatelessWidget {
     final h = context.hud;
     return SizedBox(
       width: double.infinity,
-      child: ClipPath(
-        clipper: CornerCutClipper(cut: cut),
-        child: Material(
-          color: h.accent,
-          child: InkWell(
-            onTap: busy ? null : onPressed,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: HudTokens.sp6,
-                vertical: HudTokens.sp5,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, color: Colors.white, size: 18),
-                    const SizedBox(width: HudTokens.sp3),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(h.isIosStyle ? 14 : 0),
+        child: ClipPath(
+          clipper: CornerCutClipper(cut: h.isIosStyle ? 0 : cut),
+          child: Material(
+            color: h.accent,
+            child: InkWell(
+              onTap: busy ? null : onPressed,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: HudTokens.sp6,
+                  vertical: HudTokens.sp5,
+                ),
+                child: Row(
+                  mainAxisAlignment: h.isIosStyle
+                      ? MainAxisAlignment.center
+                      : MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, color: Colors.white, size: 18),
+                      const SizedBox(width: HudTokens.sp3),
+                    ],
+                    if (h.isIosStyle)
+                      Text(
+                        label,
+                        style: HudTokens.body(
+                          size: 16,
+                          weight: FontWeight.w600,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: Text(
+                          label.toUpperCase(),
+                          style: HudTokens.display(
+                            size: 15,
+                            weight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 0.05,
+                          ),
+                        ),
+                      ),
+                    if (busy)
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    else if (!h.isIosStyle)
+                      Text(
+                        '↗',
+                        style: HudTokens.mono(
+                          size: 20,
+                          weight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
                   ],
-                  Expanded(
-                    child: Text(
-                      label.toUpperCase(),
-                      style: HudTokens.display(
-                        size: 15,
-                        weight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: 0.05,
-                      ),
-                    ),
-                  ),
-                  if (busy)
-                    const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  else
-                    Text(
-                      '↗',
-                      style: HudTokens.mono(
-                        size: 20,
-                        weight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                ],
+                ),
               ),
             ),
           ),
@@ -103,39 +119,43 @@ class HudGhostButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final h = context.hud;
-    return ClipPath(
-      clipper: CornerCutClipper(cut: cut),
-      child: Material(
-        color: h.surface,
-        child: InkWell(
-          onTap: onPressed,
-          splashColor: h.accent.withOpacity(0.2),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: h.divider, width: 1),
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: HudTokens.sp2,
-              vertical: HudTokens.sp4,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  icon,
-                  style: TextStyle(color: h.accent, fontSize: 22, height: 1),
-                ),
-                const SizedBox(height: HudTokens.sp2),
-                Text(
-                  label.toUpperCase(),
-                  style: HudTokens.mono(
-                    size: 10,
-                    weight: FontWeight.w500,
-                    color: h.text,
-                    letterSpacing: 0.2,
+    final isIos = h.isIosStyle;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(isIos ? 12 : 0),
+      child: ClipPath(
+        clipper: CornerCutClipper(cut: isIos ? 0 : cut),
+        child: Material(
+          color: isIos ? h.surface : h.surface,
+          child: InkWell(
+            onTap: onPressed,
+            splashColor: h.accent.withValues(alpha: 0.2),
+            child: Container(
+              decoration: BoxDecoration(
+                border: isIos ? null : Border.all(color: h.divider, width: 1),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: HudTokens.sp2,
+                vertical: HudTokens.sp4,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    icon,
+                    style: TextStyle(color: h.accent, fontSize: 22, height: 1),
                   ),
-                ),
-              ],
+                  const SizedBox(height: HudTokens.sp2),
+                  Text(
+                    isIos ? label : label.toUpperCase(),
+                    style: HudTokens.mono(
+                      size: isIos ? 11 : 10,
+                      weight: isIos ? FontWeight.w600 : FontWeight.w500,
+                      color: h.text,
+                      letterSpacing: isIos ? -0.1 : 0.2,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
