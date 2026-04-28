@@ -1064,6 +1064,11 @@ class PixoraWallpaperService : WallpaperService() {
             Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper isFrame=$isFrameMode videoStarting=$videoStarting")
             if (visible) {
                 batteryIndicator.registerBatteryReceiver()
+                // Re-register parallax sensor only if a parallax scene is loaded.
+                // We unregistered on visibility=false to save battery while hidden.
+                if (isCanvasSceneMode && canvasSceneRenderer.hasParallax) {
+                    registerGyroIfNeeded()
+                }
                 if (videoStarting) return
 
                 // Frame mode (Explore): already rendering via Canvas, just resume drawing
@@ -1108,6 +1113,11 @@ class PixoraWallpaperService : WallpaperService() {
                     drawFrame()
                     forceHideOverlays = false
                 }
+
+                // Stop the parallax gyro while hidden — at SENSOR_DELAY_GAME (~50 Hz)
+                // it drains battery for nothing if the user is in another app.
+                // Re-registered on visibility=true above.
+                unregisterGyro()
 
                 // Only pause video, don't stop/release — it will be resumed on visibility=true
                 val player = mediaPlayer

@@ -236,6 +236,7 @@ class _HeroCard extends StatelessWidget {
                 Image.network(
                   wallpaper.previewUrl,
                   fit: BoxFit.cover,
+                  cacheWidth: 800,
                   errorBuilder: (_, __, ___) => Container(color: h.surfaceHi),
                 ),
                 // Gradient overlay
@@ -352,6 +353,7 @@ class _GridCard extends StatelessWidget {
                   Image.network(
                     wallpaper.previewUrl,
                     fit: BoxFit.cover,
+                    cacheWidth: 320,
                     errorBuilder: (_, __, ___) => Container(color: h.surfaceHi),
                   ),
                   Positioned(

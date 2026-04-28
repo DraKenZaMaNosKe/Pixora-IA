@@ -6,7 +6,6 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../core/design/hud_shapes.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/design/hud_widgets.dart';
-import '../../../../core/utils/color_utils.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../../providers/wallpaper_providers.dart';
@@ -23,10 +22,24 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
   final _controller = PageController();
   Timer? _autoTimer;
   int _currentPage = 0;
+  int _timerForCount = 0;
 
-  void _startAutoScroll(int itemCount) {
+  /// Restart the periodic auto-scroll timer.
+  ///
+  /// Always called from [onPageChanged] (manual swipe) so the next auto-advance
+  /// is 7s from now, not 7s from the last timer tick.
+  ///
+  /// Called from [build] only when item count changes (first load or hot
+  /// reload). Without this guard the timer was being recreated on every
+  /// `ListenableBuilder(ThemeService)` + Riverpod rebuild, which thrashes the
+  /// 7s window so the next advance never lands.
+  void _restartAutoScroll(int itemCount) {
     _autoTimer?.cancel();
-    if (itemCount <= 1) return;
+    _timerForCount = itemCount;
+    if (itemCount <= 1) {
+      _autoTimer = null;
+      return;
+    }
     _autoTimer = Timer.periodic(const Duration(seconds: 7), (_) {
       if (!mounted || !_controller.hasClients) return;
       _currentPage = (_currentPage + 1) % itemCount;
@@ -36,6 +49,12 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
         curve: Curves.easeInOut,
       );
     });
+  }
+
+  void _ensureAutoScroll(int itemCount) {
+    if (_autoTimer == null || _timerForCount != itemCount) {
+      _restartAutoScroll(itemCount);
+    }
   }
 
   @override
@@ -60,7 +79,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
       error: (_, __) => SizedBox(height: height),
       data: (wallpapers) {
         if (wallpapers.isEmpty) return SizedBox(height: height);
-        _startAutoScroll(wallpapers.length);
+        _ensureAutoScroll(wallpapers.length);
         return SizedBox(
           height: height,
           child: Stack(
@@ -70,7 +89,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
                 itemCount: wallpapers.length,
                 onPageChanged: (i) {
                   setState(() => _currentPage = i);
-                  _startAutoScroll(wallpapers.length);
+                  _restartAutoScroll(wallpapers.length);
                 },
                 itemBuilder: (context, index) =>
                     _HeroPage(wallpaper: wallpapers[index]),
@@ -105,9 +124,6 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
 class _HeroPage extends StatelessWidget {
   const _HeroPage({required this.wallpaper});
   final Wallpaper wallpaper;
-
-  Color get _glowColor =>
-      parseHexColor(wallpaper.glowColor, fallback: Colors.deepOrange);
 
   @override
   Widget build(BuildContext context) {

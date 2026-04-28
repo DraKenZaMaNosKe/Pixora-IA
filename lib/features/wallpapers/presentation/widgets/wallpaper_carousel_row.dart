@@ -145,8 +145,6 @@ class _ParallaxCarouselCard extends StatelessWidget {
   final ScrollController scrollController;
   final int index;
 
-  Color _glowColor(BuildContext context) => context.hud.accent;
-
   double _getParallaxOffset(BuildContext context) {
     if (!scrollController.hasClients) return 0.0;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -481,6 +479,7 @@ class CarouselRowShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -488,13 +487,13 @@ class CarouselRowShimmer extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: Shimmer.fromColors(
-            baseColor: const Color(0xFF1A1A2E),
-            highlightColor: const Color(0xFF2A2A3E),
+            baseColor: h.surface,
+            highlightColor: h.surfaceHi,
             child: Container(
               width: 120,
               height: 18,
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1A2E),
+                color: h.surface,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -510,12 +509,12 @@ class CarouselRowShimmer extends StatelessWidget {
             itemBuilder: (_, __) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Shimmer.fromColors(
-                baseColor: const Color(0xFF1A1A2E),
-                highlightColor: const Color(0xFF2A2A3E),
+                baseColor: h.surface,
+                highlightColor: h.surfaceHi,
                 child: Container(
                   width: 130,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A2E),
+                    color: h.surface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
