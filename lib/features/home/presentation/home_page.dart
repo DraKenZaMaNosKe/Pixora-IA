@@ -388,33 +388,47 @@ class _HomePageState extends ConsumerState<HomePage> {
       listenable: CreditService.instance,
       builder: (context, _) {
         final h = context.hud;
+        final isIos = h.isIosStyle;
         final credits = CreditService.instance.balance;
+        final inner = Container(
+          padding: EdgeInsets.symmetric(
+              horizontal: isIos ? 10 : HudTokens.sp3, vertical: 5),
+          decoration: BoxDecoration(
+            color: isIos ? Colors.white : h.surface,
+            borderRadius: isIos ? BorderRadius.circular(12) : null,
+            border: Border.all(color: h.accent, width: isIos ? 1.0 : 1.5),
+            boxShadow: isIos
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 6,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.diamond, size: 14, color: h.accent2),
+              const SizedBox(width: 5),
+              Text('$credits',
+                  style: HudTokens.mono(
+                      size: 13,
+                      weight: FontWeight.w700,
+                      color: h.text,
+                      letterSpacing: isIos ? 0.0 : 0.05)),
+            ],
+          ),
+        );
         return GestureDetector(
           onTap: _showCreditsSheet,
-          child: ClipPath(
-            clipper: const CornerCutClipper(cut: 6),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: HudTokens.sp3, vertical: 5),
-              decoration: BoxDecoration(
-                color: h.surface,
-                border: Border.all(color: h.accent, width: 1.5),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.diamond, size: 14, color: h.accent2),
-                  const SizedBox(width: 5),
-                  Text('$credits',
-                      style: HudTokens.mono(
-                          size: 13,
-                          weight: FontWeight.w700,
-                          color: h.text,
-                          letterSpacing: 0.05)),
-                ],
-              ),
-            ),
-          ),
+          child: isIos
+              ? inner
+              : ClipPath(
+                  clipper: const CornerCutClipper(cut: 6),
+                  child: inner,
+                ),
         );
       },
     );
@@ -423,6 +437,20 @@ class _HomePageState extends ConsumerState<HomePage> {
   PreferredSizeWidget _buildAppBar() {
     final h = context.hud;
     final transparent = _isWallpapersTab;
+    // Over a transparent AppBar the hero image shows through. On iOS White
+    // the dark text disappears against bright wallpapers — add a halo shadow
+    // for legibility (B&G title shows over a dark hero so a soft black shadow
+    // works for both themes when transparent).
+    final List<Shadow>? titleShadows = transparent
+        ? [
+            Shadow(
+              color: Colors.black.withOpacity(h.isIosStyle ? 0.55 : 0.7),
+              blurRadius: 10,
+              offset: const Offset(0, 1),
+            ),
+          ]
+        : null;
+    final Color iconColor = transparent && h.isIosStyle ? Colors.white : h.text;
     return AppBar(
       backgroundColor: transparent ? Colors.transparent : h.bg,
       elevation: 0,
@@ -432,16 +460,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         _title,
         style: HudTokens.display(
           size: 18,
-          color: h.text,
+          color: transparent && h.isIosStyle ? Colors.white : h.text,
           letterSpacing: 0.04,
-        ),
+        ).copyWith(shadows: titleShadows),
       ),
       actions: [
         _buildCreditsBadge(),
         const SizedBox(width: HudTokens.sp2),
         if (_isWallpapersTab)
           IconButton(
-            icon: Icon(Icons.search, color: h.text, size: 22),
+            icon: Icon(Icons.search, color: iconColor, size: 22),
             onPressed: () {
               Navigator.push(
                 context,
@@ -577,7 +605,8 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               data.label,
-              style: GoogleFonts.getFont(h.monoFontFamily,
+              style: GoogleFonts.getFont(
+                h.monoFontFamily,
                 fontSize: h.isIosStyle ? 9 : 8,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                 color: color,

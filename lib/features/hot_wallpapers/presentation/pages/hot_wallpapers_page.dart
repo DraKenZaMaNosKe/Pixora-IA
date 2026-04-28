@@ -25,8 +25,8 @@ class HotWallpapersPage extends ConsumerWidget {
           children: [
             Icon(Icons.error_outline, color: context.hud.accent, size: 48),
             const SizedBox(height: 12),
-            const Text('Failed to load live wallpapers',
-                style: TextStyle(color: Colors.white70)),
+            Text('Failed to load live wallpapers',
+                style: TextStyle(color: context.hud.textDim)),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => ref.invalidate(liveWallpaperCatalogProvider),
@@ -37,9 +37,9 @@ class HotWallpapersPage extends ConsumerWidget {
       ),
       data: (items) {
         if (items.isEmpty) {
-          return const Center(
+          return Center(
             child: Text('Coming soon!',
-                style: TextStyle(color: Colors.white54, fontSize: 16)),
+                style: TextStyle(color: context.hud.textDim, fontSize: 16)),
           );
         }
         return _HotContent(items: items);

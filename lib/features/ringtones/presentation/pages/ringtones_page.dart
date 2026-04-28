@@ -91,42 +91,46 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   Future<void> _showPermissionDialog(RingtoneTone tone, int type) async {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: context.hud.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.settings, color: context.hud.accent2, size: 24),
-            SizedBox(width: 10),
-            Text('Permission needed', style: TextStyle(fontSize: 17)),
-          ],
-        ),
-        content: const Text(
-          'To set ringtones, Pixora needs permission to modify system settings.\n\n'
-          'Tap "Open Settings" below, then enable the toggle.',
-          style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel',
-                style: TextStyle(color: Colors.white.withOpacity(0.5))),
+      builder: (ctx) {
+        final h = ctx.hud;
+        return AlertDialog(
+          backgroundColor: h.surface,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(Icons.settings, color: h.accent2, size: 24),
+              const SizedBox(width: 10),
+              Text('Permission needed',
+                  style: TextStyle(fontSize: 17, color: h.text)),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await RingtoneService.instance.requestPermission();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.hud.accent,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+          content: Text(
+            'To set ringtones, Pixora needs permission to modify system settings.\n\n'
+            'Tap "Open Settings" below, then enable the toggle.',
+            style: TextStyle(color: h.textDim, fontSize: 14, height: 1.5),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancel', style: TextStyle(color: h.textDim)),
             ),
-            child: const Text('Open Settings'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await RingtoneService.instance.requestPermission();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: h.accent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Open Settings'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -167,49 +171,55 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(2),
+      builder: (ctx) {
+        final h = ctx.hud;
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: h.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(tone.name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            _buildSetOption(ctx, Icons.phone_in_talk, 'Ringtone', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 0);
-            }),
-            _buildSetOption(ctx, Icons.notifications, 'Notification', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 1);
-            }),
-            _buildSetOption(ctx, Icons.alarm, 'Alarm', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 2);
-            }),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+              const SizedBox(height: 16),
+              Text(tone.name,
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: h.text)),
+              const SizedBox(height: 16),
+              _buildSetOption(ctx, Icons.phone_in_talk, 'Ringtone', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 0);
+              }),
+              _buildSetOption(ctx, Icons.notifications, 'Notification', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 1);
+              }),
+              _buildSetOption(ctx, Icons.alarm, 'Alarm', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 2);
+              }),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 
   Widget _buildSetOption(
       BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
+    final h = ctx.hud;
     return ListTile(
-      leading: Icon(icon, color: context.hud.accent),
-      title: Text(label),
-      trailing: const Icon(Icons.chevron_right, color: Colors.white24),
+      leading: Icon(icon, color: h.accent),
+      title: Text(label, style: TextStyle(color: h.text)),
+      trailing: Icon(Icons.chevron_right, color: h.textDim),
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
@@ -221,7 +231,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   List<Color> _toneGradient(RingtoneTone tone, Color glow) {
     // Black & Gold: ignore per-character brand colors — every tone renders on
     // a unified gold gradient. Was previously 22 hardcoded palettes.
-    return [HudTokens.goldDeep, Theme.of(context).extension<HudTheme>()?.bg ?? HudTokens.nightBg];
+    return [
+      HudTokens.goldDeep,
+      Theme.of(context).extension<HudTheme>()?.bg ?? HudTokens.nightBg
+    ];
   }
 
   IconData _toneIcon(RingtoneTone tone) {
@@ -284,11 +297,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                color: context.hud.accent, size: 48),
+            Icon(Icons.error_outline, color: context.hud.accent, size: 48),
             const SizedBox(height: 12),
-            const Text('Failed to load tones',
-                style: TextStyle(color: Colors.white70)),
+            Text('Failed to load tones',
+                style: TextStyle(color: context.hud.textDim)),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => ref.invalidate(ringtonePacksProvider),
@@ -425,7 +437,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                 color: selected ? context.hud.accent : context.hud.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: selected ? context.hud.accent : Colors.white12,
+                  color: selected ? context.hud.accent : context.hud.divider,
                 ),
               ),
               child: Row(
@@ -461,10 +473,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: context.hud.text,
             ),
           ),
           if (onSeeAll != null)
@@ -571,18 +583,20 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
 // was a Supabase-generated placeholder with "DON'T USE UPLOADED BY 25 PIXELS"
 // watermark rendered into the image itself. Now we draw a clean Black & Gold
 // background with a soft radial vignette so it reads as intentional.
-Widget _toneBackground(
-        RingtoneTone tone, List<Color> gradient, IconData icon) =>
-    _assetPreview(gradient, icon);
+Widget _toneBackground(BuildContext context, RingtoneTone tone,
+        List<Color> gradient, IconData icon) =>
+    _assetPreview(context, gradient, icon);
 
-Widget _assetPreview(List<Color> gradient, IconData icon) {
+Widget _assetPreview(
+    BuildContext context, List<Color> gradient, IconData icon) {
+  final h = context.hud;
   return Container(
     decoration: BoxDecoration(
-      color: HudTokens.nightSurfaceHi,
+      color: h.surfaceHi,
       gradient: RadialGradient(
         colors: [
-          HudTokens.gold.withOpacity(0.12),
-          HudTokens.nightSurface,
+          h.accent.withValues(alpha: 0.12),
+          h.surface,
         ],
         radius: 0.95,
       ),

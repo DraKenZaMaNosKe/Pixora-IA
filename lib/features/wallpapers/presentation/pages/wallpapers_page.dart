@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/design/hud_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/wallpaper_providers.dart';
 import '../widgets/hero_banner.dart';
@@ -30,8 +31,8 @@ class WallpapersPage extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.cloud_off,
-                        color: Colors.white24, size: 48),
+                    Icon(Icons.cloud_off,
+                        color: context.hud.divider, size: 48),
                     const SizedBox(height: 12),
                     Text('Failed to load wallpapers',
                         style:

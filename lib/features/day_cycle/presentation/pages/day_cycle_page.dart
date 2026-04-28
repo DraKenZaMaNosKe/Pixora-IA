@@ -24,8 +24,8 @@ class DayCyclePage extends ConsumerWidget {
             Icon(Icons.error_outline,
                 color: context.hud.accent, size: 48),
             const SizedBox(height: 12),
-            const Text('Failed to load themes',
-                style: TextStyle(color: Colors.white70)),
+            Text('Failed to load themes',
+                style: TextStyle(color: context.hud.textDim)),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => ref.invalidate(dayCycleCatalogProvider),
@@ -111,7 +111,7 @@ class _DayCycleCard extends ConsumerWidget {
             cacheWidth: 400,
             errorBuilder: (_, __, ___) => Container(
               color: context.hud.surface,
-              child: const Icon(Icons.image, color: Colors.white24, size: 48),
+              child: Icon(Icons.image, color: context.hud.divider, size: 48),
             ),
           ),
         ),

@@ -22,7 +22,7 @@ class StoriesPage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.auto_stories, size: 64, color: Colors.white24),
+            Icon(Icons.auto_stories, size: 64, color: context.hud.divider),
             const SizedBox(height: 16),
             Text('No stories available yet',
                 style: TextStyle(color: Colors.white.withOpacity(0.5))),
@@ -40,7 +40,7 @@ class StoriesPage extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.auto_stories, size: 64, color: Colors.white24),
+                Icon(Icons.auto_stories, size: 64, color: context.hud.divider),
                 const SizedBox(height: 16),
                 Text('Stories coming soon!',
                     style: TextStyle(

@@ -387,7 +387,9 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                         fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isActive ? HudTokens.goldDeep : glow,
+                    backgroundColor: isActive
+                        ? (isIos ? const Color(0xFFFF3B30) : HudTokens.goldDeep)
+                        : glow,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),

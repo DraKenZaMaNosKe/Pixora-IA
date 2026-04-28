@@ -190,7 +190,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       Icons.autorenew,
                       color: _autoRotateEnabled
                           ? context.hud.accent
-                          : Colors.white54,
+                          : context.hud.textDim,
                     ),
                     title: const Text('Auto-rotate wallpaper'),
                     subtitle: Text(
@@ -249,22 +249,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ],
                 ],
               ),
-        const Divider(color: Colors.white12),
+        Divider(color: context.hud.divider),
         _SectionHeader(LocaleHelper.pick(
           es: 'Efecto al tocar',
           en: 'Touch effect',
         )),
         _buildTouchTrailSection(),
-        const Divider(color: Colors.white12),
+        Divider(color: context.hud.divider),
         _SectionHeader(LocaleHelper.pick(
           es: 'Overlays del wallpaper',
           en: 'Wallpaper overlays',
         )),
         _buildOverlaysSection(),
-        const Divider(color: Colors.white12),
+        Divider(color: context.hud.divider),
         const _SectionHeader('General'),
         const _ThemePickerSection(),
-        const Divider(color: Colors.white12),
+        Divider(color: context.hud.divider),
         const _SectionHeader('About'),
         _SettingsTile(
           icon: Icons.info_outline,
@@ -277,7 +277,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           subtitle: 'Orbix Studio',
         ),
         const SizedBox(height: 12),
-        const Divider(color: Colors.white12),
+        Divider(color: context.hud.divider),
         _SectionHeader(LocaleHelper.pick(
           es: 'Zona de peligro',
           en: 'Danger zone',
@@ -441,7 +441,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return RadioListTile<String>(
           contentPadding: EdgeInsets.zero,
           secondary:
-              Icon(t.$2, color: selected ? context.hud.accent : Colors.white54),
+              Icon(t.$2, color: selected ? context.hud.accent : context.hud.textDim),
           title: Text(t.$3,
               style: TextStyle(
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
@@ -516,7 +516,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return SwitchListTile(
           contentPadding: EdgeInsets.zero,
           secondary:
-              Icon(t.$2, color: enabled ? context.hud.accent : Colors.white54),
+              Icon(t.$2, color: enabled ? context.hud.accent : context.hud.textDim),
           title: Text(t.$3),
           subtitle: Text(t.$4, style: TextStyle(color: context.hud.textDim)),
           value: enabled,
@@ -536,7 +536,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white10),
+          border: Border.all(color: context.hud.divider),
         ),
         child: Column(
           children: [
@@ -614,8 +614,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   if (mounted) setState(() {});
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white54,
-                  side: const BorderSide(color: Colors.white12),
+                  foregroundColor: context.hud.textDim,
+                  side: BorderSide(color: context.hud.divider),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
@@ -633,7 +633,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: context.hud.divider),
       ),
       child: Column(
         children: [
