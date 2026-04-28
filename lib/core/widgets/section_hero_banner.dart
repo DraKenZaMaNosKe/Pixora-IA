@@ -181,8 +181,8 @@ class _BannerPage extends StatelessWidget {
                 colors: [
                   Colors.transparent,
                   Colors.transparent,
-                  const Color(0xFF0A0A0F).withOpacity(0.6),
-                  const Color(0xFF0A0A0F),
+                  context.hud.bg.withOpacity(0.6),
+                  context.hud.bg,
                 ],
                 stops: const [0.0, 0.35, 0.7, 1.0],
               ),

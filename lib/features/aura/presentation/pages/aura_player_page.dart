@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../core/utils/color_utils.dart';
@@ -47,8 +48,9 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
     final isEs = LocaleHelper.isSpanishContext(context);
     final svc = AuraPlayerService.instance;
 
+    final h = context.hud;
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
+      backgroundColor: h.bg,
       body: Stack(children: [
       Container(
         decoration: BoxDecoration(
@@ -57,7 +59,7 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
             radius: 1.4,
             colors: [
               _accent.withOpacity(0.35),
-              const Color(0xFF0A0A0F),
+              h.bg,
             ],
           ),
         ),

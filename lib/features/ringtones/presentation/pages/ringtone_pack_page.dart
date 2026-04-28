@@ -138,7 +138,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A2E),
+        backgroundColor: Theme.of(context).extension<HudTheme>()?.surface ?? const Color(0xFF1A1A2E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
@@ -223,7 +223,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   void _showSetAsDialog(RingtoneTone tone) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: Theme.of(context).extension<HudTheme>()?.surface ?? const Color(0xFF1A1A2E),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

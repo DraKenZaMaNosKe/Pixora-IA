@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/design/hud_tokens.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../../providers/wallpaper_providers.dart';
@@ -54,18 +55,19 @@ class _WallpaperSearchPageState extends ConsumerState<WallpaperSearchPage> {
     final resultsAsync = ref.watch(_searchResultsProvider);
     final query = ref.watch(_searchQueryProvider);
 
+    final h = context.hud;
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
+      backgroundColor: h.bg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0A0A0F),
+        backgroundColor: h.bg,
         title: TextField(
           controller: _controller,
           focusNode: _focusNode,
           onChanged: (v) => ref.read(_searchQueryProvider.notifier).state = v,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: h.text, fontSize: 16),
           decoration: InputDecoration(
             hintText: 'Search wallpapers...',
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+            hintStyle: TextStyle(color: h.textDim),
             border: InputBorder.none,
           ),
         ),
