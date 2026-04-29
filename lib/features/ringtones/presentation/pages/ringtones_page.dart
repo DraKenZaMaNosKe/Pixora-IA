@@ -494,13 +494,13 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                     'See All',
                     style: TextStyle(
                       fontSize: 13,
-                      color: context.hud.accent.withOpacity(0.9),
+                      color: context.hud.accent.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(width: 2),
                   Icon(Icons.chevron_right,
-                      size: 18, color: context.hud.accent.withOpacity(0.9)),
+                      size: 18, color: context.hud.accent.withValues(alpha: 0.9)),
                 ],
               ),
             ),
@@ -679,13 +679,13 @@ class _RecommendedCard extends StatelessWidget {
           border: Border.all(
             color: isPlaying
                 ? context.hud.accent2
-                : context.hud.accent.withOpacity(0.45),
+                : context.hud.accent.withValues(alpha: 0.45),
             width: isPlaying ? 2 : 1,
           ),
           boxShadow: isPlaying
               ? [
                   BoxShadow(
-                    color: context.hud.accent.withOpacity(0.35),
+                    color: context.hud.accent.withValues(alpha: 0.35),
                     blurRadius: 22,
                     spreadRadius: 1,
                   ),
@@ -747,8 +747,8 @@ class _RecommendedCard extends StatelessWidget {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              context.hud.accent.withOpacity(0.35),
-                              context.hud.accent.withOpacity(0.0),
+                              context.hud.accent.withValues(alpha: 0.35),
+                              context.hud.accent.withValues(alpha: 0.0),
                             ],
                           ),
                         ),
@@ -797,7 +797,7 @@ class _RecommendedCard extends StatelessWidget {
                 fontFamily: 'serif',
                 fontStyle: FontStyle.italic,
                 fontSize: 11,
-                color: context.hud.accent.withOpacity(0.75),
+                color: context.hud.accent.withValues(alpha: 0.75),
                 letterSpacing: 0.05,
               ),
             ),
@@ -842,7 +842,7 @@ class _PlayButton extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
+          color: Colors.black.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
         child: Padding(
@@ -856,20 +856,20 @@ class _PlayButton extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: isPlaying ? glow : Colors.white.withOpacity(0.2),
+        color: isPlaying ? glow : Colors.white.withValues(alpha: 0.2),
         shape: BoxShape.circle,
         border: Border.all(
-          color: isPlaying ? glow : Colors.white.withOpacity(0.4),
+          color: isPlaying ? glow : Colors.white.withValues(alpha: 0.4),
           width: 2,
         ),
         boxShadow: isPlaying
             ? [
                 BoxShadow(
-                    color: glow.withOpacity(0.6),
+                    color: glow.withValues(alpha: 0.6),
                     blurRadius: 16,
                     spreadRadius: 2)
               ]
-            : [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8)],
+            : [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8)],
       ),
       child: Icon(
         isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
@@ -926,7 +926,7 @@ class _ToneGridCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      context.hud.accent.withOpacity(isPlaying ? 0.4 : 0.15),
+                      context.hud.accent.withValues(alpha: isPlaying ? 0.4 : 0.15),
                       Colors.transparent,
                     ],
                     radius: 0.8,
@@ -945,7 +945,7 @@ class _ToneGridCard extends StatelessWidget {
                       height: 38,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: context.hud.bg.withOpacity(0.5),
+                        color: context.hud.bg.withValues(alpha: 0.5),
                         border: Border.all(color: context.hud.accent, width: 1),
                       ),
                       child: _PlayButton(
@@ -1017,7 +1017,7 @@ class _MiniWaveState extends State<_MiniWave>
               color: widget.color,
               borderRadius: BorderRadius.circular(2),
               boxShadow: [
-                BoxShadow(color: widget.color.withOpacity(0.4), blurRadius: 3)
+                BoxShadow(color: widget.color.withValues(alpha: 0.4), blurRadius: 3)
               ],
             ),
           );

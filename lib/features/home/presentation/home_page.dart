@@ -400,7 +400,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             boxShadow: isIos
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 6,
                       offset: const Offset(0, 1),
                     ),
@@ -444,7 +444,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final List<Shadow>? titleShadows = transparent
         ? [
             Shadow(
-              color: Colors.black.withOpacity(h.isIosStyle ? 0.55 : 0.7),
+              color: Colors.black.withValues(alpha: h.isIosStyle ? 0.55 : 0.7),
               blurRadius: 10,
               offset: const Offset(0, 1),
             ),
@@ -679,7 +679,7 @@ class _PlusHaloAvatarState extends State<_PlusHaloAvatar>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: HudTokens.gold.withOpacity(ringOpacity * 0.5),
+                    color: HudTokens.gold.withValues(alpha: ringOpacity * 0.5),
                     blurRadius: blur,
                     spreadRadius: 0.5,
                   ),

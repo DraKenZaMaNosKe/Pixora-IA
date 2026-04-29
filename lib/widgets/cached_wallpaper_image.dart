@@ -47,7 +47,7 @@ class CachedWallpaperImage extends StatelessWidget {
         color: context.hud.surface,
         child: Icon(
           Icons.broken_image,
-          color: context.hud.accent.withOpacity(0.3),
+          color: context.hud.accent.withValues(alpha: 0.3),
           size: 40,
         ),
       ),

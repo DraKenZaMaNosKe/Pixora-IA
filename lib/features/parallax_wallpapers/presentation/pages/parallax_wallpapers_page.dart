@@ -249,7 +249,7 @@ class _HeroCard extends StatelessWidget {
                         colors: [
                           Colors.transparent,
                           Colors.transparent,
-                          Colors.black.withOpacity(0.85),
+                          Colors.black.withValues(alpha: 0.85),
                         ],
                         stops: const [0, 0.5, 1],
                       ),
@@ -294,7 +294,7 @@ class _HeroCard extends StatelessWidget {
                           fontSize: 10,
                           letterSpacing: 0.4,
                           height: 1.4,
-                          color: Colors.white.withOpacity(0.85),
+                          color: Colors.white.withValues(alpha: 0.85),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -312,7 +312,7 @@ class _HeroCard extends StatelessWidget {
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 2.2,
-                            color: Colors.black.withOpacity(0.85),
+                            color: Colors.black.withValues(alpha: 0.85),
                           ),
                         ),
                       ),
@@ -397,7 +397,7 @@ class _Chip extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: color, width: 1),
         borderRadius: BorderRadius.circular(999),
-        color: Colors.black.withOpacity(0.45),
+        color: Colors.black.withValues(alpha: 0.45),
       ),
       child: Text(
         label,

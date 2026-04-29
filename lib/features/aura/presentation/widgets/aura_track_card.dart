@@ -82,7 +82,7 @@ class AuraTrackCard extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: [
-                    context.hud.accent.withOpacity(isPlaying ? 0.4 : 0.18),
+                    context.hud.accent.withValues(alpha: isPlaying ? 0.4 : 0.18),
                     Colors.transparent,
                   ],
                   radius: 0.75,

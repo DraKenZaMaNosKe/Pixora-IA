@@ -181,7 +181,7 @@ class _BannerPage extends StatelessWidget {
                 colors: [
                   Colors.transparent,
                   Colors.transparent,
-                  context.hud.bg.withOpacity(0.6),
+                  context.hud.bg.withValues(alpha: 0.6),
                   context.hud.bg,
                 ],
                 stops: const [0.0, 0.35, 0.7, 1.0],
@@ -208,10 +208,10 @@ class _BannerPage extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: item.accentColor.withOpacity(0.2),
+                    color: item.accentColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(6),
                     border:
-                        Border.all(color: item.accentColor.withOpacity(0.5)),
+                        Border.all(color: item.accentColor.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     item.badge.toUpperCase(),
@@ -316,7 +316,7 @@ class _HeroFallback extends StatelessWidget {
             height: 72,
             decoration: BoxDecoration(
               border: Border.all(
-                color: context.hud.accent.withOpacity(0.55),
+                color: context.hud.accent.withValues(alpha: 0.55),
                 width: 1.5,
               ),
             ),
@@ -329,7 +329,7 @@ class _HeroFallback extends StatelessWidget {
                     fontFamily: 'serif',
                     fontStyle: FontStyle.italic,
                     fontSize: 34,
-                    color: context.hud.accent2.withOpacity(0.75),
+                    color: context.hud.accent2.withValues(alpha: 0.75),
                     fontWeight: FontWeight.w700,
                   ),
                 ),

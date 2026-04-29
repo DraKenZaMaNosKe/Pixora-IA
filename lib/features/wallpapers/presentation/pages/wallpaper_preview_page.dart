@@ -430,7 +430,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
               ),
             ),
             Icon(Icons.chevron_right,
-                color: context.hud.accent.withOpacity(0.5)),
+                color: context.hud.accent.withValues(alpha: 0.5)),
           ],
         ),
       ),

@@ -266,7 +266,7 @@ class _LiveWallpaperCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: context.hud.bg.withOpacity(0.45),
+                  color: context.hud.bg.withValues(alpha: 0.45),
                   shape: BoxShape.circle,
                   border: Border.all(color: context.hud.accent, width: 1),
                 ),

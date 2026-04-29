@@ -108,7 +108,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
                       margin: const EdgeInsets.symmetric(horizontal: 3),
                       width: active ? 28 : 8,
                       height: 3,
-                      color: active ? h.accent : Colors.white.withOpacity(0.25),
+                      color: active ? h.accent : Colors.white.withValues(alpha: 0.25),
                     );
                   }),
                 ),
@@ -147,7 +147,7 @@ class _HeroPage extends StatelessWidget {
                 colors: [
                   Colors.transparent,
                   Colors.transparent,
-                  h.bg.withOpacity(0.85),
+                  h.bg.withValues(alpha: 0.85),
                   h.bg,
                 ],
                 stops: const [0.0, 0.4, 0.78, 1.0],
@@ -246,12 +246,12 @@ class _HeroPage extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Colors.white.withOpacity(0.28),
-                              h.accent.withOpacity(0.42),
+                              Colors.white.withValues(alpha: 0.28),
+                              h.accent.withValues(alpha: 0.42),
                             ],
                           ),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.45),
+                            color: Colors.white.withValues(alpha: 0.45),
                             width: 0.8,
                           ),
                           boxShadow: [

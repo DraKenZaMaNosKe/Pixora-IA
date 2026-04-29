@@ -324,18 +324,18 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withOpacity(0.22),
-                      accent.withOpacity(0.28),
+                      Colors.white.withValues(alpha: 0.22),
+                      accent.withValues(alpha: 0.28),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.35),
+                    color: Colors.white.withValues(alpha: 0.35),
                     width: 0.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: accent.withOpacity(0.35),
+                      color: accent.withValues(alpha: 0.35),
                       blurRadius: 20,
                       spreadRadius: -4,
                       offset: const Offset(0, 6),
@@ -390,10 +390,10 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withOpacity(0.5),
+                      Colors.black.withValues(alpha: 0.5),
                       Colors.transparent,
                       Colors.transparent,
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withValues(alpha: 0.8),
                     ],
                     stops: const [0.0, 0.2, 0.6, 1.0],
                   ),
@@ -454,7 +454,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                               w.description,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 height: 1.5,
                               ),
                               textAlign: TextAlign.center,
@@ -471,12 +471,12 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 8, vertical: 3),
                                         decoration: BoxDecoration(
-                                          color: _glowColor.withOpacity(0.15),
+                                          color: _glowColor.withValues(alpha: 0.15),
                                           borderRadius:
                                               BorderRadius.circular(8),
                                           border: Border.all(
                                               color:
-                                                  _glowColor.withOpacity(0.3)),
+                                                  _glowColor.withValues(alpha: 0.3)),
                                         ),
                                         child: Text(
                                           tag,
@@ -491,7 +491,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                               '${(w.videoSize / 1024 / 1024).toStringAsFixed(1)} MB • 6s loop',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white.withOpacity(0.4),
+                                color: Colors.white.withValues(alpha: 0.4),
                               ),
                             ),
                             const SizedBox(height: 14),
@@ -514,16 +514,16 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                       decoration: BoxDecoration(
                                         color: isFree
                                             ? context.hud.accent
-                                                .withOpacity(0.2)
+                                                .withValues(alpha: 0.2)
                                             : context.hud.accent
-                                                .withOpacity(0.2),
+                                                .withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                             color: isFree
                                                 ? context.hud.accent
-                                                    .withOpacity(0.5)
+                                                    .withValues(alpha: 0.5)
                                                 : context.hud.accent
-                                                    .withOpacity(0.5)),
+                                                    .withValues(alpha: 0.5)),
                                       ),
                                       child: Text(
                                         isFree

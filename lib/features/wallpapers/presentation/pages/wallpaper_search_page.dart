@@ -91,12 +91,12 @@ class _WallpaperSearchPageState extends ConsumerState<WallpaperSearchPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.search_off,
-                              color: Colors.white.withOpacity(0.2), size: 64),
+                              color: Colors.white.withValues(alpha: 0.2), size: 64),
                           const SizedBox(height: 12),
                           Text(
                             'No results for "$query"',
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.4)),
+                                color: Colors.white.withValues(alpha: 0.4)),
                           ),
                         ],
                       ),
@@ -127,7 +127,7 @@ class _WallpaperSearchPageState extends ConsumerState<WallpaperSearchPage> {
           Text(
             'Popular searches',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -146,7 +146,7 @@ class _WallpaperSearchPageState extends ConsumerState<WallpaperSearchPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.08),
+                    color: Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.white12),
                   ),
@@ -232,7 +232,7 @@ class _SearchResultCard extends StatelessWidget {
                     wallpaper.category,
                     style: TextStyle(
                       fontSize: 10,
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                     ),
                   ),
                 ],

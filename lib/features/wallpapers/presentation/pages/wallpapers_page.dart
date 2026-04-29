@@ -36,7 +36,7 @@ class WallpapersPage extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Text('Failed to load wallpapers',
                         style:
-                            TextStyle(color: Colors.white.withOpacity(0.5))),
+                            TextStyle(color: Colors.white.withValues(alpha: 0.5))),
                     const SizedBox(height: 8),
                     TextButton(
                       onPressed: () => ref.invalidate(catalogProvider),

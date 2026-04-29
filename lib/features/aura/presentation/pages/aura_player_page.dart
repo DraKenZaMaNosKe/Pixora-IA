@@ -58,7 +58,7 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
             center: Alignment.topCenter,
             radius: 1.4,
             colors: [
-              _accent.withOpacity(0.35),
+              _accent.withValues(alpha: 0.35),
               h.bg,
             ],
           ),
@@ -83,7 +83,7 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                       style: TextStyle(
                         fontSize: 11,
                         letterSpacing: 2,
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -107,13 +107,13 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              _accent.withOpacity(0.4),
-                              _accent.withOpacity(0.05)
+                              _accent.withValues(alpha: 0.4),
+                              _accent.withValues(alpha: 0.05)
                             ],
                           ),
                           boxShadow: [
                             BoxShadow(
-                                color: _accent.withOpacity(0.5),
+                                color: _accent.withValues(alpha: 0.5),
                                 blurRadius: 60,
                                 spreadRadius: 4),
                           ],
@@ -141,16 +141,16 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                         child: Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: Colors.white.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                                color: Colors.white.withOpacity(0.08)),
+                                color: Colors.white.withValues(alpha: 0.08)),
                           ),
                           child: Text(
                             t.displayDescription,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Colors.white.withOpacity(0.75),
+                              color: Colors.white.withValues(alpha: 0.75),
                               height: 1.45,
                             ),
                             textAlign: TextAlign.center,
@@ -174,9 +174,9 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                         SliderTheme(
                           data: SliderTheme.of(context).copyWith(
                             activeTrackColor: _accent,
-                            inactiveTrackColor: Colors.white.withOpacity(0.1),
+                            inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
                             thumbColor: _accent,
-                            overlayColor: _accent.withOpacity(0.3),
+                            overlayColor: _accent.withValues(alpha: 0.3),
                             trackHeight: 3,
                           ),
                           child: Slider(
@@ -196,11 +196,11 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                             Text(_fmt(pos),
                                 style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.white.withOpacity(0.5))),
+                                    color: Colors.white.withValues(alpha: 0.5))),
                             Text(_fmt(dur),
                                 style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.white.withOpacity(0.5))),
+                                    color: Colors.white.withValues(alpha: 0.5))),
                           ],
                         ),
                       ],
@@ -231,7 +231,7 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                           color: _accent,
                           boxShadow: [
                             BoxShadow(
-                                color: _accent.withOpacity(0.6),
+                                color: _accent.withValues(alpha: 0.6),
                                 blurRadius: 20,
                                 spreadRadius: 2),
                           ],

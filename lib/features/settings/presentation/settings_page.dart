@@ -453,61 +453,81 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: h.surface,
+      // Allow the sheet to grow taller than the default 50% so the 7-row
+      // list fits without overflow on smaller phones.
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
         final ch = ctx.hud;
+        // Cap the sheet at ~75% of viewport so the user still sees app
+        // chrome above; ListView inside scrolls if rows exceed available
+        // space (handles phones with smaller screen heights).
+        final maxH = MediaQuery.of(ctx).size.height * 0.75;
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: ch.divider,
-                    borderRadius: BorderRadius.circular(2),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxH),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: ch.divider,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  LocaleHelper.pick(
-                    es: 'Efecto al tocar',
-                    en: 'Touch effect',
+                  const SizedBox(height: 14),
+                  Text(
+                    LocaleHelper.pick(
+                      es: 'Efecto al tocar',
+                      en: 'Touch effect',
+                    ),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: ch.text,
+                    ),
                   ),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: ch.text,
+                  const SizedBox(height: 6),
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      itemCount: trails.length,
+                      itemBuilder: (_, i) {
+                        final t = trails[i];
+                        final id = t.$1;
+                        final selected = _touchTrail == id;
+                        return ListTile(
+                          leading: Icon(t.$2,
+                              color: selected ? ch.accent : ch.textDim),
+                          title: Text(t.$3,
+                              style: TextStyle(
+                                fontWeight: selected
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: selected ? ch.accent : ch.text,
+                              )),
+                          subtitle:
+                              Text(t.$4, style: TextStyle(color: ch.textDim)),
+                          trailing: selected
+                              ? Icon(Icons.check_rounded, color: ch.accent)
+                              : null,
+                          onTap: () {
+                            _setTouchTrail(id);
+                            Navigator.of(ctx).pop();
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                ...trails.map((t) {
-                  final id = t.$1;
-                  final selected = _touchTrail == id;
-                  return ListTile(
-                    leading:
-                        Icon(t.$2, color: selected ? ch.accent : ch.textDim),
-                    title: Text(t.$3,
-                        style: TextStyle(
-                          fontWeight:
-                              selected ? FontWeight.w600 : FontWeight.w400,
-                          color: selected ? ch.accent : ch.text,
-                        )),
-                    subtitle: Text(t.$4, style: TextStyle(color: ch.textDim)),
-                    trailing: selected
-                        ? Icon(Icons.check_rounded, color: ch.accent)
-                        : null,
-                    onTap: () {
-                      _setTouchTrail(id);
-                      Navigator.of(ctx).pop();
-                    },
-                  );
-                }),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -590,7 +610,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: context.hud.divider),
         ),
@@ -637,7 +657,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         auth.email ?? '',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                         ),
                       ),
                     ],
@@ -647,7 +667,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: HudTokens.gold.withOpacity(0.15),
+                    color: HudTokens.gold.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -687,14 +707,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: context.hud.divider),
       ),
       child: Column(
         children: [
           Icon(Icons.cloud_sync,
-              size: 40, color: Colors.white.withOpacity(0.3)),
+              size: 40, color: Colors.white.withValues(alpha: 0.3)),
           const SizedBox(height: 12),
           Text(
             'Sign in to sync favorites',
@@ -706,8 +726,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           const SizedBox(height: 4),
           Text(
             'Keep your favorites safe across devices',
-            style:
-                TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4)),
+            style: TextStyle(
+                fontSize: 12, color: Colors.white.withValues(alpha: 0.4)),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -743,8 +763,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           const SizedBox(height: 8),
           Text(
             'Optional — app works fully without an account',
-            style:
-                TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.3)),
+            style: TextStyle(
+                fontSize: 10, color: Colors.white.withValues(alpha: 0.3)),
           ),
         ],
       ),

@@ -25,7 +25,7 @@ class StoriesPage extends ConsumerWidget {
             Icon(Icons.auto_stories, size: 64, color: context.hud.divider),
             const SizedBox(height: 16),
             Text('No stories available yet',
-                style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => ref.invalidate(storyCatalogProvider),
@@ -44,11 +44,11 @@ class StoriesPage extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Text('Stories coming soon!',
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.5), fontSize: 16)),
+                        color: Colors.white.withValues(alpha: 0.5), fontSize: 16)),
                 const SizedBox(height: 4),
                 Text('Wallpapers that tell a story',
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.3), fontSize: 13)),
+                        color: Colors.white.withValues(alpha: 0.3), fontSize: 13)),
               ],
             ),
           );
@@ -103,7 +103,7 @@ class StoriesPage extends ConsumerWidget {
                           width: 34,
                           height: 34,
                           decoration: BoxDecoration(
-                            color: context.hud.bg.withOpacity(0.6),
+                            color: context.hud.bg.withValues(alpha: 0.6),
                             shape: BoxShape.circle,
                             border: Border.all(color: glowColor, width: 1),
                           ),

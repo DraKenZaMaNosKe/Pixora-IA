@@ -168,7 +168,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
                     gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, h.bg.withOpacity(0.85)]),
+                        colors: [Colors.transparent, h.bg.withValues(alpha: 0.85)]),
                   )),
                 ]),
               ),
@@ -310,7 +310,7 @@ class _PeriodPreview extends StatelessWidget {
         boxShadow: isIos
             ? [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -332,7 +332,7 @@ class _PeriodPreview extends StatelessWidget {
                     errorBuilder: (_, __, ___) => Container(
                         color: h.surface,
                         child: Icon(icon,
-                            color: color.withOpacity(0.3), size: 32)))),
+                            color: color.withValues(alpha: 0.3), size: 32)))),
             Expanded(
                 child: Padding(
                     padding: const EdgeInsets.all(12),
@@ -354,7 +354,7 @@ class _PeriodPreview extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                      color: color.withOpacity(0.2),
+                                      color: color.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(6)),
                                   child: Text('NOW',
                                       style: TextStyle(

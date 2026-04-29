@@ -320,7 +320,7 @@ class _ParticlePainter extends CustomPainter {
               ? HudTokens.gold
               : Colors.white;
 
-      paint.color = particleColor.withOpacity(opacity * 0.8);
+      paint.color = particleColor.withValues(alpha: opacity * 0.8);
 
       canvas.drawCircle(
         Offset(

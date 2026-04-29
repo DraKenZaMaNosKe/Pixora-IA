@@ -74,7 +74,7 @@ class ScanLinesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color.withOpacity(0.015);
+    final paint = Paint()..color = color.withValues(alpha: 0.015);
     for (double y = 0; y < size.height; y += spacing) {
       canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1), paint);
     }

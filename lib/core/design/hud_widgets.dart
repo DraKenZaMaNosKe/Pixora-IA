@@ -321,7 +321,7 @@ class HudStatusTag extends StatelessWidget {
     final c = color ?? h.accent;
     return Container(
       decoration: BoxDecoration(
-        color: h.bg.withOpacity(0.7),
+        color: h.bg.withValues(alpha: 0.7),
         border: Border.all(color: c, width: 1),
       ),
       padding: const EdgeInsets.symmetric(

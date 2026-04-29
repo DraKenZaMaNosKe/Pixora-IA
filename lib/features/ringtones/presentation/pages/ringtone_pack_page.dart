@@ -326,8 +326,8 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            _glowColor.withOpacity(isIos ? 0.18 : 0.4),
-                            _glowColor.withOpacity(isIos ? 0.06 : 0.15),
+                            _glowColor.withValues(alpha: isIos ? 0.18 : 0.4),
+                            _glowColor.withValues(alpha: isIos ? 0.06 : 0.15),
                           ],
                         ),
                       ),
@@ -340,7 +340,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            h.bg.withOpacity(0.75),
+                            h.bg.withValues(alpha: 0.75),
                           ],
                         ),
                       ),
@@ -361,7 +361,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
                               style: TextStyle(
                                   color: isIos
                                       ? h.textDim
-                                      : Colors.white.withOpacity(0.7),
+                                      : Colors.white.withValues(alpha: 0.7),
                                   fontSize: 12,
                                   height: 1.35),
                               textAlign: TextAlign.center,
@@ -374,12 +374,12 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
                             decoration: BoxDecoration(
                               color: isIos
                                   ? h.surface
-                                  : _glowColor.withOpacity(0.2),
+                                  : _glowColor.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                   color: isIos
                                       ? h.divider
-                                      : _glowColor.withOpacity(0.4),
+                                      : _glowColor.withValues(alpha: 0.4),
                                   width: isIos ? 0.5 : 1),
                             ),
                             child: Text(
@@ -490,7 +490,7 @@ class _ToneCard extends StatelessWidget {
                 color: context.hud.surfaceHi,
                 gradient: RadialGradient(
                   colors: [
-                    context.hud.accent.withOpacity(isPlaying ? 0.35 : 0.14),
+                    context.hud.accent.withValues(alpha: isPlaying ? 0.35 : 0.14),
                     context.hud.surface,
                   ],
                   radius: 0.85,
@@ -510,7 +510,7 @@ class _ToneCard extends StatelessWidget {
                           height: 46,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: context.hud.bg.withOpacity(0.55),
+                            color: context.hud.bg.withValues(alpha: 0.55),
                             border:
                                 Border.all(color: context.hud.accent, width: 1),
                           ),
@@ -547,7 +547,7 @@ class _ToneCard extends StatelessWidget {
               margin: const EdgeInsets.only(top: 4),
               color: isSetting
                   ? context.hud.surfaceHi
-                  : context.hud.accent.withOpacity(0.9),
+                  : context.hud.accent.withValues(alpha: 0.9),
               alignment: Alignment.center,
               child: Text(
                 isSetting ? 'INSTALLING…' : 'SET AS ↗',
@@ -585,7 +585,7 @@ class _PlayStopButton extends StatelessWidget {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
+          color: Colors.black.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
         child: Padding(
@@ -599,20 +599,20 @@ class _PlayStopButton extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: isPlaying ? glow : Colors.white.withOpacity(0.2),
+        color: isPlaying ? glow : Colors.white.withValues(alpha: 0.2),
         shape: BoxShape.circle,
         border: Border.all(
-          color: isPlaying ? glow : Colors.white.withOpacity(0.4),
+          color: isPlaying ? glow : Colors.white.withValues(alpha: 0.4),
           width: 2,
         ),
         boxShadow: isPlaying
             ? [
                 BoxShadow(
-                    color: glow.withOpacity(0.6),
+                    color: glow.withValues(alpha: 0.6),
                     blurRadius: 16,
                     spreadRadius: 2)
               ]
-            : [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8)],
+            : [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8)],
       ),
       child: Icon(
         isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
@@ -668,7 +668,7 @@ class _PlayingWaveState extends State<_PlayingWave>
               color: widget.color,
               borderRadius: BorderRadius.circular(2),
               boxShadow: [
-                BoxShadow(color: widget.color.withOpacity(0.4), blurRadius: 4)
+                BoxShadow(color: widget.color.withValues(alpha: 0.4), blurRadius: 4)
               ],
             ),
           );

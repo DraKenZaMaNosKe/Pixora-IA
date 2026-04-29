@@ -177,7 +177,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            h.bg.withOpacity(0.85),
+                            h.bg.withValues(alpha: 0.85),
                           ],
                         ),
                       ),
@@ -257,7 +257,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withOpacity(0.08),
+                                                Colors.black.withValues(alpha: 0.08),
                                             blurRadius: 14,
                                             offset: const Offset(0, 4),
                                           ),
@@ -330,13 +330,13 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: isFree
-                              ? context.hud.accent.withOpacity(0.2)
-                              : context.hud.accent.withOpacity(0.2),
+                              ? context.hud.accent.withValues(alpha: 0.2)
+                              : context.hud.accent.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                               color: isFree
-                                  ? context.hud.accent.withOpacity(0.5)
-                                  : context.hud.accent.withOpacity(0.5)),
+                                  ? context.hud.accent.withValues(alpha: 0.5)
+                                  : context.hud.accent.withValues(alpha: 0.5)),
                         ),
                         child: Text(
                           isFree
@@ -410,7 +410,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
       padding: EdgeInsets.symmetric(
           horizontal: isIos ? 12 : 10, vertical: isIos ? 7 : 6),
       decoration: BoxDecoration(
-        color: isIos ? h.surface : Colors.white.withOpacity(0.08),
+        color: isIos ? h.surface : Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
         border: isIos ? Border.all(color: h.divider, width: 0.5) : null,
       ),
@@ -421,7 +421,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
           const SizedBox(width: 5),
           Text(label,
               style: TextStyle(
-                  color: isIos ? h.text : Colors.white.withOpacity(0.7),
+                  color: isIos ? h.text : Colors.white.withValues(alpha: 0.7),
                   fontSize: 11,
                   fontWeight: isIos ? FontWeight.w500 : FontWeight.normal)),
         ],

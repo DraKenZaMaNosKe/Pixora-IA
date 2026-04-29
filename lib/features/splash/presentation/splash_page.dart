@@ -186,7 +186,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                           child: DecoratedBox(
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: _gold.withOpacity(0.3),
+                                color: _gold.withValues(alpha: 0.3),
                                 width: 1,
                               ),
                             ),
@@ -296,7 +296,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                   height: 110,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: _gold.withOpacity(0.4),
+                      color: _gold.withValues(alpha: 0.4),
                       width: 1,
                     ),
                   ),
@@ -407,7 +407,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
           height: 1,
           child: Stack(
             children: [
-              Container(color: _gold.withOpacity(0.2)),
+              Container(color: _gold.withValues(alpha: 0.2)),
               FractionallySizedBox(
                 widthFactor: _loadingProgress,
                 child: Container(color: _gold),
