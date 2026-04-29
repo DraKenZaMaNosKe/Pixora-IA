@@ -279,16 +279,16 @@ class SubscriptionService extends ChangeNotifier {
     if (!_storeAvailable) return 0;
     _restoredCountSinceCall = 0;
     try {
-      print('[Subs] restorePurchases → calling IAP');
+      debugPrint('[Subs] restorePurchases → calling IAP');
       await InAppPurchase.instance.restorePurchases();
       // Give the stream a moment to deliver restore events.
       await Future.delayed(const Duration(seconds: 2));
-      print(
+      debugPrint(
           '[Subs] restorePurchases done — saw $_restoredCountSinceCall purchases');
       return _restoredCountSinceCall;
     } catch (e, st) {
-      print('[Subs] restorePurchases failed: $e');
-      print('[Subs] stack: $st');
+      debugPrint('[Subs] restorePurchases failed: $e');
+      debugPrint('[Subs] stack: $st');
       return 0;
     }
   }
@@ -303,7 +303,7 @@ class SubscriptionService extends ChangeNotifier {
   /// correctly on initial purchase.
   Future<String> retryVerification() async {
     if (!_isLoggedIn) return 'not_authenticated';
-    print('[Subs] retryVerification → starting');
+    debugPrint('[Subs] retryVerification → starting');
     final seen = await restorePurchases();
     await refreshStatus();
     if (seen == 0) {
@@ -313,13 +313,13 @@ class SubscriptionService extends ChangeNotifier {
   }
 
   void _handlePurchaseUpdate(List<PurchaseDetails> purchases) async {
-    print('[Subs] _handlePurchaseUpdate: ${purchases.length} purchase(s)');
+    debugPrint('[Subs] _handlePurchaseUpdate: ${purchases.length} purchase(s)');
     for (final p in purchases) {
-      print('[Subs]   -> productID=${p.productID} status=${p.status} '
+      debugPrint('[Subs]   -> productID=${p.productID} status=${p.status} '
           'pendingComplete=${p.pendingCompletePurchase}');
       switch (p.status) {
         case PurchaseStatus.pending:
-          print('[Subs] Purchase pending: ${p.productID}');
+          debugPrint('[Subs] Purchase pending: ${p.productID}');
           break;
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
@@ -327,20 +327,20 @@ class SubscriptionService extends ChangeNotifier {
           await _verifyWithServer(p);
           break;
         case PurchaseStatus.error:
-          print('[Subs] Purchase error: ${p.error?.message} '
+          debugPrint('[Subs] Purchase error: ${p.error?.message} '
               'code=${p.error?.code}');
           break;
         case PurchaseStatus.canceled:
-          print('[Subs] Purchase canceled by user');
+          debugPrint('[Subs] Purchase canceled by user');
           break;
       }
       // Always complete pending purchases once handled — removes from queue.
       if (p.pendingCompletePurchase) {
         try {
           await InAppPurchase.instance.completePurchase(p);
-          print('[Subs] completePurchase OK for ${p.productID}');
+          debugPrint('[Subs] completePurchase OK for ${p.productID}');
         } catch (e) {
-          print('[Subs] completePurchase failed: $e');
+          debugPrint('[Subs] completePurchase failed: $e');
         }
       }
     }
@@ -349,29 +349,29 @@ class SubscriptionService extends ChangeNotifier {
   Future<void> _verifyWithServer(PurchaseDetails p) async {
     // Use `print` instead of `debugPrint` to bypass Flutter's internal
     // throttling — we need every line of this path in logcat, even under load.
-    print('[Subs] _verifyWithServer START for ${p.productID}');
+    debugPrint('[Subs] _verifyWithServer START for ${p.productID}');
 
     if (!_isLoggedIn) {
-      print('[Subs] verification deferred — user not logged in');
+      debugPrint('[Subs] verification deferred — user not logged in');
       return;
     }
     final purchaseToken = p.verificationData.serverVerificationData;
     final productId = p.productID;
     final source = p.verificationData.source;
-    print('[Subs] token source=$source tokenLen=${purchaseToken.length}');
+    debugPrint('[Subs] token source=$source tokenLen=${purchaseToken.length}');
     if (purchaseToken.isEmpty) {
-      print('[Subs] ABORT: empty purchase_token');
+      debugPrint('[Subs] ABORT: empty purchase_token');
       return;
     }
 
     // 1) Sanity check the auth session is still alive RIGHT NOW (the client
     //    could have logged out between the purchase start and completion).
     final session = _sb.auth.currentSession;
-    print('[Subs] current session: hasUser=${session?.user != null} '
+    debugPrint('[Subs] current session: hasUser=${session?.user != null} '
         'accessTokenLen=${session?.accessToken.length ?? 0} '
         'expiresAt=${session?.expiresAt}');
     if (session == null) {
-      print('[Subs] ABORT: no Supabase session at verify time');
+      debugPrint('[Subs] ABORT: no Supabase session at verify time');
       return;
     }
 
@@ -379,7 +379,7 @@ class SubscriptionService extends ChangeNotifier {
     Object? lastError;
     for (var attempt = 1; attempt <= 3; attempt++) {
       try {
-        print('[Subs] invoke attempt $attempt → verify_google_purchase');
+        debugPrint('[Subs] invoke attempt $attempt → verify_google_purchase');
         final response = await _sb.functions.invoke(
           'verify_google_purchase',
           body: {
@@ -389,32 +389,32 @@ class SubscriptionService extends ChangeNotifier {
         );
         final status = response.status;
         final data = response.data;
-        print('[Subs] invoke returned: status=$status data=$data');
+        debugPrint('[Subs] invoke returned: status=$status data=$data');
         if (status == 200) {
-          print('[Subs] verify SUCCESS on attempt $attempt');
+          debugPrint('[Subs] verify SUCCESS on attempt $attempt');
           await refreshStatus();
-          print('[Subs] status refreshed post-verify');
+          debugPrint('[Subs] status refreshed post-verify');
           return;
         }
         // Non-2xx but didn't throw — still report and break (retrying won't help
         // for 4xx).
         if (status >= 400 && status < 500) {
-          print('[Subs] verify got client error $status — not retrying');
+          debugPrint('[Subs] verify got client error $status — not retrying');
           return;
         }
         lastError = 'status=$status data=$data';
       } catch (e, st) {
-        print('[Subs] invoke attempt $attempt threw: ${e.runtimeType}: $e');
-        print('[Subs] stack: $st');
+        debugPrint('[Subs] invoke attempt $attempt threw: ${e.runtimeType}: $e');
+        debugPrint('[Subs] stack: $st');
         lastError = e;
       }
       if (attempt < 3) {
         final backoff = Duration(milliseconds: 500 * attempt);
-        print('[Subs] retrying after ${backoff.inMilliseconds}ms');
+        debugPrint('[Subs] retrying after ${backoff.inMilliseconds}ms');
         await Future.delayed(backoff);
       }
     }
-    print('[Subs] _verifyWithServer GAVE UP after 3 attempts. '
+    debugPrint('[Subs] _verifyWithServer GAVE UP after 3 attempts. '
         'last=$lastError');
     // Still try to refresh in case a prior attempt wrote the row.
     try {

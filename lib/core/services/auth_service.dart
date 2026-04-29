@@ -155,14 +155,12 @@ class AuthService {
           .select('wallpaper_id')
           .eq('user_id', userId);
 
+      // Supabase .select() returns PostgrestList<Map<String,dynamic>>;
+      // type guards are unnecessary.
       final remoteFavs = <String>{};
-      if (response is List) {
-        for (final r in response) {
-          if (r is Map) {
-            final id = r['wallpaper_id'] as String?;
-            if (id != null) remoteFavs.add(id);
-          }
-        }
+      for (final r in response) {
+        final id = r['wallpaper_id'] as String?;
+        if (id != null) remoteFavs.add(id);
       }
 
       // Merge: union of local + remote
@@ -196,14 +194,12 @@ class AuthService {
           .from('user_favorites')
           .select('wallpaper_id')
           .eq('user_id', userId);
+      // Supabase .select() returns PostgrestList<Map<String,dynamic>>;
+      // type guards are unnecessary.
       final favs = <String>{};
-      if (response is List) {
-        for (final r in response) {
-          if (r is Map) {
-            final id = r['wallpaper_id'] as String?;
-            if (id != null) favs.add(id);
-          }
-        }
+      for (final r in response) {
+        final id = r['wallpaper_id'] as String?;
+        if (id != null) favs.add(id);
       }
       return favs;
     } catch (e) {
