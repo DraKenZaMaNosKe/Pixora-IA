@@ -4,11 +4,13 @@ import '../design/hud_tokens.dart';
 
 /// Manages the active Pixora visual theme.
 ///
-/// Three presets supported (per
-/// docs/superpowers/specs/2026-04-26-ios-theme-architecture-design.md):
+/// Two presets supported:
 ///   - 'night'    → HudTheme.night    (Black & Gold — default)
-///   - 'day'      → HudTheme.day      (cream day mode)
 ///   - 'iosWhite' → HudTheme.iosWhite (Apple Store Fresh)
+///
+/// 'day' (Cream Day) was retired 2026-04-28 — felt redundant with iOS White
+/// and dragged extra surface area through the codebase. Stored value 'day'
+/// is migrated to 'night' on init.
 ///
 /// Singleton ChangeNotifier per CLAUDE.md pattern. UI listens via
 /// ListenableBuilder at the MaterialApp root; switching propagates everywhere
@@ -24,7 +26,7 @@ class ThemeService extends ChangeNotifier {
   String _activeId = _defaultId;
   Box<String>? _box;
 
-  /// The active theme id ('night' | 'day' | 'iosWhite').
+  /// The active theme id ('night' | 'iosWhite').
   String get activeId => _activeId;
 
   /// The corresponding HudTheme instance for the active id.
@@ -32,8 +34,6 @@ class ThemeService extends ChangeNotifier {
     switch (_activeId) {
       case 'iosWhite':
         return HudTheme.iosWhite;
-      case 'day':
-        return HudTheme.day;
       case 'night':
       default:
         return HudTheme.night;
@@ -42,11 +42,17 @@ class ThemeService extends ChangeNotifier {
 
   /// Open the Hive box and read the persisted choice. Call once from main()
   /// before runApp so the first frame paints with the right theme.
+  ///
+  /// Migrates legacy 'day' value to 'night' so users that picked Cream Day
+  /// before its retirement land on Black & Gold instead of an unknown id.
   Future<void> init() async {
     try {
       _box = await Hive.openBox<String>(_boxName);
       final stored = _box?.get(_key);
-      if (stored != null && _isValidId(stored)) {
+      if (stored == 'day') {
+        _activeId = 'night';
+        await _box?.put(_key, 'night');
+      } else if (stored != null && _isValidId(stored)) {
         _activeId = stored;
       }
     } catch (e) {
@@ -55,7 +61,7 @@ class ThemeService extends ChangeNotifier {
   }
 
   /// Switch to a new theme. Persists immediately and notifies listeners so the
-  /// UI rebuilds with the new HudTheme. Pass one of: 'night', 'day', 'iosWhite'.
+  /// UI rebuilds with the new HudTheme. Pass one of: 'night', 'iosWhite'.
   Future<void> setTheme(String id) async {
     if (!_isValidId(id)) {
       debugPrint('[ThemeService] ignoring unknown theme id "$id"');
@@ -71,16 +77,13 @@ class ThemeService extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _isValidId(String id) =>
-      id == 'night' || id == 'day' || id == 'iosWhite';
+  bool _isValidId(String id) => id == 'night' || id == 'iosWhite';
 
   /// Human-readable label for the active id (used in Settings).
   static String labelFor(String id) {
     switch (id) {
       case 'iosWhite':
         return 'iOS White';
-      case 'day':
-        return 'Cream Day';
       case 'night':
       default:
         return 'Black & Gold';
@@ -91,9 +94,7 @@ class ThemeService extends ChangeNotifier {
   static String taglineFor(String id) {
     switch (id) {
       case 'iosWhite':
-        return 'Apple Store · blanco · system blue';
-      case 'day':
-        return 'Cremoso · día · gold suave';
+        return 'Apple Store · blanco · acentos verde menta';
       case 'night':
       default:
         return 'Default · negro profundo · gold';
@@ -101,5 +102,5 @@ class ThemeService extends ChangeNotifier {
   }
 
   /// All theme ids in display order (Settings UI uses this).
-  static const List<String> allIds = ['night', 'day', 'iosWhite'];
+  static const List<String> allIds = ['night', 'iosWhite'];
 }

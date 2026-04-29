@@ -9,7 +9,6 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get night => _buildTheme(HudTheme.night);
-  static ThemeData get day => _buildTheme(HudTheme.day);
   static ThemeData get iosWhite => _buildTheme(HudTheme.iosWhite);
 
   /// Back-compat alias so existing code referencing `AppTheme.dark` keeps working

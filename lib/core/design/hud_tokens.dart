@@ -22,14 +22,6 @@ class HudTokens {
   static const Color nightTextDim = Color(0xFF8A7A56); // gold-dim
   static const Color nightDivider = Color(0x33C9A650); // gold @ 20%
 
-  // Day mode.
-  static const Color dayBg = Color(0xFFF4ECD8); // warm cream page
-  static const Color daySurface = Color(0xFFECE2C8);
-  static const Color daySurfaceHi = Color(0xFFE0D4B4);
-  static const Color dayText = Color(0xFF1A1208);
-  static const Color dayTextDim = Color(0xFF5A4E36);
-  static const Color dayDivider = Color(0x33865F20);
-
   // ── iOS White palette (Apple Store Fresh — picked from mockup #3) ──
   static const Color iosBg = Color(0xFFFFFFFF); // pure white
   static const Color iosSurface = Color(0xFFF2F2F7); // light gray cards
@@ -46,11 +38,9 @@ class HudTokens {
   static const Color goldBright = Color(0xFFF0DD9E); // highlight
   static const Color gold = Color(0xFFC9A650); // primary accent
   static const Color goldDeep = Color(0xFF8A6F33); // shadowed gold
-  static const Color goldDay = Color(0xFF9A7820); // muted for day mode
 
   // Status — kept for API compat; mapped into gold language.
   static const Color alertRed = Color(0xFFC9A650); // was red → now gold
-  static const Color alertRedDay = Color(0xFF9A7820);
   static const Color warnYellow = Color(0xFFF0DD9E); // was yellow → gold-bright
   static const Color warnYellowDay = Color(0xFFB8912E);
   static const Color okGreen =
@@ -250,21 +240,6 @@ class HudTheme extends ThemeExtension<HudTheme> {
     accent: HudTokens.gold,
     accent2: HudTokens.goldBright,
     isDark: true,
-    displayFontFamily: 'Inter',
-    bodyFontFamily: 'Inter',
-    monoFontFamily: 'Inter',
-  );
-
-  static const HudTheme day = HudTheme(
-    bg: HudTokens.dayBg,
-    surface: HudTokens.daySurface,
-    surfaceHi: HudTokens.daySurfaceHi,
-    text: HudTokens.dayText,
-    textDim: HudTokens.dayTextDim,
-    divider: HudTokens.dayDivider,
-    accent: HudTokens.goldDay,
-    accent2: HudTokens.goldDeep,
-    isDark: false,
     displayFontFamily: 'Inter',
     bodyFontFamily: 'Inter',
     monoFontFamily: 'Inter',

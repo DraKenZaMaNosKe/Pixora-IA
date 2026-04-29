@@ -440,8 +440,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         final selected = _touchTrail == id;
         return RadioListTile<String>(
           contentPadding: EdgeInsets.zero,
-          secondary:
-              Icon(t.$2, color: selected ? context.hud.accent : context.hud.textDim),
+          secondary: Icon(t.$2,
+              color: selected ? context.hud.accent : context.hud.textDim),
           title: Text(t.$3,
               style: TextStyle(
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
@@ -515,8 +515,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         final enabled = _overlays[key] ?? true;
         return SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          secondary:
-              Icon(t.$2, color: enabled ? context.hud.accent : context.hud.textDim),
+          secondary: Icon(t.$2,
+              color: enabled ? context.hud.accent : context.hud.textDim),
           title: Text(t.$3),
           subtitle: Text(t.$4, style: TextStyle(color: context.hud.textDim)),
           value: enabled,
@@ -1113,9 +1113,6 @@ class _SwatchPreview extends StatelessWidget {
     switch (themeId) {
       case 'iosWhite':
         preview = HudTheme.iosWhite;
-        break;
-      case 'day':
-        preview = HudTheme.day;
         break;
       default:
         preview = HudTheme.night;
