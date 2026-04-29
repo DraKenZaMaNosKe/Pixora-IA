@@ -486,37 +486,59 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _buildBottomNav() {
     final h = context.hud;
+    // Per-tab brand colors — each section gets its own accent on the active
+    // pill (Soft Pastel Pill design picked 2026-04-29). Inactive icons stay
+    // monochromatic h.textDim so the row reads quiet, then the active section
+    // bursts into its own color.
     final items = <_NavItemData>[
-      _NavItemData(Icons.image_outlined, 'WALL'),
-      if (!Platform.isIOS) _NavItemData(Icons.play_arrow_rounded, 'LIVE'),
-      if (!Platform.isIOS) _NavItemData(Icons.threed_rotation_rounded, '3D'),
-      if (!Platform.isIOS) _NavItemData(Icons.spa_outlined, 'AURA'),
-      if (!Platform.isIOS) _NavItemData(Icons.auto_stories_outlined, 'STOR'),
-      if (!Platform.isIOS) _NavItemData(Icons.wb_twilight_outlined, 'DAY'),
-      if (!Platform.isIOS) _NavItemData(Icons.music_note_outlined, 'TON'),
-      if (!Platform.isIOS) _NavItemData(Icons.auto_awesome_outlined, 'IA'),
-      _NavItemData(Icons.favorite_outline, 'FAV'),
-      _NavItemData(Icons.settings_outlined, 'SET'),
+      const _NavItemData(Icons.image_outlined, 'WALL', Color(0xFF3B82F6)),
+      if (!Platform.isIOS)
+        const _NavItemData(Icons.play_arrow_rounded, 'LIVE', Color(0xFFEF4444)),
+      if (!Platform.isIOS)
+        const _NavItemData(
+            Icons.threed_rotation_rounded, '3D', Color(0xFF8B5CF6)),
+      if (!Platform.isIOS)
+        const _NavItemData(Icons.spa_outlined, 'AURA', Color(0xFF06B6D4)),
+      if (!Platform.isIOS)
+        const _NavItemData(
+            Icons.auto_stories_outlined, 'STOR', Color(0xFFF59E0B)),
+      if (!Platform.isIOS)
+        const _NavItemData(
+            Icons.wb_twilight_outlined, 'DAY', Color(0xFFEAB308)),
+      if (!Platform.isIOS)
+        const _NavItemData(Icons.music_note_outlined, 'TON', Color(0xFFEC4899)),
+      if (!Platform.isIOS)
+        const _NavItemData(
+            Icons.auto_awesome_outlined, 'IA', Color(0xFF10B981)),
+      const _NavItemData(Icons.favorite_outline, 'FAV', Color(0xFFF43F5E)),
+      const _NavItemData(Icons.settings_outlined, 'SET', Color(0xFF64748B)),
     ];
     return Container(
       decoration: BoxDecoration(
         color: h.bg,
         border: Border(
-            top: BorderSide(color: h.accent, width: HudTokens.borderMed)),
+          top: BorderSide(
+            color: h.divider,
+            width: h.isIosStyle ? 0.5 : 1,
+          ),
+        ),
       ),
       child: SafeArea(
         top: false,
-        child: Row(
-          children: [
-            for (var i = 0; i < items.length; i++)
-              Expanded(
-                child: _NavItem(
-                  data: items[i],
-                  active: _currentIndex == i,
-                  onTap: () => setState(() => _currentIndex = i),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          child: Row(
+            children: [
+              for (var i = 0; i < items.length; i++)
+                Expanded(
+                  child: _NavItem(
+                    data: items[i],
+                    active: _currentIndex == i,
+                    onTap: () => setState(() => _currentIndex = i),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -553,9 +575,17 @@ class _HomePageState extends ConsumerState<HomePage> {
 class _NavItemData {
   final IconData icon;
   final String label;
-  const _NavItemData(this.icon, this.label);
+  final Color color;
+  const _NavItemData(this.icon, this.label, this.color);
 }
 
+/// Soft Pastel Pill nav item.
+///
+/// Inactive: monochromatic — icon + label in `h.textDim`, no fill.
+/// Active:   rounded pill with the section's brand color at ~14 % alpha,
+///           icon + label go full color of the section. The active pill is
+///           the only place color appears in the row, so the user instantly
+///           sees both "where I am" and "what kind of section it is".
 class _NavItem extends StatelessWidget {
   const _NavItem(
       {required this.data, required this.active, required this.onTap});
@@ -566,38 +596,33 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final h = context.hud;
-    final color = active ? h.accent : h.textDim;
+    final color = active ? data.color : h.textDim;
+    final pillBg = active
+        ? data.color.withValues(alpha: h.isIosStyle ? 0.14 : 0.18)
+        : null;
     return InkWell(
       onTap: () {
-        // Haptic feedback on tab tap — tiny detail that makes navigation
-        // "feel right" per user request "la navegacion tiene que disfrutarse".
+        // Haptic feedback on tab tap.
         HapticFeedback.selectionClick();
         onTap();
       },
-      splashColor: h.accent.withValues(alpha: 0.15),
-      highlightColor: h.accent.withValues(alpha: 0.06),
+      borderRadius: BorderRadius.circular(14),
+      splashColor: data.color.withValues(alpha: 0.18),
+      highlightColor: data.color.withValues(alpha: 0.06),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+        margin: const EdgeInsets.symmetric(horizontal: 2),
         decoration: BoxDecoration(
-          color: active
-              ? (h.isIosStyle
-                  ? h.accent.withValues(alpha: 0.10)
-                  : h.accent.withValues(alpha: 0.08))
-              : null,
-          border: active && !h.isIosStyle
-              ? Border(
-                  top: BorderSide(color: h.accent2, width: HudTokens.borderMed),
-                )
-              : null,
+          color: pillBg,
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // iOS-style: subtle scale on active
             AnimatedScale(
-              scale: active ? 1.08 : 1.0,
+              scale: active ? 1.06 : 1.0,
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOutBack,
               child: Icon(data.icon, color: color, size: 18),
