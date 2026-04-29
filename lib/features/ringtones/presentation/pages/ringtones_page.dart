@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/widgets/ticket_stub_card.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/preview_player_service.dart';
 import '../../../../core/utils/color_utils.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
@@ -85,7 +86,11 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       if (mounted) await _showPermissionDialog(tone, type);
       return;
     }
-    await _doSetAs(tone, type);
+    // Route through AdService — alternates ad/no-ad, awards credits on
+    // dismissal, and is the single point that respects active subscriptions.
+    AdService.instance.showInterstitialAd(onAdDismissed: () {
+      if (mounted) _doSetAs(tone, type);
+    });
   }
 
   Future<void> _showPermissionDialog(RingtoneTone tone, int type) async {

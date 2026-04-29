@@ -3,6 +3,7 @@ import '../../../../core/design/hud_tokens.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/preview_player_service.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -131,7 +132,11 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
       return;
     }
 
-    await _doSetAs(tone, type);
+    // Route through AdService — alternates ad/no-ad, awards credits on
+    // dismissal, and is the single point that respects active subscriptions.
+    AdService.instance.showInterstitialAd(onAdDismissed: () {
+      if (mounted) _doSetAs(tone, type);
+    });
   }
 
   Future<void> _showPermissionDialog(RingtoneTone tone, int type) async {

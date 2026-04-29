@@ -11,6 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/design/hud_shapes.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/design/hud_widgets.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/subscription_service.dart';
@@ -368,6 +369,14 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   }
 
   Future<void> _onWallpaper() async {
+    // Route through AdService — alternates ad/no-ad, awards credits on
+    // dismissal, and is the single point that respects active subscriptions.
+    AdService.instance.showInterstitialAd(onAdDismissed: () {
+      if (mounted) _doApplyWallpaper();
+    });
+  }
+
+  Future<void> _doApplyWallpaper() async {
     final file = await _downloadResult();
     if (file == null) {
       _snack('ERROR: no se pudo descargar', color: context.hud.accent);
