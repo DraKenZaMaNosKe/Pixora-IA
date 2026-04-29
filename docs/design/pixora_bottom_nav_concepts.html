@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Bottom Nav · Design Archive</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --bg-2: #15151E;
+    --ink: #ECEAE2;
+    --ink-dim: #82817A;
+    --rule: #1F1F2A;
+    --gold: #C9A650;
+    --gold-bright: #F0DD9E;
+
+    /* Section colors — same palette used in all 5 variants */
+    --c-wall: #3B82F6;
+    --c-live: #EF4444;
+    --c-3d:   #8B5CF6;
+    --c-aura: #06B6D4;
+    --c-stor: #F59E0B;
+    --c-day:  #EAB308;
+    --c-ton:  #EC4899;
+    --c-ia:   #10B981;
+    --c-fav:  #F43F5E;
+    --c-set:  #64748B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: auto;
+  }
+
+  /* Subtle grain overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.18;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ─── HEADER ─── */
+  header.page-head {
+    padding: 56px 60px 28px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .brand-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+  .brand-line .pixora-mark {
+    color: var(--gold);
+    letter-spacing: 0.32em;
+  }
+
+  h1.title {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: 78px;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+  }
+  h1.title em {
+    font-style: italic;
+    font-weight: 200;
+    color: var(--gold);
+  }
+
+  .lede {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--ink-dim);
+    line-height: 1.55;
+    max-width: 540px;
+    margin-top: 16px;
+  }
+
+  .head-rail {
+    position: absolute;
+    bottom: -1px;
+    right: 60px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-dim);
+    letter-spacing: 0.2em;
+    background: var(--bg);
+    padding: 6px 12px;
+    transform: translateY(50%);
+    border: 1px solid var(--rule);
+  }
+  .head-rail span.bullet {
+    color: var(--gold);
+  }
+
+  /* ─── PHONE ROW ─── */
+  main.phone-row {
+    display: flex;
+    gap: 28px;
+    padding: 64px 60px 80px;
+    overflow-x: auto;
+    align-items: flex-start;
+    scroll-snap-type: x mandatory;
+  }
+
+  /* ─── PHONE CARD (mockup + meta) ─── */
+  .phone-card {
+    flex: 0 0 auto;
+    width: 380px;
+    scroll-snap-align: start;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: rise 0.9s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .phone-card:nth-child(1) { animation-delay: 0.05s; }
+  .phone-card:nth-child(2) { animation-delay: 0.18s; }
+  .phone-card:nth-child(3) { animation-delay: 0.31s; }
+  .phone-card:nth-child(4) { animation-delay: 0.44s; }
+  .phone-card:nth-child(5) { animation-delay: 0.57s; }
+
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── PHONE FRAME ─── */
+  .phone {
+    width: 380px;
+    border-radius: 38px;
+    background: #050507;
+    padding: 12px;
+    box-shadow:
+      0 0 0 1px #25252F,
+      0 30px 60px rgba(0,0,0,0.5),
+      0 8px 20px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .phone::before {
+    /* island */
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 96px;
+    height: 22px;
+    border-radius: 999px;
+    background: #000;
+    z-index: 5;
+  }
+  .phone-screen {
+    border-radius: 28px;
+    overflow: hidden;
+    background: #000;
+    height: 720px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── THEME BLOCKS (B&G top, iOS bottom) ─── */
+  .theme-block {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .theme-block.dark {
+    background: #000000;
+    color: #ECEAE2;
+    --hud-text-dim: #82817A;
+    --hud-divider: rgba(201,166,80,0.2);
+  }
+  .theme-block.light {
+    background: #FFFFFF;
+    color: #1C1C1E;
+    --hud-text-dim: #8E8E93;
+    --hud-divider: rgba(60,60,67,0.12);
+  }
+
+  .theme-status {
+    height: 44px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 22px 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .theme-block.dark .theme-status { color: #ECEAE2; }
+  .theme-block.light .theme-status { color: #1C1C1E; }
+
+  .theme-app-bar {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .theme-block.dark .theme-app-bar { color: var(--gold); }
+  .theme-block.light .theme-app-bar { color: #1C1C1E; }
+
+  .theme-app-bar .credits-pill {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .theme-block.dark .credits-pill {
+    color: var(--gold);
+    border: 1px solid rgba(201,166,80,0.45);
+  }
+  .theme-block.light .credits-pill {
+    color: #00C896;
+    border: 1px solid rgba(0,200,150,0.4);
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .credits-pill .diamond { font-size: 10px; }
+
+  /* ─── BODY GRID (phone wallpapers area) ─── */
+  .theme-body {
+    flex: 1;
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-content: start;
+    overflow: hidden;
+  }
+  .grid-card {
+    aspect-ratio: 9/14;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1A1A28, #0E0E14);
+    position: relative;
+    overflow: hidden;
+  }
+  .theme-block.light .grid-card {
+    background: linear-gradient(135deg, #F4F4F7, #E0E0E5);
+  }
+  .grid-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.4));
+  }
+  .theme-block.light .grid-card::after {
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.08));
+  }
+  .grid-card.tinted-1 { background: linear-gradient(135deg, #2D1F4A, #0F0A1F); }
+  .grid-card.tinted-2 { background: linear-gradient(135deg, #4A2D1F, #1F0F0A); }
+  .grid-card.tinted-3 { background: linear-gradient(135deg, #1F4A3D, #0A1F18); }
+  .grid-card.tinted-4 { background: linear-gradient(135deg, #4A1F4A, #1F0A1F); }
+  .theme-block.light .grid-card.tinted-1 { background: linear-gradient(135deg, #E5E1F0, #D4CCE8); }
+  .theme-block.light .grid-card.tinted-2 { background: linear-gradient(135deg, #F0E1D4, #E8D4CC); }
+  .theme-block.light .grid-card.tinted-3 { background: linear-gradient(135deg, #DCEFE8, #C9E0D4); }
+  .theme-block.light .grid-card.tinted-4 { background: linear-gradient(135deg, #EFD9EF, #DEC4DE); }
+
+  .theme-divider {
+    height: 26px;
+    flex-shrink: 0;
+    background: var(--bg-2);
+    color: var(--ink-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.32em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    text-transform: uppercase;
+  }
+
+  /* ─── BOTTOM NAVBAR (shared scaffolding) ─── */
+  .navbar {
+    flex-shrink: 0;
+    height: 64px;
+    display: flex;
+    align-items: stretch;
+    padding: 0 4px;
+    border-top: 1px solid var(--hud-divider);
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 6px 0;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.25s ease;
+  }
+  .nav-item .material-symbols-outlined,
+  .nav-item .material-icons,
+  .nav-item .material-icons-outlined {
+    font-size: 19px;
+    line-height: 1;
+  }
+  .nav-item .nav-label {
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ─── VARIANT 01 — PER-TAB BRAND COLOR ─── */
+  .navbar.v1 .nav-item {
+    color: color-mix(in srgb, var(--c) 45%, transparent);
+  }
+  .navbar.v1 .nav-item.active {
+    color: var(--c);
+  }
+  /* Dark theme: keep colors saturated */
+  .theme-block.light .navbar.v1 .nav-item {
+    color: color-mix(in srgb, var(--c) 50%, transparent);
+  }
+
+  /* ─── VARIANT 02 — SOFT PASTEL PILL ─── */
+  .navbar.v2 .nav-item {
+    color: var(--hud-text-dim);
+    border-radius: 14px;
+    margin: 6px 1px;
+    padding: 4px 0;
+  }
+  .navbar.v2 .nav-item.active {
+    background: color-mix(in srgb, var(--c) 16%, transparent);
+    color: var(--c);
+  }
+
+  /* ─── VARIANT 03 — GLOW RING UNDERLINE ─── */
+  .navbar.v3 .nav-item {
+    color: var(--hud-text-dim);
+    position: relative;
+  }
+  .navbar.v3 .nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 2px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--c) 35%, transparent);
+    transition: width 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  }
+  .navbar.v3 .nav-item.active {
+    color: var(--c);
+  }
+  .navbar.v3 .nav-item.active::after {
+    width: 22px;
+    height: 2px;
+    background: var(--c);
+    box-shadow: 0 0 12px var(--c), 0 0 4px var(--c);
+  }
+
+  /* ─── VARIANT 04 — GRADIENT BACKGROUNDS ─── */
+  .navbar.v4 .nav-item {
+    color: var(--hud-text-dim);
+    gap: 4px;
+  }
+  .navbar.v4 .nav-icon-bg {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 50%, #000));
+    opacity: 0.22;
+    transition: all 0.3s ease;
+  }
+  .navbar.v4 .nav-icon-bg .material-symbols-outlined {
+    color: white;
+    font-size: 17px;
+  }
+  .navbar.v4 .nav-item.active {
+    color: var(--c);
+  }
+  .navbar.v4 .nav-item.active .nav-icon-bg {
+    opacity: 1;
+    transform: scale(1.08);
+    box-shadow:
+      0 6px 12px color-mix(in srgb, var(--c) 40%, transparent),
+      0 1px 0 rgba(255,255,255,0.15) inset;
+  }
+  .navbar.v4 .nav-item .nav-label {
+    font-size: 8px;
+  }
+
+  /* ─── VARIANT 05 — DOT INDICATOR (Material You) ─── */
+  .navbar.v5 .nav-item {
+    color: var(--hud-text-dim);
+    gap: 2px;
+  }
+  .navbar.v5 .nav-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--c);
+    margin-top: 1px;
+    opacity: 0.55;
+    transition: all 0.3s ease;
+  }
+  .navbar.v5 .nav-item.active {
+    color: var(--c);
+  }
+  .navbar.v5 .nav-item.active .nav-dot {
+    width: 14px;
+    height: 4px;
+    border-radius: 4px;
+    opacity: 1;
+    box-shadow: 0 0 8px var(--c);
+  }
+
+  /* ─── META CARD (under each phone) ─── */
+  .meta {
+    width: 380px;
+    margin-top: 22px;
+    padding: 22px 4px 0;
+    border-top: 1px solid var(--rule);
+    position: relative;
+  }
+  .meta::before {
+    /* corner mark */
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 28px;
+    height: 1px;
+    background: var(--gold);
+  }
+  .meta .concept-no {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .meta .concept-name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 30px;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .meta .concept-tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    max-width: 340px;
+    margin-bottom: 18px;
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--rule);
+  }
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .swatch .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05) inset;
+  }
+  .swatch .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.06em;
+    color: var(--ink-dim);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 32px 60px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+  }
+  footer .gold-mark {
+    color: var(--gold);
+  }
+  footer em {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 12px;
+    letter-spacing: 0;
+    color: var(--ink);
+    text-transform: none;
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="brand-line">
+    <span class="pixora-mark">▲ PIXORA · DESIGN ARCHIVE</span>
+    <span>VOL.06 · ENTRY 028</span>
+  </div>
+  <h1 class="title">Bottom <em>Nav</em>·Concepts</h1>
+  <p class="lede">
+    Cinco direcciones distintas para repensar la barra inferior de Pixora.
+    Cada concepto se muestra simultáneamente en los dos temas del producto
+    — <strong>Black & Gold</strong> arriba, <strong>iOS White</strong> abajo —
+    con la sección <em>WALL</em> activa para comparación directa.
+  </p>
+  <div class="head-rail">
+    <span class="bullet">●</span>
+    <span>2026·04·28</span>
+    <span class="bullet">·</span>
+    <span>10 TABS</span>
+    <span class="bullet">·</span>
+    <span>2 THEMES</span>
+  </div>
+</header>
+
+<main class="phone-row" id="row"></main>
+
+<footer>
+  <span><span class="gold-mark">▲</span> PIXORA STUDIOS · ORBIX</span>
+  <em>made for the team — pick one to ship</em>
+  <span>END · DOC</span>
+</footer>
+
+<script>
+const TABS = [
+  { id: 'WALL', icon: 'image',          var: 'c-wall' },
+  { id: 'LIVE', icon: 'play_arrow',     var: 'c-live' },
+  { id: '3D',   icon: 'view_in_ar',     var: 'c-3d'   },
+  { id: 'AURA', icon: 'spa',            var: 'c-aura' },
+  { id: 'STOR', icon: 'auto_stories',   var: 'c-stor' },
+  { id: 'DAY',  icon: 'wb_twilight',    var: 'c-day'  },
+  { id: 'TON',  icon: 'music_note',     var: 'c-ton'  },
+  { id: 'IA',   icon: 'auto_awesome',   var: 'c-ia'   },
+  { id: 'FAV',  icon: 'favorite',       var: 'c-fav'  },
+  { id: 'SET',  icon: 'settings',       var: 'c-set'  },
+];
+
+const VARIANTS = [
+  {
+    no: '01',
+    cls: 'v1',
+    name: 'Per-Tab Brand',
+    tagline: 'Cada sección se identifica con su color saturado. Inactivos al 45 % de opacidad mantienen la jerarquía visual sin perder identidad.',
+  },
+  {
+    no: '02',
+    cls: 'v2',
+    name: 'Soft Pastel Pill',
+    tagline: 'Inactivos monocromos discretos. Activo gana un pill suave con tint del color de la sección. iOS Mail / Health.',
+  },
+  {
+    no: '03',
+    cls: 'v3',
+    name: 'Glow Ring Underline',
+    tagline: 'Riel inferior por sección. Inactivo: punto pequeño tinto. Activo: barra expandida con halo. Apple TV / Vision Pro.',
+  },
+  {
+    no: '04',
+    cls: 'v4',
+    name: 'Gradient Tiles',
+    tagline: 'Cada ícono vive en una pieza con gradient único. Activo: gradient pleno + sombra. Apple Music sidebar.',
+  },
+  {
+    no: '05',
+    cls: 'v5',
+    name: 'Dot Indicator',
+    tagline: 'Íconos monocromos. Punto coloreado siempre visible debajo: pequeño en inactivo, expandido + glow en activo. Material You.',
+  },
+];
+
+function makeNavItem(tab, isActive, variantCls) {
+  const colorVar = `--${tab.var}`;
+  const styleVar = `--c: var(${colorVar})`;
+  if (variantCls === 'v4') {
+    return `
+      <button class="nav-item ${isActive ? 'active' : ''}" style="${styleVar}">
+        <span class="nav-icon-bg">
+          <span class="material-symbols-outlined">${tab.icon}</span>
+        </span>
+        <span class="nav-label">${tab.id}</span>
+      </button>`;
+  }
+  if (variantCls === 'v5') {
+    return `
+      <button class="nav-item ${isActive ? 'active' : ''}" style="${styleVar}">
+        <span class="material-symbols-outlined">${tab.icon}</span>
+        <span class="nav-label">${tab.id}</span>
+        <span class="nav-dot"></span>
+      </button>`;
+  }
+  return `
+    <button class="nav-item ${isActive ? 'active' : ''}" style="${styleVar}">
+      <span class="material-symbols-outlined">${tab.icon}</span>
+      <span class="nav-label">${tab.id}</span>
+    </button>`;
+}
+
+function makeNav(variantCls) {
+  return `<nav class="navbar ${variantCls}">${
+    TABS.map((t, i) => makeNavItem(t, i === 0, variantCls)).join('')
+  }</nav>`;
+}
+
+function makeThemeBlock(variantCls, theme) {
+  // theme = 'dark' | 'light'
+  const tints = ['', 'tinted-1', 'tinted-2', 'tinted-3', 'tinted-4', '', 'tinted-1', 'tinted-2'];
+  const cards = tints.map(t => `<div class="grid-card ${t}"></div>`).join('');
+  if (theme === 'dark') {
+    return `
+      <div class="theme-block dark">
+        <div class="theme-status"><span>9:41</span><span>● ●●●</span></div>
+        <div class="theme-app-bar">
+          <span>PIXORA</span>
+          <span class="credits-pill"><span class="diamond">◆</span> 315</span>
+        </div>
+        <div class="theme-body">${cards}</div>
+        ${makeNav(variantCls)}
+      </div>`;
+  }
+  return `
+    <div class="theme-block light">
+      ${makeNav(variantCls)}
+    </div>`;
+}
+
+function makeSwatches() {
+  return `<div class="swatches">${
+    TABS.map(t => `
+      <div class="swatch" style="--c: var(--${t.var})">
+        <span class="dot"></span>
+        <span class="label">${t.id}</span>
+      </div>`).join('')
+  }</div>`;
+}
+
+function makeCard(v) {
+  return `
+    <article class="phone-card">
+      <div class="phone">
+        <div class="phone-screen">
+          ${makeThemeBlock(v.cls, 'dark')}
+          <div class="theme-divider">↓ iOS WHITE · LIGHT</div>
+          ${makeThemeBlock(v.cls, 'light')}
+        </div>
+      </div>
+      <div class="meta">
+        <div class="concept-no">// NO. ${v.no}</div>
+        <h3 class="concept-name">${v.name}</h3>
+        <p class="concept-tagline">${v.tagline}</p>
+        ${makeSwatches()}
+      </div>
+    </article>`;
+}
+
+document.getElementById('row').innerHTML = VARIANTS.map(makeCard).join('');
+</script>
+
+</body>
+</html>

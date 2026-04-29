@@ -529,7 +529,10 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                   h.isIosStyle ? null : Border.all(color: h.accent, width: 1),
             ),
             child: Text(
-              h.isIosStyle ? 'N° $_lotNumber' : 'LOT · $_lotNumber',
+              // _lotNumber already includes the "N° " prefix — don't double it.
+              h.isIosStyle
+                  ? _lotNumber
+                  : 'LOT · ${_lotNumber.replaceFirst('N° ', '')}',
               style: HudTokens.mono(
                 size: 10,
                 color: h.isIosStyle ? h.textDim : h.accent,

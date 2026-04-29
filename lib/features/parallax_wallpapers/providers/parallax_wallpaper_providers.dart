@@ -17,6 +17,15 @@ import '../../wallpapers/providers/wallpaper_providers.dart';
 /// engine lives). Until those two are merged into one file, this provider
 /// bridges them so any new parallax-capable scene shows up in the 3D tab
 /// automatically — zero recompile, zero tag bookkeeping.
+/// Ids hidden from the 3D tab without removing them from the underlying
+/// catalogs. Existing installs keep working (install flow still resolves
+/// the scene_id), they just stop appearing in the 3D listing.
+/// User-curated 2026-04-29.
+const _hiddenFromTab = <String>{
+  'anime_drive',
+  'carretera_nocturna',
+};
+
 final parallaxWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final all = await ref.watch(catalogProvider.future);
   final byId = <String, Wallpaper>{for (final w in all) w.id: w};
@@ -24,6 +33,7 @@ final parallaxWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   // Start with dynamic_catalog items already tagged 3d/parallax.
   final result = <String, Wallpaper>{};
   for (final w in all) {
+    if (_hiddenFromTab.contains(w.id)) continue;
     final t = w.tags.map((s) => s.toLowerCase()).toSet();
     if (t.contains('3d') || t.contains('parallax')) {
       result[w.id] = w;
@@ -35,6 +45,7 @@ final parallaxWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final scenes = await CatalogIndexService.instance.getItems();
   for (final e in scenes) {
     if (e.type != 'canvas_scene') continue;
+    if (_hiddenFromTab.contains(e.id)) continue;
     if (result.containsKey(e.id)) continue;
     final richer = byId[e.id];
     result[e.id] = richer ?? _wallpaperFromCatalogIndex(e);
