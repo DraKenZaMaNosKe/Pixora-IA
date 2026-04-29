@@ -137,42 +137,46 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   Future<void> _showPermissionDialog(RingtoneTone tone, int type) async {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).extension<HudTheme>()?.surface ?? const Color(0xFF1A1A2E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.settings, color: context.hud.accent2, size: 24),
-            SizedBox(width: 10),
-            Text('Permission needed', style: TextStyle(fontSize: 17)),
-          ],
-        ),
-        content: const Text(
-          'To set ringtones, Pixora needs permission to modify system settings.\n\n'
-          'Tap "Open Settings" below, then enable the toggle.',
-          style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel',
-                style: TextStyle(color: Colors.white.withOpacity(0.5))),
+      builder: (ctx) {
+        final h = ctx.hud;
+        return AlertDialog(
+          backgroundColor: h.surface,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(Icons.settings, color: h.accent2, size: 24),
+              const SizedBox(width: 10),
+              Text('Permission needed',
+                  style: TextStyle(fontSize: 17, color: h.text)),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await RingtoneService.instance.requestPermission();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _glowColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+          content: Text(
+            'To set ringtones, Pixora needs permission to modify system settings.\n\n'
+            'Tap "Open Settings" below, then enable the toggle.',
+            style: TextStyle(color: h.textDim, fontSize: 14, height: 1.5),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancel', style: TextStyle(color: h.textDim)),
             ),
-            child: const Text('Open Settings'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await RingtoneService.instance.requestPermission();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _glowColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Open Settings'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -223,53 +227,59 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
   void _showSetAsDialog(RingtoneTone tone) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).extension<HudTheme>()?.surface ?? const Color(0xFF1A1A2E),
+      backgroundColor: context.hud.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(2),
+      builder: (ctx) {
+        final h = ctx.hud;
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: h.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(tone.name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            _buildSetOption(ctx, Icons.phone_in_talk, 'Ringtone', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 0);
-            }),
-            _buildSetOption(ctx, Icons.notifications, 'Notification', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 1);
-            }),
-            _buildSetOption(ctx, Icons.alarm, 'Alarm', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 2);
-            }),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+              const SizedBox(height: 16),
+              Text(tone.name,
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: h.text)),
+              const SizedBox(height: 16),
+              _buildSetOption(ctx, Icons.phone_in_talk, 'Ringtone', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 0);
+              }),
+              _buildSetOption(ctx, Icons.notifications, 'Notification', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 1);
+              }),
+              _buildSetOption(ctx, Icons.alarm, 'Alarm', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 2);
+              }),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 
   Widget _buildSetOption(
       BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
+    final h = ctx.hud;
     return ListTile(
       leading: Icon(icon, color: _glowColor),
-      title: Text(label),
-      trailing: const Icon(Icons.chevron_right, color: Colors.white24),
+      title: Text(label, style: TextStyle(color: h.text)),
+      trailing: Icon(Icons.chevron_right, color: h.textDim),
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
