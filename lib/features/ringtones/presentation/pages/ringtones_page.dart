@@ -727,22 +727,30 @@ class _RecommendedCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            Center(
+            // Sized box constrains the layout to 54x54 so the playing-state
+            // 80x80 radial halo doesn't push the row past its 200px height.
+            // Halo extends visually via clipBehavior: Clip.none on the Stack.
+            SizedBox(
+              width: 54,
+              height: 54,
               child: Stack(
                 alignment: Alignment.center,
+                clipBehavior: Clip.none,
                 children: [
                   if (isPlaying)
                     // Subtle radial breathing glow behind the play button.
-                    Container(
+                    Positioned(
                       width: 80,
                       height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            context.hud.accent.withOpacity(0.35),
-                            context.hud.accent.withOpacity(0.0),
-                          ],
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              context.hud.accent.withOpacity(0.35),
+                              context.hud.accent.withOpacity(0.0),
+                            ],
+                          ),
                         ),
                       ),
                     ),
