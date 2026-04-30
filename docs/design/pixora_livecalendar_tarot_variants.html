@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Tarot · 10 Sub-Variants</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Cormorant+SC:wght@300..700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300..900&family=UnifrakturMaguntia&family=MedievalSharp&family=Cinzel:wght@400..900&family=Cinzel+Decorative:wght@400;700;900&family=Pirata+One&family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #070710;
+  --gold: #C9A650;
+  --gold-bright: #F0DD9E;
+  --gold-deep: #8A6F33;
+  --rule: #1F1F2C;
+  --text: #E8E5DC;
+  --text-dim: #82817A;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: auto;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(2px 2px at 35% 15%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 65% 85%, rgba(201,166,80,0.35), transparent);
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 100; pointer-events: none;
+  opacity: 0.16; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─── HEADER ─── */
+header.page-head {
+  position: relative; z-index: 2;
+  padding: 56px 60px 30px;
+  border-bottom: 1px solid var(--rule);
+}
+.brand-line {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.22em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.brand-line .gold { color: var(--gold); letter-spacing: 0.32em; }
+h1.title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 200;
+  font-size: 84px;
+  line-height: 0.92;
+  letter-spacing: -0.038em;
+}
+h1.title em { color: var(--gold); }
+.lede {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 640px;
+  margin-top: 16px;
+}
+.lede strong { color: var(--gold-bright); font-weight: 500; }
+.head-rail {
+  position: absolute;
+  bottom: -1px; right: 60px;
+  display: flex; gap: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.22em;
+  color: var(--text-dim);
+  background: var(--ink);
+  padding: 8px 14px;
+  transform: translateY(50%);
+  border: 1px solid var(--rule);
+}
+.head-rail .gold { color: var(--gold); }
+
+/* ─── PHONE ROW ─── */
+main.phone-row {
+  position: relative; z-index: 1;
+  display: flex;
+  gap: 28px;
+  padding: 70px 60px;
+  overflow-x: auto;
+  align-items: flex-start;
+  scroll-snap-type: x mandatory;
+}
+
+.phone-card {
+  flex: 0 0 auto;
+  width: 340px;
+  scroll-snap-align: start;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: rise 0.9s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.phone-card:nth-child(1)  { animation-delay: 0.05s; }
+.phone-card:nth-child(2)  { animation-delay: 0.13s; }
+.phone-card:nth-child(3)  { animation-delay: 0.21s; }
+.phone-card:nth-child(4)  { animation-delay: 0.29s; }
+.phone-card:nth-child(5)  { animation-delay: 0.37s; }
+.phone-card:nth-child(6)  { animation-delay: 0.45s; }
+.phone-card:nth-child(7)  { animation-delay: 0.53s; }
+.phone-card:nth-child(8)  { animation-delay: 0.61s; }
+.phone-card:nth-child(9)  { animation-delay: 0.69s; }
+.phone-card:nth-child(10) { animation-delay: 0.77s; }
+@keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+/* phone frame */
+.phone {
+  width: 340px; height: 920px;
+  border-radius: 38px;
+  background: #050507;
+  padding: 11px;
+  box-shadow:
+    0 0 0 1px #25252F,
+    0 30px 70px rgba(0,0,0,0.55),
+    0 12px 24px rgba(0,0,0,0.4);
+  position: relative;
+}
+.phone::before {
+  content: ''; position: absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%);
+  width: 90px; height: 22px;
+  border-radius: 999px;
+  background: #000;
+  z-index: 5;
+}
+.phone-screen {
+  width: 100%; height: 100%;
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* theme stacking inside phone */
+.theme-block {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.theme-divider {
+  flex-shrink: 0;
+  height: 24px;
+  background: #0E0E18;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.32em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  text-transform: uppercase;
+}
+
+.tarot-status {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  z-index: 5;
+}
+
+/* ─── BASE TAROT CARD STRUCTURE (shared positions) ─── */
+.t-screen {
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 18px 14px;
+}
+.t-roman {
+  text-align: center;
+  margin-top: 4px;
+  font-size: 12px;
+  letter-spacing: 0.4em;
+}
+.t-moon-area {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  position: relative;
+  margin: 8px 0;
+}
+.t-moon {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+}
+.t-title {
+  text-align: center;
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.t-sigils {
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+  letter-spacing: 0.18em;
+}
+.t-personal {
+  text-align: center;
+  font-size: 8px;
+  letter-spacing: 0.32em;
+  padding: 8px 6px;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+.t-personal .name {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  display: block;
+  margin: 3px 0;
+  text-transform: none;
+}
+
+/* ═════════════════════════════════════════════════════════
+   01 · MARSEILLE (1700)
+   ═════════════════════════════════════════════════════════ */
+.t01.bg {
+  background: linear-gradient(180deg, #1F2A48 0%, #16203C 100%);
+}
+.t01.ios {
+  background: #F2EBD8;
+}
+.t01.bg .t-screen { color: #F0E5BC; }
+.t01.ios .t-screen { color: #2C1808; }
+.t01 .marseille-frame {
+  position: absolute;
+  inset: 12px;
+  border: 3px solid #C9A650;
+  border-radius: 6px;
+  pointer-events: none;
+}
+.t01 .marseille-frame::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #C9A650;
+  border-radius: 3px;
+}
+.t01.ios .marseille-frame { border-color: #8A4A1A; }
+.t01.ios .marseille-frame::before { border-color: #8A4A1A; }
+.t01 .t-roman {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5em;
+  color: inherit;
+}
+.t01 .moon-marseille {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFEFA8 0%, #F2D070 70%);
+  box-shadow:
+    inset -10px -4px 14px rgba(0,0,0,0.25),
+    0 0 0 3px #C9A650,
+    0 0 0 5px #1F2A48;
+  position: relative;
+}
+.t01.ios .moon-marseille { box-shadow: inset -10px -4px 14px rgba(0,0,0,0.18), 0 0 0 3px #8A4A1A, 0 0 0 5px #F2EBD8; }
+.t01 .moon-marseille::before,
+.t01 .moon-marseille::after {
+  /* simple face: two eyes */
+  content: '';
+  position: absolute;
+  width: 6px; height: 8px;
+  background: #2C1808;
+  border-radius: 50%;
+  top: 38%;
+}
+.t01 .moon-marseille::before { left: 32%; }
+.t01 .moon-marseille::after { left: 58%; }
+.t01 .moon-marseille .smile {
+  position: absolute;
+  bottom: 28%; left: 35%;
+  width: 30%; height: 12px;
+  border-bottom: 2px solid #2C1808;
+  border-radius: 0 0 12px 12px;
+}
+.t01 .pillar {
+  position: absolute;
+  bottom: 0;
+  width: 18px; height: 70px;
+  background: linear-gradient(180deg, #C9A650, #8A6F33);
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
+}
+.t01.ios .pillar { background: linear-gradient(180deg, #8A4A1A, #5C2A08); }
+.t01 .pillar.left { left: 25%; }
+.t01 .pillar.right { right: 25%; }
+.t01 .t-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 0.18em;
+}
+.t01 .t-personal {
+  font-family: 'Cormorant SC', serif;
+  border-top: 1px solid currentColor;
+  opacity: 0.85;
+}
+
+/* ═════════════════════════════════════════════════════════
+   02 · RIDER-WAITE (Victorian, 1909)
+   ═════════════════════════════════════════════════════════ */
+.t02.bg {
+  background:
+    radial-gradient(ellipse at 50% 30%, #2A3550 0%, #161E32 70%, #0A1020 100%);
+}
+.t02.ios {
+  background:
+    radial-gradient(ellipse at 50% 30%, #FAF1E0 0%, #F2E1C7 80%);
+}
+.t02 .t-screen { color: #E8DAB5; }
+.t02.ios .t-screen { color: #3D2914; }
+.t02 .rw-frame {
+  position: absolute;
+  inset: 14px;
+  border: 1.5px solid #C9A650;
+  pointer-events: none;
+}
+.t02.ios .rw-frame { border-color: #8A6533; }
+.t02 .rw-corner {
+  position: absolute;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: #C9A650;
+}
+.t02.ios .rw-corner { color: #8A6533; }
+.t02 .rw-corner.tl { top: 24px; left: 24px; }
+.t02 .rw-corner.tr { top: 24px; right: 24px; }
+.t02 .rw-corner.bl { bottom: 24px; left: 24px; }
+.t02 .rw-corner.br { bottom: 24px; right: 24px; }
+.t02 .t-roman {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.5em;
+  color: #C9A650;
+}
+.t02.ios .t-roman { color: #8A6533; }
+.t02 .moon-rw {
+  width: 105px; height: 105px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #FFF4D8 0%, #E8C879 50%, #8A6420 100%);
+  box-shadow: 0 0 30px rgba(232,200,121,0.4), inset -16px -6px 26px rgba(0,0,0,0.5);
+  position: relative;
+}
+.t02.ios .moon-rw {
+  background: radial-gradient(circle at 35% 30%, #FFFAEC 0%, #E8C879 60%, #B0822A 100%);
+  box-shadow: 0 0 24px rgba(232,200,121,0.3), inset -10px -4px 18px rgba(60,40,10,0.3);
+}
+.t02 .rw-tower {
+  position: absolute;
+  bottom: 130px;
+  width: 16px; height: 50px;
+  background: linear-gradient(180deg, #C9A650, transparent);
+  clip-path: polygon(30% 0, 70% 0, 100% 18%, 100% 100%, 0 100%, 0 18%);
+}
+.t02.ios .rw-tower { background: linear-gradient(180deg, #8A6533, transparent); }
+.t02 .rw-tower.l { left: 28%; }
+.t02 .rw-tower.r { right: 28%; }
+.t02 .t-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  color: inherit;
+}
+.t02 .t-personal {
+  font-family: 'Cinzel', serif;
+  border-top: 1px solid currentColor;
+  opacity: 0.7;
+  border-bottom: 1px solid currentColor;
+}
+
+/* ═════════════════════════════════════════════════════════
+   03 · VISCONTI-SFORZA (Italian Renaissance, 1450)
+   ═════════════════════════════════════════════════════════ */
+.t03.bg {
+  background:
+    radial-gradient(ellipse at 50% 35%, #5A3F0E 0%, #3D2008 60%, #1F0F03 100%);
+  position: relative;
+}
+.t03.bg::before {
+  /* gold leaf pattern */
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(45deg, rgba(232,200,121,0.05) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(-45deg, rgba(232,200,121,0.05) 0 6px, transparent 6px 12px);
+}
+.t03.ios {
+  background: #F0E0B0;
+  position: relative;
+}
+.t03.ios::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(45deg, rgba(140,90,20,0.07) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(-45deg, rgba(140,90,20,0.07) 0 6px, transparent 6px 12px);
+}
+.t03 .t-screen { color: #FFE494; }
+.t03.ios .t-screen { color: #3D1A03; }
+.t03 .visc-frame {
+  position: absolute; inset: 14px;
+  border: 4px double #E8C879;
+  pointer-events: none;
+}
+.t03.ios .visc-frame { border-color: #8A4A0A; }
+.t03 .t-roman {
+  font-family: 'UnifrakturMaguntia', serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: 0.18em;
+  margin-top: 16px;
+}
+.t03 .moon-visc {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 25%, #FFFAEC 0%, #FFE494 30%, #C99020 70%, #5A3208 100%);
+  box-shadow:
+    inset -16px -6px 28px rgba(0,0,0,0.5),
+    inset 6px 4px 12px rgba(255,250,200,0.3),
+    0 0 0 2px #E8C879,
+    0 0 0 6px #2F1A04;
+  position: relative;
+}
+.t03.ios .moon-visc {
+  box-shadow:
+    inset -10px -4px 20px rgba(80,40,10,0.4),
+    inset 4px 2px 8px rgba(255,250,200,0.4),
+    0 0 0 2px #8A4A0A,
+    0 0 0 6px #F0E0B0;
+}
+.t03 .moon-visc::before {
+  /* halo rays */
+  content: '';
+  position: absolute;
+  inset: -22px;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, rgba(232,200,121,0.4) 0deg 4deg, transparent 4deg 12deg);
+  z-index: -1;
+  opacity: 0.6;
+}
+.t03 .heraldic {
+  position: absolute;
+  bottom: 130px;
+  font-size: 22px;
+  color: #E8C879;
+}
+.t03.ios .heraldic { color: #8A4A0A; }
+.t03 .heraldic.l { left: 30%; }
+.t03 .heraldic.r { right: 30%; }
+.t03 .t-title {
+  font-family: 'UnifrakturMaguntia', serif;
+  font-weight: 400;
+  font-size: 32px;
+  letter-spacing: 0.04em;
+}
+.t03 .t-personal {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 600;
+  border-top: 1px solid currentColor;
+  opacity: 0.85;
+}
+
+/* ═════════════════════════════════════════════════════════
+   04 · THOTH (Crowley + Harris, 1944)
+   ═════════════════════════════════════════════════════════ */
+.t04.bg {
+  background:
+    linear-gradient(135deg, #1A0833 0%, #2A0A50 50%, #0F0420 100%);
+}
+.t04.ios {
+  background:
+    linear-gradient(135deg, #F0EBF8 0%, #E8DCEF 60%, #D6C5E5 100%);
+}
+.t04 .t-screen { color: #FFE494; }
+.t04.ios .t-screen { color: #3D1A55 ; }
+.t04 .thoth-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(60deg, rgba(255,228,148,0.03) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(-60deg, rgba(255,228,148,0.03) 0 1px, transparent 1px 30px);
+}
+.t04.ios .thoth-bg {
+  background:
+    repeating-linear-gradient(60deg, rgba(80,40,120,0.06) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(-60deg, rgba(80,40,120,0.06) 0 1px, transparent 1px 30px);
+}
+.t04 .thoth-tri {
+  position: absolute;
+  width: 0; height: 0;
+}
+.t04 .thoth-tri.t1 {
+  top: 100px; left: 20px;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 50px solid rgba(0,200,160,0.3);
+}
+.t04 .thoth-tri.t2 {
+  top: 110px; right: 20px;
+  border-left: 28px solid transparent;
+  border-right: 28px solid transparent;
+  border-top: 48px solid rgba(255,90,200,0.25);
+}
+.t04 .t-roman {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.6em;
+  color: #00C896;
+}
+.t04.ios .t-roman { color: #6B2D8E; }
+.t04 .moon-thoth {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 0deg,
+      #FFD200 0deg, #FF5AC8 90deg, #00C896 180deg,
+      #2A0A50 270deg, #FFD200 360deg);
+  filter: blur(0.5px);
+  box-shadow:
+    0 0 40px rgba(255,210,0,0.5),
+    inset -16px -6px 26px rgba(0,0,0,0.6);
+  position: relative;
+}
+.t04.ios .moon-thoth {
+  background:
+    conic-gradient(from 0deg,
+      #FFC44A 0deg, #B85ABF 90deg, #4A8AB2 180deg,
+      #6B2D8E 270deg, #FFC44A 360deg);
+  filter: blur(0.5px);
+  box-shadow: 0 0 20px rgba(184,90,191,0.4);
+}
+.t04 .moon-thoth::before {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFFAEC 0%, transparent 60%);
+}
+.t04 .t-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 24px;
+  letter-spacing: 0.04em;
+  color: #FFE494;
+}
+.t04.ios .t-title { color: #3D1A55; }
+.t04 .t-title small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.32em;
+  color: #00C896;
+  margin-top: 4px;
+}
+.t04.ios .t-title small { color: #6B2D8E; }
+.t04 .t-personal {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  border-top: 1px dashed currentColor;
+  opacity: 0.85;
+}
+
+/* ═════════════════════════════════════════════════════════
+   05 · DARK GOTHIC
+   ═════════════════════════════════════════════════════════ */
+.t05.bg {
+  background:
+    radial-gradient(ellipse at 50% 20%, #2A0808 0%, #100404 60%, #050202 100%);
+}
+.t05.ios {
+  background:
+    radial-gradient(ellipse at 50% 20%, #F8E5D5 0%, #E8C8B0 80%);
+}
+.t05 .t-screen { color: #C9A650; }
+.t05.ios .t-screen { color: #3A0A0A; }
+.t05 .gothic-frame {
+  position: absolute; inset: 12px;
+  border: 2px solid #5A2010;
+  pointer-events: none;
+}
+.t05.ios .gothic-frame { border-color: #5A2010; }
+.t05 .gothic-frame::before {
+  content: '';
+  position: absolute; inset: 4px;
+  border: 1px solid #C9A650;
+}
+.t05.ios .gothic-frame::before { border-color: #8A1A1A; }
+.t05 .gothic-cross {
+  position: absolute;
+  font-family: 'Pirata One', serif;
+  color: #5A2010;
+  font-size: 18px;
+}
+.t05.ios .gothic-cross { color: #5A1010; }
+.t05 .gothic-cross.tl { top: 22px; left: 22px; }
+.t05 .gothic-cross.tr { top: 22px; right: 22px; }
+.t05 .gothic-cross.bl { bottom: 22px; left: 22px; }
+.t05 .gothic-cross.br { bottom: 22px; right: 22px; }
+.t05 .t-roman {
+  font-family: 'UnifrakturMaguntia', serif;
+  font-size: 22px;
+  letter-spacing: 0.18em;
+  color: #5A2010;
+}
+.t05.ios .t-roman { color: #5A1010; }
+.t05 .moon-gothic {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #F8F0D8 0%, #C8B898 50%, #5A4A30 100%);
+  box-shadow:
+    inset -18px -6px 30px rgba(0,0,0,0.7),
+    0 0 30px rgba(90,32,16,0.4);
+  filter: contrast(1.1);
+  position: relative;
+}
+.t05.ios .moon-gothic {
+  box-shadow:
+    inset -10px -4px 20px rgba(80,40,20,0.4),
+    0 0 24px rgba(160,40,40,0.25);
+}
+.t05 .moon-gothic::before {
+  /* drips */
+  content: '';
+  position: absolute;
+  bottom: -20px; left: 30%;
+  width: 6px; height: 22px;
+  background: rgba(90,32,16,0.6);
+  border-radius: 0 0 6px 6px;
+  box-shadow: 18px -6px 0 -2px rgba(90,32,16,0.5), 30px -10px 0 -3px rgba(90,32,16,0.4);
+}
+.t05 .raven {
+  position: absolute;
+  bottom: 130px;
+  font-size: 16px;
+  opacity: 0.7;
+  color: #5A2010;
+}
+.t05.ios .raven { color: #3A0A0A; }
+.t05 .raven.l { left: 22%; transform: rotate(-15deg); }
+.t05 .raven.r { right: 22%; transform: rotate(15deg) scaleX(-1); }
+.t05 .t-title {
+  font-family: 'UnifrakturMaguntia', serif;
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #C9A650;
+}
+.t05.ios .t-title { color: #3A0A0A; }
+.t05 .t-personal {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 600;
+  border-top: 1px solid #5A2010;
+  border-bottom: 1px solid #5A2010;
+  opacity: 0.9;
+}
+
+/* ═════════════════════════════════════════════════════════
+   06 · ART NOUVEAU (Mucha-style, 1900s)
+   ═════════════════════════════════════════════════════════ */
+.t06.bg {
+  background:
+    linear-gradient(180deg, #1A2E2A 0%, #0E1816 100%);
+}
+.t06.ios {
+  background:
+    linear-gradient(180deg, #FAF1DD 0%, #F0E2BA 100%);
+}
+.t06 .t-screen { color: #E8C879; }
+.t06.ios .t-screen { color: #3D2A14; }
+.t06 .nouveau-frame {
+  position: absolute; inset: 14px;
+  border-radius: 30px 4px 30px 4px;
+  border: 1.5px solid #C9A650;
+  pointer-events: none;
+}
+.t06.ios .nouveau-frame { border-color: #8A6533; }
+.t06 .nouveau-frame::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 24px 2px 24px 2px;
+  border: 0.5px solid #C9A650;
+}
+.t06.ios .nouveau-frame::before { border-color: #8A6533; }
+.t06 .nouveau-vine {
+  position: absolute;
+  font-family: 'Tangerine', cursive;
+  color: #C9A650;
+  font-size: 32px;
+  opacity: 0.7;
+}
+.t06.ios .nouveau-vine { color: #5A8A3A; }
+.t06 .nouveau-vine.tl { top: 30px; left: 30px; }
+.t06 .nouveau-vine.br { bottom: 30px; right: 30px; transform: rotate(180deg); }
+.t06 .t-roman {
+  font-family: 'Tangerine', cursive;
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: 0.18em;
+  margin-top: 12px;
+}
+.t06 .moon-nouveau {
+  width: 105px; height: 105px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #FFFAEC 0%, #FFE494 50%, #C99030 100%);
+  box-shadow:
+    0 0 30px rgba(232,200,121,0.4),
+    inset -14px -6px 24px rgba(0,0,0,0.4);
+  position: relative;
+}
+.t06.ios .moon-nouveau {
+  box-shadow:
+    0 0 24px rgba(232,200,121,0.3),
+    inset -8px -3px 18px rgba(80,50,10,0.3);
+}
+.t06 .moon-nouveau::after {
+  /* halo rays curving */
+  content: '';
+  position: absolute;
+  inset: -28px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(232,200,121,0.3) 30deg, transparent 60deg, rgba(232,200,121,0.3) 90deg, transparent 120deg, rgba(232,200,121,0.3) 150deg, transparent 180deg, rgba(232,200,121,0.3) 210deg, transparent 240deg, rgba(232,200,121,0.3) 270deg, transparent 300deg, rgba(232,200,121,0.3) 330deg, transparent 360deg);
+  z-index: -1;
+}
+.t06 .t-title {
+  font-family: 'Tangerine', cursive;
+  font-weight: 700;
+  font-size: 56px;
+  line-height: 0.85;
+  letter-spacing: 0.02em;
+}
+.t06 .t-personal {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  border-top: 1px solid currentColor;
+  opacity: 0.85;
+}
+
+/* ═════════════════════════════════════════════════════════
+   07 · MINIMALIST MODERN TAROT
+   ═════════════════════════════════════════════════════════ */
+.t07.bg { background: #0A0A0F; }
+.t07.ios { background: #FFFFFF; }
+.t07 .t-screen { color: #ECEAE2; padding: 30px 22px 14px; }
+.t07.ios .t-screen { color: #1A1A20; }
+.t07 .min-frame {
+  position: absolute;
+  top: 22px; left: 22px;
+  width: 14px; height: 14px;
+  border-top: 1.5px solid #C9A650;
+  border-left: 1.5px solid #C9A650;
+}
+.t07.ios .min-frame { border-color: #00C896; }
+.t07 .min-frame::after {
+  content: '';
+  position: absolute;
+  bottom: -854px; right: -296px;
+  width: 14px; height: 14px;
+  border-bottom: 1.5px solid #C9A650;
+  border-right: 1.5px solid #C9A650;
+}
+.t07.ios .min-frame::after { border-color: #00C896; }
+.t07 .t-roman {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.5em;
+  color: #C9A650;
+  margin-top: 8px;
+}
+.t07.ios .t-roman { color: #00C896; }
+.t07 .moon-min {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: #ECEAE2;
+  position: relative;
+  overflow: hidden;
+}
+.t07.ios .moon-min { background: #1A1A20; }
+.t07 .moon-min::after {
+  /* crescent cut showing 38% phase */
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 70%; height: 100%;
+  border-radius: 50%;
+  background: #0A0A0F;
+}
+.t07.ios .moon-min::after { background: #fff; }
+.t07 .t-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 200;
+  font-style: italic;
+  font-size: 38px;
+  letter-spacing: -0.025em;
+  margin-top: 8px;
+}
+.t07 .t-sigils { display: none; }
+.t07 .t-personal {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  border-top: 1px solid currentColor;
+  letter-spacing: 0.18em;
+}
+.t07 .t-personal .name {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+/* ═════════════════════════════════════════════════════════
+   08 · MEXICAN LOTERIA
+   ═════════════════════════════════════════════════════════ */
+.t08.bg {
+  background:
+    repeating-linear-gradient(0deg, #1A0E2A 0 18px, #20133A 18px 36px);
+}
+.t08.ios {
+  background:
+    repeating-linear-gradient(0deg, #FFE5C9 0 18px, #FACFA8 18px 36px);
+}
+.t08 .t-screen { color: #FFE494; }
+.t08.ios .t-screen { color: #3D2014; }
+.t08 .loteria-frame {
+  position: absolute;
+  inset: 14px;
+  background: #16092A;
+  border: 5px solid #FFD200;
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 3px #FF3850 inset,
+    0 0 0 9px #16092A,
+    0 0 0 12px #FFD200;
+  pointer-events: none;
+}
+.t08.ios .loteria-frame {
+  background: #FAEED4;
+  border-color: #C00040;
+  box-shadow:
+    0 0 0 3px #00A040 inset,
+    0 0 0 9px #FAEED4,
+    0 0 0 12px #C00040;
+}
+.t08 .loteria-num {
+  position: absolute;
+  top: 60px;
+  background: #FFD200;
+  color: #16092A;
+  width: 36px; height: 36px;
+  display: grid;
+  place-items: center;
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 18px;
+  border: 2px solid #FF3850;
+  z-index: 3;
+}
+.t08.ios .loteria-num { background: #FFD200; color: #C00040; border-color: #C00040; }
+.t08 .loteria-num.l { left: 26px; }
+.t08 .loteria-num.r { right: 26px; }
+.t08 .moon-loteria {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, #FFFAEC 0%, #FFD200 60%, #C99020 100%);
+  box-shadow:
+    inset -14px -4px 22px rgba(80,30,80,0.4),
+    0 0 0 4px #FF3850,
+    0 0 30px rgba(255,210,0,0.5);
+  position: relative;
+}
+.t08.ios .moon-loteria {
+  box-shadow:
+    inset -8px -3px 16px rgba(80,30,40,0.3),
+    0 0 0 4px #C00040,
+    0 0 20px rgba(255,210,0,0.4);
+}
+.t08 .moon-loteria::before,
+.t08 .moon-loteria::after {
+  content: '';
+  position: absolute;
+  width: 6px; height: 8px;
+  background: #16092A;
+  border-radius: 50%;
+  top: 38%;
+}
+.t08 .moon-loteria::before { left: 30%; }
+.t08 .moon-loteria::after { left: 60%; }
+.t08 .t-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 900;
+  font-size: 38px;
+  letter-spacing: 0.04em;
+  color: #FF3850;
+  text-shadow: 2px 2px 0 #FFD200;
+}
+.t08.ios .t-title { color: #C00040; text-shadow: 2px 2px 0 #FFD200; }
+.t08 .t-sigils { color: #FFD200; }
+.t08.ios .t-sigils { color: #00A040; }
+.t08 .t-personal {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  background: #FFD200;
+  color: #16092A;
+  border-radius: 4px;
+}
+.t08.ios .t-personal { background: #FFD200; color: #C00040; }
+
+/* ═════════════════════════════════════════════════════════
+   09 · EGYPTIAN SACRED
+   ═════════════════════════════════════════════════════════ */
+.t09.bg {
+  background:
+    linear-gradient(180deg, #0A1A38 0%, #050C20 100%);
+}
+.t09.ios {
+  background:
+    linear-gradient(180deg, #F2DEAA 0%, #E5C588 100%);
+  position: relative;
+}
+.t09.ios::before {
+  /* papyrus fibers */
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 20px, rgba(140,90,30,0.04) 20px 21px),
+    repeating-linear-gradient(90deg, transparent 0 18px, rgba(140,90,30,0.04) 18px 19px);
+}
+.t09 .t-screen { color: #FFD200; }
+.t09.ios .t-screen { color: #3D1A03; }
+.t09 .egyp-frame {
+  position: absolute; inset: 14px;
+  border: 2px solid #FFD200;
+  pointer-events: none;
+}
+.t09.ios .egyp-frame { border-color: #8A4A0A; }
+.t09 .egyp-frame::before {
+  content: '';
+  position: absolute; inset: 6px;
+  border: 1px solid #FFD200;
+  border-style: dashed;
+}
+.t09.ios .egyp-frame::before { border-color: #8A4A0A; }
+.t09 .hieroglyph {
+  position: absolute;
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  color: #FFD200;
+  opacity: 0.9;
+}
+.t09.ios .hieroglyph { color: #8A4A0A; }
+.t09 .hieroglyph.tl { top: 32px; left: 38px; }
+.t09 .hieroglyph.tr { top: 32px; right: 38px; }
+.t09 .hieroglyph.bl { bottom: 80px; left: 38px; }
+.t09 .hieroglyph.br { bottom: 80px; right: 38px; }
+.t09 .t-roman {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5em;
+  color: #FFD200;
+}
+.t09.ios .t-roman { color: #8A4A0A; }
+.t09 .moon-egypt {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #FFFAEC 0%, #FFD200 40%, #B0822A 80%);
+  box-shadow:
+    inset -16px -6px 28px rgba(0,0,0,0.5),
+    0 0 0 2px #FFD200,
+    0 0 30px rgba(255,210,0,0.5);
+  position: relative;
+}
+.t09.ios .moon-egypt {
+  box-shadow:
+    inset -10px -4px 20px rgba(80,40,10,0.4),
+    0 0 0 2px #8A4A0A,
+    0 0 20px rgba(255,210,0,0.3);
+}
+.t09 .moon-egypt::before {
+  /* eye of horus over moon */
+  content: '𓂀';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #2C0A03;
+  filter: opacity(0.7);
+}
+.t09 .pyramid {
+  position: absolute;
+  bottom: 110px;
+  width: 0; height: 0;
+  border-left: 24px solid transparent;
+  border-right: 24px solid transparent;
+  border-bottom: 36px solid #FFD200;
+  opacity: 0.7;
+}
+.t09.ios .pyramid { border-bottom-color: #8A4A0A; }
+.t09 .pyramid.l { left: 22%; }
+.t09 .pyramid.r { right: 22%; }
+.t09 .t-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: 0.2em;
+  color: #FFD200;
+}
+.t09.ios .t-title { color: #3D1A03; }
+.t09 .t-title small {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+.t09 .t-sigils {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+}
+.t09 .t-personal {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.85;
+}
+
+/* ═════════════════════════════════════════════════════════
+   10 · COSMIC GOTHIC (modern hybrid)
+   ═════════════════════════════════════════════════════════ */
+.t10.bg {
+  background:
+    radial-gradient(ellipse at 50% 40%, #1A0F38 0%, #050214 100%);
+}
+.t10.ios {
+  background:
+    radial-gradient(ellipse at 50% 40%, #ECEFF8 0%, #C8CFE5 100%);
+}
+.t10 .t-screen { color: #B0C5FF; }
+.t10.ios .t-screen { color: #1A1F3A; }
+.t10 .cosmic-bg {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(180,200,255,0.6), transparent),
+    radial-gradient(2px 2px at 70% 25%, rgba(180,200,255,0.5), transparent),
+    radial-gradient(1px 1px at 85% 70%, rgba(180,200,255,0.4), transparent),
+    radial-gradient(0.5px 0.5px at 35% 65%, rgba(180,200,255,0.5), transparent);
+}
+.t10.ios .cosmic-bg { display: none; }
+.t10 .cosmic-frame {
+  position: absolute; inset: 14px;
+  border: 1px solid #B0C5FF;
+  pointer-events: none;
+}
+.t10.ios .cosmic-frame { border-color: #4A55B0; }
+.t10 .cosmic-frame::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 1px;
+  background: #B0C5FF;
+}
+.t10.ios .cosmic-frame::before { background: #4A55B0; }
+.t10 .cosmic-frame::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 1px;
+  background: #B0C5FF;
+}
+.t10.ios .cosmic-frame::after { background: #4A55B0; }
+.t10 .t-roman {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  color: #FFE494;
+}
+.t10.ios .t-roman { color: #FFA500; }
+.t10 .moon-cosmic {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #F5F1E8 0%, #C9C4B5 40%, #6B6557 80%, #1A1714 100%);
+  box-shadow:
+    0 0 50px rgba(180,200,255,0.4),
+    0 0 0 1px rgba(255,228,148,0.6),
+    inset -18px -6px 30px rgba(0,0,0,0.5);
+}
+.t10.ios .moon-cosmic {
+  box-shadow:
+    0 0 30px rgba(74,85,176,0.3),
+    0 0 0 1px #FFA500,
+    inset -10px -4px 18px rgba(40,30,20,0.3);
+}
+.t10 .orbit {
+  position: absolute;
+  inset: -30px;
+  border: 1px dashed rgba(180,200,255,0.4);
+  border-radius: 50%;
+  animation: rotate 60s linear infinite;
+}
+.t10.ios .orbit { border-color: rgba(74,85,176,0.4); }
+@keyframes rotate { to { transform: rotate(360deg); } }
+.t10 .t-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 200;
+  font-style: italic;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  color: #ECEFF8;
+}
+.t10.ios .t-title { color: #1A1F3A; }
+.t10 .t-title small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-style: normal;
+  font-size: 8px;
+  letter-spacing: 0.32em;
+  margin-top: 6px;
+  color: #FFE494;
+}
+.t10.ios .t-title small { color: #FFA500; }
+.t10 .t-sigils { color: #FFE494; }
+.t10.ios .t-sigils { color: #FFA500; }
+.t10 .t-personal {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  border-top: 1px solid currentColor;
+  letter-spacing: 0.28em;
+  opacity: 0.85;
+}
+
+/* ─── META CARD ─── */
+.meta {
+  width: 340px;
+  margin-top: 22px;
+  padding: 22px 4px 0;
+  border-top: 1px solid var(--rule);
+  position: relative;
+}
+.meta::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0;
+  width: 32px; height: 1px;
+  background: var(--gold);
+}
+.meta .concept-no {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.meta .concept-name {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.meta .concept-era {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: var(--gold-bright);
+  margin-bottom: 10px;
+}
+.meta .concept-tagline {
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+.meta .swatches {
+  display: flex;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--rule);
+}
+.meta .swatch {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  position: relative; z-index: 2;
+  border-top: 1px solid var(--rule);
+  padding: 36px 60px 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+footer .gold-mark { color: var(--gold); }
+footer em {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--text);
+  text-transform: none;
+}
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="brand-line">
+    <span class="gold">▲ PIXORA · DESIGN ARCHIVE</span>
+    <span>VOL.07 · ENTRY 030 · TAROT VARIANTS</span>
+  </div>
+  <h1 class="title"><em>Tarot</em> · 10 Direcciones</h1>
+  <p class="lede">
+    Diez sub-géneros del estilo tarot premium, cada uno mostrado en los <strong>dos temas activos</strong> — Black & Gold arriba, iOS White abajo. Misma luna, mismo Eduardo. Distintas escuelas de ilustración: del Marsella de 1700 al cosmic gothic de mañana.
+  </p>
+  <div class="head-rail">
+    <span class="gold">●</span>
+    <span>2026·06·12</span>
+    <span class="gold">·</span>
+    <span>10 DECKS · 2 THEMES</span>
+  </div>
+</header>
+
+<main class="phone-row">
+
+<!-- ─── 01 MARSEILLE ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t01 bg">
+        <div class="tarot-status" style="color:#F0E5BC"><span>9:41</span><span>● ● ●</span></div>
+        <div class="marseille-frame"></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-marseille"><div class="smile"></div></div>
+            <div class="pillar left"></div>
+            <div class="pillar right"></div>
+          </div>
+          <div class="t-title">LA · LVNE</div>
+          <div class="t-sigils">☽ ⚹ ☾</div>
+          <div class="t-personal">EDVARDO<span class="name">Tauro · Path IX</span>XII · IVN · 528 Hz</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t01 ios">
+        <div class="tarot-status" style="color:#2C1808"><span>9:41</span><span>● ● ●</span></div>
+        <div class="marseille-frame"></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-marseille"><div class="smile"></div></div>
+            <div class="pillar left"></div>
+            <div class="pillar right"></div>
+          </div>
+          <div class="t-title">LA · LVNE</div>
+          <div class="t-sigils">☽ ⚹ ☾</div>
+          <div class="t-personal">EDVARDO<span class="name">Tauro · Path IX</span>XII · IVN · 528 Hz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 01</div>
+    <div class="concept-era">MARSEILLE · ca. 1700</div>
+    <h3 class="concept-name">Marseille Classic</h3>
+    <p class="concept-tagline">El abuelo de todos los tarots. Línea negra firme, primarios saturados, dos pilares y carita simple.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#16203C"></span>
+      <span class="swatch" style="background:#C9A650"></span>
+      <span class="swatch" style="background:#F2D070"></span>
+      <span class="swatch" style="background:#F2EBD8"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 02 RIDER-WAITE ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t02 bg">
+        <div class="tarot-status" style="color:#E8DAB5"><span>9:41</span><span>● ● ●</span></div>
+        <div class="rw-frame"></div>
+        <div class="rw-corner tl">✦</div>
+        <div class="rw-corner tr">✦</div>
+        <div class="rw-corner bl">✦</div>
+        <div class="rw-corner br">✦</div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-rw"></div>
+            <div class="rw-tower l"></div>
+            <div class="rw-tower r"></div>
+          </div>
+          <div class="t-title">The Moon</div>
+          <div class="t-sigils">☽ ♓ 𝛺 ☾</div>
+          <div class="t-personal">EDUARDO<span class="name">Tauro · Life Path 9</span>12 JUN · 528 Hz</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t02 ios">
+        <div class="tarot-status" style="color:#3D2914"><span>9:41</span><span>● ● ●</span></div>
+        <div class="rw-frame"></div>
+        <div class="rw-corner tl">✦</div>
+        <div class="rw-corner tr">✦</div>
+        <div class="rw-corner bl">✦</div>
+        <div class="rw-corner br">✦</div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-rw"></div>
+            <div class="rw-tower l"></div>
+            <div class="rw-tower r"></div>
+          </div>
+          <div class="t-title">The Moon</div>
+          <div class="t-sigils">☽ ♓ 𝛺 ☾</div>
+          <div class="t-personal">EDUARDO<span class="name">Tauro · Life Path 9</span>12 JUN · 528 Hz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 02</div>
+    <div class="concept-era">RIDER-WAITE · 1909</div>
+    <h3 class="concept-name">Rider-Waite Refined</h3>
+    <p class="concept-tagline">El tarot que casi todos conocen. Acuarela victoriana, dos torres lejanas, mood contemplativo.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#161E32"></span>
+      <span class="swatch" style="background:#E8C879"></span>
+      <span class="swatch" style="background:#FAF1E0"></span>
+      <span class="swatch" style="background:#8A6533"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 03 VISCONTI-SFORZA ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t03 bg">
+        <div class="tarot-status" style="color:#FFE494"><span>9:41</span><span>● ● ●</span></div>
+        <div class="visc-frame"></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-visc"></div>
+            <div class="heraldic l">⚜</div>
+            <div class="heraldic r">⚜</div>
+          </div>
+          <div class="t-title">La Lvna</div>
+          <div class="t-sigils">⚜ ☽ ✠ ☾ ⚜</div>
+          <div class="t-personal">EDVARDO<span class="name">Tauro · Camino IX</span>MMXXVI · 528 Hz</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t03 ios">
+        <div class="tarot-status" style="color:#3D1A03"><span>9:41</span><span>● ● ●</span></div>
+        <div class="visc-frame"></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-visc"></div>
+            <div class="heraldic l">⚜</div>
+            <div class="heraldic r">⚜</div>
+          </div>
+          <div class="t-title">La Lvna</div>
+          <div class="t-sigils">⚜ ☽ ✠ ☾ ⚜</div>
+          <div class="t-personal">EDVARDO<span class="name">Tauro · Camino IX</span>MMXXVI · 528 Hz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 03</div>
+    <div class="concept-era">VISCONTI-SFORZA · 1450</div>
+    <h3 class="concept-name">Renaissance Gold-Leaf</h3>
+    <p class="concept-tagline">Manuscrito iluminado italiano. Pan de oro, blackletter, fleur-de-lis y peso real.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#3D2008"></span>
+      <span class="swatch" style="background:#E8C879"></span>
+      <span class="swatch" style="background:#F0E0B0"></span>
+      <span class="swatch" style="background:#5A3208"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 04 THOTH ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t04 bg">
+        <div class="tarot-status" style="color:#FFE494"><span>9:41</span><span>● ● ●</span></div>
+        <div class="thoth-bg"></div>
+        <div class="thoth-tri t1"></div>
+        <div class="thoth-tri t2"></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII · PATH 29</div>
+          <div class="t-moon-area">
+            <div class="moon-thoth"></div>
+          </div>
+          <div class="t-title">The Moon<small>· QABALAH PATH 29 · QOPH</small></div>
+          <div class="t-sigils">⚷ ☽ ⚷</div>
+          <div class="t-personal">// EDUARDO · TAURUS · LIFE 9 //<br>// 12·VI·26 · 528.00 Hz //</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t04 ios">
+        <div class="tarot-status" style="color:#3D1A55"><span>9:41</span><span>● ● ●</span></div>
+        <div class="thoth-bg"></div>
+        <div class="thoth-tri t1"></div>
+        <div class="thoth-tri t2"></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII · PATH 29</div>
+          <div class="t-moon-area">
+            <div class="moon-thoth"></div>
+          </div>
+          <div class="t-title">The Moon<small>· QABALAH PATH 29 · QOPH</small></div>
+          <div class="t-sigils">⚷ ☽ ⚷</div>
+          <div class="t-personal">// EDUARDO · TAURUS · LIFE 9 //<br>// 12·VI·26 · 528.00 Hz //</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 04</div>
+    <div class="concept-era">THOTH · 1944 · CROWLEY</div>
+    <h3 class="concept-name">Thoth · Geometric</h3>
+    <p class="concept-tagline">Crowley + Lady Frieda Harris. Cubismo + cabalá. Geometría afilada, paleta saturada.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#1A0833"></span>
+      <span class="swatch" style="background:#FFD200"></span>
+      <span class="swatch" style="background:#FF5AC8"></span>
+      <span class="swatch" style="background:#00C896"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 05 DARK GOTHIC ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t05 bg">
+        <div class="tarot-status" style="color:#C9A650"><span>9:41</span><span>● ● ●</span></div>
+        <div class="gothic-frame"></div>
+        <div class="gothic-cross tl">✦</div>
+        <div class="gothic-cross tr">✦</div>
+        <div class="gothic-cross bl">✦</div>
+        <div class="gothic-cross br">✦</div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-gothic"></div>
+            <div class="raven l">⌬</div>
+            <div class="raven r">⌬</div>
+          </div>
+          <div class="t-title">Mond</div>
+          <div class="t-sigils">☽ † ✟ † ☾</div>
+          <div class="t-personal">EDVARDO<span class="name">Taurus · IX. Caminus</span>MMXXVI · DCLXXIII · 528 Hz</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t05 ios">
+        <div class="tarot-status" style="color:#3A0A0A"><span>9:41</span><span>● ● ●</span></div>
+        <div class="gothic-frame"></div>
+        <div class="gothic-cross tl">✦</div>
+        <div class="gothic-cross tr">✦</div>
+        <div class="gothic-cross bl">✦</div>
+        <div class="gothic-cross br">✦</div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-gothic"></div>
+            <div class="raven l">⌬</div>
+            <div class="raven r">⌬</div>
+          </div>
+          <div class="t-title">Mond</div>
+          <div class="t-sigils">☽ † ✟ † ☾</div>
+          <div class="t-personal">EDVARDO<span class="name">Taurus · IX. Caminus</span>MMXXVI · DCLXXIII · 528 Hz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 05</div>
+    <div class="concept-era">DARK GOTHIC · MEMENTO MORI</div>
+    <h3 class="concept-name">Dark Gothic Manor</h3>
+    <p class="concept-tagline">Tarot embrujado: blackletter, sangre seca, oro apagado. Para quien quiere drama.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#100404"></span>
+      <span class="swatch" style="background:#5A2010"></span>
+      <span class="swatch" style="background:#C9A650"></span>
+      <span class="swatch" style="background:#F8E5D5"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 06 ART NOUVEAU ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t06 bg">
+        <div class="tarot-status" style="color:#E8C879"><span>9:41</span><span>● ● ●</span></div>
+        <div class="nouveau-frame"></div>
+        <div class="nouveau-vine tl">🍃</div>
+        <div class="nouveau-vine br">🍃</div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-nouveau"></div>
+          </div>
+          <div class="t-title">La Lune</div>
+          <div class="t-sigils">~ ☾ ~</div>
+          <div class="t-personal">Eduardo · Tauro · Camino IX<br>12 de junio · 528 Hz</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t06 ios">
+        <div class="tarot-status" style="color:#3D2A14"><span>9:41</span><span>● ● ●</span></div>
+        <div class="nouveau-frame"></div>
+        <div class="nouveau-vine tl">🍃</div>
+        <div class="nouveau-vine br">🍃</div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-nouveau"></div>
+          </div>
+          <div class="t-title">La Lune</div>
+          <div class="t-sigils">~ ☾ ~</div>
+          <div class="t-personal">Eduardo · Tauro · Camino IX<br>12 de junio · 528 Hz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 06</div>
+    <div class="concept-era">ART NOUVEAU · 1900 · MUCHA</div>
+    <h3 class="concept-name">Mucha Nouveau</h3>
+    <p class="concept-tagline">Curvas orgánicas, vegetación dorada, caligrafía florida. Mucha lo bendeciría.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#0E1816"></span>
+      <span class="swatch" style="background:#E8C879"></span>
+      <span class="swatch" style="background:#5A8A3A"></span>
+      <span class="swatch" style="background:#FAF1DD"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 07 MINIMALIST MODERN ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t07 bg">
+        <div class="tarot-status" style="color:#ECEAE2"><span>9:41</span><span>● ● ●</span></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII · MOON</div>
+          <div class="t-moon-area">
+            <div class="moon-min"></div>
+          </div>
+          <div class="t-title"><em>la luna.</em></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.32em;text-align:center;color:#82817A;margin-bottom:6px;">38 % · CUARTO CRECIENTE</div>
+          <div class="t-personal" style="color:#82817A">EDUARDO<span class="name" style="color:#ECEAE2">Tauro · Path 9</span>12 JUN · 528 Hz</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t07 ios">
+        <div class="tarot-status" style="color:#1A1A20"><span>9:41</span><span>● ● ●</span></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII · MOON</div>
+          <div class="t-moon-area">
+            <div class="moon-min"></div>
+          </div>
+          <div class="t-title"><em>la luna.</em></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.32em;text-align:center;color:#8E8E93;margin-bottom:6px;">38 % · CUARTO CRECIENTE</div>
+          <div class="t-personal" style="color:#8E8E93">EDUARDO<span class="name" style="color:#1A1A20">Tauro · Path 9</span>12 JUN · 528 Hz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 07</div>
+    <div class="concept-era">MINIMALIST · 2020+</div>
+    <h3 class="concept-name">Minimal Modern</h3>
+    <p class="concept-tagline">Apple Store-meets-tarot. Sin adornos. Datos como protagonistas, tipografía como respiración.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#0A0A0F"></span>
+      <span class="swatch" style="background:#fff;box-shadow:0 0 0 1px #444 inset"></span>
+      <span class="swatch" style="background:#C9A650"></span>
+      <span class="swatch" style="background:#00C896"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 08 LOTERIA ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t08 bg">
+        <div class="tarot-status" style="color:#FFE494"><span>9:41</span><span>● ● ●</span></div>
+        <div class="loteria-frame"></div>
+        <div class="loteria-num l">18</div>
+        <div class="loteria-num r">18</div>
+        <div class="t-screen" style="padding:60px 20px 14px;">
+          <div class="t-moon-area">
+            <div class="moon-loteria"></div>
+          </div>
+          <div class="t-title">¡La Luna!</div>
+          <div class="t-sigils">★ ☽ ★</div>
+          <div class="t-personal">EDUARDO · TAURO · CAMINO 9<br>12 DE JUNIO · 528 Hz</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t08 ios">
+        <div class="tarot-status" style="color:#3D2014"><span>9:41</span><span>● ● ●</span></div>
+        <div class="loteria-frame"></div>
+        <div class="loteria-num l">18</div>
+        <div class="loteria-num r">18</div>
+        <div class="t-screen" style="padding:60px 20px 14px;">
+          <div class="t-moon-area">
+            <div class="moon-loteria"></div>
+          </div>
+          <div class="t-title">¡La Luna!</div>
+          <div class="t-sigils">★ ☽ ★</div>
+          <div class="t-personal">EDUARDO · TAURO · CAMINO 9<br>12 DE JUNIO · 528 Hz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 08</div>
+    <div class="concept-era">LOTERÍA MEXICANA · FOLK</div>
+    <h3 class="concept-name">Lotería</h3>
+    <p class="concept-tagline">"¡La luna, la dama de los mares!" Folk mexicano, papel picado y carcajada.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#FFD200"></span>
+      <span class="swatch" style="background:#FF3850"></span>
+      <span class="swatch" style="background:#00A040"></span>
+      <span class="swatch" style="background:#16092A"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 09 EGYPTIAN ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t09 bg">
+        <div class="tarot-status" style="color:#FFD200"><span>9:41</span><span>● ● ●</span></div>
+        <div class="egyp-frame"></div>
+        <div class="hieroglyph tl">𓇼</div>
+        <div class="hieroglyph tr">𓂀</div>
+        <div class="hieroglyph bl">𓆣</div>
+        <div class="hieroglyph br">𓊃</div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-egypt"></div>
+            <div class="pyramid l"></div>
+            <div class="pyramid r"></div>
+          </div>
+          <div class="t-title">IAH<small>· LA LUNA · 𓇋𓂝𓎛 ·</small></div>
+          <div class="t-sigils">𓇼 𓂀 𓊃</div>
+          <div class="t-personal">EDUARDO · TAURO · CAMINO IX<br>JUN·12·MMXXVI · 528 Hz</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t09 ios">
+        <div class="tarot-status" style="color:#3D1A03"><span>9:41</span><span>● ● ●</span></div>
+        <div class="egyp-frame"></div>
+        <div class="hieroglyph tl">𓇼</div>
+        <div class="hieroglyph tr">𓂀</div>
+        <div class="hieroglyph bl">𓆣</div>
+        <div class="hieroglyph br">𓊃</div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII</div>
+          <div class="t-moon-area">
+            <div class="moon-egypt"></div>
+            <div class="pyramid l"></div>
+            <div class="pyramid r"></div>
+          </div>
+          <div class="t-title">IAH<small>· LA LUNA · 𓇋𓂝𓎛 ·</small></div>
+          <div class="t-sigils">𓇼 𓂀 𓊃</div>
+          <div class="t-personal">EDUARDO · TAURO · CAMINO IX<br>JUN·12·MMXXVI · 528 Hz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 09</div>
+    <div class="concept-era">EGYPTIAN SACRED · DYNASTY XVIII</div>
+    <h3 class="concept-name">Iah · Egyptian</h3>
+    <p class="concept-tagline">Iah era el dios lunar egipcio. Papiro, jeroglíficos reales, ojo de Horus, oro y lapislázuli.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#050C20"></span>
+      <span class="swatch" style="background:#FFD200"></span>
+      <span class="swatch" style="background:#F2DEAA"></span>
+      <span class="swatch" style="background:#8A4A0A"></span>
+    </div>
+  </div>
+</article>
+
+<!-- ─── 10 COSMIC GOTHIC ─── -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="theme-block t10 bg">
+        <div class="cosmic-bg"></div>
+        <div class="tarot-status" style="color:#B0C5FF"><span>9:41</span><span>● ● ●</span></div>
+        <div class="cosmic-frame"></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII · TRANSIT</div>
+          <div class="t-moon-area">
+            <div class="orbit"></div>
+            <div class="moon-cosmic"></div>
+          </div>
+          <div class="t-title"><em>la luna</em><small>TRANSIT 18 · 38% · WX</small></div>
+          <div class="t-sigils">◯ ☽ ◯</div>
+          <div class="t-personal">EDUARDO · TAURO · 9 · 528.00 Hz<br>12·VI·2026 · GMT-6 · D+8</div>
+        </div>
+      </div>
+      <div class="theme-divider">↓ iOS WHITE</div>
+      <div class="theme-block t10 ios">
+        <div class="tarot-status" style="color:#1A1F3A"><span>9:41</span><span>● ● ●</span></div>
+        <div class="cosmic-frame"></div>
+        <div class="t-screen">
+          <div class="t-roman">XVIII · TRANSIT</div>
+          <div class="t-moon-area">
+            <div class="orbit"></div>
+            <div class="moon-cosmic"></div>
+          </div>
+          <div class="t-title"><em>la luna</em><small>TRANSIT 18 · 38% · WX</small></div>
+          <div class="t-sigils">◯ ☽ ◯</div>
+          <div class="t-personal">EDUARDO · TAURO · 9 · 528.00 Hz<br>12·VI·2026 · GMT-6 · D+8</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 10</div>
+    <div class="concept-era">COSMIC GOTHIC · 2026</div>
+    <h3 class="concept-name">Cosmic Gothic</h3>
+    <p class="concept-tagline">Tarot del futuro: tipografía editorial + dato astronómico real + órbita rotando atrás.</p>
+    <div class="swatches">
+      <span class="swatch" style="background:#050214"></span>
+      <span class="swatch" style="background:#B0C5FF"></span>
+      <span class="swatch" style="background:#FFE494"></span>
+      <span class="swatch" style="background:#FFA500"></span>
+    </div>
+  </div>
+</article>
+
+</main>
+
+<footer>
+  <span><span class="gold-mark">▲</span> PIXORA STUDIOS · ORBIX</span>
+  <em>diez decks, dos temas — escoge tu lenguaje sagrado</em>
+  <span>END · DOC · 030</span>
+</footer>
+
+</body>
+</html>

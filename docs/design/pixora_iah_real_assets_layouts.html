@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Iah · 5 Layout Variants (real assets)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Cinzel:wght@400..900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300..900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink: #070710;
+  --gold: #C9A650;
+  --gold-bright: #F0DD9E;
+  --rule: #1F1F2C;
+  --text: #E8E5DC;
+  --text-dim: #82817A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: auto;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(2px 2px at 35% 15%, rgba(255,255,255,0.5), transparent);
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 100; pointer-events: none;
+  opacity: 0.18; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─── HEADER ─── */
+header.page-head {
+  position: relative; z-index: 2;
+  padding: 56px 60px 32px;
+  border-bottom: 1px solid var(--rule);
+}
+.brand-line {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.22em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.brand-line .gold { color: var(--gold); letter-spacing: 0.32em; }
+h1.title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 200;
+  font-size: 78px;
+  line-height: 0.92;
+  letter-spacing: -0.038em;
+}
+h1.title em { color: var(--gold); }
+.lede {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 640px;
+  margin-top: 16px;
+}
+.lede strong { color: var(--gold-bright); font-weight: 500; }
+
+/* ─── PHONE ROW ─── */
+main.phone-row {
+  position: relative; z-index: 1;
+  display: flex;
+  gap: 32px;
+  padding: 70px 60px;
+  overflow-x: auto;
+  align-items: flex-start;
+  scroll-snap-type: x mandatory;
+}
+.phone-card {
+  flex: 0 0 auto;
+  width: 360px;
+  scroll-snap-align: start;
+  opacity: 0;
+  transform: translateY(24px);
+  animation: rise 0.9s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.phone-card:nth-child(1) { animation-delay: 0.05s; }
+.phone-card:nth-child(2) { animation-delay: 0.18s; }
+.phone-card:nth-child(3) { animation-delay: 0.31s; }
+.phone-card:nth-child(4) { animation-delay: 0.44s; }
+.phone-card:nth-child(5) { animation-delay: 0.57s; }
+@keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+.phone {
+  width: 360px; height: 740px;
+  border-radius: 38px;
+  background: #050507;
+  padding: 11px;
+  box-shadow: 0 0 0 1px #25252F, 0 30px 70px rgba(0,0,0,0.55), 0 12px 24px rgba(0,0,0,0.4);
+  position: relative;
+}
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 24px;
+  border-radius: 999px;
+  background: #000;
+  z-index: 5;
+}
+.phone-screen {
+  width: 100%; height: 100%;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  background: #000;
+}
+
+.status-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 48px;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 26px 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.95);
+}
+
+/* ─── ASSET LAYERS — shared bases ─── */
+.layer { position: absolute; pointer-events: none; }
+.bg-sky { inset: 0; z-index: 1; }
+.bg-sky img { width: 100%; height: 100%; object-fit: cover; }
+.landscape { left: 0; right: 0; bottom: 0; z-index: 2; }
+.landscape img { width: 100%; height: auto; display: block; }
+.moon { z-index: 4; }
+.moon img { width: 100%; height: 100%; object-fit: contain; }
+.halo { z-index: 3; }
+.halo img {
+  width: 100%; height: 100%; object-fit: contain;
+  mix-blend-mode: screen;
+  filter: saturate(1.1);
+}
+.frame { z-index: 5; }
+.frame img { width: 100%; height: 100%; object-fit: contain; }
+
+.personal {
+  position: absolute;
+  bottom: 32px; left: 22px; right: 22px;
+  z-index: 60;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  color: #FFE494;
+}
+.personal .name {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 22px;
+  display: block;
+  letter-spacing: 0.02em;
+  color: #FFF4D8;
+  margin-bottom: 4px;
+}
+.personal .meta {
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: rgba(255, 228, 148, 0.75);
+}
+
+/* ─── VARIANT 1 — Classic Tarot Card ─── */
+.v1 .moon { top: 22%; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; }
+.v1 .halo { top: 18%; left: 50%; transform: translateX(-50%); width: 240px; height: 240px; }
+.v1 .frame { top: 16%; left: 50%; transform: translateX(-50%); width: 280px; height: 280px; }
+.v1 .landscape { bottom: 0; height: 220px; }
+.v1 .landscape img { object-fit: cover; height: 100%; }
+.v1 .roman {
+  position: absolute;
+  top: 64px; left: 0; right: 0;
+  text-align: center;
+  z-index: 50;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.6em;
+  color: #C9A35A;
+}
+.v1 .title-card {
+  position: absolute;
+  top: 64%; left: 0; right: 0;
+  z-index: 50;
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 38px;
+  letter-spacing: 0.02em;
+  color: #FFE494;
+}
+.v1 .title-card .small {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-style: normal;
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  color: rgba(255, 228, 148, 0.6);
+  margin-top: 6px;
+}
+
+/* ─── VARIANT 2 — Eclipse Throne ─── */
+.v2 .moon { top: 18%; left: 50%; transform: translateX(-50%); width: 180px; height: 180px; }
+.v2 .halo { top: 12%; left: 50%; transform: translateX(-50%); width: 280px; height: 280px; opacity: 0.85; }
+.v2 .landscape { bottom: 0; height: 280px; }
+.v2 .landscape img { width: 100%; height: 100%; object-fit: cover; }
+.v2 .frame { display: none; }
+.v2 .roman-side {
+  position: absolute;
+  top: 52%; right: 18px;
+  transform: translateY(-50%);
+  z-index: 50;
+  writing-mode: vertical-rl;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  color: #C9A35A;
+}
+.v2 .title-card {
+  position: absolute;
+  top: 52%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 200;
+  font-size: 30px;
+  letter-spacing: 0.04em;
+  color: #FFE494;
+  text-shadow: 0 4px 18px rgba(0,0,0,0.7);
+}
+
+/* ─── VARIANT 3 — Frame Centerpiece ─── */
+.v3 .moon { top: 26%; left: 50%; transform: translateX(-50%); width: 150px; height: 150px; }
+.v3 .halo { top: 22%; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; opacity: 0.6; }
+.v3 .frame { top: 24%; left: 50%; transform: translateX(-50%); width: 240px; height: 240px; }
+.v3 .landscape { bottom: 0; height: 240px; }
+.v3 .landscape img { width: 100%; height: 100%; object-fit: cover; }
+.v3 .top-mark {
+  position: absolute;
+  top: 60px; left: 0; right: 0;
+  z-index: 50;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  color: #C9A35A;
+}
+.v3 .title-card {
+  position: absolute;
+  top: 65%; left: 0; right: 0;
+  z-index: 50;
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 36px;
+  color: #FFE494;
+}
+
+/* ─── VARIANT 4 — Pyramid Hero ─── */
+.v4 .landscape { bottom: 0; height: 60%; }
+.v4 .landscape img { width: 100%; height: 100%; object-fit: cover; object-position: bottom; }
+.v4 .moon { top: 12%; left: 65%; transform: translateX(-50%); width: 130px; height: 130px; }
+.v4 .halo { top: 8%; left: 65%; transform: translateX(-50%); width: 180px; height: 180px; opacity: 0.7; }
+.v4 .frame {
+  bottom: 60px; left: 22px;
+  width: 90px; height: 90px;
+}
+.v4 .frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* small rounded badge background */
+}
+.v4 .roman-pillar {
+  position: absolute;
+  top: 22%; left: 24px;
+  z-index: 50;
+  writing-mode: vertical-rl;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  color: #FFE494;
+  opacity: 0.8;
+}
+.v4 .title-card {
+  position: absolute;
+  top: 18%; left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 26px;
+  color: #FFE494;
+}
+
+/* ─── VARIANT 5 — Cosmic Layered (parallax preview with tilt animation) ─── */
+.v5 .landscape { bottom: 0; height: 45%; }
+.v5 .landscape img { width: 100%; height: 100%; object-fit: cover; object-position: bottom; }
+.v5 .moon {
+  top: 28%; left: 50%;
+  transform: translateX(-50%);
+  width: 220px; height: 220px;
+  animation: drift-moon 12s ease-in-out infinite;
+}
+.v5 .halo {
+  top: 23%; left: 50%;
+  transform: translateX(-50%);
+  width: 320px; height: 320px;
+  opacity: 0.55;
+  animation: drift-halo 12s ease-in-out infinite;
+}
+.v5 .frame {
+  top: 22%; left: 50%;
+  transform: translateX(-50%);
+  width: 340px; height: 340px;
+  animation: drift-frame 12s ease-in-out infinite;
+}
+@keyframes drift-moon {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-46%) translateY(-4px); }
+}
+@keyframes drift-halo {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.55; }
+  50% { transform: translateX(-50%) scale(1.04); opacity: 0.65; }
+}
+@keyframes drift-frame {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  50% { transform: translateX(-52%) rotate(2deg); }
+}
+.v5 .roman {
+  position: absolute;
+  top: 64px; left: 0; right: 0;
+  z-index: 50;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.6em;
+  color: #FFE494;
+}
+.v5 .title-card {
+  position: absolute;
+  top: 78%; left: 0; right: 0;
+  z-index: 50;
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 200;
+  font-size: 38px;
+  letter-spacing: -0.02em;
+  color: #FFF4D8;
+}
+.v5 .title-card .small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-style: normal;
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  color: rgba(255, 228, 148, 0.7);
+  margin-top: 6px;
+}
+
+/* ─── META ─── */
+.meta {
+  width: 360px;
+  margin-top: 22px;
+  padding: 22px 4px 0;
+  border-top: 1px solid var(--rule);
+  position: relative;
+}
+.meta::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0;
+  width: 32px; height: 1px;
+  background: var(--gold);
+}
+.meta .concept-no {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.meta .concept-name {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.meta .concept-tagline {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+.layer-stack {
+  display: flex;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--gold-bright);
+  letter-spacing: 0.18em;
+  padding: 10px 0;
+  border-top: 1px dashed var(--rule);
+  flex-wrap: wrap;
+}
+.layer-stack span { padding: 3px 6px; background: rgba(201,166,80,0.08); border: 1px solid rgba(201,166,80,0.2); }
+
+footer {
+  position: relative; z-index: 2;
+  border-top: 1px solid var(--rule);
+  padding: 36px 60px 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+footer em {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--text);
+  text-transform: none;
+}
+.note {
+  background: rgba(201,166,80,0.07);
+  border: 1px solid rgba(201,166,80,0.25);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 18px 60px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold-bright);
+  position: relative;
+  z-index: 2;
+}
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="brand-line">
+    <span class="gold">▲ PIXORA · DESIGN ARCHIVE</span>
+    <span>VOL.07 · ENTRY 031 · IAH REAL ASSETS</span>
+  </div>
+  <h1 class="title">Iah · <em>5 Layouts</em><br>con assets reales</h1>
+  <p class="lede">
+    Cinco composiciones distintas usando los <strong>5 assets generados en Gemini</strong> (chroma-keyed, real, no-CSS).
+    Mismo deck, distinto lenguaje espacial. Algunos centran la luna, otros la mueven asimétrica;
+    el <strong>variante 5</strong> incluye animación de drift parallax en CSS para preview de cómo se sentirá con tilt.
+  </p>
+</header>
+
+<div class="note">
+  ⚠️ Las imágenes aún tienen el watermark de Gemini en una esquina. Ignórenlo — se va a quitar en la edición final. Lo importante aquí es ver la composición.
+</div>
+
+<main class="phone-row">
+
+<!-- VARIANT 1 -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen v1">
+      <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+      <div class="layer bg-sky"><img src="concepts/livecalendar/egyptian/bg_sky_lapis.png" alt="bg"></div>
+      <div class="layer landscape"><img src="concepts/livecalendar/egyptian/landscape_giza.png" alt="giza"></div>
+      <div class="layer halo"><img src="concepts/livecalendar/egyptian/halo_gold.png" alt="halo"></div>
+      <div class="layer moon"><img src="concepts/livecalendar/egyptian/moon_d14_full.png" alt="moon"></div>
+      <div class="layer frame"><img src="concepts/livecalendar/egyptian/frame_hieroglyph.png" alt="frame"></div>
+      <div class="roman">XVIII</div>
+      <div class="title-card">La Luna<span class="small">IAH · LUNA LLENA</span></div>
+      <div class="personal">
+        <span class="name">Eduardo · Tauro</span>
+        <span class="meta">CAMINO IX · 528 Hz · 12·VI·26</span>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 01</div>
+    <h3 class="concept-name">Classic Tarot Card</h3>
+    <p class="concept-tagline">Carta tradicional: marco rodea la luna, halo de fondo, paisaje en el tercio inferior. La interpretación más fiel a un deck.</p>
+    <div class="layer-stack"><span>BG</span><span>LANDSCAPE</span><span>HALO</span><span>MOON</span><span>FRAME</span></div>
+  </div>
+</article>
+
+<!-- VARIANT 2 -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen v2">
+      <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+      <div class="layer bg-sky"><img src="concepts/livecalendar/egyptian/bg_sky_lapis.png" alt="bg"></div>
+      <div class="layer landscape"><img src="concepts/livecalendar/egyptian/landscape_giza.png" alt="giza"></div>
+      <div class="layer halo"><img src="concepts/livecalendar/egyptian/halo_gold.png" alt="halo"></div>
+      <div class="layer moon"><img src="concepts/livecalendar/egyptian/moon_d14_full.png" alt="moon"></div>
+      <div class="roman-side">XVIII · IAH</div>
+      <div class="title-card">La Luna</div>
+      <div class="personal">
+        <span class="name">Eduardo · Tauro</span>
+        <span class="meta">CAMINO IX · 528 Hz · 12·VI·26</span>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 02</div>
+    <h3 class="concept-name">Eclipse Throne</h3>
+    <p class="concept-tagline">Sin frame. Halo grande detrás de la luna como aura solar/divina. Pirámides ocupan más espacio para sensación cinematográfica.</p>
+    <div class="layer-stack"><span>BG</span><span>LANDSCAPE</span><span>HALO</span><span>MOON</span></div>
+  </div>
+</article>
+
+<!-- VARIANT 3 -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen v3">
+      <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+      <div class="layer bg-sky"><img src="concepts/livecalendar/egyptian/bg_sky_lapis.png" alt="bg"></div>
+      <div class="layer landscape"><img src="concepts/livecalendar/egyptian/landscape_giza.png" alt="giza"></div>
+      <div class="layer halo"><img src="concepts/livecalendar/egyptian/halo_gold.png" alt="halo"></div>
+      <div class="layer moon"><img src="concepts/livecalendar/egyptian/moon_d14_full.png" alt="moon"></div>
+      <div class="layer frame"><img src="concepts/livecalendar/egyptian/frame_hieroglyph.png" alt="frame"></div>
+      <div class="top-mark">⌑ TZOLKIN · CYCLE 18 ⌑</div>
+      <div class="title-card">La Luna</div>
+      <div class="personal">
+        <span class="name">Eduardo · Tauro</span>
+        <span class="meta">CAMINO IX · 528 Hz · 12·VI·26</span>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 03</div>
+    <h3 class="concept-name">Frame Centerpiece</h3>
+    <p class="concept-tagline">Frame protagonista — luna pequeña dentro del marco como una reliquia preciosa. Halo discreto. Estilo "carta de museo".</p>
+    <div class="layer-stack"><span>BG</span><span>LANDSCAPE</span><span>HALO</span><span>MOON·SM</span><span>FRAME·LG</span></div>
+  </div>
+</article>
+
+<!-- VARIANT 4 -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen v4">
+      <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+      <div class="layer bg-sky"><img src="concepts/livecalendar/egyptian/bg_sky_lapis.png" alt="bg"></div>
+      <div class="layer landscape"><img src="concepts/livecalendar/egyptian/landscape_giza.png" alt="giza"></div>
+      <div class="layer halo"><img src="concepts/livecalendar/egyptian/halo_gold.png" alt="halo"></div>
+      <div class="layer moon"><img src="concepts/livecalendar/egyptian/moon_d14_full.png" alt="moon"></div>
+      <div class="layer frame"><img src="concepts/livecalendar/egyptian/frame_hieroglyph.png" alt="frame"></div>
+      <div class="roman-pillar">12·VI·26 · CICLO XVIII</div>
+      <div class="title-card">Iah</div>
+      <div class="personal">
+        <span class="name">Eduardo · Tauro</span>
+        <span class="meta">CAMINO IX · 528 Hz</span>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 04</div>
+    <h3 class="concept-name">Pyramid Hero</h3>
+    <p class="concept-tagline">El paisaje es protagonista — pirámides ocupan 60% del frame. Luna asimétrica arriba a la derecha como un guardián. Frame pequeño sirve de "sello" en la esquina.</p>
+    <div class="layer-stack"><span>BG</span><span>LANDSCAPE·HERO</span><span>MOON·OFFSET</span><span>FRAME·BADGE</span></div>
+  </div>
+</article>
+
+<!-- VARIANT 5 -->
+<article class="phone-card">
+  <div class="phone">
+    <div class="phone-screen v5">
+      <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+      <div class="layer bg-sky"><img src="concepts/livecalendar/egyptian/bg_sky_lapis.png" alt="bg"></div>
+      <div class="layer landscape"><img src="concepts/livecalendar/egyptian/landscape_giza.png" alt="giza"></div>
+      <div class="layer halo"><img src="concepts/livecalendar/egyptian/halo_gold.png" alt="halo"></div>
+      <div class="layer moon"><img src="concepts/livecalendar/egyptian/moon_d14_full.png" alt="moon"></div>
+      <div class="layer frame"><img src="concepts/livecalendar/egyptian/frame_hieroglyph.png" alt="frame"></div>
+      <div class="roman">XVIII · TRANSIT 384,400 KM</div>
+      <div class="title-card">la luna<span class="small">CUARTO LLENO · 528 Hz</span></div>
+      <div class="personal">
+        <span class="name">Eduardo · Tauro</span>
+        <span class="meta">CAMINO IX · 12·VI·26 · GMT-6</span>
+      </div>
+    </div>
+  </div>
+  <div class="meta">
+    <div class="concept-no">// NO. 05</div>
+    <h3 class="concept-name">Cosmic Parallax (animated)</h3>
+    <p class="concept-tagline">⭐ <strong>Preview con animación CSS de drift parallax</strong> — observa: la luna se mueve sutil, halo respira, frame rota lento. Esto es lo que el motor real va a hacer con el tilt del giroscopio + animación de capa.</p>
+    <div class="layer-stack"><span>BG</span><span>LANDSCAPE</span><span>HALO·breathe</span><span>MOON·drift</span><span>FRAME·rotate</span></div>
+  </div>
+</article>
+
+</main>
+
+<footer>
+  <span>▲ PIXORA STUDIOS · ORBIX</span>
+  <em>cinco lenguajes para una sola luna</em>
+  <span>END · DOC · 031</span>
+</footer>
+
+</body>
+</html>
