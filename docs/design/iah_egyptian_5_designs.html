@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iah Egipcia · 5 diseños</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --lapis: #0a0e3a;
+  --lapis-deep: #060828;
+  --gold: #d4af37;
+  --gold-bright: #f5d676;
+  --gold-dark: #8a6f1d;
+  --sand: #c89860;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: radial-gradient(ellipse at top, #1a1530 0%, #060818 50%);
+  color: #e7e7f0;
+  font-family: 'Cinzel', serif;
+  min-height: 100vh;
+  padding: 32px 16px;
+}
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+header h1 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 36px; letter-spacing: .12em;
+  background: linear-gradient(180deg, #f5d676 0%, #d4af37 50%, #8a6f1d 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 30px rgba(212,175,55,0.4);
+  margin: 0;
+}
+header p {
+  color: #8b8ca3; font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 16px; margin-top: 8px;
+}
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 32px;
+  max-width: 1900px; margin: 0 auto;
+}
+.design-card {
+  background: #0e1233;
+  border: 1px solid #2a2a44;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex; flex-direction: column;
+  align-items: center;
+}
+.design-card .num {
+  font-family: 'Cinzel', serif; font-weight: 700; letter-spacing: .25em;
+  color: #d4af37; font-size: 12px; margin-bottom: 4px;
+}
+.design-card .name {
+  font-family: 'Cinzel Decorative', serif; font-size: 22px;
+  color: #f5d676; margin-bottom: 4px; text-align: center;
+}
+.design-card .tagline {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  color: #aaa; font-size: 14px; text-align: center; margin-bottom: 16px;
+  max-width: 320px;
+}
+.phone {
+  width: 360px; height: 720px;
+  border-radius: 38px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 0 3px #1a1a2a, 0 0 0 5px #2a2a44, 0 24px 48px rgba(0,0,0,0.6);
+  background: var(--lapis);
+}
+.phone .notch {
+  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  width: 100px; height: 18px;
+  background: #000; border-radius: 12px;
+  z-index: 100;
+}
+.phone .status {
+  position: absolute; top: 14px; left: 28px; right: 28px;
+  display: flex; justify-content: space-between;
+  font-family: 'Inter', sans-serif; font-size: 11px; color: rgba(255,255,255,0.95);
+  z-index: 99;
+}
+.phone .status .right { display: flex; gap: 5px; align-items: center; }
+
+/* Common scene container */
+.scene { position: absolute; inset: 0; }
+.bg-lapis {
+  position: absolute; inset: 0;
+  background-image: url('concepts/livecalendar/egyptian/bg_sky_lapis.png');
+  background-size: cover; background-position: center;
+}
+.landscape {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 38%;
+  background-image: url('concepts/livecalendar/egyptian/landscape_giza.png');
+  background-size: cover; background-position: bottom center;
+}
+.halo {
+  position: absolute;
+  background-image: url('concepts/livecalendar/egyptian/halo_gold.png');
+  background-size: contain; background-repeat: no-repeat; background-position: center;
+  pointer-events: none;
+}
+.frame {
+  position: absolute;
+  background-image: url('concepts/livecalendar/egyptian/frame_hieroglyph.png');
+  background-size: contain; background-repeat: no-repeat; background-position: center;
+  pointer-events: none;
+}
+.moon {
+  position: absolute;
+  background-image: url('concepts/livecalendar/egyptian/moon_d14_full.png');
+  background-size: contain; background-repeat: no-repeat; background-position: center;
+  filter: drop-shadow(0 0 20px rgba(212,175,55,0.5));
+}
+
+/* Stars overlay */
+.stars {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 27% 67%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 45% 12%, #fff 50%, transparent),
+    radial-gradient(1.5px 1.5px at 58% 30%, rgba(245,214,118,.9) 50%, transparent),
+    radial-gradient(1px 1px at 71% 35%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 84% 71%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 92% 22%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 8% 92%, #fff 50%, transparent);
+  opacity: 0.6;
+  animation: twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* Personal data overlay common */
+.personal {
+  position: absolute;
+  z-index: 50;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+.personal .greeting {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+}
+.personal .name {
+  font-family: 'Cinzel Decorative', serif;
+  color: #f5d676;
+  letter-spacing: .12em;
+  text-shadow: 0 0 12px rgba(212,175,55,0.6);
+}
+.personal .info {
+  font-family: 'Cinzel', serif;
+  letter-spacing: .15em;
+  font-size: 10px;
+  color: #d4af37;
+  text-transform: uppercase;
+}
+.personal .phase {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 13px;
+  color: #fff;
+}
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* DESIGN 1 — IAH SAGRADA (centered ceremonial) */
+/* ────────────────────────────────────────────────────────────────────────── */
+.d1 .moon  { width: 240px; height: 240px; top: 110px; left: 60px; }
+.d1 .halo  { width: 360px; height: 360px; top: 50px; left: 0; opacity: 0.95; }
+.d1 .personal-block {
+  bottom: 18%; left: 0; right: 0; text-align: center;
+}
+.d1 .greeting { font-size: 13px; }
+.d1 .name { font-size: 26px; margin: 4px 0; }
+.d1 .info { font-size: 10px; margin: 8px 0 6px; }
+.d1 .phase { font-size: 14px; }
+.d1 .deco-glyphs {
+  position: absolute; top: 100px; left: 0; right: 0; text-align: center;
+  font-family: serif; font-size: 24px; color: #d4af37; opacity: 0.5;
+  letter-spacing: .8em;
+}
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* DESIGN 2 — IAH HIEROGLIFO (frame-dominant ornate) */
+/* ────────────────────────────────────────────────────────────────────────── */
+.d2 .frame { width: 320px; height: 320px; top: 80px; left: 20px; opacity: 0.95; z-index: 30; }
+.d2 .moon  { width: 200px; height: 200px; top: 140px; left: 80px; z-index: 25; }
+.d2 .halo  { width: 280px; height: 280px; top: 100px; left: 40px; opacity: 0.6; z-index: 20; }
+.d2 .personal-block {
+  bottom: 14%; left: 0; right: 0; text-align: center;
+}
+.d2 .greeting { font-size: 13px; color: #c89860; }
+.d2 .name { font-size: 24px; margin: 4px 0; letter-spacing: .18em; }
+.d2 .phase {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12px; margin-top: 6px;
+}
+.d2 .info { font-size: 9px; margin-top: 8px; }
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* DESIGN 3 — IAH MINIMAL (wabi-sabi small moon, vast sky) */
+/* ────────────────────────────────────────────────────────────────────────── */
+.d3 .moon  { width: 110px; height: 110px; top: 90px; right: 50px; left: auto; }
+.d3 .halo  { display: none; }
+.d3 .personal-block {
+  position: absolute; top: 240px; left: 28px; right: 28px;
+}
+.d3 .greeting { font-size: 16px; font-family: 'Cormorant Garamond', serif; }
+.d3 .name { font-size: 32px; margin: 4px 0 0; letter-spacing: .08em; }
+.d3 .info { font-size: 10px; margin-top: 14px; opacity: 0.85; }
+.d3 .phase {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 22px; margin-top: 6px;
+  color: #f5d676;
+}
+.d3 .frequency {
+  position: absolute; bottom: 50%; left: 28px;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: .25em;
+  color: #d4af37; opacity: 0.7;
+}
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* DESIGN 4 — IAH COSMICA (Saint Seiya-style explosion) */
+/* ────────────────────────────────────────────────────────────────────────── */
+.d4 .moon  { width: 280px; height: 280px; top: 90px; left: 40px; filter: drop-shadow(0 0 40px rgba(245,214,118,0.8)); }
+.d4 .halo  { width: 450px; height: 450px; top: 5px; left: -45px; opacity: 1; }
+.d4::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(245,214,118,0.25) 0%, transparent 50%),
+    conic-gradient(from 90deg at 50% 35%, transparent 0deg, rgba(245,214,118,0.05) 45deg, transparent 90deg, rgba(245,214,118,0.05) 135deg, transparent 180deg, rgba(245,214,118,0.05) 225deg, transparent 270deg, rgba(245,214,118,0.05) 315deg, transparent 360deg);
+  z-index: 30;
+  pointer-events: none;
+}
+.d4 .personal-block {
+  bottom: 24%; left: 0; right: 0; text-align: center;
+  z-index: 40;
+}
+.d4 .greeting { font-size: 12px; color: #f5d676; letter-spacing: .2em; text-transform: uppercase; }
+.d4 .name { font-size: 28px; margin: 6px 0; }
+.d4 .phase {
+  font-size: 11px; letter-spacing: .25em; text-transform: uppercase;
+  color: #d4af37; margin-top: 4px;
+}
+.d4 .info {
+  font-size: 9px; margin-top: 10px; letter-spacing: .2em;
+  color: #fff; opacity: 0.7;
+}
+.d4 .energy-rays {
+  position: absolute; top: 200px; left: 0; right: 0; text-align: center;
+  font-family: serif; font-size: 18px; color: #f5d676;
+  letter-spacing: .5em; opacity: 0.6; z-index: 35;
+}
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* DESIGN 5 — IAH PAPYRUS (warm amber tarot card) */
+/* ────────────────────────────────────────────────────────────────────────── */
+.d5 .scene {
+  background:
+    radial-gradient(ellipse at top, #2a1810 0%, #0d0905 60%),
+    repeating-linear-gradient(45deg, transparent 0, transparent 6px, rgba(212,175,55,0.04) 6px, rgba(212,175,55,0.04) 7px);
+}
+.d5 .bg-lapis { display: none; }
+.d5 .moon  { width: 220px; height: 220px; top: 120px; left: 70px; filter: sepia(0.4) drop-shadow(0 0 25px rgba(245,214,118,0.6)); }
+.d5 .halo  { width: 320px; height: 320px; top: 70px; left: 20px; filter: hue-rotate(-5deg); }
+.d5 .landscape {
+  filter: sepia(0.6) brightness(0.7);
+  height: 30%;
+}
+.d5 .frame {
+  width: 100%; height: 100%; top: 0; left: 0;
+  opacity: 0.4; transform: scale(1.1);
+  z-index: 60;
+}
+.d5 .personal-block {
+  bottom: 12%; left: 0; right: 0; text-align: center;
+  z-index: 70;
+}
+.d5 .greeting {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 13px; color: #c89860;
+}
+.d5 .name {
+  font-size: 24px; margin: 4px 0; color: #f5d676;
+  text-shadow: 0 0 14px rgba(245,214,118,0.5);
+}
+.d5 .phase {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 14px; color: #d4af37; margin-top: 4px;
+}
+.d5 .info {
+  font-size: 9px; color: #c89860; margin-top: 8px;
+}
+.d5 .top-glyph {
+  position: absolute; top: 50px; left: 0; right: 0; text-align: center;
+  font-family: 'Noto Serif JP', serif; font-size: 28px; color: #d4af37;
+  letter-spacing: .3em; opacity: 0.7; z-index: 65;
+}
+
+/* Phase selector at the bottom */
+.phase-selector {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  margin-top: 16px;
+}
+.phase-btn {
+  background: #1a1a2a; color: #d4af37;
+  border: 1px solid #8a6f1d; border-radius: 4px;
+  padding: 6px 10px; font-family: 'Cinzel', serif;
+  font-size: 10px; cursor: pointer;
+  letter-spacing: .1em;
+  transition: all .2s;
+}
+.phase-btn:hover, .phase-btn.active {
+  background: #d4af37; color: #060818;
+  box-shadow: 0 0 12px rgba(212,175,55,0.5);
+}
+
+footer {
+  text-align: center; margin-top: 48px;
+  color: #5a5b75; font-family: 'Cinzel', serif; font-size: 11px;
+  letter-spacing: .25em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Iah Egipcia · 5 Diseños</h1>
+  <p>Datos demo: Eduardo · Tauro ♉ · Cuarto Creciente 38% · 12 de junio 2026 · 528 Hz</p>
+  <p style="margin-top:4px; font-size:13px; color:#d4af37;">Click los botones de fase abajo para alternar la luna en TODOS los diseños</p>
+</header>
+
+<div class="phase-selector">
+  <button class="phase-btn" data-moon="moon_d00_new">🌑 Nueva</button>
+  <button class="phase-btn" data-moon="moon_d04_waxing_crescent">🌒 Creciente 13%</button>
+  <button class="phase-btn active" data-moon="moon_d07_first_quarter">🌓 Cuarto Creciente</button>
+  <button class="phase-btn" data-moon="moon_d11_waxing_gibbous">🌔 Gibosa Creciente</button>
+  <button class="phase-btn" data-moon="moon_d14_full">🌕 Llena</button>
+  <button class="phase-btn" data-moon="moon_d14_full_v2">🌕 Llena v2</button>
+  <button class="phase-btn" data-moon="moon_d18_waning_gibbous">🌖 Gibosa Menguante</button>
+  <button class="phase-btn" data-moon="moon_d22_last_quarter">🌗 Cuarto Menguante</button>
+  <button class="phase-btn" data-moon="moon_d26_waning_crescent">🌘 Menguante 13%</button>
+</div>
+
+<div class="gallery" style="margin-top:32px;">
+
+  <!-- DESIGN 1 -->
+  <div class="design-card">
+    <div class="num">// NO. 01</div>
+    <div class="name">Iah Sagrada</div>
+    <div class="tagline">Centrada y ceremonial. Halo dorado abraza la luna, glifos arriba, datos abajo en tarjeta clásica.</div>
+    <div class="phone d1">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span class="right">📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="deco-glyphs">𓋹 𓂀 𓆣 𓉶</div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="landscape"></div>
+      </div>
+      <div class="personal personal-block">
+        <div class="greeting">Salve,</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">Cuarto Creciente · 38%</div>
+        <div class="info">Tauro ♉ · 12 Jun 2026 · 528 Hz</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 2 -->
+  <div class="design-card">
+    <div class="num">// NO. 02</div>
+    <div class="name">Iah Hieroglifo</div>
+    <div class="tagline">El frame de jeroglíficos enmarca la luna como ojo de Horus. Recargada, mística, ornamental.</div>
+    <div class="phone d2">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span class="right">📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="frame"></div>
+        <div class="landscape"></div>
+      </div>
+      <div class="personal personal-block">
+        <div class="greeting">𓂀 Salve 𓂀</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">月 Cuarto Creciente</div>
+        <div class="info">TAURO · 528 HZ · 12·06·2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 3 -->
+  <div class="design-card">
+    <div class="num">// NO. 03</div>
+    <div class="name">Iah Minimal</div>
+    <div class="tagline">Wabi-sabi. Luna chica arriba a la derecha, mucho cielo vacío. Tipografía Cormorant editorial.</div>
+    <div class="phone d3">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span class="right">📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="moon"></div>
+        <div class="landscape"></div>
+      </div>
+      <div class="personal frequency">528 Hz · Tauro</div>
+      <div class="personal personal-block">
+        <div class="greeting">— Para</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">cuarto creciente</div>
+        <div class="info">12 · jun · 2026 · 38% iluminada</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 4 -->
+  <div class="design-card">
+    <div class="num">// NO. 04</div>
+    <div class="name">Iah Cósmica</div>
+    <div class="tagline">Saint Seiya estilo. Luna gigante con explosión de cosmo dorado. Épica, dramática.</div>
+    <div class="phone d4">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span class="right">📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="energy-rays">✦ ✧ ✦ ✧ ✦</div>
+        <div class="landscape"></div>
+      </div>
+      <div class="personal personal-block">
+        <div class="greeting">CABALLERO</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">CUARTO CRECIENTE</div>
+        <div class="info">♉ TAURO · 528 HZ · LUNA EN 8 DÍAS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 5 -->
+  <div class="design-card">
+    <div class="num">// NO. 05</div>
+    <div class="name">Iah Papyrus</div>
+    <div class="tagline">Pergamino antiguo. Tonos sepia + ámbar, hieroglifos al fondo, luna como sello del faraón.</div>
+    <div class="phone d5">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span class="right">📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="frame"></div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="landscape"></div>
+        <div class="top-glyph">𓁹 𓊃 𓏘</div>
+      </div>
+      <div class="personal personal-block">
+        <div class="greeting">— Lectura para —</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">Cuarto Creciente</div>
+        <div class="info">TAURO ♉ · 528 HZ · 12 JUN 2026</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Pixora · LiveCalendar · Iah Egyptian Sprint 2 · 8 fases listas · 5 diseños propuestos
+</footer>
+
+<script>
+// Phase selector
+document.querySelectorAll('.phase-btn').forEach(btn => {
+  btn.onclick = () => {
+    const moon = btn.dataset.moon;
+    document.querySelectorAll('.phase-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.moon').forEach(m => {
+      m.style.backgroundImage = `url('concepts/livecalendar/egyptian/${moon}.png')`;
+    });
+  };
+});
+</script>
+
+</body>
+</html>

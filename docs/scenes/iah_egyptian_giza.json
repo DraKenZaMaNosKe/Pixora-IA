@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "iah_egyptian_giza",
+  "type": "canvas_scene",
+  "title": {
+    "en": "Iah · Egyptian Moon Goddess",
+    "es": "Iah · Diosa Lunar Egipcia"
+  },
+
+  "background": {
+    "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_iah_egyptian_giza.webp",
+    "scroll": false
+  },
+
+  "particles": [
+    {
+      "kind": "motes",
+      "params": {
+        "count": 36,
+        "drift": 0.25,
+        "vy_min": -0.45,
+        "vy_max": -0.15,
+        "color": "#FFD68850",
+        "max_alpha": 180
+      }
+    },
+    {
+      "kind": "wisps",
+      "params": {
+        "anchors": [[0.20, 0.85], [0.50, 0.92], [0.80, 0.86]],
+        "color": "#FFD4AF3760",
+        "radius": 0.014,
+        "wobble_amplitude": 6.0
+      }
+    }
+  ],
+
+  "events": [
+    {
+      "kind": "lightning_procedural",
+      "interval_s": 90,
+      "duration_s": 1,
+      "params": {}
+    }
+  ]
+}
