@@ -88,7 +88,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     }
     // Route through AdService — alternates ad/no-ad, awards credits on
     // dismissal, and is the single point that respects active subscriptions.
-    AdService.instance.showInterstitialAd(onAdDismissed: () {
+    AdService.instance.showInterstitialAd(placement: 'ringtone_play', onAdDismissed: () {
       if (mounted) _doSetAs(tone, type);
     });
   }

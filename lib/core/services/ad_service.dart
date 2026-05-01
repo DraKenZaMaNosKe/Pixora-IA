@@ -1,12 +1,24 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'credit_service.dart';
 
+/// Centralised interstitial ad service with revenue analytics.
+///
+/// Every ad attempt (success OR failure) is logged to `ad_events` via
+/// the `wp_log_ad_event` RPC. The admin dashboard reads from this table
+/// to compute USD revenue estimates and per-user/per-placement breakdowns.
 class AdService {
   AdService._();
   static final instance = AdService._();
 
   static const _interstitialAdUnitId = 'ca-app-pub-6734758230109098/6687118537';
+  static const _appVersion = '1.6.3';
+
+  /// DEBUG: when true, ads are bypassed but events are still logged with
+  /// `metadata.debug_mode = true` so the dashboard reflects activity in dev.
+  static const _debugDisableAds = true;
 
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;
@@ -48,7 +60,6 @@ class AdService {
           _isAdLoaded = false;
           _isAdLoading = false;
           debugPrint('[Pixora] Interstitial ad failed: ${error.message}');
-          // Retry after 10 seconds
           Future.delayed(
               const Duration(seconds: 10), () => loadInterstitialAd());
         },
@@ -56,37 +67,74 @@ class AdService {
     );
   }
 
-  /// DEBUG: set to true to disable ads during testing.
-  static const _debugDisableAds = true;
-
   /// Show interstitial ad on alternating actions (1st yes, 2nd no, 3rd yes…).
   /// Awards credits when an ad is actually shown and watched.
-  void showInterstitialAd({required VoidCallback onAdDismissed}) {
-    if (_debugDisableAds) {
-      onAdDismissed();
-      return;
-    }
+  ///
+  /// [placement]   — where in the app this ad was triggered
+  ///                 (e.g. 'wallpaper_apply','aura_play','ringtones').
+  /// [wallpaperId] — optional wallpaper context for per-wallpaper revenue attribution.
+  void showInterstitialAd({
+    required VoidCallback onAdDismissed,
+    String? placement,
+    String? wallpaperId,
+  }) {
     _actionCount++;
     final shouldShow = _actionCount.isOdd;
 
-    if (!shouldShow) {
+    // ─── Debug bypass ────────────────────────────────────────────────────────
+    if (_debugDisableAds) {
+      _logAd(
+        adKind: 'interstitial',
+        placement: placement,
+        wallpaperId: wallpaperId,
+        shown: false,
+        metadata: {'debug_mode': true, 'reason': 'debug_disabled'},
+      );
       onAdDismissed();
       return;
     }
 
+    // ─── Even action → skip (alternating) ────────────────────────────────────
+    if (!shouldShow) {
+      _logAd(
+        adKind: 'interstitial',
+        placement: placement,
+        wallpaperId: wallpaperId,
+        shown: false,
+        metadata: {'reason': 'alternating_skip'},
+      );
+      onAdDismissed();
+      return;
+    }
+
+    // ─── Odd action but ad not preloaded → skip ──────────────────────────────
     if (_interstitialAd == null || !_isAdLoaded) {
+      _logAd(
+        adKind: 'interstitial',
+        placement: placement,
+        wallpaperId: wallpaperId,
+        shown: false,
+        metadata: {'reason': 'not_loaded'},
+      );
       onAdDismissed();
       loadInterstitialAd();
       return;
     }
 
+    // ─── Show the ad ─────────────────────────────────────────────────────────
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
         ad.dispose();
         _interstitialAd = null;
         _isAdLoaded = false;
         loadInterstitialAd();
-        // Award credits for watching the ad
+        // Log SHOWN: this is the revenue event.
+        _logAd(
+          adKind: 'interstitial',
+          placement: placement,
+          wallpaperId: wallpaperId,
+          shown: true,
+        );
         CreditService.instance.earnFromAd();
         onAdDismissed();
       },
@@ -95,10 +143,48 @@ class AdService {
         _interstitialAd = null;
         _isAdLoaded = false;
         loadInterstitialAd();
+        _logAd(
+          adKind: 'interstitial',
+          placement: placement,
+          wallpaperId: wallpaperId,
+          shown: false,
+          metadata: {'reason': 'show_failed', 'error': error.message},
+        );
         onAdDismissed();
       },
     );
 
     _interstitialAd!.show();
+  }
+
+  /// Log a single ad event via the wp_log_ad_event RPC.
+  /// Fire-and-forget — failures don't block the user flow.
+  Future<void> _logAd({
+    required String adKind,
+    String? placement,
+    String? wallpaperId,
+    required bool shown,
+    bool rewarded = false,
+    Map<String, dynamic>? metadata,
+  }) async {
+    try {
+      final box = Hive.isBoxOpen('wallpaper_likes')
+          ? Hive.box('wallpaper_likes')
+          : await Hive.openBox('wallpaper_likes');
+      final deviceId = box.get('device_id') as String? ?? 'unknown';
+      await Supabase.instance.client.rpc('wp_log_ad_event', params: {
+        'p_device_id': deviceId,
+        'p_ad_kind': adKind,
+        'p_placement': placement,
+        'p_unit_id': _interstitialAdUnitId,
+        'p_wallpaper_id': wallpaperId,
+        'p_shown': shown,
+        'p_rewarded': rewarded,
+        'p_app_version': _appVersion,
+        if (metadata != null) 'p_metadata': metadata,
+      });
+    } catch (e) {
+      debugPrint('[Pixora] wp_log_ad_event failed: $e');
+    }
   }
 }

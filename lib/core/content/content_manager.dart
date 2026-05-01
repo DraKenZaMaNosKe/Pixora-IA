@@ -132,6 +132,8 @@ class ContentManager {
     final success = await install(path, item, target);
 
     if (success) {
+      // Track the install event AFTER native call succeeded.
+      WallpaperStatsService.instance.trackInstall(item.id);
       onPhase?.call('done');
     } else {
       onError?.call('Installation failed');
@@ -152,6 +154,8 @@ class ContentManager {
     final completer = _AdCompleter();
 
     AdService.instance.showInterstitialAd(
+      placement: 'wallpaper_apply',
+      wallpaperId: item.id,
       onAdDismissed: () async {
         final success = await downloadAndInstall(
           item: item,

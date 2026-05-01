@@ -2,10 +2,20 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import '../constants/supabase_config.dart';
 import '../../features/wallpapers/data/models/wallpaper.dart';
 
+/// Catalog service — reads wallpapers from Postgres `wallpapers_v` view.
+///
+/// Loading order on each `fetchCatalog()`:
+///   1. In-memory cache (if fresh, < 6h)
+///   2. Postgres via Supabase client (preferred — indexed, server-side filters)
+///   3. Local file cache (`catalog_cache.json`)
+///   4. Legacy `catalog.json` HTTP fallback (last resort, kept as safety net)
+///
+/// The third and fourth paths only run when Supabase is unreachable.
 class CatalogService {
   CatalogService._();
   static final instance = CatalogService._();
@@ -14,12 +24,10 @@ class CatalogService {
   List<Wallpaper> _wallpapers = [];
   DateTime? _lastFetch;
 
-  // Prevent concurrent fetches — dedup simultaneous requests
   Future<List<Wallpaper>>? _activeFetch;
 
   List<Wallpaper> get wallpapers => _wallpapers;
 
-  /// Clears in-memory cache so next fetchCatalog() hits the network
   void clearCache() {
     _wallpapers = [];
     _lastFetch = null;
@@ -27,16 +35,14 @@ class CatalogService {
 
   bool get _isCacheValid =>
       _lastFetch != null &&
-      DateTime.now().difference(_lastFetch!) < const Duration(hours: _cacheHours);
+      DateTime.now().difference(_lastFetch!) <
+          const Duration(hours: _cacheHours);
 
   Future<List<Wallpaper>> fetchCatalog({bool forceRefresh = false}) async {
     if (_wallpapers.isNotEmpty && _isCacheValid && !forceRefresh) {
       return _wallpapers;
     }
-
-    // Dedup: if a fetch is already in-flight, await it instead of starting another
     if (_activeFetch != null) return _activeFetch!;
-
     _activeFetch = _doFetch();
     try {
       return await _activeFetch!;
@@ -46,52 +52,97 @@ class CatalogService {
   }
 
   Future<List<Wallpaper>> _doFetch() async {
-    try {
-      // Try loading from network
-      final url = SupabaseConfig.catalogUrl();
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Cache-Control': 'no-cache'},
-      ).timeout(const Duration(seconds: 15));
+    // 1) Try Postgres first — indexed reads
+    final fromSupabase = await _fetchFromSupabase();
+    if (fromSupabase != null && fromSupabase.isNotEmpty) {
+      _wallpapers = fromSupabase;
+      _lastFetch = DateTime.now();
+      await _saveToCache(_wallpapers);
+      debugPrint(
+          '[Pixora] Catalog loaded from Postgres: ${_wallpapers.length}');
+      return _wallpapers;
+    }
 
+    // 2) Try the legacy JSON in Storage (in case Postgres is offline)
+    final fromJson = await _fetchFromJson();
+    if (fromJson != null && fromJson.isNotEmpty) {
+      _wallpapers = fromJson;
+      _lastFetch = DateTime.now();
+      debugPrint(
+          '[Pixora] Catalog loaded from legacy JSON: ${_wallpapers.length}');
+      return _wallpapers;
+    }
+
+    // 3) Fallback to local cache
+    final cached = await _loadFromCache();
+    if (cached != null && cached.isNotEmpty) {
+      _wallpapers = cached;
+      debugPrint(
+          '[Pixora] Catalog loaded from local cache: ${_wallpapers.length}');
+    }
+    return _wallpapers;
+  }
+
+  /// Read from `wallpapers_v` view via Supabase client. Returns null on error.
+  Future<List<Wallpaper>?> _fetchFromSupabase() async {
+    try {
+      final client = Supabase.instance.client;
+      final rows = await client
+          .from('wallpapers_v')
+          .select()
+          .order('sort_order', ascending: true)
+          .timeout(const Duration(seconds: 12));
+      final list = (rows as List)
+          .map((r) => Wallpaper.fromSupabase(r as Map<String, dynamic>))
+          .toList();
+      return list;
+    } catch (e) {
+      debugPrint('[Pixora] Supabase catalog fetch failed: $e');
+      return null;
+    }
+  }
+
+  /// Legacy fallback: read the old catalog.json from storage.
+  Future<List<Wallpaper>?> _fetchFromJson() async {
+    try {
+      final url = SupabaseConfig.catalogUrl();
+      final response = await http.get(Uri.parse(url), headers: {
+        'Cache-Control': 'no-cache'
+      }).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         final body = utf8.decode(response.bodyBytes);
         final json = jsonDecode(body) as Map<String, dynamic>;
         final list = (json['wallpapers'] as List<dynamic>?) ?? [];
-        _wallpapers = list
+        final parsed = list
             .map((e) => Wallpaper.fromJson(e as Map<String, dynamic>))
             .toList();
-        _wallpapers.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-        _lastFetch = DateTime.now();
-
-        // Save to local cache
-        await _saveToCache(body);
-
-        debugPrint('[Pixora] Catalog loaded: ${_wallpapers.length} wallpapers');
-        return _wallpapers;
+        parsed.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+        // Persist as cache so future cold-starts have something
+        await _saveToCacheRaw(body);
+        return parsed;
       }
     } catch (e) {
-      debugPrint('[Pixora] Network fetch failed: $e');
+      debugPrint('[Pixora] Legacy JSON fetch failed: $e');
     }
-
-    // Fallback to local cache
-    final cached = await _loadFromCache();
-    if (cached != null) {
-      _wallpapers = cached;
-      debugPrint('[Pixora] Loaded ${_wallpapers.length} wallpapers from cache');
-    }
-
-    return _wallpapers;
+    return null;
   }
 
-  Future<void> _saveToCache(String json) async {
+  Future<void> _saveToCache(List<Wallpaper> list) async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/catalog_cache.json');
-      await file.writeAsString(json);
+      final body = jsonEncode({
+        'wallpapers': list.map((w) => w.toJson()).toList(),
+        'cachedAt': DateTime.now().toIso8601String(),
+      });
+      await _saveToCacheRaw(body);
     } catch (e) {
       debugPrint('[Pixora] Cache write error: $e');
     }
+  }
+
+  Future<void> _saveToCacheRaw(String json) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/catalog_cache.json');
+    await file.writeAsString(json);
   }
 
   Future<List<Wallpaper>?> _loadFromCache() async {
@@ -99,7 +150,8 @@ class CatalogService {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/catalog_cache.json');
       if (await file.exists()) {
-        final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+        final json =
+            jsonDecode(await file.readAsString()) as Map<String, dynamic>;
         final list = json['wallpapers'] as List<dynamic>;
         final wallpapers = list
             .map((e) => Wallpaper.fromJson(e as Map<String, dynamic>))

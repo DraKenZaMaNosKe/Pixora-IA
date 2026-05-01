@@ -247,6 +247,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       return;
     }
     AdService.instance.showInterstitialAd(
+      placement: 'wallpaper_apply',
       onAdDismissed: () {
         if (!mounted) return;
         _showApplyOptions();

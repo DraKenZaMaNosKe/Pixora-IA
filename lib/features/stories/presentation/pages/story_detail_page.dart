@@ -40,7 +40,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
 
   Future<void> _startStory() async {
     // Show alternating ad (awards credits), then start
-    AdService.instance.showInterstitialAd(onAdDismissed: () {
+    AdService.instance.showInterstitialAd(placement: 'story_apply', onAdDismissed: () {
       if (mounted) _doStartStory();
     });
   }

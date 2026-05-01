@@ -134,7 +134,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 
     // Route through AdService — alternates ad/no-ad, awards credits on
     // dismissal, and is the single point that respects active subscriptions.
-    AdService.instance.showInterstitialAd(onAdDismissed: () {
+    AdService.instance.showInterstitialAd(placement: 'ringtone_save', onAdDismissed: () {
       if (mounted) _doSetAs(tone, type);
     });
   }

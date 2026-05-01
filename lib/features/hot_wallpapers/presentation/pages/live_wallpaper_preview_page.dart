@@ -71,7 +71,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
 
   Future<void> _applyLiveWallpaper() async {
     // Show alternating ad (awards credits), then proceed
-    AdService.instance.showInterstitialAd(onAdDismissed: () {
+    AdService.instance.showInterstitialAd(placement: 'live_wallpaper_apply', onAdDismissed: () {
       if (mounted) _doApplyLiveWallpaper();
     });
   }
@@ -147,6 +147,9 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         w.glowColor,
         interactive: true,
       );
+      // Track install to wallpaper_events
+      WallpaperStatsService.instance
+          .trackInstall('live_${widget.wallpaper.id}');
 
       if (mounted) {
         setState(() {
@@ -471,12 +474,13 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 8, vertical: 3),
                                         decoration: BoxDecoration(
-                                          color: _glowColor.withValues(alpha: 0.15),
+                                          color: _glowColor.withValues(
+                                              alpha: 0.15),
                                           borderRadius:
                                               BorderRadius.circular(8),
                                           border: Border.all(
-                                              color:
-                                                  _glowColor.withValues(alpha: 0.3)),
+                                              color: _glowColor.withValues(
+                                                  alpha: 0.3)),
                                         ),
                                         child: Text(
                                           tag,

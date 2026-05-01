@@ -291,6 +291,7 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                               : 'Downloading audio...';
                         });
                         AdService.instance.showInterstitialAd(
+                            placement: 'aura_save',
                             onAdDismissed: () async {
                           WallpaperStatsService.instance
                               .trackDownload('aura_${t.id}');

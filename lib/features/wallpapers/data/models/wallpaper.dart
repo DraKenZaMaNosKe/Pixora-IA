@@ -71,6 +71,33 @@ class Wallpaper {
     );
   }
 
+  /// Factory for Postgres `wallpapers_v` view rows (snake_case columns).
+  /// Maps the new schema to the existing field names so the rest of the app
+  /// doesn't need to change.
+  factory Wallpaper.fromSupabase(Map<String, dynamic> row) {
+    return Wallpaper(
+      id: row['id'] as String,
+      name: row['name'] as String,
+      description: row['description'] as String? ?? '',
+      imageFile: row['image_path'] as String? ?? '',
+      previewFile: row['preview_path'] as String? ?? '',
+      imageSize: (row['image_size'] as num?)?.toInt() ?? 0,
+      previewSize: (row['preview_size'] as num?)?.toInt() ?? 0,
+      glowColor: row['glow_color'] as String? ?? '#FFFFFF',
+      category: row['category'] as String? ?? 'MISC',
+      badge: row['badge'] as String?,
+      sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+      featured: row['featured'] as bool? ?? false,
+      tags:
+          (row['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+              const [],
+      downloadCount: (row['install_count'] as num?)?.toInt() ?? 0,
+      createdAt: row['created_at'] != null
+          ? DateTime.tryParse(row['created_at'] as String)
+          : null,
+    );
+  }
+
   /// Is this wallpaper "new" (added within last 14 days)?
   bool get isNew {
     if (createdAt == null) return badge == 'NEW';

@@ -69,7 +69,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
     });
 
     // Show alternating ad (awards credits), then activate
-    AdService.instance.showInterstitialAd(onAdDismissed: () {
+    AdService.instance.showInterstitialAd(placement: 'day_cycle_apply', onAdDismissed: () {
       if (mounted) _doActivate();
     });
   }

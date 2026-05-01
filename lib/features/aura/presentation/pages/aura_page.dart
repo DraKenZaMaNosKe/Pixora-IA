@@ -23,7 +23,7 @@ class _AuraPageState extends ConsumerState<AuraPage> {
   void _openTrack(AuraTrack track) {
     if (_isOpening) return; // Guard: prevent spam taps
     _isOpening = true;
-    AdService.instance.showInterstitialAd(onAdDismissed: () async {
+    AdService.instance.showInterstitialAd(placement: 'aura_track_play', onAdDismissed: () async {
       await AuraPlayerService.instance.play(track);
       if (!mounted) {
         _isOpening = false;

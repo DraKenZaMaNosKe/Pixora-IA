@@ -14,8 +14,10 @@ class WallpaperStatsService {
   final Map<String, Map<String, int>> _cache = {};
 
   // Stream controllers for real-time updates
-  final _statsController = StreamController<Map<String, Map<String, int>>>.broadcast();
-  Stream<Map<String, Map<String, int>>> get statsStream => _statsController.stream;
+  final _statsController =
+      StreamController<Map<String, Map<String, int>>>.broadcast();
+  Stream<Map<String, Map<String, int>>> get statsStream =>
+      _statsController.stream;
 
   RealtimeChannel? _channel;
   Box? _likesBox;
@@ -115,7 +117,8 @@ class WallpaperStatsService {
       // Unlike
       await _likesBox?.put('liked_$wallpaperId', false);
       try {
-        await _client.rpc('decrement_likes', params: {'p_wallpaper_id': wallpaperId});
+        await _client
+            .rpc('decrement_likes', params: {'p_wallpaper_id': wallpaperId});
         await _client
             .from('wallpaper_likes')
             .delete()
@@ -135,7 +138,8 @@ class WallpaperStatsService {
       // Like
       await _likesBox?.put('liked_$wallpaperId', true);
       try {
-        await _client.rpc('increment_likes', params: {'p_wallpaper_id': wallpaperId});
+        await _client
+            .rpc('increment_likes', params: {'p_wallpaper_id': wallpaperId});
         await _client.from('wallpaper_likes').upsert({
           'device_id': _deviceId,
           'wallpaper_id': wallpaperId,
@@ -153,12 +157,33 @@ class WallpaperStatsService {
     }
   }
 
+  /// Log a granular event to wallpaper_events + bump cached counter.
+  /// Single entry point for view/install/share/download/favorite/etc.
+  Future<void> _logEvent(String wallpaperId, String eventType,
+      {Map<String, dynamic>? metadata}) async {
+    try {
+      await _client.rpc('wp_log_event', params: {
+        'p_wallpaper_id': wallpaperId,
+        'p_event_type': eventType,
+        'p_device_id': _deviceId,
+        'p_app_version': '1.6.3',
+        if (metadata != null) 'p_metadata': metadata,
+      });
+    } catch (e) {
+      debugPrint('[Pixora] wp_log_event($eventType) failed: $e');
+    }
+  }
+
   /// Increment download count.
   Future<void> trackDownload(String wallpaperId) async {
+    // New analytics path
+    await _logEvent(wallpaperId, 'download');
+    // Legacy stats table (kept until migration is fully consolidated)
     try {
-      await _client.rpc('increment_downloads', params: {'p_wallpaper_id': wallpaperId});
+      await _client
+          .rpc('increment_downloads', params: {'p_wallpaper_id': wallpaperId});
     } catch (e) {
-      debugPrint('[Pixora] Track download failed: $e');
+      debugPrint('[Pixora] Track download (legacy) failed: $e');
     }
     final s = _cache[wallpaperId] ?? {'likes': 0, 'downloads': 0, 'views': 0};
     s['downloads'] = ((s['downloads'] ?? 0) + 1);
@@ -168,15 +193,27 @@ class WallpaperStatsService {
 
   /// Increment view count.
   Future<void> trackView(String wallpaperId) async {
+    await _logEvent(wallpaperId, 'view');
     try {
-      await _client.rpc('increment_views', params: {'p_wallpaper_id': wallpaperId});
+      await _client
+          .rpc('increment_views', params: {'p_wallpaper_id': wallpaperId});
     } catch (e) {
-      debugPrint('[Pixora] Track view failed: $e');
+      debugPrint('[Pixora] Track view (legacy) failed: $e');
     }
     final s = _cache[wallpaperId] ?? {'likes': 0, 'downloads': 0, 'views': 0};
     s['views'] = ((s['views'] ?? 0) + 1);
     _cache[wallpaperId] = s;
     _statsController.add(Map.from(_cache));
+  }
+
+  /// Track when a wallpaper is actually applied to the home screen.
+  Future<void> trackInstall(String wallpaperId) async {
+    await _logEvent(wallpaperId, 'install');
+  }
+
+  /// Track when a user shares a wallpaper.
+  Future<void> trackShare(String wallpaperId) async {
+    await _logEvent(wallpaperId, 'share');
   }
 
   /// Format number: 1500 -> "1.5K"

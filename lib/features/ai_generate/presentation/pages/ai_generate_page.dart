@@ -371,7 +371,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   Future<void> _onWallpaper() async {
     // Route through AdService — alternates ad/no-ad, awards credits on
     // dismissal, and is the single point that respects active subscriptions.
-    AdService.instance.showInterstitialAd(onAdDismissed: () {
+    AdService.instance.showInterstitialAd(placement: 'ai_generate', onAdDismissed: () {
       if (mounted) _doApplyWallpaper();
     });
   }
