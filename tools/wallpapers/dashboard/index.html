@@ -1,0 +1,1642 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pixora · Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+ *  PIXORA · SANTUARIO — Saint Seiya themed admin sanctuary
+ *  paleta: cosmos profundo + oro de armadura + chispas estelares
+ * ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Cosmos */
+  --cosmos-deep: #060818;        /* universo profundo */
+  --cosmos-mid:  #0e1233;        /* noche zodiacal */
+  --cosmos-fog:  #161b3e;        /* niebla cósmica */
+  --cosmos-card: #131736;        /* carta del santuario */
+  --cosmos-elev: #1c2150;        /* templo elevado */
+  --cosmos-line: #2d3470;        /* línea constelacional */
+
+  /* Oro de armadura sagrada */
+  --gold-saint:    #d4af37;      /* oro Athena */
+  --gold-bright:   #f5d676;      /* energía dorada */
+  --gold-dark:     #8a6f1d;      /* oro oxidado */
+  --gold-glow:     rgba(245,214,118,0.45);
+
+  /* Cosmo (energía) */
+  --cosmo-cyan:    #4ddbff;      /* Andrómeda / Cisne */
+  --cosmo-red:     #ff5050;      /* Fénix */
+  --cosmo-purple:  #b96cff;      /* Saga / Hades */
+  --cosmo-green:   #6cf594;      /* Dragón */
+  --cosmo-amber:   #ffb84d;      /* Sagitario */
+
+  /* Texto */
+  --star:    #ffffff;
+  --text:    #ecf0fa;
+  --muted:   #9ca3c4;
+  --dim:     #5d6593;
+
+  /* Aliases para compat con código previo */
+  --bg-base: var(--cosmos-deep);
+  --bg-soft: var(--cosmos-mid);
+  --bg-card: var(--cosmos-card);
+  --bg-elev: var(--cosmos-elev);
+  --border:  var(--cosmos-line);
+  --accent:  var(--gold-saint);
+  --accent2: var(--cosmo-purple);
+  --good:    var(--cosmo-green);
+  --warn:    var(--cosmo-amber);
+  --bad:     var(--cosmo-red);
+  --info:    var(--cosmo-cyan);
+}
+
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; height:100%; }
+
+/* ─── Cosmos background con starfield animado ────────────────────────────── */
+body {
+  background:
+    radial-gradient(ellipse 1200px 700px at 25% -10%, rgba(212,175,55,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 900px 600px at 90% 20%, rgba(185,108,255,0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 1400px 900px at 50% 100%, rgba(77,219,255,0.06) 0%, transparent 60%),
+    linear-gradient(180deg, var(--cosmos-mid) 0%, var(--cosmos-deep) 60%);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Capa de estrellas estáticas — densa pero sutil */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 27% 67%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 45% 12%, #fff 50%, transparent),
+    radial-gradient(2px 2px at 58% 88%, rgba(245,214,118,.9) 50%, transparent),
+    radial-gradient(1px 1px at 71% 35%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 84% 71%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 92% 22%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 8% 92%, #fff 50%, transparent),
+    radial-gradient(2px 2px at 35% 45%, rgba(77,219,255,.7) 50%, transparent),
+    radial-gradient(1px 1px at 64% 14%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 18% 50%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 77% 55%, #fff 50%, transparent);
+  background-size: 100% 100%;
+  opacity: .55;
+}
+
+/* Capa de twinkles animados */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 22% 28%, var(--gold-bright), transparent),
+    radial-gradient(1.5px 1.5px at 80% 60%, var(--gold-bright), transparent),
+    radial-gradient(1.5px 1.5px at 50% 80%, var(--cosmo-cyan), transparent),
+    radial-gradient(2px 2px at 65% 30%, var(--gold-saint), transparent),
+    radial-gradient(1.5px 1.5px at 10% 75%, var(--cosmo-purple), transparent);
+  background-size: 100% 100%;
+  animation: twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: .3; transform: translateY(0); }
+  50%      { opacity: .9; transform: translateY(-2px); }
+}
+
+/* Wrap content above starfield */
+header, main, footer, .modal-overlay { position: relative; z-index: 1; }
+
+/* ─── NAV · 12 casas del zodiaco ─────────────────────────────────────────── */
+.nav {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  padding: 0 48px; margin-top: -1px;
+  border-bottom: 1px solid var(--gold-dark);
+  background: linear-gradient(180deg, var(--cosmos-mid), var(--cosmos-deep));
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5);
+}
+.nav button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding: 14px 22px;
+  color: var(--muted);
+  font-family: 'Cinzel', serif; font-weight: 500;
+  font-size: 12px; letter-spacing: .15em; text-transform: uppercase;
+  position: relative; top: 1px;
+  cursor: pointer;
+  transition: all .2s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: none;
+}
+.nav button .glyph {
+  font-size: 18px; line-height: 1;
+  font-family: serif;
+  color: var(--gold-dark);
+  transition: color .2s, text-shadow .2s;
+}
+.nav button:hover {
+  color: var(--gold-bright); background: rgba(212,175,55,.05);
+  border-color: transparent;
+  transform: none;
+}
+.nav button:hover .glyph { color: var(--gold-saint); }
+.nav button.active {
+  color: var(--gold-bright);
+  background: linear-gradient(180deg, rgba(212,175,55,.10), transparent);
+  border-color: var(--gold-saint);
+  border-bottom: 1px solid var(--cosmos-deep);
+  box-shadow: 0 -2px 0 var(--gold-bright);
+}
+.nav button.active .glyph {
+  color: var(--gold-bright);
+  text-shadow: 0 0 10px var(--gold-glow);
+}
+
+/* Page sections — only active one is shown */
+.page { display: none; }
+.page.active { display: block; animation: pageIn .25s ease; }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── HEADER · pórtico del santuario ─────────────────────────────────────── */
+header {
+  padding: 40px 48px 28px;
+  border-bottom: 1px solid var(--cosmos-line);
+  display:flex; justify-content:space-between; align-items:flex-end;
+  background:
+    linear-gradient(180deg, rgba(212,175,55,0.08), transparent 80%),
+    radial-gradient(ellipse 600px 200px at 50% 0%, rgba(212,175,55,0.18), transparent);
+  position: relative;
+}
+header::before {
+  content: '♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓';
+  position: absolute; top: 8px; left: 0; right: 0; text-align: center;
+  font-size: 14px; color: var(--gold-dark); letter-spacing: .8em;
+  opacity: .5;
+}
+header h1 {
+  font-family:'Cinzel Decorative', 'Cinzel', serif;
+  font-weight: 900; font-size: 48px; line-height: 1; margin: 0;
+  letter-spacing: .12em;
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold-saint) 50%, var(--gold-dark) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow:
+    0 0 30px rgba(212,175,55,0.4),
+    0 0 60px rgba(212,175,55,0.2);
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,.5));
+}
+header h1 .star-mark {
+  font-family: serif; font-weight: 400;
+  color: var(--gold-saint); margin: 0 12px;
+  -webkit-text-fill-color: var(--gold-saint);
+}
+header .subtitle {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--muted); margin-top:8px; letter-spacing:.18em; text-transform: uppercase;
+}
+header .live-pulse {
+  display:inline-block; width:8px; height:8px; border-radius:50%;
+  background: var(--cosmo-green); margin-right:8px;
+  box-shadow: 0 0 14px var(--cosmo-green), 0 0 4px var(--cosmo-green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform: scale(1); }
+  50%     { opacity:.5; transform: scale(.85); }
+}
+header .actions { display:flex; gap:10px; align-items:center; }
+/* ─── Botones · armaduras de bronce/oro ──────────────────────────────────── */
+button, .btn {
+  background: linear-gradient(180deg, var(--cosmos-elev), var(--cosmos-card));
+  color: var(--gold-bright);
+  border: 1px solid var(--gold-dark); border-radius: 4px;
+  padding: 9px 16px; font: inherit; cursor: pointer;
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  font-family: 'Cinzel', serif; font-weight: 500;
+  transition: all .2s ease;
+  display: inline-flex; align-items: center; gap: 6px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(245,214,118,.12), 0 2px 6px rgba(0,0,0,.4);
+}
+button:hover {
+  background: linear-gradient(180deg, var(--gold-saint), var(--gold-dark));
+  color: var(--cosmos-deep);
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 20px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,.3);
+  transform: translateY(-1px);
+}
+button.primary {
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold-saint) 60%, var(--gold-dark));
+  color: var(--cosmos-deep);
+  border-color: var(--gold-bright);
+  font-weight: 700;
+  box-shadow: 0 0 16px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,.4);
+}
+button.primary:hover { box-shadow: 0 0 28px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,.4); }
+button.ghost {
+  background: transparent;
+  border-color: var(--cosmos-line);
+  color: var(--muted);
+}
+button.ghost:hover {
+  background: rgba(212,175,55,.1);
+  color: var(--gold-bright);
+  border-color: var(--gold-saint);
+}
+button .material-symbols-rounded { font-size: 16px; }
+
+/* ─── MAIN ───────────────────────────────────────────────────────────────── */
+main { padding: 28px 48px 80px; }
+
+.section-title {
+  font-family:'Cinzel', serif; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .25em;
+  font-size: 13px;
+  color: var(--gold-saint);
+  margin: 36px 0 16px;
+  display:flex; justify-content:space-between; align-items:center;
+  position: relative; padding-bottom: 8px;
+  border-bottom: 1px solid var(--cosmos-line);
+}
+.section-title::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; width: 80px; height: 1px;
+  background: linear-gradient(90deg, var(--gold-bright), transparent);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+.section-title .accent {
+  color: var(--gold-bright); font-size: 18px; margin-right: 8px;
+  text-shadow: 0 0 10px var(--gold-glow);
+}
+
+/* ─── KPI grid · cofres del santuario ───────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.kpi {
+  background: linear-gradient(180deg, var(--cosmos-card), var(--cosmos-mid));
+  border: 1px solid var(--cosmos-line);
+  border-radius: 6px;
+  padding: 20px 22px;
+  position: relative; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(245,214,118,.08);
+  transition: all .25s ease;
+}
+.kpi::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background: var(--gradient, linear-gradient(90deg, var(--cosmo-purple), var(--gold-saint)));
+  box-shadow: 0 0 10px var(--gradient-glow, var(--gold-glow));
+}
+.kpi::after {
+  /* glyph esquina superior derecha */
+  content: var(--glyph, '✧');
+  position: absolute; top: 14px; right: 18px;
+  font-size: 22px; opacity: .25;
+  color: var(--glyph-color, var(--gold-saint));
+  font-family: serif;
+}
+.kpi:hover {
+  border-color: var(--gold-dark);
+  box-shadow: inset 0 1px 0 rgba(245,214,118,.12), 0 0 24px rgba(212,175,55,.12);
+  transform: translateY(-2px);
+}
+.kpi.gold::before  { --gradient: linear-gradient(90deg, var(--gold-saint), var(--gold-bright)); --gradient-glow: var(--gold-glow); }
+.kpi.gold        { --glyph: '☉'; --glyph-color: var(--gold-saint); }
+.kpi.purple::before{ --gradient: linear-gradient(90deg, var(--cosmo-purple), #d6a8ff); --gradient-glow: rgba(185,108,255,.4); }
+.kpi.purple      { --glyph: '♏'; --glyph-color: var(--cosmo-purple); }
+.kpi.green::before { --gradient: linear-gradient(90deg, var(--cosmo-green), #b3ffc4); --gradient-glow: rgba(108,245,148,.4); }
+.kpi.green       { --glyph: '♉'; --glyph-color: var(--cosmo-green); }
+.kpi.blue::before  { --gradient: linear-gradient(90deg, var(--cosmo-cyan), #93eaff); --gradient-glow: rgba(77,219,255,.4); }
+.kpi.blue        { --glyph: '♒'; --glyph-color: var(--cosmo-cyan); }
+.kpi .label {
+  font-size:10px; text-transform:uppercase; letter-spacing:.22em;
+  color: var(--muted); font-weight: 500;
+  font-family: 'Cinzel', serif;
+}
+.kpi .value {
+  font-family:'Cinzel', serif; font-weight:700;
+  font-size: 34px; margin-top: 10px; color: var(--star);
+  letter-spacing: .03em;
+  text-shadow: 0 0 16px rgba(245,214,118,.2);
+}
+.kpi .delta {
+  font-size:11px; color: var(--cosmo-green); margin-top:6px;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: .05em;
+}
+.kpi .delta.bad { color: var(--cosmo-red); }
+
+/* ─── PANELS · cámaras del santuario ────────────────────────────────────── */
+.panel {
+  background: linear-gradient(180deg, var(--cosmos-card) 0%, var(--cosmos-mid) 100%);
+  border: 1px solid var(--cosmos-line);
+  border-radius: 6px;
+  padding: 22px 26px;
+  margin-bottom: 16px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(245,214,118,.05);
+}
+.panel::before {
+  /* esquinas decorativas oro */
+  content:''; position:absolute; top:-1px; left:-1px; width:18px; height:18px;
+  border-top: 2px solid var(--gold-saint); border-left: 2px solid var(--gold-saint);
+  border-radius: 6px 0 0 0;
+  opacity: .7;
+}
+.panel::after {
+  content:''; position:absolute; bottom:-1px; right:-1px; width:18px; height:18px;
+  border-bottom: 2px solid var(--gold-saint); border-right: 2px solid var(--gold-saint);
+  border-radius: 0 0 6px 0;
+  opacity: .7;
+}
+.panel h3 {
+  margin: 0 0 18px;
+  font-family:'Cinzel', serif; font-weight: 600;
+  font-size: 12px; text-transform: uppercase; letter-spacing: .25em;
+  color: var(--gold-saint);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.panel h3 .count {
+  background: linear-gradient(180deg, var(--cosmos-elev), var(--cosmos-mid));
+  color: var(--gold-bright);
+  padding: 3px 10px; border-radius: 3px; font-size: 10px;
+  border: 1px solid var(--gold-dark);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .1em;
+}
+
+.row2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 1100px) {
+  .row2, .row3 { grid-template-columns: 1fr; }
+}
+
+canvas { max-height: 280px !important; }
+
+/* ─── TABLES · pergaminos del santuario ─────────────────────────────────── */
+table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+th, td {
+  padding: 11px 14px; text-align: left;
+  border-bottom: 1px solid rgba(45,52,112,.6);
+}
+th {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .2em;
+  color: var(--gold-saint);
+  background: linear-gradient(180deg, var(--cosmos-elev), var(--cosmos-card));
+  position: sticky; top: 0; z-index: 2;
+  font-family: 'Cinzel', serif; font-weight: 600;
+  border-bottom: 1px solid var(--gold-dark);
+}
+tbody tr { transition: all .15s ease; cursor: pointer; }
+tbody tr:hover {
+  background: linear-gradient(90deg, rgba(212,175,55,.06), rgba(212,175,55,.02));
+  box-shadow: inset 3px 0 0 var(--gold-saint);
+}
+.mono { font-family:'JetBrains Mono', monospace; font-size: 12px; }
+.dim { color: var(--dim); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pill {
+  display:inline-block; padding:3px 10px; border-radius:3px;
+  font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.14em;
+  font-family: 'Cinzel', serif;
+  border: 1px solid;
+}
+.pill.view       { background: rgba(77,219,255,.10); color: var(--cosmo-cyan);   border-color: rgba(77,219,255,.4); }
+.pill.install    { background: rgba(108,245,148,.10); color: var(--cosmo-green); border-color: rgba(108,245,148,.4); }
+.pill.share      { background: rgba(255,184,77,.10); color: var(--cosmo-amber);  border-color: rgba(255,184,77,.4); }
+.pill.favorite   { background: rgba(255,80,80,.10); color: var(--cosmo-red);     border-color: rgba(255,80,80,.4); }
+.pill.unfavorite { background: rgba(120,120,150,.10); color: var(--muted);       border-color: rgba(120,120,150,.4); }
+.pill.preview    { background: rgba(185,108,255,.10); color: var(--cosmo-purple);border-color: rgba(185,108,255,.4); }
+.pill.download   { background: rgba(212,175,55,.10); color: var(--gold-bright);  border-color: var(--gold-dark); }
+
+.scrollable { max-height: 420px; overflow-y: auto; }
+.scrollable::-webkit-scrollbar { width: 7px; }
+.scrollable::-webkit-scrollbar-track { background: var(--cosmos-deep); }
+.scrollable::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--gold-saint), var(--gold-dark));
+  border-radius: 3px;
+}
+.scrollable::-webkit-scrollbar-thumb:hover { background: var(--gold-bright); }
+
+/* ─── SEARCH BAR · adivinación cósmica ──────────────────────────────────── */
+.searchbar {
+  display:flex; gap:10px; margin-bottom: 18px; align-items:center;
+}
+.searchbar input {
+  flex: 1;
+  background: linear-gradient(180deg, var(--cosmos-card), var(--cosmos-mid));
+  color: var(--text);
+  border: 1px solid var(--cosmos-line); border-radius: 4px;
+  padding: 12px 18px; font: inherit; outline: none;
+  font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic;
+}
+.searchbar input::placeholder { color: var(--dim); font-style: italic; }
+.searchbar input:focus {
+  border-color: var(--gold-saint);
+  box-shadow: 0 0 0 1px var(--gold-saint), 0 0 18px rgba(212,175,55,.25);
+  background: linear-gradient(180deg, var(--cosmos-elev), var(--cosmos-card));
+}
+.searchbar select {
+  background: linear-gradient(180deg, var(--cosmos-card), var(--cosmos-mid));
+  color: var(--gold-bright);
+  border: 1px solid var(--gold-dark); border-radius: 4px;
+  padding: 12px 14px; font: inherit; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ─── WALLPAPER GRID · cartas zodiacales ────────────────────────────────── */
+.wp-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+}
+.wp-card {
+  background: var(--cosmos-mid);
+  border: 1px solid var(--cosmos-line);
+  border-radius: 4px; overflow: hidden; cursor: pointer;
+  transition: all .25s ease;
+  position: relative;
+}
+.wp-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,.6));
+  pointer-events: none; opacity: 0; transition: opacity .25s;
+  z-index: 1;
+}
+.wp-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--gold-saint);
+  box-shadow: 0 12px 30px rgba(0,0,0,.6), 0 0 24px var(--gold-glow);
+}
+.wp-card:hover::before { opacity: .8; }
+.wp-card .thumb {
+  aspect-ratio: 9/16; background: var(--cosmos-deep);
+  background-size: cover; background-position: center;
+}
+.wp-card .meta {
+  padding: 10px 12px; font-size: 11px;
+  position: relative; z-index: 2;
+}
+.wp-card .name {
+  color: var(--star); font-weight: 600; line-height: 1.3;
+  max-height: 2.6em; overflow:hidden;
+  font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: .03em;
+}
+.wp-card .stats {
+  display:flex; gap:12px; margin-top:8px;
+  color: var(--gold-saint); font-family:'JetBrains Mono',monospace; font-size: 10px;
+}
+.wp-card .stats span .material-symbols-rounded {
+  font-size: 13px; vertical-align: -2px; color: var(--gold-saint);
+}
+
+/* ─── MODAL · pergamino sagrado ─────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(20,15,40,.85), rgba(0,0,0,.96));
+  backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.modal-overlay.open { display: flex; animation: cosmoIn .3s ease; }
+@keyframes cosmoIn {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to   { opacity: 1; }
+}
+.modal {
+  background:
+    linear-gradient(180deg, var(--cosmos-card), var(--cosmos-mid));
+  border: 1px solid var(--gold-saint);
+  border-radius: 6px;
+  width: min(960px, 92vw); max-height: 90vh; overflow: hidden;
+  display: grid; grid-template-columns: 280px 1fr;
+  box-shadow: 0 24px 60px rgba(0,0,0,.7), 0 0 80px var(--gold-glow);
+}
+.modal .left {
+  background: linear-gradient(180deg, var(--cosmos-mid), var(--cosmos-deep));
+  padding: 28px 24px; display:flex; flex-direction:column; gap:16px;
+  border-right: 1px solid var(--gold-dark);
+}
+.modal .preview {
+  width:100%; aspect-ratio: 9/16; border-radius:4px;
+  background-size:cover; background-position:center;
+  background-color: var(--cosmos-deep);
+  border: 1px solid var(--gold-dark);
+  box-shadow: 0 8px 24px rgba(0,0,0,.6), 0 0 24px rgba(212,175,55,.15);
+}
+.modal .right { padding: 28px 32px; overflow-y: auto; }
+.modal h2 {
+  font-family:'Cinzel Decorative', 'Cinzel', serif; font-weight: 700;
+  font-size: 30px; margin: 0 0 6px;
+  color: var(--gold-bright);
+  letter-spacing: .04em;
+  text-shadow: 0 0 20px rgba(245,214,118,.3);
+}
+.modal .subhead {
+  font-family:'JetBrains Mono',monospace; color:var(--muted);
+  font-size:10px; margin-bottom:18px; letter-spacing:.15em;
+  text-transform: uppercase;
+}
+.modal .desc {
+  color: var(--text); margin-bottom: 20px; line-height: 1.6;
+  font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic;
+  border-left: 2px solid var(--gold-saint); padding-left: 14px;
+}
+.modal .tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px; }
+.modal .tag {
+  background: rgba(212,175,55,.08); color: var(--gold-saint);
+  padding: 4px 10px; border-radius: 3px; font-size: 10px;
+  font-family:'Cinzel', serif; letter-spacing: .1em;
+  border: 1px solid var(--gold-dark); text-transform: uppercase;
+}
+.modal .stat-grid {
+  display:grid; grid-template-columns: repeat(4,1fr); gap:8px; margin-bottom:14px;
+}
+.modal .stat {
+  background: var(--cosmos-card); padding: 12px 8px; border-radius: 4px; text-align:center;
+  border: 1px solid var(--cosmos-line);
+}
+.modal .stat .v {
+  font-family:'Cinzel', serif; font-weight:700; font-size:22px;
+  color: var(--gold-bright);
+  text-shadow: 0 0 10px var(--gold-glow);
+}
+.modal .stat .l {
+  font-size: 9px; text-transform:uppercase; color: var(--dim);
+  letter-spacing:.18em; margin-top:4px;
+  font-family: 'Cinzel', serif;
+}
+.modal .close {
+  position: absolute; top: 18px; right: 22px; z-index: 10;
+  background: transparent; border: 1px solid var(--gold-dark); border-radius: 50%;
+  color: var(--gold-saint); cursor: pointer;
+  width: 32px; height: 32px;
+  font-size: 18px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal .close:hover {
+  color: var(--cosmos-deep); background: var(--gold-bright);
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 18px var(--gold-glow);
+}
+
+/* ─── PAGINATION · pasos del peregrino ─────────────────────────────────── */
+.pagination {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 24px; padding-top: 18px;
+  border-top: 1px solid var(--cosmos-line);
+  flex-wrap: wrap;
+}
+.pagination .page-btn {
+  background: linear-gradient(180deg, var(--cosmos-elev), var(--cosmos-card));
+  color: var(--gold-saint);
+  border: 1px solid var(--gold-dark);
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: .12em;
+  text-transform: uppercase; font-weight: 500;
+  cursor: pointer;
+  transition: all .2s ease;
+  min-width: 38px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+}
+.pagination .page-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--gold-saint), var(--gold-dark));
+  color: var(--cosmos-deep); border-color: var(--gold-bright);
+  box-shadow: 0 0 14px var(--gold-glow);
+  transform: translateY(-1px);
+}
+.pagination .page-btn:disabled {
+  opacity: .35; cursor: not-allowed;
+  background: var(--cosmos-mid);
+  color: var(--dim); border-color: var(--cosmos-line);
+  box-shadow: none;
+}
+.pagination .page-info {
+  font-family: 'Cinzel', serif; font-size: 12px;
+  color: var(--gold-bright);
+  padding: 0 14px; letter-spacing: .15em;
+  text-shadow: 0 0 10px var(--gold-glow);
+  min-width: 130px; text-align: center;
+}
+.pagination .page-size {
+  background: linear-gradient(180deg, var(--cosmos-elev), var(--cosmos-card));
+  color: var(--gold-bright);
+  border: 1px solid var(--gold-dark); border-radius: 4px;
+  padding: 8px 12px; font-family: 'Cinzel', serif;
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer; margin-left: 8px;
+}
+
+/* ─── EVENT FEED · sucesos del cosmos ───────────────────────────────────── */
+.event-row {
+  display:grid; grid-template-columns: 80px 100px 1fr 110px;
+  gap: 12px; padding: 10px 14px;
+  border-bottom: 1px solid rgba(45,52,112,.4);
+  font-size: 12px; align-items:center;
+  transition: background .15s;
+}
+.event-row:hover { background: rgba(212,175,55,.04); }
+.event-row:last-child { border-bottom: none; }
+.event-row .ts { font-family:'JetBrains Mono',monospace; color: var(--dim); font-size:10px; }
+.event-row .who { font-family:'JetBrains Mono',monospace; color: var(--muted); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.event-row .wp { color: var(--text); cursor: pointer; }
+.event-row .wp:hover { color: var(--gold-bright); text-shadow: 0 0 8px var(--gold-glow); }
+
+/* ─── LOADER · invocando cosmo ──────────────────────────────────────────── */
+.loading {
+  color: var(--gold-saint); padding: 24px; text-align: center; font-size: 12px;
+  font-family: 'Cinzel', serif; letter-spacing: .2em; text-transform: uppercase;
+}
+.loading::after {
+  content: ' ✧'; animation: dots 1.5s infinite;
+  display: inline-block; text-align: left;
+}
+@keyframes dots {
+  0%,20% { content: ' ✧'; }
+  40%    { content: ' ✦'; }
+  60%,100% { content: ' ✧✦✧'; }
+}
+.empty {
+  color: var(--dim); padding: 32px; text-align: center; font-size: 14px;
+  font-style: italic; font-family: 'Cormorant Garamond', serif;
+}
+
+/* ─── TOAST · mensaje cósmico ───────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: linear-gradient(180deg, var(--cosmos-elev), var(--cosmos-card));
+  border: 1px solid var(--gold-saint);
+  color: var(--gold-bright); padding: 14px 22px; border-radius: 4px;
+  font-size: 13px; font-family: 'Cinzel', serif; letter-spacing: .1em;
+  box-shadow: 0 16px 40px rgba(0,0,0,.6), 0 0 24px var(--gold-glow);
+  display:none; z-index: 200;
+}
+.toast.show { display: block; animation: slideIn .3s ease; }
+@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+footer {
+  color: var(--gold-dark); text-align:center; padding: 40px 32px;
+  font-size: 11px; font-family:'Cinzel', serif; letter-spacing: .25em;
+  text-transform: uppercase;
+  border-top: 1px solid var(--cosmos-line); margin-top: 40px;
+}
+footer a {
+  color: var(--gold-saint); text-decoration: none;
+  border-bottom: 1px dotted var(--gold-dark);
+}
+footer a:hover { color: var(--gold-bright); text-shadow: 0 0 8px var(--gold-glow); }
+footer .ornament {
+  display: block; font-size: 20px; color: var(--gold-saint); margin-bottom: 12px;
+  letter-spacing: .8em;
+}
+
+/* ─── RESPONSIVE · adapta a pantallas chicas ─────────────────────────────── */
+@media (max-width: 1100px) {
+  main { padding: 24px 24px 60px; }
+  header { padding: 32px 24px 20px; }
+  .nav { padding: 0 24px; overflow-x: auto; flex-wrap: nowrap; }
+  .nav button { white-space: nowrap; padding: 12px 16px; font-size: 11px; }
+  .row2 { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+}
+
+@media (max-width: 720px) {
+  /* Header layout reflow */
+  header {
+    flex-direction: column; align-items: flex-start; gap: 16px;
+    padding: 28px 18px 18px;
+  }
+  header h1 { font-size: 32px; }
+  header h1 .star-mark { margin: 0 6px; }
+  header::before { font-size: 10px; letter-spacing: .4em; }
+  header .actions { width: 100%; justify-content: stretch; }
+  header .actions button { flex: 1; padding: 9px 8px; font-size: 10px; letter-spacing: .08em; }
+  header .actions button .material-symbols-rounded { font-size: 14px; }
+
+  /* Nav */
+  .nav { padding: 0 12px; }
+  .nav button { padding: 10px 12px; font-size: 10px; letter-spacing: .08em; gap: 6px; }
+  .nav button .glyph { font-size: 14px; }
+
+  main { padding: 16px 14px 60px; }
+
+  /* Search + select stacked */
+  .searchbar { flex-direction: column; align-items: stretch; }
+  .searchbar input, .searchbar select, .searchbar button { width: 100%; }
+
+  /* KPIs single column on tiny screens */
+  .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .kpi { padding: 14px 16px; }
+  .kpi .value { font-size: 26px; }
+  .kpi .label { font-size: 9px; letter-spacing: .15em; }
+
+  /* Section titles wrap */
+  .section-title { flex-direction: column; align-items: flex-start; gap: 4px; }
+
+  /* Panels less padding */
+  .panel { padding: 16px 14px; }
+
+  /* Tables become horizontally scrollable */
+  .scrollable { overflow-x: auto; }
+  table { min-width: 480px; }
+
+  /* Modal stacks vertical */
+  .modal { grid-template-columns: 1fr; max-height: 92vh; }
+  .modal .left { border-right: none; border-bottom: 1px solid var(--gold-dark); padding: 18px; }
+  .modal .right { padding: 20px; }
+  .modal h2 { font-size: 24px; }
+  .modal .preview { max-width: 200px; margin: 0 auto; }
+
+  /* Wallpaper grid smaller cards */
+  .wp-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+  .wp-card .name { font-size: 10px; }
+
+  /* Event rows simplified */
+  .event-row { grid-template-columns: 60px 80px 1fr; gap: 8px; padding: 8px 10px; font-size: 11px; }
+  .event-row .who { display: none; }
+
+  /* Toast smaller */
+  .toast { left: 12px; right: 12px; bottom: 12px; padding: 12px 16px; font-size: 11px; text-align: center; }
+}
+
+/* Long content - prevent label overflow */
+.kpi .value { word-break: break-word; line-height: 1.1; }
+.kpi .label { word-break: break-word; }
+button { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Pixora<span class="star-mark">✧</span>Santuario</h1>
+    <div class="subtitle">
+      <span class="live-pulse"></span>
+      Cosmo Activo · <span id="last-refresh">--:--:--</span> · <span id="event-count">0</span> sucesos canalizados
+    </div>
+  </div>
+  <div class="actions">
+    <button id="btn-recompute" class="ghost" title="Recalcular trending_score">
+      <span class="material-symbols-rounded">auto_awesome</span> Cosmo
+    </button>
+    <button id="btn-pause" class="ghost" title="Pausa el auto-refresh">
+      <span class="material-symbols-rounded">pause</span> <span id="pause-label">Pausar</span>
+    </button>
+    <button id="btn-refresh" class="primary">
+      <span class="material-symbols-rounded">refresh</span> Invocar
+    </button>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nav-btn active" data-page="home">
+    <span class="glyph">☉</span> Santuario
+  </button>
+  <button class="nav-btn" data-page="armaduras">
+    <span class="glyph">♓</span> Armaduras
+  </button>
+  <button class="nav-btn" data-page="tesoro">
+    <span class="glyph">⚜</span> Tesoro de Athena
+  </button>
+  <button class="nav-btn" data-page="caballeros">
+    <span class="glyph">♊</span> Caballeros
+  </button>
+  <button class="nav-btn" data-page="sucesos">
+    <span class="glyph">♐</span> Sucesos
+  </button>
+</nav>
+
+<main>
+
+  <!-- ════ PAGE: SANTUARIO (home) ══════════════════════════════════════════ -->
+  <section class="page active" data-page="home">
+
+  <!-- KPI HERO · Tesoros del Santuario -->
+  <div class="kpi-grid">
+    <div class="kpi gold">
+      <div class="label">Armaduras del santuario</div>
+      <div class="value" id="kpi-published">--</div>
+    </div>
+    <div class="kpi purple">
+      <div class="label">Visiones canalizadas</div>
+      <div class="value" id="kpi-views">--</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Armaduras vestidas</div>
+      <div class="value" id="kpi-installs">--</div>
+      <div class="delta" id="kpi-install-rate">--</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Constelaciones activas</div>
+      <div class="value" id="kpi-categories">--</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Sucesos del día</div>
+      <div class="value" id="kpi-today">--</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Caballeros (30d)</div>
+      <div class="value" id="kpi-devices">--</div>
+    </div>
+  </div>
+
+  <!-- DAILY CHART -->
+  <div class="row2">
+    <div class="panel">
+      <h3>♉ Actividad diaria · últimos 30 días</h3>
+      <canvas id="chart-daily"></canvas>
+    </div>
+    <div class="panel">
+      <h3>♋ Constelaciones · distribución</h3>
+      <canvas id="chart-categories"></canvas>
+    </div>
+  </div>
+
+  </section>
+  <!-- ════ /PAGE: SANTUARIO ══════════════════════════════════════════════════ -->
+
+
+  <!-- ════ PAGE: ARMADURAS (search + top wallpapers) ════════════════════════ -->
+  <section class="page" data-page="armaduras">
+
+  <!-- SEARCH + RESULTS GRID -->
+  <div class="section-title">
+    <span><span class="accent">✦</span> Explora el santuario · 279 armaduras</span>
+  </div>
+  <div class="searchbar">
+    <input type="text" id="search-input" placeholder="Busca por nombre, tag o categoría… (ej. dragon, anime, gaming)">
+    <select id="search-category">
+      <option value="">Todas las categorías</option>
+    </select>
+    <button id="btn-search" class="primary">
+      <span class="material-symbols-rounded">search</span> Buscar
+    </button>
+  </div>
+  <div class="panel">
+    <h3>♓ Armaduras encontradas <span class="count" id="search-count">0</span></h3>
+    <div class="wp-grid" id="search-grid">
+      <div class="loading">cargando trending</div>
+    </div>
+    <!-- Paginación -->
+    <div class="pagination" id="pagination">
+      <button class="page-btn" id="page-first" title="Primera página">«</button>
+      <button class="page-btn" id="page-prev"  title="Anterior">‹ Anterior</button>
+      <span class="page-info" id="page-info">Página 1</span>
+      <button class="page-btn" id="page-next"  title="Siguiente">Siguiente ›</button>
+      <button class="page-btn" id="page-last"  title="Última página">»</button>
+      <select id="page-size" class="page-size" title="Items por página">
+        <option value="12">12 / pág</option>
+        <option value="24" selected>24 / pág</option>
+        <option value="48">48 / pág</option>
+        <option value="96">96 / pág</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TOP WALLPAPERS (legendarias) -->
+  <div class="panel" style="margin-top:16px;">
+    <h3>♌ Armaduras legendarias · por visiones <span class="count" id="topwp-count">--</span></h3>
+    <div class="scrollable">
+      <table>
+        <thead>
+          <tr>
+            <th>nombre</th>
+            <th>cat</th>
+            <th class="num">vistas</th>
+            <th class="num">installs</th>
+            <th class="num">devices</th>
+            <th class="num">install%</th>
+          </tr>
+        </thead>
+        <tbody id="topwp-tbody"><tr><td colspan="6" class="loading">cargando</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  </section>
+  <!-- ════ /PAGE: ARMADURAS ══════════════════════════════════════════════════ -->
+
+
+  <!-- ════ PAGE: TESORO (ads + revenue) ═════════════════════════════════════ -->
+  <section class="page" data-page="tesoro">
+
+  <!-- ─── ADS & REVENUE · TESORO DE ATHENA ────────────────────────────── -->
+  <div class="section-title" style="margin-top: 8px">
+    <span><span class="accent">⚜</span> Tesoro de Athena · ofrendas y revenue</span>
+    <span class="dim mono" style="font-size:10px">interstitial $2.50 · rewarded $8.00 · banner $0.60 USD eCPM LATAM</span>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi green">
+      <div class="label">Cosmo recaudado (USD)</div>
+      <div class="value" id="ad-revenue-total">$--</div>
+      <div class="delta" id="ad-revenue-30d">-- en últimos 30 días</div>
+    </div>
+    <div class="kpi gold">
+      <div class="label">Ofrendas servidas</div>
+      <div class="value" id="ad-shown-total">--</div>
+      <div class="delta" id="ad-fill-rate">fill rate --%</div>
+    </div>
+    <div class="kpi purple">
+      <div class="label">Caballeros que ofrendaron</div>
+      <div class="value" id="ad-devices">--</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Templo más activo</div>
+      <div class="value mono" style="font-size:16px" id="ad-top-placement">--</div>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="panel">
+      <h3>♑ Cosmo diario · últimos 30 días</h3>
+      <canvas id="chart-ad-revenue"></canvas>
+    </div>
+    <div class="panel">
+      <h3>♎ Caballeros de oro · mejor recaudación <span class="count" id="ad-topu-count">--</span></h3>
+      <div class="scrollable">
+        <table>
+          <thead>
+            <tr>
+              <th>identidad</th>
+              <th class="num">ads totales</th>
+              <th class="num">interstitials</th>
+              <th class="num">rewarded</th>
+              <th class="num">$ estimado</th>
+            </tr>
+          </thead>
+          <tbody id="ad-topu-tbody"><tr><td colspan="5" class="loading">cargando</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px;">
+    <h3>♏ Ofrendas recientes · feed en vivo <span class="count" id="ad-feed-count">--</span></h3>
+    <div class="scrollable" id="ad-feed">
+      <div class="loading">cargando</div>
+    </div>
+  </div>
+
+  </section>
+  <!-- ════ /PAGE: TESORO ═════════════════════════════════════════════════════ -->
+
+
+  <!-- ════ PAGE: CABALLEROS (top users) ═════════════════════════════════════ -->
+  <section class="page" data-page="caballeros">
+
+  <div class="section-title">
+    <span><span class="accent">♊</span> Los caballeros del santuario</span>
+  </div>
+
+  <!-- TOP USERS -->
+  <div class="panel" style="margin-top:16px;">
+    <h3>♊ Caballeros activos · últimos 30 días <span class="count" id="topu-count">--</span></h3>
+    <div class="scrollable">
+      <table>
+        <thead>
+          <tr>
+            <th>tipo</th>
+            <th>identidad</th>
+            <th class="num">eventos</th>
+            <th class="num">vistas</th>
+            <th class="num">installs</th>
+            <th class="num">favs</th>
+            <th class="num">wallpapers únicos</th>
+            <th class="num">días activos</th>
+            <th>última vez</th>
+          </tr>
+        </thead>
+        <tbody id="topu-tbody"><tr><td colspan="9" class="loading">cargando</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  </section>
+  <!-- ════ /PAGE: CABALLEROS ═════════════════════════════════════════════════ -->
+
+
+  <!-- ════ PAGE: SUCESOS (live event feed) ══════════════════════════════════ -->
+  <section class="page" data-page="sucesos">
+
+  <div class="section-title">
+    <span><span class="accent">♐</span> Sucesos del cosmos · canalización en vivo</span>
+  </div>
+
+  <div class="panel">
+    <h3>♐ Sucesos del cosmos <span class="count" id="feed-count">0</span></h3>
+    <div class="scrollable" id="feed" style="max-height: 60vh">
+      <div class="loading">esperando eventos</div>
+    </div>
+  </div>
+
+  </section>
+  <!-- ════ /PAGE: SUCESOS ════════════════════════════════════════════════════ -->
+
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal" style="position:relative">
+    <button class="close" id="modal-close">×</button>
+    <div class="left">
+      <div class="preview" id="modal-preview"></div>
+      <div class="stat-grid">
+        <div class="stat"><div class="v" id="m-views">0</div><div class="l">vistas</div></div>
+        <div class="stat"><div class="v" id="m-installs">0</div><div class="l">installs</div></div>
+        <div class="stat"><div class="v" id="m-shares">0</div><div class="l">shares</div></div>
+        <div class="stat"><div class="v" id="m-devices">0</div><div class="l">devices</div></div>
+      </div>
+      <div class="stat" style="grid-column:1 / -1">
+        <div class="v" id="m-rate">0%</div><div class="l">install rate</div>
+      </div>
+    </div>
+    <div class="right">
+      <h2 id="m-name">--</h2>
+      <div class="subhead" id="m-id">--</div>
+      <div class="desc" id="m-desc">--</div>
+      <div class="tags" id="m-tags"></div>
+      <h3 style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.15em; color:var(--muted); margin: 8px 0 12px;">
+        Instalado por <span id="m-installers-count" style="color:var(--accent)">0</span> identidades
+      </h3>
+      <div id="m-installers" class="scrollable" style="max-height:200px; margin-bottom:18px"></div>
+
+      <h3 style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.15em; color:var(--muted); margin: 8px 0 12px;">Eventos recientes</h3>
+      <div id="m-events" class="scrollable" style="max-height:240px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">--</div>
+
+<footer>
+  <span class="ornament">♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓</span>
+  Pixora Santuario · Por la diosa Athena ·
+  <a href="javascript:location.reload()">invocar de nuevo</a>
+</footer>
+
+<script>
+// ============================================================================
+// Pixora Admin Dashboard — vanilla JS
+// ============================================================================
+
+const CATEGORIES = ['WALLPAPERS','PANORAMIC','NATURE','ANIME','GAMING','MISC',
+  'CALENDAR','ART','FANTASY','SCIFI','CULTURE','SCENES','SPECIAL',
+  'CHRISTMAS','HORROR','ANIMALS','LIFESTYLE','UNIVERSE','DARK'];
+
+const $ = sel => document.querySelector(sel);
+const fmt = n => (n ?? 0).toLocaleString('es-MX');
+const fmtTs = s => {
+  if (!s) return '-';
+  const d = new Date(s);
+  const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return `hace ${Math.floor(diff)}s`;
+  if (diff < 3600) return `hace ${Math.floor(diff/60)}m`;
+  if (diff < 86400) return `hace ${Math.floor(diff/3600)}h`;
+  return d.toLocaleString('es-MX', {month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+};
+
+let charts = { daily: null, categories: null, adRevenue: null };
+const fmtMoney = n => {
+  const v = Number(n) || 0;
+  if (v < 0.01) return `$${v.toFixed(4)}`;
+  if (v < 1) return `$${v.toFixed(3)}`;
+  return `$${v.toFixed(2)}`;
+};
+let autoRefresh = true;
+let refreshTimer = null;
+
+// ────────────────────────────────────────────────────────────────────────────
+// API helpers
+// ────────────────────────────────────────────────────────────────────────────
+async function api(path) {
+  try {
+    const r = await fetch(path);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch (e) {
+    toast(`Error: ${e.message}`, 'bad');
+    return [];
+  }
+}
+
+function toast(msg, kind='info') {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Renderers
+// ────────────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  const data = await api('/api/stats');
+  const s = Array.isArray(data) ? data[0] : data;
+  if (!s) return;
+  $('#kpi-published').textContent = fmt(s.published);
+  $('#kpi-views').textContent = fmt(s.total_views);
+  $('#kpi-installs').textContent = fmt(s.total_installs);
+  $('#kpi-categories').textContent = Object.keys(s.by_category || {}).length;
+  const rate = s.total_views ? (s.total_installs * 100 / s.total_views).toFixed(1) : 0;
+  $('#kpi-install-rate').textContent = `${rate}% conversión`;
+  window._cachedByCategory = s.by_category || {};
+  renderCategoriesChart(s.by_category || {});
+}
+
+async function loadDaily() {
+  const rows = await api('/api/daily?days=30');
+  if (!Array.isArray(rows)) return;
+  const labels = rows.map(r => r.day).reverse();
+  const views    = rows.map(r => r.views).reverse();
+  const installs = rows.map(r => r.installs).reverse();
+  const devs     = rows.map(r => r.unique_devices).reverse();
+  renderDailyChart(labels, views, installs, devs);
+  // sum today
+  const today = new Date().toISOString().slice(0, 10);
+  const t = rows.find(r => r.day && r.day.startsWith(today));
+  $('#kpi-today').textContent = fmt(t?.total_events || 0);
+  // unique devices over 30d
+  const totalDevs = rows.reduce((s, r) => s + (r.unique_devices || 0), 0);
+  $('#kpi-devices').textContent = fmt(totalDevs);
+}
+
+function renderDailyChart(labels, views, installs, devs) {
+  if (charts.daily) charts.daily.destroy();
+  const ctx = document.getElementById('chart-daily');
+  charts.daily = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels.map(d => d?.slice(5) || ''),
+      datasets: [
+        { label:'Vistas',    data:views,    borderColor:'#7c5cff', backgroundColor:'rgba(124,92,255,.15)', tension:.4, fill:true, borderWidth:2, pointRadius:2 },
+        { label:'Installs',  data:installs, borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,.10)', tension:.4, fill:true, borderWidth:2, pointRadius:2 },
+        { label:'Devices',   data:devs,     borderColor:'#c5a36b', backgroundColor:'transparent',          tension:.4, fill:false, borderWidth:1.5, borderDash:[4,4], pointRadius:2 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'bottom', labels:{ color:'#8b8ca3', boxWidth:10, font:{family:'Inter', size:11} } },
+        tooltip:{ backgroundColor:'#20203a', borderColor:'#2a2a44', borderWidth:1, padding:10 }
+      },
+      scales:{
+        x:{ ticks:{ color:'#5a5b75', font:{family:'JetBrains Mono', size:10} }, grid:{ color:'#1a1a2a' } },
+        y:{ ticks:{ color:'#5a5b75', font:{family:'JetBrains Mono', size:10} }, grid:{ color:'#1a1a2a' } }
+      }
+    }
+  });
+}
+
+function renderCategoriesChart(byCat) {
+  if (charts.categories) charts.categories.destroy();
+  const entries = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
+  const labels = entries.map(e => e[0]);
+  const data   = entries.map(e => e[1]);
+  const palette = ['#c5a36b','#7c5cff','#4ade80','#60a5fa','#fbbf24','#f87171',
+                   '#a78bfa','#86efac','#93c5fd','#fed7aa','#fca5a5','#d8b27a',
+                   '#9ca3af','#fde68a','#bfdbfe','#fecaca','#e9d5ff','#bbf7d0'];
+  charts.categories = new Chart(document.getElementById('chart-categories'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: palette, borderColor:'#0a0a14', borderWidth:2 }] },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{ legend:{ position:'right', labels:{ color:'#8b8ca3', font:{family:'JetBrains Mono', size:10}, boxWidth:10 } } }
+    }
+  });
+}
+
+async function loadTopWallpapers() {
+  const rows = await api('/api/top-wallpapers?limit=50');
+  if (!Array.isArray(rows)) return;
+  $('#topwp-count').textContent = rows.length;
+  const tbody = $('#topwp-tbody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = r.id;
+    tr.onclick = () => openModal(r.id);
+    tr.innerHTML = `
+      <td>${escape(r.name)}</td>
+      <td><span class="pill view">${r.category}</span></td>
+      <td class="num mono">${fmt(r.views)}</td>
+      <td class="num mono">${fmt(r.installs)}</td>
+      <td class="num mono">${fmt(r.unique_devices)}</td>
+      <td class="num mono">${(r.install_rate_pct || 0).toFixed(1)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadTopUsers() {
+  const rows = await api('/api/top-users?limit=30');
+  if (!Array.isArray(rows)) return;
+  $('#topu-count').textContent = rows.length;
+  const tbody = $('#topu-tbody');
+  tbody.innerHTML = '';
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty">Sin actividad aún. Tap en algún wallpaper en la app.</td></tr>';
+    return;
+  }
+  rows.forEach(r => {
+    const ident = r.identity || '-';
+    const short = ident.length > 16 ? ident.slice(0,8) + '…' + ident.slice(-4) : ident;
+    const tr = document.createElement('tr');
+    tr.title = ident;
+    tr.innerHTML = `
+      <td><span class="pill ${r.identity_type === 'user' ? 'install' : 'view'}">${r.identity_type}</span></td>
+      <td class="mono">${escape(short)}</td>
+      <td class="num mono">${fmt(r.total_events)}</td>
+      <td class="num mono">${fmt(r.views)}</td>
+      <td class="num mono">${fmt(r.installs)}</td>
+      <td class="num mono">${fmt(r.favorites)}</td>
+      <td class="num mono">${fmt(r.unique_wallpapers)}</td>
+      <td class="num mono">${fmt(r.active_days)}</td>
+      <td class="dim mono">${fmtTs(r.last_seen)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── ADS ──────────────────────────────────────────────────────────────────
+async function loadAdStats() {
+  const data = await api('/api/ad-stats');
+  const s = Array.isArray(data) ? data[0] : data;
+  if (!s) return;
+  $('#ad-revenue-total').textContent = fmtMoney(s.est_total_usd || 0);
+  $('#ad-revenue-30d').textContent = `${fmtMoney(s.est_last_30d_usd || 0)} en últimos 30d`;
+  $('#ad-shown-total').textContent = fmt(s.total_shown || 0);
+  const fillRate = s.total_ads ? (s.total_shown * 100 / s.total_ads).toFixed(1) : 0;
+  $('#ad-fill-rate').textContent = `fill rate ${fillRate}%`;
+  $('#ad-devices').textContent = fmt(s.unique_devices || 0);
+  // top placement
+  const places = Object.entries(s.by_placement || {});
+  const top = places.sort((a,b) => b[1]-a[1])[0];
+  $('#ad-top-placement').textContent = top ? `${top[0]} (${top[1]})` : '—';
+}
+
+async function loadAdRevenueDaily() {
+  const rows = await api('/api/ad-revenue-daily?days=30');
+  if (!Array.isArray(rows)) return;
+  const labels = rows.map(r => r.day).reverse();
+  const rev = rows.map(r => Number(r.est_revenue_usd || 0)).reverse();
+  const ads = rows.map(r => r.shown_ads || 0).reverse();
+  if (charts.adRevenue) charts.adRevenue.destroy();
+  charts.adRevenue = new Chart($('#chart-ad-revenue'), {
+    type: 'bar',
+    data: {
+      labels: labels.map(d => d?.slice(5) || ''),
+      datasets: [
+        { type:'bar',  label:'Revenue USD', data:rev, backgroundColor:'rgba(74,222,128,.5)', borderColor:'#4ade80', borderWidth:1, yAxisID:'y' },
+        { type:'line', label:'Ads mostrados', data:ads, borderColor:'#c5a36b', backgroundColor:'transparent', borderWidth:2, tension:.3, pointRadius:2, yAxisID:'y1' }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{ color:'#8b8ca3', boxWidth:10, font:{family:'Inter', size:11} } } },
+      scales:{
+        x:{ ticks:{ color:'#5a5b75', font:{family:'JetBrains Mono', size:10} }, grid:{ color:'#1a1a2a' } },
+        y:{ position:'left', ticks:{ color:'#4ade80', font:{family:'JetBrains Mono', size:10}, callback:v=>fmtMoney(v) }, grid:{ color:'#1a1a2a' } },
+        y1:{ position:'right', ticks:{ color:'#c5a36b', font:{family:'JetBrains Mono', size:10} }, grid:{ display:false } }
+      }
+    }
+  });
+}
+
+async function loadAdTopUsers() {
+  const rows = await api('/api/ad-top-users?limit=20');
+  if (!Array.isArray(rows)) return;
+  $('#ad-topu-count').textContent = rows.length;
+  const tbody = $('#ad-topu-tbody');
+  tbody.innerHTML = '';
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Aún no hay ads servidos. (Modo debug = los ads no se muestran pero se loguean.)</td></tr>';
+    return;
+  }
+  rows.forEach(r => {
+    const ident = r.identity || '-';
+    const short = ident.length > 16 ? ident.slice(0,8) + '…' + ident.slice(-4) : ident;
+    const tr = document.createElement('tr');
+    tr.title = ident;
+    tr.innerHTML = `
+      <td><span class="pill ${r.identity_type==='user'?'install':'view'}" style="margin-right:6px">${r.identity_type}</span><span class="mono">${escape(short)}</span></td>
+      <td class="num mono">${fmt(r.total_ads)}</td>
+      <td class="num mono">${fmt(r.interstitials)}</td>
+      <td class="num mono">${fmt(r.rewarded_completed)}/${fmt(r.rewarded_shown)}</td>
+      <td class="num mono" style="color:var(--good); font-weight:600">${fmtMoney(r.est_revenue_usd)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadAdFeed() {
+  const rows = await api('/api/recent-ad-events?limit=50');
+  if (!Array.isArray(rows)) return;
+  $('#ad-feed-count').textContent = rows.length;
+  const feed = $('#ad-feed');
+  feed.innerHTML = '';
+  if (!rows.length) {
+    feed.innerHTML = '<div class="empty">Sin ads aún. (Tap en "Aplicar wallpaper" en la app para generar uno.)</div>';
+    return;
+  }
+  rows.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'event-row';
+    const ident = e.user_id || e.device_id || '-';
+    const short = ident.length > 12 ? ident.slice(0,10) + '…' : ident;
+    const placementLabel = e.placement || '(sin placement)';
+    const status = e.shown ? '<span class="pill install">SHOWN</span>' : '<span class="pill unfavorite">SKIP</span>';
+    div.innerHTML = `
+      <div class="ts">${fmtTs(e.ts)}</div>
+      <div>${status}</div>
+      <div class="wp" style="cursor:default" title="${escape(placementLabel)}">${escape(placementLabel)} · <span class="dim">${escape(e.ad_kind || '')}</span></div>
+      <div class="who" title="${escape(ident)}">${escape(short)}</div>
+    `;
+    feed.appendChild(div);
+  });
+}
+
+async function loadFeed() {
+  const rows = await api('/api/recent-events?limit=50');
+  if (!Array.isArray(rows)) return;
+  $('#feed-count').textContent = rows.length;
+  $('#event-count').textContent = rows.length;
+  const feed = $('#feed');
+  feed.innerHTML = '';
+  if (!rows.length) {
+    feed.innerHTML = '<div class="empty">Sin eventos. Genera uno: tap en cualquier wallpaper en la app.</div>';
+    return;
+  }
+  rows.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'event-row';
+    const ident = e.user_id || e.device_id || '-';
+    const short = ident.length > 12 ? ident.slice(0,10) + '…' : ident;
+    div.innerHTML = `
+      <div class="ts">${fmtTs(e.ts)}</div>
+      <div><span class="pill ${e.event_type}">${e.event_type}</span></div>
+      <div class="wp" data-id="${escape(e.wallpaper_id || '')}">${escape(e.wallpaper_id || '-')}</div>
+      <div class="who" title="${escape(ident)}">${escape(short)}</div>
+    `;
+    div.querySelector('.wp').onclick = () => e.wallpaper_id && openModal(e.wallpaper_id);
+    feed.appendChild(div);
+  });
+}
+
+// ─── Pagination state ─────────────────────────────────────────────────────
+const pager = { page: 1, size: 24, lastWasFull: false, lastQuery: '', lastCat: '' };
+
+function totalForCurrentFilter() {
+  const totalPublished = parseInt($('#kpi-published').textContent.replace(/,/g, ''), 10) || 279;
+  // If category set, try to get its count from the cached stats
+  if (pager.lastCat && window._cachedByCategory) {
+    return window._cachedByCategory[pager.lastCat] || totalPublished;
+  }
+  return totalPublished;
+}
+
+function totalPagesEstimated() {
+  if (pager.lastQuery) {
+    // With a text query we don't know the total — show "more available" hint
+    return pager.lastWasFull ? pager.page + 1 : pager.page;
+  }
+  return Math.max(1, Math.ceil(totalForCurrentFilter() / pager.size));
+}
+
+function renderPagination(rowsLength) {
+  const total = totalPagesEstimated();
+  const onLastPage = !pager.lastWasFull;
+  $('#page-info').textContent = pager.lastQuery
+    ? `Página ${pager.page}${pager.lastWasFull ? ' (más resultados)' : ''}`
+    : `Página ${pager.page} de ${total}`;
+  $('#page-first').disabled = pager.page <= 1;
+  $('#page-prev').disabled  = pager.page <= 1;
+  $('#page-next').disabled  = onLastPage;
+  $('#page-last').disabled  = onLastPage || pager.lastQuery;
+}
+
+async function doSearch(resetPage = true) {
+  if (resetPage) pager.page = 1;
+  const q = $('#search-input').value.trim();
+  const cat = $('#search-category').value;
+  pager.lastQuery = q; pager.lastCat = cat;
+  const offset = (pager.page - 1) * pager.size;
+  const url = `/api/search?q=${encodeURIComponent(q)}${cat ? `&category=${cat}` : ''}&limit=${pager.size}&offset=${offset}`;
+  const rows = await api(url);
+  if (!Array.isArray(rows)) return;
+  pager.lastWasFull = rows.length === pager.size;
+  const total = totalForCurrentFilter();
+  const startIdx = offset + 1;
+  const endIdx   = offset + rows.length;
+  $('#search-count').textContent = q
+    ? `${rows.length} resultados`
+    : `${startIdx}-${endIdx} de ${total}`;
+  const grid = $('#search-grid');
+  grid.innerHTML = '';
+  if (!rows.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Sin resultados.</div>';
+    renderPagination(0);
+    return;
+  }
+  rows.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'wp-card';
+    card.onclick = () => openModal(w.id);
+    card.innerHTML = `
+      <div class="thumb" style="background-image:url('${escape(w.preview_url)}')"></div>
+      <div class="meta">
+        <div class="name">${escape(w.name)}</div>
+        <div class="stats">
+          <span title="vistas"><span class="material-symbols-rounded">visibility</span> ${fmt(w.view_count)}</span>
+          <span title="installs"><span class="material-symbols-rounded">download</span> ${fmt(w.install_count)}</span>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  renderPagination(rows.length);
+}
+
+async function openModal(id) {
+  const overlay = $('#modal');
+  overlay.classList.add('open');
+  $('#m-name').textContent = 'cargando…';
+  $('#m-id').textContent = id;
+  $('#m-desc').textContent = '';
+  $('#m-tags').innerHTML = '';
+  $('#m-events').innerHTML = '<div class="loading">cargando</div>';
+  $('#modal-preview').style.backgroundImage = '';
+
+  const [meta, breakdown, events, installers] = await Promise.all([
+    api(`/api/wallpaper-meta?id=${encodeURIComponent(id)}`),
+    api(`/api/wallpaper?id=${encodeURIComponent(id)}`),
+    api(`/api/wallpaper-events?id=${encodeURIComponent(id)}&limit=30`),
+    api(`/api/wallpaper-installers?id=${encodeURIComponent(id)}&limit=50`),
+  ]);
+
+  const m = (Array.isArray(meta) && meta[0]) || {};
+  const b = (Array.isArray(breakdown) && breakdown[0]) || {};
+
+  $('#m-name').textContent = m.name || id;
+  $('#m-id').textContent = `${m.id || id}  ·  ${m.category || ''}  ·  ${m.type || ''}`;
+  $('#m-desc').textContent = m.description || '';
+  $('#m-tags').innerHTML = (m.tags || []).map(t => `<span class="tag">${escape(t)}</span>`).join('');
+  $('#modal-preview').style.backgroundImage = m.preview_url ? `url('${escape(m.preview_url)}')` : '';
+  $('#m-views').textContent = fmt(b.views ?? m.view_count ?? 0);
+  $('#m-installs').textContent = fmt(b.installs ?? m.install_count ?? 0);
+  $('#m-shares').textContent = fmt(b.shares ?? m.share_count ?? 0);
+  $('#m-devices').textContent = fmt(b.unique_devices ?? 0);
+  $('#m-rate').textContent = `${(b.install_rate_pct || 0).toFixed(1)}%`;
+
+  // Render installers list
+  const inst = $('#m-installers');
+  $('#m-installers-count').textContent = Array.isArray(installers) ? installers.length : 0;
+  if (!Array.isArray(installers) || !installers.length) {
+    inst.innerHTML = '<div class="empty" style="padding:14px">Aún nadie lo ha instalado.</div>';
+  } else {
+    inst.innerHTML = installers.map(u => {
+      const ident = u.identity || '-';
+      const short = ident.length > 16 ? ident.slice(0,10) + '…' + ident.slice(-4) : ident;
+      return `<div class="event-row" style="grid-template-columns: 70px 1fr 50px 110px">
+        <div><span class="pill ${u.identity_type==='user'?'install':'view'}">${u.identity_type}</span></div>
+        <div class="who mono" title="${escape(ident)}">${escape(short)}</div>
+        <div class="num mono" title="installs">${u.install_count}×</div>
+        <div class="ts">${fmtTs(u.last_install)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const ev = $('#m-events');
+  if (!Array.isArray(events) || !events.length) {
+    ev.innerHTML = '<div class="empty">Sin eventos aún.</div>';
+  } else {
+    ev.innerHTML = events.map(e => {
+      const ident = e.user_id || e.device_id || '-';
+      const short = ident.length > 14 ? ident.slice(0,12) + '…' : ident;
+      return `<div class="event-row" style="grid-template-columns: 80px 80px 1fr">
+        <div class="ts">${fmtTs(e.ts)}</div>
+        <div><span class="pill ${e.event_type}">${e.event_type}</span></div>
+        <div class="who" title="${escape(ident)}">${escape(short)}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function closeModal() {
+  $('#modal').classList.remove('open');
+}
+
+function escape(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[c]));
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Bootstrap
+// ────────────────────────────────────────────────────────────────────────────
+async function refreshAll() {
+  await Promise.all([
+    loadStats(), loadDaily(), loadTopWallpapers(), loadTopUsers(), loadFeed(),
+    loadAdStats(), loadAdRevenueDaily(), loadAdTopUsers(), loadAdFeed(),
+  ]);
+  $('#last-refresh').textContent = new Date().toLocaleTimeString('es-MX');
+}
+
+function setupCategorySelector() {
+  const sel = $('#search-category');
+  CATEGORIES.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function bindEvents() {
+  // ─── Page nav ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.onclick = () => switchPage(btn.dataset.page);
+  });
+  // Restore last page from localStorage (or default 'home')
+  const lastPage = localStorage.getItem('pixora_admin_page') || 'home';
+  switchPage(lastPage);
+
+  $('#btn-refresh').onclick = refreshAll;
+  $('#btn-pause').onclick = () => {
+    autoRefresh = !autoRefresh;
+    $('#pause-label').textContent = autoRefresh ? 'Pausar' : 'Reanudar';
+    document.querySelector('#btn-pause .material-symbols-rounded').textContent = autoRefresh ? 'pause' : 'play_arrow';
+    if (autoRefresh) startAutoRefresh(); else stopAutoRefresh();
+    toast(autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh pausado');
+  };
+  $('#btn-recompute').onclick = async () => {
+    toast('Recalculando trending…');
+    const r = await api('/api/recompute-trending');
+    toast(`Trending recalculado para ${r.updated || 0} wallpapers`);
+    refreshAll();
+  };
+  $('#btn-search').onclick = () => doSearch(true);
+  $('#search-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(true); });
+  $('#search-category').onchange = () => doSearch(true);
+
+  // Pagination handlers
+  $('#page-prev').onclick  = () => { if (pager.page > 1) { pager.page--; doSearch(false); } };
+  $('#page-next').onclick  = () => { pager.page++; doSearch(false); };
+  $('#page-first').onclick = () => { pager.page = 1; doSearch(false); };
+  $('#page-last').onclick  = () => {
+    const total = totalPagesEstimated();
+    if (!pager.lastQuery && total > 0) { pager.page = total; doSearch(false); }
+  };
+  $('#page-size').onchange = (e) => {
+    pager.size = parseInt(e.target.value, 10) || 24;
+    pager.page = 1;
+    doSearch(false);
+  };
+  $('#modal-close').onclick = closeModal;
+  $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+}
+
+function switchPage(page) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+  document.querySelectorAll('.page').forEach(s => s.classList.toggle('active', s.dataset.page === page));
+  localStorage.setItem('pixora_admin_page', page);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => {
+    if (autoRefresh) { loadFeed(); loadStats(); loadAdFeed(); loadAdStats(); }
+  }, 5000);
+}
+function stopAutoRefresh() {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+}
+
+setupCategorySelector();
+bindEvents();
+refreshAll().then(doSearch);
+startAutoRefresh();
+</script>
+</body>
+</html>
