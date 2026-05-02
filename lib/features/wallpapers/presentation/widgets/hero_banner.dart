@@ -108,7 +108,9 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
                       margin: const EdgeInsets.symmetric(horizontal: 3),
                       width: active ? 28 : 8,
                       height: 3,
-                      color: active ? h.accent : Colors.white.withValues(alpha: 0.25),
+                      color: active
+                          ? h.accent
+                          : Colors.white.withValues(alpha: 0.25),
                     );
                   }),
                 ),
@@ -186,46 +188,7 @@ class _HeroPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: HudTokens.sp3),
-                Text(
-                  wallpaper.name.toUpperCase(),
-                  style: HudTokens.display(
-                    size: 24,
-                    color: Colors.white,
-                    letterSpacing: -0.01,
-                  ).copyWith(
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.7),
-                        blurRadius: 12,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (wallpaper.description.isNotEmpty) ...[
-                  const SizedBox(height: HudTokens.sp2),
-                  Text(
-                    '> ${wallpaper.description}',
-                    style: HudTokens.mono(
-                      size: 11,
-                      color: Colors.white.withValues(alpha: 0.92),
-                      letterSpacing: 0.05,
-                    ).copyWith(
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          blurRadius: 8,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                // Wallpaper name + description hidden — image speaks first.
               ],
             ),
           ),

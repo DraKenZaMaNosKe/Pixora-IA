@@ -255,36 +255,7 @@ class _ParallaxCarouselCard extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 9, 10, 11),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    wallpaper.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: HudTokens.body(
-                      size: 13,
-                      weight: FontWeight.w600,
-                      color: h.text,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    wallpaper.category.toLowerCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: HudTokens.mono(
-                      size: 10,
-                      weight: FontWeight.w400,
-                      color: h.textDim,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Title + category hidden — distraction-free image-only browsing.
           ],
         ),
       ),
@@ -396,52 +367,8 @@ class _ParallaxCarouselCard extends StatelessWidget {
                 painter: _CarouselDashPainter(color: context.hud.accent),
               ),
             ),
-            // ── Bottom stub ─────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          wallpaper.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: HudTokens.serif(
-                              size: 11.5,
-                              color: context.hud.text,
-                              fontStyle: FontStyle.italic,
-                              weight: FontWeight.w500,
-                              letterSpacing: 0.02),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(_serial,
-                          style: HudTokens.mono(
-                              size: 7.5,
-                              weight: FontWeight.w700,
-                              color: context.hud.accent,
-                              letterSpacing: 0.15)),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    wallpaper.category.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: HudTokens.mono(
-                        size: 6.5,
-                        weight: FontWeight.w500,
-                        color: context.hud.textDim,
-                        letterSpacing: 0.3),
-                  ),
-                ],
-              ),
-            ),
+            // Bottom stub (title + serial + category) hidden — pure-image
+            // browsing per user request.
           ],
         ),
       ),
