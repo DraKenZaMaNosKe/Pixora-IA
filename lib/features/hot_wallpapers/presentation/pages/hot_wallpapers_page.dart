@@ -219,8 +219,9 @@ class _LiveWallpaperCard extends StatelessWidget {
       height: height.isFinite ? height : null,
       child: TicketStubCard(
         admitLabel: 'LIVE',
-        title: item.name,
-        category: item.category,
+        // Title + category hidden — distraction-free browsing.
+        title: null,
+        category: null,
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(

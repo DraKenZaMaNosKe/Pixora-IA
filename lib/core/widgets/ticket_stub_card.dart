@@ -21,8 +21,8 @@ class TicketStubCard extends StatelessWidget {
   const TicketStubCard({
     super.key,
     required this.child,
-    required this.title,
-    required this.category,
+    this.title,
+    this.category,
     this.lotNumber,
     this.serial,
     this.extraSeatLine,
@@ -39,10 +39,10 @@ class TicketStubCard extends StatelessWidget {
   final Widget child;
 
   /// Main title shown in the bottom stub (italic serif).
-  final String title;
+  final String? title;
 
   /// Category / classification line under the title (small caps).
-  final String category;
+  final String? category;
 
   /// Lot "N°" — any stringifiable id. Defaults to auto-derived from title hash.
   final String? lotNumber;
@@ -71,13 +71,13 @@ class TicketStubCard extends StatelessWidget {
   final bool isHighlighted;
 
   String _autoSerial() {
-    final h = title.hashCode.abs();
+    final h = (title ?? '').hashCode.abs();
     final hex = h.toRadixString(16).toUpperCase().padLeft(6, '0');
     return '${hex.substring(0, 3)}-${hex.substring(3, 5)}';
   }
 
   String _autoLot() {
-    final n = title.hashCode.abs() % 1000;
+    final n = (title ?? '').hashCode.abs() % 1000;
     return n.toString().padLeft(3, '0');
   }
 
@@ -132,37 +132,45 @@ class TicketStubCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Title + meta in iOS style
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 9, 10, 11),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.getFont(h.bodyFontFamily,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: h.text,
-                      letterSpacing: -0.2,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    extraSeatLine ?? category.toLowerCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.getFont(h.monoFontFamily,
-                      fontSize: 10,
-                      color: h.textDim,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ],
+            // Title + meta in iOS style — only when caller provided text.
+            // Wallpaper / Live / 3D listings pass null so the card is pure
+            // image, letting the user explore without imposed labels.
+            if (title != null || category != null || extraSeatLine != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 9, 10, 11),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (title != null)
+                      Text(
+                        title!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.getFont(
+                          h.bodyFontFamily,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: h.text,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    if (extraSeatLine != null || category != null) ...[
+                      if (title != null) const SizedBox(height: 2),
+                      Text(
+                        extraSeatLine ?? category!.toLowerCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.getFont(
+                          h.monoFontFamily,
+                          fontSize: 10,
+                          color: h.textDim,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -254,56 +262,61 @@ class TicketStubCard extends StatelessWidget {
               ),
             ),
             // ── Bottom stub ────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: HudTokens.serif(
-                            size: 12,
-                            color: context.hud.text,
-                            fontStyle: FontStyle.italic,
-                            weight: FontWeight.w500,
-                            letterSpacing: 0.02,
+            // Skip entirely when caller wants a title-less card.
+            if (title != null || category != null || extraSeatLine != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (title != null)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: HudTokens.serif(
+                                size: 12,
+                                color: context.hud.text,
+                                fontStyle: FontStyle.italic,
+                                weight: FontWeight.w500,
+                                letterSpacing: 0.02,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 6),
+                          Text(
+                            ser,
+                            style: HudTokens.mono(
+                              size: 7.5,
+                              weight: FontWeight.w700,
+                              color: context.hud.accent,
+                              letterSpacing: 0.15,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 6),
+                    if (extraSeatLine != null || category != null) ...[
+                      if (title != null) const SizedBox(height: 2),
                       Text(
-                        ser,
+                        extraSeatLine ?? category!.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: HudTokens.mono(
-                          size: 7.5,
-                          weight: FontWeight.w700,
-                          color: context.hud.accent,
-                          letterSpacing: 0.15,
+                          size: 7,
+                          weight: FontWeight.w500,
+                          color: context.hud.textDim,
+                          letterSpacing: 0.3,
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    extraSeatLine ?? category.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: HudTokens.mono(
-                      size: 7,
-                      weight: FontWeight.w500,
-                      color: context.hud.textDim,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),

@@ -17,6 +17,7 @@ import '../../day_cycle/presentation/pages/day_cycle_page.dart';
 import '../../hot_wallpapers/presentation/pages/hot_wallpapers_page.dart';
 import '../../parallax_wallpapers/presentation/pages/parallax_wallpapers_page.dart';
 import '../../aura/presentation/pages/aura_page.dart';
+import '../../arcano/presentation/arcano_page.dart';
 import '../../ringtones/presentation/pages/ringtones_page.dart';
 import '../../wallpapers/presentation/pages/wallpaper_search_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';
@@ -65,6 +66,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (!Platform.isIOS) const HotWallpapersPage(),
     if (!Platform.isIOS) const ParallaxWallpapersPage(),
     if (!Platform.isIOS) const AuraPage(),
+    if (!Platform.isIOS) const ArcanoPage(),
     if (!Platform.isIOS) const StoriesPage(),
     if (!Platform.isIOS) const DayCyclePage(),
     if (!Platform.isIOS) const RingtonesPage(),
@@ -81,6 +83,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (!Platform.isIOS) 'LIVE',
       if (!Platform.isIOS) '3D',
       if (!Platform.isIOS) 'AURA',
+      if (!Platform.isIOS) 'ARCANO',
       if (!Platform.isIOS) 'STORIES',
       if (!Platform.isIOS) 'DAY CYCLE',
       if (!Platform.isIOS) 'TONES',
@@ -499,6 +502,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             Icons.threed_rotation_rounded, '3D', Color(0xFF8B5CF6)),
       if (!Platform.isIOS)
         const _NavItemData(Icons.spa_outlined, 'AURA', Color(0xFF06B6D4)),
+      if (!Platform.isIOS)
+        const _NavItemData(
+            Icons.nights_stay_outlined, 'ARC', Color(0xFFD4AF37)),
       if (!Platform.isIOS)
         const _NavItemData(
             Icons.auto_stories_outlined, 'STOR', Color(0xFFF59E0B)),

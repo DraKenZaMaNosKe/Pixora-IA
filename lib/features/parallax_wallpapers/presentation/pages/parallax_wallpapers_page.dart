@@ -270,34 +270,9 @@ class _HeroCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        wallpaper.name,
-                        style: TextStyle(
-                          fontFamily: 'Fraunces',
-                          fontWeight: FontWeight.w600,
-                          fontStyle: FontStyle.italic,
-                          fontSize: 26,
-                          height: 1.0,
-                          color: h.goldBright,
-                          letterSpacing: -0.6,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        wallpaper.description.isEmpty
-                            ? 'Parallax 3D · giroscopio'
-                            : wallpaper.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'JetBrainsMono',
-                          fontSize: 10,
-                          letterSpacing: 0.4,
-                          height: 1.4,
-                          color: Colors.white.withValues(alpha: 0.85),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
+                      // Name + description hidden by user request — pure
+                      // image card so the wallpaper sells itself.
+                      const SizedBox.shrink(),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
@@ -365,18 +340,7 @@ class _GridCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            wallpaper.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontFamily: 'Fraunces',
-              fontStyle: FontStyle.italic,
-              fontSize: 13,
-              color: h.text,
-            ),
-          ),
+          // Title hidden — pure image grid for distraction-free browsing.
         ],
       ),
     );

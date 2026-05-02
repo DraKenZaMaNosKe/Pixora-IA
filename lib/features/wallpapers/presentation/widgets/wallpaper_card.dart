@@ -146,41 +146,8 @@ class _IosCard extends StatelessWidget {
               ),
             ),
           ),
-          // Title + meta in iOS style
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 9, 10, 11),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  wallpaper.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.getFont(
-                    h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: h.text,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  wallpaper.category.isEmpty
-                      ? 'Pixora'
-                      : wallpaper.category.toLowerCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.getFont(
-                    h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
-                    fontSize: 10,
-                    color: h.textDim,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Title + meta intentionally hidden — user wants to explore by
+          // image alone, no labels imposing a thought before they see it.
         ],
       ),
     );
@@ -326,56 +293,9 @@ class _TicketStubCard extends StatelessWidget {
               painter: _DashedLinePainter(color: h.accent),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        wallpaper.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: HudTokens.serif(
-                          size: 14,
-                          color: h.text,
-                          fontStyle: FontStyle.italic,
-                          weight: FontWeight.w500,
-                          letterSpacing: 0.02,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      serial,
-                      style: HudTokens.mono(
-                        size: 9,
-                        weight: FontWeight.w700,
-                        color: h.accent,
-                        letterSpacing: 0.15,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  seatLine,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: HudTokens.mono(
-                    size: 7.5,
-                    weight: FontWeight.w500,
-                    color: h.textDim,
-                    letterSpacing: 0.25,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Title block (name + serial + seatLine) intentionally hidden —
+          // user wants pure-image cards so the wallpaper speaks first, no
+          // text imposing a thought before the eye lands on it.
         ],
       ),
     );
