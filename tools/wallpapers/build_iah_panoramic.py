@@ -21,9 +21,13 @@ LAYERS = ASSETS / "parallax_v6"
 OUT = ASSETS / "panoramic"
 OUT.mkdir(parents=True, exist_ok=True)
 
-# Final dimensions — wide enough that Samsung treats as panoramic
-W, H = 4192, 2340           # ~3.9x screen width
-SCREEN_W = 1080             # device screen width (used to center altar)
+# Final dimensions — Pixora's panoramic standard from CLAUDE.md.
+# Critical: image must be LANDSCAPE (wider than tall) so Samsung's
+# ImageWallpaper scales it to fit screen HEIGHT, leaving lots of
+# horizontal extra width for the launcher to pan across home pages.
+# A square or portrait image at screen height gets cropped, not scrolled.
+W, H = 4192, 1024           # ~4.09:1 ratio — matches Akuma-style panoramics
+SCREEN_W = 1080             # phone screen width (used to center altar)
 
 
 def fit_height(img: Image.Image, target_h: int) -> Image.Image:
@@ -62,37 +66,12 @@ else:
     print(f"  tiled (orig at x={x}, mirrors on both sides)")
 
 
-# ── 2. Composite altar layers at horizontal CENTER ─────────────────────────
-# Each parallax layer was built for 1080x2340 viewport. We composite them
-# centered horizontally in the panorama so altar/zodiac/text appear when
-# user is on the middle home page.
-print("\nAltar group (centered):")
-center_x = (W - SCREEN_W) // 2  # left edge of screen-sized slot at center
-
-altar_layers = [
-    "layer_1_halo.webp",
-    "layer_2_moon.webp",
-    "layer_3_frame.webp",
-    "layer_4_zodiac_far.webp",
-    "layer_5_zodiac_mid.webp",
-    "layer_6_zodiac_near.webp",
-    "layer_7_text.webp",
-]
-
-for fn in altar_layers:
-    p = LAYERS / fn
-    if not p.exists():
-        print(f"  [skip] {fn} missing")
-        continue
-    layer = Image.open(p).convert("RGBA")
-    lw, lh = layer.size
-    # Pad/scale to 1080x2340 if needed (most should already be that size)
-    if (lw, lh) != (SCREEN_W, H):
-        layer = fit_height(layer, H)
-        lw, lh = layer.size
-    # Paste at center
-    canvas.alpha_composite(layer, (center_x, 0))
-    print(f"  {fn}: {lw}x{lh} pasted at x={center_x}")
+# ── 2. Altar / zodiac / text are SKIPPED ───────────────────────────────────
+# User's plan: keep this base panoramic as PURE cosmos (so Samsung
+# scales it cleanly and gives full horizontal scroll). The altar/moon/
+# zodiac wheel/text will be drawn later via the sprite/overlay system,
+# floating over the scrolled background. No baking-in here.
+print("\nAltar layers SKIPPED (will be added via sprites later)")
 
 
 # ── 3. Save final panoramic ────────────────────────────────────────────────
