@@ -3,8 +3,8 @@
   "id": "iah_egyptian_giza",
   "type": "canvas_scene",
   "title": {
-    "en": "Iah · Egyptian Moon Goddess",
-    "es": "Iah · Diosa Lunar Egipcia"
+    "en": "Iah \u00b7 Egyptian Moon Goddess",
+    "es": "Iah \u00b7 Diosa Lunar Egipcia"
   },
   "tags": [
     "egyptian",
@@ -28,7 +28,7 @@
     {
       "key": "layer_0_sky",
       "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_0_sky.webp",
-      "parallax_factor": 0.05,
+      "parallax_factor": 0.35,
       "scroll_factor": 1.0,
       "z": 0
     },

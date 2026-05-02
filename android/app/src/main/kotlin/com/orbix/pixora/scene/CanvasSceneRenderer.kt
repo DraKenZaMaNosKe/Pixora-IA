@@ -162,13 +162,13 @@ class CanvasSceneRenderer(private val context: Context) {
         ensureLoaded()
         tick++
 
-        // Single-stage scroll: lerp current toward target every frame.
-        // No velocity/inertia — Samsung's wallpaper-process freeze cycles
-        // queue touch events and dump them in bursts; momentum on top of
-        // the burst made the layer fling wildly. 0.16 settles in ~10
-        // frames (~0.3s) — fast enough to feel responsive to swipes,
-        // slow enough to absorb burst chaos into a smooth glide.
-        scrollOffsetNorm += (targetScrollOffsetNorm - scrollOffsetNorm) * 0.16f
+        // Direct one-shot follow — same model Samsung's ImageWallpaper
+        // uses for static panoramic wallpapers. Each onOffsetsChanged
+        // event from the launcher snaps to its xOffset; no lerp delay.
+        // Smoothness comes from event frequency (Samsung sends many per
+        // swipe when it considers us scrollable, which it now does
+        // thanks to suggestDesiredDimensions(2*W, H) + SET_WALLPAPER_HINTS).
+        scrollOffsetNorm = targetScrollOffsetNorm
 
         // Parallax image layers (drawn first — behind everything else)
         if (layerBitmaps.isNotEmpty()) {

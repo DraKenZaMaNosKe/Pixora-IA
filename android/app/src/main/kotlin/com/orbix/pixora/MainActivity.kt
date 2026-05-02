@@ -475,6 +475,34 @@ class MainActivity : AudioServiceActivity() {
         else edit.putString("scene_id", sceneId)
         edit.commit()
 
+        // For canvas_scene wallpapers with image_layers (parallax scenes
+        // like Iah Egyptian), tell Samsung the logical wallpaper is wider
+        // than the screen. Samsung's launcher uses this to decide whether
+        // to deliver onOffsetsChanged during home page swipes and to
+        // composite the wallpaper with horizontal pan — same treatment
+        // it gives static panoramic wallpapers via setBitmap.
+        // Without this, canvas_scene WallpaperServices stay locked to
+        // screen width and the launcher never sends scroll events.
+        try {
+            val isParallaxScene = !sceneId.isNullOrBlank() && hasImageLayers(sceneId!!)
+            val wm = WallpaperManager.getInstance(applicationContext)
+            val dm = resources.displayMetrics
+            if (isParallaxScene) {
+                // 2× screen width matches the reach of typical 2-page home
+                // setups (xOffset 0..1 sweeps across the whole logical size).
+                wm.suggestDesiredDimensions(dm.widthPixels * 2, dm.heightPixels)
+                android.util.Log.d("PixoraEQ", "suggestDesiredDimensions: " +
+                    "${dm.widthPixels * 2}x${dm.heightPixels} for parallax scene $sceneId")
+            } else {
+                // Reset to screen dims for non-parallax wallpapers (videos,
+                // shaders, plain canvas scenes) so we don't keep a stale
+                // wide-suggestion from a previous parallax scene.
+                wm.suggestDesiredDimensions(dm.widthPixels, dm.heightPixels)
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("PixoraEQ", "suggestDesiredDimensions failed: ${e.message}")
+        }
+
         // Kill the wallpaper engine process so Android recreates it with a fresh Surface.
         // This is mandatory because Canvas (image/explore) and MediaPlayer (video) cannot
         // share the same Surface — switching between them corrupts the producer state and
@@ -484,6 +512,19 @@ class MainActivity : AudioServiceActivity() {
         // Only show picker if live wallpaper isn't already active
         ensureLiveWallpaperActive()
     }
+
+    /** Inspects the scene spec on disk to determine if it declares image_layers
+     *  (i.e. parallax background). Used to gate suggestDesiredDimensions to
+     *  scenes that actually benefit from a wider logical surface. */
+    private fun hasImageLayers(sceneId: String): Boolean = try {
+        val f = File(filesDir, "scene_specs/$sceneId.json")
+        if (!f.isFile) false
+        else {
+            val json = org.json.JSONObject(f.readText())
+            val layers = json.optJSONArray("image_layers")
+            layers != null && layers.length() > 0
+        }
+    } catch (_: Exception) { false }
 
     /**
      * Kills the ":wallpaper" process so Android respawns the WallpaperService with

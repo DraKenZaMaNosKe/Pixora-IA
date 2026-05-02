@@ -1203,30 +1203,13 @@ class PixoraWallpaperService : WallpaperService() {
                 }
             }
 
-            // Canvas scene with parallax — direct touch-to-target with
-            // per-event clamping. Samsung freezes our :wallpaper process
-            // intermittently and then drops queued touch events in bursts;
-            // capping each event to 6% of the norm prevents a 5-event
-            // burst from teleporting the layer all the way to the edge.
-            // The renderer's per-frame lerp does the rest of the smoothing.
-            if (isCanvasSceneMode && canvasSceneRenderer.hasParallax && surfaceWidth > 0) {
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        touchStartX = event.rawX
-                    }
-                    MotionEvent.ACTION_MOVE -> {
-                        val deltaX = touchStartX - event.rawX
-                        touchStartX = event.rawX
-                        val raw = (deltaX / surfaceWidth.toFloat()) * 3.5f
-                        val deltaNorm = raw.coerceIn(-0.15f, 0.15f)
-                        canvasSceneRenderer.targetScrollOffsetNorm =
-                            (canvasSceneRenderer.targetScrollOffsetNorm + deltaNorm).coerceIn(0f, 1f)
-                        Log.d(TAG, "TOUCH MOVE deltaX=$deltaX deltaNorm=$deltaNorm target=${canvasSceneRenderer.targetScrollOffsetNorm}")
-                        if (!drawing) { drawing = true; handler.post(drawRunnable) }
-                    }
-                    else -> Unit
-                }
-            }
+            // Canvas scene scroll is now driven entirely by onOffsetsChanged
+            // (Samsung treats us as scrollable thanks to
+            // suggestDesiredDimensions + SET_WALLPAPER_HINTS). Touch handler
+            // removed: launcher already intercepts cross-page swipes on
+            // home, and the few stray touches that did reach us caused
+            // double-counting with onOffsetsChanged. The launcher is the
+            // single source of truth for horizontal scroll position.
 
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
