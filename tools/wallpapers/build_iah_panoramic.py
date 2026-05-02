@@ -66,12 +66,39 @@ else:
     print(f"  tiled (orig at x={x}, mirrors on both sides)")
 
 
-# ── 2. Altar / zodiac / text are SKIPPED ───────────────────────────────────
-# User's plan: keep this base panoramic as PURE cosmos (so Samsung
-# scales it cleanly and gives full horizontal scroll). The altar/moon/
-# zodiac wheel/text will be drawn later via the sprite/overlay system,
-# floating over the scrolled background. No baking-in here.
-print("\nAltar layers SKIPPED (will be added via sprites later)")
+# ── 2. Composite altar / zodiac / text BAKED IN at horizontal center ─────
+# Samsung scales the 4192x1024 source up to fit the 2340-tall screen
+# (~×2.28), so the final on-screen image is ~9560 wide. We bake the
+# altar group into the source center slice so when the user is on the
+# middle home page, they see the altar; swipe left/right reveals more
+# cosmos. Scale altar down to 1024 height (the source height) so it
+# matches the surrounding bg's vertical resolution.
+print("\nAltar group (baked at horizontal center, scaled to H=1024):")
+center_x = W // 2  # source center
+
+altar_layers = [
+    "layer_1_halo.webp",
+    "layer_2_moon.webp",
+    "layer_3_frame.webp",
+    "layer_4_zodiac_far.webp",
+    "layer_5_zodiac_mid.webp",
+    "layer_6_zodiac_near.webp",
+    "layer_7_text.webp",
+]
+
+for fn in altar_layers:
+    p = LAYERS / fn
+    if not p.exists():
+        print(f"  [skip] {fn} missing")
+        continue
+    layer = Image.open(p).convert("RGBA")
+    # Source layers are 1080x2340 (portrait); scale by HEIGHT to match
+    # the panoramic source height (1024px). Width follows aspect.
+    scaled = fit_height(layer, H)
+    sw, sh = scaled.size
+    paste_x = center_x - sw // 2
+    canvas.alpha_composite(scaled, (paste_x, 0))
+    print(f"  {fn}: scaled to {sw}x{sh} pasted at x={paste_x}")
 
 
 # ── 3. Save final panoramic ────────────────────────────────────────────────
