@@ -43,6 +43,19 @@ class CanvasSceneRenderer(private val context: Context) {
     @Volatile var tiltX: Float = 0f
     @Volatile var tiltY: Float = 0f
 
+    /** Horizontal scroll state — same algorithm as the panoramic wallpaper:
+     *    1. Touch MOVE events feed `scrollVelocity` (norm-per-frame) AND
+     *       nudge `targetScrollOffsetNorm`.
+     *    2. Per draw frame we add velocity to target and decay by 0.92,
+     *       so motion continues after the finger lifts (inertia / fling).
+     *    3. `scrollOffsetNorm` lerps toward target at 0.15 — what actually
+     *       gets drawn. Two-stage smoothing = buttery flow even when the
+     *       launcher only delivers a few sparse onOffsetsChanged events. */
+    @Volatile var scrollOffsetNorm: Float = 0.5f
+    @Volatile var targetScrollOffsetNorm: Float = 0.5f
+    val scrollSettling: Boolean
+        get() = kotlin.math.abs(targetScrollOffsetNorm - scrollOffsetNorm) > 0.0015f
+
     /** True when the scene has its own image_layers (so wallpaper service skips bg draw). */
     val hasParallax: Boolean get() = spec?.hasParallax == true
     // The Pixora "P" 3D logo signature is owned globally by
@@ -149,11 +162,19 @@ class CanvasSceneRenderer(private val context: Context) {
         ensureLoaded()
         tick++
 
+        // Single-stage scroll: lerp current toward target every frame.
+        // No velocity/inertia — Samsung's wallpaper-process freeze cycles
+        // queue touch events and dump them in bursts; momentum on top of
+        // the burst made the layer fling wildly. 0.16 settles in ~10
+        // frames (~0.3s) — fast enough to feel responsive to swipes,
+        // slow enough to absorb burst chaos into a smooth glide.
+        scrollOffsetNorm += (targetScrollOffsetNorm - scrollOffsetNorm) * 0.16f
+
         // Parallax image layers (drawn first — behind everything else)
         if (layerBitmaps.isNotEmpty()) {
             for ((def, bmp) in layerBitmaps) {
                 if (bmp.isRecycled) continue
-                drawLayerCentered(canvas, bmp, def.parallaxFactor)
+                drawLayerCentered(canvas, bmp, def)
             }
         }
 
@@ -200,22 +221,40 @@ class CanvasSceneRenderer(private val context: Context) {
         // Pixora "P" 3D logo is drawn by PixoraWallpaperService (universal).
     }
 
-    /** Draw a layer bitmap centered on the surface with cover-fit + parallax offset.
-     *  The bitmap is scaled to cover the surface, then offset by tilt * factor.
-     *  Bitmaps oversized relative to surface (e.g. 1300x2600 vs 1080x2340 phone)
-     *  give the parallax slack so edges don't show black during tilt. */
-    private fun drawLayerCentered(canvas: Canvas, bmp: Bitmap, factor: Float) {
+    /** Draw a layer bitmap on the surface with cover-fit + parallax offset.
+     *
+     *  Combines TWO offsets per layer:
+     *    1. **Tilt** (gyro)   — scaled by parallax_factor for 3D depth feel
+     *    2. **Scroll** (home page swipe) — scaled by parallax_factor too, so
+     *       deeper layers (low pf) barely scroll while foreground layers
+     *       slide in sync with home page swipes.
+     *
+     *  When the bitmap is wider than the surface (oversized), the scroll
+     *  offset pans across the extra horizontal slack — just like a panoramic
+     *  wallpaper but per-layer with its own depth speed. */
+    private fun drawLayerCentered(canvas: Canvas, bmp: Bitmap, def: ImageLayerDef) {
         val sw = surfaceWidth.toFloat()
         val sh = surfaceHeight.toFloat()
         val bw = bmp.width.toFloat()
         val bh = bmp.height.toFloat()
+        val pf = def.parallaxFactor
+        val sf = def.scrollFactor
+
         // Cover fit: scale by max ratio so bitmap fully covers surface
         val scale = maxOf(sw / bw, sh / bh)
         val drawW = bw * scale
         val drawH = bh * scale
-        // Center the scaled bitmap, then apply gyro offset
-        val left = (sw - drawW) / 2f + tiltX * factor
-        val top = (sh - drawH) / 2f + tiltY * factor
+
+        // Horizontal SCROLL (home page swipes): pans across bitmap's extra width.
+        // Uses scrollFactor (independent from parallax). With scrollFactor=1.0
+        // and a wide bitmap, scrolls full panoramic-style. With 0.0, layer is
+        // locked to screen center regardless of home page.
+        val extraW = (drawW - sw).coerceAtLeast(0f)
+        val scrollOffset = (0.5f - scrollOffsetNorm) * extraW * sf
+
+        // Vertical/horizontal TILT (gyro): per-layer depth using parallax_factor
+        val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset
+        val top  = (sh - drawH) / 2f + tiltY * pf
         val dst = android.graphics.RectF(left, top, left + drawW, top + drawH)
         canvas.drawBitmap(bmp, null, dst, layerPaint)
     }

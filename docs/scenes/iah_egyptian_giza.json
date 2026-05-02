@@ -6,41 +6,82 @@
     "en": "Iah · Egyptian Moon Goddess",
     "es": "Iah · Diosa Lunar Egipcia"
   },
-
+  "tags": [
+    "egyptian",
+    "moon",
+    "goddess",
+    "iah",
+    "live",
+    "livecalendar",
+    "parallax",
+    "panoramic",
+    "zodiac"
+  ],
+  "category": "special",
+  "featured": true,
   "background": {
     "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_iah_egyptian_giza.webp",
+    "preview_url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_iah_egyptian_giza_preview.webp",
     "scroll": false
   },
-
-  "particles": [
+  "image_layers": [
     {
-      "kind": "motes",
-      "params": {
-        "count": 36,
-        "drift": 0.25,
-        "vy_min": -0.45,
-        "vy_max": -0.15,
-        "color": "#FFD68850",
-        "max_alpha": 180
-      }
+      "key": "layer_0_sky",
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_0_sky.webp",
+      "parallax_factor": 0.05,
+      "scroll_factor": 1.0,
+      "z": 0
     },
     {
-      "kind": "wisps",
-      "params": {
-        "anchors": [[0.20, 0.85], [0.50, 0.92], [0.80, 0.86]],
-        "color": "#FFD4AF3760",
-        "radius": 0.014,
-        "wobble_amplitude": 6.0
-      }
+      "key": "layer_1_halo",
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_1_halo.webp",
+      "parallax_factor": 0.5,
+      "scroll_factor": 0.0,
+      "z": 1
+    },
+    {
+      "key": "layer_2_moon",
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_2_moon.webp",
+      "parallax_factor": 0.5,
+      "scroll_factor": 0.0,
+      "z": 2
+    },
+    {
+      "key": "layer_3_frame",
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_3_frame.webp",
+      "parallax_factor": 0.5,
+      "scroll_factor": 0.0,
+      "z": 3
+    },
+    {
+      "key": "layer_4_zodiac_far",
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_4_zodiac_far.webp",
+      "parallax_factor": 0.85,
+      "scroll_factor": 0.0,
+      "z": 4
+    },
+    {
+      "key": "layer_5_zodiac_mid",
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_5_zodiac_mid.webp",
+      "parallax_factor": 1.2,
+      "scroll_factor": 0.0,
+      "z": 5
+    },
+    {
+      "key": "layer_6_zodiac_near",
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_6_zodiac_near.webp",
+      "parallax_factor": 1.55,
+      "scroll_factor": 0.0,
+      "z": 6
+    },
+    {
+      "key": "layer_7_text",
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/scene_layers/iah_egyptian_giza/v6/layer_7_text.webp",
+      "parallax_factor": 1.9,
+      "scroll_factor": 0.0,
+      "z": 7
     }
   ],
-
-  "events": [
-    {
-      "kind": "lightning_procedural",
-      "interval_s": 90,
-      "duration_s": 1,
-      "params": {}
-    }
-  ]
+  "particles": [],
+  "events": []
 }

@@ -117,15 +117,21 @@ data class SpriteDef(
 data class ImageLayerDef(
     val key: String,
     val url: String,
-    val parallaxFactor: Float,
+    val parallaxFactor: Float,   // gyro tilt depth (0=static, 1=full tilt)
+    val scrollFactor: Float,     // home-page swipe pan (0=fixed, 1=full panoramic)
     val z: Int,
 ) {
     companion object {
         fun parse(j: JSONObject): ImageLayerDef? = try {
+            val pf = j.f("parallax_factor", 1f)
             ImageLayerDef(
                 key = j.getString("key"),
                 url = j.getString("url"),
-                parallaxFactor = j.f("parallax_factor", 1f),
+                parallaxFactor = pf,
+                // scroll_factor falls back to parallax_factor for backward compat,
+                // BUT the typical usage is to set them independently:
+                // a sky layer wants scroll=1.0 (panoramic) but parallax=0.05 (deep).
+                scrollFactor = j.f("scroll_factor", pf),
                 z = j.optInt("z", 0),
             )
         } catch (e: Exception) { null }

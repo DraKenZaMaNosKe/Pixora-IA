@@ -310,6 +310,11 @@ class PixoraWallpaperService : WallpaperService() {
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
             super.onCreate(surfaceHolder)
             setTouchEventsEnabled(true)
+            // One-shot opt-in for launcher offset notifications. Default is
+            // true on most launchers but Samsung One UI sometimes withholds
+            // them from non-image WallpaperServices unless we ask. Called
+            // exactly once per engine instance (no loop risk).
+            try { setOffsetNotificationsEnabled(true) } catch (_: Exception) {}
             equalizerRenderer.audioCallback = this
             loadOverlaySettings()
             loadWallpaperImage()
@@ -1023,6 +1028,8 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         override fun onOffsetsChanged(xOffset: Float, yOffset: Float, xStep: Float, yStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
+            Log.d(TAG, "onOffsetsChanged: xOffset=$xOffset xStep=$xStep panoramic=$isPanoramic canvas=$isCanvasSceneMode hasParallax=${canvasSceneRenderer.hasParallax}")
+            // Panoramic wallpapers: scroll the wide bitmap horizontally
             if (isPanoramic && xStep > 0f && xStep < 1f) {
                 val panBmp = panoramicBitmap
                 if (panBmp != null) {
@@ -1031,6 +1038,17 @@ class PixoraWallpaperService : WallpaperService() {
                     scrollVelocity = 0f
                     if (!drawing) drawFrame()
                 }
+            }
+            // Canvas scenes with image_layers: feed scroll offset to the renderer
+            // so each layer pans at its own parallax-weighted speed. We push
+            // to TARGET (not the smoothed value) so the renderer's per-frame
+            // lerp glides toward it. Don't gate on xStep — Samsung One UI
+            // reports xStep=-1.0 for our WallpaperService but still delivers
+            // valid xOffset values during home page transitions.
+            if (isCanvasSceneMode && canvasSceneRenderer.hasParallax) {
+                canvasSceneRenderer.targetScrollOffsetNorm = xOffset.coerceIn(0f, 1f)
+                Log.d(TAG, "  → canvasScene targetScrollOffsetNorm=${canvasSceneRenderer.targetScrollOffsetNorm}")
+                if (!drawing) { drawing = true; handler.post(drawRunnable) }
             }
         }
 
@@ -1185,6 +1203,31 @@ class PixoraWallpaperService : WallpaperService() {
                 }
             }
 
+            // Canvas scene with parallax — direct touch-to-target with
+            // per-event clamping. Samsung freezes our :wallpaper process
+            // intermittently and then drops queued touch events in bursts;
+            // capping each event to 6% of the norm prevents a 5-event
+            // burst from teleporting the layer all the way to the edge.
+            // The renderer's per-frame lerp does the rest of the smoothing.
+            if (isCanvasSceneMode && canvasSceneRenderer.hasParallax && surfaceWidth > 0) {
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        touchStartX = event.rawX
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        val deltaX = touchStartX - event.rawX
+                        touchStartX = event.rawX
+                        val raw = (deltaX / surfaceWidth.toFloat()) * 3.5f
+                        val deltaNorm = raw.coerceIn(-0.15f, 0.15f)
+                        canvasSceneRenderer.targetScrollOffsetNorm =
+                            (canvasSceneRenderer.targetScrollOffsetNorm + deltaNorm).coerceIn(0f, 1f)
+                        Log.d(TAG, "TOUCH MOVE deltaX=$deltaX deltaNorm=$deltaNorm target=${canvasSceneRenderer.targetScrollOffsetNorm}")
+                        if (!drawing) { drawing = true; handler.post(drawRunnable) }
+                    }
+                    else -> Unit
+                }
+            }
+
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     touchTrail.onDown(event.x, event.y)
@@ -1322,7 +1365,9 @@ class PixoraWallpaperService : WallpaperService() {
             val now = System.currentTimeMillis()
 
             // Switch to idle mode (low fps) when no audio and no touch
-            val scrolling = isPanoramic && abs(scrollVelocity) > 0.5f
+            val scrolling = (isPanoramic && abs(scrollVelocity) > 0.5f) ||
+                            (isCanvasSceneMode && canvasSceneRenderer.hasParallax &&
+                             canvasSceneRenderer.scrollSettling)
             if (!equalizerRenderer.hasAudio && !touchTrail.isActive && !isRainWallpaper && !scrolling && !hasAnimatedCanvasOverlay) {
                 equalizerRenderer.silentFrames++
                 if (equalizerRenderer.silentFrames > 30 && !idleMode) {
