@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -30,6 +31,7 @@ class ArcanoPage extends ConsumerStatefulWidget {
 
 class _ArcanoPageState extends ConsumerState<ArcanoPage> {
   bool _installing = false;
+  String? _installingId;
   bool _profileReady = false;
   bool _onboardingShown = false;
 
@@ -109,8 +111,8 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
               _statRow(hud, phase, userZodiac),
               const SizedBox(height: 14),
               _readingCard(hud, phase, userName, userFreq),
-              const SizedBox(height: 18),
-              _installCta(hud),
+              const SizedBox(height: 26),
+              _calendarsSection(hud, phase),
               const SizedBox(height: 14),
               _footerNote(hud),
             ],
@@ -325,66 +327,187 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
   }
 
   // ── Install CTA — downloads + applies the Iah panoramic ──────────────
-  Widget _installCta(HudTheme hud) {
-    final iahAsync = ref.watch(arcanoCatalogProvider);
-    final iah = iahAsync.maybeWhen(
-      data: (list) => list.firstWhere(
-        (w) => w.id == 'iah_egyptian_giza',
-        orElse: () => list.isNotEmpty ? list.first : _emptyWallpaper(),
-      ),
-      orElse: () => null,
-    );
+  /// Carousel of all ARCANO wallpapers — the lunar calendar collection.
+  /// Each card represents a different cultural calendar (Iah Egipcia today;
+  /// Maya Tzolkin, Aztec Sun, Chinese Zodiac in the future). Tap any card
+  /// to install it as your wallpaper, with the right phase + sign variant
+  /// auto-picked based on today's sky and the user's Hive profile.
+  ///
+  /// Adding a new calendar requires ZERO app rebuild — just upload its
+  /// 96 phase×sign variants to Supabase and INSERT a row in the wallpapers
+  /// table with category='ARCANO'. The carousel picks it up automatically.
+  Widget _calendarsSection(HudTheme hud, _MoonPhase phase) {
+    final calendarsAsync = ref.watch(arcanoCatalogProvider);
 
-    final canInstall = iah != null && iah.id.isNotEmpty && Platform.isAndroid;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: canInstall && !_installing ? () => _onInstallTap(iah) : null,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [hud.accent, Color.lerp(hud.accent, Colors.black, 0.15)!],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: hud.accent.withValues(alpha: 0.35),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 22,
+              decoration: BoxDecoration(
+                color: hud.accent,
+                borderRadius: BorderRadius.circular(2),
               ),
-            ],
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Calendarios Lunares',
+              style: GoogleFonts.fraunces(
+                fontSize: 22,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w500,
+                color: hud.text,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Container(
+                height: 1,
+                color: hud.accent.withValues(alpha: 0.25),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Text(
+            'Tap para aplicar — la luna y tu signo se ajustan a hoy automáticamente.',
+            style: GoogleFonts.cormorantGaramond(
+              fontSize: 13,
+              fontStyle: FontStyle.italic,
+              color: hud.textDim,
+            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 244,
+          child: calendarsAsync.when(
+            loading: () => Center(
+              child: CircularProgressIndicator(color: hud.accent),
+            ),
+            error: (e, _) => Center(
+              child: Text('Error: $e',
+                  style: TextStyle(color: hud.textDim, fontSize: 12)),
+            ),
+            data: (list) {
+              if (list.isEmpty) {
+                return Center(
+                  child: Text('No hay calendarios disponibles',
+                      style: TextStyle(color: hud.textDim, fontSize: 13)),
+                );
+              }
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: list.length,
+                itemBuilder: (ctx, i) => _calendarCard(hud, list[i], phase),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _calendarCard(HudTheme hud, Wallpaper w, _MoonPhase phase) {
+    final canInstall = Platform.isAndroid && w.id.isNotEmpty;
+    final isInstallingThis = _installing && _installingId == w.id;
+
+    return Container(
+      width: 150,
+      margin: const EdgeInsets.only(right: 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap:
+              canInstall && !_installing ? () => _onInstallTap(w, phase) : null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_installing)
-                const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.black,
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: AspectRatio(
+                      aspectRatio: 9 / 12,
+                      child: Container(
+                        color: hud.surface,
+                        child: w.previewUrl.isNotEmpty
+                            ? Image.network(
+                                w.previewUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  color: hud.surface,
+                                  child: Icon(Icons.image_not_supported,
+                                      color: hud.textDim),
+                                ),
+                              )
+                            : Container(color: hud.surface),
+                      ),
+                    ),
                   ),
-                )
-              else
-                const Icon(Icons.wallpaper_rounded,
-                    color: Colors.black, size: 18),
-              const SizedBox(width: 10),
-              Flexible(
-                child: Text(
-                  _installing ? 'APLICANDO...' : 'APLICAR WALLPAPER IAH',
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.4,
-                    color: Colors.black,
+                  // Phase chip top-right
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: hud.accent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        phase.spanishName,
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 8,
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
                   ),
+                  if (isInstallingThis)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black54,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: hud.accent,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                w.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.fraunces(
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w500,
+                  color: hud.text,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'TAP PARA APLICAR',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 8,
+                  letterSpacing: 1.4,
+                  color: hud.accent,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -408,21 +531,51 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
     );
   }
 
-  // ── Install flow: download webp → setLiveWallpaper ───────────────────
-  Future<void> _onInstallTap(Wallpaper iah) async {
+  // ── Install flow: pick phase + sign variant → download → setLiveWallpaper
+  Future<void> _onInstallTap(Wallpaper iah, _MoonPhase phase) async {
     if (_installing) return;
-    setState(() => _installing = true);
+    setState(() {
+      _installing = true;
+      _installingId = iah.id;
+    });
     try {
-      final localPath = await _downloadIfNeeded(iah);
+      // Compose the variant filename from BOTH today's moon phase AND the
+      // user's zodiac sign (so their sign is illuminated in the wheel).
+      // Falls back to a generic suffix when no profile exists yet.
+      final profile = UserProfileService.instance;
+      final signIdx = profile.zodiacSign?.index;
+      final suffix = signIdx == null
+          ? '' // generic — no personalisation halo
+          : '_${signIdx.toString().padLeft(2, '0')}';
+      final phaseFileName =
+          'pixora_iah_egyptian_giza_lunar_${phase.fileKey}$suffix.webp';
+      final localPath = await _downloadPhase(phaseFileName);
       final ok = await WallpaperService.instance.setLiveWallpaper(
         localPath,
         iah.glowColor.isEmpty ? '#D4AF37' : iah.glowColor,
       );
+      // After successful install, register the daily lunar phase updater so
+      // the moon "follows" the real lunar cycle without the user having to
+      // re-install. The native LunarPhaseWorker pre-caches the 8 phase
+      // variants for this sign so future updates work offline.
+      if (ok && signIdx != null) {
+        try {
+          await const MethodChannel('com.orbix.pixora/wallpaper')
+              .invokeMethod<bool>('startLunarUpdater', {
+            'signIndex': signIdx,
+            'glowColor': iah.glowColor.isEmpty ? '#D4AF37' : iah.glowColor,
+          });
+        } catch (_) {
+          // Non-fatal — wallpaper still applied, just won't auto-advance
+        }
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(ok
-              ? 'Confirma "Live wallpaper" en el selector para scroll panorámico'
+              ? 'Calendario lunar aplicado · ${phase.spanishName}. '
+                  'La luna se actualizará sola cada día. '
+                  'Escoge "Live wallpaper" para scroll panorámico.'
               : 'No pude aplicar el wallpaper'),
           duration: const Duration(seconds: 4),
         ),
@@ -433,42 +586,35 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
         SnackBar(content: Text('Error: $e')),
       );
     } finally {
-      if (mounted) setState(() => _installing = false);
+      if (mounted)
+        setState(() {
+          _installing = false;
+          _installingId = null;
+        });
     }
   }
 
-  Future<String> _downloadIfNeeded(Wallpaper iah) async {
+  /// Downloads a specific phase variant from the wallpaper-images bucket
+  /// (keyed by filename). Each phase has its own file so the local cache
+  /// can hold all 8 simultaneously and avoid redundant downloads after the
+  /// first install of each phase.
+  Future<String> _downloadPhase(String fileName) async {
     final dir = await getApplicationDocumentsDirectory();
     final wallpapersDir = Directory(p.join(dir.path, 'wallpapers'));
     if (!wallpapersDir.existsSync()) wallpapersDir.createSync(recursive: true);
-    // imageFile is just the filename in the wallpaper-images bucket.
-    final fileName = iah.imageFile;
     final localFile = File(p.join(wallpapersDir.path, fileName));
     if (localFile.existsSync()) {
-      // Phase 2 (task #109): HEAD/ETag check before re-using cached file.
-      // For now Iah is stable so the cache works; user can also manually
-      // clear cache via system Settings to force re-download if needed.
       return localFile.path;
     }
-    final res = await http.get(Uri.parse(iah.fullImageUrl));
+    final url = 'https://vzuwvsmlyigjtsearxym.supabase.co'
+        '/storage/v1/object/public/wallpaper-images/$fileName';
+    final res = await http.get(Uri.parse(url));
     if (res.statusCode != 200) {
       throw Exception('Download failed: HTTP ${res.statusCode}');
     }
     await localFile.writeAsBytes(res.bodyBytes);
     return localFile.path;
   }
-
-  Wallpaper _emptyWallpaper() => const Wallpaper(
-        id: '',
-        name: '',
-        description: '',
-        category: 'ARCANO',
-        imageFile: '',
-        previewFile: '',
-        imageSize: 0,
-        previewSize: 0,
-        glowColor: '#D4AF37',
-      );
 
   // ── Reading composition (future: pull from Supabase per zodiac+phase) ─
   _Reading _composeReading(_MoonPhase phase, int freq) {
@@ -556,7 +702,6 @@ class _MoonPainter extends CustomPainter {
     canvas.drawCircle(c, r * 1.05, glow);
     // Shadow (the un-illuminated portion)
     final shadow = Paint()..color = const Color(0xCC000000);
-    final t = (1 - illumination); // 0=full, 1=new
     if (illumination < 0.99) {
       // Render the shadow as a partial cover. Simple model: for waxing phases
       // shadow is on the LEFT, for waning on the RIGHT.
@@ -624,6 +769,7 @@ class _MoonPhase {
   final double illumination; // 0..1
   final bool isWaxing; // true between new and full
   final String spanishName; // e.g. "Cuarto Creciente"
+  final String fileKey; // e.g. "first_quarter" — matches uploaded variant
   final String nextMajorPhaseName;
   final int daysToNextMajor;
 
@@ -631,6 +777,7 @@ class _MoonPhase {
     required this.illumination,
     required this.isWaxing,
     required this.spanishName,
+    required this.fileKey,
     required this.nextMajorPhaseName,
     required this.daysToNextMajor,
   });
@@ -652,6 +799,7 @@ class _MoonPhase {
       illumination: illum,
       isWaxing: waxing,
       spanishName: _phaseName(phase),
+      fileKey: _fileKey(phase),
       nextMajorPhaseName: _nextMajor(phase),
       daysToNextMajor: _daysToNextMajor(phase),
     );
@@ -666,6 +814,19 @@ class _MoonPhase {
     if (p < 0.72) return 'Gibosa Menguante';
     if (p < 0.78) return 'Cuarto Menguante';
     return 'Menguante';
+  }
+
+  /// Maps the same phase boundaries used by `_phaseName` to the uploaded
+  /// Supabase filename suffix (matches build_iah_lunar_phases.py PHASES).
+  static String _fileKey(double p) {
+    if (p < 0.03 || p > 0.97) return 'new';
+    if (p < 0.22) return 'waxing_crescent';
+    if (p < 0.28) return 'first_quarter';
+    if (p < 0.47) return 'waxing_gibbous';
+    if (p < 0.53) return 'full';
+    if (p < 0.72) return 'waning_gibbous';
+    if (p < 0.78) return 'third_quarter';
+    return 'waning_crescent';
   }
 
   static String _nextMajor(double p) {

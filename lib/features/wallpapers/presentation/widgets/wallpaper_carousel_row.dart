@@ -73,16 +73,41 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Section header
+                // Section header — kept (and themed) so users navigate
+                // by category, but kept ELEGANT so it never competes with
+                // the imagery. Italic serif on top, gold underline accent.
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: context.hud.accent,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        widget.title,
+                        style: GoogleFonts.fraunces(
+                          fontSize: 22,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w500,
+                          color: context.hud.text,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: context.hud.accent.withValues(alpha: 0.25),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 // Horizontal list with scroll-driven effects

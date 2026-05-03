@@ -232,6 +232,22 @@ class MainActivity : AudioServiceActivity() {
                         val status = DayCycleWorker.getStatus(applicationContext)
                         result.success(status)
                     }
+                    "startLunarUpdater" -> {
+                        val signIndex = call.argument<Int>("signIndex") ?: -1
+                        val glowColor = call.argument<String>("glowColor") ?: "#D4AF37"
+                        val success = LunarPhaseWorker.start(
+                            applicationContext, signIndex, glowColor,
+                        )
+                        result.success(success)
+                    }
+                    "stopLunarUpdater" -> {
+                        val success = LunarPhaseWorker.stop(applicationContext)
+                        result.success(success)
+                    }
+                    "getLunarStatus" -> {
+                        val status = LunarPhaseWorker.getStatus(applicationContext)
+                        result.success(status)
+                    }
                     "getOverlayVisibility" -> {
                         val prefs = getSharedPreferences("pixora_live", 0)
                         val map = mapOf(

@@ -120,92 +120,107 @@ class _ArcanoOnboardingSheetState extends State<ArcanoOnboardingSheet> {
         padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
         child: SafeArea(
           top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // grabber
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: hud.textDim.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.86,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // grabber
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: hud.textDim.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                '⌬ BIENVENIDO AL UMBRAL',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  letterSpacing: 3,
-                  color: hud.accent,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Hola, cuéntanos de ti.',
-                style: GoogleFonts.fraunces(
-                  fontSize: 26,
-                  fontStyle: FontStyle.italic,
-                  color: hud.text,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Necesitamos solo dos datos para personalizar lecturas, '
-                'frecuencia y signo. Nada se sube a internet — vive solo en '
-                'este dispositivo.',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: hud.textDim,
-                  height: 1.45,
-                ),
-              ),
-              const SizedBox(height: 22),
-
-              // Name field
-              _fieldLabel(hud, 'NOMBRE'),
-              const SizedBox(height: 6),
-              _NameField(
-                  controller: _nameCtrl,
-                  hud: hud,
-                  onChanged: () => setState(() {})),
-              const SizedBox(height: 16),
-
-              // Birth date picker
-              _fieldLabel(hud, 'FECHA DE NACIMIENTO'),
-              const SizedBox(height: 6),
-              _DateField(
-                hud: hud,
-                date: _birthDate,
-                onTap: () => _pickDate(hud),
-              ),
-              const SizedBox(height: 22),
-
-              // CTA
-              _CtaButton(
-                hud: hud,
-                enabled: _canSave,
-                saving: _saving,
-                onTap: _save,
-              ),
-              const SizedBox(height: 12),
-              Center(
-                child: Text(
-                  '🔒 SOLO EN ESTE DISPOSITIVO · NO SUBE A INTERNET',
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 8,
-                    letterSpacing: 1.8,
-                    color: hud.textDim,
+                  const SizedBox(height: 18),
+                  Text(
+                    '⌬ BIENVENIDO AL UMBRAL',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 10,
+                      letterSpacing: 3,
+                      color: hud.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Hola, cuéntanos de ti.',
+                    style: GoogleFonts.fraunces(
+                      fontSize: 26,
+                      fontStyle: FontStyle.italic,
+                      color: hud.text,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Necesitamos solo dos datos para personalizar lecturas, '
+                    'frecuencia y signo. Nada se sube a internet — vive solo en '
+                    'este dispositivo.',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: hud.textDim,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+
+                  // Name field
+                  _fieldLabel(hud, 'NOMBRE'),
+                  const SizedBox(height: 6),
+                  _NameField(
+                      controller: _nameCtrl,
+                      hud: hud,
+                      onChanged: () => setState(() {})),
+                  const SizedBox(height: 16),
+
+                  // Birth date picker
+                  _fieldLabel(hud, 'FECHA DE NACIMIENTO'),
+                  const SizedBox(height: 6),
+                  _DateField(
+                    hud: hud,
+                    date: _birthDate,
+                    onTap: () => _pickDate(hud),
+                  ),
+
+                  // Live zodiac preview — confirms the calculated sign so
+                  // the user spots a wrong-date mistake (e.g. accepting
+                  // the picker's default Jan 1) BEFORE saving.
+                  if (_birthDate != null) ...[
+                    const SizedBox(height: 10),
+                    _ZodiacPreview(hud: hud, date: _birthDate!),
+                  ],
+                  const SizedBox(height: 22),
+
+                  // CTA
+                  _CtaButton(
+                    hud: hud,
+                    enabled: _canSave,
+                    saving: _saving,
+                    onTap: _save,
+                  ),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Text(
+                      '🔒 SOLO EN ESTE DISPOSITIVO · NO SUBE A INTERNET',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 8,
+                        letterSpacing: 1.8,
+                        color: hud.textDim,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -398,6 +413,84 @@ class _CtaButton extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ZodiacPreview extends StatelessWidget {
+  final HudTheme hud;
+  final DateTime date;
+  const _ZodiacPreview({required this.hud, required this.date});
+
+  // Inline Western tropical zodiac so this widget doesn't need to depend
+  // on UserProfileService. Mirrors UserProfileService._zodiacFor exactly.
+  ZodiacSign _signFor(int month, int day) {
+    bool after(int sm, int sd) => month > sm || (month == sm && day >= sd);
+    if (after(12, 22)) return ZodiacSign.capricorn;
+    if (after(11, 22)) return ZodiacSign.sagittarius;
+    if (after(10, 23)) return ZodiacSign.scorpio;
+    if (after(9, 23)) return ZodiacSign.libra;
+    if (after(8, 23)) return ZodiacSign.virgo;
+    if (after(7, 23)) return ZodiacSign.leo;
+    if (after(6, 21)) return ZodiacSign.cancer;
+    if (after(5, 21)) return ZodiacSign.gemini;
+    if (after(4, 20)) return ZodiacSign.taurus;
+    if (after(3, 21)) return ZodiacSign.aries;
+    if (after(2, 19)) return ZodiacSign.pisces;
+    if (after(1, 20)) return ZodiacSign.aquarius;
+    return ZodiacSign.capricorn;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sign = _signFor(date.month, date.day);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            hud.accent.withValues(alpha: 0.18),
+            hud.accent.withValues(alpha: 0.05),
+          ],
+        ),
+        border: Border.all(color: hud.accent.withValues(alpha: 0.45)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Text(
+            sign.glyph,
+            style: TextStyle(fontSize: 24, color: hud.accent),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TU SIGNO SERÁ',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 8,
+                    letterSpacing: 2,
+                    color: hud.accent,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  sign.label,
+                  style: GoogleFonts.fraunces(
+                    fontSize: 18,
+                    fontStyle: FontStyle.italic,
+                    color: hud.text,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

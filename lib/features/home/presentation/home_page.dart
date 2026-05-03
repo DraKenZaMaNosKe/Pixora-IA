@@ -615,36 +615,28 @@ class _NavItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
       splashColor: data.color.withValues(alpha: 0.18),
       highlightColor: data.color.withValues(alpha: 0.06),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-        margin: const EdgeInsets.symmetric(horizontal: 2),
-        decoration: BoxDecoration(
-          color: pillBg,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedScale(
-              scale: active ? 1.06 : 1.0,
+      // Icon-only nav — labels removed because they overflow at 10 items.
+      // The colored pill on the active tab is enough wayfinding.
+      // SizedBox with fixed height stops the pill from stretching to fill
+      // the entire parent (which made the active tab eat the whole screen).
+      child: SizedBox(
+        height: 44,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+          decoration: BoxDecoration(
+            color: pillBg,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Center(
+            child: AnimatedScale(
+              scale: active ? 1.15 : 1.0,
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOutBack,
-              child: Icon(data.icon, color: color, size: 18),
+              child: Icon(data.icon, color: color, size: 22),
             ),
-            const SizedBox(height: 3),
-            Text(
-              data.label,
-              style: GoogleFonts.getFont(
-                h.monoFontFamily,
-                fontSize: h.isIosStyle ? 9 : 8,
-                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                color: color,
-                letterSpacing: h.isIosStyle ? 0.4 : 0.15,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
