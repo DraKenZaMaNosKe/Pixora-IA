@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Wallpaper stats with real-time updates via Supabase Realtime.
@@ -9,6 +10,19 @@ class WallpaperStatsService {
   static final instance = WallpaperStatsService._();
 
   SupabaseClient get _client => Supabase.instance.client;
+
+  // Cached app version, populated lazily once per session
+  String? _appVersion;
+  Future<String> _getAppVersion() async {
+    if (_appVersion != null) return _appVersion!;
+    try {
+      final pkg = await PackageInfo.fromPlatform();
+      _appVersion = pkg.version;
+    } catch (_) {
+      _appVersion = 'unknown';
+    }
+    return _appVersion!;
+  }
 
   // In-memory cache: wallpaperId -> {likes, downloads, views}
   final Map<String, Map<String, int>> _cache = {};
@@ -166,7 +180,7 @@ class WallpaperStatsService {
         'p_wallpaper_id': wallpaperId,
         'p_event_type': eventType,
         'p_device_id': _deviceId,
-        'p_app_version': '1.6.3',
+        'p_app_version': await _getAppVersion(),
         if (metadata != null) 'p_metadata': metadata,
       });
     } catch (e) {

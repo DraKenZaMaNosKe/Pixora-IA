@@ -69,9 +69,11 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
     });
 
     // Show alternating ad (awards credits), then activate
-    AdService.instance.showInterstitialAd(placement: 'day_cycle_apply', onAdDismissed: () {
-      if (mounted) _doActivate();
-    });
+    AdService.instance.showInterstitialAd(
+        placement: 'day_cycle_apply',
+        onAdDismissed: () {
+          if (mounted) _doActivate();
+        });
   }
 
   Future<void> _doActivate() async {
@@ -101,6 +103,8 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
     if (!mounted) return;
 
     if (success) {
+      WallpaperStatsService.instance
+          .trackInstall('daycycle_${widget.theme.id}');
       ref.read(activeDayCycleIdProvider.notifier).state = widget.theme.id;
       setState(() {
         _loadingPhase = LoadingPhase.done;
@@ -168,7 +172,10 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage> {
                     gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, h.bg.withValues(alpha: 0.85)]),
+                        colors: [
+                          Colors.transparent,
+                          h.bg.withValues(alpha: 0.85)
+                        ]),
                   )),
                 ]),
               ),

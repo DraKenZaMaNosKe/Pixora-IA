@@ -134,9 +134,11 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 
     // Route through AdService — alternates ad/no-ad, awards credits on
     // dismissal, and is the single point that respects active subscriptions.
-    AdService.instance.showInterstitialAd(placement: 'ringtone_save', onAdDismissed: () {
-      if (mounted) _doSetAs(tone, type);
-    });
+    AdService.instance.showInterstitialAd(
+        placement: 'ringtone_save',
+        onAdDismissed: () {
+          if (mounted) _doSetAs(tone, type);
+        });
   }
 
   Future<void> _showPermissionDialog(RingtoneTone tone, int type) async {
@@ -216,6 +218,10 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
 
     final success =
         await RingtoneService.instance.setAsRingtone(path, tone.name, type);
+
+    if (success) {
+      WallpaperStatsService.instance.trackInstall('tone_${tone.id}');
+    }
 
     if (mounted) {
       setState(() {
@@ -490,7 +496,8 @@ class _ToneCard extends StatelessWidget {
                 color: context.hud.surfaceHi,
                 gradient: RadialGradient(
                   colors: [
-                    context.hud.accent.withValues(alpha: isPlaying ? 0.35 : 0.14),
+                    context.hud.accent
+                        .withValues(alpha: isPlaying ? 0.35 : 0.14),
                     context.hud.surface,
                   ],
                   radius: 0.85,
@@ -612,7 +619,10 @@ class _PlayStopButton extends StatelessWidget {
                     blurRadius: 16,
                     spreadRadius: 2)
               ]
-            : [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8)],
+            : [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3), blurRadius: 8)
+              ],
       ),
       child: Icon(
         isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
@@ -668,7 +678,8 @@ class _PlayingWaveState extends State<_PlayingWave>
               color: widget.color,
               borderRadius: BorderRadius.circular(2),
               boxShadow: [
-                BoxShadow(color: widget.color.withValues(alpha: 0.4), blurRadius: 4)
+                BoxShadow(
+                    color: widget.color.withValues(alpha: 0.4), blurRadius: 4)
               ],
             ),
           );

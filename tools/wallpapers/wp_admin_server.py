@@ -164,6 +164,14 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send_json(data, status)
 
+        if path == "/api/user-detail":
+            ident = query.get("id", [""])[0]
+            data, status = self._proxy(
+                "rpc/admin_user_detail", "POST",
+                json.dumps({"p_identity": ident}).encode()
+            )
+            return self._send_json(data, status)
+
         if path == "/api/recompute-trending":
             data, status = self._proxy("rpc/wp_recompute_trending", "POST", b"{}")
             return self._send_json({"updated": data}, status)

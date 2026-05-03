@@ -15,6 +15,7 @@ import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/subscription_service.dart';
+import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../core/utils/locale_helper.dart';
 
 class AIGeneratePage extends StatefulWidget {
@@ -381,6 +382,9 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
         'setWallpaper',
         {'path': file.path},
       );
+      // Track install in analytics — bucket all AI-generated wallpapers
+      // under a single id so the dashboard shows total AI installs.
+      WallpaperStatsService.instance.trackInstall('ai_generated');
       if (mounted) {
         _snack('▲ WALLPAPER APLICADO', color: context.hud.accent2);
       }
@@ -397,6 +401,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
       _snack('ERROR: no se pudo descargar', color: context.hud.accent);
       return;
     }
+    WallpaperStatsService.instance.trackShare('ai_generated');
     await Share.shareXFiles(
       [XFile(file.path)],
       text: 'Mira lo que generé con Pixora IA',

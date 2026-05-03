@@ -1010,23 +1010,48 @@ button { white-space: nowrap; }
   <!-- TOP USERS -->
   <div class="panel" style="margin-top:16px;">
     <h3>♊ Caballeros activos · últimos 30 días <span class="count" id="topu-count">--</span></h3>
+    <div class="dim" style="font-size:12px; margin-bottom:8px;">
+      Tap una fila para ver detalle (devices + breakdown por wallpaper). Usuarios autenticados se agrupan a través de todos sus devices.
+    </div>
     <div class="scrollable">
       <table>
         <thead>
           <tr>
             <th>tipo</th>
-            <th>identidad</th>
+            <th>nombre / id</th>
+            <th class="num">devices</th>
             <th class="num">eventos</th>
             <th class="num">vistas</th>
             <th class="num">installs</th>
             <th class="num">favs</th>
-            <th class="num">wallpapers únicos</th>
+            <th class="num">wp únicos</th>
             <th class="num">días activos</th>
             <th>última vez</th>
           </tr>
         </thead>
-        <tbody id="topu-tbody"><tr><td colspan="9" class="loading">cargando</td></tr></tbody>
+        <tbody id="topu-tbody"><tr><td colspan="10" class="loading">cargando</td></tr></tbody>
       </table>
+    </div>
+    <!-- Pagination controls -->
+    <div id="topu-pager" style="display:none; justify-content:space-between; align-items:center; margin-top:12px; gap:8px; flex-wrap:wrap;">
+      <div class="dim" style="font-size:12px;">
+        Mostrando <span id="topu-from">1</span>–<span id="topu-to">10</span> de <span id="topu-total">0</span>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button class="page-btn" id="topu-first" title="Primera página">«</button>
+        <button class="page-btn" id="topu-prev" title="Anterior">‹</button>
+        <span class="dim mono" style="font-size:12px; padding:0 8px;">
+          página <span id="topu-page">1</span> / <span id="topu-pages">1</span>
+        </span>
+        <button class="page-btn" id="topu-next" title="Siguiente">›</button>
+        <button class="page-btn" id="topu-last" title="Última página">»</button>
+        <select id="topu-pagesize" class="page-btn" style="margin-left:12px;">
+          <option value="10">10/pg</option>
+          <option value="25" selected>25/pg</option>
+          <option value="50">50/pg</option>
+          <option value="100">100/pg</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -1057,7 +1082,9 @@ button { white-space: nowrap; }
 <div class="modal-overlay" id="modal">
   <div class="modal" style="position:relative">
     <button class="close" id="modal-close">×</button>
-    <div class="left">
+    <!-- Generic content slot — shown when openUserDetail() etc. populate it. Wallpaper layout below is hidden then. -->
+    <div id="modal-body" style="display:none; padding:24px; overflow-y:auto; max-height:90vh;"></div>
+    <div class="left" id="modal-wp-left">
       <div class="preview" id="modal-preview"></div>
       <div class="stat-grid">
         <div class="stat"><div class="v" id="m-views">0</div><div class="l">vistas</div></div>
@@ -1082,6 +1109,7 @@ button { white-space: nowrap; }
       <h3 style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.15em; color:var(--muted); margin: 8px 0 12px;">Eventos recientes</h3>
       <div id="m-events" class="scrollable" style="max-height:240px"></div>
     </div>
+    <div id="modal-wp-right-marker" style="display:none"></div>
   </div>
 </div>
 
@@ -1247,25 +1275,67 @@ async function loadTopWallpapers() {
   });
 }
 
+// Pagination state for caballeros tab
+const topuPager = { rows: [], page: 1, size: 25 };
+
 async function loadTopUsers() {
-  const rows = await api('/api/top-users?limit=30');
+  // Fetch up to the view's max (200) so pagination is local — no extra server roundtrips on page change.
+  const rows = await api('/api/top-users?limit=200');
   if (!Array.isArray(rows)) return;
+  topuPager.rows = rows;
+  topuPager.page = 1;
   $('#topu-count').textContent = rows.length;
+  renderTopUsersPage();
+}
+
+function renderTopUsersPage() {
+  const total = topuPager.rows.length;
   const tbody = $('#topu-tbody');
+  const pager = $('#topu-pager');
   tbody.innerHTML = '';
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty">Sin actividad aún. Tap en algún wallpaper en la app.</td></tr>';
+  if (!total) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty">Sin actividad aún. Tap en algún wallpaper en la app.</td></tr>';
+    pager.style.display = 'none';
     return;
   }
-  rows.forEach(r => {
+  const pages = Math.max(1, Math.ceil(total / topuPager.size));
+  if (topuPager.page > pages) topuPager.page = pages;
+  const start = (topuPager.page - 1) * topuPager.size;
+  const end = Math.min(start + topuPager.size, total);
+  const slice = topuPager.rows.slice(start, end);
+  // Update pager UI
+  pager.style.display = total > topuPager.size ? 'flex' : 'none';
+  $('#topu-from').textContent = start + 1;
+  $('#topu-to').textContent = end;
+  $('#topu-total').textContent = total;
+  $('#topu-page').textContent = topuPager.page;
+  $('#topu-pages').textContent = pages;
+  $('#topu-first').disabled = topuPager.page === 1;
+  $('#topu-prev').disabled = topuPager.page === 1;
+  $('#topu-next').disabled = topuPager.page === pages;
+  $('#topu-last').disabled = topuPager.page === pages;
+  // Render the slice using the existing row template
+  slice.forEach(r => {
     const ident = r.identity || '-';
-    const short = ident.length > 16 ? ident.slice(0,8) + '…' + ident.slice(-4) : ident;
+    const short = ident.length > 14 ? ident.slice(0,6) + '…' + ident.slice(-4) : ident;
+    const isAuth = r.identity_type === 'user';
+    const displayName = r.display_name || (isAuth ? '(sin nombre)' : 'Anónimo');
+    const emailLine = r.email ? `<div class="dim" style="font-size:10px;">${escape(r.email)}</div>` : '';
+    const idLine = `<div class="dim mono" style="font-size:10px;">${escape(short)}</div>`;
+    const devCount = r.device_count || 1;
+    const devBadge = devCount > 1 ? `<span class="pill view" style="margin-left:4px;">${devCount}×</span>` : '';
     const tr = document.createElement('tr');
-    tr.title = ident;
+    tr.title = `${ident}\n${r.email || ''}`;
+    tr.style.cursor = 'pointer';
+    tr.dataset.identity = ident;
     tr.innerHTML = `
-      <td><span class="pill ${r.identity_type === 'user' ? 'install' : 'view'}">${r.identity_type}</span></td>
-      <td class="mono">${escape(short)}</td>
-      <td class="num mono">${fmt(r.total_events)}</td>
+      <td><span class="pill ${isAuth ? 'install' : 'view'}">${isAuth ? '👤 user' : '📱 anon'}</span></td>
+      <td>
+        <div style="font-weight:600;">${escape(displayName)}</div>
+        ${emailLine}${idLine}
+      </td>
+      <td class="num mono">${devCount}${devBadge}</td>
+      <td class="num mono"><b>${fmt(r.total_events)}</b></td>
       <td class="num mono">${fmt(r.views)}</td>
       <td class="num mono">${fmt(r.installs)}</td>
       <td class="num mono">${fmt(r.favorites)}</td>
@@ -1273,8 +1343,92 @@ async function loadTopUsers() {
       <td class="num mono">${fmt(r.active_days)}</td>
       <td class="dim mono">${fmtTs(r.last_seen)}</td>
     `;
+    tr.addEventListener('click', () => openUserDetail(ident));
     tbody.appendChild(tr);
   });
+}
+
+// ─── USER DETAIL MODAL ────────────────────────────────────────────────────
+async function openUserDetail(identity) {
+  const modal = $('#modal');
+  const body = $('#modal-body');
+  modal.classList.add('open');
+  // Switch to generic body layout (hide wallpaper panels)
+  body.style.display = '';
+  $('#modal-wp-left').style.display = 'none';
+  document.querySelector('#modal .right').style.display = 'none';
+  body.innerHTML = '<div class="loading">cargando detalle del caballero…</div>';
+  try {
+    const data = await api('/api/user-detail?id=' + encodeURIComponent(identity));
+    const d = Array.isArray(data) ? data[0] : data;
+    const p = d.profile || {};
+    const s = d.stats || {};
+    const devs = d.devices || [];
+    const wps = d.wallpapers || [];
+    const isAuth = !p.is_anonymous && p.id;
+    const name = p.display_name || (isAuth ? '(sin nombre)' : 'Anónimo');
+    const avatar = p.avatar_url
+      ? `<img src="${p.avatar_url}" style="width:64px;height:64px;border-radius:50%;border:2px solid #c9ff44;">`
+      : `<div style="width:64px;height:64px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:28px;">${isAuth ? '👤' : '📱'}</div>`;
+    body.innerHTML = `
+      <div style="display:flex; gap:16px; align-items:center; margin-bottom:20px;">
+        ${avatar}
+        <div>
+          <h2 style="margin:0; color:#c9ff44;">${escape(name)}</h2>
+          ${p.email ? `<div class="dim">${escape(p.email)}</div>` : ''}
+          <div class="dim mono" style="font-size:11px; margin-top:4px;">${escape(identity)}</div>
+          ${p.created_at ? `<div class="dim" style="font-size:11px;">Miembro desde ${fmtTs(p.created_at)}</div>` : ''}
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:20px;">
+        ${statBox('Eventos', s.total_events)}
+        ${statBox('Installs', s.installs)}
+        ${statBox('Vistas', s.views)}
+        ${statBox('Wallpapers', s.unique_wallpapers)}
+      </div>
+
+      ${devs.length > 1 ? `
+        <h3 style="margin-top:16px;">📱 Devices (${devs.length})</h3>
+        <table style="margin-bottom:20px;">
+          <thead><tr><th>device id</th><th class="num">eventos</th><th>primera vez</th><th>última vez</th></tr></thead>
+          <tbody>${devs.map(dv => `
+            <tr>
+              <td class="mono">${escape(dv.device_id || '-')}</td>
+              <td class="num mono">${fmt(dv.event_count)}</td>
+              <td class="dim mono">${fmtTs(dv.first_seen)}</td>
+              <td class="dim mono">${fmtTs(dv.last_seen)}</td>
+            </tr>`).join('')}</tbody>
+        </table>
+      ` : ''}
+
+      <h3>🖼️ Wallpapers (${wps.length})</h3>
+      <table>
+        <thead><tr><th>wallpaper</th><th>cat</th><th class="num">vistas</th><th class="num">installs</th><th class="num">favs</th><th>último evento</th></tr></thead>
+        <tbody>${wps.map(w => `
+          <tr>
+            <td>
+              <div>${escape(w.name || w.wallpaper_id)}</div>
+              <div class="dim mono" style="font-size:10px;">${escape(w.wallpaper_id)}</div>
+            </td>
+            <td><span class="pill view">${escape(w.category || '-')}</span></td>
+            <td class="num mono">${fmt(w.views)}</td>
+            <td class="num mono"><b>${fmt(w.installs)}</b></td>
+            <td class="num mono">${fmt(w.favorites)}</td>
+            <td class="dim mono">${fmtTs(w.last_event)}</td>
+          </tr>`).join('')}</tbody>
+      </table>
+    `;
+  } catch (e) {
+    body.innerHTML = `<div class="empty">Error: ${escape(e.message || String(e))}</div>`;
+  }
+}
+
+function statBox(label, value) {
+  return `<div style="background:#0f0f1f; border:1px solid #2a2a3e; border-radius:8px; padding:12px; text-align:center;">
+    <div style="font-size:24px; color:#c9ff44; font-weight:700;">${fmt(value || 0)}</div>
+    <div class="dim" style="font-size:11px; text-transform:uppercase; letter-spacing:0.1em;">${label}</div>
+  </div>`;
 }
 
 // ─── ADS ──────────────────────────────────────────────────────────────────
@@ -1479,6 +1633,10 @@ async function doSearch(resetPage = true) {
 async function openModal(id) {
   const overlay = $('#modal');
   overlay.classList.add('open');
+  // Switch to wallpaper layout (hide generic body, show left+right panels)
+  $('#modal-body').style.display = 'none';
+  $('#modal-wp-left').style.display = '';
+  document.querySelector('#modal .right').style.display = '';
   $('#m-name').textContent = 'cargando…';
   $('#m-id').textContent = id;
   $('#m-desc').textContent = '';
@@ -1611,6 +1769,23 @@ function bindEvents() {
     pager.page = 1;
     doSearch(false);
   };
+  // Caballeros (top users) pagination — local since we fetch up to 200 rows.
+  $('#topu-first').onclick = () => { topuPager.page = 1; renderTopUsersPage(); };
+  $('#topu-prev').onclick  = () => { if (topuPager.page > 1) { topuPager.page--; renderTopUsersPage(); } };
+  $('#topu-next').onclick  = () => {
+    const pages = Math.max(1, Math.ceil(topuPager.rows.length / topuPager.size));
+    if (topuPager.page < pages) { topuPager.page++; renderTopUsersPage(); }
+  };
+  $('#topu-last').onclick  = () => {
+    topuPager.page = Math.max(1, Math.ceil(topuPager.rows.length / topuPager.size));
+    renderTopUsersPage();
+  };
+  $('#topu-pagesize').onchange = (e) => {
+    topuPager.size = parseInt(e.target.value, 10) || 25;
+    topuPager.page = 1;
+    renderTopUsersPage();
+  };
+
   $('#modal-close').onclick = closeModal;
   $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });

@@ -40,9 +40,11 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
 
   Future<void> _startStory() async {
     // Show alternating ad (awards credits), then start
-    AdService.instance.showInterstitialAd(placement: 'story_apply', onAdDismissed: () {
-      if (mounted) _doStartStory();
-    });
+    AdService.instance.showInterstitialAd(
+        placement: 'story_apply',
+        onAdDismissed: () {
+          if (mounted) _doStartStory();
+        });
   }
 
   Future<void> _doStartStory() async {
@@ -111,6 +113,9 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
       intervalMinutes: widget.story.intervalMinutes,
     );
 
+    if (success) {
+      WallpaperStatsService.instance.trackInstall('story_${widget.story.id}');
+    }
     if (mounted) {
       ref.read(activeStoryIdProvider.notifier).state =
           success ? widget.story.id : null;
@@ -256,8 +261,8 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage> {
                                         borderRadius: BorderRadius.circular(16),
                                         boxShadow: [
                                           BoxShadow(
-                                            color:
-                                                Colors.black.withValues(alpha: 0.08),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.08),
                                             blurRadius: 14,
                                             offset: const Offset(0, 4),
                                           ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:path/path.dart' as p;
 
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/wallpaper_service.dart';
+import '../../../core/services/wallpaper_stats_service.dart';
 import '../../wallpapers/data/models/wallpaper.dart';
 import '../../wallpapers/providers/wallpaper_providers.dart';
 import '../data/user_profile_service.dart';
@@ -552,6 +554,12 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
         localPath,
         iah.glowColor.isEmpty ? '#D4AF37' : iah.glowColor,
       );
+      // Track the install in analytics — this was previously missing, so
+      // ARCANO installs never showed up in the admin dashboard. Fire-and-forget;
+      // do not block the UI on the network round-trip.
+      if (ok) {
+        unawaited(WallpaperStatsService.instance.trackInstall(iah.id));
+      }
       // After successful install, register the daily lunar phase updater so
       // the moon "follows" the real lunar cycle without the user having to
       // re-install. The native LunarPhaseWorker pre-caches the 8 phase
