@@ -88,9 +88,11 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     }
     // Route through AdService — alternates ad/no-ad, awards credits on
     // dismissal, and is the single point that respects active subscriptions.
-    AdService.instance.showInterstitialAd(placement: 'ringtone_play', onAdDismissed: () {
-      if (mounted) _doSetAs(tone, type);
-    });
+    AdService.instance.showInterstitialAd(
+        placement: 'ringtone_play',
+        onAdDismissed: () {
+          if (mounted) _doSetAs(tone, type);
+        });
   }
 
   Future<void> _showPermissionDialog(RingtoneTone tone, int type) async {
@@ -500,7 +502,8 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                   ),
                   const SizedBox(width: 2),
                   Icon(Icons.chevron_right,
-                      size: 18, color: context.hud.accent.withValues(alpha: 0.9)),
+                      size: 18,
+                      color: context.hud.accent.withValues(alpha: 0.9)),
                 ],
               ),
             ),
@@ -581,32 +584,6 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       ),
     );
   }
-}
-
-// ── Default preview helper ──────────────────────────────────────────
-// No bundled asset anymore — the previous `tone_preview_default.webp`
-// was a Supabase-generated placeholder with "DON'T USE UPLOADED BY 25 PIXELS"
-// watermark rendered into the image itself. Now we draw a clean Black & Gold
-// background with a soft radial vignette so it reads as intentional.
-Widget _toneBackground(BuildContext context, RingtoneTone tone,
-        List<Color> gradient, IconData icon) =>
-    _assetPreview(context, gradient, icon);
-
-Widget _assetPreview(
-    BuildContext context, List<Color> gradient, IconData icon) {
-  final h = context.hud;
-  return Container(
-    decoration: BoxDecoration(
-      color: h.surfaceHi,
-      gradient: RadialGradient(
-        colors: [
-          h.accent.withValues(alpha: 0.12),
-          h.surface,
-        ],
-        radius: 0.95,
-      ),
-    ),
-  );
 }
 
 // ── Recommended Card ────────────────────────────────────────────────
@@ -869,7 +846,10 @@ class _PlayButton extends StatelessWidget {
                     blurRadius: 16,
                     spreadRadius: 2)
               ]
-            : [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8)],
+            : [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3), blurRadius: 8)
+              ],
       ),
       child: Icon(
         isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
@@ -926,7 +906,8 @@ class _ToneGridCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      context.hud.accent.withValues(alpha: isPlaying ? 0.4 : 0.15),
+                      context.hud.accent
+                          .withValues(alpha: isPlaying ? 0.4 : 0.15),
                       Colors.transparent,
                     ],
                     radius: 0.8,
@@ -1017,7 +998,8 @@ class _MiniWaveState extends State<_MiniWave>
               color: widget.color,
               borderRadius: BorderRadius.circular(2),
               boxShadow: [
-                BoxShadow(color: widget.color.withValues(alpha: 0.4), blurRadius: 3)
+                BoxShadow(
+                    color: widget.color.withValues(alpha: 0.4), blurRadius: 3)
               ],
             ),
           );

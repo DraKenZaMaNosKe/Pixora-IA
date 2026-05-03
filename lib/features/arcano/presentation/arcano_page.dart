@@ -32,7 +32,6 @@ class ArcanoPage extends ConsumerStatefulWidget {
 class _ArcanoPageState extends ConsumerState<ArcanoPage> {
   bool _installing = false;
   String? _installingId;
-  bool _profileReady = false;
   bool _onboardingShown = false;
 
   @override
@@ -55,7 +54,6 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
   Future<void> _bootstrap() async {
     await UserProfileService.instance.init();
     if (!mounted) return;
-    setState(() => _profileReady = true);
     _maybeShowOnboarding();
   }
 

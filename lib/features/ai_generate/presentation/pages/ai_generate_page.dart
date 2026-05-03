@@ -235,14 +235,6 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
 
   // ── Gating ────────────────────────────────────────────────────────────
 
-  bool get _canGenerateNow {
-    final sub = SubscriptionService.instance;
-    if (sub.freeGensRemaining > 0) return true;
-    if (!sub.hasAccess) return false;
-    if (sub.generationsRemaining > 0) return true;
-    return CreditService.instance.balance >= 30;
-  }
-
   String get _buttonLabel {
     final sub = SubscriptionService.instance;
     if (!AuthService.instance.isLoggedIn) {
@@ -371,9 +363,11 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   Future<void> _onWallpaper() async {
     // Route through AdService — alternates ad/no-ad, awards credits on
     // dismissal, and is the single point that respects active subscriptions.
-    AdService.instance.showInterstitialAd(placement: 'ai_generate', onAdDismissed: () {
-      if (mounted) _doApplyWallpaper();
-    });
+    AdService.instance.showInterstitialAd(
+        placement: 'ai_generate',
+        onAdDismissed: () {
+          if (mounted) _doApplyWallpaper();
+        });
   }
 
   Future<void> _doApplyWallpaper() async {

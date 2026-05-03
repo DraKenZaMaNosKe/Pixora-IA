@@ -181,13 +181,6 @@ class _ParallaxCarouselCard extends StatelessWidget {
     return distFromCenter * -15.0; // subtle parallax
   }
 
-  // Deterministic "serial" derived from wallpaper id — X27-AA style.
-  String get _serial {
-    final h = wallpaper.id.hashCode.abs();
-    final hex = h.toRadixString(16).toUpperCase().padLeft(6, '0');
-    return '${hex.substring(0, 3)}-${hex.substring(3, 5)}';
-  }
-
   String get _lotNumber {
     final n = wallpaper.id.hashCode.abs() % 1000;
     return n.toString().padLeft(3, '0');

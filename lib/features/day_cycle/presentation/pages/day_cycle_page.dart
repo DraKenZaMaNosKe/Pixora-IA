@@ -21,8 +21,7 @@ class DayCyclePage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                color: context.hud.accent, size: 48),
+            Icon(Icons.error_outline, color: context.hud.accent, size: 48),
             const SizedBox(height: 12),
             Text('Failed to load themes',
                 style: TextStyle(color: context.hud.textDim)),
@@ -115,33 +114,6 @@ class _DayCycleCard extends ConsumerWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PeriodChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  const _PeriodChip(
-      {required this.icon, required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 3),
-          Text(label, style: TextStyle(fontSize: 10, color: color)),
-        ],
       ),
     );
   }

@@ -43,7 +43,7 @@ Expected: `build/app/outputs/bundle/release/app-release.aab`.
 ```bash
 jarsigner -verify -verbose -certs build/app/outputs/bundle/release/app-release.aab | tail -20
 ```
-Look for `jar verified` and the expected SHA-1 (`8C:42:66:C0:7B:90:21:2D:A3:BA:CB:35:18:1A:57:86:02:CF:AE:46` — the Play Store one per CLAUDE.md/master doc). If SHA doesn't match, stop — wrong keystore.
+Look for `jar verified` and the expected SHA-1 (`FF:0F:46:D4:E2:86:25:D1:14:C6:81:03:11:E4:6B:E4:47:2A:CD:79` — the current upload key as of v1.7.0). If SHA doesn't match, stop — wrong keystore.
 
 ### Phase 5 — Collect commits since last tag
 ```bash
@@ -86,7 +86,7 @@ vX.Y.Z+N — YYYY-MM-DD
   • <bullet EN>
   • <bullet ES>
   • Commit: <SHA>
-  • AAB SHA-1: 8C:42:66:...
+  • AAB SHA-1: FF:0F:46:...
 ```
 
 Use `python-docx` with the `pixora-master-doc-append` skill's append pattern.
