@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'credit_service.dart';
+import 'subscription_service.dart';
 
 /// Centralised interstitial ad service with revenue analytics.
 ///
@@ -14,11 +16,24 @@ class AdService {
   static final instance = AdService._();
 
   static const _interstitialAdUnitId = 'ca-app-pub-6734758230109098/6687118537';
-  static const _appVersion = '1.6.3';
 
-  /// DEBUG: when true, ads are bypassed but events are still logged with
-  /// `metadata.debug_mode = true` so the dashboard reflects activity in dev.
-  static const _debugDisableAds = true;
+  // App version is read lazily from PackageInfo (was hardcoded to '1.6.3').
+  String? _appVersion;
+  Future<String> _getAppVersion() async {
+    if (_appVersion != null) return _appVersion!;
+    try {
+      final pkg = await PackageInfo.fromPlatform();
+      _appVersion = pkg.version;
+    } catch (_) {
+      _appVersion = 'unknown';
+    }
+    return _appVersion!;
+  }
+
+  /// DEBUG flag — set to true ONLY when running locally in dev to bypass ads.
+  /// In release builds this MUST be false; otherwise we lose 100% of ad
+  /// revenue (the alternating-skip path swallows every attempt).
+  static const _debugDisableAds = false;
 
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;
@@ -80,6 +95,22 @@ class AdService {
   }) {
     _actionCount++;
     final shouldShow = _actionCount.isOdd;
+
+    // ─── Subscription gate ──────────────────────────────────────────────────
+    // Premium subscribers (active/trial/grace/cancelled-but-not-expired) see
+    // NO ads — the value prop of the subscription is "no ads + extras".
+    // Logged so the dashboard shows what we're skipping for premium users.
+    if (SubscriptionService.instance.hasAccess) {
+      _logAd(
+        adKind: 'interstitial',
+        placement: placement,
+        wallpaperId: wallpaperId,
+        shown: false,
+        metadata: {'reason': 'subscriber_skip'},
+      );
+      onAdDismissed();
+      return;
+    }
 
     // ─── Debug bypass ────────────────────────────────────────────────────────
     if (_debugDisableAds) {
@@ -180,7 +211,7 @@ class AdService {
         'p_wallpaper_id': wallpaperId,
         'p_shown': shown,
         'p_rewarded': rewarded,
-        'p_app_version': _appVersion,
+        'p_app_version': await _getAppVersion(),
         if (metadata != null) 'p_metadata': metadata,
       });
     } catch (e) {
