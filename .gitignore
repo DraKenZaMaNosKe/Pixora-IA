@@ -65,3 +65,6 @@ tools/batch/
 
 # Sprite originals (33 MB) — backed up locally, regenerable from prompts
 docs/design/concepts/iah_statues/_originals/
+
+# Dev scripts archive — sync to orbixprivate instead
+scripts/archive/
