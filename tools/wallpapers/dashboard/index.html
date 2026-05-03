@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pixora · Admin Dashboard</title>
+  <title>Pixora · Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,102 +11,88 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
- *  PIXORA · SANTUARIO — Saint Seiya themed admin sanctuary
- *  paleta: cosmos profundo + oro de armadura + chispas estelares
+ *  Pixora Admin — Stripe-inspired clean dashboard
+ *  Palette: dark slate-blue + warm gold accent + crisp typography
  * ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* Cosmos */
-  --cosmos-deep: #060818;        /* universo profundo */
-  --cosmos-mid:  #0e1233;        /* noche zodiacal */
-  --cosmos-fog:  #161b3e;        /* niebla cósmica */
-  --cosmos-card: #131736;        /* carta del santuario */
-  --cosmos-elev: #1c2150;        /* templo elevado */
-  --cosmos-line: #2d3470;        /* línea constelacional */
+  /* Surface — Stripe-style dark slate */
+  --surface-0: #0a0e1a;          /* page bg */
+  --surface-1: #11162a;          /* card bg */
+  --surface-2: #1a2038;          /* hover / elevated */
+  --surface-3: #232b48;          /* divider area */
+  --border:    #2a3354;          /* subtle borders */
+  --border-2:  #3a4570;          /* stronger borders */
 
-  /* Oro de armadura sagrada */
-  --gold-saint:    #d4af37;      /* oro Athena */
-  --gold-bright:   #f5d676;      /* energía dorada */
-  --gold-dark:     #8a6f1d;      /* oro oxidado */
-  --gold-glow:     rgba(245,214,118,0.45);
+  /* Brand accent — restrained warm gold (Pixora identity) */
+  --accent:        #d4af37;
+  --accent-soft:   rgba(212,175,55,0.10);
+  --accent-glow:   rgba(212,175,55,0.25);
+  --accent2:       #6c8eef;       /* secondary blue accent for charts */
 
-  /* Cosmo (energía) */
-  --cosmo-cyan:    #4ddbff;      /* Andrómeda / Cisne */
-  --cosmo-red:     #ff5050;      /* Fénix */
-  --cosmo-purple:  #b96cff;      /* Saga / Hades */
-  --cosmo-green:   #6cf594;      /* Dragón */
-  --cosmo-amber:   #ffb84d;      /* Sagitario */
+  /* Status colors */
+  --good:    #34d399;             /* green for positive */
+  --warn:    #fbbf24;             /* amber for warnings */
+  --bad:     #f87171;             /* red for errors */
+  --info:    #60a5fa;             /* blue for info */
 
-  /* Texto */
-  --star:    #ffffff;
-  --text:    #ecf0fa;
-  --muted:   #9ca3c4;
-  --dim:     #5d6593;
+  /* Text */
+  --text:    #e6e8ee;             /* main body text */
+  --text-2:  #b8bdcf;             /* secondary text */
+  --muted:   #7a83a0;             /* muted labels */
+  --dim:     #515a78;             /* very faint */
 
-  /* Aliases para compat con código previo */
-  --bg-base: var(--cosmos-deep);
-  --bg-soft: var(--cosmos-mid);
-  --bg-card: var(--cosmos-card);
-  --bg-elev: var(--cosmos-elev);
-  --border:  var(--cosmos-line);
-  --accent:  var(--gold-saint);
-  --accent2: var(--cosmo-purple);
-  --good:    var(--cosmo-green);
-  --warn:    var(--cosmo-amber);
-  --bad:     var(--cosmo-red);
-  --info:    var(--cosmo-cyan);
+  /* Aliases for back-compat with existing class names */
+  --cosmos-deep: var(--surface-0);
+  --cosmos-mid:  var(--surface-0);
+  --cosmos-fog:  var(--surface-1);
+  --cosmos-card: var(--surface-1);
+  --cosmos-elev: var(--surface-2);
+  --cosmos-line: var(--border);
+  --gold-saint:  var(--accent);
+  --gold-bright: var(--accent);
+  --gold-dark:   #8a6f1d;
+  --gold-glow:   var(--accent-glow);
+  --cosmo-cyan:   var(--info);
+  --cosmo-purple: var(--accent2);
+  --cosmo-green:  var(--good);
+  --cosmo-amber:  var(--warn);
+  --cosmo-red:    var(--bad);
+  --bg-base: var(--surface-0);
+  --bg-soft: var(--surface-1);
+  --bg-card: var(--surface-1);
+  --bg-elev: var(--surface-2);
+  --star: #ffffff;
 }
 
 * { box-sizing: border-box; }
 html, body { margin:0; padding:0; height:100%; }
 
-/* ─── Cosmos background con starfield animado ────────────────────────────── */
+/* ─── Clean dashboard background — single subtle gradient ────────────────── */
 body {
-  background:
-    radial-gradient(ellipse 1200px 700px at 25% -10%, rgba(212,175,55,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 900px 600px at 90% 20%, rgba(185,108,255,0.08) 0%, transparent 65%),
-    radial-gradient(ellipse 1400px 900px at 50% 100%, rgba(77,219,255,0.06) 0%, transparent 60%),
-    linear-gradient(180deg, var(--cosmos-mid) 0%, var(--cosmos-deep) 60%);
+  background: var(--surface-0);
   color: var(--text);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Capa de estrellas estáticas — densa pero sutil */
+/* Subtle radial accent at top (Stripe-inspired warmth, no starfield) */
 body::before {
   content: '';
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background-image:
-    radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent),
-    radial-gradient(1px 1px at 27% 67%, #fff 50%, transparent),
-    radial-gradient(1px 1px at 45% 12%, #fff 50%, transparent),
-    radial-gradient(2px 2px at 58% 88%, rgba(245,214,118,.9) 50%, transparent),
-    radial-gradient(1px 1px at 71% 35%, #fff 50%, transparent),
-    radial-gradient(1px 1px at 84% 71%, #fff 50%, transparent),
-    radial-gradient(1px 1px at 92% 22%, #fff 50%, transparent),
-    radial-gradient(1px 1px at 8% 92%, #fff 50%, transparent),
-    radial-gradient(2px 2px at 35% 45%, rgba(77,219,255,.7) 50%, transparent),
-    radial-gradient(1px 1px at 64% 14%, #fff 50%, transparent),
-    radial-gradient(1px 1px at 18% 50%, #fff 50%, transparent),
-    radial-gradient(1px 1px at 77% 55%, #fff 50%, transparent);
-  background-size: 100% 100%;
-  opacity: .55;
+  background:
+    radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(212,175,55,0.04) 0%, transparent 70%);
 }
 
-/* Capa de twinkles animados */
 body::after {
   content: '';
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background-image:
-    radial-gradient(1.5px 1.5px at 22% 28%, var(--gold-bright), transparent),
-    radial-gradient(1.5px 1.5px at 80% 60%, var(--gold-bright), transparent),
-    radial-gradient(1.5px 1.5px at 50% 80%, var(--cosmo-cyan), transparent),
-    radial-gradient(2px 2px at 65% 30%, var(--gold-saint), transparent),
-    radial-gradient(1.5px 1.5px at 10% 75%, var(--cosmo-purple), transparent);
-  background-size: 100% 100%;
+    radial-gradient(0px 0px at 50% 50%, transparent, transparent);
   animation: twinkle 4s ease-in-out infinite alternate;
 }
 
@@ -536,6 +522,8 @@ tbody tr:hover {
   background: linear-gradient(180deg, var(--cosmos-mid), var(--cosmos-deep));
   padding: 28px 24px; display:flex; flex-direction:column; gap:16px;
   border-right: 1px solid var(--gold-dark);
+  overflow-y: auto;  /* allow stats column to scroll independently */
+  max-height: 90vh;
 }
 .modal .preview {
   width:100%; aspect-ratio: 9/16; border-radius:4px;
@@ -544,7 +532,7 @@ tbody tr:hover {
   border: 1px solid var(--gold-dark);
   box-shadow: 0 8px 24px rgba(0,0,0,.6), 0 0 24px rgba(212,175,55,.15);
 }
-.modal .right { padding: 28px 32px; overflow-y: auto; }
+.modal .right { padding: 28px 32px; overflow-y: auto; max-height: 90vh; }
 .modal h2 {
   font-family:'Cinzel Decorative', 'Cinzel', serif; font-weight: 700;
   font-size: 30px; margin: 0 0 6px;
@@ -790,40 +778,45 @@ button { white-space: nowrap; }
 
 <header>
   <div>
-    <h1>Pixora<span class="star-mark">✧</span>Santuario</h1>
+    <h1>Pixora<span class="star-mark">·</span>Admin</h1>
     <div class="subtitle">
       <span class="live-pulse"></span>
-      Cosmo Activo · <span id="last-refresh">--:--:--</span> · <span id="event-count">0</span> sucesos canalizados
+      En vivo · <span id="last-refresh">--:--:--</span> · <span id="event-count">0</span> eventos
     </div>
   </div>
   <div class="actions">
     <button id="btn-recompute" class="ghost" title="Recalcular trending_score">
-      <span class="material-symbols-rounded">auto_awesome</span> Cosmo
+      <span class="material-symbols-rounded">trending_up</span> Recalcular
     </button>
     <button id="btn-pause" class="ghost" title="Pausa el auto-refresh">
       <span class="material-symbols-rounded">pause</span> <span id="pause-label">Pausar</span>
     </button>
     <button id="btn-refresh" class="primary">
-      <span class="material-symbols-rounded">refresh</span> Invocar
+      <span class="material-symbols-rounded">refresh</span> Actualizar
     </button>
   </div>
 </header>
 
 <nav class="nav">
   <button class="nav-btn active" data-page="home">
-    <span class="glyph">☉</span> Santuario
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">dashboard</span>
+    Resumen
   </button>
   <button class="nav-btn" data-page="armaduras">
-    <span class="glyph">♓</span> Armaduras
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">image</span>
+    Wallpapers
   </button>
   <button class="nav-btn" data-page="tesoro">
-    <span class="glyph">⚜</span> Tesoro de Athena
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">payments</span>
+    Ingresos
   </button>
   <button class="nav-btn" data-page="caballeros">
-    <span class="glyph">♊</span> Caballeros
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">group</span>
+    Usuarios
   </button>
   <button class="nav-btn" data-page="sucesos">
-    <span class="glyph">♐</span> Sucesos
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">event_note</span>
+    Eventos
   </button>
 </nav>
 
@@ -832,31 +825,31 @@ button { white-space: nowrap; }
   <!-- ════ PAGE: SANTUARIO (home) ══════════════════════════════════════════ -->
   <section class="page active" data-page="home">
 
-  <!-- KPI HERO · Tesoros del Santuario -->
+  <!-- KPI HERO · Resumen del catálogo -->
   <div class="kpi-grid">
     <div class="kpi gold">
-      <div class="label">Armaduras del santuario</div>
+      <div class="label">Wallpapers publicados</div>
       <div class="value" id="kpi-published">--</div>
     </div>
     <div class="kpi purple">
-      <div class="label">Visiones canalizadas</div>
+      <div class="label">Vistas totales</div>
       <div class="value" id="kpi-views">--</div>
     </div>
     <div class="kpi green">
-      <div class="label">Armaduras vestidas</div>
+      <div class="label">Installs totales</div>
       <div class="value" id="kpi-installs">--</div>
       <div class="delta" id="kpi-install-rate">--</div>
     </div>
     <div class="kpi blue">
-      <div class="label">Constelaciones activas</div>
+      <div class="label">Categorías activas</div>
       <div class="value" id="kpi-categories">--</div>
     </div>
     <div class="kpi">
-      <div class="label">Sucesos del día</div>
+      <div class="label">Eventos hoy</div>
       <div class="value" id="kpi-today">--</div>
     </div>
     <div class="kpi">
-      <div class="label">Caballeros (30d)</div>
+      <div class="label">Usuarios (30d)</div>
       <div class="value" id="kpi-devices">--</div>
     </div>
   </div>
@@ -864,11 +857,11 @@ button { white-space: nowrap; }
   <!-- DAILY CHART -->
   <div class="row2">
     <div class="panel">
-      <h3>♉ Actividad diaria · últimos 30 días</h3>
+      <h3>Actividad diaria · últimos 30 días</h3>
       <canvas id="chart-daily"></canvas>
     </div>
     <div class="panel">
-      <h3>♋ Constelaciones · distribución</h3>
+      <h3>Distribución por categoría</h3>
       <canvas id="chart-categories"></canvas>
     </div>
   </div>
@@ -882,7 +875,7 @@ button { white-space: nowrap; }
 
   <!-- SEARCH + RESULTS GRID -->
   <div class="section-title">
-    <span><span class="accent">✦</span> Explora el santuario · 279 armaduras</span>
+    <span>Catálogo de wallpapers · explora y busca</span>
   </div>
   <div class="searchbar">
     <input type="text" id="search-input" placeholder="Busca por nombre, tag o categoría… (ej. dragon, anime, gaming)">
@@ -894,7 +887,7 @@ button { white-space: nowrap; }
     </button>
   </div>
   <div class="panel">
-    <h3>♓ Armaduras encontradas <span class="count" id="search-count">0</span></h3>
+    <h3>Resultados <span class="count" id="search-count">0</span></h3>
     <div class="wp-grid" id="search-grid">
       <div class="loading">cargando trending</div>
     </div>
@@ -916,7 +909,7 @@ button { white-space: nowrap; }
 
   <!-- TOP WALLPAPERS (legendarias) -->
   <div class="panel" style="margin-top:16px;">
-    <h3>♌ Armaduras legendarias · por visiones <span class="count" id="topwp-count">--</span></h3>
+    <h3>Top wallpapers por vistas <span class="count" id="topwp-count">--</span></h3>
     <div class="scrollable">
       <table>
         <thead>
@@ -941,56 +934,82 @@ button { white-space: nowrap; }
   <!-- ════ PAGE: TESORO (ads + revenue) ═════════════════════════════════════ -->
   <section class="page" data-page="tesoro">
 
-  <!-- ─── ADS & REVENUE · TESORO DE ATHENA ────────────────────────────── -->
+  <!-- ─── ADS & REVENUE ────────────────────────────────────────────────── -->
   <div class="section-title" style="margin-top: 8px">
-    <span><span class="accent">⚜</span> Tesoro de Athena · ofrendas y revenue</span>
+    <span>Ingresos publicitarios · revenue por placement</span>
     <span class="dim mono" style="font-size:10px">interstitial $2.50 · rewarded $8.00 · banner $0.60 USD eCPM LATAM</span>
   </div>
   <div class="kpi-grid">
     <div class="kpi green">
-      <div class="label">Cosmo recaudado (USD)</div>
+      <div class="label">Ingresos totales (USD)</div>
       <div class="value" id="ad-revenue-total">$--</div>
       <div class="delta" id="ad-revenue-30d">-- en últimos 30 días</div>
     </div>
     <div class="kpi gold">
-      <div class="label">Ofrendas servidas</div>
+      <div class="label">Anuncios mostrados</div>
       <div class="value" id="ad-shown-total">--</div>
       <div class="delta" id="ad-fill-rate">fill rate --%</div>
     </div>
     <div class="kpi purple">
-      <div class="label">Caballeros que ofrendaron</div>
+      <div class="label">Usuarios con anuncios</div>
       <div class="value" id="ad-devices">--</div>
     </div>
     <div class="kpi blue">
-      <div class="label">Templo más activo</div>
+      <div class="label">Placement principal</div>
       <div class="value mono" style="font-size:16px" id="ad-top-placement">--</div>
     </div>
   </div>
   <div class="row2">
     <div class="panel">
-      <h3>♑ Cosmo diario · últimos 30 días</h3>
+      <h3>Ingresos diarios · últimos 30 días</h3>
       <canvas id="chart-ad-revenue"></canvas>
     </div>
     <div class="panel">
-      <h3>♎ Caballeros de oro · mejor recaudación <span class="count" id="ad-topu-count">--</span></h3>
+      <h3>Top usuarios por ingresos <span class="count" id="ad-topu-count">--</span></h3>
+      <div class="dim" style="font-size:11px; margin-bottom:8px;">
+        Tap fila para drill-down. Usuarios autenticados se agrupan a través de todos sus devices.
+      </div>
       <div class="scrollable">
         <table>
           <thead>
             <tr>
-              <th>identidad</th>
-              <th class="num">ads totales</th>
-              <th class="num">interstitials</th>
-              <th class="num">rewarded</th>
-              <th class="num">$ estimado</th>
+              <th>tipo</th>
+              <th>nombre / id</th>
+              <th class="num">devices</th>
+              <th class="num">ads</th>
+              <th class="num">inter</th>
+              <th class="num">rwd</th>
+              <th class="num">$ est</th>
             </tr>
           </thead>
-          <tbody id="ad-topu-tbody"><tr><td colspan="5" class="loading">cargando</td></tr></tbody>
+          <tbody id="ad-topu-tbody"><tr><td colspan="7" class="loading">cargando</td></tr></tbody>
         </table>
+      </div>
+      <!-- Pagination controls (mirror del tab Usuarios) -->
+      <div id="ad-topu-pager" style="display:none; justify-content:space-between; align-items:center; margin-top:10px; gap:8px; flex-wrap:wrap;">
+        <div class="dim" style="font-size:11px;">
+          Mostrando <span id="ad-topu-from">1</span>–<span id="ad-topu-to">10</span> de <span id="ad-topu-total">0</span>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button class="page-btn" id="ad-topu-first" title="Primera página">«</button>
+          <button class="page-btn" id="ad-topu-prev" title="Anterior">‹</button>
+          <span class="dim mono" style="font-size:11px; padding:0 8px;">
+            página <span id="ad-topu-page">1</span> / <span id="ad-topu-pages">1</span>
+          </span>
+          <button class="page-btn" id="ad-topu-next" title="Siguiente">›</button>
+          <button class="page-btn" id="ad-topu-last" title="Última página">»</button>
+          <select id="ad-topu-pagesize" class="page-btn" style="margin-left:10px;">
+            <option value="10">10/pg</option>
+            <option value="25" selected>25/pg</option>
+            <option value="50">50/pg</option>
+            <option value="100">100/pg</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
   <div class="panel" style="margin-top:16px;">
-    <h3>♏ Ofrendas recientes · feed en vivo <span class="count" id="ad-feed-count">--</span></h3>
+    <h3>Anuncios recientes · feed en vivo <span class="count" id="ad-feed-count">--</span></h3>
     <div class="scrollable" id="ad-feed">
       <div class="loading">cargando</div>
     </div>
@@ -1004,12 +1023,12 @@ button { white-space: nowrap; }
   <section class="page" data-page="caballeros">
 
   <div class="section-title">
-    <span><span class="accent">♊</span> Los caballeros del santuario</span>
+    <span>Usuarios · actividad agrupada por persona</span>
   </div>
 
   <!-- TOP USERS -->
   <div class="panel" style="margin-top:16px;">
-    <h3>♊ Caballeros activos · últimos 30 días <span class="count" id="topu-count">--</span></h3>
+    <h3>Usuarios activos · últimos 30 días <span class="count" id="topu-count">--</span></h3>
     <div class="dim" style="font-size:12px; margin-bottom:8px;">
       Tap una fila para ver detalle (devices + breakdown por wallpaper). Usuarios autenticados se agrupan a través de todos sus devices.
     </div>
@@ -1063,11 +1082,11 @@ button { white-space: nowrap; }
   <section class="page" data-page="sucesos">
 
   <div class="section-title">
-    <span><span class="accent">♐</span> Sucesos del cosmos · canalización en vivo</span>
+    <span>Eventos en vivo · stream desde Supabase</span>
   </div>
 
   <div class="panel">
-    <h3>♐ Sucesos del cosmos <span class="count" id="feed-count">0</span></h3>
+    <h3>Eventos recientes <span class="count" id="feed-count">0</span></h3>
     <div class="scrollable" id="feed" style="max-height: 60vh">
       <div class="loading">esperando eventos</div>
     </div>
@@ -1116,9 +1135,8 @@ button { white-space: nowrap; }
 <div class="toast" id="toast">--</div>
 
 <footer>
-  <span class="ornament">♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓</span>
-  Pixora Santuario · Por la diosa Athena ·
-  <a href="javascript:location.reload()">invocar de nuevo</a>
+  Pixora Admin · datos en vivo desde Supabase ·
+  <a href="javascript:location.reload()">recargar</a>
 </footer>
 
 <script>
@@ -1275,8 +1293,12 @@ async function loadTopWallpapers() {
   });
 }
 
-// Pagination state for caballeros tab
+// Pagination state for usuarios tab
 const topuPager = { rows: [], page: 1, size: 25 };
+
+// Cache of user_id -> {name, email, avatar} for cross-tab enrichment
+// (events feed shows user name when known, drilldown is cheaper, etc.)
+window._userInfo = {};
 
 async function loadTopUsers() {
   // Fetch up to the view's max (200) so pagination is local — no extra server roundtrips on page change.
@@ -1285,6 +1307,15 @@ async function loadTopUsers() {
   topuPager.rows = rows;
   topuPager.page = 1;
   $('#topu-count').textContent = rows.length;
+  // Build the name cache so other tabs can show "Eduardo Contreras" instead of UUID prefix.
+  rows.forEach(r => {
+    if (r.user_id) window._userInfo[r.user_id] = {
+      name: r.display_name, email: r.email, type: 'user',
+    };
+    if (r.device_id && !window._userInfo[r.device_id]) {
+      window._userInfo[r.device_id] = { type: 'device' };
+    }
+  });
   renderTopUsersPage();
 }
 
@@ -1357,7 +1388,7 @@ async function openUserDetail(identity) {
   body.style.display = '';
   $('#modal-wp-left').style.display = 'none';
   document.querySelector('#modal .right').style.display = 'none';
-  body.innerHTML = '<div class="loading">cargando detalle del caballero…</div>';
+  body.innerHTML = '<div class="loading">cargando detalle del usuario…</div>';
   try {
     const data = await api('/api/user-detail?id=' + encodeURIComponent(identity));
     const d = Array.isArray(data) ? data[0] : data;
@@ -1476,28 +1507,76 @@ async function loadAdRevenueDaily() {
   });
 }
 
+// Pagination state for ad-topu (mirror del topuPager del tab Usuarios)
+const adTopuPager = { rows: [], page: 1, size: 25 };
+
 async function loadAdTopUsers() {
-  const rows = await api('/api/ad-top-users?limit=20');
+  // Fetch up to 200 (server caps at view's natural limit) so pagination is local.
+  const rows = await api('/api/ad-top-users?limit=200');
   if (!Array.isArray(rows)) return;
+  adTopuPager.rows = rows;
+  adTopuPager.page = 1;
   $('#ad-topu-count').textContent = rows.length;
+  // Enrich the cross-tab name cache with ad-side info too (in case some users
+  // appear here but not in the wallpaper-events top-users list).
+  rows.forEach(r => {
+    if (r.user_id) window._userInfo[r.user_id] = {
+      name: r.display_name, email: r.email, type: 'user',
+    };
+  });
+  renderAdTopUsersPage();
+}
+
+function renderAdTopUsersPage() {
+  const total = adTopuPager.rows.length;
   const tbody = $('#ad-topu-tbody');
+  const pager = $('#ad-topu-pager');
   tbody.innerHTML = '';
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty">Aún no hay ads servidos. (Modo debug = los ads no se muestran pero se loguean.)</td></tr>';
+  if (!total) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">Aún no hay ads servidos. (Modo debug = los ads no se muestran pero se loguean.)</td></tr>';
+    pager.style.display = 'none';
     return;
   }
-  rows.forEach(r => {
+  const pages = Math.max(1, Math.ceil(total / adTopuPager.size));
+  if (adTopuPager.page > pages) adTopuPager.page = pages;
+  const start = (adTopuPager.page - 1) * adTopuPager.size;
+  const end = Math.min(start + adTopuPager.size, total);
+  const slice = adTopuPager.rows.slice(start, end);
+  pager.style.display = total > adTopuPager.size ? 'flex' : 'none';
+  $('#ad-topu-from').textContent = start + 1;
+  $('#ad-topu-to').textContent = end;
+  $('#ad-topu-total').textContent = total;
+  $('#ad-topu-page').textContent = adTopuPager.page;
+  $('#ad-topu-pages').textContent = pages;
+  $('#ad-topu-first').disabled = adTopuPager.page === 1;
+  $('#ad-topu-prev').disabled = adTopuPager.page === 1;
+  $('#ad-topu-next').disabled = adTopuPager.page === pages;
+  $('#ad-topu-last').disabled = adTopuPager.page === pages;
+  slice.forEach(r => {
     const ident = r.identity || '-';
-    const short = ident.length > 16 ? ident.slice(0,8) + '…' + ident.slice(-4) : ident;
+    const short = ident.length > 14 ? ident.slice(0, 6) + '…' + ident.slice(-4) : ident;
+    const isAuth = r.identity_type === 'user';
+    const displayName = r.display_name || (isAuth ? '(sin nombre)' : 'Anónimo');
+    const emailLine = r.email ? `<div class="dim" style="font-size:10px;">${escape(r.email)}</div>` : '';
+    const idLine = `<div class="dim mono" style="font-size:10px;">${escape(short)}</div>`;
+    const devCount = r.device_count || 1;
+    const devBadge = devCount > 1 ? `<span class="pill view" style="margin-left:4px;">${devCount}×</span>` : '';
     const tr = document.createElement('tr');
-    tr.title = ident;
+    tr.title = `${ident}\n${r.email || ''}`;
+    tr.style.cursor = 'pointer';
     tr.innerHTML = `
-      <td><span class="pill ${r.identity_type==='user'?'install':'view'}" style="margin-right:6px">${r.identity_type}</span><span class="mono">${escape(short)}</span></td>
-      <td class="num mono">${fmt(r.total_ads)}</td>
+      <td><span class="pill ${isAuth ? 'install' : 'view'}">${isAuth ? '👤 user' : '📱 anon'}</span></td>
+      <td>
+        <div style="font-weight:600;">${escape(displayName)}</div>
+        ${emailLine}${idLine}
+      </td>
+      <td class="num mono">${devCount}${devBadge}</td>
+      <td class="num mono"><b>${fmt(r.total_ads)}</b></td>
       <td class="num mono">${fmt(r.interstitials)}</td>
       <td class="num mono">${fmt(r.rewarded_completed)}/${fmt(r.rewarded_shown)}</td>
       <td class="num mono" style="color:var(--good); font-weight:600">${fmtMoney(r.est_revenue_usd)}</td>
     `;
+    tr.addEventListener('click', () => openUserDetail(ident));
     tbody.appendChild(tr);
   });
 }
@@ -1544,14 +1623,29 @@ async function loadFeed() {
     const div = document.createElement('div');
     div.className = 'event-row';
     const ident = e.user_id || e.device_id || '-';
-    const short = ident.length > 12 ? ident.slice(0,10) + '…' : ident;
+    // Resolve user name from cache populated by loadTopUsers (otherwise show short id)
+    const cached = window._userInfo[ident];
+    let whoLabel, whoClass = 'who';
+    if (cached && cached.name) {
+      whoLabel = cached.name;
+    } else if (cached && cached.type === 'user') {
+      whoLabel = '(usuario sin nombre)';
+    } else {
+      const short = ident.length > 12 ? ident.slice(0, 10) + '…' : ident;
+      whoLabel = short;
+      whoClass = 'who mono';
+    }
+    const isUser = e.user_id != null;
     div.innerHTML = `
       <div class="ts">${fmtTs(e.ts)}</div>
       <div><span class="pill ${e.event_type}">${e.event_type}</span></div>
       <div class="wp" data-id="${escape(e.wallpaper_id || '')}">${escape(e.wallpaper_id || '-')}</div>
-      <div class="who" title="${escape(ident)}">${escape(short)}</div>
+      <div class="${whoClass}" title="${escape(ident)}" style="cursor:pointer">
+        ${isUser ? '<span style="opacity:0.6">👤</span> ' : '<span style="opacity:0.5">📱</span> '}${escape(whoLabel)}
+      </div>
     `;
     div.querySelector('.wp').onclick = () => e.wallpaper_id && openModal(e.wallpaper_id);
+    div.querySelector('.who').onclick = () => openUserDetail(ident);
     feed.appendChild(div);
   });
 }
@@ -1665,6 +1759,28 @@ async function openModal(id) {
   $('#m-devices').textContent = fmt(b.unique_devices ?? 0);
   $('#m-rate').textContent = `${(b.install_rate_pct || 0).toFixed(1)}%`;
 
+  // Helper to enrich an identity with name+email from the cross-tab cache
+  function whoLabelFor(ident, identityType) {
+    const cached = window._userInfo[ident];
+    const isUser = identityType === 'user' || (cached && cached.type === 'user');
+    if (cached && cached.name) {
+      const emailLine = cached.email ? `<div class="dim" style="font-size:10px;">${escape(cached.email)}</div>` : '';
+      return `<div>
+        <div style="font-weight:600;">${isUser ? '👤 ' : ''}${escape(cached.name)}</div>
+        ${emailLine}
+      </div>`;
+    }
+    if (isUser) {
+      const short = ident.length > 14 ? ident.slice(0,8) + '…' + ident.slice(-4) : ident;
+      return `<div>
+        <div>👤 (sin nombre)</div>
+        <div class="dim mono" style="font-size:10px;">${escape(short)}</div>
+      </div>`;
+    }
+    const short = ident.length > 14 ? ident.slice(0,10) + '…' + ident.slice(-4) : ident;
+    return `<span class="mono">📱 ${escape(short)}</span>`;
+  }
+
   // Render installers list
   const inst = $('#m-installers');
   $('#m-installers-count').textContent = Array.isArray(installers) ? installers.length : 0;
@@ -1673,14 +1789,20 @@ async function openModal(id) {
   } else {
     inst.innerHTML = installers.map(u => {
       const ident = u.identity || '-';
-      const short = ident.length > 16 ? ident.slice(0,10) + '…' + ident.slice(-4) : ident;
-      return `<div class="event-row" style="grid-template-columns: 70px 1fr 50px 110px">
-        <div><span class="pill ${u.identity_type==='user'?'install':'view'}">${u.identity_type}</span></div>
-        <div class="who mono" title="${escape(ident)}">${escape(short)}</div>
+      return `<div class="event-row" style="grid-template-columns: 60px 1fr 50px 110px; cursor:pointer" data-ident="${escape(ident)}">
+        <div><span class="pill ${u.identity_type==='user'?'install':'view'}">${u.identity_type==='user'?'user':'anon'}</span></div>
+        <div class="who" title="${escape(ident)}">${whoLabelFor(ident, u.identity_type)}</div>
         <div class="num mono" title="installs">${u.install_count}×</div>
         <div class="ts">${fmtTs(u.last_install)}</div>
       </div>`;
     }).join('');
+    // Click row → drill-down to user detail (closes wallpaper modal first)
+    inst.querySelectorAll('.event-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const id = row.dataset.ident;
+        if (id) { closeModal(); openUserDetail(id); }
+      });
+    });
   }
 
   const ev = $('#m-events');
@@ -1689,13 +1811,19 @@ async function openModal(id) {
   } else {
     ev.innerHTML = events.map(e => {
       const ident = e.user_id || e.device_id || '-';
-      const short = ident.length > 14 ? ident.slice(0,12) + '…' : ident;
-      return `<div class="event-row" style="grid-template-columns: 80px 80px 1fr">
+      const identType = e.user_id ? 'user' : 'device';
+      return `<div class="event-row" style="grid-template-columns: 80px 80px 1fr; cursor:pointer" data-ident="${escape(ident)}">
         <div class="ts">${fmtTs(e.ts)}</div>
         <div><span class="pill ${e.event_type}">${e.event_type}</span></div>
-        <div class="who" title="${escape(ident)}">${escape(short)}</div>
+        <div class="who" title="${escape(ident)}">${whoLabelFor(ident, identType)}</div>
       </div>`;
     }).join('');
+    ev.querySelectorAll('.event-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const id = row.dataset.ident;
+        if (id) { closeModal(); openUserDetail(id); }
+      });
+    });
   }
 }
 
@@ -1769,7 +1897,24 @@ function bindEvents() {
     pager.page = 1;
     doSearch(false);
   };
-  // Caballeros (top users) pagination — local since we fetch up to 200 rows.
+  // Ad-topu (Top usuarios por ingresos) pagination — same pattern.
+  $('#ad-topu-first').onclick = () => { adTopuPager.page = 1; renderAdTopUsersPage(); };
+  $('#ad-topu-prev').onclick  = () => { if (adTopuPager.page > 1) { adTopuPager.page--; renderAdTopUsersPage(); } };
+  $('#ad-topu-next').onclick  = () => {
+    const pages = Math.max(1, Math.ceil(adTopuPager.rows.length / adTopuPager.size));
+    if (adTopuPager.page < pages) { adTopuPager.page++; renderAdTopUsersPage(); }
+  };
+  $('#ad-topu-last').onclick  = () => {
+    adTopuPager.page = Math.max(1, Math.ceil(adTopuPager.rows.length / adTopuPager.size));
+    renderAdTopUsersPage();
+  };
+  $('#ad-topu-pagesize').onchange = (e) => {
+    adTopuPager.size = parseInt(e.target.value, 10) || 25;
+    adTopuPager.page = 1;
+    renderAdTopUsersPage();
+  };
+
+  // Usuarios (top users) pagination — local since we fetch up to 200 rows.
   $('#topu-first').onclick = () => { topuPager.page = 1; renderTopUsersPage(); };
   $('#topu-prev').onclick  = () => { if (topuPager.page > 1) { topuPager.page--; renderTopUsersPage(); } };
   $('#topu-next').onclick  = () => {
