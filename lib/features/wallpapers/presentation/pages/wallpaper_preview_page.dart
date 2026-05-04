@@ -10,6 +10,7 @@ import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
+import '../../../../core/widgets/codex_detail_layout.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../favorites/providers/favorites_provider.dart';
@@ -445,6 +446,13 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     final isFav = ref.watch(favoritesProvider).contains(widget.wallpaper.id);
     final w = widget.wallpaper;
 
+    // Cultural / mythology wallpapers get the editorial Códice layout
+    // (deity portrait + chapter heading + drop-cap intro + facts grid +
+    // ofrenda card). Others use the legacy preview/CTA stack.
+    if (w.cultural != null && w.cultural!.isNotEmpty) {
+      return _buildCodexScaffold(isFav);
+    }
+
     return Scaffold(
       backgroundColor: context.hud.bg,
       body: Stack(
@@ -798,6 +806,40 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
                 label,
                 style: _display(14, color: h.bg, w: FontWeight.w900, ls: 0.25),
               ),
+      ),
+    );
+  }
+
+  /// Editorial "Códice" layout — used when the wallpaper carries cultural
+  /// data (mythology, mexica gods, egyptian deities, etc.). Reuses the apply
+  /// CTA + favorite logic from the legacy preview but presents the wallpaper
+  /// as a magazine-style page so users discover the cultural story.
+  Widget _buildCodexScaffold(bool isFav) {
+    final w = widget.wallpaper;
+    return Scaffold(
+      backgroundColor: context.hud.bg,
+      body: Stack(
+        children: [
+          CodexDetailLayout(
+            heroImage: CachedWallpaperImage(
+              imageUrl: w.previewUrl,
+              fit: BoxFit.cover,
+            ),
+            title: w.name,
+            cultural: w.cultural!,
+            applyCta: _buildCta(),
+            statusBar: SafeArea(
+              child: _buildTopBar(isFav),
+            ),
+          ),
+          LoadingOverlay(
+            visible: _isApplying,
+            progress: _downloadProgress > 0 ? _downloadProgress : null,
+            status: _loadingStatus,
+            accentColor: context.hud.accent,
+            phase: _loadingPhase,
+          ),
+        ],
       ),
     );
   }

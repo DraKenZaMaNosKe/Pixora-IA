@@ -11,6 +11,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Version: `pubspec.yaml` → `version: X.Y.Z+N`
 - iOS gating: everything except `WallpapersPage`, `FavoritesPage`, `SettingsPage` is wrapped in `if (!Platform.isIOS)` in `home_page.dart`
 
+## Language & tone — MANDATORY
+
+The user is from **Guadalajara, Jalisco, México**. **Always respond in Latin Mexican Spanish, informal tone** ("tú", "amigo", "porfa", "haber qué tal queda", "ahorita", "chido"). Never use Castilian Spanish ("vale", "tío", "guay", "ordenador"). Never default to English.
+
+Code, commits, log lines, and technical `.md` files stay in English (repo convention). User-facing chat, explanations, summaries, status reports → Spanish MX.
+
+If the user writes in English, still reply in Spanish unless they explicitly ask otherwise.
+
 ## Time awareness
 
 **Never assume or guess the time of day.** Before saying "good morning", "good night", or making any time-based greeting or assumption, check the actual time:

@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import '../utils/connectivity.dart';
 import 'capability_registry.dart';
 import 'catalog_index_service.dart';
+import 'sprite_download_service.dart';
 
 /// Lazily fetches per-scene JSON specs from Supabase. Specs are cached in
 /// filesDir indefinitely — only invalidated when the catalog index version
@@ -122,6 +123,14 @@ class SceneSpecService {
       // Also fetch any parallax image_layers and cache them so the native
       // CanvasSceneRenderer can read them from filesDir/scene_layers/<id>/<key>.webp
       await _fetchImageLayers(entry.id, json);
+      // Auto-download sprite folders declared by `manifest_key` in the spec.
+      // This makes new canvas_scene wallpapers ship without bumping any
+      // hardcoded list in SpriteDownloadService — the spec is the truth.
+      try {
+        await SpriteDownloadService.instance.ensureSpritesForScene(json);
+      } catch (e) {
+        debugPrint('[SceneSpec] ${entry.id}: sprite download error $e');
+      }
       debugPrint(
           '[SceneSpec] ${entry.id}: cached (${r.bodyBytes.length} bytes)');
       return json;

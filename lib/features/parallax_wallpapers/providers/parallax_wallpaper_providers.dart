@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/models/cultural_content.dart';
 import '../../../core/services/catalog_index_service.dart';
 import '../../wallpapers/data/models/wallpaper.dart';
 import '../../wallpapers/providers/wallpaper_providers.dart';
@@ -20,10 +21,14 @@ import '../../wallpapers/providers/wallpaper_providers.dart';
 /// Ids hidden from the 3D tab without removing them from the underlying
 /// catalogs. Existing installs keep working (install flow still resolves
 /// the scene_id), they just stop appearing in the 3D listing.
-/// User-curated 2026-04-29.
+/// User-curated 2026-04-29 (extended 2026-05-04).
+/// Section keeps only: volcano_dragon, goku_genkidama, bosque_lluvioso,
+/// dusk_fortress, mictlantecuhtli, iah_egyptian_giza, plus the two
+/// aquarium-style wallpapers that get auto-promoted via tag bumping.
 const _hiddenFromTab = <String>{
   'anime_drive',
   'carretera_nocturna',
+  'pilot_drive_snowy',
 };
 
 final parallaxWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
@@ -92,6 +97,9 @@ Wallpaper _wallpaperFromCatalogIndex(CatalogIndexEntry e) {
     downloadCount: (raw['download_count'] as num?)?.toInt() ?? 0,
     createdAt: raw['created_at'] != null
         ? DateTime.tryParse(raw['created_at'].toString())
+        : null,
+    cultural: raw['cultural'] is Map<String, dynamic>
+        ? CulturalContent.fromJson(raw['cultural'] as Map<String, dynamic>)
         : null,
   );
 }

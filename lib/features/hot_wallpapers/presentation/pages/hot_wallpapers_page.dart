@@ -106,34 +106,40 @@ class _HotContent extends StatelessWidget {
   }
 
   Widget _buildSectionTitle(String title, VoidCallback? onSeeAll) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          if (onSeeAll != null)
-            GestureDetector(
-              onTap: onSeeAll,
-              child: Text(
-                'See All >',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: HudTokens.goldBright,
-                  fontWeight: FontWeight.w600,
-                ),
+    // NOTE: this is a stateless helper; we need a BuildContext to read the
+    // theme. Wrap in Builder so context.hud resolves correctly without
+    // having to thread context through the whole call chain.
+    return Builder(builder: (context) {
+      final hud = context.hud;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: hud.text, // adapts: white on B&G, dark on iOS White
               ),
             ),
-        ],
-      ),
-    );
+            if (onSeeAll != null)
+              GestureDetector(
+                onTap: onSeeAll,
+                child: Text(
+                  'See All >',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: hud.accent, // gold (B&G) or system blue (iOS)
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildHorizontalRow(List<LiveWallpaper> items, BuildContext context) {
@@ -222,6 +228,10 @@ class _LiveWallpaperCard extends StatelessWidget {
         // Title + category hidden — distraction-free browsing.
         title: null,
         category: null,
+        // Override the auto-derived lot number: title is null so the default
+        // '().hashCode % 1000' would be 0 for every card. Derive from id so
+        // each LIVE card gets its own unique N°.
+        lotNumber: (item.id.hashCode.abs() % 1000).toString().padLeft(3, '0'),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(

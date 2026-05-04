@@ -1,6 +1,7 @@
 import '../../../../core/constants/supabase_config.dart';
 import '../../../../core/content/content_types.dart';
 import '../../../../core/content/content_url_resolver.dart';
+import '../../../../core/models/cultural_content.dart';
 
 class Wallpaper {
   const Wallpaper({
@@ -19,6 +20,7 @@ class Wallpaper {
     this.tags = const [],
     this.downloadCount = 0,
     this.createdAt,
+    this.cultural,
   });
 
   final String id;
@@ -36,6 +38,12 @@ class Wallpaper {
   final List<String> tags;
   final int downloadCount;
   final DateTime? createdAt;
+
+  /// Optional editorial content for cultural / mythology wallpapers — when
+  /// non-null, the detail page renders the Códice layout instead of the
+  /// plain description view. Lives in the catalog so new entries ship
+  /// without rebuilding the APK.
+  final CulturalContent? cultural;
 
   String get previewUrl => SupabaseConfig.imageUrl(previewFile);
   String get fullImageUrl => SupabaseConfig.imageUrl(imageFile);
@@ -68,6 +76,9 @@ class Wallpaper {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String)
           : null,
+      cultural: json['cultural'] is Map<String, dynamic>
+          ? CulturalContent.fromJson(json['cultural'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -94,6 +105,9 @@ class Wallpaper {
       downloadCount: (row['install_count'] as num?)?.toInt() ?? 0,
       createdAt: row['created_at'] != null
           ? DateTime.tryParse(row['created_at'] as String)
+          : null,
+      cultural: row['cultural'] is Map<String, dynamic>
+          ? CulturalContent.fromJson(row['cultural'] as Map<String, dynamic>)
           : null,
     );
   }

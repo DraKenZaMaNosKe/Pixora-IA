@@ -113,23 +113,28 @@ class _IosCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
-                  // PANO/NEW pill (rounded iOS style)
+                  // PANO/NEW/CÓDICE pill row (rounded iOS style).
+                  // The CÓDICE pill flags wallpapers with editorial cultural
+                  // content — encourages users to tap and discover the lore.
                   if (wallpaper.badge != null ||
-                      wallpaper.category == 'PANORAMIC')
+                      wallpaper.category == 'PANORAMIC' ||
+                      wallpaper.cultural != null)
                     Positioned(
                       left: 8,
                       top: 8,
-                      child: Row(
+                      right: 8,
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
                         children: [
                           if (wallpaper.category == 'PANORAMIC')
                             _IosPill(label: 'PANO', color: h.accent),
-                          if (wallpaper.category == 'PANORAMIC' &&
-                              wallpaper.badge != null)
-                            const SizedBox(width: 6),
                           if (wallpaper.badge != null)
                             _IosPill(
                                 label: wallpaper.badge!.toUpperCase(),
                                 color: h.accent),
+                          if (wallpaper.cultural != null)
+                            _IosPill(label: '📜 CÓDICE', color: h.accent),
                         ],
                       ),
                     ),
@@ -244,20 +249,25 @@ class _TicketStubCard extends StatelessWidget {
                 children: [
                   CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
                   if (wallpaper.badge != null ||
-                      wallpaper.category == 'PANORAMIC')
+                      wallpaper.category == 'PANORAMIC' ||
+                      wallpaper.cultural != null)
                     Positioned(
                       left: 4,
                       top: 4,
-                      child: Row(
+                      right: 4,
+                      child: Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
                         children: [
                           if (wallpaper.category == 'PANORAMIC')
                             _tag('PANO', h.goldBright, h.bg),
-                          if (wallpaper.category == 'PANORAMIC' &&
-                              wallpaper.badge != null)
-                            const SizedBox(width: 4),
                           if (wallpaper.badge != null)
                             _tag(wallpaper.badge!.toUpperCase(), h.accent,
                                 Colors.black),
+                          // Cultural badge — invites users to discover the
+                          // mythological/historical lore of the wallpaper.
+                          if (wallpaper.cultural != null)
+                            _tag('📜 CÓDICE', h.accent, Colors.black),
                         ],
                       ),
                     ),

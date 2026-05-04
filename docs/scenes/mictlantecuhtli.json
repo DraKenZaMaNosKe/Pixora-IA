@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "mictlantecuhtli",
+  "type": "canvas_scene",
+  "title": {
+    "en": "Mictlantecuhtli",
+    "es": "Mictlantecuhtli · Señor del Mictlán"
+  },
+  "tags": [
+    "mythology",
+    "aztec",
+    "mexica",
+    "underworld",
+    "death",
+    "live"
+  ],
+  "category": "culture",
+  "featured": true,
+  "background": {
+    "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/mictlan_background.webp",
+    "preview_url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-videos/previews/mictlantecuhtli_preview_v2.webp",
+    "scroll": true
+  },
+  "sprites": [
+    {
+      "name": "god",
+      "manifest_key": "mictlantecuhtli/god",
+      "behavior": "static",
+      "frame_skip": 3,
+      "params": {
+        "x": 0.5,
+        "y": 0.86,
+        "scale": 0.0011,
+        "alpha": 255
+      }
+    }
+  ],
+  "particles": [
+    {
+      "type": "wisp",
+      "params": {
+        "color": "#FFB8DCFF",
+        "radius": 0.022,
+        "wobble_amplitude": 12,
+        "anchors": [
+          [
+            0.18,
+            0.62
+          ],
+          [
+            0.32,
+            0.71
+          ],
+          [
+            0.48,
+            0.66
+          ],
+          [
+            0.62,
+            0.74
+          ],
+          [
+            0.78,
+            0.65
+          ],
+          [
+            0.86,
+            0.78
+          ],
+          [
+            0.12,
+            0.82
+          ],
+          [
+            0.28,
+            0.88
+          ],
+          [
+            0.55,
+            0.88
+          ],
+          [
+            0.72,
+            0.83
+          ],
+          [
+            0.42,
+            0.55
+          ],
+          [
+            0.65,
+            0.58
+          ]
+        ]
+      }
+    },
+    {
+      "type": "ember",
+      "params": {
+        "count": 18,
+        "color": "#FFE0F4FF",
+        "size_min_px": 1.5,
+        "size_max_px": 3.5,
+        "rise_speed_min": 0.2,
+        "rise_speed_max": 0.6,
+        "drift_amp_px": 8
+      }
+    }
+  ],
+  "events": [
+    {
+      "kind": "flash_overlay",
+      "interval_s": 11,
+      "duration_s": 0.6,
+      "params": {
+        "color": "#3A8AC8",
+        "peak_alpha": 36
+      }
+    }
+  ]
+}

@@ -30,10 +30,11 @@ class AdService {
     return _appVersion!;
   }
 
-  /// DEBUG flag — set to true ONLY when running locally in dev to bypass ads.
-  /// In release builds this MUST be false; otherwise we lose 100% of ad
-  /// revenue (the alternating-skip path swallows every attempt).
-  static const _debugDisableAds = false;
+  /// DEBUG flag — bypass ads in debug builds only.
+  /// Release AABs ship with kDebugMode=false, so revenue is never accidentally
+  /// disabled in production (lesson from v1.7.2: a hardcoded `true` left over
+  /// from local dev cost us 100% of ad revenue for several days).
+  static bool get _debugDisableAds => kDebugMode;
 
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;

@@ -15,6 +15,7 @@ import '../../stories/presentation/pages/stories_page.dart';
 import '../../day_cycle/presentation/pages/day_cycle_page.dart';
 import '../../hot_wallpapers/presentation/pages/hot_wallpapers_page.dart';
 import '../../parallax_wallpapers/presentation/pages/parallax_wallpapers_page.dart';
+import '../../cultura/presentation/cultura_page.dart';
 import '../../aura/presentation/pages/aura_page.dart';
 import '../../arcano/presentation/arcano_page.dart';
 import '../../ringtones/presentation/pages/ringtones_page.dart';
@@ -64,6 +65,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     const WallpapersPage(),
     if (!Platform.isIOS) const HotWallpapersPage(),
     if (!Platform.isIOS) const ParallaxWallpapersPage(),
+    if (!Platform.isIOS) const CulturaPage(),
     if (!Platform.isIOS) const AuraPage(),
     if (!Platform.isIOS) const ArcanoPage(),
     if (!Platform.isIOS) const StoriesPage(),
@@ -81,6 +83,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       'PIXORA',
       if (!Platform.isIOS) 'LIVE',
       if (!Platform.isIOS) '3D',
+      if (!Platform.isIOS) 'CULTURA',
       if (!Platform.isIOS) 'AURA',
       if (!Platform.isIOS) 'ARCANO',
       if (!Platform.isIOS) 'STORIES',
@@ -499,6 +502,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (!Platform.isIOS)
         const _NavItemData(
             Icons.threed_rotation_rounded, '3D', Color(0xFF8B5CF6)),
+      if (!Platform.isIOS)
+        const _NavItemData(Icons.menu_book_outlined, 'CULT', Color(0xFFD9B14A)),
       if (!Platform.isIOS)
         const _NavItemData(Icons.spa_outlined, 'AURA', Color(0xFF06B6D4)),
       if (!Platform.isIOS)

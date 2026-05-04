@@ -740,8 +740,13 @@ class PixoraWallpaperService : WallpaperService() {
             stopVideoWallpaper()
             isVideoWallpaper = true
 
-            // Explore mode: load pre-downloaded frames (no codec needed)
-            if (isInteractive) {
+            // Explore mode: load pre-downloaded frames (no codec needed).
+            // Only valid when the path is a DIRECTORY of frame images.
+            // If interactive=true was set but path is a single MP4 file
+            // (catalog inconsistency), fall through to MediaPlayer instead
+            // of returning silently (which produced a black screen).
+            val pathFile = File(path)
+            if (isInteractive && pathFile.isDirectory) {
                 if (isFrameMode) {
                     synchronized(videoLock) { videoStarting = false }
                     return
@@ -749,18 +754,18 @@ class PixoraWallpaperService : WallpaperService() {
                 isFrameMode = true
                 synchronized(videoLock) { videoStarting = false }
 
-                val pathFile = File(path)
-                if (pathFile.isDirectory) {
-                    Log.d(TAG, "Explore: loading frames from $path")
-                    if (frameScrubRenderer.loadFromDirectory(path)) {
-                        drawing = true
-                        handler.post(drawRunnable)
-                        handler.post(frameScrubUpdateRunnable)
-                    } else {
-                        isFrameMode = false
-                    }
+                Log.d(TAG, "Explore: loading frames from $path")
+                if (frameScrubRenderer.loadFromDirectory(path)) {
+                    drawing = true
+                    handler.post(drawRunnable)
+                    handler.post(frameScrubUpdateRunnable)
+                } else {
+                    isFrameMode = false
                 }
                 return
+            }
+            if (isInteractive) {
+                Log.w(TAG, "interactive=true but path is not a directory ($path); falling back to MediaPlayer")
             }
 
             // Auto Play: use MediaPlayer — wait for valid surface
@@ -1136,6 +1141,11 @@ class PixoraWallpaperService : WallpaperService() {
                 // it drains battery for nothing if the user is in another app.
                 // Re-registered on visibility=true above.
                 unregisterGyro()
+
+                // Same logic for battery: stop listening for ACTION_BATTERY_CHANGED
+                // while the wallpaper isn't visible. Re-registered on visibility=true
+                // (above, in the visible branch) before the indicator could redraw.
+                batteryIndicator.unregisterBatteryReceiver()
 
                 // Only pause video, don't stop/release — it will be resumed on visibility=true
                 val player = mediaPlayer

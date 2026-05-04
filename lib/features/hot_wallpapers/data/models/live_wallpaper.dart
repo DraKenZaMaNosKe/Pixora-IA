@@ -1,6 +1,7 @@
 import '../../../../core/constants/supabase_config.dart';
 import '../../../../core/content/content_types.dart';
 import '../../../../core/content/content_url_resolver.dart';
+import '../../../../core/models/cultural_content.dart';
 
 enum LiveWallpaperType { video, shader, image3d }
 
@@ -25,6 +26,11 @@ class LiveWallpaper {
   final int downloadCount;
   final String? createdAt;
 
+  /// Optional editorial content for cultural/mythology wallpapers — rendered
+  /// by `CodexDetailLayout` when present, otherwise the simple description
+  /// view is used. Null for regular wallpapers (gaming, sci-fi, etc.).
+  final CulturalContent? cultural;
+
   const LiveWallpaper({
     required this.id,
     required this.name,
@@ -45,6 +51,7 @@ class LiveWallpaper {
     this.tags = const [],
     this.downloadCount = 0,
     this.createdAt,
+    this.cultural,
   });
 
   String get videoUrl =>
@@ -97,6 +104,9 @@ class LiveWallpaper {
               [],
       downloadCount: json['downloadCount'] as int? ?? 0,
       createdAt: json['createdAt'] as String?,
+      cultural: json['cultural'] is Map<String, dynamic>
+          ? CulturalContent.fromJson(json['cultural'] as Map<String, dynamic>)
+          : null,
     );
   }
 

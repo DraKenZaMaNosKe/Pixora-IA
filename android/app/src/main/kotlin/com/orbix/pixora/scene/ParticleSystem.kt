@@ -3,6 +3,7 @@ package com.orbix.pixora.scene
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.Shader
@@ -293,28 +294,51 @@ class WispSystem(def: ParticleDef) : ParticleSystem(def) {
     private val wobbleAmp = def.params.f("wobble_amplitude", 8f)
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
 
+    // Reusable shader template — created once per surface size and translated
+    // per wisp via setLocalMatrix. Replaces the per-frame allocation that was
+    // creating N shaders per anchor per frame (GC pressure on long sessions).
+    private val matrix = Matrix()
+    private var haloShader: RadialGradient? = null
+    private var lastSurfaceW: Int = 0
+
     override fun draw(canvas: Canvas, surfaceW: Int, surfaceH: Int, tick: Long) {
         if (anchors.isEmpty()) return
+        val rOuter = surfaceW * radiusFrac
+        if (haloShader == null || lastSurfaceW != surfaceW) {
+            // Build halo template at origin, alpha=255 inner. Per-frame intensity
+            // is applied via paint.alpha so the shader can stay cached.
+            haloShader = RadialGradient(
+                0f, 0f, rOuter,
+                Color.argb(255, Color.red(color), Color.green(color), Color.blue(color)),
+                Color.argb(0, Color.red(color), Color.green(color), Color.blue(color)),
+                Shader.TileMode.CLAMP,
+            )
+            lastSurfaceW = surfaceW
+        }
+        val shader = haloShader!!
+        paint.shader = shader
+
+        val coreR = surfaceW * 0.005f
         for ((i, w) in anchors.withIndex()) {
             val phase = tick * 0.04f + i * 1.3f
             val intensity = 0.6f + 0.4f * sin(phase.toDouble()).toFloat()
             val cx = surfaceW * w.first + sin((phase * 0.7).toDouble()).toFloat() * wobbleAmp
             val cy = surfaceH * w.second + cos((phase * 0.5).toDouble()).toFloat() * wobbleAmp * 0.75f
-            val rOuter = surfaceW * radiusFrac
-            // Halo
-            paint.shader = RadialGradient(
-                cx, cy, rOuter,
-                Color.argb((220 * intensity).toInt().coerceIn(0, 255),
-                    Color.red(color), Color.green(color), Color.blue(color)),
-                Color.argb(0, Color.red(color), Color.green(color), Color.blue(color)),
-                Shader.TileMode.CLAMP,
-            )
+            // Halo — translate the cached shader to (cx, cy) and modulate alpha
+            matrix.setTranslate(cx, cy)
+            shader.setLocalMatrix(matrix)
+            paint.alpha = (220 * intensity).toInt().coerceIn(0, 255)
             canvas.drawCircle(cx, cy, rOuter, paint)
+            // Bright core — solid color, no shader
             paint.shader = null
-            // Bright core
+            paint.alpha = 255
             paint.color = Color.argb((255 * intensity).toInt().coerceIn(0, 255), 240, 250, 255)
-            canvas.drawCircle(cx, cy, surfaceW * 0.005f, paint)
+            canvas.drawCircle(cx, cy, coreR, paint)
+            // Restore shader for next iteration
+            paint.shader = shader
         }
+        paint.shader = null
+        paint.alpha = 255
     }
 }
 
@@ -497,6 +521,16 @@ class FireflySystem(def: ParticleDef) : ParticleSystem(def) {
     private val cG = Color.green(color)
     private val cB = Color.blue(color)
 
+    // Cached unit-radius halo shader — translated + scaled per firefly via
+    // setLocalMatrix to avoid per-frame RadialGradient allocations.
+    private val matrix = Matrix()
+    private val haloShader: RadialGradient = RadialGradient(
+        0f, 0f, 1f,
+        Color.argb(255, cR, cG, cB),
+        Color.argb(0, cR, cG, cB),
+        Shader.TileMode.CLAMP,
+    )
+
     override fun reset() { flies.clear(); initialized = false }
 
     override fun draw(canvas: Canvas, surfaceW: Int, surfaceH: Int, tick: Long) {
@@ -514,16 +548,16 @@ class FireflySystem(def: ParticleDef) : ParticleSystem(def) {
             }
             // Pulse intensity 0.25 .. 1.0 (never goes fully dark — fireflies are visible even at min)
             val pulse = 0.25f + 0.75f * (0.5f + 0.5f * sin(f.pulsePhase.toDouble()).toFloat())
-            // Soft halo
+            // Soft halo — use cached shader, scale to firefly radius + translate
             val haloR = f.radius * haloMul
-            paint.shader = RadialGradient(
-                f.x, f.y, haloR,
-                Color.argb((180 * pulse).toInt().coerceIn(0, 255), cR, cG, cB),
-                Color.argb(0, cR, cG, cB),
-                Shader.TileMode.CLAMP,
-            )
+            matrix.setScale(haloR, haloR)
+            matrix.postTranslate(f.x, f.y)
+            haloShader.setLocalMatrix(matrix)
+            paint.shader = haloShader
+            paint.alpha = (180 * pulse).toInt().coerceIn(0, 255)
             canvas.drawCircle(f.x, f.y, haloR, paint)
             paint.shader = null
+            paint.alpha = 255
             // Bright white-ish core (always luminous)
             paint.color = Color.argb((255 * pulse).toInt().coerceIn(0, 255), 255, 250, 220)
             canvas.drawCircle(f.x, f.y, f.radius, paint)

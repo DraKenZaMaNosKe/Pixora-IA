@@ -13,6 +13,7 @@ import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../data/models/live_wallpaper.dart';
+import '../../../../core/widgets/codex_detail_layout.dart';
 
 class LiveWallpaperPreviewPage extends StatefulWidget {
   final LiveWallpaper wallpaper;
@@ -71,9 +72,11 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
 
   Future<void> _applyLiveWallpaper() async {
     // Show alternating ad (awards credits), then proceed
-    AdService.instance.showInterstitialAd(placement: 'live_wallpaper_apply', onAdDismissed: () {
-      if (mounted) _doApplyLiveWallpaper();
-    });
+    AdService.instance.showInterstitialAd(
+        placement: 'live_wallpaper_apply',
+        onAdDismissed: () {
+          if (mounted) _doApplyLiveWallpaper();
+        });
   }
 
   Future<void> _doApplyLiveWallpaper() async {
@@ -162,9 +165,12 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       return;
     }
 
-    // Auto Play mode: download video via ContentManager
+    // Auto Play mode: download video via ContentManager.
+    // Fallback path for wallpapers without pre-extracted frames — MUST go
+    // through MediaPlayer (interactive=false), otherwise the native engine
+    // enters frame-scrub mode with a non-directory MP4 path and shows black.
     final success = await ContentManager.instance.downloadAndInstall(
-      item: w.toContentItem(explore: _interactiveMode),
+      item: w.toContentItem(explore: false),
       target: InstallTarget.liveWallpaper,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
@@ -358,6 +364,13 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   @override
   Widget build(BuildContext context) {
     final w = widget.wallpaper;
+
+    // If the wallpaper carries cultural editorial data (mythology / culture
+    // category), render the Codex layout. Otherwise the legacy fullscreen
+    // preview is used (sci-fi, gaming, anime, etc.).
+    if (w.cultural != null && w.cultural!.isNotEmpty) {
+      return _buildCodexScaffold(context);
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0F),
@@ -589,6 +602,74 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Editorial "Códice" layout used when the wallpaper has cultural metadata.
+  /// Same lifecycle, ad service, credits, loading overlay — only the chrome
+  /// changes (scrollable magazine-style page instead of fullscreen preview).
+  Widget _buildCodexScaffold(BuildContext context) {
+    final w = widget.wallpaper;
+    return Scaffold(
+      backgroundColor: context.hud.bg,
+      body: Stack(
+        children: [
+          CodexDetailLayout(
+            heroImage: CachedNetworkImage(
+              imageUrl: w.previewUrl,
+              fit: BoxFit.cover,
+              errorWidget: (_, __, ___) => Container(color: context.hud.bg),
+            ),
+            title: w.name,
+            cultural: w.cultural!,
+            applyCta: _buildApplyCta(),
+            statusBar: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      color: Colors.white,
+                      onPressed: () => Navigator.pop(context),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.black.withValues(alpha: 0.35),
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: HudTokens.goldDeep,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        w.typeBadge,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Loading overlay (download progress) sits on top of everything.
+          LoadingOverlay(
+            visible: _isApplying,
+            progress: _downloadProgress > 0 ? _downloadProgress : null,
+            status: _loadingStatus,
+            accentColor: _glowColor,
+            phase: _loadingPhase,
+          ),
+        ],
       ),
     );
   }

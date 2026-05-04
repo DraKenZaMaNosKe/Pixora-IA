@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<title>Pixora — Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: ui-monospace, 'Cascadia Code', monospace; background:#0b0b14; color:#e7e7f0; margin:0; padding:32px; }
+  h1 { font-family: 'Fraunces', serif; font-style: italic; font-size: 42px; margin: 0 0 6px; color:#fff; }
+  h1 small { font-style: normal; font-size:13px; color:#7a7a8c; font-family: ui-monospace, monospace; }
+  h2 { font-size:14px; letter-spacing:.2em; color:#aaa; text-transform:uppercase; margin:32px 0 12px; }
+  .grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:24px; }
+  .card { background:#161624; border-radius:12px; padding:20px; border:1px solid #1f1f2e; }
+  .card .label { font-size:11px; color:#7a7a8c; text-transform:uppercase; letter-spacing:.15em; }
+  .card .value { font-size:28px; font-weight:700; margin-top:6px; }
+  table { width:100%; border-collapse:collapse; background:#161624; border-radius:8px; overflow:hidden; }
+  th, td { padding:8px 12px; text-align:left; border-bottom:1px solid #1f1f2e; font-size:13px; }
+  th { background:#1f1f2e; color:#aaa; text-transform:uppercase; font-size:11px; letter-spacing:.1em; }
+  .panel { background:#161624; border-radius:12px; padding:20px; border:1px solid #1f1f2e; }
+  .row2 { display:grid; grid-template-columns: 2fr 1fr; gap:16px; }
+  canvas { max-height: 280px !important; }
+  footer { margin-top:40px; color:#555; font-size:11px; }
+</style>
+</head><body>
+<h1>Pixora · Admin Dashboard <small>generado 2026-04-30 19:13</small></h1>
+
+<div class="grid">
+  <div class="card"><div class="label">Wallpapers publicados</div><div class="value">279</div></div>
+  <div class="card"><div class="label">Total de vistas</div><div class="value">4</div></div>
+  <div class="card"><div class="label">Total de installs</div><div class="value">1</div></div>
+  <div class="card"><div class="label">Categorías activas</div><div class="value">18</div></div>
+</div>
+
+<h2>Actividad diaria · últimos 1 días</h2>
+<div class="panel"><canvas id="chartDaily"></canvas></div>
+
+<div class="row2" style="margin-top:24px;">
+  <div>
+    <h2>Wallpapers — top 20 por vistas</h2>
+    <div class="panel" style="padding:0; overflow-x:auto;">
+      <table><thead><tr><th>id</th><th>nombre</th><th>cat</th><th>vistas</th><th>installs</th><th>devices únicos</th><th>install %</th></tr></thead>
+      <tbody><tr><td>ryu_vs_ken</td><td>Destroyed Rooftop Sunset</td><td>PANORAMIC</td><td>1</td><td>1</td><td>1</td><td>100.0</td></tr>
+<tr><td>pixora_volcano_dragon</td><td>Volcano Dragon</td><td>FANTASY</td><td>1</td><td>0</td><td>1</td><td>0.0</td></tr>
+<tr><td>finn_jake_ooo</td><td>Titanic Sinking Night</td><td>ANIME</td><td>1</td><td>0</td><td>1</td><td>0.0</td></tr>
+<tr><td>charizard_fire</td><td>Black Dragon Blue Flames</td><td>ANIME</td><td>1</td><td>0</td><td>1</td><td>0.0</td></tr>
+<tr><td>akuma</td><td>AKUMA</td><td>GAMING</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>heart_inside_panoramic</td><td>Inside the Heart Panoramic</td><td>PANORAMIC</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>heart_inside</td><td>Inside the Heart</td><td>SCIFI</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>angel_peaceful</td><td>Angel Peaceful</td><td>MISC</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>cyberpunk_rooftop_panoramic</td><td>Cyberpunk Rooftop Panoramic</td><td>PANORAMIC</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>t1000</td><td>T-1000</td><td>GAMING</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>2b_nier_automata</td><td>2B Nier Automata</td><td>GAMING</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>cyberpunk_city_night</td><td>Cyberpunk City Night</td><td>SCENES</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>saga_de_geminis</td><td>SAGA DE GEMINIS</td><td>ANIME</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>gatito_emo</td><td>GATITO EMO</td><td>ANIMALS</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>gatito_payasito</td><td>GATITO PAYASITO</td><td>ANIMALS</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>chucky</td><td>CHUCKY</td><td>SCENES</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>ki_jago</td><td>KI Jago</td><td>GAMING</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>all_gold_saints</td><td>All Gold Saints</td><td>ANIME</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>cyberpunk_rooftop</td><td>Cyberpunk Rooftop</td><td>SCIFI</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>cancer_cells_panoramic</td><td>Cancer Battle Panoramic</td><td>PANORAMIC</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></tbody></table>
+    </div>
+  </div>
+  <div>
+    <h2>Por categoría</h2>
+    <div class="panel" style="padding:0;">
+      <table><thead><tr><th>categoría</th><th style="text-align:right">total</th></tr></thead><tbody><tr><td>PANORAMIC</td><td style='text-align:right'>56</td></tr>
+<tr><td>GAMING</td><td style='text-align:right'>54</td></tr>
+<tr><td>ANIME</td><td style='text-align:right'>51</td></tr>
+<tr><td>MISC</td><td style='text-align:right'>24</td></tr>
+<tr><td>ART</td><td style='text-align:right'>22</td></tr>
+<tr><td>FANTASY</td><td style='text-align:right'>13</td></tr>
+<tr><td>NATURE</td><td style='text-align:right'>12</td></tr>
+<tr><td>CALENDAR</td><td style='text-align:right'>11</td></tr>
+<tr><td>SCENES</td><td style='text-align:right'>8</td></tr>
+<tr><td>SPECIAL</td><td style='text-align:right'>8</td></tr>
+<tr><td>SCIFI</td><td style='text-align:right'>6</td></tr>
+<tr><td>CULTURE</td><td style='text-align:right'>6</td></tr>
+<tr><td>ANIMALS</td><td style='text-align:right'>3</td></tr>
+<tr><td>DARK</td><td style='text-align:right'>1</td></tr>
+<tr><td>HORROR</td><td style='text-align:right'>1</td></tr>
+<tr><td>UNIVERSE</td><td style='text-align:right'>1</td></tr>
+<tr><td>CHRISTMAS</td><td style='text-align:right'>1</td></tr>
+<tr><td>LIFESTYLE</td><td style='text-align:right'>1</td></tr></tbody></table>
+    </div>
+    <h2>Top 10 más vistos</h2>
+    <div class="panel" style="padding:0;">
+      <table><thead><tr><th>id</th><th>nombre</th><th>vistas</th></tr></thead><tbody><tr><td>charizard_fire</td><td>Black Dragon Blue Flames</td><td>1</td></tr>
+<tr><td>finn_jake_ooo</td><td>Titanic Sinking Night</td><td>1</td></tr>
+<tr><td>pixora_volcano_dragon</td><td>Volcano Dragon</td><td>1</td></tr>
+<tr><td>ryu_vs_ken</td><td>Destroyed Rooftop Sunset</td><td>1</td></tr>
+<tr><td>cyberpunk_rooftop</td><td>Cyberpunk Rooftop</td><td>0</td></tr>
+<tr><td>ki_jago</td><td>KI Jago</td><td>0</td></tr>
+<tr><td>heart_inside_panoramic</td><td>Inside the Heart Panoramic</td><td>0</td></tr>
+<tr><td>t1000</td><td>T-1000</td><td>0</td></tr>
+<tr><td>akuma</td><td>AKUMA</td><td>0</td></tr>
+<tr><td>cyberpunk_rooftop_panoramic</td><td>Cyberpunk Rooftop Panoramic</td><td>0</td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<h2>Top usuarios · últimos 30 días</h2>
+<div class="panel" style="padding:0; overflow-x:auto;">
+  <table><thead><tr><th>tipo</th><th>identidad</th><th>eventos</th><th>vistas</th><th>installs</th><th>favs</th><th>días activos</th><th>última visita</th></tr></thead>
+  <tbody><tr><td>device</td><td>demo_device_001</td><td>3</td><td>2</td><td>1</td><td>0</td><td>1</td><td>2026-05-01T01:11:39.684611+00:00</td></tr>
+<tr><td>device</td><td>demo_device_002</td><td>2</td><td>1</td><td>0</td><td>0</td><td>1</td><td>2026-05-01T01:11:39.684611+00:00</td></tr>
+<tr><td>device</td><td>demo_device_003</td><td>2</td><td>1</td><td>0</td><td>1</td><td>1</td><td>2026-05-01T01:11:39.684611+00:00</td></tr></tbody></table>
+</div>
+
+<h2>Diario · raw</h2>
+<div class="panel" style="padding:0; overflow-x:auto;">
+  <table><thead><tr><th>día</th><th>eventos</th><th>devices únicos</th><th>vistas</th><th>installs</th><th>shares</th></tr></thead>
+  <tbody><tr><td>2026-05-01</td><td>7</td><td>3</td><td>4</td><td>1</td><td>1</td></tr></tbody></table>
+</div>
+
+<footer>Datos en vivo desde Supabase · run <code>python tools/wallpapers/wp_admin.py dashboard</code> para refrescar</footer>
+
+<script>
+new Chart(document.getElementById('chartDaily'), {
+  type: 'line',
+  data: {
+    labels: ["2026-05-01"],
+    datasets: [
+      { label: 'views', data: [4], borderColor:'#7c4dff', backgroundColor:'rgba(124,77,255,.15)', tension:.3, fill:true },
+      { label: 'installs', data: [1], borderColor:'#00bcd4', backgroundColor:'rgba(0,188,212,.10)', tension:.3, fill:true }
+    ]
+  },
+  options: { responsive:true, plugins:{ legend:{ labels:{ color:'#aaa' } } }, scales:{ x:{ ticks:{ color:'#7a7a8c' }, grid:{ color:'#1f1f2e' } }, y:{ ticks:{ color:'#7a7a8c' }, grid:{ color:'#1f1f2e' } } } }
+});
+</script>
+</body></html>
