@@ -1,7 +1,7 @@
 name: pixora
 description: "Pixora IA - Wallpapers, Ringtones & Icon Packs"
 publish_to: 'none'
-version: 1.7.4+46
+version: 1.7.5+47
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
