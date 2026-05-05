@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=2200">
+<title>Pixora Pro · 5 conceptos de suscripción × 2 temas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700;800;900&family=Geist:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Cinzel:wght@400;600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#06060c; color:#e8e2d4; font-family:'Inter',sans-serif; padding:60px 30px 100px; }
+  .page-h { text-align:center; max-width:1100px; margin:0 auto 60px; }
+  .page-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.35em; color:#d9b14a; text-transform:uppercase; }
+  .page-h h1 { font-family:'Fraunces',serif; font-style:italic; font-size:46px; font-weight:600; margin-top:16px; line-height:1.1; }
+  .page-h h1 em { color:#d9b14a; font-style:normal; }
+  .page-h .sub { font-family:'Inter',sans-serif; font-weight:300; color:#8a826f; margin-top:14px; font-size:14px; max-width:680px; margin-inline:auto; line-height:1.6; }
+  .row { max-width:2100px; margin:0 auto 80px; }
+  .row-h { display:flex; align-items:baseline; gap:20px; padding:0 8px 18px; border-bottom:1px solid #1f1c14; margin-bottom:30px; }
+  .row-h .num { font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:0.3em; color:#d9b14a; }
+  .row-h .name { font-family:'Fraunces',serif; font-style:italic; font-size:32px; font-weight:600; }
+  .row-h .desc { color:#8a826f; font-family:'Inter',sans-serif; font-weight:300; font-size:13px; margin-left:auto; max-width:580px; text-align:right; line-height:1.5; }
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; justify-items:center; }
+  .frame { position:relative; }
+  .frame .label { position:absolute; top:-30px; left:0; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.25em; color:#5a5444; text-transform:uppercase; }
+  .phone { width:392px; height:830px; border-radius:38px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.6), 0 0 0 4px #1a1a22, 0 0 0 5px #2a2a33; position:relative; background:#000; }
+  .status { position:absolute; top:0; left:0; right:0; height:38px; display:flex; align-items:center; justify-content:space-between; padding:10px 24px; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; z-index:10; pointer-events:none; }
+  .sb-light { color:#fff; } .sb-dark { color:#0a0a0e; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 01 · CÓDICE PREMIUM
+     ════════════════════════════════════════════════════════════════════ */
+  .cp-bg { background:linear-gradient(180deg, #0a0805 0%, #15110a 60%, #0a0805 100%); height:100%; overflow-y:auto; padding:48px 0 100px; position:relative; }
+  .cp-bg::before { content:""; position:absolute; inset:0; background-image: radial-gradient(ellipse at 50% 20%, rgba(217,177,74,0.08) 0%, transparent 60%); pointer-events:none; }
+  .cp-h { text-align:center; padding:0 26px 18px; position:relative; }
+  .cp-h .glyph { font-family:'IM Fell English',serif; font-style:italic; font-size:13px; letter-spacing:0.3em; color:#d9b14a; }
+  .cp-h h2 { font-family:'IM Fell English',serif; font-style:italic; font-size:36px; color:#f0e0b8; margin-top:8px; line-height:1; }
+  .cp-h .sub { font-family:'IM Fell English',serif; font-style:italic; font-size:13px; color:#8a826f; margin-top:6px; }
+  .cp-greca { height:14px; background-image:repeating-linear-gradient(90deg, #d9b14a 0 8px, transparent 8px 16px, #d9b14a 16px 18px, transparent 18px 26px); margin:18px 26px; }
+  .cp-lead { font-family:'IM Fell English',serif; font-size:14px; line-height:1.55; color:#d8c89a; padding:0 26px 18px; border-left:2px solid #d9b14a; margin:0 26px 24px; }
+  .cp-lead::first-letter { font-family:'Cinzel',serif; font-size:54px; float:left; line-height:0.85; padding:6px 10px 0 0; color:#d9b14a; }
+  .cp-facts { padding:0 26px; }
+  .cp-fact { display:flex; align-items:flex-start; gap:14px; padding:12px 0; border-top:1px dashed #44351a; }
+  .cp-fact .icon { color:#d9b14a; font-family:'Cinzel',serif; font-weight:800; font-size:20px; min-width:22px; text-align:center; }
+  .cp-fact .body .k { font-family:'IM Fell English',serif; font-size:14px; color:#f0e0b8; }
+  .cp-fact .body .v { font-family:'Inter',sans-serif; font-weight:300; font-size:11.5px; color:#8a826f; margin-top:2px; line-height:1.4; }
+  .cp-ofrenda { background:rgba(217,177,74,0.08); border:1px solid rgba(217,177,74,0.25); padding:14px 16px; margin:24px 26px 0; border-radius:2px; }
+  .cp-ofrenda .label { font-family:'IM Fell English',serif; font-style:italic; color:#d9b14a; font-size:13px; }
+  .cp-ofrenda .price { font-family:'IM Fell English',serif; font-size:32px; color:#f0e0b8; margin-top:4px; line-height:1; }
+  .cp-ofrenda .price small { font-family:'Inter',sans-serif; font-weight:400; font-size:13px; color:#8a826f; margin-left:4px; }
+  .cp-cta { display:block; width:calc(100% - 52px); margin:18px 26px 12px; padding:18px; background:linear-gradient(180deg, #d9b14a 0%, #b08a30 100%); color:#0c0a07; font-family:'Cinzel',serif; font-weight:800; letter-spacing:0.18em; text-align:center; border:none; cursor:pointer; font-size:13px; }
+  .cp-skip { text-align:center; padding:8px; font-family:'IM Fell English',serif; font-style:italic; font-size:12px; color:#8a826f; }
+  /* iOS variant */
+  .cp-ios { background:linear-gradient(180deg, #faf3e0 0%, #ede4cc 100%); color:#3a2e1a; height:100%; overflow-y:auto; padding:48px 0 100px; }
+  .cp-ios .cp-h .glyph { color:#a06820; }
+  .cp-ios .cp-h h2 { color:#3a2e1a; }
+  .cp-ios .cp-h .sub { color:#8a7a5a; }
+  .cp-ios .cp-greca { background-image:repeating-linear-gradient(90deg, #a06820 0 8px, transparent 8px 16px, #a06820 16px 18px, transparent 18px 26px); }
+  .cp-ios .cp-lead { color:#54482e; border-left-color:#a06820; }
+  .cp-ios .cp-lead::first-letter { color:#a06820; }
+  .cp-ios .cp-fact { border-top-color:#c0b09a; }
+  .cp-ios .cp-fact .icon { color:#a06820; }
+  .cp-ios .cp-fact .body .k { color:#3a2e1a; }
+  .cp-ios .cp-fact .body .v { color:#8a7a5a; }
+  .cp-ios .cp-ofrenda { background:rgba(160,104,32,0.08); border-color:rgba(160,104,32,0.25); }
+  .cp-ios .cp-ofrenda .label { color:#a06820; }
+  .cp-ios .cp-ofrenda .price { color:#3a2e1a; }
+  .cp-ios .cp-ofrenda .price small { color:#8a7a5a; }
+  .cp-ios .cp-cta { background:linear-gradient(180deg, #a06820 0%, #804818 100%); color:#fff; }
+  .cp-ios .cp-skip { color:#a08a6a; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 02 · APPLE PREMIUM
+     ════════════════════════════════════════════════════════════════════ */
+  .ap-bg { background:#000; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .ap-hero { padding:50px 28px 30px; text-align:center; position:relative; }
+  .ap-hero::before { content:""; position:absolute; top:0; left:50%; transform:translateX(-50%); width:340px; height:340px; background:radial-gradient(circle, rgba(217,177,74,0.18) 0%, transparent 70%); pointer-events:none; }
+  .ap-hero .badge { display:inline-block; padding:6px 14px; background:linear-gradient(90deg, #d9b14a, #f5d676); color:#000; font-family:'Inter',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.5px; border-radius:20px; position:relative; z-index:2; }
+  .ap-hero h2 { font-family:'Inter',sans-serif; font-weight:700; font-size:46px; margin-top:18px; color:#fff; letter-spacing:-1px; line-height:1; position:relative; z-index:2; }
+  .ap-hero h2 em { font-style:normal; background:linear-gradient(90deg, #d9b14a 0%, #f5d676 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .ap-hero .tag { font-family:'Inter',sans-serif; font-weight:300; font-size:15px; color:#a09a8a; margin-top:10px; max-width:280px; margin-inline:auto; line-height:1.45; position:relative; z-index:2; }
+  .ap-features { padding:30px 28px 0; }
+  .ap-feat { display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:0.5px solid #1f1f1f; }
+  .ap-feat:last-child { border-bottom:none; }
+  .ap-feat .ico { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, rgba(217,177,74,0.2) 0%, rgba(217,177,74,0.05) 100%); display:grid; place-items:center; color:#d9b14a; font-size:18px; flex-shrink:0; }
+  .ap-feat .body .k { font-family:'Inter',sans-serif; font-weight:600; font-size:15px; color:#fff; }
+  .ap-feat .body .v { font-family:'Inter',sans-serif; font-weight:300; font-size:13px; color:#a09a8a; margin-top:2px; line-height:1.4; }
+  .ap-pricing { padding:24px 28px 0; }
+  .ap-price-card { background:linear-gradient(135deg, rgba(217,177,74,0.12) 0%, rgba(217,177,74,0.04) 100%); border:1px solid rgba(217,177,74,0.3); border-radius:16px; padding:18px; text-align:center; }
+  .ap-price-card .pl { font-family:'Inter',sans-serif; font-weight:300; font-size:11px; letter-spacing:0.2em; color:#a09a8a; text-transform:uppercase; }
+  .ap-price-card .pr { font-family:'Inter',sans-serif; font-weight:800; font-size:42px; color:#fff; margin-top:4px; line-height:1; }
+  .ap-price-card .pr small { font-weight:400; font-size:14px; color:#a09a8a; margin-left:2px; }
+  .ap-price-card .nt { font-family:'Inter',sans-serif; font-weight:300; font-size:11px; color:#d9b14a; margin-top:6px; }
+  .ap-cta { display:block; width:calc(100% - 56px); margin:16px 28px 8px; padding:16px; background:linear-gradient(90deg, #d9b14a 0%, #f5d676 100%); color:#000; font-family:'Inter',sans-serif; font-weight:700; font-size:15px; border:none; border-radius:14px; cursor:pointer; }
+  .ap-skip { text-align:center; padding:8px; font-family:'Inter',sans-serif; font-weight:500; font-size:13px; color:#666; }
+  /* iOS variant */
+  .ap-ios { background:#fff; height:100%; overflow-y:auto; padding-bottom:100px; color:#0a0a0a; }
+  .ap-ios .ap-hero h2 { color:#0a0a0a; }
+  .ap-ios .ap-hero .tag { color:#666; }
+  .ap-ios .ap-feat { border-bottom-color:#eee; }
+  .ap-ios .ap-feat .body .k { color:#0a0a0a; }
+  .ap-ios .ap-feat .body .v { color:#666; }
+  .ap-ios .ap-price-card .pl { color:#666; }
+  .ap-ios .ap-price-card .pr { color:#0a0a0a; }
+  .ap-ios .ap-price-card .pr small { color:#666; }
+  .ap-ios .ap-cta { background:#0a0a0a; color:#fff; }
+  .ap-ios .ap-skip { color:#999; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 03 · NETFLIX HERO
+     ════════════════════════════════════════════════════════════════════ */
+  .nx-bg { background:#000; height:100%; overflow-y:auto; padding-bottom:100px; color:#fff; }
+  .nx-hero { position:relative; height:520px; overflow:hidden; }
+  .nx-hero .bg { position:absolute; inset:0; background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_mictlantecuhtli_preview.webp') center/cover; }
+  .nx-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, rgba(0,0,0,0.5) 70%, #000 100%); }
+  .nx-hero .meta { position:absolute; bottom:24px; left:24px; right:24px; z-index:2; }
+  .nx-hero .pro-badge { display:inline-block; padding:5px 10px; background:#d9b14a; color:#000; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:10px; letter-spacing:2px; border-radius:3px; }
+  .nx-hero h2 { font-family:'Inter',sans-serif; font-weight:900; font-size:42px; margin-top:14px; line-height:0.95; letter-spacing:-1px; }
+  .nx-hero h2 em { font-style:normal; color:#d9b14a; }
+  .nx-hero .tag { font-family:'Inter',sans-serif; font-weight:300; font-size:14px; color:#d8d2c4; margin-top:8px; max-width:280px; line-height:1.4; }
+  .nx-section { padding:24px 24px 0; }
+  .nx-section h3 { font-family:'Inter',sans-serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:#d9b14a; text-transform:uppercase; margin-bottom:12px; }
+  .nx-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; }
+  .nx-mini { flex:0 0 110px; }
+  .nx-mini .img { width:110px; height:160px; border-radius:4px; background-size:cover; background-position:center; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+  .nx-mini .name { font-family:'Inter',sans-serif; font-weight:500; font-size:11px; color:#fff; margin-top:6px; line-height:1.2; }
+  .nx-mini .name small { color:#888; display:block; font-weight:400; font-size:10px; }
+  .nx-perks { padding:20px 24px 0; }
+  .nx-perk { display:flex; gap:12px; align-items:center; padding:8px 0; }
+  .nx-perk .check { color:#d9b14a; font-size:18px; }
+  .nx-perk .text { font-family:'Inter',sans-serif; font-weight:500; font-size:13px; color:#fff; }
+  .nx-cta-wrap { padding:20px 24px 0; }
+  .nx-cta { display:block; width:100%; padding:16px; background:linear-gradient(90deg, #d9b14a 0%, #b08a30 100%); color:#000; font-family:'Inter',sans-serif; font-weight:800; font-size:15px; letter-spacing:0.5px; border:none; border-radius:6px; cursor:pointer; text-transform:uppercase; }
+  .nx-price-line { text-align:center; padding:10px 24px 0; font-family:'Inter',sans-serif; font-weight:300; font-size:12px; color:#888; }
+  .nx-skip { text-align:center; padding:12px; font-family:'Inter',sans-serif; font-weight:500; font-size:13px; color:#666; }
+  /* iOS variant */
+  .nx-ios { background:#fff; height:100%; overflow-y:auto; padding-bottom:100px; color:#0a0a0a; }
+  .nx-ios .nx-hero::after { background:linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, rgba(0,0,0,0.5) 70%, #fff 100%); }
+  .nx-ios .nx-section h3 { color:#a06820; }
+  .nx-ios .nx-mini .name { color:#0a0a0a; }
+  .nx-ios .nx-mini .name small { color:#888; }
+  .nx-ios .nx-perks .text { color:#0a0a0a; }
+  .nx-ios .nx-cta { background:#0a0a0a; color:#fff; }
+  .nx-ios .nx-price-line { color:#666; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 04 · COMPARATIVA SaaS
+     ════════════════════════════════════════════════════════════════════ */
+  .cm-bg { background:#0a0a10; height:100%; overflow-y:auto; padding:50px 0 100px; }
+  .cm-h { text-align:center; padding:0 28px 30px; }
+  .cm-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2.5px; color:#d9b14a; text-transform:uppercase; }
+  .cm-h h2 { font-family:'Inter',sans-serif; font-weight:800; font-size:34px; margin-top:12px; color:#fff; line-height:1; }
+  .cm-h h2 em { font-style:normal; color:#d9b14a; }
+  .cm-h .tag { font-family:'Inter',sans-serif; font-weight:300; font-size:13px; color:#888; margin-top:8px; line-height:1.5; }
+  .cm-table { padding:0 18px; }
+  .cm-cols { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:0; }
+  .cm-cell { padding:12px 8px; border-bottom:1px solid #1a1a1a; }
+  .cm-cell.head { background:#11110e; padding:14px 8px; }
+  .cm-cell.head.pro { background:linear-gradient(135deg, rgba(217,177,74,0.15) 0%, rgba(217,177,74,0.05) 100%); position:relative; }
+  .cm-cell.head.pro::after { content:"★"; position:absolute; top:-8px; left:50%; transform:translateX(-50%); width:18px; height:18px; background:#d9b14a; color:#000; font-size:10px; font-weight:bold; border-radius:50%; line-height:18px; text-align:center; }
+  .cm-cell .ttl { font-family:'Inter',sans-serif; font-weight:700; font-size:12px; color:#fff; text-align:center; }
+  .cm-cell .price { font-family:'Inter',sans-serif; font-weight:800; font-size:16px; text-align:center; margin-top:4px; }
+  .cm-cell .price.free { color:#888; }
+  .cm-cell .price.pro { color:#d9b14a; }
+  .cm-cell.row .feature { font-family:'Inter',sans-serif; font-weight:400; font-size:12px; color:#c8c2b4; }
+  .cm-cell.row .val { text-align:center; font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:#666; }
+  .cm-cell.row .val.yes { color:#d9b14a; font-size:18px; }
+  .cm-cta { display:block; width:calc(100% - 48px); margin:24px 24px 8px; padding:16px; background:linear-gradient(90deg, #d9b14a 0%, #f5d676 100%); color:#000; font-family:'Inter',sans-serif; font-weight:800; font-size:14px; border:none; border-radius:8px; cursor:pointer; letter-spacing:0.5px; }
+  .cm-skip { text-align:center; padding:12px; font-family:'Inter',sans-serif; font-weight:500; font-size:13px; color:#666; }
+  /* iOS */
+  .cm-ios { background:#fff; height:100%; overflow-y:auto; padding:50px 0 100px; color:#0a0a0a; }
+  .cm-ios .cm-h h2 { color:#0a0a0a; }
+  .cm-ios .cm-h .tag { color:#666; }
+  .cm-ios .cm-cell { border-bottom-color:#eee; }
+  .cm-ios .cm-cell.head { background:#f5f5f5; }
+  .cm-ios .cm-cell.head.pro { background:linear-gradient(135deg, rgba(160,104,32,0.12) 0%, rgba(160,104,32,0.02) 100%); }
+  .cm-ios .cm-cell .ttl { color:#0a0a0a; }
+  .cm-ios .cm-cell .price.pro { color:#a06820; }
+  .cm-ios .cm-cell.row .feature { color:#3a3a3a; }
+  .cm-ios .cm-cell.row .val { color:#aaa; }
+  .cm-ios .cm-cell.row .val.yes { color:#a06820; }
+  .cm-ios .cm-cta { background:#0a0a0a; color:#fff; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 05 · STORYTELLING (Antes/Después)
+     ════════════════════════════════════════════════════════════════════ */
+  .st-bg { background:#0a0a0e; height:100%; overflow-y:auto; padding:60px 0 100px; }
+  .st-h { text-align:center; padding:0 28px 30px; }
+  .st-h h2 { font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:34px; color:#f0e0b8; line-height:1.05; }
+  .st-h h2 em { font-style:italic; color:#d9b14a; }
+  .st-block { margin:0 24px 18px; padding:18px; border-radius:12px; position:relative; overflow:hidden; }
+  .st-before { background:linear-gradient(135deg, #1a1a1f 0%, #0e0e12 100%); border:1px solid #2a2a2f; }
+  .st-after { background:linear-gradient(135deg, #1a1408 0%, #0c0a07 100%); border:1px solid #d9b14a; }
+  .st-block .label { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+  .st-before .label { color:#666; }
+  .st-after .label { color:#d9b14a; }
+  .st-block h3 { font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:22px; margin-top:8px; line-height:1.1; }
+  .st-before h3 { color:#888; }
+  .st-after h3 { color:#f0e0b8; }
+  .st-block .list { margin-top:14px; }
+  .st-block .item { display:flex; align-items:center; gap:10px; padding:6px 0; font-family:'Inter',sans-serif; font-weight:400; font-size:13px; }
+  .st-before .item { color:#666; }
+  .st-after .item { color:#e8e2d4; }
+  .st-before .item .dot { color:#444; font-size:14px; }
+  .st-after .item .dot { color:#d9b14a; font-size:16px; }
+  .st-arrow { text-align:center; font-family:'Fraunces',serif; font-style:italic; font-size:24px; color:#d9b14a; margin:6px 0; }
+  .st-price { text-align:center; padding:14px 24px 0; font-family:'Fraunces',serif; font-style:italic; }
+  .st-price .pr { font-size:36px; color:#f0e0b8; line-height:1; }
+  .st-price .pr small { font-size:14px; color:#8a826f; margin-left:4px; }
+  .st-price .nt { font-size:12px; color:#8a826f; margin-top:6px; }
+  .st-cta { display:block; width:calc(100% - 48px); margin:14px 24px 8px; padding:16px; background:linear-gradient(180deg, #d9b14a 0%, #b08a30 100%); color:#0a0a0e; font-family:'Fraunces',serif; font-style:italic; font-weight:600; font-size:16px; border:none; border-radius:14px; cursor:pointer; }
+  .st-skip { text-align:center; padding:12px; font-family:'Fraunces',serif; font-style:italic; font-size:13px; color:#8a826f; }
+  /* iOS */
+  .st-ios { background:#fafaf6; height:100%; overflow-y:auto; padding:60px 0 100px; color:#0a0a0a; }
+  .st-ios .st-h h2 { color:#0a0a0a; }
+  .st-ios .st-h h2 em { color:#a06820; }
+  .st-ios .st-before { background:#f5f5f5; border-color:#e0e0e0; }
+  .st-ios .st-after { background:linear-gradient(135deg, #fff8e8 0%, #fdf3d8 100%); border-color:#a06820; }
+  .st-ios .st-before .label { color:#999; }
+  .st-ios .st-after .label { color:#a06820; }
+  .st-ios .st-before h3 { color:#999; }
+  .st-ios .st-after h3 { color:#0a0a0a; }
+  .st-ios .st-before .item { color:#999; }
+  .st-ios .st-after .item { color:#0a0a0a; }
+  .st-ios .st-arrow { color:#a06820; }
+  .st-ios .st-price .pr { color:#0a0a0a; }
+  .st-ios .st-price .pr small { color:#888; }
+  .st-ios .st-price .nt { color:#888; }
+  .st-ios .st-cta { background:#0a0a0a; color:#fff; }
+  .st-ios .st-skip { color:#888; }
+</style>
+</head>
+<body>
+
+<header class="page-h">
+  <div class="eyebrow">PIXORA · POST-ONBOARDING · 5 PROPUESTAS PARA LA PANTALLA PREMIUM</div>
+  <h1>Suscripción · <em>5 conceptos × 2 temas</em></h1>
+  <p class="sub">Esta es la "carta de presentación" después del tutorial. El usuario ya vio el valor — aquí lo invitamos a Pro.<br>Pareja izquierda = Black & Gold · derecha = iOS White. Selecciona uno y lo implemento.</p>
+</header>
+
+
+<!-- ═════════ CONCEPT 01 · CÓDICE PREMIUM ═════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 01</span>
+    <span class="name">Códice Premium</span>
+    <span class="desc">Coherente con sección Cultura · "Capítulo I · Suscriptor" · beneficios como facts del códice · ofrenda = lo que recibes · vibe editorial premium</span>
+  </div>
+  <div class="pair">
+    <div class="frame"><div class="label">B&G — Códice nocturno</div><div class="phone"><div class="status sb-light">9:41<span>· · · ·</span></div>
+      <div class="cp-bg">
+        <div class="cp-h">
+          <div class="glyph">— Capítulo I · Suscriptor —</div>
+          <h2>Pixora Pro</h2>
+          <div class="sub">El Códice se abre por completo</div>
+        </div>
+        <div class="cp-greca"></div>
+        <div class="cp-lead">Cruzas el umbral. Como los iniciados del Mictlán, dejas atrás los anuncios y accedes al santuario donde habita la totalidad del arte.</div>
+        <div class="cp-facts">
+          <div class="cp-fact"><div class="icon">⛧</div><div class="body"><div class="k">Sin anuncios</div><div class="v">Experiencia ininterrumpida — el ojo descansa</div></div></div>
+          <div class="cp-fact"><div class="icon">📜</div><div class="body"><div class="k">Códices completos</div><div class="v">Toda la mitología — Mictlán, Iah, Quetzalcóatl y los que vendrán</div></div></div>
+          <div class="cp-fact"><div class="icon">⚙️</div><div class="body"><div class="k">Wallpapers exclusivos</div><div class="v">Acceso anticipado a cada nuevo dios y escena 3D</div></div></div>
+          <div class="cp-fact"><div class="icon">🎵</div><div class="body"><div class="k">AURA completo</div><div class="v">Todas las frecuencias y sonidos sin límites</div></div></div>
+          <div class="cp-fact"><div class="icon">⛤</div><div class="body"><div class="k">Soporte directo</div><div class="v">Tus peticiones llegan al santuario primero</div></div></div>
+        </div>
+        <div class="cp-ofrenda">
+          <div class="label">Ofrenda mensual</div>
+          <div class="price">$49<small>MXN / mes</small></div>
+        </div>
+        <button class="cp-cta">⛧ Cruzar el Umbral</button>
+        <div class="cp-skip">Continuar sin Pixora Pro</div>
+      </div>
+    </div></div>
+    <div class="frame"><div class="label">iOS — Códice diurno</div><div class="phone"><div class="status sb-dark">9:41<span>· · · ·</span></div>
+      <div class="cp-ios">
+        <div class="cp-h">
+          <div class="glyph">— Capítulo I · Suscriptor —</div>
+          <h2>Pixora Pro</h2>
+          <div class="sub">El Códice se abre por completo</div>
+        </div>
+        <div class="cp-greca"></div>
+        <div class="cp-lead">Cruzas el umbral. Como los iniciados del Mictlán, dejas atrás los anuncios y accedes al santuario donde habita la totalidad del arte.</div>
+        <div class="cp-facts">
+          <div class="cp-fact"><div class="icon">⛧</div><div class="body"><div class="k">Sin anuncios</div><div class="v">Experiencia ininterrumpida — el ojo descansa</div></div></div>
+          <div class="cp-fact"><div class="icon">📜</div><div class="body"><div class="k">Códices completos</div><div class="v">Toda la mitología — Mictlán, Iah, Quetzalcóatl y los que vendrán</div></div></div>
+          <div class="cp-fact"><div class="icon">⚙️</div><div class="body"><div class="k">Wallpapers exclusivos</div><div class="v">Acceso anticipado a cada nuevo dios y escena 3D</div></div></div>
+          <div class="cp-fact"><div class="icon">🎵</div><div class="body"><div class="k">AURA completo</div><div class="v">Todas las frecuencias y sonidos sin límites</div></div></div>
+          <div class="cp-fact"><div class="icon">⛤</div><div class="body"><div class="k">Soporte directo</div><div class="v">Tus peticiones llegan al santuario primero</div></div></div>
+        </div>
+        <div class="cp-ofrenda">
+          <div class="label">Ofrenda mensual</div>
+          <div class="price">$49<small>MXN / mes</small></div>
+        </div>
+        <button class="cp-cta">⛧ Cruzar el Umbral</button>
+        <div class="cp-skip">Continuar sin Pixora Pro</div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+
+<!-- ═════════ CONCEPT 02 · APPLE PREMIUM ═════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 02</span>
+    <span class="name">Apple Premium</span>
+    <span class="desc">Minimal · gradient hero · beneficios columna limpia · precio grande · "Comenzar prueba" · vibra Apple Store / iCloud+</span>
+  </div>
+  <div class="pair">
+    <div class="frame"><div class="label">B&G — Apple nocturno</div><div class="phone"><div class="status sb-light">9:41<span>· · · ·</span></div>
+      <div class="ap-bg">
+        <div class="ap-hero">
+          <div class="badge">PIXORA PRO</div>
+          <h2>Eleva tu<br><em>experiencia</em></h2>
+          <div class="tag">Sin anuncios. Acceso completo. Soporte prioritario.</div>
+        </div>
+        <div class="ap-features">
+          <div class="ap-feat"><div class="ico">⛔</div><div class="body"><div class="k">Cero anuncios</div><div class="v">Experiencia 100% limpia, sin interrupciones</div></div></div>
+          <div class="ap-feat"><div class="ico">📜</div><div class="body"><div class="k">Códices culturales</div><div class="v">Acceso completo a la sección Cultura y mitología</div></div></div>
+          <div class="ap-feat"><div class="ico">🎨</div><div class="body"><div class="k">Wallpapers exclusivos</div><div class="v">Contenido nuevo cada mes solo para Pro</div></div></div>
+          <div class="ap-feat"><div class="ico">🌊</div><div class="body"><div class="k">AURA ilimitado</div><div class="v">Todas las frecuencias y paisajes sonoros</div></div></div>
+        </div>
+        <div class="ap-pricing">
+          <div class="ap-price-card">
+            <div class="pl">Mensual</div>
+            <div class="pr">$49<small>MXN</small></div>
+            <div class="nt">Cancela cuando quieras</div>
+          </div>
+        </div>
+        <button class="ap-cta">Comenzar Pixora Pro</button>
+        <div class="ap-skip">Ahora no</div>
+      </div>
+    </div></div>
+    <div class="frame"><div class="label">iOS — Apple diurno</div><div class="phone"><div class="status sb-dark">9:41<span>· · · ·</span></div>
+      <div class="ap-ios">
+        <div class="ap-hero">
+          <div class="badge">PIXORA PRO</div>
+          <h2>Eleva tu<br><em>experiencia</em></h2>
+          <div class="tag">Sin anuncios. Acceso completo. Soporte prioritario.</div>
+        </div>
+        <div class="ap-features">
+          <div class="ap-feat"><div class="ico">⛔</div><div class="body"><div class="k">Cero anuncios</div><div class="v">Experiencia 100% limpia, sin interrupciones</div></div></div>
+          <div class="ap-feat"><div class="ico">📜</div><div class="body"><div class="k">Códices culturales</div><div class="v">Acceso completo a la sección Cultura y mitología</div></div></div>
+          <div class="ap-feat"><div class="ico">🎨</div><div class="body"><div class="k">Wallpapers exclusivos</div><div class="v">Contenido nuevo cada mes solo para Pro</div></div></div>
+          <div class="ap-feat"><div class="ico">🌊</div><div class="body"><div class="k">AURA ilimitado</div><div class="v">Todas las frecuencias y paisajes sonoros</div></div></div>
+        </div>
+        <div class="ap-pricing">
+          <div class="ap-price-card">
+            <div class="pl">Mensual</div>
+            <div class="pr">$49<small>MXN</small></div>
+            <div class="nt">Cancela cuando quieras</div>
+          </div>
+        </div>
+        <button class="ap-cta">Comenzar Pixora Pro</button>
+        <div class="ap-skip">Ahora no</div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+
+<!-- ═════════ CONCEPT 03 · NETFLIX HERO ═════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 03</span>
+    <span class="name">Netflix Hero</span>
+    <span class="desc">Fondo cinematográfico de Mictlantecuhtli · "ÚNETE" · carrusel de wallpapers exclusivos · feature pills · vibra streaming premium</span>
+  </div>
+  <div class="pair">
+    <div class="frame"><div class="label">B&G — Netflix nocturno</div><div class="phone"><div class="status sb-light">9:41<span>· · · ·</span></div>
+      <div class="nx-bg">
+        <div class="nx-hero">
+          <div class="bg"></div>
+          <div class="meta">
+            <div class="pro-badge">PIXORA PRO</div>
+            <h2>El santuario<br><em>completo</em></h2>
+            <div class="tag">Wallpapers exclusivos, sin anuncios y acceso a todos los códices culturales.</div>
+          </div>
+        </div>
+        <div class="nx-section">
+          <h3>Exclusivos para Pro</h3>
+          <div class="nx-row">
+            <div class="nx-mini"><div class="img" style="background:linear-gradient(135deg,#2e1a3d,#5d2f7a)"></div><div class="name">Quetzalcóatl<br><small>Próximamente</small></div></div>
+            <div class="nx-mini"><div class="img" style="background:linear-gradient(135deg,#3d2a1a,#7a4f2f)"></div><div class="name">Anubis<br><small>Próximamente</small></div></div>
+            <div class="nx-mini"><div class="img" style="background:linear-gradient(135deg,#1a1a3d,#2f3f7a)"></div><div class="name">Thor<br><small>Próximamente</small></div></div>
+            <div class="nx-mini"><div class="img" style="background:linear-gradient(135deg,#3d1a2a,#7a2f4f)"></div><div class="name">Kuan-Yin<br><small>Próximamente</small></div></div>
+          </div>
+        </div>
+        <div class="nx-perks">
+          <div class="nx-perk"><span class="check">✓</span><span class="text">Sin anuncios para siempre</span></div>
+          <div class="nx-perk"><span class="check">✓</span><span class="text">Códices completos de mitología</span></div>
+          <div class="nx-perk"><span class="check">✓</span><span class="text">AURA ilimitado · todas las frecuencias</span></div>
+          <div class="nx-perk"><span class="check">✓</span><span class="text">Acceso anticipado a nuevos dioses</span></div>
+        </div>
+        <div class="nx-cta-wrap">
+          <button class="nx-cta">⚡ Únete a Pro</button>
+        </div>
+        <div class="nx-price-line">$49 MXN / mes · cancela cuando quieras</div>
+        <div class="nx-skip">Tal vez después</div>
+      </div>
+    </div></div>
+    <div class="frame"><div class="label">iOS — Netflix diurno</div><div class="phone"><div class="status sb-light">9:41<span>· · · ·</span></div>
+      <div class="nx-ios">
+        <div class="nx-hero">
+          <div class="bg"></div>
+          <div class="meta">
+            <div class="pro-badge">PIXORA PRO</div>
+            <h2>El santuario<br><em>completo</em></h2>
+            <div class="tag">Wallpapers exclusivos, sin anuncios y acceso a todos los códices culturales.</div>
+          </div>
+        </div>
+        <div class="nx-section">
+          <h3>Exclusivos para Pro</h3>
+          <div class="nx-row">
+            <div class="nx-mini"><div class="img" style="background:linear-gradient(135deg,#2e1a3d,#5d2f7a)"></div><div class="name">Quetzalcóatl<br><small>Próximamente</small></div></div>
+            <div class="nx-mini"><div class="img" style="background:linear-gradient(135deg,#3d2a1a,#7a4f2f)"></div><div class="name">Anubis<br><small>Próximamente</small></div></div>
+            <div class="nx-mini"><div class="img" style="background:linear-gradient(135deg,#1a1a3d,#2f3f7a)"></div><div class="name">Thor<br><small>Próximamente</small></div></div>
+            <div class="nx-mini"><div class="img" style="background:linear-gradient(135deg,#3d1a2a,#7a2f4f)"></div><div class="name">Kuan-Yin<br><small>Próximamente</small></div></div>
+          </div>
+        </div>
+        <div class="nx-perks">
+          <div class="nx-perk"><span class="check">✓</span><span class="text">Sin anuncios para siempre</span></div>
+          <div class="nx-perk"><span class="check">✓</span><span class="text">Códices completos de mitología</span></div>
+          <div class="nx-perk"><span class="check">✓</span><span class="text">AURA ilimitado · todas las frecuencias</span></div>
+          <div class="nx-perk"><span class="check">✓</span><span class="text">Acceso anticipado a nuevos dioses</span></div>
+        </div>
+        <div class="nx-cta-wrap">
+          <button class="nx-cta">⚡ Únete a Pro</button>
+        </div>
+        <div class="nx-price-line">$49 MXN / mes · cancela cuando quieras</div>
+        <div class="nx-skip">Tal vez después</div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+
+<!-- ═════════ CONCEPT 04 · COMPARATIVA ═════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 04</span>
+    <span class="name">Comparativa</span>
+    <span class="desc">Tabla Free vs Pro · checkmarks dorados · estilo SaaS / Spotify · transparencia total de qué incluye cada plan</span>
+  </div>
+  <div class="pair">
+    <div class="frame"><div class="label">B&G — Tabla nocturna</div><div class="phone"><div class="status sb-light">9:41<span>· · · ·</span></div>
+      <div class="cm-bg">
+        <div class="cm-h">
+          <div class="eyebrow">— ELIGE TU PLAN —</div>
+          <h2>Cómo quieres<br>vivir <em>Pixora</em></h2>
+          <div class="tag">Misma app — diferente alcance. Comparalo y decide.</div>
+        </div>
+        <div class="cm-table">
+          <div class="cm-cols">
+            <div class="cm-cell head"></div>
+            <div class="cm-cell head"><div class="ttl">Free</div><div class="price free">$0</div></div>
+            <div class="cm-cell head pro"><div class="ttl">Pro</div><div class="price pro">$49</div></div>
+
+            <div class="cm-cell row"><div class="feature">Wallpapers gratuitos</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+
+            <div class="cm-cell row"><div class="feature">Anuncios cada 2 acciones</div></div>
+            <div class="cm-cell row"><div class="val">Sí</div></div>
+            <div class="cm-cell row"><div class="val">No</div></div>
+
+            <div class="cm-cell row"><div class="feature">Wallpapers culturales (Códice)</div></div>
+            <div class="cm-cell row"><div class="val">1 muestra</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+
+            <div class="cm-cell row"><div class="feature">Acceso anticipado a nuevos</div></div>
+            <div class="cm-cell row"><div class="val">—</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+
+            <div class="cm-cell row"><div class="feature">AURA frecuencias</div></div>
+            <div class="cm-cell row"><div class="val">3</div></div>
+            <div class="cm-cell row"><div class="val yes">Todas</div></div>
+
+            <div class="cm-cell row"><div class="feature">Soporte directo</div></div>
+            <div class="cm-cell row"><div class="val">—</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+          </div>
+        </div>
+        <button class="cm-cta">Comenzar Pixora Pro</button>
+        <div class="cm-skip">Continuar gratis</div>
+      </div>
+    </div></div>
+    <div class="frame"><div class="label">iOS — Tabla diurna</div><div class="phone"><div class="status sb-dark">9:41<span>· · · ·</span></div>
+      <div class="cm-ios">
+        <div class="cm-h">
+          <div class="eyebrow">— ELIGE TU PLAN —</div>
+          <h2>Cómo quieres<br>vivir <em>Pixora</em></h2>
+          <div class="tag">Misma app — diferente alcance. Comparalo y decide.</div>
+        </div>
+        <div class="cm-table">
+          <div class="cm-cols">
+            <div class="cm-cell head"></div>
+            <div class="cm-cell head"><div class="ttl">Free</div><div class="price free">$0</div></div>
+            <div class="cm-cell head pro"><div class="ttl">Pro</div><div class="price pro">$49</div></div>
+
+            <div class="cm-cell row"><div class="feature">Wallpapers gratuitos</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+
+            <div class="cm-cell row"><div class="feature">Anuncios cada 2 acciones</div></div>
+            <div class="cm-cell row"><div class="val">Sí</div></div>
+            <div class="cm-cell row"><div class="val">No</div></div>
+
+            <div class="cm-cell row"><div class="feature">Wallpapers culturales (Códice)</div></div>
+            <div class="cm-cell row"><div class="val">1 muestra</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+
+            <div class="cm-cell row"><div class="feature">Acceso anticipado a nuevos</div></div>
+            <div class="cm-cell row"><div class="val">—</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+
+            <div class="cm-cell row"><div class="feature">AURA frecuencias</div></div>
+            <div class="cm-cell row"><div class="val">3</div></div>
+            <div class="cm-cell row"><div class="val yes">Todas</div></div>
+
+            <div class="cm-cell row"><div class="feature">Soporte directo</div></div>
+            <div class="cm-cell row"><div class="val">—</div></div>
+            <div class="cm-cell row"><div class="val yes">✓</div></div>
+          </div>
+        </div>
+        <button class="cm-cta">Comenzar Pixora Pro</button>
+        <div class="cm-skip">Continuar gratis</div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+
+<!-- ═════════ CONCEPT 05 · STORYTELLING ═════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 05</span>
+    <span class="name">Storytelling</span>
+    <span class="desc">Antes/Después emocional · "Sin Pro tu pantalla..." → "Con Pro tu pantalla..." · narrativa visual con contraste · alta conversión</span>
+  </div>
+  <div class="pair">
+    <div class="frame"><div class="label">B&G — Narrativa nocturna</div><div class="phone"><div class="status sb-light">9:41<span>· · · ·</span></div>
+      <div class="st-bg">
+        <div class="st-h">
+          <h2>Tu pantalla<br><em>cuenta una historia</em></h2>
+        </div>
+        <div class="st-block st-before">
+          <div class="label">Sin Pixora Pro</div>
+          <h3>Una pantalla<br>como cualquier otra</h3>
+          <div class="list">
+            <div class="item"><span class="dot">·</span>Anuncios cada 2 acciones</div>
+            <div class="item"><span class="dot">·</span>Solo el primer códice cultural</div>
+            <div class="item"><span class="dot">·</span>3 frecuencias AURA</div>
+            <div class="item"><span class="dot">·</span>Acceso estándar al catálogo</div>
+          </div>
+        </div>
+        <div class="st-arrow">↓</div>
+        <div class="st-block st-after">
+          <div class="label">Con Pixora Pro</div>
+          <h3>Tu pantalla,<br>tu santuario</h3>
+          <div class="list">
+            <div class="item"><span class="dot">✦</span>Cero anuncios. Para siempre.</div>
+            <div class="item"><span class="dot">✦</span>Todos los códices · Mictlán, Iah y los que vendrán</div>
+            <div class="item"><span class="dot">✦</span>AURA completo · todas las frecuencias</div>
+            <div class="item"><span class="dot">✦</span>Acceso anticipado a cada nuevo dios</div>
+          </div>
+        </div>
+        <div class="st-price">
+          <div class="pr">$49<small>MXN / mes</small></div>
+          <div class="nt">Cancela cuando quieras · sin compromiso</div>
+        </div>
+        <button class="st-cta">Empezar mi historia</button>
+        <div class="st-skip">Continuar como visitante</div>
+      </div>
+    </div></div>
+    <div class="frame"><div class="label">iOS — Narrativa diurna</div><div class="phone"><div class="status sb-dark">9:41<span>· · · ·</span></div>
+      <div class="st-ios">
+        <div class="st-h">
+          <h2>Tu pantalla<br><em>cuenta una historia</em></h2>
+        </div>
+        <div class="st-block st-before">
+          <div class="label">Sin Pixora Pro</div>
+          <h3>Una pantalla<br>como cualquier otra</h3>
+          <div class="list">
+            <div class="item"><span class="dot">·</span>Anuncios cada 2 acciones</div>
+            <div class="item"><span class="dot">·</span>Solo el primer códice cultural</div>
+            <div class="item"><span class="dot">·</span>3 frecuencias AURA</div>
+            <div class="item"><span class="dot">·</span>Acceso estándar al catálogo</div>
+          </div>
+        </div>
+        <div class="st-arrow">↓</div>
+        <div class="st-block st-after">
+          <div class="label">Con Pixora Pro</div>
+          <h3>Tu pantalla,<br>tu santuario</h3>
+          <div class="list">
+            <div class="item"><span class="dot">✦</span>Cero anuncios. Para siempre.</div>
+            <div class="item"><span class="dot">✦</span>Todos los códices · Mictlán, Iah y los que vendrán</div>
+            <div class="item"><span class="dot">✦</span>AURA completo · todas las frecuencias</div>
+            <div class="item"><span class="dot">✦</span>Acceso anticipado a cada nuevo dios</div>
+          </div>
+        </div>
+        <div class="st-price">
+          <div class="pr">$49<small>MXN / mes</small></div>
+          <div class="nt">Cancela cuando quieras · sin compromiso</div>
+        </div>
+        <button class="st-cta">Empezar mi historia</button>
+        <div class="st-skip">Continuar como visitante</div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<footer style="text-align:center; margin-top:80px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.3em; color:#5a5444;">
+  PIXORA · DESIGN ARCHIVE · SUBSCRIPTION · ENTRY 032
+</footer>
+
+</body></html>

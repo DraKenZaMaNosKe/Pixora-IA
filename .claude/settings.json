@@ -99,9 +99,9 @@
       "Bash(adb -s :* shell getprop:*)",
       "Bash(adb -s :* shell dumpsys:*)",
       "Bash(adb -s :* install:*)",
-      "Bash(adb -s :* uninstall com.orbix.pixora)",
+      "Bash(adb -s * uninstall com.orbix.pixora)",
       "Bash(adb -s :* exec-out:*)",
-      "Bash(adb :* wait-for-device)",
+      "Bash(adb * wait-for-device)",
 
       "Bash(python:*)",
       "Bash(ffmpeg:*)",

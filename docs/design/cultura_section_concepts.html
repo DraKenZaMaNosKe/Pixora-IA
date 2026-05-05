@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=2200">
+<title>Pixora · Sección Cultura · 5 conceptos × 2 temas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700;900&family=DM+Serif+Display:ital@0;1&family=Cinzel:wght@400;600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#06060c; color:#e8e2d4; font-family:'Inter',sans-serif; padding:60px 30px 100px; }
+  .page-h { text-align:center; max-width:1100px; margin:0 auto 60px; }
+  .page-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.35em; color:#d9b14a; text-transform:uppercase; }
+  .page-h h1 { font-family:'Fraunces',serif; font-style:italic; font-size:46px; font-weight:600; margin-top:16px; line-height:1.1; }
+  .page-h h1 em { color:#d9b14a; font-style:normal; }
+  .page-h .sub { font-family:'Inter',sans-serif; font-weight:300; color:#8a826f; margin-top:14px; font-size:14px; max-width:680px; margin-inline:auto; line-height:1.6; }
+
+  .row { max-width:2100px; margin:0 auto 80px; }
+  .row-h { display:flex; align-items:baseline; gap:20px; padding:0 8px 18px; border-bottom:1px solid #1f1c14; margin-bottom:30px; }
+  .row-h .num { font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:0.3em; color:#d9b14a; }
+  .row-h .name { font-family:'Fraunces',serif; font-style:italic; font-size:32px; font-weight:600; }
+  .row-h .desc { color:#8a826f; font-family:'Inter',sans-serif; font-weight:300; font-size:13px; margin-left:auto; max-width:580px; text-align:right; line-height:1.5; }
+
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; justify-items:center; }
+  .frame { position:relative; }
+  .frame .label { position:absolute; top:-30px; left:0; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.25em; color:#5a5444; text-transform:uppercase; }
+  .phone { width:392px; height:830px; border-radius:38px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.6), 0 0 0 4px #1a1a22, 0 0 0 5px #2a2a33; position:relative; background:#000; }
+  .status { position:absolute; top:0; left:0; right:0; height:38px; display:flex; align-items:center; justify-content:space-between; padding:10px 24px; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; z-index:10; pointer-events:none; }
+  .sb-light { color:#fff; } .sb-dark { color:#0a0a0e; }
+
+  /* placeholder image swatches for the 8 cultural wallpapers */
+  .wp-mictlan { background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_mictlantecuhtli_preview.webp') center/cover; }
+  .wp-iah     { background:linear-gradient(135deg, #1a1438 0%, #4d3a8c 50%, #1a1438 100%); }
+  .wp-goku    { background:linear-gradient(135deg, #2e1a1a 0%, #c84d28 50%, #2e1a1a 100%); }
+  .wp-volcan  { background:linear-gradient(135deg, #2a0c0c 0%, #c93222 50%, #2a0c0c 100%); }
+  .wp-bosque  { background:linear-gradient(135deg, #0a1a0e 0%, #2d6e3a 50%, #0a1a0e 100%); }
+  .wp-castillo{ background:linear-gradient(135deg, #1a1410 0%, #b07028 50%, #1a1410 100%); }
+  .wp-betta   { background:linear-gradient(135deg, #061830 0%, #1976d2 50%, #061830 100%); }
+  .wp-medusa  { background:linear-gradient(135deg, #08102a 0%, #4d8aff 50%, #08102a 100%); }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 01 · CÓDICE EDITORIAL · Black & Gold
+     ════════════════════════════════════════════════════════════════════ */
+  .ce-bg { background:linear-gradient(180deg, #0a0805 0%, #15110a 100%); height:100%; overflow-y:auto; padding:60px 0 100px; }
+  .ce-h { padding:0 26px 24px; border-bottom:1px solid #2a2210; margin-bottom:18px; }
+  .ce-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.35em; color:#d9b14a; }
+  .ce-h h2 { font-family:'IM Fell English',serif; font-style:italic; font-size:32px; color:#f0e0b8; margin-top:8px; line-height:1; }
+  .ce-h .sub { font-family:'IM Fell English',serif; font-style:italic; font-size:13px; color:#8a826f; margin-top:6px; }
+  .ce-item { display:flex; gap:14px; padding:18px 26px; border-bottom:1px dashed #2a2210; }
+  .ce-thumb { width:78px; height:120px; border-radius:3px; flex-shrink:0; box-shadow:0 4px 10px rgba(0,0,0,0.6); position:relative; overflow:hidden; }
+  .ce-body { flex:1; min-width:0; }
+  .ce-chapter { font-family:'IM Fell English',serif; font-style:italic; font-size:10px; color:#d9b14a; letter-spacing:0.15em; text-transform:uppercase; }
+  .ce-title { font-family:'IM Fell English',serif; font-size:18px; color:#f0e0b8; line-height:1.1; margin-top:4px; }
+  .ce-subtitle { font-family:'IM Fell English',serif; font-style:italic; font-size:12px; color:#d9b14a; margin-top:2px; }
+  .ce-lead { font-family:'IM Fell English',serif; font-size:12px; line-height:1.45; color:#c8b890; margin-top:8px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .ce-meta { display:flex; gap:14px; margin-top:8px; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.15em; color:#8a826f; text-transform:uppercase; }
+  .ce-divider { text-align:center; margin:18px 0; color:#44351a; font-family:'IM Fell English',serif; font-style:italic; font-size:14px; }
+
+  /* CONCEPT 01 iOS variant */
+  .ce-ios { background:linear-gradient(180deg, #f8f1e0 0%, #ede4cc 100%); color:#3a2e1a; height:100%; overflow-y:auto; padding:60px 0 100px; }
+  .ce-ios .ce-h { border-bottom-color:#c0b09a; }
+  .ce-ios .ce-h .eyebrow { color:#a06820; }
+  .ce-ios .ce-h h2 { color:#3a2e1a; }
+  .ce-ios .ce-h .sub { color:#8a7a5a; }
+  .ce-ios .ce-item { border-bottom-color:#c0b09a; }
+  .ce-ios .ce-chapter { color:#a06820; }
+  .ce-ios .ce-title { color:#3a2e1a; }
+  .ce-ios .ce-subtitle { color:#a06820; }
+  .ce-ios .ce-lead { color:#54482e; }
+  .ce-ios .ce-meta { color:#8a7a5a; }
+  .ce-ios .ce-divider { color:#c0b09a; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 02 · MUSEO · Black & Gold
+     ════════════════════════════════════════════════════════════════════ */
+  .mu-bg { background:#0e0e10; height:100%; overflow-y:auto; padding:60px 18px 100px; }
+  .mu-h { text-align:center; padding:0 0 24px; }
+  .mu-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.4em; color:#d9b14a; }
+  .mu-h h2 { font-family:'Cinzel',serif; font-weight:600; font-size:24px; color:#f0e0b8; margin-top:10px; letter-spacing:0.05em; }
+  .mu-h .sub { font-family:'Inter',sans-serif; font-style:italic; font-weight:300; font-size:12px; color:#8a826f; margin-top:6px; }
+  .mu-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px; }
+  .mu-card { background:#16140e; border:1px solid #44351a; border-radius:4px; overflow:hidden; }
+  .mu-img { aspect-ratio:9/14; position:relative; }
+  .mu-img::after { content:""; position:absolute; inset:0; box-shadow:inset 0 0 0 1px rgba(217,177,74,0.15); }
+  .mu-plaque { padding:10px 12px 12px; }
+  .mu-room { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.25em; color:#d9b14a; text-transform:uppercase; }
+  .mu-name { font-family:'Cinzel',serif; font-size:13px; color:#f0e0b8; margin-top:4px; line-height:1.1; }
+  .mu-period { font-family:'IM Fell English',serif; font-style:italic; font-size:10px; color:#8a826f; margin-top:4px; }
+
+  /* CONCEPT 02 iOS */
+  .mu-ios { background:#fafaf6; color:#0a0a0a; height:100%; overflow-y:auto; padding:60px 18px 100px; }
+  .mu-ios .mu-h .eyebrow { color:#a06820; }
+  .mu-ios .mu-h h2 { color:#0a0a0a; }
+  .mu-ios .mu-h .sub { color:#888; }
+  .mu-ios .mu-card { background:#fff; border-color:#d8d2c4; }
+  .mu-ios .mu-img::after { box-shadow:inset 0 0 0 1px rgba(160,104,32,0.15); }
+  .mu-ios .mu-room { color:#a06820; }
+  .mu-ios .mu-name { color:#1a1a1a; }
+  .mu-ios .mu-period { color:#888; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 03 · CIVILIZACIONES · Black & Gold
+     ════════════════════════════════════════════════════════════════════ */
+  .cv-bg { background:#08080c; height:100%; overflow-y:auto; padding:60px 0 100px; }
+  .cv-h { padding:0 22px 22px; text-align:center; }
+  .cv-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.4em; color:#d9b14a; }
+  .cv-h h2 { font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:34px; color:#f0e0b8; margin-top:8px; }
+  .cv-group { padding:18px 22px 4px; }
+  .cv-group-h { display:flex; align-items:baseline; gap:10px; padding-bottom:12px; border-bottom:1px solid #d9b14a; margin-bottom:14px; }
+  .cv-group-h .glyph { font-family:'Cinzel',serif; font-weight:800; font-size:14px; color:#d9b14a; }
+  .cv-group-h .gname { font-family:'Fraunces',serif; font-style:italic; font-size:18px; color:#f0e0b8; }
+  .cv-group-h .gcount { margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:9px; color:#8a826f; letter-spacing:0.2em; }
+  .cv-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .cv-card { aspect-ratio:9/14; border-radius:4px; overflow:hidden; position:relative; }
+  .cv-card::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.85) 100%); }
+  .cv-card .lbl { position:absolute; bottom:6px; left:6px; right:6px; font-family:'Fraunces',serif; font-style:italic; font-size:10px; color:#fff; line-height:1.05; z-index:2; }
+
+  /* CONCEPT 03 iOS */
+  .cv-ios { background:#fafaf6; color:#0a0a0a; height:100%; overflow-y:auto; padding:60px 0 100px; }
+  .cv-ios .cv-h .eyebrow { color:#a06820; }
+  .cv-ios .cv-h h2 { color:#0a0a0a; }
+  .cv-ios .cv-group-h { border-bottom-color:#a06820; }
+  .cv-ios .cv-group-h .glyph { color:#a06820; }
+  .cv-ios .cv-group-h .gname { color:#0a0a0a; }
+  .cv-ios .cv-group-h .gcount { color:#888; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 04 · CINEMÁTICO · Black & Gold (Netflix-style)
+     ════════════════════════════════════════════════════════════════════ */
+  .cn-bg { background:#000; color:#fff; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .cn-hero { height:480px; position:relative; overflow:hidden; }
+  .cn-hero .cn-img { position:absolute; inset:0; }
+  .cn-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 30%, transparent 50%, #000 100%); }
+  .cn-hero .cn-meta { position:absolute; bottom:30px; left:24px; right:24px; z-index:2; }
+  .cn-hero .cn-tag { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.3em; color:#d9b14a; text-transform:uppercase; }
+  .cn-hero h2 { font-family:'Fraunces',serif; font-size:38px; font-weight:600; margin-top:8px; line-height:0.95; }
+  .cn-hero .cn-sub { font-family:'Fraunces',serif; font-style:italic; font-size:14px; color:#d9b14a; margin-top:4px; }
+  .cn-hero .cn-fact { font-family:'Inter',sans-serif; font-weight:300; font-size:12px; color:#c8c2b4; margin-top:10px; line-height:1.5; }
+  .cn-hero .cn-btn { display:inline-block; margin-top:14px; padding:10px 18px; background:#d9b14a; color:#000; font-family:'Inter',sans-serif; font-weight:700; font-size:12px; letter-spacing:0.05em; border-radius:4px; }
+  .cn-section { padding:24px 24px 0; }
+  .cn-section h3 { font-family:'Fraunces',serif; font-style:italic; font-size:18px; color:#f0e0b8; margin-bottom:12px; }
+  .cn-row { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; }
+  .cn-mini { flex:0 0 110px; }
+  .cn-mini .cn-img-mini { width:110px; height:160px; border-radius:3px; }
+  .cn-mini .cn-name { font-family:'Inter',sans-serif; font-weight:500; font-size:11px; color:#fff; margin-top:6px; line-height:1.2; }
+
+  /* CONCEPT 04 iOS */
+  .cn-ios { background:#fafaf6; color:#0a0a0a; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .cn-ios .cn-hero::after { background:linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 30%, transparent 50%, #fafaf6 100%); }
+  .cn-ios .cn-hero .cn-tag { color:#ffc847; }
+  .cn-ios .cn-hero .cn-sub { color:#ffc847; }
+  .cn-ios .cn-hero .cn-btn { background:#0a0a0a; color:#fff; }
+  .cn-ios .cn-section h3 { color:#0a0a0a; }
+  .cn-ios .cn-mini .cn-name { color:#1a1a1a; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 05 · ATLAS · Black & Gold
+     ════════════════════════════════════════════════════════════════════ */
+  .at-bg { background:#0c0c10; height:100%; overflow-y:auto; padding:50px 0 100px; }
+  .at-h { padding:0 24px 26px; border-bottom:2px solid #d9b14a; margin-bottom:24px; }
+  .at-h .vol { font-family:'Cinzel',serif; font-weight:800; font-size:11px; letter-spacing:0.4em; color:#d9b14a; }
+  .at-h h2 { font-family:'DM Serif Display',serif; font-size:42px; font-weight:400; margin-top:8px; color:#f0e0b8; line-height:0.95; }
+  .at-h h2 i { color:#d9b14a; }
+  .at-era { padding:18px 24px 8px; }
+  .at-era .era-num { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.3em; color:#d9b14a; text-transform:uppercase; }
+  .at-era .era-name { font-family:'DM Serif Display',serif; font-size:22px; color:#f0e0b8; line-height:1; margin-top:4px; }
+  .at-era .era-desc { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px; color:#a09a8a; margin-top:6px; }
+  .at-era-cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 24px 18px; border-bottom:1px solid #1a1a1a; }
+  .at-era-card { aspect-ratio:9/13; border-radius:2px; overflow:hidden; position:relative; }
+  .at-era-card::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.9) 100%); }
+  .at-era-card .lbl { position:absolute; bottom:6px; left:8px; right:8px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:11px; color:#fff; line-height:1.1; z-index:2; }
+  .at-era-card .num-big { position:absolute; top:6px; left:8px; font-family:'DM Serif Display',serif; font-size:18px; color:#d9b14a; z-index:2; }
+
+  /* CONCEPT 05 iOS */
+  .at-ios { background:#fafaf6; color:#0a0a0a; height:100%; overflow-y:auto; padding:50px 0 100px; }
+  .at-ios .at-h { border-bottom-color:#a06820; }
+  .at-ios .at-h .vol { color:#a06820; }
+  .at-ios .at-h h2 { color:#0a0a0a; }
+  .at-ios .at-h h2 i { color:#a06820; }
+  .at-ios .at-era .era-num { color:#a06820; }
+  .at-ios .at-era .era-name { color:#0a0a0a; }
+  .at-ios .at-era .era-desc { color:#54482e; }
+  .at-ios .at-era-cards { border-bottom-color:#e0d8c0; }
+  .at-ios .at-era-card .num-big { color:#a06820; }
+</style>
+</head>
+<body>
+
+<header class="page-h">
+  <div class="eyebrow">PIXORA · NUEVA SECCIÓN · 5 CONCEPTOS EDITORIALES</div>
+  <h1>Sección · <em>Cultura</em></h1>
+  <p class="sub">Una sección dedicada a wallpapers con códice — donde el usuario descubre mitología, historia y ciencia mientras escoge.<br>Pareja izquierda = Black & Gold · derecha = iOS White. Selecciona uno y lo implemento.</p>
+</header>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 01 — CÓDICE EDITORIAL
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 01</span>
+    <span class="name">Códice Editorial</span>
+    <span class="desc">Lista vertical estilo manuscrito · cada wallpaper es una página de libro · preview pequeño + capítulo + lead truncado · escaneable</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Manuscrito nocturno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="ce-bg">
+          <div class="ce-h">
+            <div class="eyebrow">— Códex Pixora —</div>
+            <h2>Cultura</h2>
+            <div class="sub">Mitología, historia y ciencia ilustrada en wallpapers vivos</div>
+          </div>
+          <div class="ce-item">
+            <div class="ce-thumb wp-mictlan"></div>
+            <div class="ce-body">
+              <div class="ce-chapter">— Capítulo IX · Mictlán —</div>
+              <div class="ce-title">Mictlantecuhtli</div>
+              <div class="ce-subtitle">Señor del Inframundo</div>
+              <div class="ce-lead">Esposo de Mictecacíhuatl, gobierna los nueve niveles del Mictlán. Recibe a las almas que mueren de causa natural; junto a Quetzalcóatl creó al hombre.</div>
+              <div class="ce-meta"><span>MEXICA</span><span>9 NIVELES</span><span>4 AÑOS</span></div>
+            </div>
+          </div>
+          <div class="ce-item">
+            <div class="ce-thumb wp-iah"></div>
+            <div class="ce-body">
+              <div class="ce-chapter">— Capítulo II · Cielo de Iah —</div>
+              <div class="ce-title">Iah</div>
+              <div class="ce-subtitle">El Mensajero Lunar</div>
+              <div class="ce-lead">Dios egipcio de la luna, padre del calendario y guía de las almas durante la noche. Antes de Thoth, antes de Khonsu, él medía el tiempo del Nilo.</div>
+              <div class="ce-meta"><span>EGIPTO</span><span>12 CICLOS</span><span>354 DÍAS</span></div>
+            </div>
+          </div>
+          <div class="ce-divider">⛧</div>
+          <div class="ce-item">
+            <div class="ce-thumb wp-goku"></div>
+            <div class="ce-body">
+              <div class="ce-chapter">— Capítulo VII · Energía Espiritual —</div>
+              <div class="ce-title">Goku Genkidama</div>
+              <div class="ce-subtitle">La Bomba de Energía</div>
+              <div class="ce-lead">Goku reúne energía vital prestada de toda forma viva — humanos, animales, plantas, planetas — y la condensa en una esfera de luz. Solo corazones puros pueden usarla.</div>
+              <div class="ce-meta"><span>1989</span><span>KAIO NORTE</span><span>源気玉</span></div>
+            </div>
+          </div>
+          <div class="ce-item">
+            <div class="ce-thumb wp-volcan"></div>
+            <div class="ce-body">
+              <div class="ce-chapter">— Capítulo III · Forja de la Tierra —</div>
+              <div class="ce-title">El Dragón del Volcán</div>
+              <div class="ce-subtitle">Igneus Draconis</div>
+              <div class="ce-lead">Los celtas creían que cada volcán activo escondía un dragón dormido cuyo aliento moldea continentes; los nórdicos lo llamaban "la fragua de Surtr".</div>
+              <div class="ce-meta"><span>UNIVERSAL</span><span>MAGMA</span><span>RENACER</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="label">iOS — Manuscrito diurno</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="ce-ios">
+          <div class="ce-h">
+            <div class="eyebrow">— Códex Pixora —</div>
+            <h2>Cultura</h2>
+            <div class="sub">Mitología, historia y ciencia ilustrada en wallpapers vivos</div>
+          </div>
+          <div class="ce-item">
+            <div class="ce-thumb wp-mictlan"></div>
+            <div class="ce-body">
+              <div class="ce-chapter">— Capítulo IX · Mictlán —</div>
+              <div class="ce-title">Mictlantecuhtli</div>
+              <div class="ce-subtitle">Señor del Inframundo</div>
+              <div class="ce-lead">Esposo de Mictecacíhuatl, gobierna los nueve niveles del Mictlán. Recibe a las almas que mueren de causa natural; junto a Quetzalcóatl creó al hombre.</div>
+              <div class="ce-meta"><span>MEXICA</span><span>9 NIVELES</span><span>4 AÑOS</span></div>
+            </div>
+          </div>
+          <div class="ce-item">
+            <div class="ce-thumb wp-iah"></div>
+            <div class="ce-body">
+              <div class="ce-chapter">— Capítulo II · Cielo de Iah —</div>
+              <div class="ce-title">Iah</div>
+              <div class="ce-subtitle">El Mensajero Lunar</div>
+              <div class="ce-lead">Dios egipcio de la luna, padre del calendario y guía de las almas durante la noche. Antes de Thoth, antes de Khonsu, él medía el tiempo del Nilo.</div>
+              <div class="ce-meta"><span>EGIPTO</span><span>12 CICLOS</span><span>354 DÍAS</span></div>
+            </div>
+          </div>
+          <div class="ce-divider">⛧</div>
+          <div class="ce-item">
+            <div class="ce-thumb wp-goku"></div>
+            <div class="ce-body">
+              <div class="ce-chapter">— Capítulo VII · Energía Espiritual —</div>
+              <div class="ce-title">Goku Genkidama</div>
+              <div class="ce-subtitle">La Bomba de Energía</div>
+              <div class="ce-lead">Goku reúne energía vital prestada de toda forma viva — humanos, animales, plantas, planetas — y la condensa en una esfera de luz.</div>
+              <div class="ce-meta"><span>1989</span><span>KAIO NORTE</span><span>源気玉</span></div>
+            </div>
+          </div>
+          <div class="ce-item">
+            <div class="ce-thumb wp-volcan"></div>
+            <div class="ce-body">
+              <div class="ce-chapter">— Capítulo III · Forja de la Tierra —</div>
+              <div class="ce-title">El Dragón del Volcán</div>
+              <div class="ce-subtitle">Igneus Draconis</div>
+              <div class="ce-lead">Los celtas creían que cada volcán activo escondía un dragón dormido cuyo aliento moldea continentes.</div>
+              <div class="ce-meta"><span>UNIVERSAL</span><span>MAGMA</span><span>RENACER</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 02 — MUSEO
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 02</span>
+    <span class="name">Museo</span>
+    <span class="desc">Cards estilo placa de museo · grid 2-col · etiqueta de "Sala/Era" · borde dorado sutil · vibra de exhibición curada</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Sala nocturna</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="mu-bg">
+          <div class="mu-h">
+            <div class="eyebrow">— Pixora · Galería —</div>
+            <h2>Cultura</h2>
+            <div class="sub">Exhibición permanente · 8 piezas curadas</div>
+          </div>
+          <div class="mu-grid">
+            <div class="mu-card"><div class="mu-img wp-mictlan"></div><div class="mu-plaque"><div class="mu-room">SALA 09 · MEXICA</div><div class="mu-name">Mictlantecuhtli</div><div class="mu-period">circa 1325 d.C.</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-iah"></div><div class="mu-plaque"><div class="mu-room">SALA 02 · EGIPTO</div><div class="mu-name">Iah Lunar</div><div class="mu-period">Reino Antiguo</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-goku"></div><div class="mu-plaque"><div class="mu-room">SALA 07 · ANIME</div><div class="mu-name">Genkidama</div><div class="mu-period">DBZ · 1989</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-volcan"></div><div class="mu-plaque"><div class="mu-room">SALA 03 · MITO</div><div class="mu-name">Dragón del Volcán</div><div class="mu-period">Universal</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-bosque"></div><div class="mu-plaque"><div class="mu-room">SALA 05 · NATURA</div><div class="mu-name">Bosque Encantado</div><div class="mu-period">Amazónico</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-castillo"></div><div class="mu-plaque"><div class="mu-room">SALA 08 · MEDIEVAL</div><div class="mu-name">Fortaleza del Ocaso</div><div class="mu-period">Siglo XII</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-betta"></div><div class="mu-plaque"><div class="mu-room">SALA 01 · ACUARIO</div><div class="mu-name">Betta Splendens</div><div class="mu-period">Tailandia · s. XIV</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-medusa"></div><div class="mu-plaque"><div class="mu-room">SALA 04 · ABISMO</div><div class="mu-name">Medusas Inmortales</div><div class="mu-period">+500 millones años</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Sala diurna</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="mu-ios">
+          <div class="mu-h">
+            <div class="eyebrow">— Pixora · Galería —</div>
+            <h2>Cultura</h2>
+            <div class="sub">Exhibición permanente · 8 piezas curadas</div>
+          </div>
+          <div class="mu-grid">
+            <div class="mu-card"><div class="mu-img wp-mictlan"></div><div class="mu-plaque"><div class="mu-room">SALA 09 · MEXICA</div><div class="mu-name">Mictlantecuhtli</div><div class="mu-period">circa 1325 d.C.</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-iah"></div><div class="mu-plaque"><div class="mu-room">SALA 02 · EGIPTO</div><div class="mu-name">Iah Lunar</div><div class="mu-period">Reino Antiguo</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-goku"></div><div class="mu-plaque"><div class="mu-room">SALA 07 · ANIME</div><div class="mu-name">Genkidama</div><div class="mu-period">DBZ · 1989</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-volcan"></div><div class="mu-plaque"><div class="mu-room">SALA 03 · MITO</div><div class="mu-name">Dragón del Volcán</div><div class="mu-period">Universal</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-bosque"></div><div class="mu-plaque"><div class="mu-room">SALA 05 · NATURA</div><div class="mu-name">Bosque Encantado</div><div class="mu-period">Amazónico</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-castillo"></div><div class="mu-plaque"><div class="mu-room">SALA 08 · MEDIEVAL</div><div class="mu-name">Fortaleza del Ocaso</div><div class="mu-period">Siglo XII</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-betta"></div><div class="mu-plaque"><div class="mu-room">SALA 01 · ACUARIO</div><div class="mu-name">Betta Splendens</div><div class="mu-period">Tailandia · s. XIV</div></div></div>
+            <div class="mu-card"><div class="mu-img wp-medusa"></div><div class="mu-plaque"><div class="mu-room">SALA 04 · ABISMO</div><div class="mu-name">Medusas Inmortales</div><div class="mu-period">+500 millones años</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 03 — CIVILIZACIONES
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 03</span>
+    <span class="name">Civilizaciones</span>
+    <span class="desc">Agrupados por cultura/origen · cada grupo con su glifo · vibra etnográfica · scroll por civilización</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Etnográfico nocturno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="cv-bg">
+          <div class="cv-h">
+            <div class="eyebrow">— Pixora · Cultura —</div>
+            <h2>Civilizaciones</h2>
+          </div>
+          <div class="cv-group">
+            <div class="cv-group-h"><span class="glyph">⛧</span><span class="gname">Mesoamérica</span><span class="gcount">2 piezas</span></div>
+            <div class="cv-row">
+              <div class="cv-card wp-mictlan"><div class="lbl">Mictlantecuhtli<br>Señor del Inframundo</div></div>
+              <div class="cv-card wp-volcan"><div class="lbl">Dragón del Volcán</div></div>
+              <div class="cv-card wp-castillo"><div class="lbl">Fortaleza del Ocaso</div></div>
+            </div>
+          </div>
+          <div class="cv-group">
+            <div class="cv-group-h"><span class="glyph">𓁐</span><span class="gname">Egipto Antiguo</span><span class="gcount">1 pieza</span></div>
+            <div class="cv-row">
+              <div class="cv-card wp-iah"><div class="lbl">Iah · Mensajero Lunar</div></div>
+            </div>
+          </div>
+          <div class="cv-group">
+            <div class="cv-group-h"><span class="glyph">気</span><span class="gname">Cultura Pop · Anime</span><span class="gcount">1 pieza</span></div>
+            <div class="cv-row">
+              <div class="cv-card wp-goku"><div class="lbl">Genkidama · DBZ</div></div>
+            </div>
+          </div>
+          <div class="cv-group">
+            <div class="cv-group-h"><span class="glyph">🜨</span><span class="gname">Mundo Natural</span><span class="gcount">3 piezas</span></div>
+            <div class="cv-row">
+              <div class="cv-card wp-bosque"><div class="lbl">Bosque Encantado</div></div>
+              <div class="cv-card wp-betta"><div class="lbl">Betta Splendens</div></div>
+              <div class="cv-card wp-medusa"><div class="lbl">Medusas Inmortales</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Etnográfico diurno</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="cv-ios">
+          <div class="cv-h">
+            <div class="eyebrow">— Pixora · Cultura —</div>
+            <h2>Civilizaciones</h2>
+          </div>
+          <div class="cv-group">
+            <div class="cv-group-h"><span class="glyph">⛧</span><span class="gname">Mesoamérica</span><span class="gcount">2 piezas</span></div>
+            <div class="cv-row">
+              <div class="cv-card wp-mictlan"><div class="lbl">Mictlantecuhtli<br>Señor del Inframundo</div></div>
+              <div class="cv-card wp-volcan"><div class="lbl">Dragón del Volcán</div></div>
+              <div class="cv-card wp-castillo"><div class="lbl">Fortaleza del Ocaso</div></div>
+            </div>
+          </div>
+          <div class="cv-group">
+            <div class="cv-group-h"><span class="glyph">𓁐</span><span class="gname">Egipto Antiguo</span><span class="gcount">1 pieza</span></div>
+            <div class="cv-row">
+              <div class="cv-card wp-iah"><div class="lbl">Iah · Mensajero Lunar</div></div>
+            </div>
+          </div>
+          <div class="cv-group">
+            <div class="cv-group-h"><span class="glyph">気</span><span class="gname">Cultura Pop · Anime</span><span class="gcount">1 pieza</span></div>
+            <div class="cv-row">
+              <div class="cv-card wp-goku"><div class="lbl">Genkidama · DBZ</div></div>
+            </div>
+          </div>
+          <div class="cv-group">
+            <div class="cv-group-h"><span class="glyph">🜨</span><span class="gname">Mundo Natural</span><span class="gcount">3 piezas</span></div>
+            <div class="cv-row">
+              <div class="cv-card wp-bosque"><div class="lbl">Bosque Encantado</div></div>
+              <div class="cv-card wp-betta"><div class="lbl">Betta Splendens</div></div>
+              <div class="cv-card wp-medusa"><div class="lbl">Medusas Inmortales</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 04 — CINEMÁTICO (Netflix-style)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 04</span>
+    <span class="name">Cinemático</span>
+    <span class="desc">Hero rotativo featured + carruseles horizontales por categoría · vibe Netflix premium · highlight + dato curioso visible</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Cinemático nocturno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="cn-bg">
+          <div class="cn-hero">
+            <div class="cn-img wp-mictlan"></div>
+            <div class="cn-meta">
+              <div class="cn-tag">DESTACADO HOY · MITOLOGÍA MEXICA</div>
+              <h2>Mictlantecuhtli</h2>
+              <div class="cn-sub">Señor del Inframundo</div>
+              <div class="cn-fact">Las almas tardaban 4 años en cruzar los 9 ríos del Mictlán para llegar a su trono.</div>
+              <div class="cn-btn">▶ Aplicar wallpaper</div>
+            </div>
+          </div>
+          <div class="cn-section">
+            <h3>Mitología</h3>
+            <div class="cn-row">
+              <div class="cn-mini"><div class="cn-img-mini wp-iah"></div><div class="cn-name">Iah Lunar</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-goku"></div><div class="cn-name">Genkidama</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-volcan"></div><div class="cn-name">Dragón Volcán</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-castillo"></div><div class="cn-name">Fortaleza</div></div>
+            </div>
+          </div>
+          <div class="cn-section">
+            <h3>Ciencia natural</h3>
+            <div class="cn-row">
+              <div class="cn-mini"><div class="cn-img-mini wp-betta"></div><div class="cn-name">Betta Splendens</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-medusa"></div><div class="cn-name">Medusas</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-bosque"></div><div class="cn-name">Bosque</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Cinemático diurno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="cn-ios">
+          <div class="cn-hero">
+            <div class="cn-img wp-mictlan"></div>
+            <div class="cn-meta">
+              <div class="cn-tag">DESTACADO HOY · MITOLOGÍA MEXICA</div>
+              <h2>Mictlantecuhtli</h2>
+              <div class="cn-sub">Señor del Inframundo</div>
+              <div class="cn-fact">Las almas tardaban 4 años en cruzar los 9 ríos del Mictlán para llegar a su trono.</div>
+              <div class="cn-btn">▶ Aplicar wallpaper</div>
+            </div>
+          </div>
+          <div class="cn-section">
+            <h3>Mitología</h3>
+            <div class="cn-row">
+              <div class="cn-mini"><div class="cn-img-mini wp-iah"></div><div class="cn-name">Iah Lunar</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-goku"></div><div class="cn-name">Genkidama</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-volcan"></div><div class="cn-name">Dragón Volcán</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-castillo"></div><div class="cn-name">Fortaleza</div></div>
+            </div>
+          </div>
+          <div class="cn-section">
+            <h3>Ciencia natural</h3>
+            <div class="cn-row">
+              <div class="cn-mini"><div class="cn-img-mini wp-betta"></div><div class="cn-name">Betta Splendens</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-medusa"></div><div class="cn-name">Medusas</div></div>
+              <div class="cn-mini"><div class="cn-img-mini wp-bosque"></div><div class="cn-name">Bosque</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 05 — ATLAS HISTÓRICO
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 05</span>
+    <span class="name">Atlas Histórico</span>
+    <span class="desc">Por ERA cronológica · enciclopedia vintage · numerados · Antigüedad → Medieval → Cultura Pop → Mundo Natural</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Atlas nocturno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="at-bg">
+          <div class="at-h">
+            <div class="vol">VOL · I · CULTURA</div>
+            <h2>Atlas<br><i>Pixora</i></h2>
+          </div>
+          <div class="at-era">
+            <div class="era-num">ERA · I</div>
+            <div class="era-name">Mundo Antiguo</div>
+            <div class="era-desc">Civilizaciones que medieron el cielo y nombraron a la muerte</div>
+          </div>
+          <div class="at-era-cards">
+            <div class="at-era-card wp-mictlan"><div class="num-big">01</div><div class="lbl">Mictlantecuhtli · Mexica</div></div>
+            <div class="at-era-card wp-iah"><div class="num-big">02</div><div class="lbl">Iah Lunar · Egipto</div></div>
+          </div>
+          <div class="at-era">
+            <div class="era-num">ERA · II</div>
+            <div class="era-name">Era de Mitos</div>
+            <div class="era-desc">Dragones, fortalezas y bosques sagrados de la tradición universal</div>
+          </div>
+          <div class="at-era-cards">
+            <div class="at-era-card wp-volcan"><div class="num-big">03</div><div class="lbl">Dragón del Volcán</div></div>
+            <div class="at-era-card wp-bosque"><div class="num-big">04</div><div class="lbl">Bosque Encantado</div></div>
+            <div class="at-era-card wp-castillo"><div class="num-big">05</div><div class="lbl">Fortaleza del Ocaso</div></div>
+          </div>
+          <div class="at-era">
+            <div class="era-num">ERA · III</div>
+            <div class="era-name">Cultura Pop</div>
+            <div class="era-desc">Mitos contemporáneos de la cultura visual moderna</div>
+          </div>
+          <div class="at-era-cards">
+            <div class="at-era-card wp-goku"><div class="num-big">06</div><div class="lbl">Goku · Genkidama</div></div>
+          </div>
+          <div class="at-era">
+            <div class="era-num">ERA · IV</div>
+            <div class="era-name">Mundo Natural</div>
+            <div class="era-desc">Vida que precede y sucede a toda civilización</div>
+          </div>
+          <div class="at-era-cards">
+            <div class="at-era-card wp-betta"><div class="num-big">07</div><div class="lbl">Betta del Siam</div></div>
+            <div class="at-era-card wp-medusa"><div class="num-big">08</div><div class="lbl">Medusas Inmortales</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Atlas diurno</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="at-ios">
+          <div class="at-h">
+            <div class="vol">VOL · I · CULTURA</div>
+            <h2>Atlas<br><i>Pixora</i></h2>
+          </div>
+          <div class="at-era">
+            <div class="era-num">ERA · I</div>
+            <div class="era-name">Mundo Antiguo</div>
+            <div class="era-desc">Civilizaciones que midieron el cielo y nombraron a la muerte</div>
+          </div>
+          <div class="at-era-cards">
+            <div class="at-era-card wp-mictlan"><div class="num-big">01</div><div class="lbl">Mictlantecuhtli · Mexica</div></div>
+            <div class="at-era-card wp-iah"><div class="num-big">02</div><div class="lbl">Iah Lunar · Egipto</div></div>
+          </div>
+          <div class="at-era">
+            <div class="era-num">ERA · II</div>
+            <div class="era-name">Era de Mitos</div>
+            <div class="era-desc">Dragones, fortalezas y bosques sagrados de la tradición universal</div>
+          </div>
+          <div class="at-era-cards">
+            <div class="at-era-card wp-volcan"><div class="num-big">03</div><div class="lbl">Dragón del Volcán</div></div>
+            <div class="at-era-card wp-bosque"><div class="num-big">04</div><div class="lbl">Bosque Encantado</div></div>
+            <div class="at-era-card wp-castillo"><div class="num-big">05</div><div class="lbl">Fortaleza del Ocaso</div></div>
+          </div>
+          <div class="at-era">
+            <div class="era-num">ERA · III</div>
+            <div class="era-name">Cultura Pop</div>
+            <div class="era-desc">Mitos contemporáneos de la cultura visual moderna</div>
+          </div>
+          <div class="at-era-cards">
+            <div class="at-era-card wp-goku"><div class="num-big">06</div><div class="lbl">Goku · Genkidama</div></div>
+          </div>
+          <div class="at-era">
+            <div class="era-num">ERA · IV</div>
+            <div class="era-name">Mundo Natural</div>
+            <div class="era-desc">Vida que precede y sucede a toda civilización</div>
+          </div>
+          <div class="at-era-cards">
+            <div class="at-era-card wp-betta"><div class="num-big">07</div><div class="lbl">Betta del Siam</div></div>
+            <div class="at-era-card wp-medusa"><div class="num-big">08</div><div class="lbl">Medusas Inmortales</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center; margin-top:80px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.3em; color:#5a5444;">
+  PIXORA · DESIGN ARCHIVE · CULTURA · ENTRY 031
+</footer>
+
+</body></html>

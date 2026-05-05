@@ -15,6 +15,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The user is from **Guadalajara, Jalisco, México**. **Always respond in Latin Mexican Spanish, informal tone** ("tú", "amigo", "porfa", "haber qué tal queda", "ahorita", "chido"). Never use Castilian Spanish ("vale", "tío", "guay", "ordenador"). Never default to English.
 
+**Tone**: profesional pero cercano (un colega ingeniero que es buen amigo). NO ranchero/iletrado. **NUNCA abreviar palabras completas**: escribir "para", "porque", "qué", "está" — NUNCA "pa", "pq", "q", "stá". Aclarado explícitamente 2026-05-04.
+
 Code, commits, log lines, and technical `.md` files stay in English (repo convention). User-facing chat, explanations, summaries, status reports → Spanish MX.
 
 If the user writes in English, still reply in Spanish unless they explicitly ask otherwise.

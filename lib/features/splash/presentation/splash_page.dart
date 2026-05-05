@@ -8,6 +8,8 @@ import '../../../core/services/catalog_service.dart';
 import '../../../core/services/shader_download_service.dart';
 import '../../../core/services/wallpaper_stats_service.dart';
 import '../../home/presentation/home_page.dart';
+import '../../onboarding/presentation/onboarding_page.dart';
+import '../../subscription/presentation/subscription_pitch_page.dart';
 
 /// Art Deco Gatsby splash — black tinta + gold diamonds.
 ///
@@ -114,19 +116,73 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   void _navigateIfReady() {
     if (_loadingDone && _minTimeDone && !_exiting && mounted) {
       _exiting = true;
-      _exitController.forward().then((_) {
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const HomePage(),
-              transitionsBuilder: (_, animation, __, child) =>
-                  FadeTransition(opacity: animation, child: child),
-              transitionDuration: const Duration(milliseconds: 500),
-            ),
-          );
-        }
+      _exitController.forward().then((_) async {
+        if (!mounted) return;
+        // Decide first destination: onboarding > subscription pitch > home.
+        // Each step decides its own next via onFinish, so the splash only
+        // picks the entry point.
+        final next = await _firstScreenAfterSplash();
+        if (!mounted) return;
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (_, __, ___) => next,
+            transitionsBuilder: (_, animation, __, child) =>
+                FadeTransition(opacity: animation, child: child),
+            transitionDuration: const Duration(milliseconds: 500),
+          ),
+        );
       });
     }
+  }
+
+  /// Cold-start funnel:
+  ///   first launch    → Onboarding → SubscriptionPitch → Home
+  ///   second launch   → SubscriptionPitch (if not yet shown) → Home
+  ///   pro subscriber  → Home (pitch is auto-skipped by shouldShow)
+  ///
+  /// All onFinish callbacks use the active page context (NOT the splash state)
+  /// because by the time the user finishes onboarding/pitch, the splash is
+  /// already disposed. Using splash's context would be a use-after-free.
+  Future<Widget> _firstScreenAfterSplash() async {
+    if (await OnboardingPage.shouldShow()) {
+      return OnboardingPage(onFinish: _navigateToPitchOrHome);
+    }
+    if (await SubscriptionPitchPage.shouldShow()) {
+      return SubscriptionPitchPage(onFinish: _navigateToHome);
+    }
+    return const HomePage();
+  }
+
+  /// Called by OnboardingPage when the user taps "¡Comenzar!".
+  /// `context` is the OnboardingPage's own context, guaranteed mounted.
+  Future<void> _navigateToPitchOrHome(BuildContext context) async {
+    if (await SubscriptionPitchPage.shouldShow()) {
+      if (!context.mounted) return;
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) =>
+              SubscriptionPitchPage(onFinish: _navigateToHome),
+          transitionsBuilder: (_, animation, __, child) =>
+              FadeTransition(opacity: animation, child: child),
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+      );
+    } else {
+      _navigateToHome(context);
+    }
+  }
+
+  /// Called by SubscriptionPitchPage when the user buys or skips.
+  /// `context` is the SubscriptionPitchPage's own context.
+  void _navigateToHome(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => const HomePage(),
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+    );
   }
 
   @override

@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=2400">
+<title>Pixora · Eventos · 10 conceptos visuales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&family=Cinzel:wght@400;600;800&family=IM+Fell+English:ital@0;1&family=Caveat:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#06060c; color:#e8e2d4; font-family:'Inter',sans-serif; padding:50px 30px 80px; }
+  .page-h { text-align:center; max-width:1100px; margin:0 auto 50px; }
+  .page-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.35em; color:#d9b14a; text-transform:uppercase; }
+  .page-h h1 { font-family:'Fraunces',serif; font-style:italic; font-size:42px; font-weight:600; margin-top:14px; line-height:1.1; }
+  .page-h h1 em { color:#d9b14a; font-style:normal; }
+  .page-h .sub { font-family:'Inter',sans-serif; font-weight:300; color:#8a826f; margin-top:12px; font-size:14px; max-width:680px; margin-inline:auto; line-height:1.6; }
+
+  .grid { max-width:2300px; margin:0 auto; display:grid; grid-template-columns:repeat(2, 1fr); gap:48px 30px; justify-items:center; }
+  .frame { position:relative; }
+  .frame .label { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.25em; color:#d9b14a; text-transform:uppercase; margin-bottom:10px; display:block; text-align:center; }
+  .frame .name { font-family:'Fraunces',serif; font-style:italic; font-size:22px; font-weight:600; color:#f0e0b8; margin-bottom:6px; text-align:center; }
+  .frame .desc { font-family:'Inter',sans-serif; font-weight:300; font-size:12px; color:#8a826f; max-width:340px; margin:0 auto 16px; text-align:center; line-height:1.4; }
+  .phone { width:380px; height:800px; border-radius:36px; overflow:hidden; box-shadow:0 25px 50px rgba(0,0,0,0.6), 0 0 0 4px #1a1a22, 0 0 0 5px #2a2a33; position:relative; background:#000; }
+  .status { position:absolute; top:0; left:0; right:0; height:34px; display:flex; align-items:center; justify-content:space-between; padding:8px 22px; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; z-index:10; pointer-events:none; color:#fff; }
+
+  /* Common header strip */
+  .hdr { padding:50px 22px 16px; }
+  .hdr .ttl { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.3em; color:#d9b14a; }
+  .hdr .nm { font-family:'Fraunces',serif; font-style:italic; font-size:32px; font-weight:600; color:#f0e0b8; margin-top:8px; line-height:1; }
+
+  /* event color themes */
+  .ev-flores  { --ev-c:#e85a8c; --ev-c2:#f59ab8; }
+  .ev-patria  { --ev-c:#1e9e4f; --ev-c2:#7dc89c; }
+  .ev-muertos { --ev-c:#d9b14a; --ev-c2:#f5d676; }
+  .ev-navidad { --ev-c:#c33; --ev-c2:#e87575; }
+  .ev-anio    { --ev-c:#7a4dff; --ev-c2:#b39aff; }
+  .ev-amor    { --ev-c:#ff4d6d; --ev-c2:#ff9ab0; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 01 · APPLE WALLET PASSBOOK
+     ════════════════════════════════════════════════════════════════════ */
+  .c1-bg { background:#0a0a0e; height:100%; overflow-y:auto; }
+  .c1-pass { margin:14px 16px; border-radius:14px; padding:16px; position:relative; box-shadow:0 8px 24px rgba(0,0,0,0.5); }
+  .c1-pass .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .c1-pass .tag { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; color:rgba(255,255,255,0.7); text-transform:uppercase; }
+  .c1-pass .ico { font-size:24px; }
+  .c1-pass .name { font-family:'Fraunces',serif; font-style:italic; font-size:24px; color:#fff; line-height:1.05; font-weight:500; }
+  .c1-pass .dates { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; color:rgba(255,255,255,0.6); margin-top:6px; }
+  .c1-pass .stats { display:flex; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.2); }
+  .c1-pass .st { text-align:left; }
+  .c1-pass .st .k { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.6); letter-spacing:1px; text-transform:uppercase; }
+  .c1-pass .st .v { font-family:'Inter',sans-serif; font-weight:700; font-size:14px; color:#fff; margin-top:2px; }
+  .c1-pass.active::before { content:"●"; position:absolute; top:14px; right:14px; color:rgba(255,255,255,0.9); font-size:14px; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 50%{opacity:0.4;} }
+  .c1-pass.flores  { background:linear-gradient(135deg, #e85a8c 0%, #c43473 100%); }
+  .c1-pass.muertos { background:linear-gradient(135deg, #d9b14a 0%, #a8821e 100%); }
+  .c1-pass.patria  { background:linear-gradient(135deg, #1e9e4f 0%, #0e6e35 100%); opacity:0.6; }
+  .c1-pass.navidad { background:linear-gradient(135deg, #c33 0%, #8e2222 100%); opacity:0.4; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 02 · INSTAGRAM STORIES
+     ════════════════════════════════════════════════════════════════════ */
+  .c2-bg { background:#0a0a0e; height:100%; overflow-y:auto; }
+  .c2-stories { display:flex; gap:14px; overflow-x:auto; padding:14px 18px 18px; }
+  .c2-story { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
+  .c2-story .ring { width:68px; height:68px; border-radius:50%; padding:3px; display:grid; place-items:center; }
+  .c2-story.active .ring { background:linear-gradient(45deg, #d9b14a, #f5d676); }
+  .c2-story.upcoming .ring { background:#2a2a30; }
+  .c2-story.past .ring { background:linear-gradient(45deg, #44351a, #221a0e); opacity:0.5; }
+  .c2-story .inner { width:100%; height:100%; border-radius:50%; background:#0a0a0e; display:grid; place-items:center; font-size:24px; }
+  .c2-story .lbl { font-family:'Inter',sans-serif; font-weight:500; font-size:10px; color:#c8c2b4; max-width:64px; text-align:center; line-height:1.1; }
+  .c2-feat { margin:8px 18px 18px; border-radius:14px; overflow:hidden; position:relative; height:380px; }
+  .c2-feat .bg { position:absolute; inset:0; background:linear-gradient(135deg, #d9b14a 0%, #a8821e 100%); }
+  .c2-feat .mesh { position:absolute; inset:0; background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(0,0,0,0.3) 0%, transparent 50%); }
+  .c2-feat .meta { position:absolute; bottom:0; left:0; right:0; padding:18px; background:linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%); }
+  .c2-feat .live-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#fff; margin-right:6px; vertical-align:middle; animation:pulse 1.5s infinite; }
+  .c2-feat .live { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; color:#fff; text-transform:uppercase; }
+  .c2-feat .ttl { font-family:'Fraunces',serif; font-style:italic; font-size:30px; color:#fff; margin-top:8px; line-height:1; font-weight:600; }
+  .c2-feat .countdown { font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:rgba(255,255,255,0.9); margin-top:4px; }
+  .c2-feat .cta { display:inline-block; margin-top:12px; padding:10px 18px; background:#fff; color:#000; font-family:'Inter',sans-serif; font-weight:700; font-size:12px; border-radius:18px; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 03 · FESTIVAL HUB
+     ════════════════════════════════════════════════════════════════════ */
+  .c3-bg { background:radial-gradient(ellipse at top, #1a1224 0%, #07060a 70%); height:100%; overflow-y:auto; }
+  .c3-banner { margin:14px 16px; height:200px; border-radius:14px; position:relative; overflow:hidden; background:linear-gradient(135deg, #d9b14a 0%, #c4691a 100%); padding:20px; display:flex; flex-direction:column; justify-content:flex-end; }
+  .c3-banner::after { content:"💀"; position:absolute; right:-20px; bottom:-20px; font-size:200px; opacity:0.15; }
+  .c3-banner .month { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.8); text-transform:uppercase; }
+  .c3-banner .nm { font-family:'Fraunces',serif; font-style:italic; font-size:34px; color:#fff; line-height:1; font-weight:600; margin-top:6px; }
+  .c3-banner .ds { font-family:'Inter',sans-serif; font-weight:400; font-size:12px; color:rgba(255,255,255,0.85); margin-top:4px; }
+  .c3-banner .pill { display:inline-block; margin-top:10px; padding:5px 12px; background:rgba(255,255,255,0.25); backdrop-filter:blur(8px); color:#fff; font-family:'Inter',sans-serif; font-weight:600; font-size:11px; border-radius:20px; align-self:flex-start; }
+  .c3-grid { padding:0 16px 16px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .c3-card { aspect-ratio:1; border-radius:12px; padding:14px; position:relative; overflow:hidden; }
+  .c3-card .ico { font-size:32px; }
+  .c3-card .nm { font-family:'Fraunces',serif; font-style:italic; font-size:15px; color:#fff; margin-top:auto; line-height:1.05; font-weight:500; position:absolute; bottom:14px; left:14px; right:14px; }
+  .c3-card .dt { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.7); margin-top:2px; letter-spacing:1px; }
+  .c3-card .pro-tag { position:absolute; top:10px; right:10px; padding:3px 7px; background:#d9b14a; color:#000; font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; border-radius:4px; letter-spacing:1px; }
+  .c3-card.amor    { background:linear-gradient(135deg, #ff4d6d 0%, #c33 100%); }
+  .c3-card.navidad { background:linear-gradient(135deg, #1e8e4f 0%, #0e6e35 100%); }
+  .c3-card.anio    { background:linear-gradient(135deg, #7a4dff 0%, #4a2dbf 100%); }
+  .c3-card.flores  { background:linear-gradient(135deg, #e85a8c 0%, #c43473 100%); }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 04 · TIMELINE VERTICAL
+     ════════════════════════════════════════════════════════════════════ */
+  .c4-bg { background:#08080c; height:100%; overflow-y:auto; padding-bottom:30px; }
+  .c4-section { padding:14px 18px 6px; }
+  .c4-section .h { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; color:#d9b14a; text-transform:uppercase; margin-bottom:12px; padding-left:24px; position:relative; }
+  .c4-section .h::before { content:""; position:absolute; left:6px; top:50%; transform:translateY(-50%); width:8px; height:8px; border-radius:50%; background:#d9b14a; }
+  .c4-line { padding:0 18px; }
+  .c4-event { display:flex; gap:16px; padding:10px 0; align-items:flex-start; position:relative; }
+  .c4-event .col-line { width:14px; padding-top:10px; position:relative; flex-shrink:0; }
+  .c4-event .col-line::before { content:""; position:absolute; left:6px; top:0; bottom:-10px; width:1px; background:#2a2a2f; }
+  .c4-event .dot { width:14px; height:14px; border-radius:50%; background:#0a0a0e; border:2px solid #44351a; position:relative; z-index:2; }
+  .c4-event.active .dot { border-color:#d9b14a; background:#d9b14a; box-shadow:0 0 12px rgba(217,177,74,0.6); }
+  .c4-event:last-child .col-line::before { display:none; }
+  .c4-event .body { flex:1; padding-bottom:8px; }
+  .c4-event .when { font-family:'JetBrains Mono',monospace; font-size:10px; color:#888; letter-spacing:1px; text-transform:uppercase; }
+  .c4-event .nm { font-family:'Fraunces',serif; font-style:italic; font-size:18px; color:#f0e0b8; margin-top:2px; line-height:1.1; font-weight:500; }
+  .c4-event.active .nm { color:#fff; }
+  .c4-event.past .nm { color:#666; }
+  .c4-event .ds { font-family:'Inter',sans-serif; font-weight:300; font-size:11px; color:#8a826f; margin-top:4px; line-height:1.4; }
+  .c4-event .badge { display:inline-block; padding:3px 8px; background:rgba(217,177,74,0.15); border:1px solid rgba(217,177,74,0.4); color:#d9b14a; font-family:'JetBrains Mono',monospace; font-size:9px; border-radius:4px; margin-top:6px; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 05 · CINEMA NETFLIX
+     ════════════════════════════════════════════════════════════════════ */
+  .c5-bg { background:#000; height:100%; overflow-y:auto; padding-bottom:30px; }
+  .c5-hero { height:340px; position:relative; overflow:hidden; }
+  .c5-hero::before { content:""; position:absolute; inset:0; background:linear-gradient(135deg, #d9b14a 0%, #a8821e 100%); }
+  .c5-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 60%, #000 100%); }
+  .c5-hero .skull { position:absolute; right:-30px; top:-10px; font-size:280px; opacity:0.18; }
+  .c5-hero .meta { position:absolute; bottom:24px; left:20px; right:20px; z-index:2; }
+  .c5-hero .live-tag { display:inline-block; padding:4px 10px; background:#d9b14a; color:#000; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:1.5px; border-radius:3px; }
+  .c5-hero h2 { font-family:'Inter',sans-serif; font-weight:900; font-size:38px; margin-top:10px; color:#fff; line-height:0.95; letter-spacing:-1px; }
+  .c5-hero .ds { font-family:'Inter',sans-serif; font-weight:300; font-size:13px; color:#d8d2c4; margin-top:6px; max-width:280px; line-height:1.4; }
+  .c5-hero .btn { display:inline-block; margin-top:14px; padding:10px 16px; background:#fff; color:#000; font-family:'Inter',sans-serif; font-weight:700; font-size:12px; border-radius:4px; }
+  .c5-section { padding:18px 18px 0; }
+  .c5-section h3 { font-family:'Inter',sans-serif; font-weight:600; font-size:14px; color:#fff; margin-bottom:10px; }
+  .c5-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; }
+  .c5-mini { flex:0 0 110px; }
+  .c5-mini .img { width:110px; height:160px; border-radius:3px; position:relative; padding:10px; display:flex; flex-direction:column; justify-content:flex-end; }
+  .c5-mini .img.amor    { background:linear-gradient(135deg, #ff4d6d, #c33); }
+  .c5-mini .img.navidad { background:linear-gradient(135deg, #1e8e4f, #0e6e35); }
+  .c5-mini .img.anio    { background:linear-gradient(135deg, #7a4dff, #4a2dbf); }
+  .c5-mini .img.patria  { background:linear-gradient(135deg, #1e9e4f, #0e6e35); }
+  .c5-mini .img .ico { font-size:30px; align-self:center; margin-bottom:auto; margin-top:14px; }
+  .c5-mini .img .nm { font-family:'Inter',sans-serif; font-weight:600; font-size:11px; color:#fff; line-height:1.1; }
+  .c5-mini .when { font-family:'JetBrains Mono',monospace; font-size:9px; color:#888; margin-top:6px; letter-spacing:1px; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 06 · TRADING CARDS
+     ════════════════════════════════════════════════════════════════════ */
+  .c6-bg { background:radial-gradient(ellipse at center, #15110a 0%, #0a0805 100%); height:100%; overflow-y:auto; padding-bottom:20px; }
+  .c6-hdr { padding:40px 18px 14px; text-align:center; }
+  .c6-hdr .ttl { font-family:'Cinzel',serif; font-weight:600; font-size:18px; letter-spacing:2px; color:#d9b14a; }
+  .c6-hdr .nm { font-family:'Fraunces',serif; font-style:italic; font-size:26px; color:#f0e0b8; margin-top:6px; }
+  .c6-hdr .progress { font-family:'JetBrains Mono',monospace; font-size:11px; color:#8a826f; margin-top:8px; letter-spacing:1.5px; }
+  .c6-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 16px; }
+  .c6-card { aspect-ratio:0.7; border-radius:8px; position:relative; overflow:hidden; padding:10px; display:flex; flex-direction:column; }
+  .c6-card.unlocked { border:2px solid #d9b14a; box-shadow:0 0 16px rgba(217,177,74,0.3); }
+  .c6-card.unlocked.muertos { background:linear-gradient(180deg, #2a1a08 0%, #1a1108 50%, #d9b14a 130%); }
+  .c6-card.locked { border:2px solid #2a2a30; opacity:0.55; background:#0e0e12; filter:grayscale(0.6); }
+  .c6-card .rarity { font-family:'JetBrains Mono',monospace; font-size:8px; color:#d9b14a; letter-spacing:1.5px; text-align:center; }
+  .c6-card.locked .rarity { color:#666; }
+  .c6-card .ico { font-size:54px; text-align:center; margin:14px 0; }
+  .c6-card .nm { font-family:'Cinzel',serif; font-weight:600; font-size:11px; color:#f0e0b8; text-align:center; line-height:1.1; margin-top:auto; }
+  .c6-card.locked .nm { color:#888; }
+  .c6-card .when { font-family:'JetBrains Mono',monospace; font-size:8px; color:#8a826f; text-align:center; margin-top:4px; letter-spacing:1px; }
+  .c6-card .lock-ico { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:32px; opacity:0.5; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 07 · CÓDICE DE EVENTOS
+     ════════════════════════════════════════════════════════════════════ */
+  .c7-bg { background:linear-gradient(180deg, #0a0805 0%, #15110a 100%); height:100%; overflow-y:auto; padding:40px 0 30px; }
+  .c7-hdr { text-align:center; padding:0 24px 20px; border-bottom:1px solid #2a2210; margin-bottom:18px; }
+  .c7-hdr .gl { font-family:'IM Fell English',serif; font-style:italic; font-size:11px; letter-spacing:0.3em; color:#d9b14a; }
+  .c7-hdr h2 { font-family:'IM Fell English',serif; font-style:italic; font-size:32px; color:#f0e0b8; margin-top:6px; }
+  .c7-hdr .sb { font-family:'IM Fell English',serif; font-style:italic; font-size:12px; color:#8a826f; margin-top:4px; }
+  .c7-greca { height:12px; background-image:repeating-linear-gradient(90deg, #d9b14a 0 6px, transparent 6px 14px, #d9b14a 14px 16px, transparent 16px 24px); margin:0 24px 14px; }
+  .c7-event { display:flex; gap:12px; padding:14px 24px; border-bottom:1px dashed #2a2210; }
+  .c7-event .seal { width:50px; height:60px; border:1px solid #d9b14a; display:grid; place-items:center; background:rgba(217,177,74,0.06); flex-shrink:0; }
+  .c7-event .seal .ico { font-size:24px; }
+  .c7-event .seal .when { font-family:'IM Fell English',serif; font-size:8px; color:#d9b14a; margin-top:2px; letter-spacing:1px; }
+  .c7-event .body { flex:1; }
+  .c7-event .ch { font-family:'IM Fell English',serif; font-style:italic; font-size:9px; letter-spacing:1.5px; color:#d9b14a; text-transform:uppercase; }
+  .c7-event .nm { font-family:'IM Fell English',serif; font-size:18px; color:#f0e0b8; line-height:1.05; margin-top:2px; }
+  .c7-event .ds { font-family:'IM Fell English',serif; font-style:italic; font-size:11px; color:#c8b890; margin-top:4px; line-height:1.35; }
+  .c7-event.active .nm { color:#f0e0b8; }
+  .c7-event.upcoming { opacity:0.7; }
+  .c7-event.past { opacity:0.4; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 08 · CAROUSEL FULL-PAGE
+     ════════════════════════════════════════════════════════════════════ */
+  .c8-bg { background:linear-gradient(180deg, #d9b14a 0%, #a8821e 100%); height:100%; overflow:hidden; position:relative; }
+  .c8-bg::before { content:"💀"; position:absolute; right:-60px; top:80px; font-size:380px; opacity:0.15; line-height:1; }
+  .c8-bg::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.5) 100%); }
+  .c8-meta { position:relative; z-index:2; padding:50px 28px 0; }
+  .c8-meta .nb { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px; color:rgba(255,255,255,0.85); }
+  .c8-meta h2 { font-family:'Fraunces',serif; font-style:italic; font-size:54px; color:#fff; line-height:0.9; margin-top:12px; font-weight:600; }
+  .c8-meta .ds { font-family:'Inter',sans-serif; font-weight:300; font-size:14px; color:rgba(255,255,255,0.9); margin-top:14px; max-width:280px; line-height:1.5; }
+  .c8-bottom { position:absolute; bottom:0; left:0; right:0; padding:24px; z-index:3; }
+  .c8-bottom .when { display:flex; gap:12px; margin-bottom:14px; color:#fff; font-family:'Fraunces',serif; font-style:italic; }
+  .c8-bottom .when .num { font-size:32px; font-weight:700; line-height:1; }
+  .c8-bottom .when .lbl { font-family:'JetBrains Mono',monospace; font-style:normal; font-size:10px; letter-spacing:1.5px; align-self:center; opacity:0.8; }
+  .c8-bottom .cta { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:#fff; color:#000; border-radius:30px; font-family:'Inter',sans-serif; font-weight:700; font-size:14px; }
+  .c8-bottom .cta::after { content:"→"; }
+  .c8-bottom .dots { display:flex; gap:6px; justify-content:center; margin-top:12px; }
+  .c8-bottom .dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.4); }
+  .c8-bottom .dot.act { width:18px; border-radius:3px; background:#fff; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 09 · POLAROID ALBUM
+     ════════════════════════════════════════════════════════════════════ */
+  .c9-bg { background:#0a0a0e; height:100%; overflow-y:auto; padding:40px 0 30px; }
+  .c9-hdr { padding:0 22px 20px; }
+  .c9-hdr .ttl { font-family:'Caveat',cursive; font-size:24px; color:#d9b14a; }
+  .c9-hdr h2 { font-family:'Fraunces',serif; font-style:italic; font-size:30px; color:#f0e0b8; margin-top:4px; }
+  .c9-active { margin:0 22px 22px; padding:14px 14px 36px; background:#fafaf6; border-radius:2px; transform:rotate(-1.5deg); box-shadow:0 8px 24px rgba(0,0,0,0.6); position:relative; }
+  .c9-active .img { aspect-ratio:1; background:linear-gradient(135deg, #d9b14a 0%, #c4691a 100%); position:relative; overflow:hidden; }
+  .c9-active .img::after { content:"💀"; position:absolute; right:-30px; bottom:-20px; font-size:200px; opacity:0.15; line-height:1; }
+  .c9-active .ttl-pol { font-family:'Caveat',cursive; font-size:22px; color:#1a1a1a; text-align:center; margin-top:8px; }
+  .c9-active .when-pol { font-family:'Caveat',cursive; font-size:14px; color:#888; text-align:center; margin-top:-2px; }
+  .c9-active .live-pin { position:absolute; top:-8px; right:-8px; padding:6px 10px; background:#c33; color:#fff; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1px; font-weight:700; border-radius:4px; transform:rotate(8deg); box-shadow:0 4px 8px rgba(0,0,0,0.4); }
+  .c9-row { display:flex; gap:14px; padding:0 22px; overflow-x:auto; }
+  .c9-pol { flex:0 0 130px; padding:8px 8px 22px; background:#fafaf6; border-radius:2px; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+  .c9-pol:nth-child(1) { transform:rotate(-2deg); }
+  .c9-pol:nth-child(2) { transform:rotate(1.5deg); }
+  .c9-pol:nth-child(3) { transform:rotate(-1deg); }
+  .c9-pol .img { aspect-ratio:1; }
+  .c9-pol .img.amor { background:linear-gradient(135deg, #ff4d6d, #c33); }
+  .c9-pol .img.flores { background:linear-gradient(135deg, #e85a8c, #c43473); }
+  .c9-pol .img.patria { background:linear-gradient(135deg, #1e9e4f, #0e6e35); }
+  .c9-pol .ttl-mini { font-family:'Caveat',cursive; font-size:14px; color:#1a1a1a; text-align:center; margin-top:4px; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 10 · MAPA / VIDEOJUEGO
+     ════════════════════════════════════════════════════════════════════ */
+  .c10-bg { background:radial-gradient(ellipse at top, #1a1a3d 0%, #08081a 70%); height:100%; overflow-y:auto; padding:40px 0 30px; position:relative; }
+  .c10-bg::before { content:""; position:absolute; inset:0; background-image: radial-gradient(circle at 20% 30%, rgba(217,177,74,0.06) 0%, transparent 5%), radial-gradient(circle at 70% 50%, rgba(217,177,74,0.06) 0%, transparent 5%), radial-gradient(circle at 40% 70%, rgba(217,177,74,0.06) 0%, transparent 5%); pointer-events:none; }
+  .c10-hdr { text-align:center; padding:0 22px 20px; position:relative; z-index:2; }
+  .c10-hdr .ttl { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; color:#d9b14a; }
+  .c10-hdr h2 { font-family:'Fraunces',serif; font-style:italic; font-size:28px; color:#f0e0b8; margin-top:6px; }
+  .c10-map { position:relative; height:400px; margin:0 22px; padding:10px; background:rgba(0,0,0,0.3); border:1px solid #2a2a40; border-radius:14px; }
+  .c10-pin { position:absolute; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .c10-pin .dot { width:32px; height:32px; border-radius:50%; display:grid; place-items:center; font-size:18px; box-shadow:0 0 12px currentColor; }
+  .c10-pin .lbl { font-family:'JetBrains Mono',monospace; font-size:9px; color:#fff; background:rgba(0,0,0,0.7); padding:2px 6px; border-radius:3px; letter-spacing:1px; }
+  .c10-pin.active .dot { background:#d9b14a; color:#fff; animation:pulse 1.5s infinite; }
+  .c10-pin.upcoming .dot { background:rgba(217,177,74,0.3); color:#d9b14a; border:1px solid #d9b14a; }
+  .c10-pin.locked .dot { background:#2a2a40; color:#666; border:1px dashed #444; }
+  .c10-pin.locked .lbl { color:#666; }
+  .c10-line { position:absolute; height:1px; background:repeating-linear-gradient(90deg, #d9b14a 0 4px, transparent 4px 8px); transform-origin:left center; }
+  .c10-info { position:absolute; bottom:20px; left:20px; right:20px; background:rgba(0,0,0,0.85); border:1px solid #d9b14a; padding:10px 14px; border-radius:8px; backdrop-filter:blur(8px); }
+  .c10-info .nb { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1.5px; color:#d9b14a; }
+  .c10-info .nm { font-family:'Fraunces',serif; font-style:italic; font-size:18px; color:#fff; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<header class="page-h">
+  <div class="eyebrow">PIXORA · SECCIÓN EVENTOS · 10 CONCEPTOS VISUALES</div>
+  <h1>Eventos · <em>10 propuestas</em></h1>
+  <p class="sub">Sección nueva donde el usuario descubre eventos de temporada con wallpapers exclusivos para suscriptores.<br>Selecciona el concepto que más te guste y te genero la versión iOS de ese específicamente.</p>
+</header>
+
+<div class="grid">
+
+  <!-- 01 -->
+  <div class="frame">
+    <div class="label">// NO. 01</div>
+    <div class="name">Apple Wallet · Passbook</div>
+    <div class="desc">Cards apiladas estilo passbook, gradiente del tema · activo arriba, próximos atenuados abajo · vibe iOS premium</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c1-bg">
+        <div class="hdr"><div class="ttl">EVENTOS · 2026</div><div class="nm">Temporada</div></div>
+        <div class="c1-pass active flores">
+          <div class="top"><div class="tag">EN VIVO · 6 DÍAS</div><div class="ico">🌹</div></div>
+          <div class="name">Día de la Madre</div>
+          <div class="dates">8 — 12 MAYO 2026</div>
+          <div class="stats">
+            <div class="st"><div class="k">Wallpapers</div><div class="v">12 exclusivos</div></div>
+            <div class="st"><div class="k">Acceso</div><div class="v">PRO</div></div>
+          </div>
+        </div>
+        <div class="c1-pass muertos">
+          <div class="top"><div class="tag">EN 27 DÍAS</div><div class="ico">💀</div></div>
+          <div class="name">Día de Muertos</div>
+          <div class="dates">28 OCT — 3 NOV 2026</div>
+          <div class="stats">
+            <div class="st"><div class="k">Wallpapers</div><div class="v">24 exclusivos</div></div>
+            <div class="st"><div class="k">Acceso</div><div class="v">PRO</div></div>
+          </div>
+        </div>
+        <div class="c1-pass patria">
+          <div class="top"><div class="tag">EN 134 DÍAS</div><div class="ico">🇲🇽</div></div>
+          <div class="name">Día Patrio</div>
+          <div class="dates">15 — 17 SEPTIEMBRE</div>
+        </div>
+        <div class="c1-pass navidad">
+          <div class="top"><div class="tag">EN 234 DÍAS</div><div class="ico">🎄</div></div>
+          <div class="name">Navidad</div>
+          <div class="dates">15 — 31 DICIEMBRE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 -->
+  <div class="frame">
+    <div class="label">// NO. 02</div>
+    <div class="name">Instagram Stories</div>
+    <div class="desc">Círculos arriba (anillo dorado=activo) · hero feature debajo del activo del momento · scroll horizontal familiar</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c2-bg">
+        <div class="hdr"><div class="ttl">EVENTOS</div><div class="nm">Temporada</div></div>
+        <div class="c2-stories">
+          <div class="c2-story active"><div class="ring"><div class="inner">🌹</div></div><div class="lbl">Madre</div></div>
+          <div class="c2-story upcoming"><div class="ring"><div class="inner">🇲🇽</div></div><div class="lbl">Patria</div></div>
+          <div class="c2-story upcoming"><div class="ring"><div class="inner">💀</div></div><div class="lbl">Muertos</div></div>
+          <div class="c2-story upcoming"><div class="ring"><div class="inner">🎄</div></div><div class="lbl">Navidad</div></div>
+          <div class="c2-story upcoming"><div class="ring"><div class="inner">🎆</div></div><div class="lbl">Año</div></div>
+          <div class="c2-story past"><div class="ring"><div class="inner">💝</div></div><div class="lbl">Amor</div></div>
+        </div>
+        <div class="c2-feat">
+          <div class="bg" style="background:linear-gradient(135deg, #e85a8c, #c43473);"></div>
+          <div class="mesh"></div>
+          <div class="meta">
+            <div><span class="live-dot"></span><span class="live">EN VIVO · 6 DÍAS RESTANTES</span></div>
+            <div class="ttl">Día de la Madre</div>
+            <div class="countdown">12 wallpapers exclusivos · Pro</div>
+            <div class="cta">Ver colección →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 -->
+  <div class="frame">
+    <div class="label">// NO. 03</div>
+    <div class="name">Festival Hub</div>
+    <div class="desc">Banner hero del activo · grid 2-col abajo de próximos · cada uno con su color identificador · estilo evento-festival</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c3-bg">
+        <div class="hdr"><div class="ttl">EVENTOS</div><div class="nm">Temporada</div></div>
+        <div class="c3-banner" style="background:linear-gradient(135deg, #e85a8c, #c43473);">
+          <div class="month">EN VIVO · TERMINA EN 6 DÍAS</div>
+          <div class="nm">Día de la Madre</div>
+          <div class="ds">12 wallpapers exclusivos para celebrar</div>
+          <div class="pill">⭐ EXCLUSIVO PRO</div>
+        </div>
+        <div class="c3-grid">
+          <div class="c3-card amor"><div class="ico">💝</div><div class="pro-tag">PRO</div><div class="nm">San Valentín<div class="dt">FEB · 2027</div></div></div>
+          <div class="c3-card navidad"><div class="ico">🎄</div><div class="pro-tag">PRO</div><div class="nm">Navidad<div class="dt">DIC · 2026</div></div></div>
+          <div class="c3-card flores"><div class="ico">💀</div><div class="pro-tag">PRO</div><div class="nm">Día de Muertos<div class="dt">NOV · 2026</div></div></div>
+          <div class="c3-card anio"><div class="ico">🎆</div><div class="pro-tag">PRO</div><div class="nm">Año Nuevo<div class="dt">ENE · 2027</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 -->
+  <div class="frame">
+    <div class="label">// NO. 04</div>
+    <div class="name">Timeline Vertical</div>
+    <div class="desc">Cronológico estricto · línea conectora · dots de estado · activo brilla · pasados atenuados · escaneable</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c4-bg">
+        <div class="hdr"><div class="ttl">EVENTOS</div><div class="nm">Temporada</div></div>
+        <div class="c4-section"><div class="h">Ahora</div></div>
+        <div class="c4-line">
+          <div class="c4-event active">
+            <div class="col-line"><div class="dot"></div></div>
+            <div class="body">
+              <div class="when">8 — 12 MAYO · TERMINA EN 6 DÍAS</div>
+              <div class="nm">Día de la Madre</div>
+              <div class="ds">12 wallpapers florales exclusivos para celebrar</div>
+              <div class="badge">⭐ EXCLUSIVO PRO</div>
+            </div>
+          </div>
+        </div>
+        <div class="c4-section"><div class="h">Próximos</div></div>
+        <div class="c4-line">
+          <div class="c4-event"><div class="col-line"><div class="dot"></div></div><div class="body"><div class="when">15 — 17 SEPTIEMBRE</div><div class="nm">Día Patrio</div><div class="ds">Wallpapers tricolor mexicanos</div></div></div>
+          <div class="c4-event"><div class="col-line"><div class="dot"></div></div><div class="body"><div class="when">28 OCT — 3 NOVIEMBRE</div><div class="nm">Día de Muertos</div><div class="ds">24 wallpapers de altares y catrinas</div></div></div>
+          <div class="c4-event"><div class="col-line"><div class="dot"></div></div><div class="body"><div class="when">15 — 31 DICIEMBRE</div><div class="nm">Navidad</div></div></div>
+        </div>
+        <div class="c4-section"><div class="h">Pasados</div></div>
+        <div class="c4-line">
+          <div class="c4-event past"><div class="col-line"><div class="dot"></div></div><div class="body"><div class="when">10 — 17 FEBRERO 2026</div><div class="nm">San Valentín</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 -->
+  <div class="frame">
+    <div class="label">// NO. 05</div>
+    <div class="name">Cinema Netflix</div>
+    <div class="desc">Hero cinematográfico del activo · filas horizontales por estado · vibra streaming premium familiar</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c5-bg">
+        <div class="c5-hero" style="background:linear-gradient(135deg, #e85a8c, #c43473);">
+          <div class="meta">
+            <div class="live-tag">⚡ EN VIVO</div>
+            <h2>Día de<br>la Madre</h2>
+            <div class="ds">12 wallpapers exclusivos. Termina en 6 días.</div>
+            <div class="btn">▶ Ver colección</div>
+          </div>
+        </div>
+        <div class="c5-section">
+          <h3>Próximamente</h3>
+          <div class="c5-row">
+            <div class="c5-mini"><div class="img patria"><div class="ico">🇲🇽</div><div class="nm">Día Patrio</div></div><div class="when">SEP · 2026</div></div>
+            <div class="c5-mini"><div class="img" style="background:linear-gradient(135deg,#d9b14a,#a8821e)"><div class="ico">💀</div><div class="nm">Día de Muertos</div></div><div class="when">OCT · 2026</div></div>
+            <div class="c5-mini"><div class="img navidad"><div class="ico">🎄</div><div class="nm">Navidad</div></div><div class="when">DIC · 2026</div></div>
+            <div class="c5-mini"><div class="img anio"><div class="ico">🎆</div><div class="nm">Año Nuevo</div></div><div class="when">ENE · 2027</div></div>
+          </div>
+        </div>
+        <div class="c5-section">
+          <h3>Vistos antes</h3>
+          <div class="c5-row">
+            <div class="c5-mini"><div class="img amor"><div class="ico">💝</div><div class="nm">San Valentín</div></div><div class="when">FEB · 2026</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 -->
+  <div class="frame">
+    <div class="label">// NO. 06</div>
+    <div class="name">Trading Cards</div>
+    <div class="desc">Cada evento es una carta coleccionable · activo brilla, futuros locked con candado · gamification para suscribirse</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c6-bg">
+        <div class="c6-hdr">
+          <div class="ttl">PIXORA · COLECCIÓN</div>
+          <div class="nm">Eventos 2026</div>
+          <div class="progress">2 / 7 DESBLOQUEADOS · ★★☆☆☆</div>
+        </div>
+        <div class="c6-grid">
+          <div class="c6-card unlocked muertos"><div class="rarity">★★★★★ LEGENDARY</div><div class="ico">🌹</div><div class="nm">Día de la<br>Madre</div><div class="when">EN VIVO</div></div>
+          <div class="c6-card locked"><div class="rarity">★★★★☆ EPIC</div><div class="lock-ico">🔒</div><div class="nm">Día Patrio</div><div class="when">15 SEP</div></div>
+          <div class="c6-card locked"><div class="rarity">★★★★★ LEGENDARY</div><div class="lock-ico">🔒</div><div class="nm">Día de<br>Muertos</div><div class="when">28 OCT</div></div>
+          <div class="c6-card locked"><div class="rarity">★★★★☆ EPIC</div><div class="lock-ico">🔒</div><div class="nm">Navidad</div><div class="when">15 DIC</div></div>
+          <div class="c6-card locked"><div class="rarity">★★★☆☆ RARE</div><div class="lock-ico">🔒</div><div class="nm">Año Nuevo</div><div class="when">28 DIC</div></div>
+          <div class="c6-card locked"><div class="rarity">★★★★☆ EPIC</div><div class="lock-ico">🔒</div><div class="nm">San<br>Valentín</div><div class="when">FEB · 27</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 -->
+  <div class="frame">
+    <div class="label">// NO. 07</div>
+    <div class="name">Códice de Eventos</div>
+    <div class="desc">Coherente con sección Cultura · "Capítulos de temporada" · sello dorado tipo lacre · vibe manuscrito</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c7-bg">
+        <div class="c7-hdr">
+          <div class="gl">— Códex Pixora · Capítulo XII —</div>
+          <h2>Eventos</h2>
+          <div class="sb">Temporadas y celebraciones</div>
+        </div>
+        <div class="c7-greca"></div>
+        <div class="c7-event active">
+          <div class="seal"><div class="ico">🌹</div><div class="when">MAY · 8</div></div>
+          <div class="body"><div class="ch">— Capítulo XII.I · ACTIVO AHORA —</div><div class="nm">Día de la Madre</div><div class="ds">Doce wallpapers florales exclusivos. La pieza florece durante seis días.</div></div>
+        </div>
+        <div class="c7-event upcoming">
+          <div class="seal"><div class="ico">🇲🇽</div><div class="when">SEP · 15</div></div>
+          <div class="body"><div class="ch">— Capítulo XII.II · PRÓXIMO —</div><div class="nm">Días Patrios</div><div class="ds">Tricolor mexicano: paisajes, símbolos patrios y tipografía vintage.</div></div>
+        </div>
+        <div class="c7-event upcoming">
+          <div class="seal"><div class="ico">💀</div><div class="when">NOV · 1</div></div>
+          <div class="body"><div class="ch">— Capítulo XII.III · PRÓXIMO —</div><div class="nm">Día de Muertos</div><div class="ds">Veinticuatro piezas: altares, catrinas, ofrendas mexicas.</div></div>
+        </div>
+        <div class="c7-event past">
+          <div class="seal"><div class="ico">💝</div><div class="when">FEB · 14</div></div>
+          <div class="body"><div class="ch">— Capítulo XII.IV · PASADO —</div><div class="nm">San Valentín</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 -->
+  <div class="frame">
+    <div class="label">// NO. 08</div>
+    <div class="name">Carousel Full-Page</div>
+    <div class="desc">Un evento por pantalla, swipe horizontal · cada uno full-bleed con su color · vibe revista premium</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c8-bg">
+        <div class="c8-meta">
+          <div class="nb">EVENTO · 02 / 07 · EN VIVO</div>
+          <h2>Día de<br>la <i>Madre</i></h2>
+          <div class="ds">Doce wallpapers florales para celebrar. Exclusivo para suscriptores Pro.</div>
+        </div>
+        <div class="c8-bottom">
+          <div class="when">
+            <div><span class="num">06</span><span class="lbl">DÍAS</span></div>
+            <div><span class="num">04</span><span class="lbl">HRS</span></div>
+            <div><span class="num">22</span><span class="lbl">MIN</span></div>
+          </div>
+          <div class="cta">Ver colección</div>
+          <div class="dots">
+            <div class="dot"></div>
+            <div class="dot act"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 -->
+  <div class="frame">
+    <div class="label">// NO. 09</div>
+    <div class="name">Polaroid Album</div>
+    <div class="desc">Eventos como polaroids vintage · activo grande con pin "EN VIVO" · pasados como recuerdos · estilo álbum nostálgico</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c9-bg">
+        <div class="c9-hdr">
+          <div class="ttl">— mi álbum —</div>
+          <h2>Eventos Pixora</h2>
+        </div>
+        <div class="c9-active">
+          <div class="img" style="background:linear-gradient(135deg, #e85a8c, #c43473);"></div>
+          <div class="ttl-pol">Día de la Madre</div>
+          <div class="when-pol">8 — 12 mayo · 2026</div>
+          <div class="live-pin">EN VIVO</div>
+        </div>
+        <div class="c9-row">
+          <div class="c9-pol"><div class="img amor"></div><div class="ttl-mini">San Valentín</div></div>
+          <div class="c9-pol"><div class="img patria"></div><div class="ttl-mini">Día Patrio</div></div>
+          <div class="c9-pol"><div class="img flores"></div><div class="ttl-mini">D. Madre 2025</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="frame">
+    <div class="label">// NO. 10</div>
+    <div class="name">Mapa / Videojuego</div>
+    <div class="desc">Mapa estilo RPG con pins · evento actual brilla, próximos accesibles, lejanos locked · gamificado</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="c10-bg">
+        <div class="c10-hdr">
+          <div class="ttl">EXPEDICIÓN · 2026</div>
+          <h2>Mapa de Eventos</h2>
+        </div>
+        <div class="c10-map">
+          <div class="c10-pin active"  style="left:30%; top:18%;"><div class="dot">🌹</div><div class="lbl">D. MADRE · ACTIVO</div></div>
+          <div class="c10-pin upcoming" style="left:65%; top:32%;"><div class="dot">🇲🇽</div><div class="lbl">PATRIA · SEP</div></div>
+          <div class="c10-pin upcoming" style="left:18%; top:48%;"><div class="dot">💀</div><div class="lbl">MUERTOS · NOV</div></div>
+          <div class="c10-pin upcoming" style="left:55%; top:60%;"><div class="dot">🎄</div><div class="lbl">NAVIDAD · DIC</div></div>
+          <div class="c10-pin locked"   style="left:30%; top:75%;"><div class="dot">🎆</div><div class="lbl">AÑO · ENE</div></div>
+          <div class="c10-pin locked"   style="left:70%; top:85%;"><div class="dot">💝</div><div class="lbl">AMOR · FEB</div></div>
+
+          <div class="c10-info">
+            <div class="nb">SIGUIENTE PARADA · EN 6 DÍAS</div>
+            <div class="nm">Día de la Madre · 12 piezas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer style="text-align:center; margin-top:60px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.3em; color:#5a5444;">
+  PIXORA · DESIGN ARCHIVE · EVENTOS · ENTRY 033
+</footer>
+
+</body></html>
