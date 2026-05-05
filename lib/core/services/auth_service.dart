@@ -10,9 +10,21 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'credit_service.dart';
 import 'subscription_service.dart';
 
-class AuthService {
-  AuthService._();
+class AuthService extends ChangeNotifier {
+  AuthService._() {
+    // Mirror Supabase's own auth state changes into our ChangeNotifier so
+    // listeners stay in sync even if a sign-out comes from token expiration
+    // or another tab. notifyListeners on UserUpdated too — avatar URL or
+    // name can change.
+    Supabase.instance.client.auth.onAuthStateChange.listen((_) {
+      notifyListeners();
+    });
+  }
   static final instance = AuthService._();
+
+  /// Guard against rapid double-taps on the sign-in button which used to
+  /// spawn two parallel Google chooser flows and leave the UI stale.
+  bool _signingIn = false;
 
   SupabaseClient get _client => Supabase.instance.client;
 
@@ -34,13 +46,27 @@ class AuthService {
   /// Listen to auth state changes.
   Stream<AuthState> get authStateChanges => _client.auth.onAuthStateChange;
 
-  /// Sign in with Google.
+  /// Sign in with Google. Returns false if a sign-in is already in flight,
+  /// the user cancelled the chooser, or any step errored.
   Future<bool> signInWithGoogle() async {
+    if (_signingIn) {
+      debugPrint('[Auth] signIn already in flight — ignoring duplicate call');
+      return false;
+    }
+    _signingIn = true;
     try {
       const webClientId =
           '615188090674-057ja5g8m8sennvr4d5qkkgj1r85m9ul.apps.googleusercontent.com';
 
       final googleSignIn = GoogleSignIn(serverClientId: webClientId);
+      // If a previous user is still cached at the Google plugin layer (e.g.
+      // we just signed out but the plugin kept its cached account), force
+      // signOut first so the chooser actually appears and we never silently
+      // re-authenticate as the previous user.
+      try {
+        await googleSignIn.signOut();
+      } catch (_) {}
+
       final googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -68,11 +94,14 @@ class AuthService {
         // Record session + sync local diamonds. Both run independently and
         // don't block the sign-in UX — errors are logged but don't reject.
         unawaited(_logSessionAndSyncCredits());
+        notifyListeners();
       }
       return response.user != null;
     } catch (e) {
       debugPrint('[Auth] Google sign-in failed: $e');
       return false;
+    } finally {
+      _signingIn = false;
     }
   }
 
@@ -129,16 +158,28 @@ class AuthService {
     return out;
   }
 
-  /// Sign out.
+  /// Sign out. Disconnect from Google (revokes the access permission, not
+  /// just the local cached account) so the next sign-in shows the account
+  /// chooser instead of silently re-using the previous user.
   Future<void> signOut() async {
     try {
-      await GoogleSignIn().signOut();
+      final google = GoogleSignIn();
+      try {
+        await google.disconnect();
+      } catch (_) {
+        // disconnect throws if not currently connected — fall back to signOut.
+        try {
+          await google.signOut();
+        } catch (_) {}
+      }
       await _client.auth.signOut();
       await CreditService.instance.onSignOut();
       await SubscriptionService.instance.onSignOut();
       debugPrint('[Auth] Signed out');
     } catch (e) {
       debugPrint('[Auth] Sign out failed: $e');
+    } finally {
+      notifyListeners();
     }
   }
 

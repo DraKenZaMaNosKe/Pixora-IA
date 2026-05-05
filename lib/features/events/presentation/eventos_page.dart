@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/design/hud_tokens.dart';
+import '../../../core/services/analytics_service.dart';
 import '../data/models/event.dart';
 import '../providers/events_provider.dart';
 import 'event_detail_page.dart';
@@ -163,6 +164,7 @@ class _PolaroidAlbum extends StatelessWidget {
   }
 
   void _open(BuildContext context, PixoraEvent event) {
+    AnalyticsService.instance.trackEventOpened(event.id);
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => EventDetailPage(event: event)),
     );

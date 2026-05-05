@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import '../../../core/services/analytics_service.dart';
 import '../data/models/aura_track.dart';
 
 class AuraPlayerService extends ChangeNotifier {
@@ -13,6 +14,12 @@ class AuraPlayerService extends ChangeNotifier {
   bool _loop = true;
   Timer? _sleepTimer;
   DateTime? _sleepEndsAt;
+
+  /// Heartbeat that fires every 30 s while a track is playing — feeds the
+  /// `aura_play_tick` event to AnalyticsService so the dashboard can compute
+  /// "approx minutes listened" per track. Started on play, stopped on pause/
+  /// stop.
+  Timer? _listenTick;
 
   AuraTrack? get current => _current;
   bool get loop => _loop;
@@ -32,6 +39,7 @@ class AuraPlayerService extends ChangeNotifier {
   Future<void> play(AuraTrack track) async {
     _current = track;
     notifyListeners();
+    AnalyticsService.instance.trackAuraStarted(track.id);
     try {
       await _player.setAudioSource(
         AudioSource.uri(
@@ -49,9 +57,32 @@ class AuraPlayerService extends ChangeNotifier {
       );
       await _player.setLoopMode(_loop ? LoopMode.one : LoopMode.off);
       await _player.play();
+      _startListenTick();
     } catch (e) {
       debugPrint('[Pixora] AURA play failed: $e');
     }
+  }
+
+  /// Fires `aura_play_tick` every 30 s while `_current` is set and the
+  /// player is actually playing. Stops the timer and noops if already
+  /// running.
+  void _startListenTick() {
+    _listenTick?.cancel();
+    _listenTick = Timer.periodic(const Duration(seconds: 30), (_) {
+      final t = _current;
+      if (t == null || !_player.playing) return;
+      AnalyticsService.instance.trackAuraPlayTick(
+        t.id,
+        frequency: t.category == AuraCategory.frequency && t.hz != null
+            ? '${t.hz}Hz'
+            : null,
+      );
+    });
+  }
+
+  void _stopListenTick() {
+    _listenTick?.cancel();
+    _listenTick = null;
   }
 
   /// Play any URL (used by PreviewPlayerService for tone previews).
@@ -86,10 +117,18 @@ class AuraPlayerService extends ChangeNotifier {
     }
   }
 
-  Future<void> pause() async => _player.pause();
-  Future<void> resume() async => _player.play();
+  Future<void> pause() async {
+    _stopListenTick();
+    await _player.pause();
+  }
+
+  Future<void> resume() async {
+    await _player.play();
+    if (_current != null) _startListenTick();
+  }
 
   Future<void> stop() async {
+    _stopListenTick();
     await _player.stop();
     _current = null;
     _cancelSleepTimer();

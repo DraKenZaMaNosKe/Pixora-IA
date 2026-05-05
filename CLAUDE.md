@@ -199,6 +199,7 @@ Saved as feedback memory `feedback_ultrathink_suggest.md` — persists across se
 |---|---|
 | Business context, mission, history, revenue targets, version log, full secrets inventory | **Master document** (canonical source of truth) at `G:/Mi unidad/pixoraIA_admin/admin/administracion/Pixora_IA_Documento_Maestro.docx`. Read via `python-docx`. **Do not mirror its contents here** — it drifts. |
 | Secrets (Supabase service role, Google OAuth, keystore, Freesound, Play Console, GitHub PAT) | Master doc §11. Local working copy in `KEYS_LOCAL.md` (gitignored) for scripts — canonical source wins if they diverge. |
+| **Postgres direct password** (for `tools/apply_migration.py` and any psycopg2 script) | `KEYS_LOCAL.md` → section "Supabase — Postgres Direct Connection". Project has the **Dedicated IPv4 add-on** enabled (paid, ~$4/mes) since 2026-05-05 — needed because `db.PROJECT_REF.supabase.co` is IPv6-only otherwise. |
 | AURA content pipeline design | `docs/superpowers/plans/2026-04-07-aura-content-pipeline.md` |
 | AURA app integration design | `docs/superpowers/plans/2026-04-07-aura-app-integration.md` |
 | Agent definition | `C:\Users\lalo\.claude\agents\orbix-dev-guardian.md` |

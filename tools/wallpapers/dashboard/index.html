@@ -818,6 +818,10 @@ button { white-space: nowrap; }
     <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">event_note</span>
     Eventos
   </button>
+  <button class="nav-btn" data-page="engagement">
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">insights</span>
+    Engagement
+  </button>
 </nav>
 
 <main>
@@ -1094,6 +1098,142 @@ button { white-space: nowrap; }
 
   </section>
   <!-- ════ /PAGE: SUCESOS ════════════════════════════════════════════════════ -->
+
+
+  <!-- ════ PAGE: ENGAGEMENT (analytics on app_events) ══════════════════════ -->
+  <section class="page" data-page="engagement">
+
+  <div class="section-title">
+    <span>Engagement · cómo usan la app · últimos 30 días</span>
+    <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; opacity: 0.5;" id="eng-status">cargando...</span>
+  </div>
+
+  <!-- Funnel KPI hero -->
+  <div class="kpi-grid">
+    <div class="kpi gold">
+      <div class="label">Funnel suscripción · vieron pitch</div>
+      <div class="value" id="eng-pitch-shown">--</div>
+    </div>
+    <div class="kpi purple">
+      <div class="label">Tap "Subscribe"</div>
+      <div class="value" id="eng-pitch-cta">--</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">Compras completadas</div>
+      <div class="value" id="eng-pitch-paid">--</div>
+      <div class="delta" id="eng-pitch-conv">-- %</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Tutorial · completion</div>
+      <div class="value" id="eng-tutorial-pct">--</div>
+      <div class="delta" id="eng-tutorial-counts">--</div>
+    </div>
+  </div>
+
+  <!-- Tabs visitadas -->
+  <div class="panel" style="margin-top:24px">
+    <h3>Tabs visitadas <span class="count" id="eng-tabs-count">0</span></h3>
+    <div style="overflow-x: auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Sección</th>
+            <th class="num">Visitas</th>
+            <th class="num">Devices únicos</th>
+            <th class="num">Users únicos</th>
+            <th>Última actividad</th>
+          </tr>
+        </thead>
+        <tbody id="eng-tabs-body">
+          <tr><td colspan="5" class="loading">cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- AURA listening time -->
+  <div class="panel" style="margin-top:20px">
+    <h3>AURA · top tracks por minutos escuchados <span class="count" id="eng-aura-count">0</span></h3>
+    <div style="overflow-x: auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Track</th>
+            <th class="num">Minutos aprox</th>
+            <th class="num">Listeners únicos</th>
+            <th>Último play</th>
+          </tr>
+        </thead>
+        <tbody id="eng-aura-body">
+          <tr><td colspan="4" class="loading">cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Eventos seguidos -->
+  <div class="panel" style="margin-top:20px">
+    <h3>Eventos · qué temporadas atraen <span class="count" id="eng-events-count">0</span></h3>
+    <div style="overflow-x: auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th class="num">Aperturas</th>
+            <th class="num">Followers</th>
+            <th class="num">Devices únicos</th>
+            <th>Última actividad</th>
+          </tr>
+        </thead>
+        <tbody id="eng-events-body">
+          <tr><td colspan="5" class="loading">cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Aceptación de Términos + raw event counts -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+    <div class="panel">
+      <h3>Aceptación de Términos</h3>
+      <div style="overflow-x: auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Versión</th>
+              <th class="num">Aceptaciones</th>
+              <th class="num">Devices</th>
+              <th class="num">Users</th>
+            </tr>
+          </thead>
+          <tbody id="eng-terms-body">
+            <tr><td colspan="4" class="loading">cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Top eventos en 24h <span class="count" id="eng-evcount-count">0</span></h3>
+      <div class="scrollable" style="max-height: 360px">
+        <table>
+          <thead>
+            <tr>
+              <th>event_name</th>
+              <th class="num">Cuenta</th>
+              <th class="num">Devices</th>
+            </tr>
+          </thead>
+          <tbody id="eng-evcount-body">
+            <tr><td colspan="3" class="loading">cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  </section>
+  <!-- ════ /PAGE: ENGAGEMENT ═════════════════════════════════════════════════ -->
 
 </main>
 
@@ -1941,6 +2081,151 @@ function switchPage(page) {
   document.querySelectorAll('.page').forEach(s => s.classList.toggle('active', s.dataset.page === page));
   localStorage.setItem('pixora_admin_page', page);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Lazy-load engagement data only when the user opens the tab.
+  if (page === 'engagement') loadEngagement();
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// Engagement tab — analytics on app_events (tabs / aura / pitch / tutorial)
+// Helpers prefixed `eng` to avoid colliding with the global `fmt` and friends
+// declared up top.
+// ────────────────────────────────────────────────────────────────────────
+function engFmt(n) {
+  if (n == null) return '--';
+  if (typeof n === 'number') {
+    if (Number.isInteger(n)) return n.toLocaleString('es-MX');
+    return n.toFixed(1);
+  }
+  return String(n);
+}
+function engFmtRel(iso) {
+  if (!iso) return '--';
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'hace segundos';
+  if (diff < 3600) return `hace ${Math.floor(diff / 60)}m`;
+  if (diff < 86400) return `hace ${Math.floor(diff / 3600)}h`;
+  if (diff < 86400 * 30) return `hace ${Math.floor(diff / 86400)}d`;
+  return d.toLocaleDateString('es-MX');
+}
+
+async function engFetchJson(url) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (_) {
+    return null;
+  }
+}
+
+async function loadEngagement() {
+  const status = $('#eng-status');
+  if (status) status.textContent = 'cargando…';
+
+  // Run all panels in parallel.
+  const [tabs, funnel, aura, events, tutorial, terms, evcount] = await Promise.all([
+    engFetchJson('/api/engagement/tabs'),
+    engFetchJson('/api/engagement/pitch-funnel'),
+    engFetchJson('/api/engagement/aura-tracks?limit=20'),
+    engFetchJson('/api/engagement/event-followers'),
+    engFetchJson('/api/engagement/tutorial'),
+    engFetchJson('/api/engagement/terms-acceptance'),
+    engFetchJson('/api/engagement/event-counts'),
+  ]);
+
+  // ─── Funnel KPIs ───
+  if (Array.isArray(funnel) && funnel[0]) {
+    const f = funnel[0];
+    $('#eng-pitch-shown').textContent = engFmt(f.devices_saw_pitch);
+    $('#eng-pitch-cta').textContent = engFmt(f.devices_tapped_subscribe);
+    $('#eng-pitch-paid').textContent = engFmt(f.devices_paid);
+    $('#eng-pitch-conv').textContent = `${engFmt(f.conversion_pct)} %`;
+  }
+
+  if (Array.isArray(tutorial) && tutorial[0]) {
+    const t = tutorial[0];
+    $('#eng-tutorial-pct').textContent = `${engFmt(t.completion_pct)} %`;
+    $('#eng-tutorial-counts').textContent =
+      `${engFmt(t.completions)}/${engFmt(t.devices_seen_tutorial)} · ${engFmt(t.gift_redemptions)} regalos`;
+  }
+
+  // ─── Tabs visitadas ───
+  const tabsBody = $('#eng-tabs-body');
+  if (Array.isArray(tabs) && tabs.length) {
+    tabsBody.innerHTML = tabs.map(t => `
+      <tr>
+        <td><strong>${(t.section || '').toUpperCase()}</strong></td>
+        <td class="num">${engFmt(t.views)}</td>
+        <td class="num">${engFmt(t.unique_devices)}</td>
+        <td class="num">${engFmt(t.unique_users)}</td>
+        <td>${engFmtRel(t.last_seen)}</td>
+      </tr>`).join('');
+    $('#eng-tabs-count').textContent = tabs.length;
+  } else {
+    tabsBody.innerHTML = '<tr><td colspan="5" class="loading">sin datos todavía</td></tr>';
+  }
+
+  // ─── AURA top tracks ───
+  const auraBody = $('#eng-aura-body');
+  if (Array.isArray(aura) && aura.length) {
+    auraBody.innerHTML = aura.map(a => `
+      <tr>
+        <td>${a.track_id}</td>
+        <td class="num">${engFmt(a.approx_minutes)}</td>
+        <td class="num">${engFmt(a.unique_listeners)}</td>
+        <td>${engFmtRel(a.last_played)}</td>
+      </tr>`).join('');
+    $('#eng-aura-count').textContent = aura.length;
+  } else {
+    auraBody.innerHTML = '<tr><td colspan="4" class="loading">sin reproducciones aún</td></tr>';
+  }
+
+  // ─── Event followers ───
+  const eventsBody = $('#eng-events-body');
+  if (Array.isArray(events) && events.length) {
+    eventsBody.innerHTML = events.map(e => `
+      <tr>
+        <td>${e.event_id}</td>
+        <td class="num">${engFmt(e.opens)}</td>
+        <td class="num">${engFmt(e.follows)}</td>
+        <td class="num">${engFmt(e.unique_devices)}</td>
+        <td>${engFmtRel(e.last_activity)}</td>
+      </tr>`).join('');
+    $('#eng-events-count').textContent = events.length;
+  } else {
+    eventsBody.innerHTML = '<tr><td colspan="5" class="loading">sin actividad en eventos</td></tr>';
+  }
+
+  // ─── Terms acceptance ───
+  const termsBody = $('#eng-terms-body');
+  if (Array.isArray(terms) && terms.length) {
+    termsBody.innerHTML = terms.map(t => `
+      <tr>
+        <td>v${t.terms_version}</td>
+        <td class="num">${engFmt(t.total_acceptances)}</td>
+        <td class="num">${engFmt(t.unique_devices)}</td>
+        <td class="num">${engFmt(t.unique_users)}</td>
+      </tr>`).join('');
+  } else {
+    termsBody.innerHTML = '<tr><td colspan="4" class="loading">sin aceptaciones todavía</td></tr>';
+  }
+
+  // ─── Event counts 24h ───
+  const evcountBody = $('#eng-evcount-body');
+  if (Array.isArray(evcount) && evcount.length) {
+    evcountBody.innerHTML = evcount.map(e => `
+      <tr>
+        <td><code style="color:var(--gold)">${e.event_name}</code></td>
+        <td class="num">${engFmt(e.events)}</td>
+        <td class="num">${engFmt(e.unique_devices)}</td>
+      </tr>`).join('');
+    $('#eng-evcount-count').textContent = evcount.length;
+  } else {
+    evcountBody.innerHTML = '<tr><td colspan="3" class="loading">sin eventos 24h</td></tr>';
+  }
+
+  if (status) status.textContent = `actualizado ${new Date().toLocaleTimeString('es-MX')}`;
 }
 
 function startAutoRefresh() {

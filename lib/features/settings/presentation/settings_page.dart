@@ -11,6 +11,7 @@ import '../../../core/services/theme_service.dart';
 import '../../../core/services/wallpaper_service.dart';
 import '../../../core/utils/locale_helper.dart';
 import '../../favorites/providers/favorites_provider.dart';
+import '../../training/training_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -264,6 +265,29 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         Divider(color: context.hud.divider),
         const _SectionHeader('General'),
         const _ThemePickerSection(),
+        _SettingsTile(
+          icon: Icons.school_outlined,
+          title: LocaleHelper.pick(
+            es: 'Reabrir tutorial guiado',
+            en: 'Restart guided tutorial',
+          ),
+          subtitle: LocaleHelper.pick(
+            es: 'Vuelve a ver las indicaciones de las secciones',
+            en: 'See the section walkthrough again',
+          ),
+          onTap: () async {
+            await TrainingService.instance.reset();
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(LocaleHelper.pick(
+                  es: 'Tutorial reactivado. Toca cualquier sección para verlo.',
+                  en: 'Tutorial reactivated. Open any section to see it.',
+                )),
+              ),
+            );
+          },
+        ),
         Divider(color: context.hud.divider),
         const _SectionHeader('About'),
         _SettingsTile(

@@ -7,7 +7,10 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
+import 'core/services/analytics_service.dart';
 import 'core/services/credit_service.dart';
+import 'core/services/grace_pass_service.dart';
+import 'core/services/legal_service.dart';
 import 'core/services/subscription_service.dart';
 import 'core/services/theme_service.dart';
 import 'features/aura/services/aura_player_service.dart';
@@ -60,7 +63,10 @@ Future<void> main() async {
     ));
 
     await ThemeService.instance.init();
+    await LegalService.instance.init();
+    await AnalyticsService.instance.init();
     await CreditService.instance.init();
+    await GracePassService.instance.init();
     await AuraPlayerService.instance.init();
     AdService.instance.initialize();
     // Subscription init doesn't block app start — it queries Play Store and

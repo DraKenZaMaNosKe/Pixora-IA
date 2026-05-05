@@ -10,6 +10,21 @@
 .svn/
 migrate_working_dir/
 
+# Legal documents — filled with PII (RFC, full address, full name).
+# Templates with placeholders ARE tracked in docs/legal/_TEMPLATES/.
+# Don't commit the populated .md files; they live local-only until uploaded
+# to Supabase Storage in their final HTML form.
+docs/legal/terms_v1.md
+docs/legal/privacy_v1.md
+docs/legal/terms_v*.md
+docs/legal/privacy_v*.md
+!docs/legal/_TEMPLATES/
+
+# Admin tools runtime artefacts (local logs, ad-hoc previews, test caps)
+tools/wallpapers/admin_server.log
+docs/design/_device_*.png
+docs/design/admin_dashboard_test.png
+
 # IntelliJ related
 *.iml
 *.ipr

@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/catalog_index_service.dart';
 import '../../../core/services/catalog_service.dart';
+import '../../../core/services/legal_service.dart';
 import '../../../core/services/shader_download_service.dart';
 import '../../../core/services/wallpaper_stats_service.dart';
 import '../../home/presentation/home_page.dart';
+import '../../legal/presentation/terms_acceptance_page.dart';
 import '../../onboarding/presentation/onboarding_page.dart';
 import '../../subscription/presentation/subscription_pitch_page.dart';
 
@@ -136,14 +138,21 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   }
 
   /// Cold-start funnel:
-  ///   first launch    → Onboarding → SubscriptionPitch → Home
+  ///   first launch    → TermsGate → Onboarding → SubscriptionPitch → Home
   ///   second launch   → SubscriptionPitch (if not yet shown) → Home
   ///   pro subscriber  → Home (pitch is auto-skipped by shouldShow)
+  ///
+  /// TermsGate is hard-blocking: it shows whenever the user has not accepted
+  /// the current Terms version (`LegalService.kCurrentTermsVersion`). On
+  /// version bumps, every existing user re-sees it on the next launch.
   ///
   /// All onFinish callbacks use the active page context (NOT the splash state)
   /// because by the time the user finishes onboarding/pitch, the splash is
   /// already disposed. Using splash's context would be a use-after-free.
   Future<Widget> _firstScreenAfterSplash() async {
+    if (!LegalService.instance.hasAcceptedCurrent()) {
+      return TermsAcceptancePage(onFinish: _navigateAfterTerms);
+    }
     if (await OnboardingPage.shouldShow()) {
       return OnboardingPage(onFinish: _navigateToPitchOrHome);
     }
@@ -151,6 +160,25 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       return SubscriptionPitchPage(onFinish: _navigateToHome);
     }
     return const HomePage();
+  }
+
+  /// Called by TermsAcceptancePage when the user taps "Acepto y continuar".
+  /// Forwards to onboarding (or pitch / home if onboarding already done).
+  Future<void> _navigateAfterTerms(BuildContext context) async {
+    if (await OnboardingPage.shouldShow()) {
+      if (!context.mounted) return;
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) =>
+              OnboardingPage(onFinish: _navigateToPitchOrHome),
+          transitionsBuilder: (_, animation, __, child) =>
+              FadeTransition(opacity: animation, child: child),
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+      );
+    } else {
+      _navigateToPitchOrHome(context);
+    }
   }
 
   /// Called by OnboardingPage when the user taps "¡Comenzar!".

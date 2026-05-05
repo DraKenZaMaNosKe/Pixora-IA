@@ -1,7 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/design/hud_tokens.dart';
+import '../../../core/models/resolved_wallpaper.dart';
+import '../../../core/services/catalog_index_service.dart';
 import '../../../core/services/subscription_service.dart';
+import '../../../core/services/wallpaper_resolver_service.dart';
+import '../../hot_wallpapers/data/models/live_wallpaper.dart';
+import '../../hot_wallpapers/presentation/pages/live_wallpaper_preview_page.dart';
+import '../../wallpapers/data/models/wallpaper.dart';
+import '../../wallpapers/presentation/pages/wallpaper_preview_page.dart';
 import '../data/models/event.dart';
 
 /// Detail page when the user taps a polaroid in the EventosPage.
@@ -298,10 +306,14 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 28),
         ],
 
-        // Wallpapers grid placeholder (real items come once event_wallpapers
-        // is populated server-side — for now we show themed placeholder tiles)
+        // Wallpapers grid — heterogeneous: pulls each id from whichever
+        // catalog it lives in (static / panoramic / live / canvas_scene)
+        // and renders a card with the right type badge. Tap navigates to
+        // the type-specific preview page.
         Text(
-          'Vista previa de la colección',
+          event.wallpaperIds.isEmpty
+              ? 'Vista previa de la colección'
+              : 'Wallpapers de este evento',
           style: TextStyle(
             fontFamily: 'JetBrainsMono',
             fontSize: 11,
@@ -310,7 +322,66 @@ class _Body extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        GridView.builder(
+        if (event.wallpaperIds.isEmpty)
+          // Empty state — themed placeholder tiles to hint at the count
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 9 / 16,
+            ),
+            itemCount: event.wallpaperCount.clamp(0, 9),
+            itemBuilder: (_, i) => _PlaceholderTile(
+              event: event,
+              locked: locked,
+              index: i,
+            ),
+          )
+        else
+          _ResolvedGrid(event: event, locked: locked),
+      ],
+    );
+  }
+}
+
+/// Heterogeneous grid that resolves each wallpaper_id via the
+/// WallpaperResolverService and renders the appropriate card with a kind
+/// badge (PANO / LIVE / 3D / —). Tap navigates to the right preview page.
+class _ResolvedGrid extends StatelessWidget {
+  const _ResolvedGrid({required this.event, required this.locked});
+  final PixoraEvent event;
+  final bool locked;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<ResolvedWallpaper>>(
+      future: WallpaperResolverService.instance.resolveMany(event.wallpaperIds),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(
+                child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2))),
+          );
+        }
+        final items = snapshot.data ?? const [];
+        if (items.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              'No se pudieron cargar los wallpapers de este evento.',
+              style: TextStyle(
+                  color: context.hud.textDim, fontSize: 12, height: 1.5),
+            ),
+          );
+        }
+        return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -319,15 +390,131 @@ class _Body extends StatelessWidget {
             mainAxisSpacing: 8,
             childAspectRatio: 9 / 16,
           ),
-          itemCount: event.wallpaperCount.clamp(0, 9),
-          itemBuilder: (_, i) => _PlaceholderTile(
-            event: event,
+          itemCount: items.length,
+          itemBuilder: (_, i) => _ResolvedTile(
+            wallpaper: items[i],
             locked: locked,
-            index: i,
+            event: event,
           ),
-        ),
-      ],
+        );
+      },
     );
+  }
+}
+
+/// Single card in the resolved grid — preview image + type badge + lock
+/// overlay when the user is not Pro and the event is pro-only.
+class _ResolvedTile extends StatelessWidget {
+  const _ResolvedTile({
+    required this.wallpaper,
+    required this.locked,
+    required this.event,
+  });
+  final ResolvedWallpaper wallpaper;
+  final bool locked;
+  final PixoraEvent event;
+
+  @override
+  Widget build(BuildContext context) {
+    final badge = wallpaper.kindBadge;
+    return GestureDetector(
+      onTap: locked ? null : () => _open(context),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CachedNetworkImage(
+              imageUrl: wallpaper.previewUrl,
+              fit: BoxFit.cover,
+              placeholder: (_, __) => Container(color: event.themeColorDark),
+              errorWidget: (_, __, ___) => Container(
+                color: event.themeColorDark,
+                alignment: Alignment.center,
+                child: const Icon(Icons.image_not_supported_outlined,
+                    color: Colors.white54, size: 24),
+              ),
+            ),
+            if (badge != null)
+              Positioned(
+                top: 6,
+                left: 6,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: event.themeColor,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    badge,
+                    style: const TextStyle(
+                      fontFamily: 'JetBrainsMono',
+                      fontSize: 8,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
+            if (locked)
+              Container(
+                color: Colors.black.withValues(alpha: 0.55),
+                alignment: Alignment.center,
+                child: const Icon(Icons.lock, color: Colors.white70, size: 22),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Route to the right preview page based on which catalog the wallpaper
+  /// came from. Each preview page already knows how to install its own kind.
+  void _open(BuildContext context) {
+    final raw = wallpaper.raw;
+    if (raw is LiveWallpaper) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LiveWallpaperPreviewPage(wallpaper: raw),
+          ));
+      return;
+    }
+    if (raw is Wallpaper) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WallpaperPreviewPage(wallpaper: raw),
+          ));
+      return;
+    }
+    if (raw is CatalogIndexEntry) {
+      // canvas_scene — adapt to a Wallpaper for the preview page (same path
+      // ParallaxWallpapersPage uses). The install flow auto-resolves the
+      // canvas scene id by basename match.
+      final adapted = Wallpaper(
+        id: raw.id,
+        name: raw.titleFor('es'),
+        description: raw.raw['description']?.toString() ?? '',
+        imageFile: raw.previewUrl
+            .split('/')
+            .last
+            .replaceFirst('_preview.webp', '.webp'),
+        previewFile: raw.previewUrl.split('/').last,
+        imageSize: 0,
+        previewSize: 0,
+        glowColor: raw.raw['glow_color']?.toString() ?? '#FFFFFF',
+        category: raw.category ?? 'CANVAS_SCENE',
+        tags: raw.tags,
+      );
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WallpaperPreviewPage(wallpaper: adapted),
+          ));
+    }
   }
 }
 
@@ -474,8 +661,13 @@ class _StickyCta extends StatelessWidget {
       label = 'Ver colección completa';
     }
 
+    // Respect Android's gesture/3-button nav bar so the CTA never sits
+    // underneath the system handle. Samsung phones eat ~48dp at the bottom;
+    // older OnePlus and stock Android use 24-32dp. Reading viewPadding
+    // dynamically keeps the button label fully visible on every device.
+    final navInset = MediaQuery.viewPaddingOf(context).bottom;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
+      padding: EdgeInsets.fromLTRB(20, 14, 20, 16 + navInset),
       decoration: BoxDecoration(
         color: h.bg,
         boxShadow: [

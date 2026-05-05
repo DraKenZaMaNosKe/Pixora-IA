@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../../core/services/analytics_service.dart';
 import '../../../core/services/subscription_service.dart';
 
 /// Premium pitch shown right after the onboarding tutorial completes
-/// (concept #02 "Apple Premium" picked by user 2026-05-04).
+/// (concept #02 "Apple Premium" — confirmed by user 2026-05-05).
 ///
 /// Design: minimal, gradient hero with shimmering gold tint, single feature
 /// column, big price card, prominent CTA. Includes a "Ahora no" skip that
@@ -52,8 +53,15 @@ class _SubscriptionPitchPageState extends State<SubscriptionPitchPage> {
 
   static const _accent = Color(0xFFD9B14A);
 
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService.instance.trackPitchShown('post_onboarding');
+  }
+
   Future<void> _onSubscribe() async {
     if (_purchasing) return;
+    AnalyticsService.instance.trackPitchCtaTap();
     setState(() => _purchasing = true);
     try {
       // Debug builds (sideloaded APK) cannot reach Google Play Billing —
@@ -71,6 +79,8 @@ class _SubscriptionPitchPageState extends State<SubscriptionPitchPage> {
             duration: Duration(seconds: 3),
           ),
         );
+        AnalyticsService.instance
+            .trackPitchPaid(productId: 'pixora_monthly_debug');
         await SubscriptionPitchPage.markSeen();
         if (!mounted) return;
         widget.onFinish(context);
@@ -81,6 +91,7 @@ class _SubscriptionPitchPageState extends State<SubscriptionPitchPage> {
       final ok = await SubscriptionService.instance.buyMonthly();
       if (!mounted) return;
       if (ok) {
+        AnalyticsService.instance.trackPitchPaid(productId: 'pixora_monthly');
         await SubscriptionPitchPage.markSeen();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

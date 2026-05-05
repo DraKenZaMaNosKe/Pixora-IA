@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'credit_service.dart';
+import 'grace_pass_service.dart';
 import 'subscription_service.dart';
 
 /// Centralised interstitial ad service with revenue analytics.
@@ -34,7 +37,12 @@ class AdService {
   /// Release AABs ship with kDebugMode=false, so revenue is never accidentally
   /// disabled in production (lesson from v1.7.2: a hardcoded `true` left over
   /// from local dev cost us 100% of ad revenue for several days).
-  static bool get _debugDisableAds => kDebugMode;
+  ///
+  /// TEMPORAL 2026-05-05: forzado a false para que el usuario pueda probar el
+  /// flujo de ads reales en debug build mientras prueba el welcome grace.
+  /// REGRESAR a `kDebugMode` antes del próximo release v1.7.5 para mantener
+  /// la salvaguarda original.
+  static bool get _debugDisableAds => false;
 
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;
@@ -46,8 +54,11 @@ class AdService {
 
   bool get isAdLoaded => _isAdLoaded;
 
-  /// Whether the NEXT action will show an ad (true) or be free (false).
-  bool get isNextActionFree => _actionCount.isOdd;
+  /// Whether the NEXT action will be ad-free.
+  /// 2026-05-05: alternating disabled, every action shows ad → always false.
+  /// Original logic (kept commented for easy restoration):
+  ///   return _actionCount.isOdd;
+  bool get isNextActionFree => false;
 
   /// Current flag value for debugging.
   int get debugFlag => _actionCount;
@@ -95,7 +106,7 @@ class AdService {
     String? wallpaperId,
   }) {
     _actionCount++;
-    final shouldShow = _actionCount.isOdd;
+    // alternating decision removed 2026-05-05; counter kept for analytics
 
     // ─── Subscription gate ──────────────────────────────────────────────────
     // Premium subscribers (active/trial/grace/cancelled-but-not-expired) see
@@ -108,6 +119,23 @@ class AdService {
         wallpaperId: wallpaperId,
         shown: false,
         metadata: {'reason': 'subscriber_skip'},
+      );
+      onAdDismissed();
+      return;
+    }
+
+    // ─── Welcome gift (one-time grace pass) ─────────────────────────────────
+    // First wallpaper install after onboarding goes ad-free as the "regalo
+    // de bienvenida" advertised at the end of the guided tour. Consume the
+    // pass so subsequent installs follow normal alternating-skip rules.
+    if (GracePassService.instance.hasGrace) {
+      unawaited(GracePassService.instance.consume());
+      _logAd(
+        adKind: 'interstitial',
+        placement: placement,
+        wallpaperId: wallpaperId,
+        shown: false,
+        metadata: {'reason': 'welcome_grace'},
       );
       onAdDismissed();
       return;
@@ -126,20 +154,19 @@ class AdService {
       return;
     }
 
-    // ─── Even action → skip (alternating) ────────────────────────────────────
-    if (!shouldShow) {
-      _logAd(
-        adKind: 'interstitial',
-        placement: placement,
-        wallpaperId: wallpaperId,
-        shown: false,
-        metadata: {'reason': 'alternating_skip'},
-      );
-      onAdDismissed();
-      return;
-    }
+    // ─── Alternating skip — DESHABILITADA 2026-05-05 ────────────────────────
+    // Antes: 1 sí, 2 no (impar muestra, par salta) para suavizar UX.
+    // Cambio: usuario quiere SIEMPRE mostrar ad. Más revenue, más simple,
+    // y evita el bug de "cerrar/abrir burla el counter" (el contador vivía
+    // en RAM y se reseteaba al matar la app). Cada decisión sigue logueada
+    // server-side en `ad_events` para auditoría.
+    // Para rehabilitar: regresar el bloque `if (!shouldShow) { ... }` y
+    // mover el `_actionCount++` antes de los return paths.
+    //
+    // _actionCount sigue incrementando para que el log mantenga el contador
+    // por sesión (analytics), pero no afecta la decisión de mostrar.
 
-    // ─── Odd action but ad not preloaded → skip ──────────────────────────────
+    // ─── Ad not preloaded → skip ─────────────────────────────────────────────
     if (_interstitialAd == null || !_isAdLoaded) {
       _logAd(
         adKind: 'interstitial',
@@ -153,36 +180,70 @@ class AdService {
       return;
     }
 
+    // ─── Safety timeout against malformed creatives ─────────────────────────
+    // Some AdMob creatives (notably playable game ads like Royal Kingdom) ship
+    // with a close-button placement that gets occluded by the device status
+    // bar / notch. The user can't dismiss → onAdDismissed never fires → the
+    // calling install/apply flow hangs forever → main thread blocks → Android
+    // ANRs the app ("Wallpaper Pixora no responde"). Saw this in the wild
+    // 2026-05-05 with a Royal Kingdom interstitial during welcome-gift install.
+    //
+    // Fix: hard cap of 60s. If the ad SDK hasn't fired any callback by then,
+    // assume the creative is malformed, dispose, log it, and let the caller's
+    // install flow continue. The user has spent more than enough time staring
+    // at it; we owe them a way out.
+    var dismissed = false;
+    void completeOnce({required bool shownVal, Map<String, dynamic>? meta}) {
+      if (dismissed) return;
+      dismissed = true;
+      _logAd(
+        adKind: 'interstitial',
+        placement: placement,
+        wallpaperId: wallpaperId,
+        shown: shownVal,
+        metadata: meta,
+      );
+      if (shownVal) CreditService.instance.earnFromAd();
+      onAdDismissed();
+    }
+
+    final timeout = Timer(const Duration(seconds: 60), () {
+      if (dismissed) return;
+      debugPrint(
+          '[Pixora] Ad timeout — disposing stuck interstitial after 60s');
+      try {
+        _interstitialAd?.dispose();
+      } catch (_) {}
+      _interstitialAd = null;
+      _isAdLoaded = false;
+      loadInterstitialAd();
+      completeOnce(
+        shownVal: false,
+        meta: {'reason': 'safety_timeout_60s'},
+      );
+    });
+
     // ─── Show the ad ─────────────────────────────────────────────────────────
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
+        timeout.cancel();
         ad.dispose();
         _interstitialAd = null;
         _isAdLoaded = false;
         loadInterstitialAd();
         // Log SHOWN: this is the revenue event.
-        _logAd(
-          adKind: 'interstitial',
-          placement: placement,
-          wallpaperId: wallpaperId,
-          shown: true,
-        );
-        CreditService.instance.earnFromAd();
-        onAdDismissed();
+        completeOnce(shownVal: true);
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
+        timeout.cancel();
         ad.dispose();
         _interstitialAd = null;
         _isAdLoaded = false;
         loadInterstitialAd();
-        _logAd(
-          adKind: 'interstitial',
-          placement: placement,
-          wallpaperId: wallpaperId,
-          shown: false,
-          metadata: {'reason': 'show_failed', 'error': error.message},
+        completeOnce(
+          shownVal: false,
+          meta: {'reason': 'show_failed', 'error': error.message},
         );
-        onAdDismissed();
       },
     );
 

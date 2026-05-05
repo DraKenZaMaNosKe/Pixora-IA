@@ -18,6 +18,24 @@ from pathlib import Path
 from threading import Timer
 
 if sys.platform == "win32":
+    # Under pythonw.exe stdout/stderr can be None; HTTPServer's log_message
+    # writes to stderr and would crash the request handler the first time it
+    # logs. Redirect to a real log file next to this script so diagnostics
+    # survive even when launched silently from the desktop shortcut.
+    _LOG_FILE = Path(__file__).parent / "admin_server.log"
+    if sys.stdout is None or sys.stderr is None:
+        try:
+            _log_handle = open(_LOG_FILE, "a", encoding="utf-8", buffering=1)
+            if sys.stdout is None:
+                sys.stdout = _log_handle
+            if sys.stderr is None:
+                sys.stderr = _log_handle
+        except Exception:
+            # Fallback: discard if the log file is not writable for any reason.
+            if sys.stdout is None:
+                sys.stdout = open(os.devnull, "w", encoding="utf-8")
+            if sys.stderr is None:
+                sys.stderr = open(os.devnull, "w", encoding="utf-8")
     try:
         sys.stdout.reconfigure(encoding="utf-8")
         sys.stderr.reconfigure(encoding="utf-8")
@@ -217,11 +235,108 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send_json(data, status)
 
+        # ─── User lookup (forensic, cross-table) ──────────────────
+        # Given an email, find the auth.users row, then aggregate every
+        # piece of activity we have for that user_id. Truth-telling
+        # endpoint: never assume, always cross-check.
+        if path == "/api/user-lookup":
+            email = query.get("email", [""])[0].strip().lower()
+            if not email:
+                return self._send_json({"error": "email required"}, 400)
+            # Step 1 — resolve user_id via Supabase Admin Auth API.
+            auth_url = f"https://{PROJECT_REF}.supabase.co/auth/v1/admin/users?email={urllib.parse.quote(email)}"
+            req = urllib.request.Request(auth_url)
+            req.add_header("apikey", SERVICE_KEY)
+            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+            try:
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    auth_data = json.loads(r.read().decode("utf-8") or "{}")
+            except urllib.error.HTTPError as e:
+                return self._send_json({"error": f"auth lookup failed: {e.code}"}, e.code)
+            users = auth_data.get("users", [])
+            if not users:
+                return self._send_json({
+                    "email": email,
+                    "found": False,
+                    "message": "no auth.users row matches this email"
+                })
+            u = users[0]
+            uid = u["id"]
+            # Step 2 — pull rows from each table the user could touch.
+            def safe(path):
+                d, s = self._proxy(path)
+                return d if s == 200 else {"error": d, "status": s}
+            uid_q = urllib.parse.quote(uid)
+            subs = safe(f"user_subscriptions?user_id=eq.{uid_q}&select=*&order=started_at.desc")
+            gens = safe(f"ia_generation_queue?user_id=eq.{uid_q}&select=id,prompt,status,result_url,created_at&order=created_at.desc&limit=50")
+            favs = safe(f"user_favorites?user_id=eq.{uid_q}&select=wallpaper_id,created_at&order=created_at.desc&limit=100")
+            dls  = safe(f"user_downloads?user_id=eq.{uid_q}&select=wallpaper_id,downloaded_at&order=downloaded_at.desc&limit=100")
+            ads  = safe(f"ad_events?user_id=eq.{uid_q}&select=ts,ad_kind,placement,shown,rewarded&order=ts.desc&limit=20")
+            wps  = safe(f"wallpaper_events?user_id=eq.{uid_q}&select=ts,event_type,wallpaper_id,app_version&order=ts.desc&limit=30")
+            # Try app_events too (may not exist yet if migration not applied)
+            apps = safe(f"app_events?user_id=eq.{uid_q}&select=ts,event_name,props&order=ts.desc&limit=50")
+            return self._send_json({
+                "email": email,
+                "found": True,
+                "user_id": uid,
+                "created_at": u.get("created_at"),
+                "last_sign_in_at": u.get("last_sign_in_at"),
+                "user_metadata": u.get("user_metadata"),
+                "subscriptions": subs,
+                "ia_generations": gens,
+                "favorites": favs,
+                "downloads": dls,
+                "recent_ad_events": ads,
+                "recent_wallpaper_events": wps,
+                "recent_app_events": apps,
+            })
+
+        # ─── Engagement (app_events analytics) ────────────────────
+        if path == "/api/engagement/tabs":
+            data, status = self._proxy("admin_tab_views_30d?order=views.desc")
+            return self._send_json(data, status)
+
+        if path == "/api/engagement/pitch-funnel":
+            data, status = self._proxy("admin_pitch_funnel_30d")
+            return self._send_json(data, status)
+
+        if path == "/api/engagement/aura-tracks":
+            limit = int(query.get("limit", ["20"])[0])
+            data, status = self._proxy(
+                f"admin_aura_top_tracks_30d?limit={limit}")
+            return self._send_json(data, status)
+
+        if path == "/api/engagement/event-followers":
+            data, status = self._proxy(
+                "admin_event_followers_30d?order=follows.desc.nullslast")
+            return self._send_json(data, status)
+
+        if path == "/api/engagement/tutorial":
+            data, status = self._proxy("admin_tutorial_completion_30d")
+            return self._send_json(data, status)
+
+        if path == "/api/engagement/event-counts":
+            data, status = self._proxy(
+                "admin_app_event_counts_24h?order=events.desc&limit=30")
+            return self._send_json(data, status)
+
+        if path == "/api/engagement/daily":
+            limit = int(query.get("days", ["30"])[0])
+            data, status = self._proxy(
+                f"admin_app_events_daily?limit={limit}")
+            return self._send_json(data, status)
+
+        if path == "/api/engagement/terms-acceptance":
+            data, status = self._proxy("admin_terms_acceptance_30d")
+            return self._send_json(data, status)
+
         return self._send(404, "text/plain", b"not found")
 
 
 def open_browser():
-    webbrowser.open(f"http://localhost:{PORT}/")
+    # Use 127.0.0.1 explicitly — on Windows "localhost" can resolve to IPv6
+    # (::1), and our server is bound to IPv4 only, which yields ERR_EMPTY_RESPONSE.
+    webbrowser.open(f"http://127.0.0.1:{PORT}/")
 
 
 def main():
@@ -229,7 +344,7 @@ def main():
         print(f"FATAL: dashboard html missing at {DASHBOARD_HTML}")
         sys.exit(1)
     print(f"Pixora Admin Dashboard")
-    print(f"  Serving:    http://localhost:{PORT}/")
+    print(f"  Serving:    http://127.0.0.1:{PORT}/")
     print(f"  Dashboard:  {DASHBOARD_HTML}")
     print(f"  Supabase:   {SUPABASE_REST}")
     print(f"  Press Ctrl+C to stop\n")

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/design/hud_shapes.dart';
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/design/hud_widgets.dart';
+import '../../../core/services/analytics_service.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/credit_service.dart';
 import '../../../core/services/subscription_service.dart';
@@ -22,6 +23,14 @@ import '../../arcano/presentation/arcano_page.dart';
 import '../../ringtones/presentation/pages/ringtones_page.dart';
 import '../../wallpapers/presentation/pages/wallpaper_search_page.dart';
 import '../../wallpapers/presentation/pages/wallpapers_page.dart';
+import '../../training/coach_mark_overlay.dart';
+import '../../training/training_service.dart';
+import '../../training/welcome_gift_sheet.dart';
+import '../../../core/services/grace_pass_service.dart';
+import '../../../core/services/wallpaper_resolver_service.dart';
+import '../../wallpapers/data/models/wallpaper.dart';
+import '../../wallpapers/presentation/pages/wallpaper_preview_page.dart';
+import '../../perfil/presentation/perfil_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -34,12 +43,147 @@ class _HomePageState extends ConsumerState<HomePage> {
   int _currentIndex = 0;
   bool _protectPromptOpen = false;
 
+  /// Per-tab GlobalKeys for the coach-mark spotlights. The bottom nav has
+  /// 13 tabs on Android right now (WALL/LIVE/3D/CULT/EVNT/AURA/ARC/STOR/
+  /// DAY/TON/IA/FAV/SET); we allocate 16 for headroom in case future tabs
+  /// land before someone remembers to bump this.
+  late final List<GlobalKey> _navKeys =
+      List.generate(16, (i) => GlobalKey(debugLabel: 'nav_$i'));
+
+  OverlayEntry? _coachOverlay;
+
+  /// Builds the tour steps from the current tab layout and shows the overlay.
+  /// Public so Settings can re-trigger it via `homeKey.currentState?.showCoachMarks()`.
+  void _showCoachMarks() {
+    if (_coachOverlay != null) return; // already showing
+    // Build steps in the same order as the bottom-nav items declared in
+    // _buildBottomNav. Indices must match.
+    final steps = _buildSteps();
+    if (steps.isEmpty) return;
+    AnalyticsService.instance.trackTutorialStarted();
+    _coachOverlay = OverlayEntry(
+      builder: (_) => CoachMarkOverlay(
+        steps: steps,
+        onFinish: (completed) {
+          _coachOverlay?.remove();
+          _coachOverlay = null;
+          // After finishing the tour (whether completed or skipped), if the
+          // welcome grace pass is still available offer the gift sheet —
+          // this is the conversion remate that hooks the user with one
+          // ad-free wallpaper of our best content (Volcano Dragon).
+          if (mounted && GracePassService.instance.hasGrace) {
+            _maybeShowWelcomeGift();
+          }
+        },
+      ),
+    );
+    Overlay.of(context).insert(_coachOverlay!);
+  }
+
+  /// Resolves Volcano Dragon from the catalog_index and shows the welcome
+  /// gift sheet. If resolution fails for any reason (network, missing entry),
+  /// silently skips — better to lose the gift than crash the app.
+  Future<void> _maybeShowWelcomeGift() async {
+    try {
+      final resolved =
+          await WallpaperResolverService.instance.resolve('volcano_dragon');
+      if (!mounted || resolved == null) return;
+      AnalyticsService.instance.trackWelcomeGiftShown('volcano_dragon');
+      await WelcomeGiftSheet.show(
+        context,
+        featuredName: 'Volcano Dragon',
+        featuredSubtitle: 'Escena 3D · dragón ancestral en el volcán',
+        featuredPreviewUrl: resolved.previewUrl,
+        onAcceptGift: () {
+          AnalyticsService.instance.trackWelcomeGiftRedeemed('volcano_dragon');
+          Navigator.of(context).pop(); // close the sheet
+          // Switch to the 3D tab so the user sees the wallpaper in context
+          // when they return from the preview page.
+          setState(() => _currentIndex = 2);
+          // Navigate to Volcano Dragon's preview (its install flow respects
+          // the grace pass via AdService).
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => WallpaperPreviewPage(
+              wallpaper: _adaptCanvasSceneForPreview(resolved.raw),
+            ),
+          ));
+        },
+        onLater: () {
+          Navigator.of(context).pop(); // grace stays active for next install
+        },
+      );
+    } catch (e) {
+      debugPrint('[WelcomeGift] failed to show: $e');
+    }
+  }
+
+  /// Adapt a CatalogIndexEntry (canvas_scene) into a Wallpaper for the
+  /// shared WallpaperPreviewPage. Mirrors the same logic used by the
+  /// EventDetailPage's _ResolvedTile.
+  Wallpaper _adaptCanvasSceneForPreview(Object raw) {
+    final entry = raw as dynamic; // CatalogIndexEntry has dynamic raw bag
+    return Wallpaper(
+      id: entry.id as String,
+      name: entry.titleFor('es') as String,
+      description: entry.raw['description']?.toString() ?? '',
+      imageFile: (entry.previewUrl as String)
+          .split('/')
+          .last
+          .replaceFirst('_preview.webp', '.webp'),
+      previewFile: (entry.previewUrl as String).split('/').last,
+      imageSize: 0,
+      previewSize: 0,
+      glowColor: entry.raw['glow_color']?.toString() ?? '#FFFFFF',
+      category: (entry.category as String?) ?? 'CANVAS_SCENE',
+      tags: (entry.tags as List).cast<String>(),
+    );
+  }
+
+  List<CoachStep> _buildSteps() {
+    // Bottom-nav declared order on Android (iOS hides several tabs):
+    //   0 WALL · 1 LIVE · 2 3D · 3 CULT · 4 EVNT · 5 AURA
+    //   6 ARC  · 7 STOR · 8 DAY · 9 TON · 10 IA · 11 FAV · 12 SET
+    // We only point at the most user-visible ones so the tour stays short.
+    final s = <CoachStep>[];
+    void add(int idx, String title, String body) {
+      final k = _navKeys[idx];
+      if (k.currentContext == null) return; // tab not rendered (iOS hide)
+      s.add(CoachStep(targetKey: k, title: title, body: body));
+    }
+
+    add(0, 'Wallpapers',
+        'Aquí están todos los fondos. Toca cualquiera para verlo en grande y aplicarlo.');
+    if (!Platform.isIOS) {
+      add(1, 'LIVE', 'Wallpapers en movimiento — animaciones y efectos.');
+      add(2, '3D', 'Profundidad real al inclinar tu teléfono.');
+      add(3, 'Cultura',
+          'Descubre mitología e historia con cada wallpaper. Lee el códice de cada dios.');
+      add(4, 'Eventos',
+          'Colecciones de temporada exclusivas: Día de Muertos, Navidad, San Valentín.');
+      add(5, 'AURA', 'Sonidos para concentrarte, dormir o relajarte.');
+      add(6, 'ARCANO', 'Tu calendario lunar personalizado por signo.');
+    }
+    return s;
+  }
+
   @override
   void initState() {
     super.initState();
     CreditService.instance.addListener(_onCreditsChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeShowProtectPrompt();
+    });
+    // Auto-fire the guided tour the first time HomePage builds (cold start
+    // after onboarding + subscription pitch). Fires only if not seen yet.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await TrainingService.instance.init();
+      if (!mounted) return;
+      if (!TrainingService.instance.seen) {
+        // Wait one more frame so all tab widgets are laid out
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _showCoachMarks();
+        });
+      }
     });
   }
 
@@ -100,13 +244,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _onAvatarTap() {
-    final auth = AuthService.instance;
-
-    if (auth.isLoggedIn) {
-      setState(() => _currentIndex = _pages.length - 1);
-      return;
-    }
-    _showLoginSheet();
+    // Both logged-in and guest open the profile page; the page itself shows
+    // the right CTAs (Sign in with Google when guest, full data when user).
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const PerfilPage()),
+    );
   }
 
   void _showLoginSheet() {
@@ -278,25 +420,34 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildAvatar() {
-    final auth = AuthService.instance;
-    final h = context.hud;
-    final child = auth.isLoggedIn && auth.avatarUrl != null
-        ? CircleAvatar(
-            radius: 16,
-            backgroundImage: NetworkImage(auth.avatarUrl!),
-            backgroundColor: h.surface,
-          )
-        : CircleAvatar(
-            radius: 16,
-            backgroundColor: h.surface,
-            child: Icon(Icons.person, size: 18, color: h.textDim),
-          );
-    return GestureDetector(
-      onTap: _onAvatarTap,
-      child: Padding(
-        padding: const EdgeInsets.only(left: HudTokens.sp3),
-        child: _PlusHaloAvatar(child: child),
-      ),
+    return ListenableBuilder(
+      listenable: AuthService.instance,
+      builder: (context, _) {
+        final auth = AuthService.instance;
+        final h = context.hud;
+        // Bust the network image cache when the avatar URL changes between
+        // accounts so we don't show user A's photo for user B.
+        final url = auth.avatarUrl;
+        final child = auth.isLoggedIn && url != null
+            ? CircleAvatar(
+                key: ValueKey('avatar:${auth.currentUser?.id ?? ''}'),
+                radius: 16,
+                backgroundImage: NetworkImage(url),
+                backgroundColor: h.surface,
+              )
+            : CircleAvatar(
+                radius: 16,
+                backgroundColor: h.surface,
+                child: Icon(Icons.person, size: 18, color: h.textDim),
+              );
+        return GestureDetector(
+          onTap: _onAvatarTap,
+          child: Padding(
+            padding: const EdgeInsets.only(left: HudTokens.sp3),
+            child: _PlusHaloAvatar(child: child),
+          ),
+        );
+      },
     );
   }
 
@@ -547,10 +698,17 @@ class _HomePageState extends ConsumerState<HomePage> {
             children: [
               for (var i = 0; i < items.length; i++)
                 Expanded(
-                  child: _NavItem(
-                    data: items[i],
-                    active: _currentIndex == i,
-                    onTap: () => setState(() => _currentIndex = i),
+                  child: KeyedSubtree(
+                    key: _navKeys[i],
+                    child: _NavItem(
+                      data: items[i],
+                      active: _currentIndex == i,
+                      onTap: () {
+                        AnalyticsService.instance
+                            .trackTabView(items[i].label.toLowerCase());
+                        setState(() => _currentIndex = i);
+                      },
+                    ),
                   ),
                 ),
             ],
