@@ -4,6 +4,7 @@ import '../../features/day_cycle/data/models/day_cycle_theme.dart';
 import '../content/content_manager.dart';
 import '../content/content_types.dart';
 import '../content/content_url_resolver.dart';
+import 'wallpaper_engine_coordinator.dart';
 
 class DayCycleService {
   DayCycleService._();
@@ -11,12 +12,21 @@ class DayCycleService {
 
   static const _channel = MethodChannel('com.orbix.pixora/wallpaper');
 
+  /// Engine that was preempted by the most recent successful `activate()`.
+  WallpaperEngine lastPreempted = WallpaperEngine.none;
+
   Future<bool> activate(
     DayCycleTheme theme, {
     int target = 0,
     void Function(int current, int total)? onProgress,
   }) async {
     try {
+      // Mutex: stop AutoRotate / Story before claiming the wallpaper Surface.
+      lastPreempted = await WallpaperEngineCoordinator.instance.claim(
+        WallpaperEngine.dayCycle,
+        context: theme.id,
+      );
+
       final images = theme.allImages;
       final paths = <String>[];
 
@@ -57,6 +67,8 @@ class DayCycleService {
   Future<void> deactivate() async {
     try {
       await _channel.invokeMethod('stopDayCycle');
+      await WallpaperEngineCoordinator.instance
+          .release(WallpaperEngine.dayCycle);
     } catch (e) {
       debugPrint('[Pixora] Day cycle deactivation failed: $e');
     }

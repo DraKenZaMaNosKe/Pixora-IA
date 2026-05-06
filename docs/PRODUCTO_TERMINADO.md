@@ -116,9 +116,32 @@ Sin esos 4 puntos, la respuesta automática es: "No, ese feature va al backlog p
 
 ---
 
-## 📝 Anexos (si se justifica una excepción)
+## 📝 Anexos (excepciones documentadas)
 
-*Ningún anexo todavía. El pacto está intacto.*
+### Excepción #1 — 2026-05-05 (mismo día de la firma)
+**Feature:** AutoRotate ("Pixora Daily") — banner promocional + sección dedicada en home
+
+**Justificación:**
+- AutoRotate es feature core que ya existía pero estaba enterrada en Settings
+- UI completamente en inglés (bug de localización)
+- Compite directo con Bing Spotlight de Windows que NO tiene equivalente nativo en Android — diferenciador único de Pixora
+- Decisión del founder: "esa feature es indispensable, hay que potenciarla al máximo"
+
+**No cumple criterio #2** (3+ usuarios externos pidieron) porque la app ESTÁ en review de Google ese mismo día — no hay testers reales todavía.
+
+**Decisión escrita por Eduardo Javier Contreras Román 2026-05-05:**
+> *"Esta excepción se justifica porque AutoRotate es feature pre-existente que necesita rescate de UX, no feature nueva. La rompo conscientemente, asumiendo el riesgo de feature creep, porque considero que el ROI marketing-wise (diferenciación vs Zedge) supera el costo de complejidad."*
+
+**Estimación:**
+- Localización (Nivel 1): ~30 min, riesgo cero
+- Reorganización Settings (Nivel 2): ~15 min, riesgo cero
+- Banner promocional + sección dedicada (Nivel 3): ~3-5 horas + nuevos diseños + nuevo build/release
+- Versión target: v1.7.6+48
+
+**Lecciones para futuras excepciones:**
+- El founder es vulnerable a "una más" 2-3 horas después de firmar pactos
+- En el futuro, exigir cooling-off period de 48 horas antes de aprobar excepciones
+- La cláusula de "3+ users externos" debe ser dura, no opcional
 
 ---
 

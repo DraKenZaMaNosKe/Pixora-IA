@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'wallpaper_engine_coordinator.dart';
 
 /// Communicates with the Android native side for story wallpaper rotation.
 class StoryRotationService {
@@ -8,6 +9,9 @@ class StoryRotationService {
   static final instance = StoryRotationService._();
 
   static const _channel = MethodChannel('com.orbix.pixora/wallpaper');
+
+  /// Engine that was preempted by the most recent successful `startStory()`.
+  WallpaperEngine lastPreempted = WallpaperEngine.none;
 
   /// Starts a story rotation: sends image paths and interval to native side.
   /// The native WorkManager will cycle through the images.
@@ -20,6 +24,12 @@ class StoryRotationService {
   }) async {
     if (!Platform.isAndroid) return false;
     try {
+      // Mutex: stop AutoRotate / DayCycle before claiming the wallpaper.
+      lastPreempted = await WallpaperEngineCoordinator.instance.claim(
+        WallpaperEngine.story,
+        context: storyId,
+      );
+
       final result = await _channel.invokeMethod<bool>(
         'startStory',
         {
@@ -45,6 +55,7 @@ class StoryRotationService {
     if (!Platform.isAndroid) return false;
     try {
       final result = await _channel.invokeMethod<bool>('stopStory');
+      await WallpaperEngineCoordinator.instance.release(WallpaperEngine.story);
       return result ?? false;
     } on PlatformException catch (e) {
       debugPrint('[StoryRotation] stopStory error: ${e.message}');

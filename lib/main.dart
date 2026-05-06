@@ -13,6 +13,7 @@ import 'core/services/grace_pass_service.dart';
 import 'core/services/legal_service.dart';
 import 'core/services/subscription_service.dart';
 import 'core/services/theme_service.dart';
+import 'core/services/wallpaper_engine_coordinator.dart';
 import 'features/aura/services/aura_player_service.dart';
 import 'core/services/wallpaper_stats_service.dart';
 import 'core/theme/app_theme.dart';
@@ -69,6 +70,10 @@ Future<void> main() async {
     await GracePassService.instance.init();
     await AuraPlayerService.instance.init();
     AdService.instance.initialize();
+    // Sync the wallpaper engine coordinator from native state so we know
+    // which rotation engine (AutoRotate / DayCycle / Story) was active
+    // before app restart. Fire-and-forget — UI doesn't block on this.
+    unawaited(WallpaperEngineCoordinator.instance.syncFromNative());
     // Subscription init doesn't block app start — it queries Play Store and
     // Supabase in parallel. If a user is already signed in, onSignIn will
     // fire again once session hydrates.

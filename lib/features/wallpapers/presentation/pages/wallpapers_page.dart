@@ -3,6 +3,7 @@ import '../../../../core/design/hud_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/wallpaper_providers.dart';
 import '../widgets/hero_banner.dart';
+import '../widgets/pixora_daily_banner.dart';
 import '../widgets/wallpaper_carousel_row.dart';
 
 class WallpapersPage extends ConsumerWidget {
@@ -31,12 +32,11 @@ class WallpapersPage extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.cloud_off,
-                        color: context.hud.divider, size: 48),
+                    Icon(Icons.cloud_off, color: context.hud.divider, size: 48),
                     const SizedBox(height: 12),
                     Text('Failed to load wallpapers',
-                        style:
-                            TextStyle(color: Colors.white.withValues(alpha: 0.5))),
+                        style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5))),
                     const SizedBox(height: 8),
                     TextButton(
                       onPressed: () => ref.invalidate(catalogProvider),
@@ -52,6 +52,10 @@ class WallpapersPage extends ConsumerWidget {
           slivers: [
             // Hero Banner
             const SliverToBoxAdapter(child: HeroBanner()),
+
+            // Pixora Daily — featured entry point for the auto-rotating
+            // wallpaper feature (formerly buried in Settings).
+            const SliverToBoxAdapter(child: PixoraDailyBanner()),
 
             // Trending
             SliverToBoxAdapter(child: _TrendingRow()),

@@ -180,70 +180,41 @@ class AdService {
       return;
     }
 
-    // ─── Safety timeout against malformed creatives ─────────────────────────
-    // Some AdMob creatives (notably playable game ads like Royal Kingdom) ship
-    // with a close-button placement that gets occluded by the device status
-    // bar / notch. The user can't dismiss → onAdDismissed never fires → the
-    // calling install/apply flow hangs forever → main thread blocks → Android
-    // ANRs the app ("Wallpaper Pixora no responde"). Saw this in the wild
-    // 2026-05-05 with a Royal Kingdom interstitial during welcome-gift install.
-    //
-    // Fix: hard cap of 60s. If the ad SDK hasn't fired any callback by then,
-    // assume the creative is malformed, dispose, log it, and let the caller's
-    // install flow continue. The user has spent more than enough time staring
-    // at it; we owe them a way out.
-    var dismissed = false;
-    void completeOnce({required bool shownVal, Map<String, dynamic>? meta}) {
-      if (dismissed) return;
-      dismissed = true;
-      _logAd(
-        adKind: 'interstitial',
-        placement: placement,
-        wallpaperId: wallpaperId,
-        shown: shownVal,
-        metadata: meta,
-      );
-      if (shownVal) CreditService.instance.earnFromAd();
-      onAdDismissed();
-    }
-
-    final timeout = Timer(const Duration(seconds: 60), () {
-      if (dismissed) return;
-      debugPrint(
-          '[Pixora] Ad timeout — disposing stuck interstitial after 60s');
-      try {
-        _interstitialAd?.dispose();
-      } catch (_) {}
-      _interstitialAd = null;
-      _isAdLoaded = false;
-      loadInterstitialAd();
-      completeOnce(
-        shownVal: false,
-        meta: {'reason': 'safety_timeout_60s'},
-      );
-    });
-
     // ─── Show the ad ─────────────────────────────────────────────────────────
+    // Plain AdMob flow — let the SDK handle its own lifecycle. Previous
+    // safety-timeout (60s then 25s) reverted 2026-05-05 because user
+    // perceived the wait as "ad broken / paused" when it was actually
+    // AdMob's own internal countdown before the close button became
+    // tappable. AdMob ads always show their X eventually; trust the SDK.
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
-        timeout.cancel();
         ad.dispose();
         _interstitialAd = null;
         _isAdLoaded = false;
         loadInterstitialAd();
         // Log SHOWN: this is the revenue event.
-        completeOnce(shownVal: true);
+        _logAd(
+          adKind: 'interstitial',
+          placement: placement,
+          wallpaperId: wallpaperId,
+          shown: true,
+        );
+        CreditService.instance.earnFromAd();
+        onAdDismissed();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
-        timeout.cancel();
         ad.dispose();
         _interstitialAd = null;
         _isAdLoaded = false;
         loadInterstitialAd();
-        completeOnce(
-          shownVal: false,
-          meta: {'reason': 'show_failed', 'error': error.message},
+        _logAd(
+          adKind: 'interstitial',
+          placement: placement,
+          wallpaperId: wallpaperId,
+          shown: false,
+          metadata: {'reason': 'show_failed', 'error': error.message},
         );
+        onAdDismissed();
       },
     );
 

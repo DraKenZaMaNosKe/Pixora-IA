@@ -101,7 +101,10 @@ A `WallpaperService` Engine's Surface accepts **one producer at a time**: Canvas
 ### D. ClockRenderer hourly flash must check minute == 0
 `ClockRenderer.kt` triggers a full-screen glow flash when the hour changes. The condition must include `minute <= 1` — otherwise the flash fires when the user unlocks their phone 20 minutes after the hour, which makes no sense. The flash should only fire if the user is looking at the wallpaper at the actual hour change. Fixed in the `hour != lastHour && lastHour >= 0 && minute <= 1` guard.
 
-### E. GitHub Push Protection is active
+### E. Don't wrap AdMob with our own timeout/safety nets
+Tried twice (60s, then 25s). Both times the user perceived the ad as "broken / paused" because AdMob creatives have their OWN internal countdown before the close button becomes tappable — that countdown looks like a frozen ad to the user, but it's working as designed. Our timer only added confusion. The SDK always shows the X eventually; trust it. If a creative is genuinely abusive (no X, no countdown finish), block the advertiser in AdMob console — that's the right tool, not Flutter-side timers. History: reverted in 2026-05-05 after the user pushed back.
+
+### F. GitHub Push Protection is active
 Secret scanning blocks pushes containing Supabase JWTs, Google OAuth IDs/secrets, Freesound keys, keystore passwords, etc. Before committing anything that might contain a secret (docs, snapshots, config examples), grep for the patterns and redact. If a push is rejected, amend the commit — don't try to force it.
 
 ## Feature module map

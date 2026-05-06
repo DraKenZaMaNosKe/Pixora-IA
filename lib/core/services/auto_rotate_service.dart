@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'catalog_service.dart';
+import 'wallpaper_engine_coordinator.dart';
 
 /// Service for auto-rotating wallpapers at configurable intervals.
 ///
@@ -22,6 +23,11 @@ class AutoRotateService {
   /// [intervalMinutes] - time between changes (default 5)
   /// [target] - 0=Home, 1=Lock, 2=Both
   /// [category] - filter by category (null = all)
+  /// Engine that was preempted by the most recent successful `start()` call,
+  /// or [WallpaperEngine.none] if nothing was running. UI reads this once
+  /// after start to optionally show "Pixora Daily reemplazó a Day Cycle".
+  WallpaperEngine lastPreempted = WallpaperEngine.none;
+
   Future<bool> start({
     int intervalMinutes = 5,
     int target = 2,
@@ -30,6 +36,13 @@ class AutoRotateService {
     if (!Platform.isAndroid) return false;
 
     try {
+      // Mutex: stop competing engines (DayCycle / Story) before claiming
+      // the wallpaper Surface. Otherwise multiple engines fight for it.
+      lastPreempted = await WallpaperEngineCoordinator.instance.claim(
+        WallpaperEngine.pixoraDaily,
+        context: category,
+      );
+
       // Fetch catalog and build compact data for native
       final catalog = await CatalogService.instance.fetchCatalog();
       if (catalog.isEmpty) {
@@ -48,9 +61,8 @@ class AutoRotateService {
       }
 
       // Build compact catalog: "id|imageFile|glowColor" per entry
-      final catalogData = filtered.map((w) =>
-        '${w.id}|${w.imageFile}|${w.glowColor}'
-      ).toList();
+      final catalogData =
+          filtered.map((w) => '${w.id}|${w.imageFile}|${w.glowColor}').toList();
 
       final result = await _channel.invokeMethod<bool>(
         'startAutoRotate',
@@ -62,7 +74,8 @@ class AutoRotateService {
         },
       );
 
-      debugPrint('[AutoRotate] Started: ${filtered.length} wallpapers, ${intervalMinutes}min');
+      debugPrint(
+          '[AutoRotate] Started: ${filtered.length} wallpapers, ${intervalMinutes}min');
       return result ?? false;
     } on PlatformException catch (e) {
       debugPrint('[AutoRotate] Start error: ${e.message}');
@@ -78,6 +91,8 @@ class AutoRotateService {
     if (!Platform.isAndroid) return false;
     try {
       final result = await _channel.invokeMethod<bool>('stopAutoRotate');
+      await WallpaperEngineCoordinator.instance
+          .release(WallpaperEngine.pixoraDaily);
       debugPrint('[AutoRotate] Stopped');
       return result ?? false;
     } catch (e) {
