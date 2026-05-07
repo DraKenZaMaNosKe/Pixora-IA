@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>PIXORA · ARCANO — Section Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..800&family=Geist:wght@300..700&family=Noto+Serif+JP:wght@400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded">
+<style>
+  :root {
+    /* Page */
+    --ink: #050308;
+    --ink-2: #0a0814;
+    --paper: #f4ede0;
+    --gold: #d4af37;
+    --gold-warm: #e6c567;
+    --gold-deep: #8a6b1f;
+
+    /* iOS White (clean, native, soft) */
+    --ios-bg: #ffffff;
+    --ios-surface: #f8f8fa;
+    --ios-text: #0a0a0c;
+    --ios-text-2: #6b6b78;
+    --ios-divider: #e5e5ea;
+    --ios-blue: #007aff;
+    --ios-pink: #ff2d55;
+
+    /* Onyx (Black & Gold — current Pixora) */
+    --onyx-bg: #050308;
+    --onyx-surface: #0d0a18;
+    --onyx-surface-hi: #181226;
+    --onyx-text: #f4ede0;
+    --onyx-text-2: #807a8c;
+    --onyx-divider: #221a30;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #050308; color: var(--paper); }
+  body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 60px 32px 80px;
+    background:
+      radial-gradient(ellipse 1400px 800px at 50% 0%, #1a0d2e 0%, transparent 60%),
+      radial-gradient(ellipse 900px 600px at 80% 80%, #2b1340 0%, transparent 50%),
+      #050308;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Stars layer */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 15%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1px 1px at 22% 68%, rgba(212,175,55,.5), transparent),
+      radial-gradient(2px 2px at 37% 32%, rgba(255,255,255,.4), transparent),
+      radial-gradient(1px 1px at 51% 84%, rgba(212,175,55,.4), transparent),
+      radial-gradient(1.5px 1.5px at 68% 22%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 79% 56%, rgba(255,255,255,.3), transparent),
+      radial-gradient(2px 2px at 88% 78%, rgba(212,175,55,.4), transparent),
+      radial-gradient(1px 1px at 95% 11%, rgba(255,255,255,.5), transparent);
+    opacity: .8;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.85' /></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/></svg>");
+    z-index: 0;
+  }
+
+  /* Header */
+  .page-head {
+    position: relative; z-index: 2;
+    text-align: center;
+    margin-bottom: 80px;
+  }
+  .page-head .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.4em; color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .page-head h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(48px, 7vw, 96px);
+    color: var(--paper);
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+  .page-head h1 em {
+    font-weight: 600; color: var(--gold-warm); font-style: italic;
+  }
+  .page-head p.lede {
+    margin-top: 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: rgba(244,237,224,.65);
+    max-width: 680px;
+    margin-left: auto; margin-right: auto;
+    line-height: 1.5;
+  }
+
+  /* Onboarding section */
+  .onboarding {
+    position: relative; z-index: 2;
+    margin: 0 auto 100px;
+    max-width: 1100px;
+    padding: 48px;
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 24px;
+    background:
+      linear-gradient(135deg, rgba(212,175,55,.05) 0%, rgba(212,175,55,0) 50%),
+      rgba(13,10,24,.7);
+    backdrop-filter: blur(12px);
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 48px;
+    align-items: center;
+  }
+  .onboarding-text .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.3em;
+    color: var(--gold); text-transform: uppercase;
+    padding: 6px 12px; border: 1px solid rgba(212,175,55,.4);
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .onboarding-text h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    font-size: 38px; color: var(--paper); margin-bottom: 14px;
+    letter-spacing: -0.01em;
+  }
+  .onboarding-text p {
+    font-family: 'Inter', sans-serif;
+    color: rgba(244,237,224,.65);
+    line-height: 1.55;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .onboarding-text ul {
+    list-style: none;
+    margin-top: 18px;
+  }
+  .onboarding-text ul li {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: rgba(244,237,224,.75);
+    padding: 6px 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .onboarding-text ul li::before {
+    content: '✦'; color: var(--gold); font-size: 11px;
+  }
+
+  /* Main mockup grid */
+  .concepts-grid {
+    position: relative; z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 100px;
+  }
+
+  .concept {
+    display: grid;
+    grid-template-columns: 280px 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .concept-meta {
+    padding-top: 40px;
+  }
+  .concept-meta .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.3em;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .concept-meta h3 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+    font-size: 32px; line-height: 1.05;
+    color: var(--paper);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .concept-meta p.tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; color: rgba(244,237,224,.55);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .palette {
+    display: flex; gap: 6px;
+    margin-top: 16px;
+  }
+  .palette span {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.1);
+  }
+
+  /* Phone mockup base */
+  .phone {
+    width: 100%;
+    max-width: 340px;
+    aspect-ratio: 9 / 19.5;
+    border-radius: 38px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,.6),
+      0 0 0 2px #1a1a1f,
+      0 0 0 4px #2a2a30;
+    margin: 0 auto;
+  }
+  .phone .status {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 44px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 600;
+    z-index: 5;
+  }
+  .phone .notch {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 100px; height: 28px;
+    background: #000; border-radius: 18px;
+    z-index: 6;
+  }
+  .phone-label {
+    margin-top: 14px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: .8;
+  }
+  .phone-label.ios { color: var(--ios-blue); }
+
+  /* ─── PHONE THEME: iOS WHITE ─────────────────────────── */
+  .phone.ios {
+    background: var(--ios-bg);
+    color: var(--ios-text);
+  }
+  .phone.ios .status { color: var(--ios-text); }
+
+  /* ─── PHONE THEME: ONYX (Black & Gold) ─────────────── */
+  .phone.onyx {
+    background: var(--onyx-bg);
+    color: var(--onyx-text);
+  }
+  .phone.onyx .status { color: var(--onyx-text); }
+
+  /* Onboarding phone preview */
+  .phone-onboard {
+    width: 320px; aspect-ratio: 9 / 19.5;
+    border-radius: 36px;
+    overflow: hidden; position: relative;
+    box-shadow: 0 14px 50px rgba(0,0,0,.5), 0 0 0 2px #1a1a1f;
+    background: linear-gradient(180deg, #0a0512 0%, #1a0d2e 100%);
+  }
+  .phone-onboard .ob-content {
+    position: absolute; inset: 60px 28px 28px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+  }
+  .phone-onboard .ob-greet {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.3em;
+    color: var(--gold); margin-bottom: 12px; text-transform: uppercase;
+  }
+  .phone-onboard .ob-h {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 28px; line-height: 1.1; color: var(--paper); margin-bottom: 8px;
+  }
+  .phone-onboard .ob-sub {
+    font-family: 'Inter', sans-serif; font-size: 11px;
+    color: rgba(244,237,224,.6); line-height: 1.45; margin-bottom: 22px;
+  }
+  .phone-onboard .ob-field {
+    background: rgba(244,237,224,.06);
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 14px;
+    padding: 10px 14px; margin-bottom: 12px;
+  }
+  .phone-onboard .ob-field .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.25em;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 4px;
+  }
+  .phone-onboard .ob-field .val {
+    font-family: 'Fraunces', serif; font-size: 18px; color: var(--paper);
+  }
+  .phone-onboard .ob-field .val.placeholder {
+    color: rgba(244,237,224,.3); font-style: italic;
+  }
+  .phone-onboard .calendar {
+    background: rgba(13,10,24,.6);
+    border: 1px solid rgba(212,175,55,.2);
+    border-radius: 14px;
+    padding: 12px; margin-bottom: 14px;
+  }
+  .phone-onboard .calendar-head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Fraunces', serif; font-size: 13px; color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .phone-onboard .calendar-head .arrows { display: flex; gap: 4px; }
+  .phone-onboard .calendar-head .arrows span {
+    width: 18px; height: 18px; border: 1px solid rgba(212,175,55,.3);
+    border-radius: 6px; display: grid; place-items: center;
+    color: var(--gold); font-size: 10px;
+  }
+  .phone-onboard .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+    font-family: 'Inter', sans-serif; font-size: 9px;
+  }
+  .phone-onboard .cal-grid .day-name {
+    color: rgba(244,237,224,.4); text-align: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 7px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 4px 0;
+  }
+  .phone-onboard .cal-grid .day {
+    aspect-ratio: 1; display: grid; place-items: center;
+    color: rgba(244,237,224,.7); border-radius: 6px;
+    font-size: 9px;
+  }
+  .phone-onboard .cal-grid .day.dim { color: rgba(244,237,224,.2); }
+  .phone-onboard .cal-grid .day.sel {
+    background: var(--gold); color: var(--ink); font-weight: 700;
+  }
+  .phone-onboard .ob-cta {
+    background: linear-gradient(180deg, var(--gold-warm), var(--gold));
+    color: var(--ink);
+    padding: 12px; border-radius: 12px;
+    text-align: center;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .phone-onboard .ob-priv {
+    margin-top: 12px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.18em;
+    color: rgba(244,237,224,.4); text-transform: uppercase;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 01 — CARTAS DEL TAROT
+     ──────────────────────────────────────────────────────────── */
+  .c1-onyx {
+    background: linear-gradient(180deg, #1a0e3a 0%, #0a0512 60%, #050308 100%);
+  }
+  .c1-onyx .stage {
+    position: absolute; inset: 60px 0 0;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .c1-onyx .stage .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.3em;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .c1-onyx .stage h1 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 32px; color: var(--paper); margin-bottom: 6px;
+  }
+  .c1-onyx .stage .sub {
+    font-family: 'Inter', sans-serif; font-size: 10px;
+    color: rgba(244,237,224,.5); margin-bottom: 24px;
+  }
+  .c1-onyx .fan {
+    position: relative; width: 240px; height: 280px;
+    margin: 16px auto 0;
+  }
+  .c1-onyx .card {
+    position: absolute; width: 84px; height: 132px;
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, #1f1538 0%, #2d1f4f 100%);
+    border: 1px solid rgba(212,175,55,.4);
+    box-shadow: 0 10px 28px rgba(0,0,0,.55), inset 0 0 20px rgba(212,175,55,.06);
+    display: grid; place-items: center;
+    color: var(--gold);
+    font-size: 28px;
+    transform-origin: bottom center;
+  }
+  .c1-onyx .card::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 5px;
+  }
+  .c1-onyx .card:nth-child(1) { left: 30px; transform: rotate(-18deg) translateY(-20px); }
+  .c1-onyx .card:nth-child(2) { left: 60px; transform: rotate(-9deg) translateY(-30px); }
+  .c1-onyx .card:nth-child(3) { left: 78px; transform: rotate(0) translateY(-36px); z-index: 2; }
+  .c1-onyx .card:nth-child(3) { box-shadow: 0 14px 30px rgba(0,0,0,.7), 0 0 30px rgba(212,175,55,.3); border-color: var(--gold); }
+  .c1-onyx .card:nth-child(4) { left: 96px; transform: rotate(9deg) translateY(-30px); }
+  .c1-onyx .card:nth-child(5) { left: 126px; transform: rotate(18deg) translateY(-20px); }
+  .c1-onyx .footer {
+    position: absolute; bottom: 24px; left: 24px; right: 24px;
+    text-align: center;
+  }
+  .c1-onyx .footer .draw {
+    background: linear-gradient(180deg, var(--gold-warm), var(--gold));
+    color: var(--ink); padding: 12px;
+    border-radius: 14px; font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .c1-onyx .footer .name {
+    margin-top: 10px;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 11px; color: rgba(244,237,224,.5);
+  }
+
+  .c1-ios {
+    background: linear-gradient(180deg, #ffffff 0%, #f5f3f0 100%);
+  }
+  .c1-ios .stage {
+    position: absolute; inset: 60px 0 0;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .c1-ios .stage .lbl {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 10px; letter-spacing: 0.3em;
+    color: #8a6b1f; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .c1-ios .stage h1 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 28px; color: var(--ios-text); margin-bottom: 4px;
+  }
+  .c1-ios .stage .sub {
+    font-family: 'Geist', 'Inter', sans-serif; font-size: 11px;
+    color: var(--ios-text-2); margin-bottom: 24px;
+  }
+  .c1-ios .fan {
+    position: relative; width: 240px; height: 280px;
+    margin: 16px auto 0;
+  }
+  .c1-ios .card {
+    position: absolute; width: 84px; height: 132px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fffbef 0%, #f5e8c0 100%);
+    border: 1px solid rgba(138,107,31,.25);
+    box-shadow: 0 8px 22px rgba(138,107,31,.15);
+    display: grid; place-items: center;
+    color: #8a6b1f; font-size: 28px;
+    transform-origin: bottom center;
+  }
+  .c1-ios .card::before {
+    content: '';
+    position: absolute; inset: 5px;
+    border: 1px dashed rgba(138,107,31,.18);
+    border-radius: 8px;
+  }
+  .c1-ios .card:nth-child(1) { left: 30px; transform: rotate(-18deg) translateY(-20px); }
+  .c1-ios .card:nth-child(2) { left: 60px; transform: rotate(-9deg) translateY(-30px); }
+  .c1-ios .card:nth-child(3) { left: 78px; transform: rotate(0) translateY(-36px); z-index: 2;
+    background: linear-gradient(180deg, #fff7d4 0%, #f0d57a 100%);
+    box-shadow: 0 14px 32px rgba(212,175,55,.25); border-color: var(--gold);
+  }
+  .c1-ios .card:nth-child(4) { left: 96px; transform: rotate(9deg) translateY(-30px); }
+  .c1-ios .card:nth-child(5) { left: 126px; transform: rotate(18deg) translateY(-20px); }
+  .c1-ios .footer {
+    position: absolute; bottom: 24px; left: 24px; right: 24px;
+    text-align: center;
+  }
+  .c1-ios .footer .draw {
+    background: var(--ios-text); color: #fff;
+    padding: 14px; border-radius: 18px;
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 13px; font-weight: 600;
+  }
+  .c1-ios .footer .name {
+    margin-top: 10px;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 11px; color: var(--ios-text-2);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 02 — RUEDA ZODIACAL
+     ──────────────────────────────────────────────────────────── */
+  .c2-onyx {
+    background:
+      radial-gradient(circle at 50% 45%, #2d1b4f 0%, #0a0612 55%, #050308 100%);
+  }
+  .c2-onyx .head {
+    position: absolute; top: 60px; left: 0; right: 0; text-align: center;
+  }
+  .c2-onyx .head .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.3em; color: var(--gold);
+    text-transform: uppercase;
+  }
+  .c2-onyx .head h1 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 24px; color: var(--paper); margin-top: 4px;
+  }
+  .c2-onyx .wheel {
+    position: absolute; top: 130px; left: 50%; transform: translateX(-50%);
+    width: 240px; height: 240px;
+    border: 2px solid rgba(212,175,55,.3); border-radius: 50%;
+    display: grid; place-items: center;
+  }
+  .c2-onyx .wheel::before {
+    content: ''; position: absolute; inset: 18px;
+    border: 1px solid rgba(212,175,55,.2); border-radius: 50%;
+  }
+  .c2-onyx .wheel .center {
+    width: 70px; height: 70px; border-radius: 50%;
+    background: radial-gradient(circle, #d4af37, #8a6b1f);
+    box-shadow: 0 0 20px rgba(212,175,55,.5), inset 0 0 12px rgba(0,0,0,.3);
+    display: grid; place-items: center;
+    color: var(--ink); font-size: 32px; font-family: 'Fraunces', serif;
+  }
+  .c2-onyx .sign {
+    position: absolute; width: 26px; height: 26px;
+    border-radius: 50%; display: grid; place-items: center;
+    color: var(--gold); font-size: 14px;
+    background: rgba(13,10,24,.8);
+    border: 1px solid rgba(212,175,55,.3);
+  }
+  .c2-onyx .sign.user {
+    background: var(--gold); color: var(--ink);
+    box-shadow: 0 0 14px rgba(212,175,55,.6);
+    transform: scale(1.4);
+  }
+  /* 12 signs around the wheel */
+  .c2-onyx .sign:nth-child(1) { top: -8px; left: 50%; margin-left: -13px; }
+  .c2-onyx .sign:nth-child(2) { top: 24px; right: 20px; }
+  .c2-onyx .sign:nth-child(3) { top: 80px; right: -8px; }
+  .c2-onyx .sign:nth-child(4) { top: 130px; right: 12px; }
+  .c2-onyx .sign:nth-child(5) { bottom: 30px; right: 30px; }
+  .c2-onyx .sign:nth-child(6) { bottom: -8px; right: 60px; }
+  .c2-onyx .sign:nth-child(7) { bottom: -8px; left: 50%; margin-left: -13px; }
+  .c2-onyx .sign:nth-child(8) { bottom: -8px; left: 60px; }
+  .c2-onyx .sign:nth-child(9) { bottom: 30px; left: 30px; }
+  .c2-onyx .sign:nth-child(10) { top: 130px; left: 12px; }
+  .c2-onyx .sign:nth-child(11) { top: 80px; left: -8px; }
+  .c2-onyx .sign:nth-child(12) { top: 24px; left: 20px; }
+  .c2-onyx .below {
+    position: absolute; bottom: 70px; left: 24px; right: 24px;
+    text-align: center;
+  }
+  .c2-onyx .below .you {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.3em; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .c2-onyx .below h2 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 600;
+    font-size: 28px; color: var(--paper); margin-bottom: 4px;
+  }
+  .c2-onyx .below .energy {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 13px; color: rgba(244,237,224,.7);
+    line-height: 1.4;
+  }
+  .c2-onyx .freq {
+    position: absolute; bottom: 24px; left: 24px; right: 24px;
+    background: rgba(212,175,55,.08);
+    border: 1px solid rgba(212,175,55,.3);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .c2-onyx .freq .l { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--gold); letter-spacing: 0.2em; }
+  .c2-onyx .freq .v { font-family: 'Fraunces', serif; font-size: 16px; color: var(--paper); }
+
+  .c2-ios {
+    background: linear-gradient(180deg, #fafafa 0%, #f0f0f3 100%);
+  }
+  .c2-ios .head {
+    position: absolute; top: 60px; left: 0; right: 0; text-align: center;
+  }
+  .c2-ios .head .lbl {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 11px; letter-spacing: 0.25em; color: var(--ios-text-2);
+    text-transform: uppercase;
+  }
+  .c2-ios .head h1 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 22px; color: var(--ios-text); margin-top: 4px;
+  }
+  .c2-ios .wheel {
+    position: absolute; top: 130px; left: 50%; transform: translateX(-50%);
+    width: 240px; height: 240px;
+    border: 1.5px solid rgba(0,0,0,.08); border-radius: 50%;
+    background: radial-gradient(circle, #fff, #f5f5f7);
+    display: grid; place-items: center;
+    box-shadow: 0 8px 28px rgba(0,0,0,.06);
+  }
+  .c2-ios .wheel::before {
+    content: ''; position: absolute; inset: 18px;
+    border: 1px solid rgba(0,0,0,.05); border-radius: 50%;
+  }
+  .c2-ios .wheel .center {
+    width: 70px; height: 70px; border-radius: 50%;
+    background: linear-gradient(180deg, var(--gold-warm), var(--gold));
+    box-shadow: 0 6px 14px rgba(212,175,55,.3);
+    display: grid; place-items: center;
+    color: #fff; font-size: 32px; font-family: 'Fraunces', serif;
+  }
+  .c2-ios .sign {
+    position: absolute; width: 26px; height: 26px;
+    border-radius: 50%; display: grid; place-items: center;
+    color: var(--ios-text-2); font-size: 14px;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.06);
+  }
+  .c2-ios .sign.user {
+    background: linear-gradient(180deg, var(--gold-warm), var(--gold));
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(212,175,55,.4);
+    transform: scale(1.4);
+  }
+  .c2-ios .sign:nth-child(1) { top: -8px; left: 50%; margin-left: -13px; }
+  .c2-ios .sign:nth-child(2) { top: 24px; right: 20px; }
+  .c2-ios .sign:nth-child(3) { top: 80px; right: -8px; }
+  .c2-ios .sign:nth-child(4) { top: 130px; right: 12px; }
+  .c2-ios .sign:nth-child(5) { bottom: 30px; right: 30px; }
+  .c2-ios .sign:nth-child(6) { bottom: -8px; right: 60px; }
+  .c2-ios .sign:nth-child(7) { bottom: -8px; left: 50%; margin-left: -13px; }
+  .c2-ios .sign:nth-child(8) { bottom: -8px; left: 60px; }
+  .c2-ios .sign:nth-child(9) { bottom: 30px; left: 30px; }
+  .c2-ios .sign:nth-child(10) { top: 130px; left: 12px; }
+  .c2-ios .sign:nth-child(11) { top: 80px; left: -8px; }
+  .c2-ios .sign:nth-child(12) { top: 24px; left: 20px; }
+  .c2-ios .below {
+    position: absolute; bottom: 70px; left: 24px; right: 24px;
+    text-align: center;
+  }
+  .c2-ios .below .you {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 10px; letter-spacing: 0.25em; color: var(--ios-text-2);
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .c2-ios .below h2 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 28px; color: var(--ios-text); margin-bottom: 4px;
+  }
+  .c2-ios .below .energy {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 13px; color: var(--ios-text-2);
+    line-height: 1.4;
+  }
+  .c2-ios .freq {
+    position: absolute; bottom: 24px; left: 24px; right: 24px;
+    background: rgba(0,122,255,.05);
+    border: 1px solid rgba(0,122,255,.2);
+    border-radius: 14px;
+    padding: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .c2-ios .freq .l { font-family: 'Geist', 'Inter', sans-serif; font-size: 10px; color: var(--ios-blue); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; }
+  .c2-ios .freq .v { font-family: 'Fraunces', serif; font-size: 16px; color: var(--ios-text); }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 03 — OBSERVATORIO ASTRAL
+     ──────────────────────────────────────────────────────────── */
+  .c3-onyx {
+    background: linear-gradient(180deg, #050308 0%, #0a0512 50%, #050308 100%);
+  }
+  .c3-onyx .obs-content {
+    position: absolute; inset: 60px 20px 20px;
+    overflow: hidden;
+  }
+  .c3-onyx .top-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .c3-onyx .top-row .date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.18em; color: var(--gold);
+    text-transform: uppercase;
+  }
+  .c3-onyx .top-row .icon {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid rgba(212,175,55,.4);
+    display: grid; place-items: center; color: var(--gold);
+  }
+  .c3-onyx .moon-card {
+    background: radial-gradient(ellipse at top, #1a0f3a 0%, #0a0512 80%);
+    border: 1px solid rgba(212,175,55,.18);
+    border-radius: 16px;
+    padding: 18px 16px 22px;
+    text-align: center; margin-bottom: 14px;
+    position: relative; overflow: hidden;
+  }
+  .c3-onyx .moon-card .moon {
+    width: 86px; height: 86px; border-radius: 50%;
+    margin: 6px auto 12px;
+    background:
+      radial-gradient(circle at 35% 35%, #f5e9c2 0%, #d4af37 50%, #6e5418 95%);
+    box-shadow: 0 0 26px rgba(212,175,55,.4),
+                inset -16px -8px 20px rgba(0,0,0,.5);
+    position: relative;
+  }
+  .c3-onyx .moon-card .moon::after {
+    content: ''; position: absolute; inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 75% 50%, transparent 40%, rgba(0,0,0,.7) 75%);
+  }
+  .c3-onyx .moon-card .phase-name {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 18px; color: var(--paper); margin-bottom: 4px;
+  }
+  .c3-onyx .moon-card .pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.2em;
+    color: rgba(244,237,224,.5); text-transform: uppercase;
+  }
+  .c3-onyx .row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .c3-onyx .row .pill {
+    background: rgba(244,237,224,.04);
+    border: 1px solid rgba(212,175,55,.15);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .c3-onyx .row .pill .l {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    letter-spacing: 0.2em; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .c3-onyx .row .pill .v {
+    font-family: 'Fraunces', serif; font-size: 15px; color: var(--paper);
+  }
+  .c3-onyx .reading {
+    background: rgba(212,175,55,.06);
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .c3-onyx .reading .who {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    letter-spacing: 0.25em; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .c3-onyx .reading .text {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 12.5px; color: var(--paper); line-height: 1.45;
+  }
+  .c3-onyx .reading .text em {
+    color: var(--gold-warm); font-weight: 600;
+  }
+
+  .c3-ios {
+    background: var(--ios-bg);
+  }
+  .c3-ios .obs-content {
+    position: absolute; inset: 60px 20px 20px;
+  }
+  .c3-ios .top-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .c3-ios .top-row .date {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 11px; color: var(--ios-text-2);
+    text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;
+  }
+  .c3-ios .top-row .icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--ios-surface); display: grid; place-items: center;
+    color: var(--ios-text);
+  }
+  .c3-ios .moon-card {
+    background: var(--ios-surface);
+    border-radius: 22px;
+    padding: 22px 18px 24px;
+    text-align: center; margin-bottom: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.04);
+  }
+  .c3-ios .moon-card .moon {
+    width: 90px; height: 90px; border-radius: 50%;
+    margin: 6px auto 14px;
+    background:
+      radial-gradient(circle at 35% 35%, #fff8d8 0%, #f0d589 50%, #b08820 100%);
+    box-shadow: 0 6px 20px rgba(212,175,55,.35),
+                inset -16px -8px 20px rgba(0,0,0,.15);
+    position: relative;
+  }
+  .c3-ios .moon-card .moon::after {
+    content: ''; position: absolute; inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 75% 50%, transparent 40%, rgba(0,0,0,.45) 75%);
+  }
+  .c3-ios .moon-card .phase-name {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 19px; color: var(--ios-text); margin-bottom: 4px;
+  }
+  .c3-ios .moon-card .pct {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 11px; color: var(--ios-text-2);
+  }
+  .c3-ios .row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .c3-ios .row .pill {
+    background: var(--ios-surface);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .c3-ios .row .pill .l {
+    font-family: 'Geist', 'Inter', sans-serif; font-size: 10px;
+    color: var(--ios-text-2); margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+  }
+  .c3-ios .row .pill .v {
+    font-family: 'Fraunces', serif; font-size: 16px; color: var(--ios-text);
+  }
+  .c3-ios .reading {
+    background: linear-gradient(180deg, #fffbeb 0%, #fff5d4 100%);
+    border-radius: 18px;
+    padding: 16px;
+    border: 1px solid rgba(212,175,55,.2);
+  }
+  .c3-ios .reading .who {
+    font-family: 'Geist', 'Inter', sans-serif; font-size: 10px;
+    color: #8a6b1f; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.16em; font-weight: 700;
+  }
+  .c3-ios .reading .text {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 13.5px; color: var(--ios-text); line-height: 1.5;
+  }
+  .c3-ios .reading .text em {
+    color: #8a6b1f; font-weight: 600;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 04 — GRIMORIO ANTIGUO (Ancient Grimoire)
+     ──────────────────────────────────────────────────────────── */
+  .c4-onyx {
+    background:
+      radial-gradient(ellipse at center, #1a1208 0%, #0a0612 80%),
+      #0a0612;
+    color: #e8d9b3;
+  }
+  .c4-onyx::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='t'><feTurbulence baseFrequency='0.7' numOctaves='3' /><feColorMatrix values='0.4 0 0 0 0.05  0.3 0 0 0 0.04  0.1 0 0 0 0.02  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23t)'/></svg>");
+    opacity: .25; mix-blend-mode: overlay;
+  }
+  .c4-onyx .grim {
+    position: absolute; inset: 60px 24px 20px;
+    border: 1px solid rgba(212,175,55,.3);
+    padding: 22px 18px;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.2) 0%, rgba(0,0,0,0) 50%),
+      transparent;
+  }
+  .c4-onyx .grim::before, .c4-onyx .grim::after {
+    content: ''; position: absolute;
+    width: 24px; height: 24px;
+    border: 1px solid rgba(212,175,55,.5);
+  }
+  .c4-onyx .grim::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+  .c4-onyx .grim::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+  .c4-onyx .grim .ornament {
+    text-align: center; color: var(--gold);
+    font-size: 18px; margin-bottom: 8px;
+  }
+  .c4-onyx .grim h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    font-size: 26px; color: #f5e6b5;
+    text-align: center; margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .c4-onyx .grim .meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    text-align: center; color: rgba(232,217,179,.5);
+    letter-spacing: 0.3em; text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .c4-onyx .grim .body p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; line-height: 1.55;
+    color: rgba(232,217,179,.85);
+    text-align: justify;
+    text-indent: 14px;
+    margin-bottom: 10px;
+  }
+  .c4-onyx .grim .body p::first-letter {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 32px; color: var(--gold-warm);
+    float: left; line-height: 0.85; padding-right: 6px;
+  }
+  .c4-onyx .grim .sigil {
+    text-align: center; margin: 14px 0;
+    font-size: 28px; color: var(--gold);
+    opacity: .8;
+  }
+  .c4-onyx .grim .sign-line {
+    text-align: center;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 12px; color: var(--gold-warm);
+    border-top: 1px solid rgba(212,175,55,.25);
+    padding-top: 10px; margin-top: 10px;
+  }
+
+  .c4-ios {
+    background:
+      linear-gradient(180deg, #f7f0db 0%, #efe5c4 100%);
+    color: #4a3a1a;
+  }
+  .c4-ios::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='t'><feTurbulence baseFrequency='0.65' numOctaves='3' /><feColorMatrix values='0.6 0 0 0 0.4  0.5 0 0 0 0.3  0.3 0 0 0 0.15  0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23t)'/></svg>");
+    opacity: .35; mix-blend-mode: multiply;
+  }
+  .c4-ios .grim {
+    position: absolute; inset: 60px 24px 20px;
+    border: 1px solid rgba(74,58,26,.35);
+    padding: 22px 18px;
+  }
+  .c4-ios .grim::before, .c4-ios .grim::after {
+    content: ''; position: absolute;
+    width: 24px; height: 24px;
+    border: 1px solid rgba(74,58,26,.5);
+  }
+  .c4-ios .grim::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+  .c4-ios .grim::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+  .c4-ios .grim .ornament {
+    text-align: center; color: #8a6b1f; font-size: 18px; margin-bottom: 8px;
+  }
+  .c4-ios .grim h1 {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 400;
+    font-size: 26px; color: #4a3a1a;
+    text-align: center; margin-bottom: 6px;
+  }
+  .c4-ios .grim .meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    text-align: center; color: rgba(74,58,26,.6);
+    letter-spacing: 0.3em; text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .c4-ios .grim .body p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; line-height: 1.55;
+    color: rgba(74,58,26,.9);
+    text-align: justify; text-indent: 14px;
+    margin-bottom: 10px;
+  }
+  .c4-ios .grim .body p::first-letter {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 32px; color: #8a6b1f;
+    float: left; line-height: 0.85; padding-right: 6px;
+  }
+  .c4-ios .grim .sigil {
+    text-align: center; margin: 14px 0;
+    font-size: 28px; color: #8a6b1f; opacity: .8;
+  }
+  .c4-ios .grim .sign-line {
+    text-align: center;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 12px; color: #8a6b1f;
+    border-top: 1px solid rgba(74,58,26,.3);
+    padding-top: 10px; margin-top: 10px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 05 — AURA RESONANCE (Crystal/Solfeggio)
+     ──────────────────────────────────────────────────────────── */
+  .c5-onyx {
+    background:
+      radial-gradient(circle at 50% 30%, rgba(212,175,55,.15) 0%, transparent 60%),
+      linear-gradient(180deg, #0a0612 0%, #050308 100%);
+  }
+  .c5-onyx .stage {
+    position: absolute; inset: 60px 24px 20px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .c5-onyx .top { text-align: center; margin-bottom: 14px; }
+  .c5-onyx .top .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.3em; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .c5-onyx .top h1 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 22px; color: var(--paper);
+  }
+  .c5-onyx .crystal {
+    width: 180px; height: 180px;
+    margin: 16px auto 12px;
+    position: relative;
+  }
+  .c5-onyx .crystal .core {
+    position: absolute; inset: 30%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff8e0 0%, #d4af37 60%, #6e5418 100%);
+    box-shadow: 0 0 40px rgba(212,175,55,.6);
+  }
+  .c5-onyx .crystal .ring {
+    position: absolute; inset: 0;
+    border: 1px solid rgba(212,175,55,.3); border-radius: 50%;
+    animation: pulse 4s infinite ease-in-out;
+  }
+  .c5-onyx .crystal .ring.r2 { inset: 12%; opacity: .7; animation-delay: 1s; }
+  .c5-onyx .crystal .ring.r3 { inset: 22%; opacity: .5; animation-delay: 2s; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: .8; }
+    50% { transform: scale(1.05); opacity: .4; }
+  }
+  .c5-onyx .freq-display {
+    text-align: center; margin-bottom: 12px;
+  }
+  .c5-onyx .freq-display .num {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 48px; color: var(--gold-warm);
+    line-height: 1;
+  }
+  .c5-onyx .freq-display .num em {
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 14px; color: var(--gold);
+    letter-spacing: 0.2em; vertical-align: super;
+  }
+  .c5-onyx .freq-display .name {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 13px; color: rgba(244,237,224,.7);
+    margin-top: 4px;
+  }
+  .c5-onyx .play {
+    background: linear-gradient(180deg, var(--gold-warm), var(--gold));
+    color: var(--ink); padding: 12px 28px;
+    border-radius: 24px;
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+  }
+  .c5-onyx .you-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.25em; color: rgba(244,237,224,.5);
+    text-transform: uppercase; text-align: center;
+  }
+  .c5-onyx .you-line strong { color: var(--gold-warm); font-weight: 600; }
+
+  .c5-ios {
+    background: linear-gradient(180deg, #fff 0%, #f8f4ff 100%);
+  }
+  .c5-ios .stage {
+    position: absolute; inset: 60px 24px 20px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .c5-ios .top { text-align: center; margin-bottom: 14px; }
+  .c5-ios .top .lbl {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; color: var(--ios-text-2);
+    text-transform: uppercase; margin-bottom: 4px; font-weight: 600;
+  }
+  .c5-ios .top h1 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 22px; color: var(--ios-text);
+  }
+  .c5-ios .crystal {
+    width: 180px; height: 180px;
+    margin: 16px auto 12px;
+    position: relative;
+  }
+  .c5-ios .crystal .core {
+    position: absolute; inset: 30%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, #ffe8c8 50%, #e6c780 100%);
+    box-shadow: 0 0 40px rgba(212,175,55,.4);
+  }
+  .c5-ios .crystal .ring {
+    position: absolute; inset: 0;
+    border: 1.5px solid rgba(212,175,55,.35); border-radius: 50%;
+    animation: pulse 4s infinite ease-in-out;
+  }
+  .c5-ios .crystal .ring.r2 { inset: 12%; opacity: .7; animation-delay: 1s; border-color: rgba(0,122,255,.2); }
+  .c5-ios .crystal .ring.r3 { inset: 22%; opacity: .5; animation-delay: 2s; }
+  .c5-ios .freq-display {
+    text-align: center; margin-bottom: 12px;
+  }
+  .c5-ios .freq-display .num {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 48px; color: var(--ios-text);
+    line-height: 1;
+  }
+  .c5-ios .freq-display .num em {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-style: normal; font-weight: 600;
+    font-size: 13px; color: var(--ios-text-2);
+    letter-spacing: 0.1em; vertical-align: super;
+  }
+  .c5-ios .freq-display .name {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 13px; color: var(--ios-text-2);
+    margin-top: 4px;
+  }
+  .c5-ios .play {
+    background: var(--ios-blue);
+    color: #fff; padding: 12px 28px;
+    border-radius: 24px;
+    font-family: 'Geist', 'Inter', sans-serif; font-weight: 600;
+    font-size: 13px;
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 14px rgba(0,122,255,.25);
+  }
+  .c5-ios .you-line {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 11px; color: var(--ios-text-2);
+    text-transform: uppercase; text-align: center; letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .c5-ios .you-line strong { color: var(--ios-text); }
+
+  /* Footer */
+  .footer {
+    margin-top: 100px;
+    padding-top: 30px; border-top: 1px solid rgba(212,175,55,.15);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.3em;
+    color: rgba(244,237,224,.4); text-transform: uppercase;
+  }
+
+  /* Section divider */
+  .section-divider {
+    text-align: center;
+    margin: 70px auto 50px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.5em;
+    color: var(--gold); text-transform: uppercase;
+    position: relative;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    position: absolute; top: 50%;
+    width: 200px; height: 1px;
+    background: rgba(212,175,55,.25);
+  }
+  .section-divider::before { left: calc(50% - 240px); }
+  .section-divider::after { right: calc(50% - 240px); }
+
+  @media (max-width: 1100px) {
+    .concept { grid-template-columns: 1fr 1fr; }
+    .concept-meta { grid-column: 1 / -1; padding-top: 0; text-align: center; }
+    .palette { justify-content: center; }
+    .onboarding { grid-template-columns: 1fr; }
+    .phone-onboard { margin: 0 auto; }
+  }
+  @media (max-width: 700px) {
+    .concept { grid-template-columns: 1fr; }
+    .phone { max-width: 280px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="label">Pixora · Design Archive · Vol 08</div>
+  <h1>ARCANO<br><em>section concepts</em></h1>
+  <p class="lede">
+    Diez direcciones para la nueva sección dedicada a calendarios lunares,
+    rituales y lecturas personalizadas. Cinco conceptos × dos temas (iOS White
+    + Onyx). Mismo Eduardo (Tauro · 12 mayo 1990 · Cuarto Creciente 38%) en
+    todos para comparar visualmente.
+  </p>
+</header>
+
+<!-- ─── ONBOARDING ─── -->
+<section class="onboarding">
+  <div class="onboarding-text">
+    <span class="badge">Step 0 · One-Time Setup</span>
+    <h2>Antes de cruzar el umbral.</h2>
+    <p>
+      Al entrar a ARCANO por primera vez, Pixora pide nombre y fecha de
+      nacimiento. Con eso calculamos signo zodiacal, número de Vida, frecuencia
+      Solfeggio personal, y compatibilidades con cada calendario cultural.
+    </p>
+    <ul>
+      <li>Almacenado <strong>solo en el dispositivo</strong> (Hive). Jamás sube a Supabase.</li>
+      <li>Editable cuando quieras desde Ajustes → Mi Perfil.</li>
+      <li>Si decides no llenarlo, ARCANO funciona en modo genérico sin lecturas personales.</li>
+      <li>Calendario nativo del sistema con scroll mes-a-mes.</li>
+    </ul>
+  </div>
+  <div class="phone-onboard">
+    <div class="ob-content">
+      <div>
+        <div class="ob-greet">⌬ Bienvenido al umbral</div>
+        <div class="ob-h"><em>Hola,<br>cuéntanos de ti.</em></div>
+        <div class="ob-sub">Necesitamos solo dos datos para personalizar tu experiencia. Nada se sube a internet.</div>
+
+        <div class="ob-field">
+          <div class="lbl">Nombre</div>
+          <div class="val">Eduardo</div>
+        </div>
+
+        <div class="calendar">
+          <div class="calendar-head">
+            <span>Mayo 1990</span>
+            <div class="arrows"><span>‹</span><span>›</span></div>
+          </div>
+          <div class="cal-grid">
+            <div class="day-name">D</div><div class="day-name">L</div><div class="day-name">M</div><div class="day-name">M</div><div class="day-name">J</div><div class="day-name">V</div><div class="day-name">S</div>
+            <div class="day dim">29</div><div class="day dim">30</div><div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div><div class="day">5</div>
+            <div class="day">6</div><div class="day">7</div><div class="day">8</div><div class="day">9</div><div class="day">10</div><div class="day">11</div><div class="day sel">12</div>
+            <div class="day">13</div><div class="day">14</div><div class="day">15</div><div class="day">16</div><div class="day">17</div><div class="day">18</div><div class="day">19</div>
+            <div class="day">20</div><div class="day">21</div><div class="day">22</div><div class="day">23</div><div class="day">24</div><div class="day">25</div><div class="day">26</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="ob-cta">⤳ Cruzar el umbral</div>
+        <div class="ob-priv">🔒 Solo en este dispositivo</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider">5 conceptos · 2 temas · 10 mockups</div>
+
+<!-- ─── CONCEPTS GRID ─── -->
+<div class="concepts-grid">
+
+  <!-- ═══ CONCEPT 01 — CARTAS DEL TAROT ═══ -->
+  <div class="concept">
+    <div class="concept-meta">
+      <div class="num">// NO. 01</div>
+      <h3>Cartas del Tarot</h3>
+      <p class="tag">Spread de cartas boca abajo. Toca una para revelar tu wallpaper del día. Mística interactiva, ritual diario.</p>
+      <div class="palette">
+        <span style="background:#1f1538"></span>
+        <span style="background:#d4af37"></span>
+        <span style="background:#fff8c8"></span>
+        <span style="background:#0a0512"></span>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone onyx c1-onyx">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="stage">
+          <div class="lbl">Arcano · Lectura del día</div>
+          <h1>Tu Spread</h1>
+          <div class="sub">Toca la carta del centro</div>
+          <div class="fan">
+            <div class="card">𓂀</div>
+            <div class="card">♉</div>
+            <div class="card">☾</div>
+            <div class="card">⚸</div>
+            <div class="card">𓋹</div>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="draw">Revelar mi carta</div>
+          <div class="name">Eduardo · Tauro</div>
+        </div>
+      </div>
+      <div class="phone-label">Onyx · Black & Gold</div>
+    </div>
+
+    <div>
+      <div class="phone ios c1-ios">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="stage">
+          <div class="lbl">Arcano · Lectura del día</div>
+          <h1>Tu Spread</h1>
+          <div class="sub">Toca la carta del centro</div>
+          <div class="fan">
+            <div class="card">𓂀</div>
+            <div class="card">♉</div>
+            <div class="card">☾</div>
+            <div class="card">⚸</div>
+            <div class="card">𓋹</div>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="draw">Revelar mi carta</div>
+          <div class="name">Eduardo · Tauro</div>
+        </div>
+      </div>
+      <div class="phone-label ios">iOS · White</div>
+    </div>
+  </div>
+
+  <!-- ═══ CONCEPT 02 — RUEDA ZODIACAL ═══ -->
+  <div class="concept">
+    <div class="concept-meta">
+      <div class="num">// NO. 02</div>
+      <h3>Rueda Zodiacal</h3>
+      <p class="tag">Wheel circular como navegación principal. Tu signo brilla en el centro, los 11 restantes orbitan. Tap para explorar.</p>
+      <div class="palette">
+        <span style="background:#2d1b4f"></span>
+        <span style="background:#d4af37"></span>
+        <span style="background:#0a0612"></span>
+        <span style="background:#f4ede0"></span>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone onyx c2-onyx">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="head">
+          <div class="lbl">Tu cielo de hoy</div>
+          <h1>Mayo · Cuarto Creciente</h1>
+        </div>
+        <div class="wheel">
+          <div class="sign">♈</div>
+          <div class="sign user">♉</div>
+          <div class="sign">♊</div>
+          <div class="sign">♋</div>
+          <div class="sign">♌</div>
+          <div class="sign">♍</div>
+          <div class="sign">♎</div>
+          <div class="sign">♏</div>
+          <div class="sign">♐</div>
+          <div class="sign">♑</div>
+          <div class="sign">♒</div>
+          <div class="sign">♓</div>
+          <div class="center">☾</div>
+        </div>
+        <div class="below">
+          <div class="you">Eduardo · Caballero de Tauro</div>
+          <h2>Día de manifestación</h2>
+          <div class="energy">Tu energía hoy es de raíces firmes y pasos lentos. La luna favorece comprometerte.</div>
+        </div>
+        <div class="freq">
+          <div class="l">Frecuencia · 528 Hz</div>
+          <div class="v">Reparación</div>
+        </div>
+      </div>
+      <div class="phone-label">Onyx · Black & Gold</div>
+    </div>
+
+    <div>
+      <div class="phone ios c2-ios">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="head">
+          <div class="lbl">Tu cielo · 12 Jun</div>
+          <h1>Cuarto Creciente</h1>
+        </div>
+        <div class="wheel">
+          <div class="sign">♈</div>
+          <div class="sign user">♉</div>
+          <div class="sign">♊</div>
+          <div class="sign">♋</div>
+          <div class="sign">♌</div>
+          <div class="sign">♍</div>
+          <div class="sign">♎</div>
+          <div class="sign">♏</div>
+          <div class="sign">♐</div>
+          <div class="sign">♑</div>
+          <div class="sign">♒</div>
+          <div class="sign">♓</div>
+          <div class="center">☾</div>
+        </div>
+        <div class="below">
+          <div class="you">Eduardo · Tauro</div>
+          <h2>Día de manifestación</h2>
+          <div class="energy">Tu energía hoy es de raíces firmes y pasos lentos. La luna favorece comprometerte.</div>
+        </div>
+        <div class="freq">
+          <div class="l">Frecuencia · 528 Hz</div>
+          <div class="v">Reparación</div>
+        </div>
+      </div>
+      <div class="phone-label ios">iOS · White</div>
+    </div>
+  </div>
+
+  <!-- ═══ CONCEPT 03 — OBSERVATORIO ASTRAL ═══ -->
+  <div class="concept">
+    <div class="concept-meta">
+      <div class="num">// NO. 03</div>
+      <h3>Observatorio Astral</h3>
+      <p class="tag">Layout de almanaque vertical. Hero card de la luna real arriba, tarjetas de datos, lectura del día abajo. Astronómicamente preciso.</p>
+      <div class="palette">
+        <span style="background:#1a0f3a"></span>
+        <span style="background:#d4af37"></span>
+        <span style="background:#fff8d8"></span>
+        <span style="background:#050308"></span>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone onyx c3-onyx">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="obs-content">
+          <div class="top-row">
+            <div class="date">Vie 12 · Mayo 2026</div>
+            <div class="icon">⌖</div>
+          </div>
+          <div class="moon-card">
+            <div class="moon"></div>
+            <div class="phase-name">Cuarto Creciente</div>
+            <div class="pct">38% iluminada</div>
+          </div>
+          <div class="row">
+            <div class="pill"><div class="l">Próximo</div><div class="v">Llena · 8d</div></div>
+            <div class="pill"><div class="l">Signo</div><div class="v">Tauro ♉</div></div>
+          </div>
+          <div class="reading">
+            <div class="who">Lectura · Eduardo</div>
+            <div class="text">Hoy <em>Iah</em> camina sobre tu casa. Las decisiones lentas son las que pesarán mañana. Vibra a <em>528 Hz</em>.</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">Onyx · Black & Gold</div>
+    </div>
+
+    <div>
+      <div class="phone ios c3-ios">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="obs-content">
+          <div class="top-row">
+            <div class="date">Vie · 12 Mayo</div>
+            <div class="icon">⌖</div>
+          </div>
+          <div class="moon-card">
+            <div class="moon"></div>
+            <div class="phase-name">Cuarto Creciente</div>
+            <div class="pct">38% iluminada</div>
+          </div>
+          <div class="row">
+            <div class="pill"><div class="l">Próximo</div><div class="v">Llena · 8d</div></div>
+            <div class="pill"><div class="l">Signo</div><div class="v">Tauro ♉</div></div>
+          </div>
+          <div class="reading">
+            <div class="who">Lectura · Eduardo</div>
+            <div class="text">Hoy <em>Iah</em> camina sobre tu casa. Las decisiones lentas son las que pesarán mañana. Vibra a <em>528 Hz</em>.</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label ios">iOS · White</div>
+    </div>
+  </div>
+
+  <!-- ═══ CONCEPT 04 — GRIMORIO ANTIGUO ═══ -->
+  <div class="concept">
+    <div class="concept-meta">
+      <div class="num">// NO. 04</div>
+      <h3>Grimorio Antiguo</h3>
+      <p class="tag">Estética de manuscrito iluminado. Cada día es una página de pergamino con dropcap, sigilos y firma del día. Sagrado, único.</p>
+      <div class="palette">
+        <span style="background:#1a1208"></span>
+        <span style="background:#f5e6b5"></span>
+        <span style="background:#d4af37"></span>
+        <span style="background:#f7f0db"></span>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone onyx c4-onyx">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="grim">
+          <div class="ornament">❦</div>
+          <h1>De Iah, la Lunar</h1>
+          <div class="meta">Folio XXXVIII · Mayo de MMXXVI</div>
+          <div class="body">
+            <p>Las cartas del cielo se inclinan hacia el toro paciente. La luna en su cuarto creciente bendice las raíces que el tiempo ha cuidado.</p>
+            <p>Vibra hoy a quinientos veintiocho hercios. Ofrenda algo dorado al amanecer.</p>
+          </div>
+          <div class="sigil">𓂀  ⚸  𓋹</div>
+          <div class="sign-line">— Para Eduardo, Caballero de Tauro</div>
+        </div>
+      </div>
+      <div class="phone-label">Onyx · Black & Gold</div>
+    </div>
+
+    <div>
+      <div class="phone ios c4-ios">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="grim">
+          <div class="ornament">❦</div>
+          <h1>De Iah, la Lunar</h1>
+          <div class="meta">Folio XXXVIII · Mayo de MMXXVI</div>
+          <div class="body">
+            <p>Las cartas del cielo se inclinan hacia el toro paciente. La luna en su cuarto creciente bendice las raíces que el tiempo ha cuidado.</p>
+            <p>Vibra hoy a quinientos veintiocho hercios. Ofrenda algo dorado al amanecer.</p>
+          </div>
+          <div class="sigil">𓂀  ⚸  𓋹</div>
+          <div class="sign-line">— Para Eduardo, Caballero de Tauro</div>
+        </div>
+      </div>
+      <div class="phone-label ios">iOS · White (papel cremoso)</div>
+    </div>
+  </div>
+
+  <!-- ═══ CONCEPT 05 — AURA RESONANCE ═══ -->
+  <div class="concept">
+    <div class="concept-meta">
+      <div class="num">// NO. 05</div>
+      <h3>AURA Resonance</h3>
+      <p class="tag">Integra con AURA wellness. Frecuencia Solfeggio del día renderizada como cristal pulsante, botón play directo a la track de meditación.</p>
+      <div class="palette">
+        <span style="background:#0a0612"></span>
+        <span style="background:#d4af37"></span>
+        <span style="background:#007aff"></span>
+        <span style="background:#fff"></span>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone onyx c5-onyx">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="stage">
+          <div class="top">
+            <div class="lbl">Resonancia del día</div>
+            <h1>Tu frecuencia</h1>
+          </div>
+          <div class="crystal">
+            <div class="ring"></div>
+            <div class="ring r2"></div>
+            <div class="ring r3"></div>
+            <div class="core"></div>
+          </div>
+          <div class="freq-display">
+            <div class="num">528<em>Hz</em></div>
+            <div class="name">— Reparación · Amor —</div>
+          </div>
+          <div class="play">▶ Meditar 12 min</div>
+          <div class="you-line">Para <strong>Eduardo</strong> · Tauro</div>
+        </div>
+      </div>
+      <div class="phone-label">Onyx · Black & Gold</div>
+    </div>
+
+    <div>
+      <div class="phone ios c5-ios">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● ●●</span></div>
+        <div class="stage">
+          <div class="top">
+            <div class="lbl">Resonancia del día</div>
+            <h1>Tu frecuencia</h1>
+          </div>
+          <div class="crystal">
+            <div class="ring"></div>
+            <div class="ring r2"></div>
+            <div class="ring r3"></div>
+            <div class="core"></div>
+          </div>
+          <div class="freq-display">
+            <div class="num">528<em>Hz</em></div>
+            <div class="name">— Reparación · Amor —</div>
+          </div>
+          <div class="play">▶ Meditar 12 min</div>
+          <div class="you-line">Para <strong>Eduardo</strong> · Tauro</div>
+        </div>
+      </div>
+      <div class="phone-label ios">iOS · White</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Pixora · Design Archive · Vol 08 · Entry 030
+</div>
+
+</body>
+</html>

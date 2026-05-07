@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>PIXORA · ARCANO — Constelación Real + Elementos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #050308;
+    --paper: #f4ede0;
+    --gold: #d4af37;
+    --gold-warm: #f5d676;
+    /* Element colors */
+    --fire:  #ff6b47;
+    --earth: #7cb872;
+    --air:   #b8a4e3;
+    --water: #4fb7cb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(ellipse 1400px 800px at 50% 0%, #1a0d2e 0%, transparent 60%),
+      radial-gradient(ellipse 900px 600px at 80% 80%, #2b1340 0%, transparent 50%),
+      var(--ink);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 48px 32px 80px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 15%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1px 1px at 22% 68%, rgba(212,175,55,.5), transparent),
+      radial-gradient(2px 2px at 37% 32%, rgba(255,255,255,.4), transparent),
+      radial-gradient(1px 1px at 51% 84%, rgba(212,175,55,.4), transparent),
+      radial-gradient(1.5px 1.5px at 68% 22%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 79% 56%, rgba(255,255,255,.3), transparent),
+      radial-gradient(2px 2px at 88% 78%, rgba(212,175,55,.4), transparent);
+    z-index: 0;
+  }
+
+  .head {
+    text-align: center;
+    margin-bottom: 32px;
+    position: relative; z-index: 2;
+  }
+  .head .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.4em; color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .head h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic; font-weight: 300;
+    font-size: clamp(38px, 6vw, 70px);
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+  .head h1 em { color: var(--gold-warm); font-weight: 600; font-style: italic; }
+  .head p {
+    margin-top: 18px;
+    color: rgba(244,237,224,.65);
+    max-width: 720px;
+    margin-left: auto; margin-right: auto;
+    line-height: 1.55;
+    font-size: 14px;
+  }
+
+  /* Element legend */
+  .legend {
+    max-width: 700px;
+    margin: 28px auto 50px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    position: relative; z-index: 2;
+  }
+  .leg {
+    background: rgba(13,10,24,.6);
+    border: 1px solid rgba(212,175,55,.18);
+    padding: 14px 12px;
+    border-radius: 14px;
+    text-align: center;
+  }
+  .leg .swatch {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    box-shadow: 0 0 14px currentColor;
+  }
+  .leg .name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    opacity: .8;
+  }
+  .leg .signs {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: rgba(244,237,224,.7);
+  }
+  .leg.fire  { color: var(--fire);  }  .leg.fire  .swatch { background: var(--fire);  }
+  .leg.earth { color: var(--earth); }  .leg.earth .swatch { background: var(--earth); }
+  .leg.air   { color: var(--air);   }  .leg.air   .swatch { background: var(--air);   }
+  .leg.water { color: var(--water); }  .leg.water .swatch { background: var(--water); }
+
+  /* Hero — the chosen concept #03 BIG */
+  .hero {
+    max-width: 720px;
+    margin: 0 auto 60px;
+    text-align: center;
+    position: relative; z-index: 2;
+  }
+  .hero .winner-pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.4em;
+    color: var(--ink); background: var(--gold-warm);
+    padding: 6px 14px; border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .hero h2 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-weight: 500;
+    font-size: clamp(32px, 5vw, 52px);
+    color: var(--paper); letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .hero p { color: rgba(244,237,224,.6); font-size: 14px; line-height: 1.55; }
+
+  .stage-big {
+    width: 100%;
+    max-width: 540px;
+    aspect-ratio: 1 / 1;
+    margin: 28px auto 0;
+    position: relative;
+    background: radial-gradient(circle at 50% 45%, #2d1b4f 0%, #0a0612 65%, #050308 100%);
+    border: 1px solid rgba(212,175,55,.2);
+    border-radius: 24px;
+    overflow: hidden;
+  }
+
+  .grid {
+    max-width: 1200px;
+    margin: 50px auto 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 26px;
+    position: relative; z-index: 2;
+  }
+  .concept {
+    background: rgba(13,10,24,.7);
+    border: 1px solid rgba(212,175,55,.15);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .concept .stage {
+    position: relative;
+    width: 100%; aspect-ratio: 1 / 1;
+    background: radial-gradient(circle at 50% 45%, #2d1b4f 0%, #0a0612 70%);
+  }
+  .concept .info { padding: 14px 16px 18px; border-top: 1px solid rgba(212,175,55,.1); }
+  .concept .info .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.3em;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .concept .info h3 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 18px; color: var(--paper);
+    margin-bottom: 4px;
+  }
+  .concept .info p {
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px; color: rgba(244,237,224,.55);
+    line-height: 1.45;
+  }
+
+  /* SVG common */
+  .wheel-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .wheel-circle { fill: none; stroke: rgba(212,175,55,.25); stroke-width: 1.5; }
+  .wheel-circle.inner { stroke: rgba(212,175,55,.18); }
+  .sign-glyph {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    text-anchor: middle;
+    dominant-baseline: central;
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+  .sign-glyph.user { font-size: 28px; }
+
+  /* Concept-specific user-sign animations */
+  .constellation-line {
+    stroke: var(--air);
+    stroke-width: 1.2;
+    fill: none;
+    opacity: .85;
+    animation: line-flicker 3s ease-in-out infinite;
+  }
+  .constellation-star {
+    fill: var(--air);
+    animation: star-twinkle 2s ease-in-out infinite;
+  }
+  .constellation-star.s2 { animation-delay: .4s; }
+  .constellation-star.s3 { animation-delay: .8s; }
+  .constellation-star.s4 { animation-delay: 1.2s; }
+  .constellation-star.s5 { animation-delay: 1.6s; }
+  @keyframes line-flicker {
+    0%, 100% { opacity: .85; }
+    50% { opacity: .35; }
+  }
+  @keyframes star-twinkle {
+    0%, 100% { opacity: .9; r: 1.6; }
+    50% { opacity: 1; r: 2.6; }
+  }
+
+  /* Pulse waves (concept 1) */
+  .pulse-ring {
+    fill: none; stroke: currentColor; stroke-width: 2;
+    transform-origin: center; transform-box: fill-box;
+    animation: pulse 2.4s ease-out infinite;
+  }
+  .pulse-ring.r2 { animation-delay: .8s; }
+  .pulse-ring.r3 { animation-delay: 1.6s; }
+  @keyframes pulse {
+    0% { r: 8; opacity: .9; stroke-width: 3; }
+    100% { r: 36; opacity: 0; stroke-width: 0.5; }
+  }
+
+  /* Sacred beam (concept 2) */
+  .beam {
+    fill: url(#beam-grad);
+    animation: flicker 3s ease-in-out infinite;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: .85; }
+    50% { opacity: 1; }
+  }
+  .star-particle {
+    fill: var(--gold-warm);
+    animation: drift 4s linear infinite;
+  }
+  @keyframes drift {
+    0%   { transform: translateY(-20px); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translateY(40px); opacity: 0; }
+  }
+
+  /* Cool contrast (concept 4) */
+  .ice-ring {
+    fill: none; stroke: rgba(255,255,255,.45); stroke-width: 1.5;
+    stroke-dasharray: 3 4;
+    transform-origin: center; transform-box: fill-box;
+    animation: spin 12s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Crystal frame (concept 5) */
+  .crystal {
+    fill: rgba(184,164,227,.12);
+    stroke: var(--air);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 8px var(--air));
+    transform-origin: center; transform-box: fill-box;
+    animation: spin 18s linear infinite;
+  }
+  .crystal.facet { stroke-dasharray: 3 2; opacity: .55; }
+
+  /* Footer */
+  .footer {
+    margin-top: 60px;
+    padding-top: 26px; border-top: 1px solid rgba(212,175,55,.15);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.3em;
+    color: rgba(244,237,224,.4); text-transform: uppercase;
+    position: relative; z-index: 2;
+  }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="label">Pixora · Design Archive · Vol 09 · v2</div>
+  <h1><em>Constelación real</em><br>+ colores por elemento</h1>
+  <p>
+    Tu sign Géminis con su constelación verdadera (Castor + Pollux), todos
+    los 12 signos coloreados según su elemento astrológico para que el
+    wheel cuente más historia y se sienta vivo.
+  </p>
+</header>
+
+<!-- Element legend -->
+<section class="legend">
+  <div class="leg fire">
+    <div class="swatch"></div>
+    <div class="name">Fuego</div>
+    <div class="signs">♈ ♌ ♐</div>
+  </div>
+  <div class="leg earth">
+    <div class="swatch"></div>
+    <div class="name">Tierra</div>
+    <div class="signs">♉ ♍ ♑</div>
+  </div>
+  <div class="leg air">
+    <div class="swatch"></div>
+    <div class="name">Aire</div>
+    <div class="signs">♊ ♎ ♒</div>
+  </div>
+  <div class="leg water">
+    <div class="swatch"></div>
+    <div class="name">Agua</div>
+    <div class="signs">♋ ♏ ♓</div>
+  </div>
+</section>
+
+<!-- Hero — chosen concept BIG -->
+<section class="hero">
+  <span class="winner-pill">★ ELEGIDO · CONCEPTO #03</span>
+  <h2>Constelación de Géminis</h2>
+  <p>
+    Las 5 estrellas reales de la constelación dibujadas en el color del
+    elemento Aire (lila plateado), con líneas que titilan. El glifo ♊ del
+    centro pulsa también en lila. Único por signo — Aries tendría su
+    triángulo, Escorpio su gancho, Tauro las Pléyades.
+  </p>
+
+  <div class="stage-big" id="hero-stage">
+    <svg class="wheel-svg" viewBox="0 0 540 540">
+      <defs>
+        <radialGradient id="hero-center" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#fff8d8"/>
+          <stop offset="60%" stop-color="#d4af37"/>
+          <stop offset="100%" stop-color="#6e5418"/>
+        </radialGradient>
+      </defs>
+      <circle cx="270" cy="270" r="200" class="wheel-circle"/>
+      <circle cx="270" cy="270" r="160" class="wheel-circle inner"/>
+      <circle cx="270" cy="270" r="44" fill="url(#hero-center)"
+        filter="drop-shadow(0 0 18px rgba(212,175,55,.6))"/>
+      <text x="270" y="270" text-anchor="middle" dominant-baseline="central"
+            fill="#050308" font-family="Fraunces, serif" font-size="32">☾</text>
+      <g id="hero-signs"></g>
+      <g id="hero-constellation"></g>
+    </svg>
+  </div>
+</section>
+
+<!-- Other concepts (smaller, for comparison) -->
+<section class="grid">
+
+  <div class="concept c1" data-concept="1">
+    <div class="stage">
+      <svg class="wheel-svg" viewBox="0 0 300 300">
+        <defs>
+          <radialGradient id="grad-1" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#fff8d8"/>
+            <stop offset="60%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#6e5418"/>
+          </radialGradient>
+        </defs>
+        <circle cx="150" cy="150" r="100" class="wheel-circle"/>
+        <circle cx="150" cy="150" r="80" class="wheel-circle inner"/>
+        <circle cx="150" cy="150" r="22" fill="url(#grad-1)"/>
+        <text x="150" y="150" text-anchor="middle" dominant-baseline="central"
+              fill="#050308" font-family="Fraunces, serif" font-size="18">☾</text>
+        <g class="signs"></g>
+        <g style="color: var(--air)">
+          <circle class="pulse-ring" cx="236" cy="100" r="8"/>
+          <circle class="pulse-ring r2" cx="236" cy="100" r="8"/>
+          <circle class="pulse-ring r3" cx="236" cy="100" r="8"/>
+        </g>
+      </svg>
+    </div>
+    <div class="info">
+      <div class="num">// NO. 01 · Pulse Waves</div>
+      <h3>Ondas Concéntricas</h3>
+      <p>Tres anillos en el color Aire de Géminis se expanden cada 2.4s.
+        Suave, familiar.</p>
+    </div>
+  </div>
+
+  <div class="concept c2" data-concept="2">
+    <div class="stage">
+      <svg class="wheel-svg" viewBox="0 0 300 300">
+        <defs>
+          <linearGradient id="beam-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#b8a4e3" stop-opacity=".7"/>
+            <stop offset="60%" stop-color="#b8a4e3" stop-opacity=".3"/>
+            <stop offset="100%" stop-color="#b8a4e3" stop-opacity="0"/>
+          </linearGradient>
+          <radialGradient id="grad-2" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#fff8d8"/>
+            <stop offset="60%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#6e5418"/>
+          </radialGradient>
+        </defs>
+        <polygon class="beam" points="216,0 256,0 246,100 226,100"/>
+        <circle class="star-particle" cx="232" cy="20" r="1.6"/>
+        <circle class="star-particle" cx="240" cy="20" r="1.2" style="animation-delay:.5s"/>
+        <circle class="star-particle" cx="226" cy="20" r="1.6" style="animation-delay:1s"/>
+        <circle cx="150" cy="150" r="100" class="wheel-circle"/>
+        <circle cx="150" cy="150" r="80" class="wheel-circle inner"/>
+        <circle cx="150" cy="150" r="22" fill="url(#grad-2)"/>
+        <text x="150" y="150" text-anchor="middle" dominant-baseline="central"
+              fill="#050308" font-family="Fraunces, serif" font-size="18">☾</text>
+        <g class="signs"></g>
+      </svg>
+    </div>
+    <div class="info">
+      <div class="num">// NO. 02 · Sacred Beam</div>
+      <h3>Haz Sagrado</h3>
+      <p>Haz lila desde el cielo + estrellas cayendo.</p>
+    </div>
+  </div>
+
+  <div class="concept c4" data-concept="4">
+    <div class="stage">
+      <svg class="wheel-svg" viewBox="0 0 300 300">
+        <defs>
+          <radialGradient id="grad-4" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#fff8d8"/>
+            <stop offset="60%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#6e5418"/>
+          </radialGradient>
+        </defs>
+        <circle cx="150" cy="150" r="100" class="wheel-circle"/>
+        <circle cx="150" cy="150" r="80" class="wheel-circle inner"/>
+        <circle cx="150" cy="150" r="22" fill="url(#grad-4)"/>
+        <text x="150" y="150" text-anchor="middle" dominant-baseline="central"
+              fill="#050308" font-family="Fraunces, serif" font-size="18">☾</text>
+        <g class="signs"></g>
+        <circle class="ice-ring" cx="236" cy="100" r="20"/>
+      </svg>
+    </div>
+    <div class="info">
+      <div class="num">// NO. 04 · Cool Contrast</div>
+      <h3>Anillo Helado</h3>
+      <p>Anillo discontinuo blanco girando.</p>
+    </div>
+  </div>
+
+  <div class="concept c5" data-concept="5">
+    <div class="stage">
+      <svg class="wheel-svg" viewBox="0 0 300 300">
+        <defs>
+          <radialGradient id="grad-5" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#fff8d8"/>
+            <stop offset="60%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#6e5418"/>
+          </radialGradient>
+        </defs>
+        <circle cx="150" cy="150" r="100" class="wheel-circle"/>
+        <circle cx="150" cy="150" r="80" class="wheel-circle inner"/>
+        <circle cx="150" cy="150" r="22" fill="url(#grad-5)"/>
+        <text x="150" y="150" text-anchor="middle" dominant-baseline="central"
+              fill="#050308" font-family="Fraunces, serif" font-size="18">☾</text>
+        <g class="signs"></g>
+        <polygon class="crystal" points="236,80 254,90 254,110 236,120 218,110 218,90"/>
+      </svg>
+    </div>
+    <div class="info">
+      <div class="num">// NO. 05 · Crystal Frame</div>
+      <h3>Marco Cristalino</h3>
+      <p>Hexágono lila labrado girando.</p>
+    </div>
+  </div>
+
+</section>
+
+<div class="footer">
+  Pixora · Design Archive · Vol 09 · v2 · Constelación real + Elementos
+</div>
+
+<script>
+  // 12 signs in Aries-first clockwise order, with element + glyph
+  const SIGNS = [
+    { glyph: '♈', name: 'Aries',       element: 'fire'  },  // 0
+    { glyph: '♉', name: 'Taurus',      element: 'earth' },  // 1
+    { glyph: '♊', name: 'Gemini',      element: 'air'   },  // 2 ← user
+    { glyph: '♋', name: 'Cancer',      element: 'water' },  // 3
+    { glyph: '♌', name: 'Leo',         element: 'fire'  },  // 4
+    { glyph: '♍', name: 'Virgo',       element: 'earth' },  // 5
+    { glyph: '♎', name: 'Libra',       element: 'air'   },  // 6
+    { glyph: '♏', name: 'Scorpio',     element: 'water' },  // 7
+    { glyph: '♐', name: 'Sagittarius', element: 'fire'  },  // 8
+    { glyph: '♑', name: 'Capricorn',   element: 'earth' },  // 9
+    { glyph: '♒', name: 'Aquarius',    element: 'air'   },  // 10
+    { glyph: '♓', name: 'Pisces',      element: 'water' },  // 11
+  ];
+  const ELEMENT_COLOR = {
+    fire:  'var(--fire)',
+    earth: 'var(--earth)',
+    air:   'var(--air)',
+    water: 'var(--water)',
+  };
+  const USER_INDEX = 2;  // Géminis
+
+  // Render the 12 signs around a wheel (centered cx,cy, radius r) into svgGroup.
+  function renderSigns(svgGroup, cx, cy, r, options = {}) {
+    const ns = 'http://www.w3.org/2000/svg';
+    SIGNS.forEach((s, i) => {
+      const angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
+      const x = cx + Math.cos(angle) * r;
+      const y = cy + Math.sin(angle) * r;
+      const text = document.createElementNS(ns, 'text');
+      text.setAttribute('x', x);
+      text.setAttribute('y', y);
+      text.setAttribute('class', 'sign-glyph' + (i === USER_INDEX ? ' user' : ''));
+      text.style.fill = ELEMENT_COLOR[s.element];
+      // Bigger fontsize for hero stage
+      if (options.big) {
+        text.setAttribute('font-size', i === USER_INDEX ? '40' : '32');
+      }
+      // Animate user sign with pulse
+      if (i === USER_INDEX) {
+        text.style.animation = 'pulse-user 2s ease-in-out infinite';
+      }
+      text.textContent = s.glyph;
+      svgGroup.appendChild(text);
+    });
+  }
+
+  // Add Géminis constellation (Castor + Pollux + connecting lines) around user sign
+  // Constellation pattern is anchored relative to user sign position.
+  function renderConstellation(svgGroup, ux, uy, scale = 1) {
+    const ns = 'http://www.w3.org/2000/svg';
+    // Géminis stars — Castor (top), Pollux (bottom-left), and 3 supporting
+    // stars for the twin bodies. Coordinates relative to user sign center.
+    const stars = [
+      { dx: -22, dy: -28 },  // Castor (top-left bright)
+      { dx:  18, dy: -16 },  // Pollux (top-right bright)
+      { dx:  28, dy:  18 },  // foot 1
+      { dx: -16, dy:   8 },  // body
+      { dx:  -8, dy:  30 },  // foot 2
+    ];
+    const lines = [
+      [0, 1],  // Castor → Pollux
+      [1, 2],  // Pollux → foot 1
+      [0, 3],  // Castor → body
+      [3, 4],  // body → foot 2
+      [1, 3],  // Pollux → body
+    ];
+    // Lines
+    lines.forEach(([a, b], i) => {
+      const line = document.createElementNS(ns, 'line');
+      line.setAttribute('x1', ux + stars[a].dx * scale);
+      line.setAttribute('y1', uy + stars[a].dy * scale);
+      line.setAttribute('x2', ux + stars[b].dx * scale);
+      line.setAttribute('y2', uy + stars[b].dy * scale);
+      line.setAttribute('class', 'constellation-line');
+      line.style.animationDelay = (i * 0.2) + 's';
+      svgGroup.appendChild(line);
+    });
+    // Stars
+    stars.forEach((p, i) => {
+      const c = document.createElementNS(ns, 'circle');
+      c.setAttribute('cx', ux + p.dx * scale);
+      c.setAttribute('cy', uy + p.dy * scale);
+      c.setAttribute('r', i < 2 ? 2.6 * scale : 1.8 * scale);
+      c.setAttribute('class', 'constellation-star s' + (i + 1));
+      svgGroup.appendChild(c);
+    });
+  }
+
+  // Inject the user-sign pulse keyframe (uses CSS variables)
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes pulse-user {
+      0%, 100% { filter: drop-shadow(0 0 6px var(--air)) drop-shadow(0 0 14px var(--air)); }
+      50%     { filter: drop-shadow(0 0 14px var(--air)) drop-shadow(0 0 28px var(--air)); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Hero (big chosen concept #03)
+  const heroSigns = document.getElementById('hero-signs');
+  renderSigns(heroSigns, 270, 270, 200, { big: true });
+  const heroConst = document.getElementById('hero-constellation');
+  // Géminis is at angle -π/6 from center, at radius 200 → x = 270+200*.866 = 443, y = 270+200*-.5 = 170
+  renderConstellation(heroConst, 443, 170, 1.5);
+
+  // Other concepts (small wheels)
+  document.querySelectorAll('.concept .signs').forEach(g => {
+    renderSigns(g, 150, 150, 100);
+  });
+</script>
+
+</body>
+</html>

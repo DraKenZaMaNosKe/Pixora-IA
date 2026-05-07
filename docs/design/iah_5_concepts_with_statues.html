@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Iah · 5 Conceptos con Estatuas (sobre anillo existente)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@300;400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #07060a;
+    --paper: #f6efe2;
+    --gold: #d9b14a;
+    --gold-deep: #8a6816;
+    --amber: #e89940;
+    --moon: #f0e4c8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: radial-gradient(ellipse at top, #14101c 0%, #07060a 70%);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, #fff8 1px, transparent 1px),
+      radial-gradient(1px 1px at 70% 60%, #fffa 1px, transparent 1px),
+      radial-gradient(1px 1px at 40% 80%, #fff7 1px, transparent 1px),
+      radial-gradient(2px 2px at 85% 25%, #fff5 2px, transparent 2px),
+      radial-gradient(1px 1px at 10% 70%, #fff8 1px, transparent 1px);
+    background-size: 400px 400px;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  header {
+    padding: 80px 60px 30px;
+    text-align: center;
+  }
+  header .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    margin-bottom: 24px;
+    opacity: 0.85;
+  }
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(40px, 5.5vw, 76px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  header h1 em { color: var(--gold); }
+  header .sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.55;
+    color: #c9c2b3;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  header .meta {
+    margin-top: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: #8a826f;
+  }
+  header .meta span { color: var(--gold); }
+
+  .change-note {
+    max-width: 820px;
+    margin: 30px auto 0;
+    padding: 14px 22px;
+    background: rgba(217,177,74,0.08);
+    border: 1px solid rgba(217,177,74,0.25);
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #d4ccba;
+  }
+  .change-note strong { color: var(--gold); font-weight: 500; }
+  .change-note .strike { text-decoration: line-through; opacity: 0.5; }
+
+  .concepts {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 60px 30px 120px;
+  }
+
+  .concept {
+    margin-bottom: 110px;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: rise 0.8s ease-out forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.0s; }
+  .concept:nth-child(2) { animation-delay: 0.15s; }
+  .concept:nth-child(3) { animation-delay: 0.30s; }
+  .concept:nth-child(4) { animation-delay: 0.45s; }
+  .concept:nth-child(5) { animation-delay: 0.60s; }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  .concept-head {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 22px;
+    padding-left: 4px;
+  }
+  .concept-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+  }
+  .concept-name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 36px;
+  }
+  .concept-tag {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: #8a826f;
+    margin-left: auto;
+    letter-spacing: 0.05em;
+  }
+
+  /* PANORAMA — 4:1 aspect, mimicking actual wallpaper */
+  .panorama {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 1;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(217,177,74,0.15);
+    margin-bottom: 18px;
+    background:
+      radial-gradient(ellipse at 50% 45%, #1a1232 0%, #0a0618 50%, #04020c 100%),
+      linear-gradient(180deg, #06040e 0%, #0c0820 100%);
+  }
+
+  /* Background stars + nebula glow per panorama */
+  .panorama .stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, #fff 1px, transparent 1px),
+      radial-gradient(1.5px 1.5px at 28% 58%, #fffa 1px, transparent 1px),
+      radial-gradient(1px 1px at 45% 12%, #fff8 1px, transparent 1px),
+      radial-gradient(2px 2px at 65% 38%, #fff 2px, transparent 2px),
+      radial-gradient(1px 1px at 82% 70%, #fff7 1px, transparent 1px),
+      radial-gradient(1.5px 1.5px at 92% 28%, #fffa 1px, transparent 1px),
+      radial-gradient(1px 1px at 18% 80%, #fff5 1px, transparent 1px),
+      radial-gradient(1px 1px at 55% 88%, #fff7 1px, transparent 1px);
+    background-size: 100% 100%;
+  }
+  /* Nebula clouds */
+  .panorama .nebula {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 30% 25% at 25% 40%, rgba(120,80,180,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 25% 20% at 75% 60%, rgba(80,140,200,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 20% 15% at 88% 25%, rgba(180,120,80,0.08) 0%, transparent 70%);
+  }
+
+  /* Constellations: thin gold lines */
+  .panorama .constellation {
+    position: absolute;
+    pointer-events: none;
+  }
+  .panorama .constellation svg {
+    display: block;
+    overflow: visible;
+  }
+
+  /* GOLDEN RING with moon at center */
+  .ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 17%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, var(--moon) 0%, #d2c5a4 35%, #8a7a55 70%, #1a1208 100%);
+    box-shadow:
+      0 0 0 6px #5a420e,
+      0 0 0 10px #d9b14a,
+      0 0 0 12px #8a6816,
+      0 0 0 14px #d9b14a,
+      0 0 0 18px #3a2810,
+      0 0 50px 10px rgba(217,177,74,0.35),
+      inset -8px -10px 30px rgba(0,0,0,0.5);
+  }
+  .ring.center-left { left: 32%; }
+  .ring.center-right { left: 68%; }
+  .ring::after {
+    /* shadow mask for crescent — example: first quarter */
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(ellipse 100% 100% at 100% 50%, transparent 0%, transparent 50%, rgba(0,0,0,0.85) 50%);
+  }
+
+  /* Statue positioning helpers */
+  .st {
+    position: absolute;
+    object-fit: contain;
+    object-position: bottom;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.7));
+  }
+
+  /* META below */
+  .concept-meta {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr;
+    gap: 30px;
+    padding: 0 4px;
+    align-items: start;
+  }
+  .meta-block h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .meta-block p, .meta-block ul {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #b5ad9a;
+  }
+  .meta-block ul { list-style: none; }
+  .meta-block ul li::before {
+    content: '·  ';
+    color: var(--gold);
+  }
+  .palette { display: flex; gap: 4px; margin-top: 4px; }
+  .swatch { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); }
+
+  footer {
+    text-align: center;
+    padding: 40px 30px 80px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: #5a5444;
+  }
+  footer span { color: var(--gold); }
+
+  @media (max-width: 900px) {
+    .concept-meta { grid-template-columns: 1fr; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">PIXORA · IAH LUNAR · DESIGN ARCHIVE · VOL 08 · REV 02</div>
+  <h1>Cinco <em>composiciones</em><br>sobre el anillo existente</h1>
+  <p class="sub">Tomando como base el panorámico actual (fondo cósmico con constelaciones + anillo dorado con luna al centro), aquí cinco maneras de meter las 12 estatuas con tu signo (Tauro) destacado como dios guardián.</p>
+  <div class="change-note">
+    <strong>Cambio importante:</strong> los <span class="strike">12 glifos coloreados chiquitos alrededor del anillo</span> se eliminan en todas las propuestas. Las estatuas son la nueva representación de cada signo.
+  </div>
+  <div class="meta">PANORAMA <span>4192 × 1024</span> · USUARIO <span>EDUARDO · TAURO ♉</span> · FASE <span>CUARTO CRECIENTE</span></div>
+</header>
+
+<main class="concepts">
+
+<!-- ================= CONCEPT 1 ================= -->
+<section class="concept">
+  <div class="concept-head">
+    <span class="concept-num">// NO. 01</span>
+    <h2 class="concept-name">Órbita Lejana</h2>
+    <span class="concept-tag">11 estatuas en círculo amplio · tu dios cerca del anillo</span>
+  </div>
+  <div class="panorama c1">
+    <div class="stars"></div>
+    <div class="nebula"></div>
+    <!-- subtle constellation lines around ring -->
+    <div class="constellation" style="left:0; top:0; width:100%; height:100%;">
+      <svg width="100%" height="100%" viewBox="0 0 1280 320" preserveAspectRatio="none">
+        <g stroke="#d9b14a" stroke-width="0.5" fill="none" opacity="0.35">
+          <polyline points="240,80 280,60 320,80 360,90 400,70"/>
+          <polyline points="900,70 940,60 980,75 1020,90"/>
+          <polyline points="100,200 150,220 200,210 250,230"/>
+          <polyline points="1050,230 1100,210 1150,225 1200,240"/>
+        </g>
+        <g fill="#d9b14a" opacity="0.6">
+          <circle cx="240" cy="80" r="1.5"/><circle cx="280" cy="60" r="1.5"/><circle cx="320" cy="80" r="1.5"/>
+          <circle cx="360" cy="90" r="1.5"/><circle cx="400" cy="70" r="1.5"/>
+          <circle cx="900" cy="70" r="1.5"/><circle cx="940" cy="60" r="1.5"/><circle cx="980" cy="75" r="1.5"/>
+          <circle cx="1020" cy="90" r="1.5"/>
+        </g>
+      </svg>
+    </div>
+    <!-- golden ring at center -->
+    <div class="ring"></div>
+    <!-- 11 statues in wide orbit (medium-small, evenly spaced left+right) -->
+    <img src="concepts/iah_statues/aries.png"      class="st" style="left:6%;  top:18%; height:32%;">
+    <img src="concepts/iah_statues/leo.png"        class="st" style="left:14%; top:55%; height:32%;">
+    <img src="concepts/iah_statues/sagitario.png"  class="st" style="left:22%; top:8%;  height:32%;">
+    <img src="concepts/iah_statues/cancer.png"     class="st" style="left:28%; top:62%; height:32%;">
+    <img src="concepts/iah_statues/virgo.png"      class="st" style="left:36%; top:12%; height:32%;">
+    <img src="concepts/iah_statues/escorpion.png"  class="st" style="right:36%; top:62%; height:32%;">
+    <img src="concepts/iah_statues/libra.png"      class="st" style="right:28%; top:12%; height:32%;">
+    <img src="concepts/iah_statues/piscis.png"     class="st" style="right:22%; top:62%; height:32%;">
+    <img src="concepts/iah_statues/capricornio.png" class="st" style="right:14%; top:8%;  height:32%;">
+    <img src="concepts/iah_statues/geminis.png"    class="st" style="right:6%;  top:55%; height:32%;">
+    <img src="concepts/iah_statues/acuario.png"    class="st" style="left:46%; top:5%;  height:24%;">
+    <!-- USER GOD: Tauro larger, just below ring -->
+    <img src="concepts/iah_statues/tauro.png"      class="st" style="left:46.5%; bottom:2%; height:42%;">
+  </div>
+  <div class="concept-meta">
+    <div class="meta-block">
+      <h4>Concepto</h4>
+      <p>Las once estatuas distribuidas en una órbita amplia alrededor del anillo, separadas y respirando. <strong>Tu dios Tauro al frente, justo bajo el anillo</strong>, ligeramente más grande para que destaque. Sin saturar, scroll horizontal natural.</p>
+    </div>
+    <div class="meta-block">
+      <h4>Composición</h4>
+      <ul>
+        <li>Anillo central intacto</li>
+        <li>11 dioses en órbita amplia 32% h</li>
+        <li>Tauro 42% h frente al anillo</li>
+        <li>Constelaciones tenues fondo</li>
+      </ul>
+    </div>
+    <div class="meta-block">
+      <h4>Paleta</h4>
+      <div class="palette">
+        <div class="swatch" style="background:#04020c"></div>
+        <div class="swatch" style="background:#1a1232"></div>
+        <div class="swatch" style="background:#d9b14a"></div>
+        <div class="swatch" style="background:#f0e4c8"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONCEPT 2 ================= -->
+<section class="concept">
+  <div class="concept-head">
+    <span class="concept-num">// NO. 02</span>
+    <h2 class="concept-name">Procesión Cósmica</h2>
+    <span class="concept-tag">desfile horizontal al pie del anillo</span>
+  </div>
+  <div class="panorama c2">
+    <div class="stars"></div>
+    <div class="nebula"></div>
+    <div class="constellation" style="left:0; top:0; width:100%; height:100%;">
+      <svg width="100%" height="100%" viewBox="0 0 1280 320" preserveAspectRatio="none">
+        <g stroke="#d9b14a" stroke-width="0.5" fill="none" opacity="0.3">
+          <polyline points="180,50 230,30 280,55 330,40"/>
+          <polyline points="950,40 1000,30 1050,55 1100,30"/>
+        </g>
+        <g fill="#d9b14a" opacity="0.5">
+          <circle cx="180" cy="50" r="1.5"/><circle cx="230" cy="30" r="1.5"/><circle cx="280" cy="55" r="1.5"/><circle cx="330" cy="40" r="1.5"/>
+        </g>
+      </svg>
+    </div>
+    <!-- Ring -->
+    <div class="ring"></div>
+    <!-- 12 statues in horizontal procession at bottom, Tauro highlighted center -->
+    <img src="concepts/iah_statues/aries.png"      class="st" style="left:2%;  bottom:0; height:38%;">
+    <img src="concepts/iah_statues/tauro.png"      class="st" style="left:42%; bottom:0; height:55%;">
+    <img src="concepts/iah_statues/geminis.png"    class="st" style="left:50%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/cancer.png"     class="st" style="left:10%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/leo.png"        class="st" style="left:18%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/virgo.png"      class="st" style="left:26%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/libra.png"      class="st" style="left:34%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/escorpion.png"  class="st" style="left:58%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/sagitario.png"  class="st" style="left:66%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/capricornio.png" class="st" style="left:74%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/acuario.png"    class="st" style="left:82%; bottom:0; height:38%;">
+    <img src="concepts/iah_statues/piscis.png"     class="st" style="left:90%; bottom:0; height:38%;">
+  </div>
+  <div class="concept-meta">
+    <div class="meta-block">
+      <h4>Concepto</h4>
+      <p>Los doce dioses caminando en procesión horizontal a lo largo del panorámico, todos al mismo nivel base. <strong>Tauro destaca en el centro más alto</strong>, justo bajo el anillo. Como un friso de templo: cuando scrolleas, los vas conociendo uno por uno.</p>
+    </div>
+    <div class="meta-block">
+      <h4>Composición</h4>
+      <ul>
+        <li>Anillo central</li>
+        <li>12 dioses en línea horizontal</li>
+        <li>Tauro 55% h destacado</li>
+        <li>Resto 38% h alineados</li>
+      </ul>
+    </div>
+    <div class="meta-block">
+      <h4>Paleta</h4>
+      <div class="palette">
+        <div class="swatch" style="background:#04020c"></div>
+        <div class="swatch" style="background:#1a1232"></div>
+        <div class="swatch" style="background:#d9b14a"></div>
+        <div class="swatch" style="background:#f0e4c8"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONCEPT 3 ================= -->
+<section class="concept">
+  <div class="concept-head">
+    <span class="concept-num">// NO. 03</span>
+    <h2 class="concept-name">Anillo Asimétrico · Tauro Heroico</h2>
+    <span class="concept-tag">tu dios masivo a un lado · 11 al otro</span>
+  </div>
+  <div class="panorama c3">
+    <div class="stars"></div>
+    <div class="nebula"></div>
+    <!-- Ring shifted slightly left -->
+    <div class="ring center-left"></div>
+    <!-- 11 statues in compact group on the LEFT side -->
+    <img src="concepts/iah_statues/aries.png"      class="st" style="left:5%;  bottom:8%;  height:30%;">
+    <img src="concepts/iah_statues/leo.png"        class="st" style="left:11%; bottom:5%;  height:34%;">
+    <img src="concepts/iah_statues/sagitario.png"  class="st" style="left:17%; bottom:8%;  height:30%;">
+    <img src="concepts/iah_statues/cancer.png"     class="st" style="left:5%;  top:5%;    height:28%;">
+    <img src="concepts/iah_statues/escorpion.png"  class="st" style="left:11%; top:8%;    height:28%;">
+    <img src="concepts/iah_statues/piscis.png"     class="st" style="left:17%; top:5%;    height:28%;">
+    <img src="concepts/iah_statues/virgo.png"      class="st" style="right:62%; bottom:6%; height:30%;">
+    <img src="concepts/iah_statues/capricornio.png" class="st" style="right:62%; top:5%;   height:28%;">
+    <img src="concepts/iah_statues/geminis.png"    class="st" style="left:24%; bottom:42%; height:18%;">
+    <img src="concepts/iah_statues/libra.png"      class="st" style="left:50%; bottom:5%;  height:24%;">
+    <img src="concepts/iah_statues/acuario.png"    class="st" style="left:55%; top:8%;   height:24%;">
+    <!-- USER GOD: Tauro MASSIVE on the right -->
+    <img src="concepts/iah_statues/tauro.png"      class="st" style="right:8%; bottom:0; height:96%;">
+  </div>
+  <div class="concept-meta">
+    <div class="meta-block">
+      <h4>Concepto</h4>
+      <p>Composición cinematográfica asimétrica. El anillo desplazado a la izquierda; las 11 estatuas en grupo compacto alrededor; <strong>tu dios Tauro MASIVO al lado derecho ocupando todo el alto</strong>. Cuando estás en el home, lo ves grande; cuando scrolleas, ves al concilio.</p>
+    </div>
+    <div class="meta-block">
+      <h4>Composición</h4>
+      <ul>
+        <li>Anillo desplazado izq (32%)</li>
+        <li>11 dioses en grupo izq</li>
+        <li>Tauro 96% h derecho</li>
+        <li>Asimetría dramática</li>
+      </ul>
+    </div>
+    <div class="meta-block">
+      <h4>Paleta</h4>
+      <div class="palette">
+        <div class="swatch" style="background:#04020c"></div>
+        <div class="swatch" style="background:#1a1232"></div>
+        <div class="swatch" style="background:#d9b14a"></div>
+        <div class="swatch" style="background:#f0e4c8"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONCEPT 4 ================= -->
+<section class="concept">
+  <div class="concept-head">
+    <span class="concept-num">// NO. 04</span>
+    <h2 class="concept-name">Columnas del Cielo</h2>
+    <span class="concept-tag">6 dioses por lado · templo cósmico</span>
+  </div>
+  <div class="panorama c4">
+    <div class="stars"></div>
+    <div class="nebula"></div>
+    <div class="constellation" style="left:0; top:0; width:100%; height:100%;">
+      <svg width="100%" height="100%" viewBox="0 0 1280 320" preserveAspectRatio="none">
+        <g stroke="#d9b14a" stroke-width="0.4" fill="none" opacity="0.25">
+          <path d="M 100 30 Q 640 10 1180 30" />
+        </g>
+      </svg>
+    </div>
+    <!-- Ring -->
+    <div class="ring"></div>
+    <!-- 6 statues left flank -->
+    <img src="concepts/iah_statues/aries.png"      class="st" style="left:2%;  bottom:0; height:62%;">
+    <img src="concepts/iah_statues/leo.png"        class="st" style="left:9%;  bottom:0; height:58%;">
+    <img src="concepts/iah_statues/sagitario.png"  class="st" style="left:16%; bottom:0; height:54%;">
+    <img src="concepts/iah_statues/cancer.png"     class="st" style="left:23%; bottom:0; height:50%;">
+    <img src="concepts/iah_statues/escorpion.png"  class="st" style="left:30%; bottom:0; height:46%;">
+    <img src="concepts/iah_statues/piscis.png"     class="st" style="left:36%; bottom:0; height:42%;">
+    <!-- 6 statues right flank -->
+    <img src="concepts/iah_statues/virgo.png"      class="st" style="right:36%; bottom:0; height:42%;">
+    <img src="concepts/iah_statues/capricornio.png" class="st" style="right:30%; bottom:0; height:46%;">
+    <img src="concepts/iah_statues/geminis.png"    class="st" style="right:23%; bottom:0; height:50%;">
+    <img src="concepts/iah_statues/libra.png"      class="st" style="right:16%; bottom:0; height:54%;">
+    <img src="concepts/iah_statues/acuario.png"    class="st" style="right:9%;  bottom:0; height:58%;">
+    <!-- one more on right -->
+    <img src="concepts/iah_statues/escorpion.png"  class="st" style="right:2%;  bottom:0; height:62%; opacity:0;">
+    <!-- USER GOD: Tauro front center bigger -->
+    <img src="concepts/iah_statues/tauro.png"      class="st" style="left:43%; bottom:0; height:75%;">
+  </div>
+  <div class="concept-meta">
+    <div class="meta-block">
+      <h4>Concepto</h4>
+      <p>Templo celestial con perspectiva forzada. Seis dioses a cada lado con escala decreciente, formando un pasillo hacia el centro. <strong>Tauro al frente central</strong>, anillo flotando atrás como portal de luna. Sentido de procesión sagrada.</p>
+    </div>
+    <div class="meta-block">
+      <h4>Composición</h4>
+      <ul>
+        <li>Anillo central como portal</li>
+        <li>6 dioses por lado, escala decreciente</li>
+        <li>Tauro central 75% h</li>
+        <li>Perspectiva forzada</li>
+      </ul>
+    </div>
+    <div class="meta-block">
+      <h4>Paleta</h4>
+      <div class="palette">
+        <div class="swatch" style="background:#04020c"></div>
+        <div class="swatch" style="background:#1a1232"></div>
+        <div class="swatch" style="background:#d9b14a"></div>
+        <div class="swatch" style="background:#f0e4c8"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONCEPT 5 ================= -->
+<section class="concept">
+  <div class="concept-head">
+    <span class="concept-num">// NO. 05</span>
+    <h2 class="concept-name">Constelación Viva</h2>
+    <span class="concept-tag">11 estatuas como puntos de constelación · líneas que conectan</span>
+  </div>
+  <div class="panorama c5">
+    <div class="stars"></div>
+    <div class="nebula"></div>
+    <!-- Constellation lines connecting 11 statues forming Tauro pattern -->
+    <div class="constellation" style="left:0; top:0; width:100%; height:100%;">
+      <svg width="100%" height="100%" viewBox="0 0 1280 320" preserveAspectRatio="none">
+        <g stroke="#d9b14a" stroke-width="0.8" fill="none" opacity="0.5">
+          <polyline points="80,160 200,80 340,40 480,90 600,160 720,90 860,40 1000,80 1120,160 1200,260 90,260 80,160"/>
+        </g>
+        <g fill="#f0e4c8" opacity="0.9">
+          <circle cx="80" cy="160" r="3"/>
+          <circle cx="200" cy="80" r="3"/>
+          <circle cx="340" cy="40" r="3"/>
+          <circle cx="480" cy="90" r="3"/>
+          <circle cx="600" cy="160" r="3"/>
+          <circle cx="720" cy="90" r="3"/>
+          <circle cx="860" cy="40" r="3"/>
+          <circle cx="1000" cy="80" r="3"/>
+          <circle cx="1120" cy="160" r="3"/>
+          <circle cx="1200" cy="260" r="3"/>
+          <circle cx="90" cy="260" r="3"/>
+        </g>
+      </svg>
+    </div>
+    <!-- 11 statues placed AT each constellation point, smaller -->
+    <img src="concepts/iah_statues/aries.png"      class="st" style="left:3%;  top:38%; height:24%;">
+    <img src="concepts/iah_statues/leo.png"        class="st" style="left:13%; top:14%; height:24%;">
+    <img src="concepts/iah_statues/sagitario.png"  class="st" style="left:24%; top:2%;  height:24%;">
+    <img src="concepts/iah_statues/cancer.png"     class="st" style="left:35%; top:18%; height:24%;">
+    <img src="concepts/iah_statues/virgo.png"      class="st" style="left:54%; top:14%; height:24%;">
+    <img src="concepts/iah_statues/escorpion.png"  class="st" style="left:65%; top:2%;  height:24%;">
+    <img src="concepts/iah_statues/libra.png"      class="st" style="left:76%; top:14%; height:24%;">
+    <img src="concepts/iah_statues/capricornio.png" class="st" style="left:86%; top:38%; height:24%;">
+    <img src="concepts/iah_statues/geminis.png"    class="st" style="left:92%; top:72%; height:24%;">
+    <img src="concepts/iah_statues/piscis.png"     class="st" style="left:3%;  top:72%; height:24%;">
+    <img src="concepts/iah_statues/acuario.png"    class="st" style="left:24%; top:78%; height:18%;">
+    <!-- Ring central (the moon is the heart of the constellation) -->
+    <div class="ring"></div>
+    <!-- USER GOD: Tauro at center prominent -->
+    <img src="concepts/iah_statues/tauro.png"      class="st" style="left:45%; bottom:5%; height:55%;">
+  </div>
+  <div class="concept-meta">
+    <div class="meta-block">
+      <h4>Concepto</h4>
+      <p>Las 11 estatuas son los puntos de una constelación gigante; las líneas doradas conectan unas con otras dibujando un patrón celestial. El anillo es el corazón. <strong>Tauro al centro inferior</strong>, conectado a todos. Vibra a mapa estelar antiguo, místico y cohesivo.</p>
+    </div>
+    <div class="meta-block">
+      <h4>Composición</h4>
+      <ul>
+        <li>11 dioses como vértices</li>
+        <li>Líneas doradas conectando</li>
+        <li>Anillo central como corazón</li>
+        <li>Tauro al frente unificador</li>
+      </ul>
+    </div>
+    <div class="meta-block">
+      <h4>Paleta</h4>
+      <div class="palette">
+        <div class="swatch" style="background:#04020c"></div>
+        <div class="swatch" style="background:#1a1232"></div>
+        <div class="swatch" style="background:#d9b14a"></div>
+        <div class="swatch" style="background:#f0e4c8"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  PIXORA · DESIGN ARCHIVE · VOL 08 · ENTRY <span>032</span> · 2026-05-02
+</footer>
+
+</body>
+</html>

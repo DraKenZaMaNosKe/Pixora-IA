@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>PIXORA · Master Doc — 5 Design Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..800&family=Geist:wght@300..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #050308;
+    --paper: #f4ede0;
+    --gold: #d4af37;
+    --gold-warm: #f5d676;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(ellipse 1400px 800px at 50% 0%, #1a0d2e 0%, transparent 60%),
+      var(--ink);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 50px 32px 80px;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 15%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 22% 68%, rgba(212,175,55,.4), transparent),
+      radial-gradient(2px 2px at 37% 32%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 51% 84%, rgba(212,175,55,.3), transparent),
+      radial-gradient(1.5px 1.5px at 68% 22%, rgba(255,255,255,.4), transparent),
+      radial-gradient(2px 2px at 88% 78%, rgba(212,175,55,.3), transparent);
+    z-index: 0;
+  }
+
+  header.head {
+    position: relative; z-index: 2;
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  header.head .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  header.head h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic; font-weight: 300;
+    font-size: clamp(40px, 6vw, 76px);
+    color: var(--paper);
+    letter-spacing: -0.02em;
+  }
+  header.head h1 em { color: var(--gold-warm); font-weight: 600; }
+  header.head p {
+    margin-top: 18px;
+    color: rgba(244,237,224,.65);
+    max-width: 720px;
+    margin-left: auto; margin-right: auto;
+    line-height: 1.55;
+    font-size: 14px;
+  }
+
+  /* concept grid */
+  .concepts {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+    position: relative; z-index: 2;
+  }
+
+  .concept {
+    background: rgba(13,10,24,.7);
+    border: 1px solid rgba(212,175,55,.15);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  /* Each "page" mockup */
+  .page {
+    width: 100%;
+    aspect-ratio: 8.5 / 11;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .meta {
+    padding: 18px 22px 22px;
+    border-top: 1px solid rgba(212,175,55,.12);
+  }
+  .meta .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.3em;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .meta h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic; font-weight: 500;
+    font-size: 22px; color: var(--paper);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .meta p {
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    color: rgba(244,237,224,.6);
+    line-height: 1.5;
+  }
+  .meta .tag {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.25em;
+    padding: 4px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+  }
+  .tag.docx { background: rgba(120,200,160,.15); color: #78c8a0; border: 1px solid #78c8a0; }
+  .tag.pdf  { background: rgba(212,175,55,.15);  color: var(--gold-warm); border: 1px solid var(--gold-warm); }
+  .tag.html { background: rgba(150,170,220,.15); color: #96aadc; border: 1px solid #96aadc; }
+
+  /* ── CONCEPT 1 — EDITORIAL MAGAZINE ────────────────────────── */
+  .c1 .page {
+    background: #faf6ee;
+    color: #1a1208;
+    padding: 32px 34px;
+    font-family: 'Playfair Display', serif;
+  }
+  .c1 .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.3em;
+    color: #8a6a1f;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .c1 h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900; font-style: italic;
+    font-size: 36px;
+    color: #1a1208;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .c1 .deck {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px; color: #5a4520;
+    margin-bottom: 22px;
+    line-height: 1.4;
+    border-bottom: 1px solid #d6c690;
+    padding-bottom: 16px;
+  }
+  .c1 .col-2 { columns: 2; column-gap: 18px; }
+  .c1 .col-2 p {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px; line-height: 1.5;
+    color: #2a1d0d;
+    text-align: justify;
+    margin-bottom: 8px;
+  }
+  .c1 .col-2 p:first-child::first-letter {
+    font-size: 36px; line-height: 0.85;
+    font-weight: 900; color: #c69d3a;
+    float: left; padding-right: 6px; padding-top: 4px;
+    font-family: 'Playfair Display', serif;
+  }
+  .c1 .pull {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px; font-style: italic; font-weight: 700;
+    color: #8a6a1f;
+    border-left: 3px solid #c69d3a;
+    padding: 4px 10px;
+    margin: 12px 0;
+  }
+  .c1 .footer {
+    position: absolute; bottom: 16px; left: 34px; right: 34px;
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: #8a6a1f;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* ── CONCEPT 2 — BRUTALIST TECH ───────────────────────────── */
+  .c2 .page {
+    background: #050308;
+    color: #d4d4dc;
+    padding: 28px 30px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 4px solid #c9ff44;
+  }
+  .c2 .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(201,255,68,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,255,68,.04) 1px, transparent 1px);
+    background-size: 22px 22px;
+    pointer-events: none;
+  }
+  .c2 .raw-head {
+    color: #c9ff44;
+    font-size: 9px; letter-spacing: 0.4em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    border-bottom: 1px dashed #c9ff44;
+    padding-bottom: 8px;
+  }
+  .c2 h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    margin-bottom: 12px;
+  }
+  .c2 .meta-line {
+    font-size: 9px; color: #c9ff44;
+    margin-bottom: 22px;
+    letter-spacing: 0.2em;
+  }
+  .c2 .field {
+    font-size: 10px; line-height: 1.6;
+    color: #b0b0b8;
+    margin-bottom: 6px;
+  }
+  .c2 .field b {
+    color: #c9ff44; font-weight: 700;
+    text-transform: uppercase;
+  }
+  .c2 .ascii {
+    font-size: 8px; color: #6a8a30;
+    margin: 14px 0;
+    line-height: 1.1;
+    white-space: pre;
+  }
+  .c2 .footer {
+    position: absolute; bottom: 16px; left: 30px; right: 30px;
+    display: flex; justify-content: space-between;
+    font-size: 7px;
+    color: #6a8a30;
+  }
+
+  /* ── CONCEPT 3 — BLACK & GOLD MANUSCRIPT ──────────────────── */
+  .c3 .page {
+    background:
+      radial-gradient(ellipse at center, #1a0e08 0%, #0a0612 80%),
+      #0a0612;
+    color: #f0e2c0;
+    padding: 36px 38px;
+    position: relative;
+    overflow: hidden;
+  }
+  .c3 .page::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='t'><feTurbulence baseFrequency='0.7' numOctaves='3' /><feColorMatrix values='0.4 0 0 0 0.05  0.3 0 0 0 0.04  0.1 0 0 0 0.02  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23t)'/></svg>");
+    opacity: .3; mix-blend-mode: overlay;
+  }
+  .c3 .ornament {
+    text-align: center;
+    color: var(--gold); font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .c3 .vol {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.4em;
+    color: var(--gold);
+    text-align: center; margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .c3 h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400; font-style: italic;
+    font-size: 38px;
+    color: #f5e6b5;
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .c3 h1 em { color: var(--gold-warm); font-weight: 600; font-style: italic; }
+  .c3 .sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(240,226,192,.55);
+    text-align: center; margin-bottom: 28px;
+  }
+  .c3 .body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; line-height: 1.6;
+    text-align: justify;
+    color: rgba(240,226,192,.85);
+  }
+  .c3 .body p { margin-bottom: 10px; }
+  .c3 .body p:first-of-type::first-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 42px; font-style: italic;
+    color: var(--gold-warm);
+    float: left; line-height: 0.8;
+    padding-right: 8px; padding-top: 4px;
+  }
+  .c3 .sigil { text-align: center; margin: 16px 0;
+    color: var(--gold); font-size: 18px; opacity: .8;
+  }
+  .c3 .footer {
+    position: absolute; bottom: 18px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 11px;
+    color: var(--gold-warm);
+    border-top: 1px solid rgba(212,175,55,.25);
+    padding-top: 10px; margin: 0 38px;
+  }
+
+  /* ── CONCEPT 4 — APPLE WHITEPAPER ─────────────────────────── */
+  .c4 .page {
+    background: #ffffff;
+    color: #1c1c1e;
+    padding: 44px 40px;
+    font-family: 'Geist', 'Inter', sans-serif;
+  }
+  .c4 .crumb {
+    font-size: 11px;
+    color: #007aff;
+    font-weight: 600;
+    margin-bottom: 18px;
+    letter-spacing: 0.04em;
+  }
+  .c4 h1 {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 38px;
+    color: #1c1c1e;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+  }
+  .c4 .lede {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #4a4a52;
+    margin-bottom: 28px;
+    font-weight: 400;
+  }
+  .c4 .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .c4 .stat {
+    background: #f2f2f7;
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .c4 .stat .l {
+    font-size: 9px; color: #8e8e93;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .c4 .stat .v {
+    font-size: 18px;
+    color: #1c1c1e;
+    font-weight: 700;
+  }
+  .c4 .body {
+    font-size: 12px;
+    color: #1c1c1e;
+    line-height: 1.55;
+  }
+  .c4 .body p { margin-bottom: 10px; }
+  .c4 .callout {
+    background: #fff8e7;
+    border-left: 3px solid #ffb000;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #4a3000;
+    margin: 12px 0;
+  }
+  .c4 .footer {
+    position: absolute; bottom: 16px; left: 40px; right: 40px;
+    display: flex; justify-content: space-between;
+    font-size: 10px;
+    color: #8e8e93;
+  }
+
+  /* ── CONCEPT 5 — NOTION KNOWLEDGE BASE ────────────────────── */
+  .c5 .page {
+    background: #fbfaf7;
+    color: #2a2724;
+    padding: 32px 32px;
+    font-family: 'Inter', sans-serif;
+  }
+  .c5 .toc {
+    background: rgba(212,175,55,.08);
+    border-left: 3px solid var(--gold);
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    font-size: 10px;
+    color: #5a4520;
+  }
+  .c5 .toc b { display: block; font-size: 8px; letter-spacing: 0.2em;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
+  .c5 .emoji-h1 {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+  }
+  .c5 .emoji-h1 .em { font-size: 32px; }
+  .c5 .emoji-h1 h1 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 30px;
+    color: #2a2724;
+    line-height: 1;
+  }
+  .c5 .props {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: #f5f3ef;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+  }
+  .c5 .prop .l {
+    font-size: 8px; letter-spacing: 0.18em;
+    color: #888479; text-transform: uppercase;
+    margin-bottom: 2px; font-weight: 700;
+  }
+  .c5 .prop .v {
+    font-size: 11px; font-weight: 600;
+    color: #2a2724;
+  }
+  .c5 .badge {
+    display: inline-block;
+    font-size: 9px; padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  .c5 .badge.ship { background: #d4f4d4; color: #1a6e1a; }
+  .c5 .badge.dev  { background: #fff0c4; color: #6e5300; }
+  .c5 .body {
+    font-size: 12px; line-height: 1.55;
+    color: #3a3530;
+  }
+  .c5 .toggle {
+    background: #f5f3ef;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-size: 11px;
+    color: #2a2724;
+  }
+  .c5 .toggle::before {
+    content: '▸ '; color: var(--gold); font-weight: 700;
+  }
+  .c5 .toggle b { color: var(--gold); }
+  .c5 .footer {
+    position: absolute; bottom: 16px; left: 32px; right: 32px;
+    display: flex; justify-content: space-between;
+    font-size: 9px; color: #888479;
+  }
+  .c5 .handwritten {
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: var(--gold);
+    text-align: right;
+    margin-top: 8px;
+  }
+
+  /* shared footer area */
+  .pick {
+    max-width: 720px;
+    margin: 60px auto 0;
+    padding: 22px 30px;
+    border: 1px dashed rgba(212,175,55,.3);
+    border-radius: 16px;
+    text-align: center;
+    background: rgba(212,175,55,.05);
+    position: relative; z-index: 2;
+  }
+  .pick h2 {
+    font-family: 'Fraunces', serif; font-style: italic;
+    color: var(--paper); font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .pick p {
+    color: rgba(244,237,224,.7); font-size: 13px;
+    line-height: 1.5;
+  }
+  .pick code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(212,175,55,.15);
+    color: var(--gold-warm);
+    padding: 2px 8px; border-radius: 5px;
+  }
+
+  .doc-footer {
+    margin-top: 50px;
+    padding-top: 26px; border-top: 1px solid rgba(212,175,55,.15);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.3em;
+    color: rgba(244,237,224,.4); text-transform: uppercase;
+    position: relative; z-index: 2;
+  }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="label">Pixora · Design Archive · Vol 10</div>
+  <h1>Master Doc<br><em>5 direcciones de diseño</em></h1>
+  <p>
+    El Documento Maestro tiene 1,815 párrafos, 22 secciones grandes,
+    mezcla negocio + tech + content specs. Aquí cinco formas radicalmente
+    distintas de presentarlo. Cada mockup muestra la misma página de
+    muestra (sección "v1.6.5 — ARCANO + Calendario Lunar") en la
+    estética de cada dirección.
+  </p>
+</header>
+
+<section class="concepts">
+
+  <!-- ═══ NO. 01 — EDITORIAL MAGAZINE ═══ -->
+  <div class="concept c1">
+    <div class="page">
+      <div class="kicker">Pixora Quarterly · Vol 06 · Núm 5 · Mayo 2026</div>
+      <h1>El calendario que escucha la luna.</h1>
+      <div class="deck">
+        Cómo Pixora introdujo ARCANO, una nueva sección que reinventa
+        el wallpaper del teléfono como un ritual diario personalizado.
+      </div>
+      <div class="col-2">
+        <p>Eduardo abre su Samsung a las 9:03 AM. Es viernes. La pantalla
+        que lo recibe no es un wallpaper estático: la luna en el centro
+        del altar refleja exactamente la fase del cielo de hoy.</p>
+        <p>Su signo zodiacal, Géminis, está iluminado en lila vibrante con
+        las estrellas reales de Castor y Pollux dibujadas alrededor.</p>
+        <p class="pull">"Cada hora gastada en debug se convierte en cinco minutos la próxima vez."</p>
+        <p>El feature ARCANO es la consolidación de seis meses de trabajo.</p>
+      </div>
+      <div class="footer">
+        <span>P. 142</span><span>Modelo de Negocio</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 01</div>
+      <h3>Editorial Magazine</h3>
+      <p>Estética de revista premium tipo Monocle / The Atlantic. Serif
+        Playfair, dropcaps, columns, pull quotes. Body justificado.
+        Lectura larga, pausada, autoritaria.</p>
+      <span class="tag pdf">PDF / Print</span>
+    </div>
+  </div>
+
+  <!-- ═══ NO. 02 — BRUTALIST TECH ═══ -->
+  <div class="concept c2">
+    <div class="page">
+      <div class="grid-bg"></div>
+      <div class="raw-head">// SYSTEM RECORD · 12.X · v1.6.5+41</div>
+      <h1>ARCANO_<br>SECTION_BUILD</h1>
+      <div class="meta-line">RELEASE: 2026-05-02 · TRACK: CLOSED_TESTING</div>
+      <div class="field"><b>Status</b>: SHIPPED</div>
+      <div class="field"><b>Aab_size</b>: 133.5_MB</div>
+      <div class="field"><b>Sha_1</b>: FF:0F:46:D4:E2...AC:CD:79</div>
+      <div class="field"><b>Variants_uploaded</b>: 96 (8 phases x 12 signs)</div>
+      <div class="field"><b>Bucket_size</b>: 47_MB</div>
+      <div class="field"><b>Avg_variant</b>: 510_KB</div>
+      <pre class="ascii">
++---------------+---------+
+| moon_phase    | new...  |
+| zodiac_color  | element |
+| user_glow     | + halo  |
++---------------+---------+
+      </pre>
+      <div class="field"><b>Commit</b>: c32d923</div>
+      <div class="field"><b>Issue</b>: #41</div>
+      <div class="footer">
+        <span>BLOCK_142.7</span><span>SHA8: c32d923</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 02</div>
+      <h3>Brutalist Tech</h3>
+      <p>Terminal aesthetic. Monospace JetBrains Mono everywhere, neon
+        verde signature, grid background, ASCII art, todo en
+        UPPERCASE_SNAKE. Para devs y log-readers.</p>
+      <span class="tag html">HTML / Web</span>
+    </div>
+  </div>
+
+  <!-- ═══ NO. 03 — BLACK & GOLD MANUSCRIPT (Pixora brand) ═══ -->
+  <div class="concept c3">
+    <div class="page">
+      <div class="ornament">❦  ⚸  ❦</div>
+      <div class="vol">Folio XLI · Mayo MMXXVI</div>
+      <h1>De ARCANO,<br><em>la nueva sección lunar</em></h1>
+      <div class="sub">— versión I.VI.V publicada —</div>
+      <div class="body">
+        <p>En el mes quinto del año dos mil veintiséis se entregó al
+        público la versión uno punto seis punto cinco de Pixora, marcando
+        el debut de la sección Arcano: un nuevo umbral dedicado a los
+        calendarios lunares y las lecturas zodiacales personalizadas.</p>
+        <p>Su primer wallpaper, la Diosa Iah, refleja la fase real de la
+        luna en cada momento del día. El signo del usuario brilla en el
+        color de su elemento sagrado.</p>
+      </div>
+      <div class="sigil">𓂀  ⚸  𓋹</div>
+      <div class="footer">— Pixora · Documento Maestro · MMXXVI —</div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 03 · ⭐ MATCHES PIXORA BRAND</div>
+      <h3>Manuscrito Negro y Oro</h3>
+      <p>Pergamino oscuro con tinta dorada. Fraunces italic, Cormorant
+        body, dropcaps gold, sigilos egipcios, ornamentos. Como un
+        grimorio sagrado. ENCAJA 100% con la estética actual de Pixora.</p>
+      <span class="tag pdf">PDF / Print</span>
+    </div>
+  </div>
+
+  <!-- ═══ NO. 04 — APPLE WHITEPAPER ═══ -->
+  <div class="concept c4">
+    <div class="page">
+      <div class="crumb">Pixora · Releases · v1.6.5</div>
+      <h1>ARCANO ships in v1.6.5.</h1>
+      <div class="lede">
+        A new section dedicated to lunar wallpapers, mystical tarot,
+        and personalised energy readings. First entry: Iah Egyptian.
+      </div>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="l">Released</div>
+          <div class="v">May 2, 2026</div>
+        </div>
+        <div class="stat">
+          <div class="l">Variants</div>
+          <div class="v">96</div>
+        </div>
+        <div class="stat">
+          <div class="l">AAB Size</div>
+          <div class="v">133.5 MB</div>
+        </div>
+        <div class="stat">
+          <div class="l">Track</div>
+          <div class="v">Closed Testing</div>
+        </div>
+      </div>
+      <div class="body">
+        <p>Each wallpaper variant is pre-rendered for one of 8 lunar
+        phases combined with one of 12 zodiac signs, giving the user a
+        wallpaper that reflects today's actual moon and highlights their
+        personal sign in its element color.</p>
+      </div>
+      <div class="callout">
+        <b>Privacy:</b> Birth date stored only on device (Hive). Never
+        uploaded to Supabase or shared with any third party.
+      </div>
+      <div class="footer">
+        <span>pixora.app/docs</span><span>v1.6.5 · 142</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 04</div>
+      <h3>Apple-style Whitepaper</h3>
+      <p>Limpio, blanco, generoso. Geist sans-serif, números grandes
+        en stat cards, callouts iOS-style. Inspirado en docs de Apple
+        Developer + Stripe. Profesional para negocio.</p>
+      <span class="tag docx">DOCX</span>
+    </div>
+  </div>
+
+  <!-- ═══ NO. 05 — NOTION KNOWLEDGE BASE ═══ -->
+  <div class="concept c5">
+    <div class="page">
+      <div class="toc">
+        <b>En esta página</b>
+        Resumen · Stack · Métricas · Pendientes · Commits
+      </div>
+      <div class="emoji-h1">
+        <span class="em">🌙</span>
+        <h1>v1.6.5 · ARCANO Lunar</h1>
+      </div>
+      <div class="props">
+        <div class="prop"><div class="l">Estado</div><div class="v"><span class="badge ship">Shipped</span></div></div>
+        <div class="prop"><div class="l">Fecha</div><div class="v">2 May 2026</div></div>
+        <div class="prop"><div class="l">Versión</div><div class="v">1.6.5+41</div></div>
+      </div>
+      <div class="body">
+        Lanzamos la nueva sección ARCANO con el primer wallpaper de
+        calendario lunar: Iah Egyptian con 96 variantes pre-renderizadas
+        (8 fases × 12 signos zodiacales).
+      </div>
+      <div class="toggle"><b>Cambios técnicos</b> · onboarding Hive, draw_zodiac_wheel...</div>
+      <div class="toggle"><b>Pendientes</b> · WorkManager daily phase check, IA readings</div>
+      <div class="toggle"><b>Lecciones</b> · Cache stale, panoramic ratio 4:1</div>
+      <div class="handwritten">— Eduardo</div>
+      <div class="footer">
+        <span>Updated · 2 May 2026</span><span>👁 12 views</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 05</div>
+      <h3>Notion Knowledge Base</h3>
+      <p>Modular, navegable. Cards de propiedades, badges de estado,
+        toggles colapsables, emojis en headers, anotaciones a mano.
+        Perfect para work-in-progress que evoluciona.</p>
+      <span class="tag html">HTML / Notion</span>
+    </div>
+  </div>
+
+</section>
+
+<div class="pick">
+  <h2>¿Cuál te late?</h2>
+  <p>
+    Mi recomendación: <code>NO. 03 (Manuscrito Negro y Oro)</code> porque
+    encaja perfecto con la estética que ya tenemos en Pixora (Black & Gold
+    + Fraunces + sigilos egipcios). Para uso diario también funciona
+    <code>NO. 05 (Notion)</code> que es más navegable.
+    <br><br>
+    Dime el número (<code>1</code>, <code>2</code>, <code>3</code>...)
+    y te genero el documento maestro completo aplicando ese estilo.
+    Si es PDF/HTML lo exporto desde Python; si es DOCX lo aplico con
+    estilos de python-docx + formato custom.
+  </p>
+</div>
+
+<div class="doc-footer">
+  Pixora · Design Archive · Vol 10 · Master Doc Redesign
+</div>
+
+</body>
+</html>

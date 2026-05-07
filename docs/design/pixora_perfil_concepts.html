@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=2400">
+<title>Pixora · Perfil del Usuario · 5 conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&family=Cinzel:wght@400;600;800&family=IM+Fell+English:ital@0;1&family=Caveat:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#06060c; color:#e8e2d4; font-family:'Inter',sans-serif; padding:50px 30px 80px; }
+  .page-h { text-align:center; max-width:1100px; margin:0 auto 50px; }
+  .page-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.35em; color:#d9b14a; text-transform:uppercase; }
+  .page-h h1 { font-family:'Fraunces',serif; font-style:italic; font-size:42px; font-weight:600; margin-top:14px; line-height:1.1; }
+  .page-h h1 em { color:#d9b14a; font-style:normal; }
+  .page-h .sub { font-family:'Inter',sans-serif; font-weight:300; color:#8a826f; margin-top:12px; font-size:14px; max-width:680px; margin-inline:auto; line-height:1.6; }
+  .grid { max-width:2300px; margin:0 auto; display:grid; grid-template-columns:repeat(2, 1fr); gap:48px 30px; justify-items:center; }
+  .frame { position:relative; }
+  .frame .label { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.25em; color:#d9b14a; text-transform:uppercase; margin-bottom:10px; display:block; text-align:center; }
+  .frame .name { font-family:'Fraunces',serif; font-style:italic; font-size:22px; font-weight:600; color:#f0e0b8; margin-bottom:6px; text-align:center; }
+  .frame .desc { font-family:'Inter',sans-serif; font-weight:300; font-size:12px; color:#8a826f; max-width:340px; margin:0 auto 16px; text-align:center; line-height:1.4; }
+  .phone { width:380px; height:800px; border-radius:36px; overflow:hidden; box-shadow:0 25px 50px rgba(0,0,0,0.6), 0 0 0 4px #1a1a22, 0 0 0 5px #2a2a33; position:relative; background:#000; }
+  .status { position:absolute; top:0; left:0; right:0; height:34px; display:flex; align-items:center; justify-content:space-between; padding:8px 22px; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; z-index:10; pointer-events:none; color:#fff; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 01 · APPLE PROFILE (iOS Settings vibe)
+     ════════════════════════════════════════════════════════════════════ */
+  .ap-bg { background:#0a0a0e; height:100%; overflow-y:auto; }
+  .ap-hero { padding:60px 22px 24px; display:flex; align-items:center; gap:16px; border-bottom:0.5px solid #1f1f1f; }
+  .ap-hero .avatar { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, #d9b14a, #f5d676); display:grid; place-items:center; font-family:'Inter',sans-serif; font-weight:800; font-size:30px; color:#0a0a0e; flex-shrink:0; }
+  .ap-hero .info { flex:1; min-width:0; }
+  .ap-hero .name { font-family:'Inter',sans-serif; font-weight:700; font-size:22px; color:#fff; line-height:1.05; }
+  .ap-hero .email { font-family:'Inter',sans-serif; font-weight:400; font-size:13px; color:#8a826f; margin-top:2px; }
+  .ap-hero .pro-pill { display:inline-flex; align-items:center; gap:5px; margin-top:8px; padding:3px 9px; background:linear-gradient(90deg, #d9b14a, #f5d676); color:#0a0a0e; font-family:'Inter',sans-serif; font-weight:700; font-size:10px; letter-spacing:1.2px; border-radius:10px; }
+  .ap-hero .arrow { color:#5a5444; font-size:20px; }
+  .ap-section { padding:18px 0 0; }
+  .ap-section .h { font-family:'Inter',sans-serif; font-weight:600; font-size:11px; letter-spacing:1.5px; color:#8a826f; text-transform:uppercase; padding:0 22px 8px; }
+  .ap-tile { display:flex; align-items:center; gap:12px; padding:13px 22px; border-bottom:0.5px solid #1a1a1a; }
+  .ap-tile:last-child { border-bottom:none; }
+  .ap-tile .icon { width:32px; height:32px; border-radius:8px; background:rgba(217,177,74,0.12); display:grid; place-items:center; color:#d9b14a; font-size:15px; flex-shrink:0; }
+  .ap-tile .body { flex:1; min-width:0; }
+  .ap-tile .body .t { font-family:'Inter',sans-serif; font-weight:500; font-size:14px; color:#fff; }
+  .ap-tile .body .v { font-family:'Inter',sans-serif; font-weight:400; font-size:12px; color:#8a826f; margin-top:2px; }
+  .ap-tile .right { font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:#d9b14a; }
+  .ap-tile .arrow { color:#5a5444; font-size:18px; }
+  .ap-divider { height:18px; background:#0a0a0e; }
+  .ap-danger { padding:14px 22px; }
+  .ap-danger .item { font-family:'Inter',sans-serif; font-weight:500; font-size:14px; color:#cc4545; padding:8px 0; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 02 · CARD STACK (visual stats top + grouped cards)
+     ════════════════════════════════════════════════════════════════════ */
+  .cs-bg { background:#070710; height:100%; overflow-y:auto; padding-bottom:30px; }
+  .cs-cover { height:140px; background:linear-gradient(135deg, #2a1a4a 0%, #5a2070 100%); position:relative; overflow:hidden; }
+  .cs-cover::after { content:""; position:absolute; inset:0; background-image: radial-gradient(circle at 20% 60%, rgba(217,177,74,0.18) 0%, transparent 50%), radial-gradient(circle at 80% 30%, rgba(245,214,118,0.15) 0%, transparent 60%); }
+  .cs-avatar-wrap { position:relative; z-index:2; padding:80px 22px 0; }
+  .cs-avatar { width:84px; height:84px; border-radius:50%; background:linear-gradient(135deg, #d9b14a, #f5d676); border:3px solid #070710; display:grid; place-items:center; font-family:'Inter',sans-serif; font-weight:800; font-size:34px; color:#070710; }
+  .cs-meta { padding:14px 22px 16px; }
+  .cs-meta .name { font-family:'Fraunces',serif; font-style:italic; font-size:26px; font-weight:600; color:#fff; line-height:1; }
+  .cs-meta .email { font-family:'Inter',sans-serif; font-weight:400; font-size:13px; color:#8a826f; margin-top:4px; }
+  .cs-meta .pro-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .cs-meta .pill { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:linear-gradient(90deg, #d9b14a, #f5d676); color:#070710; font-family:'Inter',sans-serif; font-weight:700; font-size:10px; letter-spacing:1px; border-radius:14px; }
+  .cs-meta .renews { font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:#8a826f; }
+  .cs-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:#1a1a1f; border-radius:14px; overflow:hidden; margin:0 18px 16px; }
+  .cs-stats .st { background:#0e0e16; padding:14px 6px; text-align:center; }
+  .cs-stats .st .n { font-family:'Fraunces',serif; font-size:22px; font-weight:600; color:#d9b14a; line-height:1; }
+  .cs-stats .st .l { font-family:'Inter',sans-serif; font-weight:400; font-size:9px; letter-spacing:1px; color:#8a826f; margin-top:4px; text-transform:uppercase; }
+  .cs-card { margin:0 18px 12px; padding:14px 16px; background:#0e0e16; border:1px solid #1a1a22; border-radius:14px; }
+  .cs-card .h { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .cs-card .h .icon { font-size:20px; }
+  .cs-card .h .t { font-family:'Inter',sans-serif; font-weight:600; font-size:14px; color:#fff; flex:1; }
+  .cs-card .h .arrow { color:#5a5444; }
+  .cs-card .v { font-family:'Inter',sans-serif; font-weight:300; font-size:12px; color:#8a826f; line-height:1.45; }
+  .cs-card.pro { background:linear-gradient(135deg, rgba(217,177,74,0.12) 0%, rgba(217,177,74,0.04) 100%); border-color:rgba(217,177,74,0.3); }
+  .cs-card.pro .v { color:#d8c89a; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 03 · CÓDICE PERSONAL (coherente con sección Cultura)
+     ════════════════════════════════════════════════════════════════════ */
+  .co-bg { background:linear-gradient(180deg, #0a0805 0%, #15110a 100%); height:100%; overflow-y:auto; padding:50px 0 30px; }
+  .co-hdr { text-align:center; padding:0 24px 20px; }
+  .co-hdr .gl { font-family:'IM Fell English',serif; font-style:italic; font-size:11px; letter-spacing:0.3em; color:#d9b14a; }
+  .co-hdr h2 { font-family:'IM Fell English',serif; font-style:italic; font-size:32px; color:#f0e0b8; margin-top:6px; }
+  .co-hdr .sb { font-family:'IM Fell English',serif; font-style:italic; font-size:12px; color:#8a826f; margin-top:4px; }
+  .co-greca { height:12px; background-image:repeating-linear-gradient(90deg, #d9b14a 0 6px, transparent 6px 14px, #d9b14a 14px 16px, transparent 16px 24px); margin:0 24px 18px; }
+  .co-id { padding:0 24px 18px; display:flex; align-items:center; gap:14px; }
+  .co-id .avatar { width:64px; height:64px; border-radius:50%; border:2px solid #d9b14a; padding:2px; }
+  .co-id .avatar > div { width:100%; height:100%; border-radius:50%; background:#1a1308; display:grid; place-items:center; font-family:'IM Fell English',serif; font-size:24px; font-style:italic; color:#d9b14a; }
+  .co-id .info .name { font-family:'IM Fell English',serif; font-size:20px; color:#f0e0b8; line-height:1.05; }
+  .co-id .info .email { font-family:'IM Fell English',serif; font-style:italic; font-size:11px; color:#8a826f; margin-top:2px; }
+  .co-id .info .seal { display:inline-block; margin-top:6px; padding:2px 8px; border:1px solid #d9b14a; color:#d9b14a; font-family:'IM Fell English',serif; font-style:italic; font-size:10px; letter-spacing:0.5px; }
+  .co-section { padding:14px 24px; border-top:1px dashed #2a2210; }
+  .co-section .ch { font-family:'IM Fell English',serif; font-style:italic; font-size:9px; letter-spacing:1.5px; color:#d9b14a; text-transform:uppercase; }
+  .co-section .nm { font-family:'IM Fell English',serif; font-size:18px; color:#f0e0b8; line-height:1.05; margin-top:2px; }
+  .co-section .ds { font-family:'IM Fell English',serif; font-style:italic; font-size:11px; color:#c8b890; margin-top:6px; line-height:1.45; }
+  .co-section .arrow { float:right; color:#d9b14a; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 04 · DASHBOARD GAMIFICADO
+     ════════════════════════════════════════════════════════════════════ */
+  .dg-bg { background:#080812; height:100%; overflow-y:auto; padding-bottom:30px; }
+  .dg-hdr { padding:50px 18px 16px; }
+  .dg-row1 { display:flex; gap:14px; align-items:center; }
+  .dg-row1 .avatar { width:56px; height:56px; border-radius:14px; background:linear-gradient(135deg, #4a3aff, #d9b14a); display:grid; place-items:center; font-family:'Inter',sans-serif; font-weight:900; font-size:24px; color:#fff; }
+  .dg-row1 .info .name { font-family:'Inter',sans-serif; font-weight:800; font-size:18px; color:#fff; line-height:1; }
+  .dg-row1 .info .level { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; color:#d9b14a; margin-top:4px; }
+  .dg-bar-wrap { margin-top:12px; }
+  .dg-bar-wrap .lbl { display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:9px; color:#8a826f; margin-bottom:4px; letter-spacing:1px; }
+  .dg-bar-wrap .lbl .gold { color:#d9b14a; }
+  .dg-bar { height:6px; background:#1a1a22; border-radius:3px; overflow:hidden; }
+  .dg-bar .fill { height:100%; width:65%; background:linear-gradient(90deg, #d9b14a, #f5d676); }
+  .dg-pro-banner { margin:14px 18px 16px; padding:14px 16px; background:linear-gradient(135deg, rgba(217,177,74,0.18) 0%, rgba(217,177,74,0.05) 100%); border:1px solid rgba(217,177,74,0.3); border-radius:14px; display:flex; align-items:center; gap:10px; }
+  .dg-pro-banner .ico { font-size:20px; }
+  .dg-pro-banner .body .t { font-family:'Inter',sans-serif; font-weight:700; font-size:13px; color:#fff; }
+  .dg-pro-banner .body .v { font-family:'Inter',sans-serif; font-weight:300; font-size:11px; color:#a09a8a; }
+  .dg-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 18px 14px; }
+  .dg-card { padding:14px 12px; background:#0e0e16; border:1px solid #1a1a22; border-radius:14px; }
+  .dg-card .ico { font-size:22px; }
+  .dg-card .n { font-family:'Inter',sans-serif; font-weight:800; font-size:22px; color:#fff; line-height:1; margin-top:8px; }
+  .dg-card .l { font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:#8a826f; margin-top:2px; }
+  .dg-list { padding:0 18px; }
+  .dg-list-h { font-family:'Inter',sans-serif; font-weight:700; font-size:12px; letter-spacing:1.2px; color:#8a826f; text-transform:uppercase; margin-bottom:8px; }
+  .dg-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #1a1a22; }
+  .dg-row .ico { width:28px; height:28px; border-radius:8px; background:#1a1a22; display:grid; place-items:center; font-size:13px; color:#d9b14a; }
+  .dg-row .body { flex:1; }
+  .dg-row .body .t { font-family:'Inter',sans-serif; font-weight:500; font-size:13px; color:#fff; }
+  .dg-row .body .v { font-family:'Inter',sans-serif; font-weight:300; font-size:11px; color:#8a826f; margin-top:1px; }
+  .dg-row .right { font-family:'Inter',sans-serif; font-weight:700; font-size:12px; color:#d9b14a; }
+
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 05 · TIMELINE PERSONAL
+     ════════════════════════════════════════════════════════════════════ */
+  .tl-bg { background:#0a0a0e; height:100%; overflow-y:auto; padding-bottom:30px; }
+  .tl-hdr { padding:60px 22px 20px; text-align:center; }
+  .tl-hdr .avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg, #d9b14a, #f5d676); margin:0 auto; display:grid; place-items:center; font-family:'Fraunces',serif; font-style:italic; font-size:34px; font-weight:600; color:#0a0a0e; }
+  .tl-hdr .name { font-family:'Fraunces',serif; font-style:italic; font-size:28px; font-weight:600; color:#fff; margin-top:14px; line-height:1; }
+  .tl-hdr .email { font-family:'Inter',sans-serif; font-weight:400; font-size:12px; color:#8a826f; margin-top:6px; }
+  .tl-hdr .pill { display:inline-block; margin-top:10px; padding:4px 12px; background:rgba(217,177,74,0.15); border:1px solid rgba(217,177,74,0.5); color:#d9b14a; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; border-radius:14px; font-weight:700; }
+  .tl-actions { display:flex; gap:8px; margin:14px 22px; }
+  .tl-actions .btn { flex:1; padding:11px 0; border:1px solid #2a2a30; background:transparent; color:#fff; font-family:'Inter',sans-serif; font-weight:600; font-size:12px; border-radius:10px; text-align:center; }
+  .tl-actions .btn.gold { background:#d9b14a; color:#0a0a0e; border-color:#d9b14a; }
+  .tl-tl { position:relative; padding:18px 22px; }
+  .tl-tl::before { content:""; position:absolute; left:34px; top:32px; bottom:20px; width:1px; background:#2a2210; }
+  .tl-event { display:flex; gap:16px; margin-bottom:14px; }
+  .tl-event .dot { width:24px; height:24px; border-radius:50%; background:#0a0a0e; border:2px solid #d9b14a; display:grid; place-items:center; font-size:11px; flex-shrink:0; z-index:2; position:relative; }
+  .tl-event .body { flex:1; padding-bottom:6px; }
+  .tl-event .when { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1px; color:#8a826f; text-transform:uppercase; }
+  .tl-event .what { font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:#fff; margin-top:2px; }
+  .tl-event .ds { font-family:'Inter',sans-serif; font-weight:300; font-size:11px; color:#8a826f; margin-top:2px; }
+  .tl-link { padding:8px 22px; }
+  .tl-link a { font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:#d9b14a; }
+</style>
+</head>
+<body>
+
+<header class="page-h">
+  <div class="eyebrow">PIXORA · PERFIL DEL USUARIO · 5 CONCEPTOS</div>
+  <h1>Perfil · <em>5 propuestas</em></h1>
+  <p class="sub">Pantalla accesible al tap en el avatar de la AppBar. Muestra identidad, suscripción, créditos, colecciones (favoritos / IA / aplicados / eventos seguidos), historial de pagos y opciones de cuenta.<br>Selecciona uno y te genero versión iOS si quieres + lo implemento.</p>
+</header>
+
+<div class="grid">
+
+  <!-- 01 -->
+  <div class="frame">
+    <div class="label">// NO. 01</div>
+    <div class="name">Apple Profile</div>
+    <div class="desc">Estilo iOS Settings · tiles agrupados por sección · familiar y limpio · alta legibilidad</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="ap-bg">
+        <div class="ap-hero">
+          <div class="avatar">E</div>
+          <div class="info">
+            <div class="name">Eduardo</div>
+            <div class="email">eduardojcr@gmail.com</div>
+            <div class="pro-pill">⭐ PIXORA PRO</div>
+          </div>
+          <div class="arrow">›</div>
+        </div>
+        <div class="ap-section">
+          <div class="h">Tu plan</div>
+          <div class="ap-tile"><div class="icon">⭐</div><div class="body"><div class="t">Pixora Pro</div><div class="v">Próx. renovación 4 jun · $49 MXN</div></div><div class="arrow">›</div></div>
+          <div class="ap-tile"><div class="icon">💎</div><div class="body"><div class="t">Créditos</div><div class="v">15 disponibles</div></div><div class="right">+15</div><div class="arrow">›</div></div>
+        </div>
+        <div class="ap-divider"></div>
+        <div class="ap-section">
+          <div class="h">Tus colecciones</div>
+          <div class="ap-tile"><div class="icon">❤️</div><div class="body"><div class="t">Favoritos</div></div><div class="right">12</div><div class="arrow">›</div></div>
+          <div class="ap-tile"><div class="icon">⚡</div><div class="body"><div class="t">Wallpapers aplicados</div></div><div class="right">47</div><div class="arrow">›</div></div>
+          <div class="ap-tile"><div class="icon">🎨</div><div class="body"><div class="t">Imágenes IA</div></div><div class="right">8</div><div class="arrow">›</div></div>
+          <div class="ap-tile"><div class="icon">🔔</div><div class="body"><div class="t">Eventos seguidos</div></div><div class="right">3</div><div class="arrow">›</div></div>
+        </div>
+        <div class="ap-divider"></div>
+        <div class="ap-section">
+          <div class="h">Pagos</div>
+          <div class="ap-tile"><div class="icon">💳</div><div class="body"><div class="t">Historial de pagos</div><div class="v">Última: 4 may · $49 MXN</div></div><div class="arrow">›</div></div>
+          <div class="ap-tile"><div class="icon">🔄</div><div class="body"><div class="t">Restaurar compras</div></div><div class="arrow">›</div></div>
+        </div>
+        <div class="ap-divider"></div>
+        <div class="ap-danger">
+          <div class="item">Cerrar sesión</div>
+          <div class="item">Eliminar mi cuenta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 -->
+  <div class="frame">
+    <div class="label">// NO. 02</div>
+    <div class="name">Card Stack</div>
+    <div class="desc">Cover gradient · stats top · cards agrupadas con borde sutil · vibra moderna tipo Twitter / dashboard SaaS</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="cs-bg">
+        <div class="cs-cover"></div>
+        <div class="cs-avatar-wrap">
+          <div class="cs-avatar">E</div>
+        </div>
+        <div class="cs-meta">
+          <div class="name">Eduardo</div>
+          <div class="email">eduardojcr@gmail.com</div>
+          <div class="pro-row">
+            <div class="pill">⭐ PRO</div>
+            <div class="renews">Renueva el 4 jun</div>
+          </div>
+        </div>
+        <div class="cs-stats">
+          <div class="st"><div class="n">12</div><div class="l">Favs</div></div>
+          <div class="st"><div class="n">47</div><div class="l">Aplic.</div></div>
+          <div class="st"><div class="n">8</div><div class="l">IA</div></div>
+          <div class="st"><div class="n">15</div><div class="l">💎</div></div>
+        </div>
+        <div class="cs-card pro">
+          <div class="h"><div class="icon">⭐</div><div class="t">Pixora Pro · activa</div><div class="arrow">›</div></div>
+          <div class="v">$49 MXN · próx. cobro 4 jun. Cancela desde Google Play.</div>
+        </div>
+        <div class="cs-card">
+          <div class="h"><div class="icon">🎨</div><div class="t">Tus imágenes IA</div><div class="arrow">›</div></div>
+          <div class="v">8 generadas · última hace 3 días</div>
+        </div>
+        <div class="cs-card">
+          <div class="h"><div class="icon">💳</div><div class="t">Historial de pagos</div><div class="arrow">›</div></div>
+          <div class="v">$49 MXN · 4 may · Google Play</div>
+        </div>
+        <div class="cs-card">
+          <div class="h"><div class="icon">🔔</div><div class="t">Eventos seguidos</div><div class="arrow">›</div></div>
+          <div class="v">Día de la Madre · Día de Muertos · Navidad</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 -->
+  <div class="frame">
+    <div class="label">// NO. 03</div>
+    <div class="name">Códice Personal</div>
+    <div class="desc">Coherente con la sección Cultura · papel amate · sello dorado · "tu capítulo personal" · único y memorable</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="co-bg">
+        <div class="co-hdr">
+          <div class="gl">— Códex Pixora · Capítulo Personal —</div>
+          <h2>Tu Perfil</h2>
+          <div class="sb">El registro de tu paso por Pixora</div>
+        </div>
+        <div class="co-greca"></div>
+        <div class="co-id">
+          <div class="avatar"><div>E</div></div>
+          <div class="info">
+            <div class="name">Eduardo</div>
+            <div class="email">eduardojcr@gmail.com</div>
+            <div class="seal">⛧ INICIADO PIXORA PRO</div>
+          </div>
+        </div>
+        <div class="co-section">
+          <span class="arrow">›</span>
+          <div class="ch">— Capítulo I · Tu suscripción —</div>
+          <div class="nm">Pixora Pro · activa</div>
+          <div class="ds">$49 MXN mensuales. La próxima ofrenda llega el 4 de junio.</div>
+        </div>
+        <div class="co-section">
+          <span class="arrow">›</span>
+          <div class="ch">— Capítulo II · Tus colecciones —</div>
+          <div class="nm">12 favoritos · 47 aplicados · 8 imágenes IA</div>
+          <div class="ds">Tu acervo personal. Cada wallpaper que tocaste, instalaste o creaste.</div>
+        </div>
+        <div class="co-section">
+          <span class="arrow">›</span>
+          <div class="ch">— Capítulo III · Tus ofrendas —</div>
+          <div class="nm">3 pagos registrados</div>
+          <div class="ds">Historial completo de transacciones procesadas por Google Play.</div>
+        </div>
+        <div class="co-section">
+          <span class="arrow">›</span>
+          <div class="ch">— Capítulo IV · Eventos —</div>
+          <div class="nm">3 temporadas seguidas</div>
+          <div class="ds">Día de la Madre · Día de Muertos · Navidad. Te avisamos cuando arranquen.</div>
+        </div>
+        <div class="co-greca" style="margin-top:18px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 -->
+  <div class="frame">
+    <div class="label">// NO. 04</div>
+    <div class="name">Dashboard Gamificado</div>
+    <div class="desc">Avatar con nivel · progress bar · stats cards · timeline de actividad · vibe de juego y progreso</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="dg-bg">
+        <div class="dg-hdr">
+          <div class="dg-row1">
+            <div class="avatar">E</div>
+            <div class="info">
+              <div class="name">Eduardo</div>
+              <div class="level">NIVEL 7 · COLECCIONISTA</div>
+            </div>
+          </div>
+          <div class="dg-bar-wrap">
+            <div class="lbl"><span>650 / 1000 XP</span><span class="gold">→ NIVEL 8</span></div>
+            <div class="dg-bar"><div class="fill"></div></div>
+          </div>
+        </div>
+        <div class="dg-pro-banner">
+          <div class="ico">⭐</div>
+          <div class="body">
+            <div class="t">Pixora Pro · activo</div>
+            <div class="v">Próx. cobro 4 jun · $49 MXN</div>
+          </div>
+        </div>
+        <div class="dg-grid">
+          <div class="dg-card"><div class="ico">⚡</div><div class="n">47</div><div class="l">Wallpapers aplicados</div></div>
+          <div class="dg-card"><div class="ico">❤️</div><div class="n">12</div><div class="l">Favoritos</div></div>
+          <div class="dg-card"><div class="ico">🎨</div><div class="n">8</div><div class="l">Imágenes IA</div></div>
+          <div class="dg-card"><div class="ico">💎</div><div class="n">15</div><div class="l">Diamantes</div></div>
+        </div>
+        <div class="dg-list">
+          <div class="dg-list-h">Actividad reciente</div>
+          <div class="dg-row"><div class="ico">⭐</div><div class="body"><div class="t">Renovación Pro</div><div class="v">$49 MXN cargado</div></div><div class="right">hoy</div></div>
+          <div class="dg-row"><div class="ico">⚡</div><div class="body"><div class="t">Aplicaste Mictlantecuhtli</div><div class="v">canvas_scene · 3D</div></div><div class="right">ayer</div></div>
+          <div class="dg-row"><div class="ico">🎨</div><div class="body"><div class="t">Generaste imagen IA</div><div class="v">"sunset cyberpunk"</div></div><div class="right">3d</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 -->
+  <div class="frame">
+    <div class="label">// NO. 05</div>
+    <div class="name">Timeline Personal</div>
+    <div class="desc">Header centrado · 2 botones acción · línea cronológica de eventos · narrativa "tu historia con Pixora"</div>
+    <div class="phone">
+      <div class="status">9:41<span>· · · ·</span></div>
+      <div class="tl-bg">
+        <div class="tl-hdr">
+          <div class="avatar">E</div>
+          <div class="name">Eduardo</div>
+          <div class="email">eduardojcr@gmail.com</div>
+          <div class="pill">⭐ PIXORA PRO</div>
+        </div>
+        <div class="tl-actions">
+          <div class="btn">Configurar</div>
+          <div class="btn gold">Compartir Pixora</div>
+        </div>
+        <div class="tl-tl">
+          <div class="tl-event"><div class="dot">⭐</div><div class="body"><div class="when">HOY · 11:42</div><div class="what">Pixora Pro renovado</div><div class="ds">$49 MXN cargado · próximo: 4 jun</div></div></div>
+          <div class="tl-event"><div class="dot">⚡</div><div class="body"><div class="when">AYER · 18:30</div><div class="what">Aplicaste Mictlantecuhtli</div><div class="ds">canvas_scene 3D · activo en home</div></div></div>
+          <div class="tl-event"><div class="dot">🎨</div><div class="body"><div class="when">3 MAY · 15:12</div><div class="what">Generaste 1 imagen IA</div><div class="ds">"sunset cyberpunk vibrant"</div></div></div>
+          <div class="tl-event"><div class="dot">❤️</div><div class="body"><div class="when">2 MAY</div><div class="what">3 nuevos favoritos</div><div class="ds">Goku Genkidama · Bosque Lluvioso · Fortaleza</div></div></div>
+          <div class="tl-event"><div class="dot">🎁</div><div class="body"><div class="when">1 MAY</div><div class="what">Reclamaste tu regalo de bienvenida</div><div class="ds">Volcano Dragon aplicado · sin anuncios</div></div></div>
+        </div>
+        <div class="tl-link"><a>Ver toda mi actividad →</a></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer style="text-align:center; margin-top:60px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.3em; color:#5a5444;">
+  PIXORA · DESIGN ARCHIVE · PERFIL · ENTRY 034
+</footer>
+
+</body></html>

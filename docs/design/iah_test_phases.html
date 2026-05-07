@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1400">
+<title>Iah · 8 fases lunares · Tauro</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500&family=JetBrains+Mono:wght@400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(ellipse at top, #14101c 0%, #07060a 70%);
+    color: #f6efe2;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 40px 30px 80px;
+  }
+  header { text-align: center; margin-bottom: 40px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.3em; color: #d9b14a; }
+  h1 { font-family: 'Fraunces', serif; font-style: italic; font-size: 40px; font-weight: 500; margin: 12px 0 8px; }
+  .meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8a826f; letter-spacing: 0.15em; }
+
+  .container { max-width: 1320px; margin: 0 auto; }
+
+  .phase {
+    margin-bottom: 30px;
+  }
+  .phase h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: #d9b14a;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .phase h3 span { color: #8a826f; margin-left: 12px; }
+  .pano {
+    width: 100%;
+    aspect-ratio: 4 / 1;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
+  .pano img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Moon-only crop preview alongside */
+  .moon-row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 12px;
+    margin-top: 60px;
+    margin-bottom: 30px;
+  }
+  .moon-cell { text-align: center; }
+  .moon-window {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #000;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #d9b14a;
+    box-shadow: 0 0 30px rgba(217,177,74,0.3);
+    position: relative;
+  }
+  .moon-window img {
+    width: 800%;
+    height: 800%;
+    object-fit: cover;
+    object-position: 50% 48%;
+    position: absolute;
+    top: -350%;
+    left: -350%;
+  }
+  .moon-cell .label {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: #b5ad9a;
+  }
+  .moon-cell .pct {
+    color: #d9b14a;
+    font-weight: 600;
+  }
+
+  footer {
+    text-align: center; margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #5a5444; letter-spacing: 0.3em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">PIXORA · IAH LUNAR · TEST 8 PHASES</div>
+  <h1>Tauro · 8 fases lunares</h1>
+  <div class="meta">PANORAMA <span style="color:#d9b14a">4192 × 1024</span> · USUARIO <span style="color:#d9b14a">EDUARDO · TAURO ♉</span></div>
+</header>
+
+<div class="container">
+
+  <h3 style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: #d9b14a; text-transform: uppercase; text-align:center;">// LUNA EN CADA FASE (zoom al anillo)</h3>
+  <div class="moon-row">
+    <div class="moon-cell"><div class="moon-window"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_new_01.webp"></div><div class="label">NEW<br><span class="pct">0%</span></div></div>
+    <div class="moon-cell"><div class="moon-window"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_waxing_crescent_01.webp"></div><div class="label">WAX<br><span class="pct">20%</span></div></div>
+    <div class="moon-cell"><div class="moon-window"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_first_quarter_01.webp"></div><div class="label">1Q<br><span class="pct">50%</span></div></div>
+    <div class="moon-cell"><div class="moon-window"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_waxing_gibbous_01.webp"></div><div class="label">WAX-GIB<br><span class="pct">78%</span></div></div>
+    <div class="moon-cell"><div class="moon-window"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_full_01.webp"></div><div class="label">FULL<br><span class="pct">100%</span></div></div>
+    <div class="moon-cell"><div class="moon-window"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_waning_gibbous_01.webp"></div><div class="label">WAN-GIB<br><span class="pct">78%</span></div></div>
+    <div class="moon-cell"><div class="moon-window"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_third_quarter_01.webp"></div><div class="label">3Q<br><span class="pct">50%</span></div></div>
+    <div class="moon-cell"><div class="moon-window"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_waning_crescent_01.webp"></div><div class="label">WAN<br><span class="pct">20%</span></div></div>
+  </div>
+
+  <h3 style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: #d9b14a; text-transform: uppercase; text-align:center; margin-top:60px;">// PANORÁMICOS COMPLETOS</h3>
+
+  <div class="phase">
+    <h3>NEW <span>0% — disco oscurecido</span></h3>
+    <div class="pano"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_new_01.webp"></div>
+  </div>
+  <div class="phase">
+    <h3>WAXING CRESCENT <span>20% — sliver derecho</span></h3>
+    <div class="pano"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_waxing_crescent_01.webp"></div>
+  </div>
+  <div class="phase">
+    <h3>FIRST QUARTER <span>50% — mitad derecha lit</span></h3>
+    <div class="pano"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_first_quarter_01.webp"></div>
+  </div>
+  <div class="phase">
+    <h3>WAXING GIBBOUS <span>78% — sombra fina izq</span></h3>
+    <div class="pano"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_waxing_gibbous_01.webp"></div>
+  </div>
+  <div class="phase">
+    <h3>FULL <span>100% — sin sombra</span></h3>
+    <div class="pano"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_full_01.webp"></div>
+  </div>
+  <div class="phase">
+    <h3>WANING GIBBOUS <span>78% — sombra fina der</span></h3>
+    <div class="pano"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_waning_gibbous_01.webp"></div>
+  </div>
+  <div class="phase">
+    <h3>THIRD QUARTER <span>50% — mitad izquierda lit</span></h3>
+    <div class="pano"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_third_quarter_01.webp"></div>
+  </div>
+  <div class="phase">
+    <h3>WANING CRESCENT <span>20% — sliver izq</span></h3>
+    <div class="pano"><img src="concepts/livecalendar/egyptian/panoramic_phases/pixora_iah_egyptian_giza_lunar_waning_crescent_01.webp"></div>
+  </div>
+
+</div>
+
+<footer>PIXORA · IAH LUNAR · TEST · 2026-05-02</footer>
+
+</body>
+</html>

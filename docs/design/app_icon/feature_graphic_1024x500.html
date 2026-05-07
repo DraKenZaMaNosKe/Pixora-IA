@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #000000;
+    --surface: #0A0604;
+    --surface2: #151008;
+    --gold: #C9A650;
+    --gold-bright: #F0DD9E;
+    --gold-deep: #8A6F33;
+    --text: #F5EFDE;
+    --text-dim: #8A7A56;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 1024px;
+    height: 500px;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Fraunces', serif;
+    color: var(--text);
+  }
+
+  .canvas {
+    width: 1024px;
+    height: 500px;
+    position: relative;
+    background:
+      radial-gradient(1200px 600px at 30% 50%, rgba(201,166,80,0.18) 0%, transparent 60%),
+      radial-gradient(800px 500px at 85% 20%, rgba(240,221,158,0.10) 0%, transparent 55%),
+      linear-gradient(135deg, #0A0604 0%, #000 60%);
+    overflow: hidden;
+  }
+
+  /* Grain overlay */
+  .canvas::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.79 0 0 0 0 0.65 0 0 0 0 0.31 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode: overlay;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Diagonal ribbon lines */
+  .ribbons {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: 0.18;
+    background:
+      repeating-linear-gradient(
+        135deg,
+        transparent 0px, transparent 38px,
+        rgba(201,166,80,0.5) 38px, rgba(201,166,80,0.5) 39px
+      );
+  }
+
+  /* Decorative corner marks (HUD tags) */
+  .hud {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    z-index: 6;
+  }
+  .hud.tl { top: 22px; left: 28px; }
+  .hud.tr { top: 22px; right: 28px; text-align: right; }
+  .hud.bl { bottom: 22px; left: 28px; }
+  .hud.br { bottom: 22px; right: 28px; text-align: right; color: var(--text-dim); }
+  .hud .dim { color: var(--text-dim); }
+  .hud .bright { color: var(--gold-bright); }
+
+  /* Emblem — diamond P mark on left */
+  .emblem {
+    position: absolute;
+    left: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    height: 300px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .emblem svg { width: 100%; height: 100%; filter: drop-shadow(0 12px 30px rgba(201,166,80,0.25)); }
+  .emblem::after {
+    /* Subtle aura halo behind */
+    content: '';
+    position: absolute;
+    width: 360px; height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,166,80,0.28) 0%, transparent 60%);
+    z-index: -1;
+  }
+
+  /* Brand typography — right side */
+  .brand {
+    position: absolute;
+    left: 400px;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .title {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 108px;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    font-variation-settings: 'opsz' 144;
+  }
+  .title em {
+    font-style: italic;
+    color: var(--gold-bright);
+    font-weight: 600;
+  }
+
+  .tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--text-dim);
+    max-width: 520px;
+    line-height: 1.35;
+    margin-top: 4px;
+  }
+  .tagline b { color: var(--gold-bright); font-weight: 600; font-style: italic; }
+
+  /* Feature chips row */
+  .chips {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    padding: 5px 10px;
+    border: 1px solid rgba(201,166,80,0.5);
+    color: var(--gold);
+    background: rgba(201,166,80,0.06);
+  }
+  .chip.hot { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+
+  /* Divider between left emblem and right text */
+  .divider {
+    position: absolute;
+    left: 388px;
+    top: 60px;
+    bottom: 60px;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(201,166,80,0.4) 30%,
+      rgba(201,166,80,0.4) 70%,
+      transparent 100%
+    );
+    z-index: 3;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <div class="ribbons"></div>
+
+  <span class="hud tl"><span class="dim">ORBIX</span> · <span class="bright">STUDIO</span></span>
+  <span class="hud tr"><span class="bright">◆</span> BLACK &amp; GOLD</span>
+  <span class="hud bl">v1.5.17 · CLOSED TESTING</span>
+  <span class="hud br">LIVE WALLPAPERS · AI · WELLNESS</span>
+
+  <div class="emblem">
+    <!-- Recreate the diamond P emblem from the icon in pure SVG for sharpness -->
+    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer diamond frame -->
+      <polygon points="256,56 456,256 256,456 56,256"
+               fill="none" stroke="#C9A650" stroke-width="7" />
+      <!-- Inner frame -->
+      <polygon points="256,120 392,256 256,392 120,256"
+               fill="none" stroke="#8A6F33" stroke-width="2.5" />
+      <!-- Gold P (Fraunces-inspired) -->
+      <text x="256" y="340"
+            text-anchor="middle"
+            fill="#F0DD9E"
+            font-family="Fraunces, serif"
+            font-weight="600"
+            font-size="260"
+            font-style="italic">P</text>
+    </svg>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="brand">
+    <span class="eyebrow">PIXORA · ORBIX STUDIO</span>
+    <h1 class="title">Living <em>art.</em><br/>Healing <em>audio.</em></h1>
+    <p class="tagline">
+      Fondos vivos, galería <b>IA</b>, tonos curados y <b>AURA</b> — sonidos que te relajan, te despiertan, te sanan.
+    </p>
+    <div class="chips">
+      <span class="chip hot">◆ NEW · GALERÍA IA</span>
+      <span class="chip">LIVE WALLPAPERS</span>
+      <span class="chip">AURA · SOLFEGGIO</span>
+      <span class="chip">RINGTONES</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

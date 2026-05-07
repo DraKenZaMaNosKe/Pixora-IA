@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=2200">
+<title>Mictlantecuhtli · 5 conceptos editoriales × 2 temas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700;900&family=Geist:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Cinzel:wght@400;600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#06060c; color:#e8e2d4; font-family:'Inter',sans-serif; padding:60px 30px 100px; }
+  .page-h { text-align:center; max-width:1100px; margin:0 auto 60px; }
+  .page-h .eyebrow { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.35em; color:#d9b14a; text-transform:uppercase; }
+  .page-h h1 { font-family:'Fraunces',serif; font-style:italic; font-size:46px; font-weight:600; margin-top:16px; line-height:1.1; }
+  .page-h h1 em { color:#d9b14a; font-style:normal; }
+  .page-h .sub { font-family:'Inter',sans-serif; font-weight:300; color:#8a826f; margin-top:14px; font-size:14px; max-width:680px; margin-inline:auto; line-height:1.6; }
+
+  .row { max-width:2100px; margin:0 auto 80px; }
+  .row-h { display:flex; align-items:baseline; gap:20px; padding:0 8px 18px; border-bottom:1px solid #1f1c14; margin-bottom:30px; }
+  .row-h .num { font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:0.3em; color:#d9b14a; }
+  .row-h .name { font-family:'Fraunces',serif; font-style:italic; font-size:32px; font-weight:600; }
+  .row-h .desc { color:#8a826f; font-family:'Inter',sans-serif; font-weight:300; font-size:13px; margin-left:auto; max-width:580px; text-align:right; line-height:1.5; }
+
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; justify-items:center; }
+  .frame { position:relative; }
+  .frame .label { position:absolute; top:-30px; left:0; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.25em; color:#5a5444; text-transform:uppercase; }
+  .phone { width:392px; height:830px; border-radius:38px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.6), 0 0 0 4px #1a1a22, 0 0 0 5px #2a2a33; position:relative; background:#000; }
+  .phone .status { position:absolute; top:0; left:0; right:0; height:38px; display:flex; align-items:center; justify-content:space-between; padding:10px 24px; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; z-index:10; pointer-events:none; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 01 · CÓDICE MEXICA · Black & Gold
+     ──────────────────────────────────────────────── */
+  .codice-bg { background:linear-gradient(180deg, #0c0a07 0%, #15110a 50%, #0c0a07 100%); color:#e8d8b0; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .codice-bg::before { content:""; position:absolute; inset:0; background-image: radial-gradient(circle at 20% 10%, rgba(217,177,74,0.04) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(217,177,74,0.04) 0%, transparent 40%); pointer-events:none; }
+  .codice-img { height:340px; background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-videos/previews/mictlantecuhtli_preview.webp') center/cover; position:relative; }
+  .codice-img::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 50%, #0c0a07 100%); }
+  .codice-greca { height:14px; background-image:repeating-linear-gradient(90deg, #d9b14a 0 8px, transparent 8px 16px, #d9b14a 16px 18px, transparent 18px 26px); position:relative; z-index:2; }
+  .codice-body { padding:24px 26px; position:relative; z-index:2; }
+  .codice-body .glyph { font-family:'IM Fell English',serif; font-style:italic; color:#d9b14a; font-size:13px; letter-spacing:0.3em; text-transform:uppercase; }
+  .codice-body h2 { font-family:'IM Fell English',serif; font-size:36px; font-weight:400; line-height:1.05; margin-top:8px; color:#f0e0b8; }
+  .codice-body h2 em { font-style:italic; color:#d9b14a; }
+  .codice-body .pron { font-family:'IM Fell English',serif; font-style:italic; color:#8a826f; font-size:13px; margin-top:6px; }
+  .codice-body .lead { font-family:'IM Fell English',serif; font-size:15px; line-height:1.55; margin-top:18px; color:#d8c89a; padding-left:16px; border-left:2px solid #d9b14a; }
+  .codice-body .lead::first-letter { font-family:'Cinzel',serif; font-size:54px; float:left; line-height:0.85; padding:6px 10px 0 0; color:#d9b14a; }
+  .codice-body .codex-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:24px; }
+  .codice-body .codex-cell { padding:12px 0; border-top:1px dashed #44351a; }
+  .codice-body .codex-cell .k { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.25em; color:#8a826f; text-transform:uppercase; }
+  .codice-body .codex-cell .v { font-family:'IM Fell English',serif; font-size:14px; color:#e8d8b0; margin-top:4px; line-height:1.3; }
+  .codice-body .ofrenda { background:rgba(217,177,74,0.06); border:1px solid rgba(217,177,74,0.2); padding:14px 16px; margin-top:22px; border-radius:2px; }
+  .codice-body .ofrenda .k { font-family:'IM Fell English',serif; font-style:italic; color:#d9b14a; font-size:13px; letter-spacing:0.1em; }
+  .codice-body .ofrenda .v { font-family:'IM Fell English',serif; font-size:13px; line-height:1.5; color:#c8b890; margin-top:4px; }
+  .codice-body .codex-cta { display:block; width:100%; background:linear-gradient(180deg, #d9b14a 0%, #b08a30 100%); color:#0c0a07; font-family:'Cinzel',serif; font-weight:800; letter-spacing:0.18em; text-align:center; padding:16px; margin-top:22px; border:none; cursor:pointer; font-size:13px; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 01 · CÓDICE MEXICA · iOS White
+     ──────────────────────────────────────────────── */
+  .codice-ios { background:linear-gradient(180deg, #f6efe2 0%, #ede4cc 100%); color:#3a2e1a; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .codice-ios .codice-img { height:340px; background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-videos/previews/mictlantecuhtli_preview.webp') center/cover; }
+  .codice-ios .codice-img::after { background:linear-gradient(180deg, transparent 50%, #f6efe2 100%); }
+  .codice-ios .codice-greca { background-image:repeating-linear-gradient(90deg, #b08a30 0 8px, transparent 8px 16px, #b08a30 16px 18px, transparent 18px 26px); }
+  .codice-ios h2 { color:#3a2e1a; }
+  .codice-ios h2 em { color:#a06820; }
+  .codice-ios .pron { color:#8a7a5a; }
+  .codice-ios .lead { color:#54482e; border-left-color:#a06820; }
+  .codice-ios .lead::first-letter { color:#a06820; }
+  .codice-ios .codex-cell { border-top-color:#c0b09a; }
+  .codice-ios .codex-cell .k { color:#a08a6a; }
+  .codice-ios .codex-cell .v { color:#3a2e1a; }
+  .codice-ios .ofrenda { background:rgba(160,104,32,0.08); border-color:rgba(160,104,32,0.25); }
+  .codice-ios .ofrenda .k { color:#a06820; }
+  .codice-ios .ofrenda .v { color:#54482e; }
+  .codice-ios .codex-cta { background:linear-gradient(180deg, #a06820 0%, #804818 100%); color:#fff; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 02 · NATIONAL GEOGRAPHIC · B&G
+     ──────────────────────────────────────────────── */
+  .nat-bg { background:#0a0a0e; color:#e8e2d4; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .nat-bg .nat-hero { height:420px; background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-videos/previews/mictlantecuhtli_preview.webp') center/cover; position:relative; }
+  .nat-bg .nat-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 60%, #0a0a0e 100%); }
+  .nat-bg .nat-hero .nat-eyebrow { position:absolute; top:60px; left:24px; right:24px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.4em; color:#d9b14a; z-index:2; }
+  .nat-bg .nat-hero .nat-title { position:absolute; bottom:30px; left:24px; right:24px; z-index:2; }
+  .nat-bg .nat-hero .nat-title h2 { font-family:'Fraunces',serif; font-size:42px; font-weight:600; line-height:0.95; }
+  .nat-bg .nat-hero .nat-title em { font-style:italic; color:#d9b14a; }
+  .nat-body { padding:24px 24px 0; }
+  .nat-body .nat-quote { font-family:'Fraunces',serif; font-style:italic; font-size:22px; line-height:1.3; color:#f0e8d4; margin:10px 0 22px; padding-left:14px; border-left:3px solid #d9b14a; }
+  .nat-body .nat-quote-cite { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.2em; color:#8a826f; text-transform:uppercase; margin-top:8px; }
+  .nat-body p.body { font-family:'Inter',sans-serif; font-weight:400; font-size:14px; line-height:1.65; color:#c8c2b4; margin-bottom:16px; }
+  .nat-body .nat-stats { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:#1f1c14; border:1px solid #1f1c14; margin:18px 0; }
+  .nat-body .nat-stats .stat { background:#11100c; padding:14px 12px; }
+  .nat-body .nat-stats .stat .k { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.2em; color:#8a826f; text-transform:uppercase; }
+  .nat-body .nat-stats .stat .v { font-family:'Fraunces',serif; font-size:20px; color:#d9b14a; margin-top:6px; line-height:1; }
+  .nat-body .nat-stats .stat .vs { font-size:11px; color:#8a826f; font-family:'Inter',sans-serif; font-weight:400; }
+  .nat-cta { margin:18px 24px 0; display:block; width:calc(100% - 48px); background:#d9b14a; color:#0a0a0e; padding:16px; border:none; font-family:'Inter',sans-serif; font-weight:700; font-size:14px; letter-spacing:0.05em; cursor:pointer; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 02 · NATIONAL GEOGRAPHIC · iOS
+     ──────────────────────────────────────────────── */
+  .nat-ios { background:#fff; color:#1a1a1a; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .nat-ios .nat-hero { height:420px; background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-videos/previews/mictlantecuhtli_preview.webp') center/cover; position:relative; }
+  .nat-ios .nat-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 50%); }
+  .nat-ios .nat-hero .nat-eyebrow { position:absolute; top:60px; left:24px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.4em; color:#fff; z-index:2; }
+  .nat-ios .nat-hero .nat-title { position:absolute; bottom:30px; left:24px; right:24px; z-index:2; color:#fff; }
+  .nat-ios .nat-hero .nat-title h2 { font-family:'Fraunces',serif; font-size:42px; font-weight:600; line-height:0.95; }
+  .nat-ios .nat-hero .nat-title em { font-style:italic; color:#ffc847; }
+  .nat-ios .nat-body p.body { color:#3a3a3a; }
+  .nat-ios .nat-body .nat-quote { color:#1a1a1a; border-left-color:#c89030; }
+  .nat-ios .nat-body .nat-quote-cite { color:#888; }
+  .nat-ios .nat-body .nat-stats { background:#f0f0f0; border-color:#f0f0f0; }
+  .nat-ios .nat-body .nat-stats .stat { background:#fff; }
+  .nat-ios .nat-body .nat-stats .stat .k { color:#888; }
+  .nat-ios .nat-body .nat-stats .stat .v { color:#c89030; }
+  .nat-ios .nat-body .nat-stats .stat .vs { color:#888; }
+  .nat-ios .nat-cta { background:#1a1a1a; color:#fff; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 03 · TARJETA COLECCIONABLE TCG · B&G
+     ──────────────────────────────────────────────── */
+  .tcg-bg { background:radial-gradient(ellipse at center, #0c0a07 0%, #050405 100%); color:#e8d8b0; height:100%; overflow-y:auto; padding:14px; padding-bottom:100px; }
+  .tcg-card { background:linear-gradient(135deg, #1a1308 0%, #0c0a07 100%); border:2px solid #d9b14a; border-radius:14px; padding:0; box-shadow:0 0 30px rgba(217,177,74,0.2), inset 0 0 60px rgba(217,177,74,0.04); }
+  .tcg-card .tcg-h { padding:14px 16px; border-bottom:1px solid #44351a; display:flex; align-items:center; gap:12px; }
+  .tcg-card .tcg-h .tcg-elem { width:38px; height:38px; border-radius:50%; background:radial-gradient(circle, #4dcbff 0%, #1a3050 100%); display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:800; color:#fff; font-size:14px; box-shadow:0 0 12px #4dcbff; }
+  .tcg-card .tcg-h .tcg-name { font-family:'Cinzel',serif; font-weight:600; font-size:16px; letter-spacing:0.05em; color:#f0e0b8; line-height:1.1; }
+  .tcg-card .tcg-h .tcg-tier { margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.2em; color:#d9b14a; padding:4px 8px; border:1px solid #d9b14a; border-radius:3px; }
+  .tcg-card .tcg-art { height:280px; background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-videos/previews/mictlantecuhtli_preview.webp') center/cover; border-bottom:2px solid #d9b14a; position:relative; }
+  .tcg-card .tcg-art::after { content:""; position:absolute; inset:0; box-shadow:inset 0 0 30px rgba(217,177,74,0.2); }
+  .tcg-card .tcg-art .tcg-rarity { position:absolute; bottom:8px; right:8px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.3em; color:#d9b14a; background:rgba(0,0,0,0.7); padding:4px 10px; border:1px solid #d9b14a; }
+  .tcg-card .tcg-type { padding:8px 16px; border-bottom:1px solid #44351a; display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.2em; color:#d9b14a; }
+  .tcg-card .tcg-type .vals { color:#8a826f; }
+  .tcg-card .tcg-stats { padding:14px 16px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; border-bottom:1px solid #44351a; }
+  .tcg-card .tcg-stats .stat { text-align:center; }
+  .tcg-card .tcg-stats .stat .k { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.15em; color:#8a826f; }
+  .tcg-card .tcg-stats .stat .v { font-family:'Cinzel',serif; font-size:24px; color:#d9b14a; margin-top:2px; line-height:1; }
+  .tcg-card .tcg-skill { padding:14px 16px; border-bottom:1px solid #44351a; }
+  .tcg-card .tcg-skill .sk-h { font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.15em; color:#d9b14a; text-transform:uppercase; }
+  .tcg-card .tcg-skill .sk-d { font-family:'IM Fell English',serif; font-size:12px; line-height:1.45; color:#c8b890; margin-top:6px; }
+  .tcg-card .tcg-flavor { padding:12px 16px; font-family:'IM Fell English',serif; font-style:italic; font-size:11px; line-height:1.4; color:#8a826f; border-bottom:1px solid #44351a; }
+  .tcg-card .tcg-cta { width:100%; background:linear-gradient(180deg, #d9b14a 0%, #b08a30 100%); color:#0c0a07; font-family:'Cinzel',serif; font-weight:800; letter-spacing:0.18em; padding:16px; border:none; font-size:12px; cursor:pointer; border-radius:0 0 12px 12px; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 03 · TARJETA COLECCIONABLE · iOS
+     ──────────────────────────────────────────────── */
+  .tcg-ios { background:linear-gradient(180deg, #f0f3f8 0%, #d8dde6 100%); color:#1a2030; height:100%; overflow-y:auto; padding:14px; padding-bottom:100px; }
+  .tcg-ios .tcg-card { background:linear-gradient(135deg, #fff 0%, #f8f6f0 100%); border-color:#a06820; box-shadow:0 0 30px rgba(0,0,0,0.1); }
+  .tcg-ios .tcg-card .tcg-h { border-bottom-color:#e0d8c0; }
+  .tcg-ios .tcg-card .tcg-h .tcg-name { color:#1a2030; }
+  .tcg-ios .tcg-card .tcg-h .tcg-tier { color:#a06820; border-color:#a06820; }
+  .tcg-ios .tcg-card .tcg-art { border-bottom-color:#a06820; }
+  .tcg-ios .tcg-card .tcg-type { border-bottom-color:#e0d8c0; color:#a06820; }
+  .tcg-ios .tcg-card .tcg-type .vals { color:#888; }
+  .tcg-ios .tcg-card .tcg-stats { border-bottom-color:#e0d8c0; }
+  .tcg-ios .tcg-card .tcg-stats .stat .k { color:#888; }
+  .tcg-ios .tcg-card .tcg-stats .stat .v { color:#a06820; }
+  .tcg-ios .tcg-card .tcg-skill { border-bottom-color:#e0d8c0; }
+  .tcg-ios .tcg-card .tcg-skill .sk-h { color:#a06820; }
+  .tcg-ios .tcg-card .tcg-skill .sk-d { color:#3a3a3a; }
+  .tcg-ios .tcg-card .tcg-flavor { color:#888; border-bottom-color:#e0d8c0; }
+  .tcg-ios .tcg-card .tcg-cta { background:linear-gradient(180deg, #1a2030 0%, #0a1020 100%); color:#fff; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 04 · EDITORIAL VOGUE · B&G
+     ──────────────────────────────────────────────── */
+  .vog-bg { background:#000; color:#fff; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .vog-bg .vog-h { padding:60px 28px 24px; text-align:left; }
+  .vog-bg .vog-h .num { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.4em; color:#d9b14a; }
+  .vog-bg .vog-h h2 { font-family:'DM Serif Display',serif; font-size:80px; font-weight:400; line-height:0.85; margin-top:14px; letter-spacing:-0.02em; }
+  .vog-bg .vog-h h2 i { font-style:italic; color:#d9b14a; }
+  .vog-bg .vog-img { height:380px; background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-videos/previews/mictlantecuhtli_preview.webp') center/cover; margin:24px 0 0; }
+  .vog-bg .vog-cap { padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.25em; color:#888; text-transform:uppercase; border-bottom:1px solid #1a1a1a; }
+  .vog-bg .vog-body { padding:28px 28px 0; }
+  .vog-bg .vog-body p { font-family:'Cormorant Garamond',serif; font-size:18px; line-height:1.5; color:#d8d2c4; margin-bottom:18px; }
+  .vog-bg .vog-body p::first-letter { font-family:'DM Serif Display',serif; font-size:48px; float:left; line-height:0.85; padding:6px 10px 0 0; color:#d9b14a; }
+  .vog-bg .vog-meta { padding:0 28px; margin-top:8px; }
+  .vog-bg .vog-meta-row { padding:14px 0; border-top:1px solid #2a2a2a; display:flex; gap:16px; align-items:baseline; }
+  .vog-bg .vog-meta-row .k { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.25em; color:#888; min-width:90px; text-transform:uppercase; }
+  .vog-bg .vog-meta-row .v { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px; color:#fff; flex:1; }
+  .vog-bg .vog-cta { margin:24px 28px 0; padding:18px; background:transparent; color:#d9b14a; border:1px solid #d9b14a; font-family:'JetBrains Mono',monospace; letter-spacing:0.3em; font-size:11px; text-transform:uppercase; cursor:pointer; width:calc(100% - 56px); }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 04 · EDITORIAL VOGUE · iOS
+     ──────────────────────────────────────────────── */
+  .vog-ios { background:#fafaf6; color:#0a0a0a; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .vog-ios .vog-h h2 i { color:#a06820; }
+  .vog-ios .vog-cap { color:#888; border-bottom-color:#e8e8e0; }
+  .vog-ios .vog-body p { color:#1a1a1a; }
+  .vog-ios .vog-body p::first-letter { color:#a06820; }
+  .vog-ios .vog-meta-row { border-top-color:#e8e8e0; }
+  .vog-ios .vog-meta-row .k { color:#888; }
+  .vog-ios .vog-meta-row .v { color:#0a0a0a; }
+  .vog-ios .vog-cta { color:#0a0a0a; border-color:#0a0a0a; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 05 · DOCUMENTAL · B&G
+     ──────────────────────────────────────────────── */
+  .doc-bg { background:#0a0a0e; color:#e8e2d4; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .doc-bg .doc-hero { position:relative; height:240px; background:url('https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-videos/previews/mictlantecuhtli_preview.webp') center/cover; }
+  .doc-bg .doc-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 50%, #0a0a0e 100%); }
+  .doc-bg .doc-hero .doc-tag { position:absolute; top:60px; left:24px; padding:5px 10px; background:rgba(217,177,74,0.15); border:1px solid #d9b14a; color:#d9b14a; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.25em; z-index:2; }
+  .doc-bg .doc-titles { padding:18px 24px 6px; }
+  .doc-bg .doc-titles .pron { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.2em; color:#d9b14a; }
+  .doc-bg .doc-titles h2 { font-family:'Fraunces',serif; font-size:30px; font-weight:600; line-height:1.05; margin-top:6px; }
+  .doc-bg .doc-titles .roles { font-family:'Inter',sans-serif; font-weight:300; font-size:13px; color:#8a826f; margin-top:8px; line-height:1.5; }
+  .doc-bg .doc-section { padding:14px 24px; border-top:1px solid #1f1c14; }
+  .doc-bg .doc-section .s-h { display:flex; align-items:center; gap:8px; }
+  .doc-bg .doc-section .s-h .ico { width:24px; height:24px; border-radius:50%; background:#d9b14a; color:#0a0a0e; display:grid; place-items:center; font-family:'Cinzel',serif; font-weight:800; font-size:11px; }
+  .doc-bg .doc-section .s-h .s-t { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.2em; color:#d9b14a; text-transform:uppercase; }
+  .doc-bg .doc-section .s-body { font-family:'Inter',sans-serif; font-weight:400; font-size:13px; line-height:1.6; color:#c8c2b4; margin-top:10px; padding-left:32px; }
+  .doc-bg .doc-section .s-body strong { color:#d9b14a; font-weight:600; }
+  .doc-bg .doc-timeline { padding:14px 24px 6px; border-top:1px solid #1f1c14; }
+  .doc-bg .doc-timeline .tl-h { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.2em; color:#d9b14a; }
+  .doc-bg .doc-timeline .tl-list { margin-top:12px; }
+  .doc-bg .doc-timeline .tl-item { display:flex; gap:12px; padding:6px 0; align-items:baseline; }
+  .doc-bg .doc-timeline .tl-num { font-family:'Fraunces',serif; font-size:18px; font-weight:600; color:#d9b14a; min-width:24px; line-height:1; font-style:italic; }
+  .doc-bg .doc-timeline .tl-name { font-family:'Inter',sans-serif; font-weight:500; font-size:13px; color:#e8e2d4; }
+  .doc-bg .doc-timeline .tl-desc { font-family:'Inter',sans-serif; font-weight:300; font-size:11px; color:#8a826f; margin-left:auto; }
+  .doc-bg .doc-cta { margin:20px 24px 0; padding:16px; width:calc(100% - 48px); background:#d9b14a; color:#0a0a0e; font-family:'Inter',sans-serif; font-weight:700; font-size:14px; letter-spacing:0.05em; border:none; cursor:pointer; }
+
+  /* ────────────────────────────────────────────────
+     CONCEPT 05 · DOCUMENTAL · iOS
+     ──────────────────────────────────────────────── */
+  .doc-ios { background:#fff; color:#1a1a1a; height:100%; overflow-y:auto; padding-bottom:100px; }
+  .doc-ios .doc-hero::after { background:linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 50%, #fff 100%); }
+  .doc-ios .doc-titles .pron { color:#1976d2; }
+  .doc-ios .doc-titles .roles { color:#888; }
+  .doc-ios .doc-section { border-top-color:#f0f0f0; }
+  .doc-ios .doc-section .s-h .ico { background:#1976d2; color:#fff; }
+  .doc-ios .doc-section .s-h .s-t { color:#1976d2; }
+  .doc-ios .doc-section .s-body { color:#3a3a3a; }
+  .doc-ios .doc-section .s-body strong { color:#1976d2; }
+  .doc-ios .doc-timeline { border-top-color:#f0f0f0; }
+  .doc-ios .doc-timeline .tl-h { color:#1976d2; }
+  .doc-ios .doc-timeline .tl-num { color:#1976d2; }
+  .doc-ios .doc-timeline .tl-name { color:#1a1a1a; }
+  .doc-ios .doc-timeline .tl-desc { color:#888; }
+  .doc-ios .doc-cta { background:#1976d2; color:#fff; }
+
+  /* status bar variants */
+  .sb-light { color:#fff; }
+  .sb-dark { color:#0a0a0e; }
+</style>
+</head>
+<body>
+
+<header class="page-h">
+  <div class="eyebrow">PIXORA · DETAIL SCREEN · 5 EDITORIAL CONCEPTS</div>
+  <h1>Mictlantecuhtli · <em>5 conceptos × 2 temas</em></h1>
+  <p class="sub">Cada concepto presenta el mismo wallpaper con datos investigados sobre el dios mexica del inframundo.<br>Pareja izquierda = Black & Gold · Pareja derecha = iOS White. Selecciona uno (o mezcla 2 elementos) y lo implementamos en Flutter.</p>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 01 — CÓDICE MEXICA
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 01</span>
+    <span class="name">Códice Mexica</span>
+    <span class="desc">Manuscrito antiguo · papel amate · grecas mesoamericanas · tipografía como pintada a mano · datos como anotaciones de cronista</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Códice nocturno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="codice-bg">
+          <div class="codice-img"></div>
+          <div class="codice-greca"></div>
+          <div class="codice-body">
+            <div class="glyph">— Capítulo IX · Mictlán —</div>
+            <h2>Mictlantecuhtli<br><em>Señor del Inframundo</em></h2>
+            <div class="pron">[mik · tlan · te · KU · tli]</div>
+            <p class="lead">Esposo de Mictecacíhuatl, gobierna los nueve niveles del Mictlán. Recibe a las almas que mueren de causa natural; junto a Quetzalcóatl creó al hombre de huesos antiguos.</p>
+            <div class="codex-grid">
+              <div class="codex-cell"><div class="k">Cultura</div><div class="v">Mexica · Tolteca</div></div>
+              <div class="codex-cell"><div class="k">Reino</div><div class="v">Mictlán · 9 niveles</div></div>
+              <div class="codex-cell"><div class="k">Esposa</div><div class="v">Mictecacíhuatl</div></div>
+              <div class="codex-cell"><div class="k">Mensajero</div><div class="v">Xolotl · perro guía</div></div>
+              <div class="codex-cell"><div class="k">Animales</div><div class="v">Búho · murciélago · araña</div></div>
+              <div class="codex-cell"><div class="k">Día Sagrado</div><div class="v">14 de noviembre</div></div>
+            </div>
+            <div class="ofrenda">
+              <div class="k">Ofrenda</div>
+              <div class="v">Cempasúchil, copal, sangre y la primera comida del año. Las almas tardaban cuatro años en cruzar los nueve ríos del inframundo.</div>
+            </div>
+            <button class="codex-cta">⛧ Invocar al Señor</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Códice diurno</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="codice-ios">
+          <div class="codice-img"></div>
+          <div class="codice-greca"></div>
+          <div class="codice-body">
+            <div class="glyph" style="color:#a06820">— Capítulo IX · Mictlán —</div>
+            <h2>Mictlantecuhtli<br><em>Señor del Inframundo</em></h2>
+            <div class="pron">[mik · tlan · te · KU · tli]</div>
+            <p class="lead">Esposo de Mictecacíhuatl, gobierna los nueve niveles del Mictlán. Recibe a las almas que mueren de causa natural; junto a Quetzalcóatl creó al hombre de huesos antiguos.</p>
+            <div class="codex-grid">
+              <div class="codex-cell"><div class="k">Cultura</div><div class="v">Mexica · Tolteca</div></div>
+              <div class="codex-cell"><div class="k">Reino</div><div class="v">Mictlán · 9 niveles</div></div>
+              <div class="codex-cell"><div class="k">Esposa</div><div class="v">Mictecacíhuatl</div></div>
+              <div class="codex-cell"><div class="k">Mensajero</div><div class="v">Xolotl · perro guía</div></div>
+              <div class="codex-cell"><div class="k">Animales</div><div class="v">Búho · murciélago · araña</div></div>
+              <div class="codex-cell"><div class="k">Día Sagrado</div><div class="v">14 de noviembre</div></div>
+            </div>
+            <div class="ofrenda">
+              <div class="k">Ofrenda</div>
+              <div class="v">Cempasúchil, copal, sangre y la primera comida del año. Las almas tardaban cuatro años en cruzar los nueve ríos del inframundo.</div>
+            </div>
+            <button class="codex-cta">⛧ Invocar al Señor</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 02 — NATIONAL GEOGRAPHIC
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 02</span>
+    <span class="name">National Geographic</span>
+    <span class="desc">Revista cultural premium · serif clásica · cita destacada · stats minimalistas · tipo documental serio que enseña</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Nat Geo nocturno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="nat-bg">
+          <div class="nat-hero">
+            <div class="nat-eyebrow">MITOLOGÍA · MÉXICA · CIRCA 1325</div>
+            <div class="nat-title">
+              <h2>Mictlantecuhtli<br><em>el dios que recibe</em></h2>
+            </div>
+          </div>
+          <div class="nat-body">
+            <div class="nat-quote">"De huesos viejos hicimos a la humanidad. Y a ella habremos de devolver."<div class="nat-quote-cite">— Códice Borgia · Lámina 18</div></div>
+            <p class="body">Para los mexicas el inframundo no era castigo: era destino común. Quien moría de vejez, enfermedad o accidente cruzaba los <strong style="color:#d9b14a">nueve ríos del Mictlán</strong>—un viaje de cuatro años—hasta llegar al trono de Mictlantecuhtli.</p>
+            <p class="body">Ahí, la energía del difunto se reciclaba. Su perro Xolotl le acompañaba en la travesía. Por eso los mexicas enterraban a sus muertos junto a un perro itzcuintli rojo.</p>
+            <div class="nat-stats">
+              <div class="stat"><div class="k">REINO</div><div class="v">9 <span class="vs">niveles</span></div></div>
+              <div class="stat"><div class="k">VIAJE</div><div class="v">4 <span class="vs">años</span></div></div>
+              <div class="stat"><div class="k">PAREJA</div><div class="v">Mictecacíhuatl</div></div>
+              <div class="stat"><div class="k">FIESTA</div><div class="v">14 <span class="vs">nov</span></div></div>
+            </div>
+          </div>
+          <button class="nat-cta">Aplicar como Live Wallpaper</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Nat Geo diurno</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="nat-ios">
+          <div class="nat-hero">
+            <div class="nat-eyebrow">MITOLOGÍA · MÉXICA · CIRCA 1325</div>
+            <div class="nat-title">
+              <h2>Mictlantecuhtli<br><em>el dios que recibe</em></h2>
+            </div>
+          </div>
+          <div class="nat-body">
+            <div class="nat-quote">"De huesos viejos hicimos a la humanidad. Y a ella habremos de devolver."<div class="nat-quote-cite">— Códice Borgia · Lámina 18</div></div>
+            <p class="body">Para los mexicas el inframundo no era castigo: era destino común. Quien moría de vejez, enfermedad o accidente cruzaba los <strong style="color:#a06820">nueve ríos del Mictlán</strong>—un viaje de cuatro años—hasta llegar al trono de Mictlantecuhtli.</p>
+            <p class="body">Ahí, la energía del difunto se reciclaba. Su perro Xolotl le acompañaba en la travesía. Por eso los mexicas enterraban a sus muertos junto a un perro itzcuintli rojo.</p>
+            <div class="nat-stats">
+              <div class="stat"><div class="k">REINO</div><div class="v">9 <span class="vs">niveles</span></div></div>
+              <div class="stat"><div class="k">VIAJE</div><div class="v">4 <span class="vs">años</span></div></div>
+              <div class="stat"><div class="k">PAREJA</div><div class="v">Mictecacíhuatl</div></div>
+              <div class="stat"><div class="k">FIESTA</div><div class="v">14 <span class="vs">nov</span></div></div>
+            </div>
+          </div>
+          <button class="nat-cta">Aplicar como Live Wallpaper</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 03 — TARJETA COLECCIONABLE TCG
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 03</span>
+    <span class="name">Carta Coleccionable</span>
+    <span class="desc">Tipo Yu-Gi-Oh / Magic · stats de juego · tier · habilidad nombrada · gamificación que invita a "coleccionar dioses"</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Carta dorada</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="tcg-bg">
+          <div class="tcg-card">
+            <div class="tcg-h">
+              <div class="tcg-elem">⛧</div>
+              <div class="tcg-name">Mictlantecuhtli</div>
+              <div class="tcg-tier">★★★★★</div>
+            </div>
+            <div class="tcg-art">
+              <div class="tcg-rarity">LEGENDARY</div>
+            </div>
+            <div class="tcg-type"><span>TIPO · DIOS · MEXICA</span><span class="vals">DOMINIO · MICTLÁN</span></div>
+            <div class="tcg-stats">
+              <div class="stat"><div class="k">PODER</div><div class="v">98</div></div>
+              <div class="stat"><div class="k">SABIDURÍA</div><div class="v">95</div></div>
+              <div class="stat"><div class="k">EDAD</div><div class="v">∞</div></div>
+              <div class="stat"><div class="k">SEÑORÍO</div><div class="v">9</div></div>
+            </div>
+            <div class="tcg-skill">
+              <div class="sk-h">Habilidad · Recibe Almas</div>
+              <div class="sk-d">Quien muere de causa natural cruza los 9 niveles del inframundo en 4 años para encontrar el descanso eterno bajo su trono.</div>
+            </div>
+            <div class="tcg-flavor">"Yo no destruyo. Reciclo. Toda energía que vivió, regresa a mí."</div>
+            <button class="tcg-cta">Activar wallpaper</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Carta clara</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="tcg-ios">
+          <div class="tcg-card">
+            <div class="tcg-h">
+              <div class="tcg-elem">⛧</div>
+              <div class="tcg-name">Mictlantecuhtli</div>
+              <div class="tcg-tier">★★★★★</div>
+            </div>
+            <div class="tcg-art">
+              <div class="tcg-rarity">LEGENDARY</div>
+            </div>
+            <div class="tcg-type"><span>TIPO · DIOS · MEXICA</span><span class="vals">DOMINIO · MICTLÁN</span></div>
+            <div class="tcg-stats">
+              <div class="stat"><div class="k">PODER</div><div class="v">98</div></div>
+              <div class="stat"><div class="k">SABIDURÍA</div><div class="v">95</div></div>
+              <div class="stat"><div class="k">EDAD</div><div class="v">∞</div></div>
+              <div class="stat"><div class="k">SEÑORÍO</div><div class="v">9</div></div>
+            </div>
+            <div class="tcg-skill">
+              <div class="sk-h">Habilidad · Recibe Almas</div>
+              <div class="sk-d">Quien muere de causa natural cruza los 9 niveles del inframundo en 4 años para encontrar el descanso eterno bajo su trono.</div>
+            </div>
+            <div class="tcg-flavor">"Yo no destruyo. Reciclo. Toda energía que vivió, regresa a mí."</div>
+            <button class="tcg-cta">Activar wallpaper</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 04 — EDITORIAL VOGUE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 04</span>
+    <span class="name">Editorial Vogue</span>
+    <span class="desc">Magazine moderno · tipografía oversize · mucho espacio negativo · serif Cormorant · estilo galería de arte</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Editorial nocturno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="vog-bg">
+          <div class="vog-h">
+            <div class="num">VOL · 01 · MITOLOGÍA</div>
+            <h2>Mict-<br>lante-<br>cuhtli<br><i>el señor</i></h2>
+          </div>
+          <div class="vog-img"></div>
+          <div class="vog-cap">FIG. 01 — TRONO DE HUESO · MICTLÁN</div>
+          <div class="vog-body">
+            <p>Era el dios que más temían los mexicas. No por crueldad: por inevitabilidad. Cruzar los nueve ríos era un viaje sin retorno, un deshacerse del cuerpo para volver a la energía pura.</p>
+          </div>
+          <div class="vog-meta">
+            <div class="vog-meta-row"><span class="k">Cultura</span><span class="v">Mexica · siglo XIV</span></div>
+            <div class="vog-meta-row"><span class="k">Reino</span><span class="v">Mictlán · 9 niveles</span></div>
+            <div class="vog-meta-row"><span class="k">Esposa</span><span class="v">Mictecacíhuatl</span></div>
+            <div class="vog-meta-row"><span class="k">Festival</span><span class="v">14 de noviembre</span></div>
+          </div>
+          <button class="vog-cta">Establecer Wallpaper</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Editorial diurno</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="vog-ios">
+          <div class="vog-h">
+            <div class="num">VOL · 01 · MITOLOGÍA</div>
+            <h2>Mict-<br>lante-<br>cuhtli<br><i>el señor</i></h2>
+          </div>
+          <div class="vog-img"></div>
+          <div class="vog-cap">FIG. 01 — TRONO DE HUESO · MICTLÁN</div>
+          <div class="vog-body">
+            <p>Era el dios que más temían los mexicas. No por crueldad: por inevitabilidad. Cruzar los nueve ríos era un viaje sin retorno, un deshacerse del cuerpo para volver a la energía pura.</p>
+          </div>
+          <div class="vog-meta">
+            <div class="vog-meta-row"><span class="k">Cultura</span><span class="v">Mexica · siglo XIV</span></div>
+            <div class="vog-meta-row"><span class="k">Reino</span><span class="v">Mictlán · 9 niveles</span></div>
+            <div class="vog-meta-row"><span class="k">Esposa</span><span class="v">Mictecacíhuatl</span></div>
+            <div class="vog-meta-row"><span class="k">Festival</span><span class="v">14 de noviembre</span></div>
+          </div>
+          <button class="vog-cta">Establecer Wallpaper</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONCEPT 05 — DOCUMENTAL
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="row">
+  <div class="row-h">
+    <span class="num">// NO. 05</span>
+    <span class="name">Documental Ilustrado</span>
+    <span class="desc">Wikipedia premium · secciones temáticas con icono · timeline visual de los 9 niveles · datos densos pero escaneables</span>
+  </div>
+  <div class="pair">
+    <div class="frame">
+      <div class="label">B&G — Doc nocturno</div>
+      <div class="phone">
+        <div class="status sb-light">9:41<span>· · · ·</span></div>
+        <div class="doc-bg">
+          <div class="doc-hero">
+            <div class="doc-tag">DIOS · MITOLOGÍA</div>
+          </div>
+          <div class="doc-titles">
+            <div class="pron">⌥ MIK·TLAN·TE·KU·TLI</div>
+            <h2>Mictlantecuhtli</h2>
+            <div class="roles">Señor del Mictlán · Esposo de Mictecacíhuatl · Co-creador de la humanidad junto a Quetzalcóatl</div>
+          </div>
+          <div class="doc-section">
+            <div class="s-h"><div class="ico">i</div><div class="s-t">Quién es</div></div>
+            <div class="s-body">Dios mexica del inframundo. No es un dios "malo" — preside el ciclo natural de muerte y regeneración. Recibe las almas de quienes mueren <strong>por causa natural</strong>: vejez, enfermedad, accidente.</div>
+          </div>
+          <div class="doc-section">
+            <div class="s-h"><div class="ico">⛧</div><div class="s-t">Símbolos</div></div>
+            <div class="s-body">Cráneo descarnado · hígado dilatado · búho · murciélago · araña · ciempiés · perro itzcuintli (su mensajero <strong>Xolotl</strong>).</div>
+          </div>
+          <div class="doc-timeline">
+            <div class="tl-h">⌖ Los 9 niveles del Mictlán</div>
+            <div class="tl-list">
+              <div class="tl-item"><span class="tl-num">I</span><span class="tl-name">Itzcuintlan</span><span class="tl-desc">río guiado por Xolotl</span></div>
+              <div class="tl-item"><span class="tl-num">II</span><span class="tl-name">Tepectli Monamictlan</span><span class="tl-desc">cerros que chocan</span></div>
+              <div class="tl-item"><span class="tl-num">III</span><span class="tl-name">Iztepetl</span><span class="tl-desc">cerro de obsidiana</span></div>
+              <div class="tl-item"><span class="tl-num">IV</span><span class="tl-name">Cehueloyan</span><span class="tl-desc">vientos helados</span></div>
+              <div class="tl-item"><span class="tl-num">V</span><span class="tl-name">Pancuetlacalóyan</span><span class="tl-desc">banderas que flotan</span></div>
+              <div class="tl-item"><span class="tl-num">VI</span><span class="tl-name">Temiminalóyan</span><span class="tl-desc">flechas perdidas</span></div>
+              <div class="tl-item"><span class="tl-num">VII</span><span class="tl-name">Teyollocualoyan</span><span class="tl-desc">jaguares devoradores</span></div>
+              <div class="tl-item"><span class="tl-num">VIII</span><span class="tl-name">Apanohualóyan</span><span class="tl-desc">aguas negras</span></div>
+              <div class="tl-item"><span class="tl-num">IX</span><span class="tl-name">Chicunamictlan</span><span class="tl-desc">trono de Mictlantecuhtli</span></div>
+            </div>
+          </div>
+          <button class="doc-cta">Establecer como Live Wallpaper</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame">
+      <div class="label">iOS — Doc diurno</div>
+      <div class="phone">
+        <div class="status sb-dark">9:41<span>· · · ·</span></div>
+        <div class="doc-ios">
+          <div class="doc-hero">
+            <div class="doc-tag" style="background:rgba(25,118,210,0.15); border-color:#1976d2; color:#1976d2;">DIOS · MITOLOGÍA</div>
+          </div>
+          <div class="doc-titles">
+            <div class="pron">⌥ MIK·TLAN·TE·KU·TLI</div>
+            <h2>Mictlantecuhtli</h2>
+            <div class="roles">Señor del Mictlán · Esposo de Mictecacíhuatl · Co-creador de la humanidad junto a Quetzalcóatl</div>
+          </div>
+          <div class="doc-section">
+            <div class="s-h"><div class="ico">i</div><div class="s-t">Quién es</div></div>
+            <div class="s-body">Dios mexica del inframundo. No es un dios "malo" — preside el ciclo natural de muerte y regeneración. Recibe las almas de quienes mueren <strong>por causa natural</strong>: vejez, enfermedad, accidente.</div>
+          </div>
+          <div class="doc-section">
+            <div class="s-h"><div class="ico">⛧</div><div class="s-t">Símbolos</div></div>
+            <div class="s-body">Cráneo descarnado · hígado dilatado · búho · murciélago · araña · ciempiés · perro itzcuintli (su mensajero <strong>Xolotl</strong>).</div>
+          </div>
+          <div class="doc-timeline">
+            <div class="tl-h">⌖ Los 9 niveles del Mictlán</div>
+            <div class="tl-list">
+              <div class="tl-item"><span class="tl-num">I</span><span class="tl-name">Itzcuintlan</span><span class="tl-desc">río guiado por Xolotl</span></div>
+              <div class="tl-item"><span class="tl-num">II</span><span class="tl-name">Tepectli Monamictlan</span><span class="tl-desc">cerros que chocan</span></div>
+              <div class="tl-item"><span class="tl-num">III</span><span class="tl-name">Iztepetl</span><span class="tl-desc">cerro de obsidiana</span></div>
+              <div class="tl-item"><span class="tl-num">IV</span><span class="tl-name">Cehueloyan</span><span class="tl-desc">vientos helados</span></div>
+              <div class="tl-item"><span class="tl-num">V</span><span class="tl-name">Pancuetlacalóyan</span><span class="tl-desc">banderas que flotan</span></div>
+              <div class="tl-item"><span class="tl-num">VI</span><span class="tl-name">Temiminalóyan</span><span class="tl-desc">flechas perdidas</span></div>
+              <div class="tl-item"><span class="tl-num">VII</span><span class="tl-name">Teyollocualoyan</span><span class="tl-desc">jaguares devoradores</span></div>
+              <div class="tl-item"><span class="tl-num">VIII</span><span class="tl-name">Apanohualóyan</span><span class="tl-desc">aguas negras</span></div>
+              <div class="tl-item"><span class="tl-num">IX</span><span class="tl-name">Chicunamictlan</span><span class="tl-desc">trono de Mictlantecuhtli</span></div>
+            </div>
+          </div>
+          <button class="doc-cta">Establecer como Live Wallpaper</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center; margin-top:80px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.3em; color:#5a5444;">
+  PIXORA · DESIGN ARCHIVE · MITOLOGÍA · ENTRY 030 · MICTLAN
+</footer>
+
+</body></html>

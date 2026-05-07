@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iah Egipcia · 5 diseños sin landscape</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --lapis: #0a0e3a;
+  --lapis-deep: #060828;
+  --gold: #d4af37;
+  --gold-bright: #f5d676;
+  --gold-dark: #8a6f1d;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: radial-gradient(ellipse at top, #1a1530 0%, #060818 50%);
+  color: #e7e7f0; font-family: 'Cinzel', serif;
+  min-height: 100vh; padding: 32px 16px;
+}
+header {
+  text-align: center; margin-bottom: 32px;
+}
+header h1 {
+  font-family: 'Cinzel Decorative', serif; font-size: 36px; letter-spacing: .12em;
+  background: linear-gradient(180deg, #f5d676 0%, #d4af37 50%, #8a6f1d 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 30px rgba(212,175,55,0.4);
+  margin: 0;
+}
+header p { color: #8b8ca3; font-family: 'Cormorant Garamond', serif; font-style: italic; margin-top: 8px; }
+.gallery {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 32px; max-width: 1900px; margin: 0 auto;
+}
+.design-card {
+  background: #0e1233; border: 1px solid #2a2a44; border-radius: 8px;
+  padding: 16px; display: flex; flex-direction: column; align-items: center;
+}
+.design-card .num { font-family: 'Cinzel', serif; font-weight: 700; letter-spacing: .25em; color: #d4af37; font-size: 12px; margin-bottom: 4px; }
+.design-card .name { font-family: 'Cinzel Decorative', serif; font-size: 22px; color: #f5d676; margin-bottom: 4px; text-align: center; }
+.design-card .tagline { font-family: 'Cormorant Garamond', serif; font-style: italic; color: #aaa; font-size: 14px; text-align: center; margin-bottom: 16px; max-width: 320px; }
+.phone {
+  width: 360px; height: 720px; border-radius: 38px; overflow: hidden; position: relative;
+  box-shadow: 0 0 0 3px #1a1a2a, 0 0 0 5px #2a2a44, 0 24px 48px rgba(0,0,0,0.6);
+  background: var(--lapis);
+}
+.phone .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 100px; height: 18px; background: #000; border-radius: 12px; z-index: 100; }
+.phone .status { position: absolute; top: 14px; left: 28px; right: 28px; display: flex; justify-content: space-between; font-family: 'Inter', sans-serif; font-size: 11px; color: rgba(255,255,255,0.95); z-index: 99; }
+
+.scene { position: absolute; inset: 0; }
+
+/* SKY ONLY — NO landscape, NO pyramids, NO sand */
+.bg-lapis {
+  position: absolute; inset: 0;
+  background-image: url('concepts/livecalendar/egyptian/bg_sky_lapis.png');
+  background-size: cover; background-position: center;
+}
+.halo {
+  position: absolute;
+  background-image: url('concepts/livecalendar/egyptian/halo_gold.png');
+  background-size: contain; background-repeat: no-repeat; background-position: center;
+  pointer-events: none;
+}
+.frame {
+  position: absolute;
+  background-image: url('concepts/livecalendar/egyptian/frame_hieroglyph.png');
+  background-size: contain; background-repeat: no-repeat; background-position: center;
+  pointer-events: none;
+}
+.moon {
+  position: absolute;
+  background-image: url('concepts/livecalendar/egyptian/moon_d14_full.png');
+  background-size: contain; background-repeat: no-repeat; background-position: center;
+  filter: drop-shadow(0 0 20px rgba(212,175,55,0.5));
+}
+
+.stars {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 27% 67%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 45% 12%, #fff 50%, transparent),
+    radial-gradient(1.5px 1.5px at 58% 30%, rgba(245,214,118,.9) 50%, transparent),
+    radial-gradient(1px 1px at 71% 35%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 84% 71%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 92% 22%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 8% 82%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 33% 48%, rgba(245,214,118,.8) 50%, transparent),
+    radial-gradient(1px 1px at 65% 80%, #fff 50%, transparent);
+  opacity: 0.7; animation: twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes twinkle { 0%,100% { opacity: 0.4; } 50% { opacity: 0.85; } }
+
+.personal { position: absolute; z-index: 50; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+.personal .greeting { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: rgba(255,255,255,0.85); }
+.personal .name {
+  font-family: 'Cinzel Decorative', serif; color: #f5d676; letter-spacing: .12em;
+  text-shadow: 0 0 12px rgba(212,175,55,0.6);
+}
+.personal .info { font-family: 'Cinzel', serif; letter-spacing: .15em; font-size: 10px; color: #d4af37; text-transform: uppercase; }
+.personal .phase { font-family: 'Cinzel Decorative', serif; font-size: 13px; color: #fff; }
+
+/* ── DESIGN 1 — ALTAR CENTRAL ──────────────────────────────── */
+.d1 .frame { width: 320px; height: 320px; top: 130px; left: 20px; opacity: 0.95; z-index: 30; }
+.d1 .moon  { width: 200px; height: 200px; top: 190px; left: 80px; z-index: 25; }
+.d1 .halo  { width: 280px; height: 280px; top: 150px; left: 40px; opacity: 0.55; z-index: 20; }
+.d1 .personal-block { bottom: 18%; left: 0; right: 0; text-align: center; }
+.d1 .greeting { font-size: 13px; }
+.d1 .name { font-size: 28px; margin: 6px 0; }
+.d1 .phase { font-size: 14px; margin-top: 6px; }
+.d1 .info { font-size: 10px; margin-top: 12px; }
+
+/* ── DESIGN 2 — TRONO CÓSMICO (gigante centrado) ─────────── */
+.d2 .frame { width: 360px; height: 360px; top: 100px; left: 0; opacity: 0.98; z-index: 30; }
+.d2 .moon  { width: 240px; height: 240px; top: 160px; left: 60px; z-index: 25; filter: drop-shadow(0 0 30px rgba(245,214,118,0.7)); }
+.d2 .halo  { width: 460px; height: 460px; top: 50px; left: -50px; opacity: 0.7; z-index: 20; }
+.d2 .personal-block { bottom: 12%; left: 0; right: 0; text-align: center; }
+.d2 .greeting { display: none; }
+.d2 .name { font-size: 32px; letter-spacing: .15em; margin-bottom: 8px; }
+.d2 .phase { font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: #d4af37; }
+.d2 .info { font-size: 9px; margin-top: 14px; }
+
+/* ── DESIGN 3 — TAROT CARD (formal alto + ornamental) ────── */
+.d3 .frame { width: 290px; height: 290px; top: 100px; left: 35px; opacity: 0.9; z-index: 30; }
+.d3 .moon  { width: 180px; height: 180px; top: 155px; left: 90px; z-index: 25; }
+.d3 .halo  { width: 260px; height: 260px; top: 115px; left: 50px; opacity: 0.45; z-index: 20; }
+.d3 .top-arc {
+  position: absolute; top: 50px; left: 0; right: 0; text-align: center;
+  font-family: 'Cinzel Decorative', serif; font-size: 14px; color: #d4af37;
+  letter-spacing: .35em; opacity: 0.85; z-index: 35;
+  border-bottom: 1px solid rgba(212,175,55,.3); padding-bottom: 6px; margin: 0 60px;
+}
+.d3 .roman {
+  position: absolute; top: 410px; left: 0; right: 0; text-align: center;
+  font-family: 'Cinzel Decorative', serif; font-size: 22px; color: #f5d676;
+  z-index: 40; letter-spacing: .25em;
+  text-shadow: 0 0 12px rgba(212,175,55,0.5);
+}
+.d3 .personal-block { bottom: 14%; left: 0; right: 0; text-align: center; }
+.d3 .greeting { font-size: 13px; }
+.d3 .name { font-size: 26px; margin: 4px 0; letter-spacing: .15em; }
+.d3 .phase { font-size: 13px; margin-top: 6px; font-style: italic; font-family: 'Cormorant Garamond', serif; }
+.d3 .info { font-size: 10px; margin-top: 12px; }
+
+/* ── DESIGN 4 — ASIMÉTRICO (luna esquina + texto vertical) ─ */
+.d4 .frame { width: 200px; height: 200px; top: 90px; right: 30px; left: auto; opacity: 0.95; z-index: 30; }
+.d4 .moon  { width: 130px; height: 130px; top: 125px; right: 65px; left: auto; z-index: 25; }
+.d4 .halo  { width: 240px; height: 240px; top: 70px; right: 10px; left: auto; opacity: 0.5; z-index: 20; }
+.d4 .vertical-tag {
+  position: absolute; top: 110px; left: 30px;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: .35em; text-transform: uppercase;
+  color: #d4af37; z-index: 35; opacity: 0.8;
+}
+.d4 .personal-block { bottom: 8%; left: 28px; right: 28px; text-align: left; }
+.d4 .greeting { font-size: 14px; font-family: 'Cormorant Garamond', serif; font-style: italic; color: rgba(255,255,255,0.7); }
+.d4 .name { font-size: 36px; margin: 4px 0 0; letter-spacing: .08em; }
+.d4 .phase { font-size: 14px; font-family: 'Cormorant Garamond', serif; font-style: italic; color: #f5d676; margin-top: 8px; }
+.d4 .info { font-size: 10px; margin-top: 12px; opacity: 0.8; }
+
+/* ── DESIGN 5 — RUEDA ZODIACAL (zodiac wheel surrounding) ── */
+.d5 .frame { width: 300px; height: 300px; top: 130px; left: 30px; opacity: 0.95; z-index: 30; }
+.d5 .moon  { width: 180px; height: 180px; top: 190px; left: 90px; z-index: 25; }
+.d5 .halo  { width: 270px; height: 270px; top: 145px; left: 45px; opacity: 0.5; z-index: 20; }
+.d5 .zodiac-wheel {
+  position: absolute; top: 100px; left: 0; right: 0; height: 360px;
+  font-family: 'Cinzel Decorative', serif;
+  z-index: 35; pointer-events: none;
+}
+.d5 .zodiac-wheel .sign {
+  position: absolute;
+  font-size: 22px; color: #d4af37; opacity: 0.65;
+  text-shadow: 0 0 8px rgba(212,175,55,0.5);
+  font-family: serif;
+}
+.d5 .personal-block { bottom: 14%; left: 0; right: 0; text-align: center; }
+.d5 .greeting { font-size: 13px; }
+.d5 .name { font-size: 26px; margin: 4px 0; }
+.d5 .phase { font-size: 13px; margin-top: 6px; }
+.d5 .info { font-size: 10px; margin-top: 12px; }
+
+/* Phase selector */
+.phase-selector { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 16px; max-width: 900px; margin-left: auto; margin-right: auto; }
+.phase-btn { background: #1a1a2a; color: #d4af37; border: 1px solid #8a6f1d; border-radius: 4px; padding: 6px 10px; font-family: 'Cinzel', serif; font-size: 10px; cursor: pointer; letter-spacing: .1em; transition: all .2s; }
+.phase-btn:hover, .phase-btn.active { background: #d4af37; color: #060818; box-shadow: 0 0 12px rgba(212,175,55,0.5); }
+
+footer { text-align: center; margin-top: 48px; color: #5a5b75; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: .25em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Iah Egipcia · v2 Sin Landscape</h1>
+  <p>Removí las pirámides + arena. Solo cielo + halo + luna + frame + texto.</p>
+  <p style="font-size:13px; color:#d4af37;">Click los botones de fase para ver la luna en TODOS los diseños</p>
+</header>
+
+<div class="phase-selector">
+  <button class="phase-btn" data-moon="moon_d00_new">🌑 Nueva</button>
+  <button class="phase-btn" data-moon="moon_d04_waxing_crescent">🌒 Creciente</button>
+  <button class="phase-btn active" data-moon="moon_d07_first_quarter">🌓 Cuarto Crec.</button>
+  <button class="phase-btn" data-moon="moon_d11_waxing_gibbous">🌔 Gibosa Crec.</button>
+  <button class="phase-btn" data-moon="moon_d14_full">🌕 Llena</button>
+  <button class="phase-btn" data-moon="moon_d14_full_v2">🌕 Llena v2</button>
+  <button class="phase-btn" data-moon="moon_d18_waning_gibbous">🌖 Gibosa Mng.</button>
+  <button class="phase-btn" data-moon="moon_d22_last_quarter">🌗 Cuarto Mng.</button>
+  <button class="phase-btn" data-moon="moon_d26_waning_crescent">🌘 Menguante</button>
+</div>
+
+<div class="gallery" style="margin-top:32px;">
+
+  <!-- DESIGN 1 -->
+  <div class="design-card">
+    <div class="num">// NO. 01</div>
+    <div class="name">Iah Altar Central</div>
+    <div class="tagline">El altar centrado que ya conocemos pero limpio. Frame jeroglífico abraza la luna, datos abajo en pose ceremonial.</div>
+    <div class="phone d1">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="frame"></div>
+      </div>
+      <div class="personal personal-block">
+        <div class="greeting">𓂀  Salve  𓂀</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">Cuarto Creciente</div>
+        <div class="info">TAURO  ·  528 HZ  ·  12 · 06 · 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 2 -->
+  <div class="design-card">
+    <div class="num">// NO. 02</div>
+    <div class="name">Iah Trono Cósmico</div>
+    <div class="tagline">La luna es el TRONO. Frame y halo gigantes que dominan el plano superior. Tipografía monumental.</div>
+    <div class="phone d2">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="frame"></div>
+      </div>
+      <div class="personal personal-block">
+        <div class="name">EDUARDO</div>
+        <div class="phase">CUARTO CRECIENTE</div>
+        <div class="info">♉ TAURO · 528 HZ · 12 · 06 · 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 3 -->
+  <div class="design-card">
+    <div class="num">// NO. 03</div>
+    <div class="name">Iah Carta del Tarot</div>
+    <div class="tagline">Como una carta del tarot egipcio. Título arriba "LA LUNA · XVIII", número romano debajo del altar, formal y ceremonial.</div>
+    <div class="phone d3">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="top-arc">𓁹 IAH · LA LUNA 𓁹</div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="frame"></div>
+        <div class="roman">— XVIII —</div>
+      </div>
+      <div class="personal personal-block">
+        <div class="greeting">— Lectura para —</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">cuarto creciente · 38%</div>
+        <div class="info">TAURO ♉ · 528 HZ · 12 jun 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 4 -->
+  <div class="design-card">
+    <div class="num">// NO. 04</div>
+    <div class="name">Iah Asimétrico</div>
+    <div class="tagline">Luna pequeña arriba a la derecha. Tipografía editorial grande a la izquierda. Wabi-sabi minimal con datos vertical.</div>
+    <div class="phone d4">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="frame"></div>
+        <div class="vertical-tag">528 Hz · TAURO ♉ · IAH</div>
+      </div>
+      <div class="personal personal-block">
+        <div class="greeting">— Para</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">cuarto creciente</div>
+        <div class="info">12 · jun · 2026 · 38% iluminada</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 5 -->
+  <div class="design-card">
+    <div class="num">// NO. 05</div>
+    <div class="name">Iah Rueda Zodiacal</div>
+    <div class="tagline">Los 12 glifos zodiacales rodean la luna como una rueda. Tu signo brilla más. Energía cosmo total.</div>
+    <div class="phone d5">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>📶 100%</span></div>
+      <div class="scene">
+        <div class="bg-lapis"></div>
+        <div class="stars"></div>
+        <div class="zodiac-wheel">
+          <span class="sign" style="top:20px; left:48%">♈</span>
+          <span class="sign" style="top:50px; right:30px; opacity:1; font-size:28px; text-shadow: 0 0 14px rgba(245,214,118,1);">♉</span>
+          <span class="sign" style="top:130px; right:8px">♊</span>
+          <span class="sign" style="top:220px; right:8px">♋</span>
+          <span class="sign" style="top:300px; right:30px">♌</span>
+          <span class="sign" style="bottom:0; right:50%">♍</span>
+          <span class="sign" style="bottom:0; left:48%">♎</span>
+          <span class="sign" style="top:300px; left:30px">♏</span>
+          <span class="sign" style="top:220px; left:8px">♐</span>
+          <span class="sign" style="top:130px; left:8px">♑</span>
+          <span class="sign" style="top:50px; left:30px">♒</span>
+          <span class="sign" style="top:20px; left:30%">♓</span>
+        </div>
+        <div class="halo"></div>
+        <div class="moon"></div>
+        <div class="frame"></div>
+      </div>
+      <div class="personal personal-block">
+        <div class="greeting">𓂀  Caballero de Tauro  𓂀</div>
+        <div class="name">Eduardo</div>
+        <div class="phase">Cuarto Creciente</div>
+        <div class="info">528 HZ · 12 jun 2026 · 38%</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Pixora · Iah Egyptian v2 · 5 layouts sin landscape · escoge uno
+</footer>
+
+<script>
+document.querySelectorAll('.phase-btn').forEach(btn => {
+  btn.onclick = () => {
+    const moon = btn.dataset.moon;
+    document.querySelectorAll('.phase-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.moon').forEach(m => {
+      m.style.backgroundImage = `url('concepts/livecalendar/egyptian/${moon}.png')`;
+    });
+  };
+});
+</script>
+
+</body>
+</html>

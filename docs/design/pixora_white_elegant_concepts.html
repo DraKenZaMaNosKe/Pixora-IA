@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · White & Elegant · 5 Interpretaciones</title>
+<meta name="viewport" content="width=1920">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,300;0,6..72,400;0,6..72,600;0,6..72,800;1,6..72,300;1,6..72,400&family=Public+Sans:wght@200;300;400;500;600;700&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;1,200;1,300;1,400&family=Karla:wght@200;300;400;500;600;700&family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500;600&family=Shippori+Mincho:wght@200;400;500;600;700;800&family=Noto+Sans+JP:wght@200;300;400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,200;12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE CHROME — dark wrapper so the white mockups feel like museum pieces
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background:#0A0A0A;color:#F5F4F0;font-family:'Newsreader',serif;
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body{
+  background:
+    radial-gradient(ellipse 1400px 900px at 50% -10%, rgba(245,244,240,.04), transparent 60%),
+    radial-gradient(ellipse 800px 500px at 50% 110%, rgba(245,244,240,.025), transparent 65%),
+    #0A0A0A;
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.05;
+  background-image:radial-gradient(rgba(245,244,240,.4) 0.5px, transparent 0.5px);
+  background-size:3px 3px;mix-blend-mode:overlay;
+}
+
+header{max-width:1820px;margin:0 auto;padding:80px 56px 36px;}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+  color:#C8C2B0;display:flex;align-items:center;gap:18px;margin-bottom:24px;
+}
+.eyebrow::before,.eyebrow::after{content:"";flex:0 0 56px;height:1px;background:linear-gradient(90deg,transparent,rgba(245,244,240,.25));}
+.eyebrow::after{background:linear-gradient(90deg,rgba(245,244,240,.25),transparent);}
+
+h1{
+  font-family:'Newsreader',serif;font-weight:200;font-style:italic;
+  font-size:96px;line-height:.92;letter-spacing:-.04em;margin-bottom:24px;
+  color:#F5F4F0;
+  font-variation-settings:"opsz" 72;
+}
+h1 .accent{
+  color:#F5F4F0;font-weight:600;font-style:normal;
+  font-variation-settings:"opsz" 72;
+}
+
+.subtitle{
+  font-family:'Newsreader',serif;font-weight:300;font-style:italic;
+  font-size:21px;line-height:1.45;color:#A8A395;max-width:880px;
+  font-variation-settings:"opsz" 18;
+}
+.subtitle em{color:#F5F4F0;font-style:normal;font-weight:400;}
+
+.divider-row{
+  max-width:1820px;margin:36px auto 0;padding:0 56px;
+  display:flex;align-items:center;gap:18px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;color:#7A7565;text-transform:uppercase;
+}
+.divider-row .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(200,194,176,.18),transparent);}
+
+main{
+  max-width:1820px;margin:48px auto 0;padding:0 56px 100px;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:32px;
+}
+
+.card-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  opacity:0;transform:translateY(20px);
+  animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.card-wrap:nth-child(1){animation-delay:.05s}
+.card-wrap:nth-child(2){animation-delay:.15s}
+.card-wrap:nth-child(3){animation-delay:.25s}
+.card-wrap:nth-child(4){animation-delay:.35s}
+.card-wrap:nth-child(5){animation-delay:.45s}
+@keyframes rise{to{opacity:1;transform:translateY(0)}}
+
+/* ── Phone shell ───────────────────────────────────────────────────────── */
+.device{
+  position:relative;width:340px;height:720px;
+  border-radius:48px;overflow:hidden;
+  background:#000;
+  box-shadow:
+    0 0 0 8px #1A1A1A,
+    0 0 0 9px #2C2C2C,
+    0 40px 90px -25px rgba(0,0,0,.95),
+    0 20px 50px -15px rgba(0,0,0,.6);
+  transition:transform .5s cubic-bezier(.2,.7,.2,1);
+}
+.device:hover{transform:translateY(-6px)}
+.device .notch{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  width:118px;height:30px;background:#000;border-radius:18px;z-index:100;
+}
+.screen{position:absolute;inset:0;overflow:hidden;}
+
+/* iOS status bar — same coords across all variants */
+.ios-status{
+  position:absolute;top:0;left:0;right:0;height:46px;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 28px 0;font-size:13px;font-weight:600;
+  z-index:50;
+}
+.ios-status .l{font-family:'Geist',sans-serif;}
+.ios-status .r{display:flex;gap:5px;align-items:center;font-size:10px;}
+
+/* iOS tab bar — same coords across all variants but theme-able */
+.tabbar{
+  position:absolute;bottom:0;left:0;right:0;height:84px;
+  display:flex;justify-content:space-around;padding:10px 4px 26px;
+  z-index:40;
+  font-family:'Geist',sans-serif;font-size:10px;font-weight:500;
+}
+.tabbar .tab{flex:1;text-align:center;}
+.tabbar .tab .ico{
+  display:block;width:24px;height:24px;margin:0 auto 4px;border-radius:6px;
+}
+
+/* Meta card under each device */
+.meta{margin-top:22px;text-align:center;width:340px;}
+.meta .num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:#C8C2B0;letter-spacing:.22em;
+}
+.meta .name{
+  margin-top:8px;font-family:'Newsreader',serif;font-style:italic;font-weight:300;
+  font-size:22px;line-height:1.1;color:#F5F4F0;
+  font-variation-settings:"opsz" 36;
+}
+.meta .name strong{font-weight:500;font-style:normal;}
+.meta .tag{
+  margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:#7A7565;line-height:1.55;letter-spacing:.04em;text-transform:lowercase;
+  max-width:280px;margin-left:auto;margin-right:auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   V1 — MUSEUM WHITE
+   The MET / Tate Modern app aesthetic. One hero piece, type breathing.
+   Newsreader serif + Public Sans. Pure white. Generous negative space.
+   ═══════════════════════════════════════════════════════════════════════ */
+.v1{background:#FFFFFF;color:#0A0A0A;}
+.v1 .ios-status{color:#0A0A0A;}
+.v1 .header{padding:62px 28px 0;}
+.v1 .header .museum-label{
+  font-family:'Public Sans',sans-serif;font-weight:500;font-size:9px;
+  letter-spacing:.36em;text-transform:uppercase;color:#0A0A0A;
+}
+.v1 .header .museum-label::before{
+  content:"";display:inline-block;width:24px;height:1px;background:#0A0A0A;
+  vertical-align:middle;margin-right:10px;
+}
+.v1 .header .ttl{
+  margin-top:22px;
+  font-family:'Newsreader',serif;font-weight:200;font-style:italic;
+  font-size:46px;line-height:.92;letter-spacing:-.04em;color:#0A0A0A;
+  font-variation-settings:"opsz" 72;
+}
+.v1 .header .ttl em{font-style:normal;font-weight:400;}
+.v1 .header .num{
+  margin-top:14px;
+  font-family:'Public Sans',sans-serif;font-weight:300;font-size:11px;
+  letter-spacing:.2em;color:#777060;text-transform:uppercase;
+}
+.v1 .hero{
+  margin:34px 28px 0;height:340px;
+  background:url('concepts/parallax_goku_wide/thumb_goku_wide.webp') center/cover no-repeat;
+  position:relative;
+}
+.v1 .hero::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#0A0A0A;
+}
+.v1 .caption{
+  margin:18px 28px 0;
+  font-family:'Newsreader',serif;font-style:italic;font-weight:300;
+  font-size:13px;line-height:1.5;color:#0A0A0A;
+}
+.v1 .caption strong{font-style:normal;font-weight:500;}
+.v1 .meta-line{
+  margin:12px 28px 0;
+  font-family:'Public Sans',sans-serif;font-weight:400;font-size:10px;
+  letter-spacing:.18em;color:#777060;text-transform:uppercase;
+  display:flex;justify-content:space-between;
+}
+.v1 .tabbar{
+  background:rgba(255,255,255,.92);backdrop-filter:blur(20px);
+  border-top:.5px solid #E8E5DD;color:#A8A395;
+}
+.v1 .tabbar .tab.active{color:#0A0A0A;}
+.v1 .tabbar .tab .ico{background:#D8D5CC;}
+.v1 .tabbar .tab.active .ico{background:#0A0A0A;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   V2 — HOTEL CONCIERGE
+   Aesop / Le Bristol Paris. Off-white bone, italic Spectral, hairline borders.
+   Single bronze accent. Restrained, confident, expensive.
+   ═══════════════════════════════════════════════════════════════════════ */
+.v2{background:#F8F5F0;color:#1A1814;font-family:'Karla',sans-serif;}
+.v2 .ios-status{color:#1A1814;font-family:'Karla',sans-serif;font-weight:600;}
+.v2 .header{padding:62px 26px 0;text-align:center;}
+.v2 .crest{
+  font-family:'Spectral',serif;font-style:italic;font-weight:300;
+  font-size:11px;letter-spacing:.4em;color:#8B6F47;text-transform:uppercase;
+}
+.v2 .ornament{
+  margin:14px auto 0;width:36px;height:1px;background:#8B6F47;opacity:.6;
+}
+.v2 .header .ttl{
+  margin-top:18px;
+  font-family:'Spectral',serif;font-style:italic;font-weight:300;
+  font-size:38px;line-height:1;letter-spacing:-.01em;color:#1A1814;
+}
+.v2 .header .sub{
+  margin-top:10px;
+  font-family:'Karla',sans-serif;font-weight:400;font-size:11px;
+  letter-spacing:.18em;color:#6B6358;text-transform:uppercase;
+}
+.v2 .hairline{margin:30px 26px 0;height:1px;background:#D8D2C8;}
+.v2 .featured{
+  margin:24px 26px 0;
+}
+.v2 .featured .row{
+  font-family:'Karla',sans-serif;font-weight:500;font-size:9px;
+  letter-spacing:.28em;color:#8B6F47;text-transform:uppercase;
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;
+}
+.v2 .featured .img{
+  height:160px;
+  background:url('concepts/parallax_goku_wide/thumb_goku_wide.webp') center/cover no-repeat;
+}
+.v2 .featured .name{
+  margin-top:14px;
+  font-family:'Spectral',serif;font-style:italic;font-weight:300;
+  font-size:20px;color:#1A1814;line-height:1.1;
+}
+.v2 .featured .desc{
+  margin-top:6px;
+  font-family:'Karla',sans-serif;font-weight:300;font-size:11px;
+  color:#6B6358;line-height:1.55;
+}
+.v2 .grid{margin:22px 26px 0;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.v2 .grid .card{}
+.v2 .grid .img{
+  aspect-ratio:9/14;background:#1A1814;
+}
+.v2 .grid .card.c1 .img{background:linear-gradient(155deg,#2A2218 0%,#544237 50%,#231C14 100%);}
+.v2 .grid .card.c2 .img{background:linear-gradient(155deg,#1B2A2F 0%,#3F5862 50%,#15212B 100%);}
+.v2 .grid .nm{
+  margin-top:8px;
+  font-family:'Spectral',serif;font-style:italic;font-weight:300;font-size:13px;color:#1A1814;
+}
+.v2 .grid .lb{
+  margin-top:2px;
+  font-family:'Karla',sans-serif;font-weight:400;font-size:9px;letter-spacing:.18em;
+  color:#8B6F47;text-transform:uppercase;
+}
+.v2 .tabbar{
+  background:rgba(248,245,240,.95);backdrop-filter:blur(20px);
+  border-top:.5px solid #D8D2C8;color:#A8A395;
+  font-family:'Karla',sans-serif;
+}
+.v2 .tabbar .tab.active{color:#8B6F47;}
+.v2 .tabbar .tab .ico{background:#D8D2C8;border-radius:50%;}
+.v2 .tabbar .tab.active .ico{background:#8B6F47;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   V3 — APPLE STORE FRESH
+   Pure-white iOS native. Geist (SF-like) + Geist Mono. System blue.
+   Familiar but EXECUTED with precision. Pills, soft shadows.
+   ═══════════════════════════════════════════════════════════════════════ */
+.v3{background:#FFFFFF;color:#1C1C1E;font-family:'Geist',sans-serif;}
+.v3 .ios-status{color:#1C1C1E;font-family:'Geist',sans-serif;}
+.v3 .header{padding:60px 22px 0;display:flex;justify-content:space-between;align-items:center;}
+.v3 .header .ttl{
+  font-family:'Geist',sans-serif;font-weight:700;font-size:32px;letter-spacing:-.035em;color:#1C1C1E;
+}
+.v3 .header .pf{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,#007AFF 0%, #5AC8FA 100%);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:600;font-size:13px;
+}
+.v3 .search{
+  margin:16px 22px 14px;padding:11px 14px;
+  background:#F2F2F7;border-radius:11px;
+  font-family:'Geist',sans-serif;font-size:14px;color:#8E8E93;
+  display:flex;align-items:center;gap:8px;
+}
+.v3 .search::before{
+  content:"";width:14px;height:14px;border-radius:50%;
+  border:1.5px solid #8E8E93;
+}
+.v3 .pills{
+  margin:0 22px 18px;display:flex;gap:8px;overflow-x:auto;
+  scrollbar-width:none;
+}
+.v3 .pills::-webkit-scrollbar{display:none}
+.v3 .pills .pill{
+  flex:0 0 auto;padding:7px 14px;border-radius:18px;
+  font-family:'Geist',sans-serif;font-weight:500;font-size:13px;
+  background:#F2F2F7;color:#1C1C1E;white-space:nowrap;
+}
+.v3 .pills .pill.active{background:#1C1C1E;color:#fff;}
+.v3 .grid{margin:0 22px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.v3 .grid .card{
+  background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.04);
+}
+.v3 .grid .img{aspect-ratio:9/16;background:#1C1C1E;}
+.v3 .grid .card.featured .img{
+  background:url('concepts/parallax_goku_wide/thumb_goku_wide.webp') center/cover no-repeat;
+}
+.v3 .grid .card.c1 .img{background:linear-gradient(180deg,#1A2440 0%, #3D2B6E 100%);}
+.v3 .grid .card.c2 .img{background:linear-gradient(180deg,#0D3A4C 0%, #1A6E8D 100%);}
+.v3 .grid .card.c3 .img{background:linear-gradient(180deg,#3A1A4C 0%, #6E2B8D 100%);}
+.v3 .grid .body{padding:9px 11px 11px;}
+.v3 .grid .nm{
+  font-family:'Geist',sans-serif;font-weight:600;font-size:13px;color:#1C1C1E;letter-spacing:-.01em;
+}
+.v3 .grid .a{
+  font-family:'Geist Mono',monospace;font-weight:400;font-size:9.5px;
+  color:#8E8E93;margin-top:2px;letter-spacing:.04em;
+}
+.v3 .grid .pro{color:#34C759;}
+.v3 .tabbar{
+  background:rgba(255,255,255,.85);backdrop-filter:blur(28px) saturate(180%);
+  border-top:.5px solid rgba(60,60,67,.12);color:#8E8E93;
+  font-family:'Geist',sans-serif;
+}
+.v3 .tabbar .tab.active{color:#007AFF;}
+.v3 .tabbar .tab .ico{background:#C7C7CC;border-radius:6px;}
+.v3 .tabbar .tab.active .ico{background:#007AFF;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   V4 — JAPANESE MINIMALISM
+   Muji / Uniqlo store. Pure white. Tiny type. Single terracotta accent
+   used sparingly. Rigid grid. Confident silence.
+   ═══════════════════════════════════════════════════════════════════════ */
+.v4{background:#FFFFFF;color:#1B1B1B;font-family:'Noto Sans JP',sans-serif;}
+.v4 .ios-status{color:#1B1B1B;font-family:'Noto Sans JP',sans-serif;font-weight:500;}
+.v4 .header{padding:62px 32px 0;}
+.v4 .header .stamp{
+  display:inline-block;padding:3px 10px;border:1px solid #1B1B1B;
+  font-family:'Noto Sans JP',sans-serif;font-weight:500;font-size:8.5px;
+  letter-spacing:.28em;color:#1B1B1B;text-transform:uppercase;
+}
+.v4 .header .ttl{
+  margin-top:30px;
+  font-family:'Shippori Mincho',serif;font-weight:500;
+  font-size:34px;line-height:.96;letter-spacing:-.02em;color:#1B1B1B;
+}
+.v4 .header .sub{
+  margin-top:8px;
+  font-family:'Noto Sans JP',sans-serif;font-weight:300;font-size:10px;
+  letter-spacing:.16em;color:#8B8B8B;text-transform:uppercase;
+}
+.v4 .nums{
+  margin:32px 32px 0;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:1px solid #1B1B1B;padding-bottom:8px;
+}
+.v4 .nums .label{
+  font-family:'Noto Sans JP',sans-serif;font-weight:400;font-size:9px;
+  letter-spacing:.18em;color:#1B1B1B;text-transform:uppercase;
+}
+.v4 .nums .count{
+  font-family:'Shippori Mincho',serif;font-weight:400;font-size:24px;
+  color:#1B1B1B;line-height:.9;letter-spacing:-.02em;
+}
+.v4 .nums .count .accent{color:#C4684C;}
+.v4 .featured{
+  margin:24px 32px 0;
+}
+.v4 .featured .img{
+  width:100%;aspect-ratio:1/1.3;
+  background:url('concepts/parallax_goku_wide/thumb_goku_wide.webp') center/cover no-repeat;
+}
+.v4 .featured .row{
+  margin-top:14px;display:flex;justify-content:space-between;align-items:center;
+}
+.v4 .featured .nm{
+  font-family:'Shippori Mincho',serif;font-weight:500;font-size:13px;color:#1B1B1B;letter-spacing:-.01em;
+}
+.v4 .featured .lb{
+  font-family:'Noto Sans JP',sans-serif;font-weight:400;font-size:8.5px;
+  letter-spacing:.22em;color:#8B8B8B;text-transform:uppercase;
+}
+.v4 .list{margin:18px 32px 0;}
+.v4 .list .row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 0;border-bottom:1px solid #EAE7E0;
+}
+.v4 .list .row:last-child{border-bottom:none;}
+.v4 .list .name{
+  font-family:'Shippori Mincho',serif;font-weight:400;font-size:12px;color:#1B1B1B;
+}
+.v4 .list .num{
+  font-family:'Noto Sans JP',sans-serif;font-weight:300;font-size:10px;
+  letter-spacing:.14em;color:#8B8B8B;
+}
+.v4 .tabbar{
+  background:#fff;
+  border-top:1px solid #EAE7E0;color:#8B8B8B;
+  font-family:'Noto Sans JP',sans-serif;font-weight:400;font-size:9px;letter-spacing:.1em;
+}
+.v4 .tabbar .tab.active{color:#1B1B1B;}
+.v4 .tabbar .tab .ico{
+  background:transparent;border:1px solid #C5C2BA;border-radius:0;
+}
+.v4 .tabbar .tab.active .ico{background:#1B1B1B;border-color:#1B1B1B;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   V5 — SOFT MODERNIST
+   Bauhaus-on-iOS. White base + earth + slate as decorative shapes.
+   Bricolage Grotesque variable + Lora italic accents. Asymmetric.
+   ═══════════════════════════════════════════════════════════════════════ */
+.v5{background:#FAFAF7;color:#181818;font-family:'Bricolage Grotesque',sans-serif;}
+.v5 .ios-status{color:#181818;font-family:'Bricolage Grotesque',sans-serif;}
+.v5 .header{padding:60px 24px 0;position:relative;}
+.v5 .deco-circle{
+  position:absolute;top:62px;right:24px;
+  width:56px;height:56px;border-radius:50%;
+  background:#B85C38;
+}
+.v5 .deco-line{
+  position:absolute;top:88px;right:90px;
+  width:60px;height:2px;background:#4A6B7C;
+}
+.v5 .header .micro{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:10px;
+  letter-spacing:.22em;color:#181818;text-transform:uppercase;
+}
+.v5 .header .ttl{
+  margin-top:30px;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:300;
+  font-size:42px;line-height:.92;letter-spacing:-.04em;color:#181818;
+  font-variation-settings:"opsz" 72;
+}
+.v5 .header .ttl em{
+  font-family:'Lora',serif;font-style:italic;font-weight:500;
+}
+.v5 .header .sub{
+  margin-top:12px;
+  font-family:'Lora',serif;font-style:italic;font-weight:400;font-size:13px;
+  color:#5C5C5C;line-height:1.4;
+}
+.v5 .featured{margin:30px 24px 0;position:relative;}
+.v5 .featured .img{
+  width:100%;height:230px;
+  background:url('concepts/parallax_goku_wide/thumb_goku_wide.webp') center/cover no-repeat;
+}
+.v5 .featured .label{
+  position:absolute;left:-6px;bottom:14px;
+  background:#181818;color:#FAFAF7;padding:6px 12px;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;
+}
+.v5 .featured .meta{
+  margin-top:14px;display:flex;justify-content:space-between;align-items:flex-start;
+}
+.v5 .featured .nm{
+  font-family:'Lora',serif;font-style:italic;font-weight:500;font-size:18px;color:#181818;
+}
+.v5 .featured .price{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:11px;
+  color:#B85C38;letter-spacing:.04em;
+}
+.v5 .grid{
+  margin:22px 24px 0;display:grid;grid-template-columns:1fr 1.2fr;gap:12px;
+}
+.v5 .grid .card .img{aspect-ratio:9/14;background:#1A1A1A;}
+.v5 .grid .c1 .img{background:linear-gradient(165deg,#1B2D38 0%,#3D5C70 100%);}
+.v5 .grid .c2 .img{background:linear-gradient(165deg,#3D2A1B 0%,#7C5638 100%);}
+.v5 .grid .nm{
+  margin-top:6px;font-family:'Lora',serif;font-style:italic;font-weight:500;font-size:12px;color:#181818;
+}
+.v5 .tabbar{
+  background:#FAFAF7;border-top:1px solid #181818;color:#A0A0A0;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:9.5px;letter-spacing:.06em;
+}
+.v5 .tabbar .tab.active{color:#181818;}
+.v5 .tabbar .tab .ico{background:#D5D0C5;}
+.v5 .tabbar .tab.active .ico{background:#B85C38;}
+
+/* Footer */
+footer{
+  max-width:1820px;margin:0 auto 80px;padding:0 56px;text-align:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;
+  color:#7A7565;text-transform:lowercase;
+}
+footer .arrow{color:#C8C2B0;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">// PIXORA · WHITE & ELEGANT · 5 INTERPRETACIONES</div>
+  <h1>El otro <span class="accent">lado</span><br>del lujo.</h1>
+  <p class="subtitle">
+    Cinco filosofías distintas de blanco. Cada una con su propio <em>peso tipográfico</em>,
+    su propia respiración, su propio acento. Mismo contenido — la sección Wallpapers
+    con el Goku Genkidama como pieza central — interpretado en <em>cinco lenguajes</em>
+    completamente diferentes.
+  </p>
+</header>
+
+<div class="divider-row">
+  <span>// 5 LENGUAJES</span>
+  <span class="line"></span>
+  <span>// LIGHT MODE PREMIUM</span>
+  <span class="line"></span>
+  <span>// PICK ONE — IMPLEMENT THAT TONE</span>
+</div>
+
+<main>
+
+  <!-- ═════════════════ V1 — MUSEUM WHITE ═════════════════ -->
+  <div class="card-wrap">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v1">
+        <div class="ios-status"><span class="l">9:41</span><span class="r">●●●● ▼ ▌</span></div>
+        <div class="header">
+          <div class="museum-label">Pixora · Colección 2026</div>
+          <h1 class="ttl">Sala<br>de <em>papel</em></h1>
+          <div class="num">Pieza 01 / 248</div>
+        </div>
+        <div class="hero"></div>
+        <div class="caption"><strong>Goku Genkidama</strong> — Spirit Bomb,<br>tres capas en movimiento.</div>
+        <div class="meta-line"><span>3D · Anime</span><span>Pixora · 2026</span></div>
+        <div class="tabbar">
+          <div class="tab active"><span class="ico"></span>Sala</div>
+          <div class="tab"><span class="ico"></span>Vivos</div>
+          <div class="tab"><span class="ico"></span>3D</div>
+          <div class="tab"><span class="ico"></span>Aura</div>
+          <div class="tab"><span class="ico"></span>Tú</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 01</div>
+      <div class="name">Museum <strong>White</strong></div>
+      <div class="tag">una pieza por vista · serif italic · whitespace de galería</div>
+    </div>
+  </div>
+
+  <!-- ═════════════════ V2 — HOTEL CONCIERGE ═════════════════ -->
+  <div class="card-wrap">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v2">
+        <div class="ios-status"><span class="l">9:41</span><span class="r">●●●● ▼ ▌</span></div>
+        <div class="header">
+          <div class="crest">Pixora — Maison</div>
+          <div class="ornament"></div>
+          <div class="ttl">Salon des<br>papiers peints</div>
+          <div class="sub">Édition spring · 2026</div>
+        </div>
+        <div class="hairline"></div>
+        <div class="featured">
+          <div class="row"><span>Pièce de la semaine</span><span>N° I</span></div>
+          <div class="img"></div>
+          <div class="name">Goku Genkidama</div>
+          <div class="desc">Anime trois couches, parallaxe gyroscopique, orbe animée.</div>
+        </div>
+        <div class="grid">
+          <div class="card c1"><div class="img"></div><div class="nm">Tempête</div><div class="lb">Cinéma · N° II</div></div>
+          <div class="card c2"><div class="img"></div><div class="nm">Pacifique</div><div class="lb">Nature · N° III</div></div>
+        </div>
+        <div class="tabbar">
+          <div class="tab active"><span class="ico"></span>Salon</div>
+          <div class="tab"><span class="ico"></span>Vivants</div>
+          <div class="tab"><span class="ico"></span>3D</div>
+          <div class="tab"><span class="ico"></span>AURA</div>
+          <div class="tab"><span class="ico"></span>Vous</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 02</div>
+      <div class="name">Hotel <strong>Concierge</strong></div>
+      <div class="tag">aesop / le bristol · spectral italic · bronce sutil · hairlines · cream</div>
+    </div>
+  </div>
+
+  <!-- ═════════════════ V3 — APPLE STORE FRESH ═════════════════ -->
+  <div class="card-wrap">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v3">
+        <div class="ios-status"><span class="l">9:41</span><span class="r">●●●● ▼ ▌</span></div>
+        <div class="header">
+          <div class="ttl">Wallpapers</div>
+          <div class="pf">P</div>
+        </div>
+        <div class="search">Buscar · 248 piezas</div>
+        <div class="pills">
+          <div class="pill active">Para ti</div>
+          <div class="pill">Anime</div>
+          <div class="pill">3D</div>
+          <div class="pill">Live</div>
+          <div class="pill">Cinema</div>
+        </div>
+        <div class="grid">
+          <div class="card featured">
+            <div class="img"></div>
+            <div class="body">
+              <div class="nm">Goku Genkidama</div>
+              <div class="a"><span class="pro">●</span> 3D Premium</div>
+            </div>
+          </div>
+          <div class="card c1">
+            <div class="img"></div>
+            <div class="body">
+              <div class="nm">Storm Vortex</div>
+              <div class="a">Cinematic</div>
+            </div>
+          </div>
+          <div class="card c2">
+            <div class="img"></div>
+            <div class="body">
+              <div class="nm">Pacific Tunnel</div>
+              <div class="a">Nature</div>
+            </div>
+          </div>
+          <div class="card c3">
+            <div class="img"></div>
+            <div class="body">
+              <div class="nm">Aurora Drift</div>
+              <div class="a">Live</div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab active"><span class="ico"></span>Wallpapers</div>
+          <div class="tab"><span class="ico"></span>Live</div>
+          <div class="tab"><span class="ico"></span>3D</div>
+          <div class="tab"><span class="ico"></span>AURA</div>
+          <div class="tab"><span class="ico"></span>Tú</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 03</div>
+      <div class="name">Apple Store <strong>Fresh</strong></div>
+      <div class="tag">geist sans (sf-like) · pills · cards con shadow soft · sistema iOS native</div>
+    </div>
+  </div>
+
+  <!-- ═════════════════ V4 — JAPANESE MINIMALISM ═════════════════ -->
+  <div class="card-wrap">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v4">
+        <div class="ios-status"><span class="l">9:41</span><span class="r">●●●● ▼ ▌</span></div>
+        <div class="header">
+          <div class="stamp">Pixora · 壁紙</div>
+          <div class="ttl">Wallpapers<br>for the quiet.</div>
+          <div class="sub">domingo · 26 abril · 2026</div>
+        </div>
+        <div class="nums">
+          <div class="label">Total · Selección</div>
+          <div class="count">2<span class="accent">4</span>8</div>
+        </div>
+        <div class="featured">
+          <div class="img"></div>
+          <div class="row">
+            <div class="nm">Goku Genkidama</div>
+            <div class="lb">三次元 · 3D</div>
+          </div>
+        </div>
+        <div class="list">
+          <div class="row"><span class="name">Storm Vortex</span><span class="num">N° 002</span></div>
+          <div class="row"><span class="name">Pacific Tunnel</span><span class="num">N° 003</span></div>
+          <div class="row"><span class="name">Aurora Drift</span><span class="num">N° 004</span></div>
+        </div>
+        <div class="tabbar">
+          <div class="tab active"><span class="ico"></span>壁紙</div>
+          <div class="tab"><span class="ico"></span>動</div>
+          <div class="tab"><span class="ico"></span>3D</div>
+          <div class="tab"><span class="ico"></span>AURA</div>
+          <div class="tab"><span class="ico"></span>君</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 04</div>
+      <div class="name">Japanese <strong>Minimalism</strong></div>
+      <div class="tag">muji / uniqlo · shippori mincho · acento terracota único · rigid grid · silencio</div>
+    </div>
+  </div>
+
+  <!-- ═════════════════ V5 — SOFT MODERNIST ═════════════════ -->
+  <div class="card-wrap">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen v5">
+        <div class="ios-status"><span class="l">9:41</span><span class="r">●●●● ▼ ▌</span></div>
+        <div class="header">
+          <div class="deco-circle"></div>
+          <div class="deco-line"></div>
+          <div class="micro">Pixora · 04</div>
+          <div class="ttl">Soft <em>papers</em><br>for hard days.</div>
+          <div class="sub">Curated weekly. Hand-picked, never random.</div>
+        </div>
+        <div class="featured">
+          <div class="img"></div>
+          <div class="label">Pieza 01</div>
+          <div class="meta">
+            <div class="nm">Goku Genkidama</div>
+            <div class="price">3D · LIVE</div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card c1">
+            <div class="img"></div>
+            <div class="nm">Storm</div>
+          </div>
+          <div class="card c2">
+            <div class="img"></div>
+            <div class="nm">Pacific</div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab active"><span class="ico"></span>Wallpapers</div>
+          <div class="tab"><span class="ico"></span>Live</div>
+          <div class="tab"><span class="ico"></span>3D</div>
+          <div class="tab"><span class="ico"></span>AURA</div>
+          <div class="tab"><span class="ico"></span>Tú</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// NO. 05</div>
+      <div class="name">Soft <strong>Modernist</strong></div>
+      <div class="tag">bauhaus · bricolage grotesque + lora italic · círculo terracota · hairlines · asimetría</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  cinco filosofías. mismo contenido. dime el número y arranco la implementación de <em>ese</em> tono <span class="arrow">→</span>
+</footer>
+
+</body>
+</html>

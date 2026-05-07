@@ -99,3 +99,13 @@ macos/Flutter/ephemeral/
 
 # Claude scheduled tasks lock
 .claude/scheduled_tasks.lock
+
+# Throwaway temp files at repo root (screenshots, exports, scratch)
+/tmp_*
+
+# AI content production staging — uploads to Supabase Storage, not git
+/wallpapers_new/
+
+# Master doc HTML mirrors — contain OAuth/Google secrets, NEVER commit
+/docs/master_doc/
+/docs/design/master_doc.html
