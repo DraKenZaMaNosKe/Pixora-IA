@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/auto_rotate_service.dart';
 import '../../../../core/services/wallpaper_engine_coordinator.dart';
 import '../../../../core/utils/locale_helper.dart';
@@ -62,6 +63,11 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
+    // iOS White theme uses "Apple Blue Filled" — picked by user 2026-05-06
+    // for high contrast on white app bg. Black & Gold keeps the original
+    // gold/blue gradient (it has proper contrast over the dark background).
+    final isLight = !h.isDark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Material(
@@ -71,164 +77,275 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
             await Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const PixoraDailyPage()),
             );
-            // The coordinator notifies on engine change too, but force a
-            // refresh in case the user changed config without toggling.
             _loadStatus();
           },
           borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+          child: isLight ? _buildLightTheme() : _buildDarkTheme(),
+        ),
+      ),
+    );
+  }
+
+  /// iOS White theme — Apple Blue Filled (concept #01).
+  /// Solid blue gradient bg, white icon container, white text — high contrast.
+  Widget _buildLightTheme() {
+    const appleBlue = Color(0xFF0A84FF);
+    const appleBlueDark = Color(0xFF0072E0);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [appleBlue, appleBlueDark],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: appleBlue.withValues(alpha: 0.35),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: _enabled
-                    ? [
-                        const Color(0xFF0A84FF).withValues(alpha: 0.18),
-                        const Color(0xFF0072E0).withValues(alpha: 0.10),
-                      ]
-                    : [
-                        const Color(0xFFD9B14A).withValues(alpha: 0.18),
-                        const Color(0xFF8A7A56).withValues(alpha: 0.08),
-                      ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _enabled
-                    ? const Color(0xFF0A84FF).withValues(alpha: 0.45)
-                    : const Color(0xFFD9B14A).withValues(alpha: 0.45),
-                width: 1,
-              ),
+              color: Colors.white.withValues(alpha: 0.96),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
+            child: const Icon(
+              Icons.autorenew_rounded,
+              color: appleBlue,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: _enabled
-                          ? [
-                              const Color(0xFF0A84FF),
-                              const Color(0xFF0072E0),
-                            ]
-                          : [
-                              const Color(0xFFD9B14A),
-                              const Color(0xFFF5D676),
-                            ],
+                Row(
+                  children: [
+                    const Text(
+                      'Pixora Daily',
+                      style: TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        height: 1.05,
+                        letterSpacing: -0.2,
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (_enabled
-                                ? const Color(0xFF0A84FF)
-                                : const Color(0xFFD9B14A))
-                            .withValues(alpha: 0.4),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.autorenew_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Pixora Daily',
-                            style: GoogleFonts.fraunces(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              fontStyle: FontStyle.italic,
-                              color: Colors.white,
-                              height: 1.05,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          if (_enabled)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF34D399)
-                                    .withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                  color: const Color(0xFF34D399)
-                                      .withValues(alpha: 0.5),
-                                  width: 0.5,
-                                ),
-                              ),
-                              child: Text(
-                                'ACTIVO',
-                                style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1,
-                                  color: const Color(0xFF34D399),
-                                ),
-                              ),
-                            )
-                          else
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFD9B14A)
-                                    .withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                'NUEVO',
-                                style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1,
-                                  color: const Color(0xFFD9B14A),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _enabled
-                            ? LocaleHelper.pick(
-                                es: 'Cambia cada ${_intervalLabel(_intervalMinutes)}',
-                                en: 'Changes every ${_intervalLabel(_intervalMinutes)}',
-                              )
-                            : LocaleHelper.pick(
-                                es: 'Tu pantalla cambia sola, como Bing Spotlight',
-                                en: 'Your screen changes itself, like Bing Spotlight',
-                              ),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.7),
-                          height: 1.35,
+                      child: Text(
+                        _enabled ? 'ACTIVO' : 'NUEVO',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1,
+                          color: appleBlueDark,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: Colors.white.withValues(alpha: 0.5),
-                  size: 22,
+                const SizedBox(height: 4),
+                Text(
+                  _enabled
+                      ? LocaleHelper.pick(
+                          es: 'Cambia cada ${_intervalLabel(_intervalMinutes)}',
+                          en: 'Changes every ${_intervalLabel(_intervalMinutes)}',
+                        )
+                      : LocaleHelper.pick(
+                          es: 'Tu pantalla cambia sola, como Bing Spotlight',
+                          en: 'Your screen changes itself, like Bing Spotlight',
+                        ),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.85),
+                    height: 1.35,
+                  ),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: Colors.white.withValues(alpha: 0.7),
+            size: 22,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Black & Gold theme — original gradient design (gold/blue tinted bg
+  /// with white text). Already had good contrast on dark surface.
+  Widget _buildDarkTheme() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: _enabled
+              ? [
+                  const Color(0xFF0A84FF).withValues(alpha: 0.18),
+                  const Color(0xFF0072E0).withValues(alpha: 0.10),
+                ]
+              : [
+                  const Color(0xFFD9B14A).withValues(alpha: 0.18),
+                  const Color(0xFF8A7A56).withValues(alpha: 0.08),
+                ],
         ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _enabled
+              ? const Color(0xFF0A84FF).withValues(alpha: 0.45)
+              : const Color(0xFFD9B14A).withValues(alpha: 0.45),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: _enabled
+                    ? [
+                        const Color(0xFF0A84FF),
+                        const Color(0xFF0072E0),
+                      ]
+                    : [
+                        const Color(0xFFD9B14A),
+                        const Color(0xFFF5D676),
+                      ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: (_enabled
+                          ? const Color(0xFF0A84FF)
+                          : const Color(0xFFD9B14A))
+                      .withValues(alpha: 0.4),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.autorenew_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Pixora Daily',
+                      style: GoogleFonts.fraunces(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.white,
+                        height: 1.05,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    if (_enabled)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xFF34D399).withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color:
+                                const Color(0xFF34D399).withValues(alpha: 0.5),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Text(
+                          'ACTIVO',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1,
+                            color: const Color(0xFF34D399),
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xFFD9B14A).withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'NUEVO',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1,
+                            color: const Color(0xFFD9B14A),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _enabled
+                      ? LocaleHelper.pick(
+                          es: 'Cambia cada ${_intervalLabel(_intervalMinutes)}',
+                          en: 'Changes every ${_intervalLabel(_intervalMinutes)}',
+                        )
+                      : LocaleHelper.pick(
+                          es: 'Tu pantalla cambia sola, como Bing Spotlight',
+                          en: 'Your screen changes itself, like Bing Spotlight',
+                        ),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.7),
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: Colors.white.withValues(alpha: 0.5),
+            size: 22,
+          ),
+        ],
       ),
     );
   }

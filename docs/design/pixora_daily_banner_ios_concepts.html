@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora Daily Banner · iOS Theme · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200">
+<style>
+:root {
+  --gold: #D9B14A;
+  --gold-2: #F5D676;
+  --gold-3: #B8954A;
+  --ink: #070710;
+  --apple-blue: #0A84FF;
+  --apple-blue-dark: #0072E0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--ink);
+  color: #fff;
+  font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Stars + grain bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 18% 22%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 78% 68%, rgba(255,255,255,0.35), transparent),
+    radial-gradient(1px 1px at 42% 82%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1.2px 1.2px at 62% 12%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 88% 48%, rgba(217,177,74,0.5), transparent),
+    radial-gradient(1px 1px at 12% 58%, rgba(217,177,74,0.3), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+.page {
+  position: relative;
+  z-index: 2;
+  padding: 56px 32px 80px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Page header */
+.page-header {
+  text-align: center;
+  margin-bottom: 56px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  display: inline-block;
+}
+h1.page-title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: #fff;
+  margin-bottom: 22px;
+}
+h1.page-title em {
+  color: var(--gold);
+  font-style: italic;
+  font-weight: 600;
+}
+.page-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 300;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Concept rows */
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  align-items: center;
+}
+
+.concept {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.concept:nth-child(1) { animation-delay: 0ms; }
+.concept:nth-child(2) { animation-delay: 100ms; }
+.concept:nth-child(3) { animation-delay: 200ms; }
+.concept:nth-child(4) { animation-delay: 300ms; }
+.concept:nth-child(5) { animation-delay: 400ms; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+/* Concept label row above the pair */
+.concept-label {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+.concept-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+.concept-name {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 28px;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.concept-tag {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 300;
+  margin-bottom: 12px;
+  max-width: 720px;
+  text-align: center;
+}
+
+/* Pair of phone contexts */
+.pair {
+  display: flex;
+  gap: 24px;
+}
+
+/* State label above each phone */
+.state-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.state-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+}
+.state-label.active { color: #6BCF87; }
+.state-label.new { color: var(--gold); }
+
+/* Phone context — partial phone frame with white iOS bg */
+.phone-ctx {
+  width: 380px;
+  height: 420px;
+  background: #ffffff;
+  border-radius: 36px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 0 0 9px #0e0e16,
+    0 0 0 10px rgba(255,255,255,0.04);
+}
+.phone-status {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 22px 0;
+  z-index: 100;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Geist', sans-serif;
+  color: #1d1d1f;
+}
+.phone-status .right { display: flex; gap: 5px; align-items: center; }
+.phone-status .right .material-symbols-rounded {
+  font-size: 14px;
+  font-variation-settings: 'FILL' 1, 'wght' 600;
+  color: #1d1d1f;
+}
+
+/* Mock app header */
+.app-hdr {
+  position: absolute;
+  top: 36px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+.app-hdr .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-hdr .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #999, #666);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Geist', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+}
+.app-hdr .pixora {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 16px;
+  color: #1d1d1f;
+  letter-spacing: -0.3px;
+}
+.app-hdr .right {
+  display: flex;
+  gap: 8px;
+}
+.app-hdr .pill {
+  background: #34D39933;
+  color: #04825c;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.app-hdr .pill .material-symbols-rounded { font-size: 12px; font-variation-settings: 'FILL' 1; color: #34D399; }
+
+/* HeroBanner placeholder */
+.hero-banner {
+  position: absolute;
+  top: 76px;
+  left: 16px;
+  right: 16px;
+  height: 130px;
+  border-radius: 18px;
+  background-image: url('https://picsum.photos/seed/heroIos/720/280');
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+.hero-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.45));
+  border-radius: 18px;
+}
+.hero-pill {
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  background: #04825c;
+  color: white;
+  font-family: 'Geist', sans-serif;
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+/* The banner — variant-specific class will style */
+.banner-wrap {
+  position: absolute;
+  top: 222px;
+  left: 16px;
+  right: 16px;
+  height: 78px;
+}
+
+/* Trending row placeholder */
+.trending {
+  position: absolute;
+  bottom: 18px;
+  left: 16px;
+  right: 16px;
+  height: 92px;
+}
+.trending-title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1d1d1f;
+  margin-bottom: 6px;
+}
+.trending-row {
+  display: flex;
+  gap: 6px;
+  height: 64px;
+  overflow: hidden;
+}
+.trending-card {
+  flex: 1;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.trending-card.t1 { background-image: url('https://picsum.photos/seed/tr1/200/300'); }
+.trending-card.t2 { background-image: url('https://picsum.photos/seed/tr2/200/300'); }
+.trending-card.t3 { background-image: url('https://picsum.photos/seed/tr3/200/300'); }
+
+/* ─── Banner shared structure (override colors per variant) ─── */
+.banner {
+  width: 100%;
+  height: 78px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 14px;
+}
+.b-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.b-icon .material-symbols-rounded {
+  font-size: 24px;
+  font-variation-settings: 'FILL' 0, 'wght' 500;
+}
+.b-text {
+  flex: 1;
+  min-width: 0;
+}
+.b-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.b-title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.2px;
+  line-height: 1.05;
+}
+.b-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.b-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+.b-chev {
+  flex-shrink: 0;
+}
+.b-chev .material-symbols-rounded { font-size: 22px; }
+
+/* ═══════════════════════════════════════════════════
+   NO. 01 — APPLE BLUE FILLED
+   ═══════════════════════════════════════════════════ */
+.v1 .banner {
+  background: linear-gradient(135deg, #0A84FF 0%, #0072E0 100%);
+  box-shadow: 0 6px 18px rgba(10,132,255,0.35);
+}
+.v1 .b-icon {
+  background: rgba(255,255,255,0.96);
+}
+.v1 .b-icon .material-symbols-rounded { color: #0A84FF; }
+.v1 .b-title { color: #ffffff; font-family: 'Geist', sans-serif; font-style: normal; font-weight: 700; }
+.v1 .b-pill.active { background: #ffffff; color: #0072E0; }
+.v1 .b-pill.new { background: #ffffff; color: #0072E0; }
+.v1 .b-sub { color: rgba(255,255,255,0.85); }
+.v1 .b-chev .material-symbols-rounded { color: rgba(255,255,255,0.7); }
+
+/* ═══════════════════════════════════════════════════
+   NO. 02 — WHITE CARD WITH BLUE BORDER
+   ═══════════════════════════════════════════════════ */
+.v2 .banner {
+  background: #ffffff;
+  border: 1.5px solid rgba(10,132,255,0.3);
+  box-shadow: 0 4px 12px rgba(10,132,255,0.08);
+}
+.v2 .b-icon {
+  background: linear-gradient(135deg, #0A84FF, #0072E0);
+}
+.v2 .b-icon .material-symbols-rounded { color: white; }
+.v2 .b-title { color: #1D1D1F; }
+.v2 .b-pill.active { background: #34D39922; color: #04825c; border: 0.5px solid rgba(52,211,153,0.5); }
+.v2 .b-pill.new { background: rgba(217,177,74,0.18); color: #8a6f1f; border: 0.5px solid rgba(217,177,74,0.5); }
+.v2 .b-sub { color: #6E6E73; }
+.v2 .b-chev .material-symbols-rounded { color: #C7C7CC; }
+
+/* ═══════════════════════════════════════════════════
+   NO. 03 — GLASS PEACH
+   ═══════════════════════════════════════════════════ */
+.v3 .banner {
+  background: linear-gradient(135deg, #FFE4E1 0%, #FFDAD0 100%);
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    0 6px 18px rgba(255,194,180,0.4);
+}
+.v3 .b-icon {
+  background: linear-gradient(135deg, #D9B14A, #F5D676);
+  box-shadow: 0 4px 12px rgba(217,177,74,0.4);
+}
+.v3 .b-icon .material-symbols-rounded { color: white; font-variation-settings: 'FILL' 1; }
+.v3 .b-title { color: #2D1F4F; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+.v3 .b-pill.active { background: #04825c; color: white; box-shadow: 0 2px 6px rgba(4,130,92,0.4); }
+.v3 .b-pill.new { background: #D9B14A; color: white; box-shadow: 0 2px 6px rgba(217,177,74,0.5); }
+.v3 .b-sub { color: #4A3A6A; }
+.v3 .b-chev .material-symbols-rounded { color: #6F5D9F; }
+
+/* ═══════════════════════════════════════════════════
+   NO. 04 — DARK ISLAND
+   ═══════════════════════════════════════════════════ */
+.v4 .banner {
+  background: linear-gradient(135deg, #0A0A1F 0%, #1A1A2E 100%);
+  border: 1px solid rgba(217,177,74,0.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.v4 .b-icon {
+  background: linear-gradient(135deg, #D9B14A, #F5D676);
+  box-shadow: 0 0 18px rgba(217,177,74,0.4);
+}
+.v4 .b-icon .material-symbols-rounded { color: #0A0A1F; font-variation-settings: 'FILL' 1; }
+.v4 .b-title { color: #FAEED4; }
+.v4 .b-pill.active {
+  background: rgba(52,211,153,0.18);
+  color: #6BCF87;
+  border: 1px solid rgba(107,207,135,0.5);
+}
+.v4 .b-pill.new {
+  background: rgba(217,177,74,0.18);
+  color: var(--gold-2);
+  border: 1px solid rgba(217,177,74,0.5);
+}
+.v4 .b-sub { color: rgba(245,233,208,0.7); }
+.v4 .b-chev .material-symbols-rounded { color: rgba(255,255,255,0.6); }
+
+/* ═══════════════════════════════════════════════════
+   NO. 05 — WHITE & GOLD
+   ═══════════════════════════════════════════════════ */
+.v5 .banner {
+  background: #ffffff;
+  border: 1px solid var(--gold);
+  box-shadow:
+    0 0 0 1px rgba(217,177,74,0.15),
+    0 4px 14px rgba(217,177,74,0.18);
+}
+.v5 .b-icon {
+  background: linear-gradient(135deg, #D9B14A, #F5D676);
+  box-shadow: 0 3px 10px rgba(217,177,74,0.4);
+}
+.v5 .b-icon .material-symbols-rounded { color: white; font-variation-settings: 'FILL' 1; }
+.v5 .b-title { color: #1D1D1F; }
+.v5 .b-pill.active { background: #04825c; color: white; }
+.v5 .b-pill.new { background: var(--gold); color: #1D1D1F; }
+.v5 .b-sub { color: #6E6055; }
+.v5 .b-chev .material-symbols-rounded { color: rgba(217,177,74,0.6); }
+
+/* Swatches */
+.swatches {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 64px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.28);
+  padding-bottom: 24px;
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="page-header">
+    <div class="tag">PIXORA · DESIGN ARCHIVE · VOL 10</div>
+    <h1 class="page-title">Pixora Daily <em>Banner</em><br>iOS Theme</h1>
+    <p class="page-subtitle">Cinco direcciones para mejorar el contraste sobre fondo blanco. Cada concepto se muestra en sus dos estados — <em>activo</em> y <em>nuevo</em> — dentro del contexto de la pantalla Wallpapers.</p>
+  </header>
+
+  <div class="gallery">
+
+    <!-- ════════════════ NO. 01 ════════════════ -->
+    <div class="concept">
+      <div class="concept-label">
+        <span class="concept-num">// NO. 01</span>
+        <span class="concept-name">Apple Blue Filled</span>
+      </div>
+      <div class="concept-tag">Card sólido azul iOS — funciona como CTA primario, contraste máximo. Claro y directo.</div>
+
+      <div class="pair">
+        <div class="state-stack">
+          <span class="state-label active">·· ACTIVO ··</span>
+          <div class="phone-ctx v1">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill active">ACTIVO</span></div>
+                  <div class="b-sub">Cambia cada 5 min</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="state-stack">
+          <span class="state-label new">·· NUEVO ··</span>
+          <div class="phone-ctx v1">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill new">NUEVO</span></div>
+                  <div class="b-sub">Tu pantalla cambia sola, como Bing Spotlight</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background:#0A84FF;"></div>
+        <div class="swatch" style="background:#0072E0;"></div>
+        <div class="swatch" style="background:#FFFFFF;"></div>
+        <div class="swatch" style="background:#1D1D1F;"></div>
+      </div>
+    </div>
+
+    <!-- ════════════════ NO. 02 ════════════════ -->
+    <div class="concept">
+      <div class="concept-label">
+        <span class="concept-num">// NO. 02</span>
+        <span class="concept-name">White with Blue Border</span>
+      </div>
+      <div class="concept-tag">iOS Settings tile clásico. Texto oscuro sobre blanco — máxima legibilidad para lectura.</div>
+
+      <div class="pair">
+        <div class="state-stack">
+          <span class="state-label active">·· ACTIVO ··</span>
+          <div class="phone-ctx v2">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill active">ACTIVO</span></div>
+                  <div class="b-sub">Cambia cada 5 min</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="state-stack">
+          <span class="state-label new">·· NUEVO ··</span>
+          <div class="phone-ctx v2">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill new">NUEVO</span></div>
+                  <div class="b-sub">Tu pantalla cambia sola, como Bing Spotlight</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background:#FFFFFF;border:1px solid #ddd;"></div>
+        <div class="swatch" style="background:#0A84FF;"></div>
+        <div class="swatch" style="background:#34D399;"></div>
+        <div class="swatch" style="background:#1D1D1F;"></div>
+      </div>
+    </div>
+
+    <!-- ════════════════ NO. 03 ════════════════ -->
+    <div class="concept">
+      <div class="concept-label">
+        <span class="concept-num">// NO. 03</span>
+        <span class="concept-name">Glass Peach</span>
+      </div>
+      <div class="concept-tag">Frosted suave inspirado en Apple Health. Cálido, premium, distintivo entre wallpapers.</div>
+
+      <div class="pair">
+        <div class="state-stack">
+          <span class="state-label active">·· ACTIVO ··</span>
+          <div class="phone-ctx v3">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill active">ACTIVO</span></div>
+                  <div class="b-sub">Cambia cada 5 min</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="state-stack">
+          <span class="state-label new">·· NUEVO ··</span>
+          <div class="phone-ctx v3">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill new">NUEVO</span></div>
+                  <div class="b-sub">Tu pantalla cambia sola, como Bing Spotlight</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background:#FFE4E1;"></div>
+        <div class="swatch" style="background:#FFDAD0;"></div>
+        <div class="swatch" style="background:#D9B14A;"></div>
+        <div class="swatch" style="background:#2D1F4F;"></div>
+      </div>
+    </div>
+
+    <!-- ════════════════ NO. 04 ════════════════ -->
+    <div class="concept">
+      <div class="concept-label">
+        <span class="concept-num">// NO. 04</span>
+        <span class="concept-name">Dark Island</span>
+      </div>
+      <div class="concept-tag">Card oscura dentro del tema claro. Máximo contraste — imposible no notarlo.</div>
+
+      <div class="pair">
+        <div class="state-stack">
+          <span class="state-label active">·· ACTIVO ··</span>
+          <div class="phone-ctx v4">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill active">ACTIVO</span></div>
+                  <div class="b-sub">Cambia cada 5 min</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="state-stack">
+          <span class="state-label new">·· NUEVO ··</span>
+          <div class="phone-ctx v4">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill new">NUEVO</span></div>
+                  <div class="b-sub">Tu pantalla cambia sola, como Bing Spotlight</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background:#0A0A1F;"></div>
+        <div class="swatch" style="background:#D9B14A;"></div>
+        <div class="swatch" style="background:#FAEED4;"></div>
+        <div class="swatch" style="background:#6BCF87;"></div>
+      </div>
+    </div>
+
+    <!-- ════════════════ NO. 05 ════════════════ -->
+    <div class="concept">
+      <div class="concept-label">
+        <span class="concept-num">// NO. 05</span>
+        <span class="concept-name">White & Gold</span>
+      </div>
+      <div class="concept-tag">Borde dorado fino con icono dorado sobre blanco. Pixora-branded, premium, sutil pero presente.</div>
+
+      <div class="pair">
+        <div class="state-stack">
+          <span class="state-label active">·· ACTIVO ··</span>
+          <div class="phone-ctx v5">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill active">ACTIVO</span></div>
+                  <div class="b-sub">Cambia cada 5 min</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="state-stack">
+          <span class="state-label new">·· NUEVO ··</span>
+          <div class="phone-ctx v5">
+            <div class="phone-status"><span>9:41</span><span class="right"><span class="material-symbols-rounded">signal_cellular_alt</span><span class="material-symbols-rounded">wifi</span><span class="material-symbols-rounded">battery_full</span></span></div>
+            <div class="app-hdr"><div class="logo"><div class="avatar">e</div><span class="pixora">PIXORA</span></div><div class="right"><span class="pill"><span class="material-symbols-rounded">favorite</span>45</span></div></div>
+            <div class="hero-banner"><span class="hero-pill">LIFESTYLE</span></div>
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="b-icon"><span class="material-symbols-rounded">autorenew</span></div>
+                <div class="b-text">
+                  <div class="b-title-row"><span class="b-title">Pixora Daily</span><span class="b-pill new">NUEVO</span></div>
+                  <div class="b-sub">Tu pantalla cambia sola, como Bing Spotlight</div>
+                </div>
+                <div class="b-chev"><span class="material-symbols-rounded">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="trending">
+              <div class="trending-title"><em>Trending</em></div>
+              <div class="trending-row"><div class="trending-card t1"></div><div class="trending-card t2"></div><div class="trending-card t3"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background:#FFFFFF;border:1px solid #ddd;"></div>
+        <div class="swatch" style="background:#D9B14A;"></div>
+        <div class="swatch" style="background:#F5D676;"></div>
+        <div class="swatch" style="background:#1D1D1F;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">PIXORA · DESIGN ARCHIVE · VOL 10 · ENTRY 032</footer>
+
+</div>
+
+</body>
+</html>
