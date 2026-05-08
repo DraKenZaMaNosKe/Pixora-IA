@@ -128,21 +128,35 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
     private fun setWallpaper(path: String, glowColor: String, prefs: android.content.SharedPreferences): Boolean {
         return try {
             // Update live wallpaper prefs — PixoraWallpaperService listens for changes
-            // and reloads the image with clock, equalizer, battery, system rings
+            // and reloads the image with clock, equalizer, battery, system rings.
+            //
+            // Also clear scene_id + interactive on every rotation: AutoRotate uses
+            // plain panoramic/static images, never canvas scenes. If a previously
+            // selected wallpaper (Goku Genkidama, Mictlantecuhtli, etc.) left a
+            // scene_id behind, that scene overlays the rotated image and the user
+            // sees the old wallpaper forever even though the path keeps changing.
+            // Defensive cleanup here covers both the first rotation after start()
+            // and any later rotation if scene_id leaks back in somehow.
             val livePrefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
             livePrefs.edit()
                 .putString("wallpaper_path", path)
                 .putString("glow_color", glowColor)
+                .remove("scene_id")
+                .putBoolean("interactive", false)
                 .putLong("changed_at", System.currentTimeMillis()) // trigger listener
                 .apply()
 
             // Notify :wallpaper process — SharedPreferences cache is stale across
             // processes, see tech_sharedprefs_multi_process.md. The receiver
             // re-applies the values from inside :wallpaper to sync its cache.
+            // clear_scene=true tells the receiver to also drop scene_id so a
+            // previous canvas wallpaper (e.g. goku_genkidama) doesn't overlay
+            // the rotated image.
             val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
                 .setPackage(applicationContext.packageName)
                 .putExtra("wallpaper_path", path)
                 .putExtra("glow_color", glowColor)
+                .putExtra("clear_scene", true)
             applicationContext.sendBroadcast(notify)
 
             Log.d(TAG, "Wallpaper prefs updated: $path, glow=$glowColor")

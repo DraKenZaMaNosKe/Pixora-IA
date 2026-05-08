@@ -249,10 +249,18 @@ class PixoraWallpaperService : WallpaperService() {
                 val newPath = intent?.getStringExtra("wallpaper_path") ?: return
                 val newGlow = intent.getStringExtra("glow_color")
                 val newCaption = intent.getStringExtra("caption")
+                val clearScene = intent.getBooleanExtra("clear_scene", false)
                 val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
                 val editor = prefs.edit().putString("wallpaper_path", newPath)
                 if (newGlow != null) editor.putString("glow_color", newGlow)
                 editor.putString("caption", newCaption)
+                if (clearScene) {
+                    // AutoRotate sends this on every tick: drop the canvas scene
+                    // (e.g. goku_genkidama) and any interactive flag so the rotated
+                    // image renders clean instead of being overlaid by stale state.
+                    editor.remove("scene_id")
+                    editor.putBoolean("interactive", false)
+                }
                 editor.putLong("changed_at", System.currentTimeMillis())
                 editor.apply()
             }

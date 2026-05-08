@@ -27,15 +27,40 @@ class MainActivity : AudioServiceActivity() {
         return info.component == ComponentName(applicationContext, PixoraWallpaperService::class.java)
     }
 
-    /** Launch the live wallpaper picker only if not already active */
-    private fun ensureLiveWallpaperActive() {
-        // Always show picker so user sees preview, even if already active
+    /**
+     * Launch the live wallpaper picker.
+     *
+     * When [forceShowPicker] is true (default for first-time activation flows
+     * like DayCycle/Story where seeing the preview is part of the UX), the
+     * picker is always shown — even if Pixora is already the active wallpaper.
+     *
+     * When false, the picker is only shown if Pixora is NOT the current
+     * wallpaper. This prevents the jarring "open the picker unnecessarily"
+     * UX during AutoRotate toggles, where the user just wants the rotation
+     * to keep going on whatever Pixora-rendered surface they already had.
+     */
+    private fun ensureLiveWallpaperActive(forceShowPicker: Boolean = true) {
+        if (!forceShowPicker && isPixoraActiveWallpaper()) {
+            android.util.Log.d("PixoraEQ", "ensureLiveWallpaperActive: already active, skipping picker")
+            return
+        }
         val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
         intent.putExtra(
             WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
             ComponentName(this, PixoraWallpaperService::class.java)
         )
         startActivity(intent)
+    }
+
+    /** True when Pixora is currently set as the system live wallpaper. */
+    private fun isPixoraActiveWallpaper(): Boolean {
+        return try {
+            val wm = WallpaperManager.getInstance(this)
+            val info = wm.wallpaperInfo
+            info?.packageName == applicationContext.packageName
+        } catch (_: Exception) {
+            false
+        }
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -48,6 +73,10 @@ class MainActivity : AudioServiceActivity() {
                         val path = call.argument<String>("path")
                         val target = call.argument<Int>("target") ?: 0
                         if (path != null) {
+                            // Stop AutoRotate before applying a single wallpaper.
+                            // Otherwise the WorkManager job keeps firing every N
+                            // minutes and overwrites the user's manual choice.
+                            AutoRotateWorker.stop(applicationContext)
                             val success = setWallpaper(path, target)
                             result.success(success)
                         } else {
@@ -64,6 +93,10 @@ class MainActivity : AudioServiceActivity() {
                         // by Dart's SceneSpecService.
                         val sceneId = call.argument<String>("sceneId")
                         if (path != null) {
+                            // Stop AutoRotate before applying a single live wallpaper.
+                            // Otherwise the next AutoRotate tick clears scene_id and
+                            // overwrites the user's manual canvas-scene choice.
+                            AutoRotateWorker.stop(applicationContext)
                             setLiveWallpaper(path, glowColor, interactive, sceneId)
                             result.success(true)
                         } else {
@@ -177,6 +210,26 @@ class MainActivity : AudioServiceActivity() {
                         val success = AutoRotateWorker.start(
                             applicationContext, catalogData, intervalMinutes, target, category
                         )
+                        if (success) {
+                            // Clear stale canvas scene + interactive flag so AutoRotate
+                            // gets a clean Surface. Otherwise a previously-active scene
+                            // (e.g. goku_genkidama, mictlantecuhtli) overlays the
+                            // rotation and the user sees the same wallpaper forever
+                            // even though the rotation IS happening underneath.
+                            // Same pattern as startDayCycle below.
+                            val livePrefs = getSharedPreferences("pixora_live", 0)
+                            livePrefs.edit()
+                                .remove("scene_id")
+                                .putBoolean("interactive", false)
+                                .putLong("changed_at", System.currentTimeMillis())
+                                .commit()
+
+                            killWallpaperProcess()
+                            // forceShowPicker=false: skip the picker if Pixora is already
+                            // the active wallpaper. AutoRotate is a quiet toggle, the user
+                            // doesn't expect to see the picker every time they enable it.
+                            ensureLiveWallpaperActive(forceShowPicker = false)
+                        }
                         result.success(success)
                     }
                     "stopAutoRotate" -> {
