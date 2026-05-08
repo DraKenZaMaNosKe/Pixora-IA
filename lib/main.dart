@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:audio_session/audio_session.dart';
@@ -19,6 +20,23 @@ import 'core/services/wallpaper_stats_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/splash/presentation/splash_page.dart';
 
+/// Global navigator key kept around in case a future flow needs it.
+/// The ad-overlay path no longer uses it — see [adShowingNotifier] below.
+final GlobalKey<NavigatorState> pixoraNavigatorKey =
+    GlobalKey<NavigatorState>();
+
+/// Toggled by AdService.showInterstitialAd around the AdMob show. While
+/// `true`, PixoraApp swaps its entire content for a black ColoredBox —
+/// every widget below MaterialApp is unmounted, releasing GPU memory and
+/// stopping Flutter's frame loop on the catalog UI. AdMob's translucent
+/// AdActivity sits on top so users only ever see the ad. This is the
+/// thing that actually fixes ads stuttering on memory-pressed Samsung
+/// devices (Navigator.push didn't work — push doesn't unmount, it stacks
+/// the new route on top of the heavy catalog tree which keeps rendering
+/// at 13 fps because the previous route is still mounted in the
+/// Navigator's element tree).
+final ValueNotifier<bool> adShowingNotifier = ValueNotifier<bool>(false);
+
 Future<void> main() async {
   // Catch all uncaught Flutter framework errors
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -35,6 +53,21 @@ Future<void> main() async {
     // around 100 MB of bitmap cache). 100 images × ~0.5 MB each ≈ 50 MB max.
     PaintingBinding.instance.imageCache.maximumSize = 50;
     PaintingBinding.instance.imageCache.maximumSizeBytes = 40 * 1024 * 1024;
+
+    // Skia GPU resource cache cap. This is the BIG one — Skia keeps an
+    // internal cache of GPU textures, framebuffers and compiled shaders
+    // that grows unbounded as the user navigates through the app. By
+    // 2026-05-08, dumpsys meminfo on Pixora was showing 442 MB in
+    // GL mtrack alone, dwarfing Java/Native heaps and bottlenecking the
+    // playable AdMob ads (they need GPU memory to render their interactive
+    // mini-game). Capping at 64 MB keeps the cache useful for animation
+    // smoothness without hogging memory needed by other windows (ads,
+    // wallpaper service, etc).
+    //
+    // IMPORTANT: must call this AFTER the first frame because the engine's
+    // shell isn't ready before runApp(). Calling here in main() pre-engine
+    // silently drops the message. Wired up in the addPostFrameCallback
+    // below in PixoraApp.initState.
 
     await Hive.initFlutter();
 
@@ -97,6 +130,22 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Apply Skia GPU resource cache cap AFTER the first frame so the engine
+    // shell is fully initialized. Calling this in main() pre-runApp drops
+    // the message silently because the platform channel isn't wired yet.
+    // 64 MB is the chosen cap — see comment in main() above for why.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      SystemChannels.skia
+          .invokeMethod<void>(
+        'Skia.setResourceCacheMaxBytes',
+        64 * 1024 * 1024,
+      )
+          .then((_) {
+        debugPrint('[Pixora] Skia GPU cache capped at 64 MB');
+      }).catchError((Object e) {
+        debugPrint('[Pixora] Skia cap error: $e');
+      });
+    });
   }
 
   @override
@@ -120,9 +169,21 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
       builder: (context, _) {
         return MaterialApp(
           title: 'Pixora IA',
+          navigatorKey: pixoraNavigatorKey,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.forHud(ThemeService.instance.currentTheme),
-          home: const SplashPage(),
+          home: ValueListenableBuilder<bool>(
+            valueListenable: adShowingNotifier,
+            builder: (context, isAdShowing, child) {
+              if (isAdShowing) {
+                // Heavy catalog UI is unmounted while the ad runs.
+                // GPU memory drops, Flutter idles, AdMob runs smoothly.
+                return const ColoredBox(color: Colors.black);
+              }
+              return child!;
+            },
+            child: const SplashPage(),
+          ),
         );
       },
     );

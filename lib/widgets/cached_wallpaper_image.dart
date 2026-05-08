@@ -14,7 +14,7 @@ class CachedWallpaperImage extends StatelessWidget {
     required this.imageUrl,
     this.fit = BoxFit.cover,
     this.borderRadius,
-    this.maxDecodedWidth = 640,
+    this.maxDecodedWidth = 320,
     super.key,
   });
 
@@ -22,9 +22,17 @@ class CachedWallpaperImage extends StatelessWidget {
   final BoxFit fit;
   final BorderRadius? borderRadius;
 
-  /// Hard cap on the width at which the image is decoded into memory.
-  /// 640 px is enough for any card / grid thumbnail on a 1080 px screen
-  /// (cards are at most ~half-screen). Full preview pages override to 1280.
+  /// Hard cap on the LOGICAL width at which the image is decoded.
+  /// Multiplied by devicePixelRatio at build time to get physical px.
+  ///
+  /// 320 logical = ~840 physical on a 2.625 dpr device. That's enough
+  /// for any 3-column grid card (~360 logical px per card). Full preview
+  /// pages override to 1080 to get crisp full-screen rendering.
+  ///
+  /// History: was 640 default which decoded to 1680 px on Samsung devices —
+  /// each card bitmap weighed ~20 MB in GPU memory and 25 cards filled
+  /// 500+ MB Graphics. That made playable AdMob ads stutter (Pixora was
+  /// at 1 GB total PSS). Halved 2026-05-08 after dumpsys meminfo audit.
   final int maxDecodedWidth;
 
   @override

@@ -119,6 +119,12 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     itemCount: widget.items.length,
                     cacheExtent: 150,
+                    // Aggressive memory: drop offscreen cards from the
+                    // element tree as soon as they scroll out (default
+                    // `true` would keep them mounted forever, accumulating
+                    // image bitmaps + Skia GPU resources).
+                    addAutomaticKeepAlives: false,
+                    addRepaintBoundaries: false,
                     itemBuilder: (context, index) {
                       final stagger = (index * 0.08).clamp(0.0, 0.6);
                       final cardProgress =

@@ -108,10 +108,22 @@ class _CategoryRows extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(categoryRowsProvider);
     return async.when(
-      data: (rows) => Column(
-        children: rows
-            .map((r) => WallpaperCarouselRow(title: r.title, items: r.items))
-            .toList(),
+      // ListView.builder with shrinkWrap so each row is built ONLY when
+      // it scrolls into view. Previously a Column with .map().toList()
+      // built all 8+ category carousels at once on first paint, mounting
+      // ~80 wallpaper cards' image bitmaps even though only 1-2 rows
+      // were on screen — major contributor to the 1 GB memory baseline.
+      data: (rows) => ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: rows.length,
+        cacheExtent: 200,
+        addAutomaticKeepAlives: false,
+        addRepaintBoundaries: false,
+        itemBuilder: (_, i) => WallpaperCarouselRow(
+          title: rows[i].title,
+          items: rows[i].items,
+        ),
       ),
       loading: () => const Column(
         children: [CarouselRowShimmer(), CarouselRowShimmer()],

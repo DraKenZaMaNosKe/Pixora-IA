@@ -124,6 +124,54 @@ class MainActivity : AudioServiceActivity() {
                             result.success(false)
                         }
                     }
+                    "freeWallpaperMemory" -> {
+                        // Kill the :wallpaper process BEFORE showing an ad.
+                        // PixoraWallpaperService renders panoramic 4192×1024 WebPs +
+                        // canvas scenes with parallax + particle systems. That can
+                        // consume 400-500 MB of GPU graphics memory. When AdMob
+                        // shows a translucent AdActivity on top of MainActivity,
+                        // both stay alive and the system runs out of memory →
+                        // playable ads stutter, screen stops responding to touch,
+                        // user gets stuck. Killing :wallpaper releases the GPU
+                        // memory instantly. Android respawns the WallpaperService
+                        // when it needs to be visible again (after the ad closes).
+                        // History: discovered 2026-05-08 from dumpsys meminfo
+                        // showing Pixora at 1 GB total PSS, 512 MB Graphics.
+                        //
+                        // ALSO: pause the FlutterEngine. AdActivity is translucent
+                        // (styleTranslucent=true) so MainActivity doesn't receive
+                        // the standard onPause from Android. Flutter therefore
+                        // keeps rendering AND its lifecycle state stays "resumed",
+                        // generating ~20 MB of Java heap garbage every 12 sec.
+                        // We force-call appIsPaused() to make Flutter behave as
+                        // if it were truly backgrounded — pauses AnimationControllers,
+                        // Timers, frame loop. Memory pressure drops dramatically.
+                        try {
+                            killWallpaperProcess()
+                            flutterEngine?.lifecycleChannel?.appIsPaused()
+                            android.util.Log.d("PixoraEQ", "freeWallpaperMemory: :wallpaper killed + Flutter paused for ad")
+                            result.success(true)
+                        } catch (e: Exception) {
+                            android.util.Log.w("PixoraEQ", "freeWallpaperMemory failed: ${e.message}")
+                            result.success(false)
+                        }
+                    }
+                    "resumeAfterAd" -> {
+                        // Reverse of freeWallpaperMemory's Flutter pause.
+                        // Called from AdService when onAdDismissed/onAdFailed/
+                        // watchdog fires, so Flutter resumes rendering normally.
+                        // The :wallpaper process is NOT respawned here — Android
+                        // does that automatically when the user goes back to
+                        // home and needs the wallpaper visible again.
+                        try {
+                            flutterEngine?.lifecycleChannel?.appIsResumed()
+                            android.util.Log.d("PixoraEQ", "resumeAfterAd: Flutter resumed")
+                            result.success(true)
+                        } catch (e: Exception) {
+                            android.util.Log.w("PixoraEQ", "resumeAfterAd failed: ${e.message}")
+                            result.success(false)
+                        }
+                    }
                     "saveToGallery" -> {
                         val path = call.argument<String>("path")
                         if (path != null) {
