@@ -601,6 +601,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
             aspectRatio: 9 / 16,
             child: CachedWallpaperImage(
               imageUrl: widget.wallpaper.fullImageUrl,
+              useAuroraLoader: true,
             ),
           ),
         ),
@@ -621,6 +622,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
             ),
             child: CachedWallpaperImage(
               imageUrl: widget.wallpaper.fullImageUrl,
+              useAuroraLoader: true,
             ),
           ),
         ),

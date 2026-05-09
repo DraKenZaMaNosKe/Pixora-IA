@@ -11,6 +11,7 @@ import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
+import '../../../../core/utils/locale_helper.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../../../core/widgets/codex_detail_layout.dart';
@@ -181,17 +182,29 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
           switch (phase) {
             case 'downloading':
               _loadingPhase = LoadingPhase.downloading;
-              _loadingStatus = 'Downloading video...';
+              _loadingStatus = LocaleHelper.pick(
+                es: 'Descargando contenido...',
+                en: 'Downloading assets...',
+              );
             case 'sprites':
               _loadingPhase = LoadingPhase.sprites;
-              _loadingStatus = 'Downloading animated effects...';
+              _loadingStatus = LocaleHelper.pick(
+                es: 'Descargando efectos animados...',
+                en: 'Downloading animated effects...',
+              );
               _downloadProgress = 0.0;
             case 'installing':
               _loadingPhase = LoadingPhase.installing;
-              _loadingStatus = 'Applying live wallpaper...';
+              _loadingStatus = LocaleHelper.pick(
+                es: 'Aplicando wallpaper...',
+                en: 'Applying live wallpaper...',
+              );
             case 'done':
               _loadingPhase = LoadingPhase.done;
-              _loadingStatus = 'Live wallpaper applied!';
+              _loadingStatus = LocaleHelper.pick(
+                es: '¡Wallpaper aplicado!',
+                en: 'Live wallpaper applied!',
+              );
           }
         });
       },

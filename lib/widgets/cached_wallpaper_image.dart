@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../core/design/hud_tokens.dart';
+import '../core/widgets/aurora_loading_indicator.dart';
 
 /// Memory-conscious wrapper around [CachedNetworkImage].
 ///
@@ -15,12 +16,20 @@ class CachedWallpaperImage extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.borderRadius,
     this.maxDecodedWidth = 320,
+    this.useAuroraLoader = false,
     super.key,
   });
 
   final String imageUrl;
   final BoxFit fit;
   final BorderRadius? borderRadius;
+
+  /// When `true`, the placeholder is the AuroraLoadingIndicator (vertical
+  /// capsule with animated gradient + drifting particles). Use this for
+  /// large preview surfaces (wallpaper detail page) where the user has
+  /// time to enjoy the animation. Leave `false` for grid cards — there
+  /// the standard shimmer is less distracting at thumbnail size.
+  final bool useAuroraLoader;
 
   /// Hard cap on the LOGICAL width at which the image is decoded.
   /// Multiplied by devicePixelRatio at build time to get physical px.
@@ -46,11 +55,17 @@ class CachedWallpaperImage extends StatelessWidget {
       memCacheWidth: decodeWidth,
       maxWidthDiskCache: 1080,
       fadeInDuration: const Duration(milliseconds: 160),
-      placeholder: (context, url) => Shimmer.fromColors(
-        baseColor: context.hud.surface,
-        highlightColor: context.hud.surfaceHi,
-        child: Container(color: context.hud.surface),
-      ),
+      placeholder: (context, url) => useAuroraLoader
+          ? Container(
+              color: const Color(0xFF0A0A0F),
+              alignment: Alignment.center,
+              child: const AuroraLoadingIndicator(),
+            )
+          : Shimmer.fromColors(
+              baseColor: context.hud.surface,
+              highlightColor: context.hud.surfaceHi,
+              child: Container(color: context.hud.surface),
+            ),
       errorWidget: (context, url, error) => Container(
         color: context.hud.surface,
         child: Icon(

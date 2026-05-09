@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wallpaper Loading · Micro-interactions — Pixora Design Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+  <style>
+    :root {
+      --ink: #070710;
+      --ink-2: #0A0A0F;
+      --skeleton: #1A1A22;
+      --skeleton-hi: #2A2A35;
+      --gold: #D9B14A;
+      --gold-soft: #F5D676;
+      --gold-deep: #8A7A56;
+      --aurora-purple: #7C4DFF;
+      --aurora-cyan: #5BC7FF;
+      --aurora-green: #34D399;
+      --text: rgba(255, 255, 255, 0.92);
+      --text-2: rgba(255, 255, 255, 0.62);
+      --text-3: rgba(255, 255, 255, 0.36);
+      --hairline: rgba(255, 255, 255, 0.06);
+      --hairline-2: rgba(255, 255, 255, 0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--ink);
+      color: var(--text);
+      font-family: 'Geist', system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ═════════════════════════════════════════
+       BACKGROUND: stars + grain + radial glow
+       ═════════════════════════════════════════ */
+    .bg-glow {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(217, 177, 74, 0.05), transparent 60%),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(124, 77, 255, 0.04), transparent 60%);
+    }
+
+    .bg-stars {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .bg-stars span {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 4s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.7; }
+    }
+
+    .bg-grain {
+      position: fixed; inset: 0; pointer-events: none; z-index: 1;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* ═════════════════════════════════════════
+       LAYOUT
+       ═════════════════════════════════════════ */
+    .wrap {
+      position: relative; z-index: 2;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 88px 40px 120px;
+    }
+
+    header {
+      max-width: 920px;
+      margin-bottom: 96px;
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 36px;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.5;
+    }
+
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(44px, 7vw, 92px);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 28px;
+      color: var(--text);
+    }
+    h1 .accent {
+      color: var(--gold);
+      font-weight: 400;
+    }
+    h1 .small {
+      font-size: 0.62em;
+      font-weight: 300;
+      color: var(--text-2);
+      display: block;
+      margin-top: 8px;
+      letter-spacing: -0.025em;
+    }
+
+    .subtitle {
+      font-family: 'Geist', sans-serif;
+      font-size: 17px;
+      font-weight: 300;
+      color: var(--text-2);
+      line-height: 1.55;
+      max-width: 580px;
+      letter-spacing: -0.005em;
+    }
+
+    /* ═════════════════════════════════════════
+       GRID OF CONCEPTS
+       ═════════════════════════════════════════ */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 56px 32px;
+      max-width: 1280px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      animation: fadeUp 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+    .card:nth-child(1) { animation-delay: 0.15s; }
+    .card:nth-child(2) { animation-delay: 0.25s; }
+    .card:nth-child(3) { animation-delay: 0.35s; }
+    .card:nth-child(4) { animation-delay: 0.45s; }
+    .card:nth-child(5) { animation-delay: 0.55s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .phone-frame {
+      width: 240px;
+      height: 320px;
+      background: var(--ink-2);
+      border: 1px solid var(--hairline-2);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 30px 80px -30px rgba(0, 0, 0, 0.7),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.04);
+    }
+
+    .meta {
+      margin-top: 24px;
+      width: 240px;
+      padding: 0 4px;
+    }
+
+    .meta-no {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      color: var(--text-3);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .meta-name {
+      font-family: 'Geist', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.018em;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .meta-tagline {
+      font-family: 'Geist', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--text-2);
+      line-height: 1.5;
+      margin-bottom: 18px;
+      letter-spacing: -0.005em;
+    }
+
+    .palette {
+      display: flex;
+      gap: 7px;
+    }
+    .palette span {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 0.5px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* ═════════════════════════════════════════
+       FOOTER
+       ═════════════════════════════════════════ */
+    footer {
+      margin-top: 120px;
+      text-align: center;
+    }
+    footer .divider {
+      width: 60px;
+      height: 1px;
+      background: var(--hairline);
+      margin: 0 auto 24px;
+    }
+    footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 400;
+      letter-spacing: 0.28em;
+      color: var(--text-3);
+      text-transform: uppercase;
+    }
+
+    /* ═════════════════════════════════════════
+       CONCEPT-SPECIFIC
+       ═════════════════════════════════════════ */
+
+    /* 01 — Skeleton Shimmer */
+    .shimmer-stage {
+      width: 180px;
+      height: 280px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+    }
+    .shimmer-image {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .shimmer-overlay {
+      position: absolute; inset: 0;
+      background: var(--skeleton);
+      overflow: hidden;
+    }
+    .shimmer-band {
+      position: absolute;
+      top: -50%;
+      left: -100%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(105deg,
+        transparent 38%,
+        rgba(110, 110, 130, 0.0) 44%,
+        rgba(125, 125, 145, 0.55) 50%,
+        rgba(110, 110, 130, 0.0) 56%,
+        transparent 62%
+      );
+      will-change: transform;
+    }
+
+    /* 02 — Aurora */
+    .aurora-stage {
+      width: 60px;
+      height: 280px;
+      position: relative;
+      border-radius: 30px;
+      overflow: hidden;
+      border: 1px solid rgba(217, 177, 74, 0.32);
+      background: rgba(15, 12, 25, 0.4);
+    }
+    .aurora-stage canvas {
+      width: 60px;
+      height: 280px;
+      display: block;
+    }
+
+    /* 03 — Pulse Rings */
+    .rings-stage {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 04 — Liquid Morph */
+    .liquid-stage {
+      width: 180px;
+      height: 280px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+    }
+    .liquid-image {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+    }
+    .liquid-stage svg {
+      position: absolute; inset: 0;
+      width: 180px;
+      height: 280px;
+    }
+
+    /* 05 — Pulse Dot */
+    .dot-stage {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <div class="bg-stars" id="stars"></div>
+  <div class="bg-grain"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">Pixora · Design Archive · Vol 11 · Entry 002</div>
+      <h1>
+        Wallpaper <span class="accent">Loading</span>
+        <span class="small">— micro-interactions</span>
+      </h1>
+      <p class="subtitle">Cinco direcciones para que la espera de uno a tres segundos antes de ver tu wallpaper en pantalla completa se sienta intencional, no rota. Premium minimal, inspirado en Apple Health y la calma de iOS.</p>
+    </header>
+
+    <div class="grid">
+
+      <!-- ═════ 01 ═════ -->
+      <div class="card">
+        <div class="phone-frame">
+          <div class="shimmer-stage">
+            <div class="shimmer-image" style="background-image: url('https://picsum.photos/seed/anime-skel-01/360/640')"></div>
+            <div class="shimmer-overlay" id="c1-overlay">
+              <div class="shimmer-band" id="c1-band"></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-no">// No. 01</div>
+          <div class="meta-name">Apple Skeleton Shimmer</div>
+          <div class="meta-tagline">El estándar iOS, refinado. Una banda diagonal barre el placeholder mientras la imagen emerge desde abajo.</div>
+          <div class="palette">
+            <span style="background: #1A1A22"></span>
+            <span style="background: #2A2A35"></span>
+            <span style="background: #6E6E82"></span>
+            <span style="background: #FFFFFF; opacity: 0.85"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════ 02 ═════ -->
+      <div class="card">
+        <div class="phone-frame">
+          <div class="aurora-stage">
+            <canvas id="c2-canvas"></canvas>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-no">// No. 02</div>
+          <div class="meta-name">Aurora Borealis Ring</div>
+          <div class="meta-tagline">Cápsula vertical que se llena de aurora. Orgánico, vivo, como un anillo de Apple Health líquido.</div>
+          <div class="palette">
+            <span style="background: #7C4DFF"></span>
+            <span style="background: #5BC7FF"></span>
+            <span style="background: #34D399"></span>
+            <span style="background: #D9B14A"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════ 03 ═════ -->
+      <div class="card">
+        <div class="phone-frame">
+          <div class="rings-stage">
+            <svg id="c3-svg" viewBox="0 0 200 200" width="200" height="200">
+              <defs>
+                <linearGradient id="c3-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#5BC7FF"/>
+                  <stop offset="100%" stop-color="#7C4DFF"/>
+                </linearGradient>
+              </defs>
+              <circle id="c3-pulse-1" cx="100" cy="100" r="30" fill="none" stroke="rgba(91,199,255,0.5)" stroke-width="1"/>
+              <circle id="c3-pulse-2" cx="100" cy="100" r="50" fill="none" stroke="rgba(91,199,255,0.35)" stroke-width="1"/>
+              <circle id="c3-pulse-3" cx="100" cy="100" r="70" fill="none" stroke="rgba(91,199,255,0.2)" stroke-width="1"/>
+              <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2.5"/>
+              <circle id="c3-progress" cx="100" cy="100" r="80" fill="none" stroke="url(#c3-grad)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="502.65" stroke-dashoffset="502.65" transform="rotate(-90 100 100)"/>
+              <circle id="c3-dot" cx="100" cy="100" r="3.5" fill="#D9B14A"/>
+            </svg>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-no">// No. 03</div>
+          <div class="meta-name">Concentric Pulse Rings</div>
+          <div class="meta-tagline">Geometría radial pura. Tres anillos pulsan hacia afuera; el de afuera se cierra como Apple Watch.</div>
+          <div class="palette">
+            <span style="background: #5BC7FF"></span>
+            <span style="background: #7C4DFF"></span>
+            <span style="background: #D9B14A"></span>
+            <span style="background: #FFFFFF; opacity: 0.4"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════ 04 ═════ -->
+      <div class="card">
+        <div class="phone-frame">
+          <div class="liquid-stage">
+            <div class="liquid-image" id="c4-image" style="background-image: url('https://picsum.photos/seed/anime-liquid-04/360/640')"></div>
+            <svg viewBox="0 0 180 280" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="c4-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#0A0A1F"/>
+                  <stop offset="50%" stop-color="#1F2F5F"/>
+                  <stop offset="100%" stop-color="#5BC7FF"/>
+                </linearGradient>
+                <filter id="c4-glow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"/>
+                </filter>
+              </defs>
+              <path id="c4-blob" fill="url(#c4-grad)" filter="url(#c4-glow)"/>
+            </svg>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-no">// No. 04</div>
+          <div class="meta-name">Liquid Morph Reveal</div>
+          <div class="meta-tagline">Una gota orgánica que crece, distorsiona y se disuelve para revelar la imagen.</div>
+          <div class="palette">
+            <span style="background: #0A0A1F"></span>
+            <span style="background: #1F2F5F"></span>
+            <span style="background: #5BC7FF"></span>
+            <span style="background: #FFFFFF; opacity: 0.85"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════ 05 ═════ -->
+      <div class="card">
+        <div class="phone-frame">
+          <div class="dot-stage">
+            <svg id="c5-svg" viewBox="0 0 200 200" width="200" height="200">
+              <defs>
+                <clipPath id="c5-clip">
+                  <circle id="c5-clip-circle" cx="100" cy="100" r="0"/>
+                </clipPath>
+                <radialGradient id="c5-dot-grad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#F5D676"/>
+                  <stop offset="100%" stop-color="#D9B14A"/>
+                </radialGradient>
+              </defs>
+              <circle cx="100" cy="100" r="62" fill="none" stroke="rgba(217,177,74,0.10)" stroke-width="1.5"/>
+              <circle id="c5-progress" cx="100" cy="100" r="62" fill="none" stroke="#D9B14A" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="389.56" stroke-dashoffset="389.56" transform="rotate(-90 100 100)"/>
+              <circle id="c5-dot-glow" cx="100" cy="100" r="14" fill="#D9B14A" opacity="0.18"/>
+              <circle id="c5-dot" cx="100" cy="100" r="7" fill="url(#c5-dot-grad)"/>
+              <image id="c5-image" href="https://picsum.photos/seed/anime-dot-05/360/640" x="0" y="0" width="200" height="200" preserveAspectRatio="xMidYMid slice" clip-path="url(#c5-clip)" opacity="0"/>
+            </svg>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-no">// No. 05</div>
+          <div class="meta-name">Pixora Pulse Dot</div>
+          <div class="meta-tagline">El más minimalista. Un punto dorado respira mientras un anillo se cierra y al final explota en imagen.</div>
+          <div class="palette">
+            <span style="background: #D9B14A"></span>
+            <span style="background: #F5D676"></span>
+            <span style="background: #8A7A56"></span>
+            <span style="background: #0A0A0F; border-color: rgba(255,255,255,0.2)"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      <div class="divider"></div>
+      <p>Pixora · Design Archive · Vol 11 · Entry 002</p>
+    </footer>
+  </div>
+
+  <script>
+    // ═════════════════════════════════════════
+    // BACKGROUND STARS
+    // ═════════════════════════════════════════
+    (function makeStars() {
+      const c = document.getElementById('stars');
+      for (let i = 0; i < 70; i++) {
+        const s = document.createElement('span');
+        const size = Math.random() < 0.85 ? 1 : 2;
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 100 + '%';
+        s.style.animationDelay = (Math.random() * 4) + 's';
+        s.style.opacity = (0.15 + Math.random() * 0.5);
+        c.appendChild(s);
+      }
+    })();
+
+    // ═════════════════════════════════════════
+    // ORCHESTRATION
+    // CYCLE = 4s ramp + 0.5s hold + reset
+    // Each concept staggered by 350ms so they
+    // don't all peak at the same time.
+    // ═════════════════════════════════════════
+    const RAMP = 4000;
+    const HOLD = 500;
+    const CYCLE = RAMP + HOLD;
+
+    const concepts = [
+      { id: 1, offset: 0    },
+      { id: 2, offset: 350  },
+      { id: 3, offset: 700  },
+      { id: 4, offset: 1050 },
+      { id: 5, offset: 1400 },
+    ];
+
+    const t0 = performance.now();
+
+    // Easings
+    const easeOutCubic   = x => 1 - Math.pow(1 - x, 3);
+    const easeInOutSine  = x => -(Math.cos(Math.PI * x) - 1) / 2;
+    const easeOutExpo    = x => x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+
+    function tick(now) {
+      const t = now - t0;
+      for (const c of concepts) {
+        const local = (t + c.offset) % CYCLE;
+        let p;
+        if (local < RAMP) {
+          p = local / RAMP;
+        } else {
+          p = 1; // hold
+        }
+        switch (c.id) {
+          case 1: render01(p, t); break;
+          case 2: render02(p, t); break;
+          case 3: render03(p, t); break;
+          case 4: render04(p, t); break;
+          case 5: render05(p, t); break;
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // ═════════════════════════════════════════
+    // 01 — APPLE SKELETON SHIMMER
+    // Skeleton overlay opacity decreases linearly,
+    // shimmer band sweeps faster as p approaches 1.
+    // ═════════════════════════════════════════
+    const c1Overlay = document.getElementById('c1-overlay');
+    const c1Band    = document.getElementById('c1-band');
+
+    function render01(p, t) {
+      // Overlay fades from opacity 1 → 0
+      c1Overlay.style.opacity = String(Math.max(0, 1 - easeOutCubic(p)));
+      // Shimmer band: cycle 1.6s base → 0.7s near completion
+      const dur = 1600 - p * 900;
+      const sweep = (t % dur) / dur;
+      const x = -100 + sweep * 250;
+      c1Band.style.transform = `translateX(${x}%)`;
+    }
+
+    // ═════════════════════════════════════════
+    // 02 — AURORA BOREALIS RING
+    // Canvas fills capsule from bottom up with
+    // animated multi-stop gradient + drifting
+    // particles that only render in the filled area.
+    // ═════════════════════════════════════════
+    const c2cvs = document.getElementById('c2-canvas');
+    const c2ctx = c2cvs.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W2 = 60, H2 = 280;
+    c2cvs.width  = W2 * dpr;
+    c2cvs.height = H2 * dpr;
+    c2cvs.style.width  = W2 + 'px';
+    c2cvs.style.height = H2 + 'px';
+    c2ctx.scale(dpr, dpr);
+
+    const auroraParticles = [];
+    for (let i = 0; i < 18; i++) {
+      auroraParticles.push({
+        x: 8 + Math.random() * 44,
+        y: Math.random() * H2,
+        vy: 0.18 + Math.random() * 0.35,
+        vxBase: (Math.random() - 0.5) * 0.4,
+        r: 0.7 + Math.random() * 1.3,
+        op: 0.35 + Math.random() * 0.5,
+        seed: Math.random() * 1000,
+      });
+    }
+
+    function render02(p, t) {
+      c2ctx.clearRect(0, 0, W2, H2);
+
+      // Subtle background tint
+      c2ctx.fillStyle = 'rgba(15, 12, 25, 0.5)';
+      c2ctx.fillRect(0, 0, W2, H2);
+
+      const fillH = H2 * easeOutCubic(p);
+      const fillY = H2 - fillH;
+
+      if (fillH > 0) {
+        // Aurora gradient — stops shift over time for "alive" feel
+        const phase = (t / 2400) % 1;
+        const grad = c2ctx.createLinearGradient(0, fillY, 0, H2);
+        grad.addColorStop(0, '#7C4DFF');
+        grad.addColorStop(Math.max(0.05, 0.32 + 0.08 * Math.sin(phase * Math.PI * 2)), '#5BC7FF');
+        grad.addColorStop(Math.min(0.95, 0.68 + 0.08 * Math.sin(phase * Math.PI * 2 + 1)), '#34D399');
+        grad.addColorStop(1, '#D9B14A');
+        c2ctx.fillStyle = grad;
+        c2ctx.fillRect(0, fillY, W2, fillH);
+
+        // Soft glow above the wave
+        const halo = c2ctx.createLinearGradient(0, fillY - 24, 0, fillY + 8);
+        halo.addColorStop(0, 'rgba(124, 77, 255, 0)');
+        halo.addColorStop(0.7, 'rgba(124, 77, 255, 0.35)');
+        halo.addColorStop(1, 'rgba(91, 199, 255, 0.5)');
+        c2ctx.fillStyle = halo;
+        c2ctx.fillRect(0, fillY - 24, W2, 32);
+
+        // Liquid wave at top edge
+        c2ctx.beginPath();
+        for (let x = 0; x <= W2; x += 2) {
+          const y = fillY + Math.sin((x + t / 30) / 12) * 2.5;
+          if (x === 0) c2ctx.moveTo(x, y);
+          else c2ctx.lineTo(x, y);
+        }
+        c2ctx.lineTo(W2, fillY);
+        c2ctx.lineTo(0, fillY);
+        c2ctx.closePath();
+        c2ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        c2ctx.fill();
+      }
+
+      // Particles drifting upward
+      for (const ptcl of auroraParticles) {
+        ptcl.y -= ptcl.vy;
+        ptcl.x += ptcl.vxBase + Math.sin(t / 900 + ptcl.seed + ptcl.y / 40) * 0.25;
+        if (ptcl.x < 6)  ptcl.x = 6;
+        if (ptcl.x > 54) ptcl.x = 54;
+        if (ptcl.y < -4) {
+          ptcl.y = H2 + 8;
+          ptcl.x = 8 + Math.random() * 44;
+        }
+        if (ptcl.y > fillY) {
+          // Distance-based opacity boost near surface
+          const distance = Math.min(1, (ptcl.y - fillY) / 60);
+          c2ctx.fillStyle = `rgba(255, 255, 255, ${ptcl.op * (0.3 + 0.7 * distance)})`;
+          c2ctx.beginPath();
+          c2ctx.arc(ptcl.x, ptcl.y, ptcl.r, 0, Math.PI * 2);
+          c2ctx.fill();
+        }
+      }
+    }
+
+    // ═════════════════════════════════════════
+    // 03 — CONCENTRIC PULSE RINGS
+    // Three rings cascade pulse outward; outer
+    // progress ring closes Apple-Watch style.
+    // ═════════════════════════════════════════
+    const c3p = [
+      document.getElementById('c3-pulse-1'),
+      document.getElementById('c3-pulse-2'),
+      document.getElementById('c3-pulse-3'),
+    ];
+    const c3progress = document.getElementById('c3-progress');
+    const c3dot      = document.getElementById('c3-dot');
+    const C3_CIRC    = 2 * Math.PI * 80; // 502.65
+
+    function render03(p, t) {
+      // Outer ring closes
+      c3progress.setAttribute('stroke-dashoffset', String(C3_CIRC * (1 - easeOutCubic(p))));
+
+      // Three pulses cascade outward
+      const baseRadii      = [30, 50, 70];
+      const baseOpacities  = [0.55, 0.40, 0.25];
+      for (let i = 0; i < 3; i++) {
+        const phase = (((t / 2200) + i * 0.33) % 1);
+        const grow  = 1 + phase * 0.35;
+        const op    = baseOpacities[i] * (1 - phase);
+        c3p[i].setAttribute('r', String(baseRadii[i] * grow));
+        c3p[i].setAttribute('stroke', `rgba(91, 199, 255, ${op})`);
+      }
+
+      // Center dot breathes (gentle 0.8s cycle)
+      const breathe = 1 + 0.35 * Math.sin(t / 400);
+      c3dot.setAttribute('r', String(3.5 * breathe));
+    }
+
+    // ═════════════════════════════════════════
+    // 04 — LIQUID MORPH REVEAL
+    // SVG path with control points that distort
+    // via sin functions. Blob grows from small
+    // central oval to fill the rectangle.
+    // ═════════════════════════════════════════
+    const c4Blob  = document.getElementById('c4-blob');
+    const c4Image = document.getElementById('c4-image');
+
+    function makeBlobPath(cx, cy, baseR, t, distortion) {
+      const points = 10;
+      const pts = [];
+      for (let i = 0; i < points; i++) {
+        const angle = (i / points) * Math.PI * 2;
+        const r = baseR * (1 + distortion * 0.35 * Math.sin(t / 380 + i * 1.4)
+                                + distortion * 0.18 * Math.sin(t / 250 + i * 2.3));
+        pts.push({ x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+      }
+      // Catmull-Rom-esque smooth closed path → cubic Béziers
+      let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
+      for (let i = 0; i < points; i++) {
+        const p0 = pts[(i - 1 + points) % points];
+        const p1 = pts[i];
+        const p2 = pts[(i + 1) % points];
+        const p3 = pts[(i + 2) % points];
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        d += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)}, ${cp2x.toFixed(2)} ${cp2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+      }
+      return d + ' Z';
+    }
+
+    function render04(p, t) {
+      const cx = 90, cy = 140;
+      // Radius from 28 → 220 (overflows the 180×280 frame at the end)
+      const baseR = 28 + easeOutCubic(p) * 192;
+      // Distortion is high at start (organic blob), low at end (filled rect)
+      const distortion = (1 - easeOutCubic(p) * 0.85);
+      c4Blob.setAttribute('d', makeBlobPath(cx, cy, baseR, t, distortion));
+
+      // Final 14% — blob fades, image emerges
+      let blobOp = 1, imgOp = 0;
+      if (p > 0.86) {
+        const local = (p - 0.86) / 0.14;
+        blobOp = 1 - easeOutCubic(local);
+        imgOp  = easeOutCubic(local);
+      }
+      c4Blob.style.opacity   = blobOp;
+      c4Image.style.opacity  = imgOp;
+    }
+
+    // ═════════════════════════════════════════
+    // 05 — PIXORA PULSE DOT
+    // Heartbeat dot + closing ring; at climax,
+    // dot expands and image reveals via clipPath.
+    // ═════════════════════════════════════════
+    const c5progress  = document.getElementById('c5-progress');
+    const c5dot       = document.getElementById('c5-dot');
+    const c5dotGlow   = document.getElementById('c5-dot-glow');
+    const c5image     = document.getElementById('c5-image');
+    const c5clip      = document.getElementById('c5-clip-circle');
+    const C5_CIRC     = 2 * Math.PI * 62; // 389.56
+
+    function render05(p, t) {
+      // Ring closes 12 o'clock clockwise
+      c5progress.setAttribute('stroke-dashoffset', String(C5_CIRC * (1 - easeOutCubic(p))));
+
+      // Breathing: 60 BPM = 1 cycle per second
+      const breathe = 1 + 0.42 * (0.5 - 0.5 * Math.cos(t * 2 * Math.PI / 1000));
+
+      let dotR    = 7 * breathe;
+      let glowR   = 14 * breathe;
+      let dotOp   = 1;
+      let glowOp  = 0.18;
+      let clipR   = 0;
+      let imgOp   = 0;
+
+      // Final 12% — dot explodes into image
+      if (p > 0.88) {
+        const local = (p - 0.88) / 0.12;
+        const eased = easeOutExpo(local);
+        dotR  = 7 * breathe + eased * 80;
+        glowR = 14 * breathe + eased * 110;
+        dotOp = 1 - eased * 0.85;
+        glowOp = 0.18 + eased * 0.15;
+        clipR = eased * 110;
+        imgOp = eased;
+      }
+
+      c5dot.setAttribute('r',       String(dotR));
+      c5dot.setAttribute('opacity', String(dotOp));
+      c5dotGlow.setAttribute('r',       String(glowR));
+      c5dotGlow.setAttribute('opacity', String(glowOp));
+      c5clip.setAttribute('r',          String(clipR));
+      c5image.setAttribute('opacity',   String(imgOp));
+    }
+
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>
