@@ -1,13 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../main.dart' show adShowingNotifier;
 import 'credit_service.dart';
 import 'grace_pass_service.dart';
 import 'subscription_service.dart';
@@ -21,7 +20,36 @@ class AdService {
   AdService._();
   static final instance = AdService._();
 
-  static const _interstitialAdUnitId = 'ca-app-pub-6734758230109098/6687118537';
+  // 2026-05-09 TEMPORAL — Google test interstitial ad unit ID for diagnosing
+  // whether ad stuttering is caused by Pixora's inventory quality (config)
+  // or by device capacity. Test ads are ALWAYS lightweight static creatives
+  // served directly by Google. If they fluyen perfectly = real production
+  // ID's inventory problem (Closed Testing + missing app-ads.txt). If they
+  // ALSO stutter = something else.
+  // REVERTIR a 'ca-app-pub-6734758230109098/6687118537' cuando confirmemos.
+  static const _interstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
+
+  /// Channel to invoke native handlers — currently used to broadcast
+  /// ad-visibility to the `:wallpaper` process so it drops to idle (1 fps)
+  /// while AdMob is showing, freeing GPU/CPU for the ad. Same channel as
+  /// the wallpaper handlers in MainActivity.
+  static const _wallpaperChannel = MethodChannel('com.orbix.pixora/wallpaper');
+
+  /// Tells the `:wallpaper` process to enter or leave idle mode (1 fps
+  /// vs ~30 fps). Called before/after AdMob shows so the wallpaper
+  /// doesn't fight the ad for GPU. Failure is non-critical — worst case
+  /// the wallpaper keeps rendering and the ad stutters as before.
+  static Future<void> _setWallpaperAdMode(bool adVisible) async {
+    if (!Platform.isAndroid) return;
+    try {
+      await _wallpaperChannel.invokeMethod<bool>(
+        'setWallpaperAdMode',
+        {'visible': adVisible},
+      );
+    } catch (_) {
+      // ignore — wallpaper service may not be running, that's fine
+    }
+  }
 
   // App version is read lazily from PackageInfo (was hardcoded to '1.6.3').
   String? _appVersion;
@@ -86,33 +114,11 @@ class AdService {
   Future<void> initialize() async {
     await MobileAds.instance.initialize();
 
-    // Filter ad content via SDK (no AdMob console change required).
-    // 2026-05-08: setting maxAdContentRating = G excludes game playables
-    // and other heavy interactive creatives that AdMob's v8 SDK started
-    // serving aggressively after the v5→v8 upgrade in commit 2361771
-    // (April 2026). Those playables (Hill Climb Racing, Royal Match,
-    // Royal Kingdom, etc.) need 200-400 MB GPU memory to render their
-    // mini-game and stutter / freeze on Samsung mid-range devices.
-    //
-    // Content rating tiers (Google's SDK enum):
-    //   G  → General audiences (retail, lifestyle, finance — usually static)
-    //   PG → Parental guidance
-    //   T  → Teen (includes most game playables with mild action)
-    //   MA → Mature
-    //
-    // Trade-off: ~10-15% revenue drop because game playables pay highest
-    // eCPM. Worth it because hung ads = abandoned app = no revenue at all
-    // from those users + 1-star reviews.
-    try {
-      await MobileAds.instance.updateRequestConfiguration(
-        RequestConfiguration(maxAdContentRating: MaxAdContentRating.g),
-      );
-      debugPrint(
-          '[Pixora] AdMob content rating capped at G (excludes heavy playables)');
-    } catch (e) {
-      debugPrint('[Pixora] updateRequestConfiguration error: $e');
-    }
-
+    // 2026-05-08 night: REMOVED MaxAdContentRating.g call — was added
+    // earlier today to filter playables but ads kept stuttering anyway,
+    // and modifying the global RequestConfiguration may itself confuse
+    // AdMob v8 in subtle ways. Going back to bare initialize() per the
+    // original ad_service.dart that worked in earlier repos.
     loadInterstitialAd();
   }
 
@@ -245,46 +251,32 @@ class AdService {
     }
 
     // ─── Show the ad ─────────────────────────────────────────────────────────
-    // Plain AdMob flow — let the SDK handle its own lifecycle. Previous
-    // safety-timeout (60s then 25s) reverted 2026-05-05 because user
-    // perceived the wait as "ad broken / paused" when it was actually
-    // AdMob's own internal countdown before the close button became
-    // tappable. AdMob ads always show their X eventually; trust the SDK.
+    // Minimal AdMob flow — trust the SDK. The 3-minute watchdog stays as a
+    // last-resort rescue from creatives that never emit dismiss/fail
+    // callback. Earlier "memory mitigation" attempts (imageCache clamp to
+    // 0, root-swap to ColoredBox via ValueNotifier, kill :wallpaper, Flutter
+    // pause via lifecycle, Navigator.push overlay) all CAUSED MORE BUGS
+    // than they solved on Eduardo's Samsung 2026-05-08:
+    //   - imageCache=0 + clearLiveImages right before show seems to
+    //     interfere with the AdActivity's bitmap rendering (creatives
+    //     loaded "by parts" / stuttered visibly).
+    //   - Root-swap to ColoredBox didn't actually free GPU resources
+    //     (Skia keeps allocations regardless of widget tree).
+    //   - kill :wallpaper caused Android Not Responding when the OS
+    //     tried to respawn.
+    //   - appIsPaused() didn't work because Android lifecycle stays
+    //     "resumed" through translucent AdActivity.
     //
-    // EXCEPT: we now keep a 3-minute watchdog as last-resort rescue from
-    // creatives that never emit any callback. 3 min is far outside any
-    // legitimate AdMob countdown so won't interrupt real ads — only frees
-    // the user when something is genuinely broken (v1.7.10 fix).
-    // Saved limits restored after the ad closes. Declared up here so the
-    // resumeFlutter closure below can capture them as upvalues.
-    int? savedMaxBytes;
-    int? savedMaxCount;
-
+    // The actual fixes that DID work and are kept elsewhere:
+    //   - Impeller disabled in AndroidManifest (440 MB → 130 MB GL mtrack)
+    //   - alternating skip restored (1 yes, 1 no)
+    //   - MaxAdContentRating.g via SDK
+    //   - Skia GPU cache cap 64 MB in main.dart postFrameCallback
+    //   - Lazy loading of category rows + dispose offscreen carousels
     bool callbackFired = false;
-    bool overlayPushed = false;
     void cancelWatchdog() {
       _adWatchdog?.cancel();
       _adWatchdog = null;
-    }
-
-    Future<void> resumeFlutter() async {
-      // Restore Flutter image cache to normal limits.
-      try {
-        final cache = PaintingBinding.instance.imageCache;
-        final saveBytes = savedMaxBytes;
-        final saveCount = savedMaxCount;
-        if (saveBytes != null) cache.maximumSizeBytes = saveBytes;
-        if (saveCount != null) cache.maximumSize = saveCount;
-      } catch (_) {}
-      // Restore the heavy catalog UI by flipping the notifier back to
-      // false. PixoraApp's ValueListenableBuilder rebuilds with the
-      // SplashPage child, widgets re-mount, user sees their app again.
-      // This is the counterpart of the `adShowingNotifier.value = true`
-      // we set before show(). The previous Navigator.push approach
-      // didn't work because pushing doesn't unmount the route below.
-      try {
-        adShowingNotifier.value = false;
-      } catch (_) {}
     }
 
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
@@ -292,7 +284,7 @@ class AdService {
         if (callbackFired) return;
         callbackFired = true;
         cancelWatchdog();
-        unawaited(resumeFlutter());
+        unawaited(_setWallpaperAdMode(false)); // wallpaper back to normal
         ad.dispose();
         _interstitialAd = null;
         _isAdLoaded = false;
@@ -311,7 +303,7 @@ class AdService {
         if (callbackFired) return;
         callbackFired = true;
         cancelWatchdog();
-        unawaited(resumeFlutter());
+        unawaited(_setWallpaperAdMode(false));
         ad.dispose();
         _interstitialAd = null;
         _isAdLoaded = false;
@@ -327,65 +319,15 @@ class AdService {
       },
     );
 
-    // Memory pressure mitigation BEFORE show(). AdMob's AdActivity is
-    // translucent (styleTranslucent=true) so MainActivity stays alive
-    // behind the ad and Flutter keeps rendering. Combined with the
-    // `:wallpaper` process rendering 4192×1024 panoramics + canvas
-    // scenes, total Pixora memory hits ~1 GB (522 MB in Graphics alone,
-    // most of it Flutter's NetworkImage cache loaded across the catalog).
-    // Playable ads stutter visibly and the screen stops responding to
-    // touch as the OS thrashes through GC.
-    //
-    // Aggressive 5-layer fix:
-    //   1. Clamp imageCache to ZERO (forces Skia to drop GPU bitmap buffers)
-    //   2. Clear imageCache (logical) + live images
-    //   3. Kill :wallpaper process (frees ~400-500 MB GPU)
-    //   4. Pause FlutterEngine (stops AnimationControllers, Timers, frame loop)
-    //   5. Brief delay so Skia/Android actually reclaim memory before show()
-    //
-    // History: 2026-05-07 ad stuck 2.5h, 2026-05-08 ads pausing/lagging
-    // on Eduardo's Samsung. dumpsys meminfo showed Pixora at 1 GB PSS,
-    // 522 MB Graphics — root cause.
-    try {
-      final cache = PaintingBinding.instance.imageCache;
-      savedMaxBytes = cache.maximumSizeBytes;
-      savedMaxCount = cache.maximumSize;
-      cache.maximumSizeBytes = 0;
-      cache.maximumSize = 0;
-      cache.clear();
-      cache.clearLiveImages();
-    } catch (_) {}
-
-    // ─── Root-swap overlay: THE fix ────────────────────────────────────────
-    // Set the global adShowingNotifier so PixoraApp's ValueListenableBuilder
-    // swaps its child from the live SplashPage tree to a single ColoredBox.
-    // The heavy catalog UI (50+ widgets, NetworkImages, animations) is
-    // UNMOUNTED — not just hidden. GPU memory drops, Flutter's frame loop
-    // idles on a single static widget, AdMob can run smoothly.
-    //
-    // Earlier attempts:
-    //   - kill :wallpaper process: caused ANR when OS tried to respawn
-    //   - appIsPaused on FlutterEngine: lifecycle stayed "resumed" because
-    //     AdActivity is translucent (MainActivity technically visible)
-    //   - Navigator.push of overlay route: route below stays mounted in
-    //     the Navigator's element tree, frame loop kept rendering at 13 fps
-    //
-    // Root swap via ValueNotifier sidesteps all of those problems. The
-    // tradeoff: when ad ends, navigation state is lost (the user lands on
-    // SplashPage rather than the screen they were on). Acceptable because
-    // the typical flow after watching an ad for "Apply Wallpaper" is the
-    // wallpaper IS applied — the user no longer needs to return to the
-    // detail page anyway.
-    try {
-      adShowingNotifier.value = true;
-      overlayPushed = true; // reused flag, just means "we flipped notifier"
-    } catch (_) {}
-
-    // Brief delay so the swap actually replaces the catalog UI before
-    // AdMob loads its creative. Without this, the show() can race ahead
-    // of Flutter's frame swap and the heavy tree is still in memory when
-    // the playable starts loading.
-    await Future<void>.delayed(const Duration(milliseconds: 100));
+    // Tell the :wallpaper process to drop to idle (1 fps) while the ad
+    // is visible. This frees GPU/CPU so the AdActivity (which renders
+    // translucent OVER our wallpaper) doesn't have to fight for resources.
+    // History 2026-05-08 night: ANR "Wallpaper PixoraIA no responde"
+    // happened repeatedly during ads because the canvas-scene wallpapers
+    // (Goku, Mictlan, etc.) kept rendering parallax + particles at 30 fps
+    // behind the ad. Idle mode was already implemented in the service
+    // for other reasons; we just expose a broadcast switch for it.
+    unawaited(_setWallpaperAdMode(true));
 
     // Arm watchdog BEFORE show(). If the creative is broken and never emits
     // dismiss/fail, this rescues the user after 3 min instead of locking
@@ -395,7 +337,7 @@ class AdService {
       callbackFired = true;
       debugPrint(
           '[Pixora] Ad watchdog fired after 3 min — creative broken, force-dismissing');
-      unawaited(resumeFlutter());
+      unawaited(_setWallpaperAdMode(false));
       _interstitialAd?.dispose();
       _interstitialAd = null;
       _isAdLoaded = false;

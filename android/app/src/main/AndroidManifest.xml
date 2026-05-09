@@ -80,6 +80,17 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Disable Impeller (Vulkan renderer enabled by default in Flutter 3.x).
+             Impeller consumes ~440 MB GL mtrack on Pixora which saturates the
+             GPU before AdMob ads can render, causing them to stutter and freeze
+             on Samsung mid-range devices. The legacy Skia OpenGL renderer uses
+             ~100 MB and leaves room for the ad. Discovered 2026-05-08 via
+             dumpsys meminfo + flutter log "Using the Impeller rendering backend
+             (Vulkan)". Re-enable once Pixora's overall memory footprint is
+             rearchitected to fit alongside Impeller (issue #50 long-term). -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and

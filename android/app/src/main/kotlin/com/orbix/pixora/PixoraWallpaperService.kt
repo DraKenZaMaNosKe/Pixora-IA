@@ -266,6 +266,23 @@ class PixoraWallpaperService : WallpaperService() {
             }
         }
 
+        /**
+         * Receives `com.orbix.pixora.AD_VISIBLE` broadcasts from the main
+         * process before/after AdMob ads. When `visible=true`, we drop the
+         * wallpaper into idle mode (1 fps) so canvas scenes stop competing
+         * for GPU/CPU with the ad's WebGL/video content. When `visible=false`,
+         * we restore normal rendering. Discovered 2026-05-08 night that the
+         * `:wallpaper` process renders BEHIND the translucent AdActivity
+         * and triggers ANR when both fight for resources.
+         */
+        private val adVisibilityReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val visible = intent?.getBooleanExtra("visible", false) ?: return
+                idleMode = visible
+                Log.d(TAG, "adVisibilityReceiver: ad ${if (visible) "visible → idle" else "dismissed → normal"}")
+            }
+        }
+
         private fun loadOverlaySettings() {
             val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
             showClock = prefs.getBoolean("show_clock", true)
@@ -331,6 +348,7 @@ class PixoraWallpaperService : WallpaperService() {
             registerKeyguardReceiver()
             registerOverlaySettingsReceiver()
             registerWallpaperPathReceiver()
+            registerAdVisibilityReceiver()
             Log.d(TAG, "Engine onCreate")
         }
 
@@ -353,6 +371,28 @@ class PixoraWallpaperService : WallpaperService() {
         private fun unregisterWallpaperPathReceiver() {
             try {
                 applicationContext.unregisterReceiver(wallpaperPathReceiver)
+            } catch (_: Exception) { /* not registered */ }
+        }
+
+        private fun registerAdVisibilityReceiver() {
+            val filter = IntentFilter("com.orbix.pixora.AD_VISIBLE")
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    applicationContext.registerReceiver(
+                        adVisibilityReceiver, filter, Context.RECEIVER_NOT_EXPORTED
+                    )
+                } else {
+                    @Suppress("UnspecifiedRegisterReceiverFlag")
+                    applicationContext.registerReceiver(adVisibilityReceiver, filter)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "adVisibilityReceiver register failed: ${e.message}")
+            }
+        }
+
+        private fun unregisterAdVisibilityReceiver() {
+            try {
+                applicationContext.unregisterReceiver(adVisibilityReceiver)
             } catch (_: Exception) { /* not registered */ }
         }
 
@@ -1453,6 +1493,7 @@ class PixoraWallpaperService : WallpaperService() {
             unregisterKeyguardReceiver()
             unregisterOverlaySettingsReceiver()
             unregisterWallpaperPathReceiver()
+            unregisterAdVisibilityReceiver()
             synchronized(bitmapLock) {
                 wallpaperBitmap?.recycle()
                 scaledBitmap?.recycle()

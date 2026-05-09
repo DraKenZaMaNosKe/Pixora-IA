@@ -1,0 +1,9 @@
+# app-ads.txt for Pixora IA + BlackHoleGlow
+#
+# Required by AdMob to validate ad publisher legitimacy.
+# Must be hosted at https://intrapcsolutions.com/app-ads.txt (root)
+# Adde the AdMob Publisher ID line(s) and serve as plain text.
+#
+# Last updated: 2026-05-09
+
+google.com, pub-6734758230109098, DIRECT, f08c47fec0942fa0

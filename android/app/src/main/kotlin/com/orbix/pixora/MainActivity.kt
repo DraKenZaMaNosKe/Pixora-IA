@@ -124,6 +124,29 @@ class MainActivity : AudioServiceActivity() {
                             result.success(false)
                         }
                     }
+                    "setWallpaperAdMode" -> {
+                        // Broadcast to :wallpaper process to drop into idle
+                        // mode (1 fps) while an ad is visible, restoring
+                        // normal rendering after dismiss. Frees GPU/CPU so
+                        // the translucent AdActivity doesn't have to fight
+                        // canvas-scene parallax + particles behind it.
+                        // ANR repro 2026-05-08: Royal Kingdom + Mercado Libre
+                        // ads showed "Wallpaper PixoraIA no responde" because
+                        // the wallpaper service was rendering at 30 fps
+                        // through the translucent ad.
+                        val visible = call.argument<Boolean>("visible") ?: false
+                        try {
+                            val intent = Intent("com.orbix.pixora.AD_VISIBLE")
+                                .setPackage(applicationContext.packageName)
+                                .putExtra("visible", visible)
+                            sendBroadcast(intent)
+                            android.util.Log.d("PixoraEQ", "setWallpaperAdMode: visible=$visible broadcast sent")
+                            result.success(true)
+                        } catch (e: Exception) {
+                            android.util.Log.w("PixoraEQ", "setWallpaperAdMode failed: ${e.message}")
+                            result.success(false)
+                        }
+                    }
                     "freeWallpaperMemory" -> {
                         // Kill the :wallpaper process BEFORE showing an ad.
                         // PixoraWallpaperService renders panoramic 4192×1024 WebPs +
