@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Wallpaper Detail · 5 Diseños iOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #070710;
+    --ink-2: #0F0F1A;
+    --paper: #FFFFFF;
+    --paper-soft: #FAFAFA;
+    --paper-cream: #FDFBF7;
+    --gray-1: #6E6E73;
+    --gray-2: #86868B;
+    --gray-3: #AEAEB2;
+    --gray-4: #D1D1D6;
+    --hairline: #E5E5EA;
+    --hairline-dark: rgba(255,255,255,0.10);
+    --apple-blue: #0A84FF;
+    --apple-blue-deep: #0066CC;
+    --apple-pink: #FF2D55;
+    --apple-orange: #FF9500;
+    --apple-gold: #D9B14A;
+    --apple-green: #34C759;
+    --neon-pink: #FF6BB5;
+    --neon-purple: #B469FF;
+    --neon-cyan: #5BC7FF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ink);
+    color: #fff;
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Subtle starfield bg */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.4) 1px, transparent 1px),
+      radial-gradient(1px 1px at 80% 70%, rgba(255,255,255,0.3) 1px, transparent 1px),
+      radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,0.5) 1px, transparent 1px),
+      radial-gradient(1px 1px at 65% 15%, rgba(255,255,255,0.3) 1px, transparent 1px),
+      radial-gradient(0.5px 0.5px at 10% 60%, rgba(255,255,255,0.6) 1px, transparent 1px);
+    background-size: 200px 200px, 250px 250px, 300px 300px, 280px 280px, 180px 180px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 56px 28px 96px; position: relative; z-index: 1; }
+
+  /* ────────────── Page header ────────────── */
+  .page-header { margin-bottom: 64px; max-width: 900px; }
+  .page-header .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--neon-pink);
+    margin-bottom: 18px;
+  }
+  .page-header h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic; font-weight: 300;
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: 1.0; letter-spacing: -0.025em;
+    color: #fff; margin-bottom: 18px;
+  }
+  .page-header h1 em {
+    font-style: normal; font-weight: 600;
+    background: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-purple) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .page-header p {
+    font-size: 16px; color: var(--gray-3);
+    line-height: 1.6; max-width: 640px;
+  }
+  .page-header .meta {
+    display: flex; gap: 24px; margin-top: 28px;
+    font-family: 'Geist Mono', monospace; font-size: 11px;
+    color: var(--gray-2); letter-spacing: 0.06em;
+  }
+  .page-header .meta strong { color: #fff; font-weight: 500; }
+
+  /* ────────────── Concepts grid ────────────── */
+  .concepts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 56px 32px;
+  }
+
+  .concept {
+    opacity: 0; transform: translateY(20px);
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.05s; }
+  .concept:nth-child(2) { animation-delay: 0.15s; }
+  .concept:nth-child(3) { animation-delay: 0.25s; }
+  .concept:nth-child(4) { animation-delay: 0.35s; }
+  .concept:nth-child(5) { animation-delay: 0.45s; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+  /* ────────────── Phone frame ────────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 18.5;
+    max-width: 300px;
+    margin: 0 auto;
+    background: #0A0A0F;
+    border-radius: 36px;
+    box-shadow:
+      0 0 0 9px #1A1A22,
+      0 0 0 11px #2A2A35,
+      0 30px 80px rgba(0,0,0,0.6),
+      0 8px 20px rgba(0,0,0,0.4);
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .concept:hover .phone { transform: translateY(-6px); }
+
+  .phone .screen {
+    position: absolute; inset: 0;
+    background: #000;
+    overflow: hidden;
+    border-radius: 28px;
+  }
+
+  .phone .notch {
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 22px;
+    background: #000;
+    border-radius: 999px;
+    z-index: 100;
+  }
+
+  /* Reusable: wallpaper-like background (Café Tarde Lluviosa style) */
+  .wp-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(255,107,181,0.45), transparent 50%),
+      radial-gradient(circle at 75% 60%, rgba(180,105,255,0.35), transparent 55%),
+      radial-gradient(circle at 50% 90%, rgba(91,199,255,0.3), transparent 60%),
+      linear-gradient(180deg, #1A0E2E 0%, #2A1429 40%, #3D1F4A 100%);
+  }
+  .wp-bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(180deg, transparent 30%, rgba(255,107,181,0.08) 50%, transparent 80%);
+    animation: rainShimmer 4s ease-in-out infinite;
+  }
+  @keyframes rainShimmer {
+    0%, 100% { transform: translateY(0); opacity: 0.5; }
+    50% { transform: translateY(20px); opacity: 0.9; }
+  }
+  .wp-bg .neon-sign {
+    position: absolute;
+    top: 20%; left: 50%;
+    transform: translateX(-50%);
+    color: var(--neon-pink);
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 12px var(--neon-pink), 0 0 24px var(--neon-pink);
+    opacity: 0.85;
+    text-align: center;
+  }
+  .wp-bg .glow-window {
+    position: absolute;
+    top: 35%; left: 30%;
+    width: 40%; height: 18%;
+    background: radial-gradient(ellipse, rgba(255,200,100,0.4) 0%, transparent 70%);
+    filter: blur(8px);
+  }
+
+  /* Falling petals (used in some concepts) */
+  .petals {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .petals span {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: var(--neon-pink);
+    border-radius: 50% 0 50% 0;
+    opacity: 0.65;
+    animation: fall linear infinite;
+  }
+  .petals span:nth-child(1) { left: 15%; animation-duration: 6s; animation-delay: 0s; }
+  .petals span:nth-child(2) { left: 35%; animation-duration: 7.5s; animation-delay: 1s; }
+  .petals span:nth-child(3) { left: 55%; animation-duration: 5.5s; animation-delay: 2s; }
+  .petals span:nth-child(4) { left: 75%; animation-duration: 8s; animation-delay: 0.5s; }
+  .petals span:nth-child(5) { left: 90%; animation-duration: 6.5s; animation-delay: 3s; }
+  @keyframes fall {
+    0% { top: -10%; transform: rotate(0deg); }
+    100% { top: 110%; transform: rotate(360deg); }
+  }
+
+  /* Status bar (top of phone) */
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 38px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px 0;
+    color: #fff;
+    font-family: 'Geist', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .status-bar .time { color: #fff; }
+  .status-bar .icons { display: flex; gap: 4px; align-items: center; opacity: 0.95; }
+
+  /* ════════════════════════════════════════════════════════
+     CONCEPT 01 — APPLE MUSIC NOW PLAYING
+     ════════════════════════════════════════════════════════ */
+  [data-concept="01"] .screen {
+    background: linear-gradient(180deg, #FAF7F2 0%, #FDFBF7 100%);
+    display: flex;
+    flex-direction: column;
+    padding: 38px 18px 18px;
+  }
+  [data-concept="01"] .status-bar { color: var(--ink); }
+  [data-concept="01"] .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 4px;
+    margin-bottom: 14px;
+  }
+  [data-concept="01"] .top-bar .chev {
+    color: var(--ink); font-size: 18px; font-weight: 300;
+  }
+  [data-concept="01"] .top-bar .menu {
+    color: var(--ink); letter-spacing: 0.12em;
+    font-family: 'Geist Mono', monospace; font-size: 9px;
+  }
+  [data-concept="01"] .album-art {
+    width: 80%; aspect-ratio: 1;
+    margin: 0 auto 22px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(255,107,181,0.35), 0 8px 20px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  [data-concept="01"] .album-art .wp-bg {
+    border-radius: 14px;
+  }
+  [data-concept="01"] .now-playing {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  [data-concept="01"] .now-playing .label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px; letter-spacing: 0.2em;
+    color: var(--neon-pink); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  [data-concept="01"] .now-playing .title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  [data-concept="01"] .now-playing .desc {
+    font-size: 10px;
+    color: var(--gray-1);
+    line-height: 1.4;
+  }
+  [data-concept="01"] .tags-row {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    justify-content: center;
+    margin: 10px 0 14px;
+  }
+  [data-concept="01"] .tags-row .tag {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    color: var(--gray-1);
+    background: #F5F5F7;
+    padding: 3px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+  }
+  [data-concept="01"] .controls-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: auto 0 14px;
+  }
+  [data-concept="01"] .controls-row .ico {
+    width: 28px; height: 28px;
+    color: var(--ink);
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  [data-concept="01"] .cta-btn {
+    background: var(--apple-blue);
+    color: #fff;
+    border-radius: 999px;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 12px; font-weight: 600;
+    box-shadow: 0 8px 20px rgba(10,132,255,0.35);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CONCEPT 02 — TRANSLUCENT GLASS PANELS
+     ════════════════════════════════════════════════════════ */
+  [data-concept="02"] .screen { background: #000; position: relative; }
+  [data-concept="02"] .wp-bg { z-index: 1; }
+  [data-concept="02"] .petals { z-index: 2; }
+  [data-concept="02"] .glass-top {
+    position: absolute;
+    top: 36px; left: 12px; right: 12px;
+    background: rgba(20, 15, 30, 0.55);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 0.5px solid rgba(255,255,255,0.18);
+    border-radius: 16px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  [data-concept="02"] .glass-top .left {
+    display: flex; align-items: center; gap: 8px;
+  }
+  [data-concept="02"] .glass-top .chev {
+    color: #fff; font-size: 14px;
+  }
+  [data-concept="02"] .glass-top .ttl {
+    color: #fff; font-size: 11px; font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  [data-concept="02"] .glass-top .live-badge {
+    background: rgba(255, 45, 85, 0.85);
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+  }
+  [data-concept="02"] .glass-center {
+    position: absolute;
+    bottom: 105px; left: 12px; right: 12px;
+    background: rgba(20, 15, 30, 0.55);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 0.5px solid rgba(255,255,255,0.18);
+    border-radius: 18px;
+    padding: 16px 14px;
+    z-index: 5;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  [data-concept="02"] .glass-center .title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 17px;
+    color: #fff;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  [data-concept="02"] .glass-center .desc {
+    font-size: 9px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  [data-concept="02"] .glass-center .tags {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  [data-concept="02"] .glass-center .tag {
+    background: rgba(255,107,181,0.25);
+    border: 0.5px solid rgba(255,107,181,0.5);
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+  }
+  [data-concept="02"] .glass-center .info {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.06em;
+  }
+  [data-concept="02"] .glass-cta {
+    position: absolute;
+    bottom: 24px; left: 12px; right: 12px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 0.5px solid rgba(255,255,255,0.35);
+    color: #fff;
+    text-align: center;
+    padding: 13px;
+    border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    z-index: 5;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CONCEPT 03 — DARK GRADIENT OVERLAY (Netflix style)
+     ════════════════════════════════════════════════════════ */
+  [data-concept="03"] .screen { background: #000; }
+  [data-concept="03"] .wp-bg { z-index: 1; }
+  [data-concept="03"] .gradient-top {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 35%;
+    background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+    z-index: 4; pointer-events: none;
+  }
+  [data-concept="03"] .gradient-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 55%;
+    background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+    z-index: 4; pointer-events: none;
+  }
+  [data-concept="03"] .top-bar {
+    position: absolute;
+    top: 40px; left: 14px; right: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 6;
+  }
+  [data-concept="03"] .top-bar .chev {
+    width: 28px; height: 28px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px;
+  }
+  [data-concept="03"] .top-bar .live {
+    background: var(--apple-pink);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+  }
+  [data-concept="03"] .content {
+    position: absolute;
+    bottom: 76px; left: 18px; right: 18px;
+    z-index: 6;
+  }
+  [data-concept="03"] .content .ttl {
+    color: #fff;
+    font-family: 'Geist', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  }
+  [data-concept="03"] .content .meta {
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  [data-concept="03"] .content .desc {
+    color: rgba(255,255,255,0.92);
+    font-size: 10px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  [data-concept="03"] .content .tags {
+    display: flex; gap: 4px; flex-wrap: wrap;
+  }
+  [data-concept="03"] .content .tag {
+    color: rgba(255,255,255,0.85);
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    border: 0.5px solid rgba(255,255,255,0.3);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  [data-concept="03"] .cta {
+    position: absolute;
+    bottom: 22px; left: 14px; right: 14px;
+    background: #fff;
+    color: #000;
+    padding: 13px;
+    border-radius: 999px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+    z-index: 6;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CONCEPT 04 — SPLIT VIEW (Apple Maps modal sheet)
+     ════════════════════════════════════════════════════════ */
+  [data-concept="04"] .screen { background: #000; }
+  [data-concept="04"] .wp-area {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 60%;
+    overflow: hidden;
+  }
+  [data-concept="04"] .wp-area .wp-bg { position: absolute; inset: 0; }
+  [data-concept="04"] .top-controls {
+    position: absolute;
+    top: 38px; left: 12px; right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+  }
+  [data-concept="04"] .top-controls .pill {
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 9px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  [data-concept="04"] .top-controls .live {
+    background: var(--apple-pink);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+  }
+  [data-concept="04"] .sheet {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--paper);
+    border-radius: 20px 20px 0 0;
+    padding: 10px 16px 16px;
+    height: 44%;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+  }
+  [data-concept="04"] .sheet .handle {
+    width: 36px; height: 4px;
+    background: var(--gray-4);
+    border-radius: 999px;
+    margin: 0 auto 12px;
+  }
+  [data-concept="04"] .sheet .ttl {
+    font-family: 'Geist', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  [data-concept="04"] .sheet .tags {
+    display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;
+  }
+  [data-concept="04"] .sheet .tag {
+    background: var(--paper-soft);
+    border: 0.5px solid var(--hairline);
+    color: var(--gray-1);
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+  }
+  [data-concept="04"] .sheet .desc {
+    font-size: 9px;
+    color: var(--gray-1);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  [data-concept="04"] .sheet .info {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    color: var(--gray-2);
+    letter-spacing: 0.06em;
+    margin-bottom: auto;
+    padding-top: 4px;
+    border-top: 0.5px solid var(--hairline);
+    margin-top: 4px;
+    padding-top: 6px;
+  }
+  [data-concept="04"] .sheet .cta-row {
+    display: flex; gap: 6px; align-items: center;
+  }
+  [data-concept="04"] .sheet .cta {
+    flex: 1;
+    background: var(--apple-blue);
+    color: #fff;
+    text-align: center;
+    padding: 11px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  [data-concept="04"] .sheet .free {
+    background: rgba(52, 199, 89, 0.15);
+    color: var(--apple-green);
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CONCEPT 05 — APPLE TV+ HERO (cinematic)
+     ════════════════════════════════════════════════════════ */
+  [data-concept="05"] .screen { background: #1A0E2E; }
+  [data-concept="05"] .wp-area {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 70%;
+  }
+  [data-concept="05"] .wp-area .wp-bg { position: absolute; inset: 0; }
+  [data-concept="05"] .vignette {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.5) 100%);
+    pointer-events: none;
+    z-index: 4;
+  }
+  [data-concept="05"] .gradient-fade {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(0deg, #1A0E2E 0%, transparent 100%);
+    z-index: 5;
+  }
+  [data-concept="05"] .top-bar {
+    position: absolute;
+    top: 38px; left: 12px; right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 8;
+  }
+  [data-concept="05"] .top-bar .chev {
+    color: #fff;
+    width: 26px; height: 26px;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  [data-concept="05"] .top-bar .gold-badge {
+    background: linear-gradient(135deg, var(--apple-gold) 0%, #B89535 100%);
+    color: #1A0E2E;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(217,177,74,0.4);
+  }
+  [data-concept="05"] .bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 14px 16px 18px;
+    z-index: 7;
+    background: linear-gradient(0deg, #1A0E2E 0%, #2A1429 80%, transparent 100%);
+  }
+  [data-concept="05"] .bottom .ttl {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  [data-concept="05"] .bottom .meta {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    color: var(--apple-gold);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  [data-concept="05"] .bottom .desc {
+    font-size: 9px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  [data-concept="05"] .bottom .tags {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  [data-concept="05"] .bottom .tag {
+    color: rgba(255,255,255,0.7);
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    border: 0.5px solid rgba(217,177,74,0.4);
+    padding: 2px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+  }
+  [data-concept="05"] .bottom .cta {
+    background: transparent;
+    color: var(--apple-gold);
+    border: 1px solid var(--apple-gold);
+    padding: 10px;
+    border-radius: 999px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    transition: background 0.3s ease;
+  }
+  [data-concept="05"] .bottom .cta:hover {
+    background: rgba(217,177,74,0.1);
+  }
+
+  /* ────────────── Meta block under each phone ────────────── */
+  .meta-block {
+    margin-top: 28px;
+    padding: 0 4px;
+  }
+  .meta-block .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gray-2);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .meta-block .name {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: #fff;
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .meta-block .tag {
+    font-size: 13px;
+    color: var(--gray-3);
+    line-height: 1.5;
+    max-width: 280px;
+  }
+  .meta-block .palette {
+    margin-top: 14px;
+    display: flex; gap: 6px;
+  }
+  .meta-block .palette span {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ────────────── Footer ────────────── */
+  .page-footer {
+    margin-top: 96px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gray-2);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="page-header">
+    <div class="eyebrow">Pixora · Wallpaper Detail · Vol 13</div>
+    <h1>Cinco maneras de <em>resolverlo</em>.</h1>
+    <p>El problema actual: texto blanco sobre wallpaper luminoso = ilegible. Cinco aproximaciones diferentes para que el contenido siempre se lea sin sacrificar la inmersión del wallpaper.</p>
+    <div class="meta">
+      <span><strong>Tipografía</strong> · Geist + Fraunces italic</span>
+      <span><strong>Estilo</strong> · iOS Premium</span>
+      <span><strong>Target</strong> · Flutter app Pixora IA</span>
+    </div>
+  </header>
+
+  <section class="concepts">
+
+    <!-- ═══════════════ 01 — APPLE MUSIC NOW PLAYING ═══════════════ -->
+    <article class="concept" data-concept="01">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">●●● 100%</span>
+          </div>
+          <div class="top-bar">
+            <span class="chev">‹</span>
+            <span class="menu">REPRODUCIENDO</span>
+            <span style="font-size:14px;color:#000">⋯</span>
+          </div>
+          <div class="album-art">
+            <div class="wp-bg">
+              <div class="neon-sign">CAFÉ</div>
+              <div class="glow-window"></div>
+              <div class="petals">
+                <span></span><span></span><span></span>
+                <span></span><span></span>
+              </div>
+            </div>
+          </div>
+          <div class="now-playing">
+            <div class="label">Wallpaper · Anime</div>
+            <div class="title">Café Tarde Lluviosa</div>
+            <div class="desc">Café acogedor en una tarde lluviosa</div>
+          </div>
+          <div class="tags-row">
+            <span class="tag">anime</span>
+            <span class="tag">cafe</span>
+            <span class="tag">rain</span>
+            <span class="tag">cozy</span>
+          </div>
+          <div class="controls-row">
+            <span class="ico">♡</span>
+            <span class="ico">⤴</span>
+            <span class="ico">ⓘ</span>
+          </div>
+          <div class="cta-btn">Establecer Wallpaper</div>
+        </div>
+      </div>
+      <div class="meta-block">
+        <div class="num">// No. 01 — Apple Music Now Playing</div>
+        <div class="name">Album-art contenido · fondo cream</div>
+        <div class="tag">El wallpaper se ve en formato álbum (no fullscreen). Texto en oscuro sobre cream, máxima legibilidad.</div>
+        <div class="palette">
+          <span style="background:#FDFBF7"></span>
+          <span style="background:#FF6BB5"></span>
+          <span style="background:#0A84FF"></span>
+          <span style="background:#070710"></span>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════ 02 — TRANSLUCENT GLASS PANELS ═══════════════ -->
+    <article class="concept" data-concept="02">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="wp-bg">
+            <div class="neon-sign">CAFÉ TARDE</div>
+            <div class="glow-window"></div>
+          </div>
+          <div class="petals">
+            <span></span><span></span><span></span>
+            <span></span><span></span>
+          </div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">●●● 100%</span>
+          </div>
+          <div class="glass-top">
+            <div class="left">
+              <span class="chev">‹</span>
+              <span class="ttl">Café Tarde Lluviosa</span>
+            </div>
+            <span class="live-badge">LIVE</span>
+          </div>
+          <div class="glass-center">
+            <div class="title">Café Tarde Lluviosa</div>
+            <div class="desc">Café acogedor en una tarde lluviosa — vibe anime nocturno con neón</div>
+            <div class="tags">
+              <span class="tag">anime</span>
+              <span class="tag">cafe</span>
+              <span class="tag">rain</span>
+              <span class="tag">neon</span>
+            </div>
+            <div class="info">1.85 MB · 6s LOOP</div>
+          </div>
+          <div class="glass-cta">Establecer Live Wallpaper</div>
+        </div>
+      </div>
+      <div class="meta-block">
+        <div class="num">// No. 02 — Translucent Glass Panels</div>
+        <div class="name">iOS Control Center · frosted glass</div>
+        <div class="tag">Wallpaper fullscreen detrás. Todo el contenido en paneles de vidrio esmerilado con backdrop-blur.</div>
+        <div class="palette">
+          <span style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4)"></span>
+          <span style="background:#FF6BB5"></span>
+          <span style="background:#FF2D55"></span>
+          <span style="background:#070710"></span>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════ 03 — DARK GRADIENT OVERLAY ═══════════════ -->
+    <article class="concept" data-concept="03">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="wp-bg">
+            <div class="neon-sign">CAFÉ TARDE</div>
+            <div class="glow-window"></div>
+            <div class="petals">
+              <span></span><span></span><span></span>
+              <span></span><span></span>
+            </div>
+          </div>
+          <div class="gradient-top"></div>
+          <div class="gradient-bottom"></div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">●●● 100%</span>
+          </div>
+          <div class="top-bar">
+            <div class="chev">‹</div>
+            <div class="live">LIVE</div>
+          </div>
+          <div class="content">
+            <div class="ttl">Café Tarde Lluviosa</div>
+            <div class="meta">ANIME · 1.85 MB · 6s</div>
+            <div class="desc">Café acogedor en una tarde lluviosa — vibe anime nocturno con neón cyberpunk.</div>
+            <div class="tags">
+              <span class="tag">anime</span>
+              <span class="tag">cafe</span>
+              <span class="tag">rain</span>
+              <span class="tag">neon</span>
+            </div>
+          </div>
+          <div class="cta">Establecer Live Wallpaper</div>
+        </div>
+      </div>
+      <div class="meta-block">
+        <div class="num">// No. 03 — Dark Gradient Overlay</div>
+        <div class="name">Netflix · Apple TV poster</div>
+        <div class="tag">Wallpaper fullscreen + gradiente oscuro arriba/abajo. Centro queda visible. Texto blanco sobre negro = legible siempre.</div>
+        <div class="palette">
+          <span style="background:#000"></span>
+          <span style="background:#FFFFFF;border:1px solid #333"></span>
+          <span style="background:#FF2D55"></span>
+          <span style="background:#FF6BB5"></span>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════ 04 — SPLIT VIEW (Apple Maps modal) ═══════════════ -->
+    <article class="concept" data-concept="04">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="wp-area">
+            <div class="wp-bg">
+              <div class="neon-sign">CAFÉ TARDE</div>
+              <div class="glow-window"></div>
+              <div class="petals">
+                <span></span><span></span><span></span>
+                <span></span><span></span>
+              </div>
+            </div>
+          </div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">●●● 100%</span>
+          </div>
+          <div class="top-controls">
+            <div class="pill">‹ <span style="font-weight:500">Inicio</span></div>
+            <div class="live">LIVE</div>
+          </div>
+          <div class="sheet">
+            <div class="handle"></div>
+            <div class="ttl">Café Tarde Lluviosa</div>
+            <div class="tags">
+              <span class="tag">anime</span>
+              <span class="tag">cafe</span>
+              <span class="tag">rain</span>
+              <span class="tag">neon</span>
+              <span class="tag">cozy</span>
+            </div>
+            <div class="desc">Café acogedor en una tarde lluviosa — vibe anime nocturno con neón cyberpunk.</div>
+            <div class="info">1.85 MB · 6 SEG · LOOP CONTINUO</div>
+            <div class="cta-row">
+              <div class="cta">Establecer Live Wallpaper</div>
+              <div class="free">FREE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta-block">
+        <div class="num">// No. 04 — Split View Modal</div>
+        <div class="name">Apple Maps · Airbnb listing</div>
+        <div class="tag">Wallpaper arriba 60%, sheet blanco abajo con todo el contenido en oscuro. Estilo Apple Maps location.</div>
+        <div class="palette">
+          <span style="background:#FFFFFF;border:1px solid #ccc"></span>
+          <span style="background:#0A84FF"></span>
+          <span style="background:#34C759"></span>
+          <span style="background:#070710"></span>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════ 05 — APPLE TV+ HERO ═══════════════ -->
+    <article class="concept" data-concept="05">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="wp-area">
+            <div class="wp-bg">
+              <div class="neon-sign">CAFÉ TARDE</div>
+              <div class="glow-window"></div>
+              <div class="petals">
+                <span></span><span></span><span></span>
+                <span></span><span></span>
+              </div>
+            </div>
+            <div class="vignette"></div>
+            <div class="gradient-fade"></div>
+          </div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">●●● 100%</span>
+          </div>
+          <div class="top-bar">
+            <div class="chev">‹</div>
+            <div class="gold-badge">LIVE</div>
+          </div>
+          <div class="bottom">
+            <div class="meta">Pixora · Anime Collection</div>
+            <div class="ttl">Café Tarde Lluviosa.</div>
+            <div class="desc">Café acogedor en una tarde lluviosa — vibe anime nocturno con neón.</div>
+            <div class="tags">
+              <span class="tag">anime</span>
+              <span class="tag">cafe</span>
+              <span class="tag">rain</span>
+              <span class="tag">cozy</span>
+            </div>
+            <div class="cta">★ Establecer Live Wallpaper</div>
+          </div>
+        </div>
+      </div>
+      <div class="meta-block">
+        <div class="num">// No. 05 — Apple TV+ Hero</div>
+        <div class="name">Cinematográfico · acentos dorados</div>
+        <div class="tag">Wallpaper 70% con vignette, fade al color del wallpaper. Título Fraunces italic, CTA con borde dorado premium.</div>
+        <div class="palette">
+          <span style="background:#1A0E2E"></span>
+          <span style="background:#D9B14A"></span>
+          <span style="background:#FF6BB5"></span>
+          <span style="background:#FFFFFF"></span>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <footer class="page-footer">
+    Pixora · Wallpaper Detail Design Archive · Mayo 2026
+  </footer>
+
+</div>
+
+</body>
+</html>
