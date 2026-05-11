@@ -25,8 +25,8 @@ class LiveWallpaperCatalogService {
     try {
       final url =
           '${SupabaseConfig.storageBase}/wallpaper-videos/$_catalogFile';
-      final response = await http.get(Uri.parse(url))
-          .timeout(const Duration(seconds: 15));
+      final response =
+          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
@@ -34,6 +34,23 @@ class LiveWallpaperCatalogService {
                 ?.map((e) => LiveWallpaper.fromJson(e as Map<String, dynamic>))
                 .toList() ??
             [];
+        // Sort newest first. Primary key is createdAt (ISO timestamp);
+        // wallpapers without it fall back to a high default so they
+        // still appear after the dated ones. Within the no-date group,
+        // sortOrder DESC keeps the original manual ordering.
+        items.sort((a, b) {
+          final aDate = a.createdAt;
+          final bDate = b.createdAt;
+          if (aDate != null && bDate != null) {
+            // Both have ISO timestamps — compare lexicographically (works
+            // for ISO 8601: YYYY-MM-DDTHH:MM:SSZ)
+            return bDate.compareTo(aDate);
+          }
+          if (aDate != null) return -1; // a has date, b doesn't → a first
+          if (bDate != null) return 1; // b has date, a doesn't → b first
+          // Neither has date — fall back to sortOrder DESC
+          return b.sortOrder.compareTo(a.sortOrder);
+        });
         _cache = items;
         _lastFetch = DateTime.now();
         return items;

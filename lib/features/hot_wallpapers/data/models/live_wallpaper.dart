@@ -110,6 +110,26 @@ class LiveWallpaper {
     );
   }
 
+  /// Effective badge — returns the configured `badge` field UNLESS it's
+  /// "NEW" and the wallpaper is older than 7 days, in which case it
+  /// silently expires and returns null.
+  ///
+  /// This prevents stale "NEW" badges from sticking around forever on
+  /// wallpapers we shipped months ago. The catalog JSON keeps `badge: NEW`
+  /// for human convenience (so we don't have to remove it manually) but
+  /// the UI auto-hides it based on createdAt.
+  String? get effectiveBadge {
+    final raw = badge;
+    if (raw == null) return null;
+    if (raw.toUpperCase() != 'NEW') return raw;
+    final created = createdAt;
+    if (created == null) return null; // No date → don't show NEW
+    final createdDate = DateTime.tryParse(created);
+    if (createdDate == null) return null;
+    final age = DateTime.now().difference(createdDate);
+    return age.inDays <= 7 ? raw : null;
+  }
+
   /// Convert to unified ContentItem for ContentManager.
   ContentItem toContentItem({bool explore = false}) {
     return ContentItem(

@@ -238,12 +238,12 @@ class _LiveWallpaperCard extends StatelessWidget {
             builder: (_) => LiveWallpaperPreviewPage(wallpaper: item),
           ),
         ),
-        overlayTopLeft: item.badge != null
+        overlayTopLeft: item.effectiveBadge != null
             ? Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 color: context.hud.accent,
                 child: Text(
-                  item.badge!.toUpperCase(),
+                  item.effectiveBadge!.toUpperCase(),
                   style: HudTokens.mono(
                     size: 8,
                     weight: FontWeight.w700,

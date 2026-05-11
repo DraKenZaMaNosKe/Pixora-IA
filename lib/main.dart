@@ -12,6 +12,7 @@ import 'core/services/analytics_service.dart';
 import 'core/services/credit_service.dart';
 import 'core/services/grace_pass_service.dart';
 import 'core/services/legal_service.dart';
+import 'core/services/push_notification_service.dart';
 import 'core/services/subscription_service.dart';
 import 'core/services/theme_service.dart';
 import 'core/services/wallpaper_engine_coordinator.dart';
@@ -102,6 +103,10 @@ Future<void> main() async {
     await CreditService.instance.init();
     await GracePassService.instance.init();
     await AuraPlayerService.instance.init();
+    // FCM push notifications — fire-and-forget so we don't block app
+    // startup if Firebase/network is slow. Topic subscription happens
+    // in the background; failures only log debug, never crash UI.
+    unawaited(PushNotificationService.instance.init());
     AdService.instance.initialize();
     // Sync the wallpaper engine coordinator from native state so we know
     // which rotation engine (AutoRotate / DayCycle / Story) was active
