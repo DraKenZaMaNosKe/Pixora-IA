@@ -1,0 +1,34 @@
+# IntraPC Solutions · Orbix Studio
+# https://intrapcsolutions.com/
+
+User-agent: *
+Allow: /
+
+# AI training crawlers — explicitly allow (you want exposure)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Block image scrapers from competing AI image services (optional)
+# User-agent: ImagesiftBot
+# Disallow: /
+
+# Sitemap location
+Sitemap: https://intrapcsolutions.com/sitemap.xml
+
+# Host
+Host: intrapcsolutions.com

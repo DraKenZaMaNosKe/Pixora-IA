@@ -47,6 +47,20 @@ KEYS_PATH = Path(r"D:/Orbix/Pixora-IA/KEYS_LOCAL.md")
 DASHBOARD_HTML = Path(__file__).parent / "dashboard" / "index.html"
 PROJECT_REF = "vzuwvsmlyigjtsearxym"
 SUPABASE_REST = f"https://{PROJECT_REF}.supabase.co/rest/v1"
+SUPABASE_STORAGE = f"https://{PROJECT_REF}.supabase.co/storage/v1"
+
+# Catalog files in Supabase Storage. Each entry maps a kind to its
+# (bucket, file, items_key) — items_key is the top-level array name inside
+# the JSON ("wallpapers", "stories", "ringtones", "scenes", ...).
+# The dashboard CRUD edits these JSONs in place via the server (server
+# holds SERVICE_KEY, browser never sees it).
+CATALOGS = {
+    "live":      ("wallpaper-videos", "live_wallpaper_catalog.json", "wallpapers"),
+    "static":    ("wallpaper-images", "dynamic_catalog.json",        "wallpapers"),
+    "stories":   ("wallpaper-images", "stories_catalog.json",        "stories"),
+    "day_cycle": ("wallpaper-images", "day_cycle_catalog.json",      "scenes"),
+    "ringtones": ("wallpaper-images", "ringtones_catalog.json",      "ringtones"),
+}
 
 
 # ─── Get service key once at startup ──────────────────────────────────────────
@@ -329,6 +343,67 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/engagement/terms-acceptance":
             data, status = self._proxy("admin_terms_acceptance_30d")
             return self._send_json(data, status)
+
+        # ─── Catalog CRUD (fetch JSON from Storage) ──────────────
+        # GET /api/catalog/<kind>  →  returns the parsed JSON.
+        if path.startswith("/api/catalog/"):
+            kind = path.split("/api/catalog/", 1)[1].strip("/")
+            if kind not in CATALOGS:
+                return self._send_json({"error": f"unknown catalog: {kind}"}, 400)
+            bucket, fname, _items_key = CATALOGS[kind]
+            url = f"{SUPABASE_STORAGE}/object/public/{bucket}/{fname}"
+            req = urllib.request.Request(url)
+            try:
+                with urllib.request.urlopen(req, timeout=15) as r:
+                    body = r.read()
+                return self._send(200, "application/json; charset=utf-8", body)
+            except urllib.error.HTTPError as e:
+                return self._send_json({"error": e.read().decode()[:300]}, e.code)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, 500)
+
+        return self._send(404, "text/plain", b"not found")
+
+    def do_PUT(self):
+        path = urllib.parse.urlparse(self.path).path
+
+        # ─── Catalog CRUD (upload JSON to Storage) ───────────────
+        # PUT /api/catalog/<kind>  body=JSON  →  upserts to Storage.
+        if path.startswith("/api/catalog/"):
+            kind = path.split("/api/catalog/", 1)[1].strip("/")
+            if kind not in CATALOGS:
+                return self._send_json({"error": f"unknown catalog: {kind}"}, 400)
+            bucket, fname, items_key = CATALOGS[kind]
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b""
+            # Validate JSON before pushing — corrupt JSON in Storage breaks the app.
+            try:
+                parsed = json.loads(body.decode("utf-8"))
+                if not isinstance(parsed, dict) or items_key not in parsed:
+                    raise ValueError(f"catalog must contain top-level '{items_key}' array")
+            except Exception as e:
+                return self._send_json({"error": f"invalid JSON: {e}"}, 400)
+            # Re-serialize with indentation (matches existing catalog style)
+            payload = json.dumps(parsed, indent=2, ensure_ascii=False).encode("utf-8")
+            url = f"{SUPABASE_STORAGE}/object/{bucket}/{fname}"
+            req = urllib.request.Request(url, data=payload, method="PUT")
+            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+            req.add_header("Content-Type", "application/json")
+            req.add_header("x-upsert", "true")
+            try:
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    resp = r.read().decode("utf-8")
+                return self._send_json({
+                    "ok": True,
+                    "bucket": bucket,
+                    "file": fname,
+                    "count": len(parsed.get(items_key, [])),
+                    "storage_response": resp[:200],
+                })
+            except urllib.error.HTTPError as e:
+                return self._send_json({"error": e.read().decode()[:300]}, e.code)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, 500)
 
         return self._send(404, "text/plain", b"not found")
 

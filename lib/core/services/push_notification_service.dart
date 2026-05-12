@@ -33,9 +33,15 @@ class PushNotificationService {
   bool _initialized = false;
 
   Future<void> init() async {
-    if (_initialized) return;
+    print('[PixoraFCM] init() called');
+    if (_initialized) {
+      print('[PixoraFCM] already initialized, skipping');
+      return;
+    }
     try {
+      print('[PixoraFCM] calling Firebase.initializeApp()');
       await Firebase.initializeApp();
+      print('[PixoraFCM] Firebase.initializeApp() OK');
       _initialized = true;
 
       // Background handler must be registered before any other listener
@@ -101,8 +107,9 @@ class PushNotificationService {
       // from Firebase Console)
       final token = await FirebaseMessaging.instance.getToken();
       debugPrint('[PixoraFCM] Token: $token');
-    } catch (e) {
-      debugPrint('[PixoraFCM] Init failed: $e');
+    } catch (e, st) {
+      print('[PixoraFCM] Init failed: $e');
+      print('[PixoraFCM] Stack: $st');
     }
   }
 

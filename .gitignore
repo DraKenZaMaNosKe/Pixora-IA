@@ -22,6 +22,7 @@ docs/legal/privacy_v*.md
 
 # Admin tools runtime artefacts (local logs, ad-hoc previews, test caps)
 tools/wallpapers/admin_server.log
+tools/wallpapers/*.local.js
 docs/design/_device_*.png
 docs/design/admin_dashboard_test.png
 
@@ -109,3 +110,6 @@ macos/Flutter/ephemeral/
 # Master doc HTML mirrors — contain OAuth/Google secrets, NEVER commit
 /docs/master_doc/
 /docs/design/master_doc.html
+
+# Firebase service account (FCM admin)
+firebase-service-account.json

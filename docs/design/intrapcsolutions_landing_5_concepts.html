@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>intrapcsolutions.com · 5 layouts · Orbix Studio Design Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0B0B10;
+    --ink-soft: #1D1D1F;
+    --gray-1: #6E6E73;
+    --gray-2: #86868B;
+    --gray-3: #AEAEB2;
+    --hairline: #E5E5EA;
+    --paper: #FFFFFF;
+    --paper-2: #FAFAFA;
+    --paper-3: #F5F5F7;
+    --apple-blue: #0A84FF;
+    --apple-blue-deep: #0066CC;
+    --tag-bg: #F2F2F7;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.06), 0 16px 48px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.08), 0 32px 96px rgba(0,0,0,.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 56px 32px 96px;
+    overflow-x: hidden;
+  }
+
+  /* ──────── Page chrome ──────── */
+  .page-header {
+    max-width: 1320px;
+    margin: 0 auto 56px;
+    text-align: left;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 40px;
+  }
+
+  .page-header .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gray-2);
+    margin-bottom: 18px;
+  }
+
+  .page-header h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(36px, 6vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+
+  .page-header h1 .accent {
+    font-family: 'Geist Mono', monospace;
+    font-style: normal;
+    font-weight: 500;
+    color: var(--apple-blue);
+    font-size: 0.55em;
+    letter-spacing: 0;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  .page-header p {
+    font-size: 15px;
+    color: var(--gray-1);
+    max-width: 600px;
+    line-height: 1.55;
+  }
+
+  .page-header .meta-row {
+    display: flex;
+    gap: 32px;
+    margin-top: 22px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: var(--gray-2);
+    letter-spacing: 0.04em;
+  }
+
+  .page-header .meta-row span strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ──────── Concepts grid ──────── */
+  .concepts {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 40px 32px;
+  }
+
+  .concept {
+    opacity: 0;
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.06s; }
+  .concept:nth-child(2) { animation-delay: 0.14s; }
+  .concept:nth-child(3) { animation-delay: 0.22s; }
+  .concept:nth-child(4) { animation-delay: 0.30s; }
+  .concept:nth-child(5) { animation-delay: 0.38s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Browser-style preview frame */
+  .preview-frame {
+    width: 100%;
+    aspect-ratio: 360 / 500;
+    background: var(--paper);
+    border-radius: 14px;
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+  }
+
+  .concept:hover .preview-frame {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .browser-bar {
+    height: 28px;
+    background: var(--paper-3);
+    border-bottom: 1px solid var(--hairline);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .browser-bar .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gray-3);
+  }
+  .browser-bar .url {
+    margin-left: 14px;
+    flex: 1;
+    text-align: center;
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    color: var(--gray-2);
+    letter-spacing: 0.04em;
+  }
+
+  .preview-stage {
+    width: 100%;
+    height: calc(100% - 28px);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Meta block under the preview */
+  .meta {
+    margin-top: 18px;
+    padding: 0 4px;
+  }
+  .meta .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--gray-2);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .meta .name {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .meta .tag {
+    font-size: 13px;
+    color: var(--gray-1);
+    line-height: 1.5;
+  }
+  .meta .palette {
+    margin-top: 14px;
+    display: flex;
+    gap: 6px;
+  }
+  .meta .palette span {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 1px solid rgba(0,0,0,.06);
+  }
+
+  /* Footer */
+  .page-footer {
+    max-width: 1320px;
+    margin: 96px auto 0;
+    padding-top: 40px;
+    border-top: 1px solid var(--hairline);
+    text-align: center;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--gray-2);
+    text-transform: uppercase;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CONCEPT 01 — APPLE STORE HOMEPAGE
+     Hero centered, then 2-col grid below
+     ════════════════════════════════════════════════════════════════ */
+  [data-concept="01"] .preview-stage {
+    background: var(--paper);
+    padding: 14px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  [data-concept="01"] .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Geist', sans-serif;
+    font-size: 8px;
+    color: var(--ink);
+  }
+  [data-concept="01"] .nav .brand { font-weight: 600; letter-spacing: -0.01em; }
+  [data-concept="01"] .nav .nav-links { display: flex; gap: 10px; color: var(--gray-1); font-weight: 400; font-size: 7px; }
+
+  [data-concept="01"] .hero-h1 {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    text-align: center;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1.05;
+    margin-top: 14px;
+  }
+  [data-concept="01"] .hero-tag {
+    text-align: center;
+    font-size: 9px;
+    color: var(--gray-1);
+    margin-bottom: 6px;
+    line-height: 1.4;
+    padding: 0 18px;
+  }
+
+  [data-concept="01"] .hero-card {
+    background: linear-gradient(135deg, #F5F5F7 0%, #ECECEF 100%);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+  }
+  [data-concept="01"] .hero-card .label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    color: var(--apple-blue);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  [data-concept="01"] .hero-card .title {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  [data-concept="01"] .phone-mock {
+    width: 60px;
+    height: 110px;
+    background: linear-gradient(180deg, #1A1A28 0%, #2A1F4A 50%, #4A2C5C 100%);
+    border-radius: 9px;
+    border: 1.5px solid #0B0B10;
+    box-shadow: 0 4px 14px rgba(0,0,0,.18);
+    position: relative;
+    overflow: hidden;
+  }
+  [data-concept="01"] .phone-mock::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 50%;
+    transform: translateX(-50%);
+    width: 18px; height: 3px;
+    background: #000;
+    border-radius: 4px;
+  }
+  [data-concept="01"] .phone-mock::after {
+    content: '◌';
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.5);
+    font-size: 6px;
+  }
+
+  [data-concept="01"] .pill-cta {
+    background: var(--apple-blue);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 999px;
+  }
+
+  [data-concept="01"] .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  [data-concept="01"] .product-card {
+    background: var(--paper-3);
+    border-radius: 10px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  [data-concept="01"] .product-card .icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #0A0A12 0%, #1A1A28 100%);
+    margin-bottom: 4px;
+  }
+  [data-concept="01"] .product-card .icon.tv {
+    background: linear-gradient(135deg, #1A2D3D 0%, #0A2A50 100%);
+  }
+  [data-concept="01"] .product-card .icon.guard {
+    background: linear-gradient(135deg, #2D2D2D 0%, #4A4A4A 100%);
+  }
+  [data-concept="01"] .product-card .icon.watch {
+    background: linear-gradient(135deg, #1A1A28 0%, #2D2D45 100%);
+    border-radius: 50%;
+  }
+  [data-concept="01"] .product-card .name {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  [data-concept="01"] .product-card .desc {
+    font-size: 7px;
+    color: var(--gray-1);
+    line-height: 1.3;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CONCEPT 02 — APPLE NEWSROOM EDITORIAL
+     ════════════════════════════════════════════════════════════════ */
+  [data-concept="02"] .preview-stage {
+    background: var(--paper-3);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  [data-concept="02"] .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  [data-concept="02"] .nav .brand {
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  [data-concept="02"] .nav .links {
+    display: flex;
+    gap: 9px;
+    font-size: 7px;
+    color: var(--gray-1);
+  }
+  [data-concept="02"] .nav .links span:first-child { color: var(--ink); font-weight: 500; }
+
+  [data-concept="02"] .editorial-title {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin-top: 8px;
+    padding-right: 14px;
+  }
+  [data-concept="02"] .editorial-title em {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--apple-blue);
+  }
+
+  [data-concept="02"] .body-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  [data-concept="02"] .featured {
+    background: var(--paper);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    display: flex;
+    flex-direction: column;
+  }
+  [data-concept="02"] .featured .hero {
+    height: 80px;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(124, 77, 255, 0.45), transparent 60%),
+      radial-gradient(circle at 80% 70%, rgba(91, 199, 255, 0.4), transparent 60%),
+      linear-gradient(180deg, #0E0E1A 0%, #1A1A2E 100%);
+  }
+  [data-concept="02"] .featured .meta-row {
+    padding: 8px 10px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--hairline);
+  }
+  [data-concept="02"] .featured .tag-pill {
+    background: var(--tag-bg);
+    color: var(--ink);
+    font-size: 7px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+  [data-concept="02"] .featured .date {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    color: var(--gray-2);
+    letter-spacing: 0.06em;
+  }
+  [data-concept="02"] .featured .body {
+    padding: 8px 10px 10px;
+  }
+  [data-concept="02"] .featured h3 {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 5px;
+  }
+  [data-concept="02"] .featured p {
+    font-size: 7px;
+    color: var(--gray-1);
+    line-height: 1.45;
+    margin-bottom: 6px;
+  }
+  [data-concept="02"] .featured .read-more {
+    font-size: 7px;
+    color: var(--apple-blue);
+    font-weight: 500;
+  }
+
+  [data-concept="02"] .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  [data-concept="02"] .sidebar .item {
+    background: var(--paper);
+    padding: 7px 8px;
+    border-radius: 7px;
+    border: 1px solid var(--hairline);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  [data-concept="02"] .sidebar .item .cat {
+    font-family: 'Geist Mono', monospace;
+    font-size: 6px;
+    color: var(--apple-blue);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  [data-concept="02"] .sidebar .item .name {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  [data-concept="02"] .sidebar .item .desc {
+    font-size: 6px;
+    color: var(--gray-1);
+    line-height: 1.3;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CONCEPT 03 — APP STORE TODAY TAB
+     ════════════════════════════════════════════════════════════════ */
+  [data-concept="03"] .preview-stage {
+    background: var(--paper);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  [data-concept="03"] .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  [data-concept="03"] .header-row .date {
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    color: var(--apple-blue);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  [data-concept="03"] .header-row .day {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  [data-concept="03"] .header-row .avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, #1A1A28 0%, #4A2C5C 100%);
+  }
+  [data-concept="03"] .header-row > div { display: flex; flex-direction: column; }
+
+  [data-concept="03"] .hero-card {
+    flex: 1;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(124, 77, 255, 0.7), transparent 55%),
+      radial-gradient(circle at 70% 80%, rgba(91, 199, 255, 0.55), transparent 55%),
+      linear-gradient(180deg, #0E0E1A 0%, #1A1429 50%, #2A1F4A 100%);
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px 14px;
+  }
+  [data-concept="03"] .hero-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.5) 100%);
+    pointer-events: none;
+  }
+  [data-concept="03"] .hero-card > * { position: relative; z-index: 1; }
+  [data-concept="03"] .hero-card .top-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.9;
+    color: #FFD9A0;
+  }
+  [data-concept="03"] .hero-card .title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  [data-concept="03"] .hero-card .subtitle {
+    font-size: 8px;
+    opacity: 0.85;
+    margin-bottom: 8px;
+    line-height: 1.35;
+  }
+  [data-concept="03"] .hero-card .cta {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.95);
+    color: #0B0B10;
+    font-size: 8px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+
+  [data-concept="03"] .top-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  [data-concept="03"] .top-row .row-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  [data-concept="03"] .top-row .apps {
+    display: flex;
+    gap: 7px;
+  }
+  [data-concept="03"] .top-row .app-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  [data-concept="03"] .top-row .app-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #0A0A12, #1A1A28);
+  }
+  [data-concept="03"] .top-row .app-item.tv .app-icon { background: linear-gradient(135deg, #1A2D3D, #0A2A50); }
+  [data-concept="03"] .top-row .app-item.guard .app-icon { background: linear-gradient(135deg, #2D2D2D, #4A4A4A); }
+  [data-concept="03"] .top-row .app-item.watch .app-icon { background: linear-gradient(135deg, #1A1A28, #2D2D45); border-radius: 50%; }
+  [data-concept="03"] .top-row .app-item .app-name {
+    font-size: 6px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  [data-concept="03"] .top-row .app-item .app-cat {
+    font-size: 5px;
+    color: var(--gray-2);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CONCEPT 04 — iOS SETTINGS GROUPED
+     ════════════════════════════════════════════════════════════════ */
+  [data-concept="04"] .preview-stage {
+    background: var(--paper-3);
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  [data-concept="04"] .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 6px;
+  }
+  [data-concept="04"] .top-bar .back {
+    color: var(--apple-blue);
+    font-size: 8px;
+    font-weight: 500;
+  }
+  [data-concept="04"] .top-bar .title {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  [data-concept="04"] .top-bar .edit {
+    color: var(--apple-blue);
+    font-size: 8px;
+  }
+
+  [data-concept="04"] .header-block {
+    text-align: center;
+    margin: 8px 0 12px;
+  }
+  [data-concept="04"] .header-block .logo {
+    width: 38px; height: 38px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #0A84FF 0%, #0066CC 100%);
+    margin: 0 auto 6px;
+    box-shadow: 0 4px 12px rgba(10,132,255,0.25);
+  }
+  [data-concept="04"] .header-block .h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 3px;
+  }
+  [data-concept="04"] .header-block .sub {
+    font-size: 8px;
+    color: var(--gray-1);
+    line-height: 1.4;
+    padding: 0 8px;
+  }
+
+  [data-concept="04"] .group-label {
+    font-family: 'Geist', sans-serif;
+    font-size: 7px;
+    color: var(--gray-1);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 4px 2px;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  [data-concept="04"] .group {
+    background: var(--paper);
+    border-radius: 9px;
+    overflow: hidden;
+  }
+  [data-concept="04"] .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-bottom: 0.5px solid var(--hairline);
+  }
+  [data-concept="04"] .row:last-child { border-bottom: none; }
+  [data-concept="04"] .row .icon {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #0A0A12, #1A1A28);
+    flex-shrink: 0;
+  }
+  [data-concept="04"] .row .icon.tv { background: linear-gradient(135deg, #1A2D3D, #0A2A50); }
+  [data-concept="04"] .row .icon.guard { background: linear-gradient(135deg, #2D2D2D, #4A4A4A); }
+  [data-concept="04"] .row .icon.watch { background: linear-gradient(135deg, #1A1A28, #2D2D45); border-radius: 50%; }
+  [data-concept="04"] .row .icon.contact { background: linear-gradient(135deg, #34C759, #248A3D); }
+  [data-concept="04"] .row .icon.about { background: linear-gradient(135deg, #FF9500, #C76800); }
+  [data-concept="04"] .row .name {
+    flex: 1;
+    font-size: 8px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  [data-concept="04"] .row .value {
+    font-size: 7px;
+    color: var(--gray-2);
+  }
+  [data-concept="04"] .row .chev {
+    color: var(--gray-3);
+    font-size: 9px;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CONCEPT 05 — APPLE EVENT KEYNOTE
+     ════════════════════════════════════════════════════════════════ */
+  [data-concept="05"] .preview-stage {
+    background: var(--paper);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  [data-concept="05"] .keynote-nav {
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 14px;
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.7);
+    border-bottom: 0.5px solid var(--hairline);
+    z-index: 2;
+  }
+  [data-concept="05"] .keynote-nav .brand {
+    font-family: 'Geist', sans-serif;
+    font-size: 8px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  [data-concept="05"] .keynote-nav .links {
+    display: flex;
+    gap: 8px;
+    font-size: 7px;
+    color: var(--gray-1);
+  }
+
+  [data-concept="05"] .keynote-hero {
+    flex: 1;
+    text-align: center;
+    padding: 16px 14px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  [data-concept="05"] .keynote-hero .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--apple-blue);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  [data-concept="05"] .keynote-hero h1 {
+    font-family: 'Geist', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    background: linear-gradient(180deg, #0B0B10 0%, #2A2A35 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 2px;
+  }
+  [data-concept="05"] .keynote-hero h1 em {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    background: linear-gradient(180deg, var(--apple-blue) 0%, var(--apple-blue-deep) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  [data-concept="05"] .keynote-hero .subtitle {
+    font-size: 9px;
+    color: var(--gray-1);
+    line-height: 1.35;
+    padding: 0 18px;
+    margin-bottom: 6px;
+  }
+
+  [data-concept="05"] .product-stage {
+    flex: 1;
+    background:
+      radial-gradient(ellipse at center top, rgba(10,132,255,0.08), transparent 70%),
+      linear-gradient(180deg, var(--paper) 0%, var(--paper-3) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    position: relative;
+  }
+  [data-concept="05"] .product-stage .device {
+    width: 70px;
+    height: 130px;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(124, 77, 255, 0.7), transparent 55%),
+      radial-gradient(circle at 70% 80%, rgba(91, 199, 255, 0.5), transparent 55%),
+      linear-gradient(180deg, #0E0E1A 0%, #2A1F4A 100%);
+    border: 2px solid #0B0B10;
+    border-radius: 11px;
+    box-shadow: 0 14px 40px rgba(10,132,255,0.18), 0 8px 20px rgba(0,0,0,0.18);
+    position: relative;
+    overflow: hidden;
+  }
+  [data-concept="05"] .product-stage .device::before {
+    content: '';
+    position: absolute;
+    top: 5px; left: 50%;
+    transform: translateX(-50%);
+    width: 22px; height: 4px;
+    background: #000;
+    border-radius: 4px;
+  }
+  [data-concept="05"] .product-stage .reflection {
+    position: absolute;
+    bottom: 4px;
+    width: 50px; height: 8px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.18), transparent 70%);
+    filter: blur(3px);
+  }
+
+  [data-concept="05"] .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 10px 14px 8px;
+    border-top: 0.5px solid var(--hairline);
+  }
+  [data-concept="05"] .features .feat {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  [data-concept="05"] .features .feat .ico {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--paper-3);
+    margin: 0 auto;
+    border: 1px solid var(--hairline);
+    position: relative;
+  }
+  [data-concept="05"] .features .feat .ico::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--apple-blue);
+    opacity: 0.4;
+  }
+  [data-concept="05"] .features .feat .label {
+    font-size: 6px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  [data-concept="05"] .features .feat .desc {
+    font-size: 5px;
+    color: var(--gray-1);
+    line-height: 1.3;
+  }
+
+  [data-concept="05"] .more {
+    background: var(--paper-3);
+    padding: 6px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    align-items: center;
+  }
+  [data-concept="05"] .more .label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 6px;
+    color: var(--gray-2);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  [data-concept="05"] .more .logos {
+    display: flex;
+    gap: 6px;
+  }
+  [data-concept="05"] .more .logos span {
+    width: 14px; height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #0A0A12, #1A1A28);
+  }
+  [data-concept="05"] .more .logos span.tv { background: linear-gradient(135deg, #1A2D3D, #0A2A50); }
+  [data-concept="05"] .more .logos span.guard { background: linear-gradient(135deg, #2D2D2D, #4A4A4A); }
+  [data-concept="05"] .more .logos span.watch { background: linear-gradient(135deg, #1A1A28, #2D2D45); border-radius: 50%; }
+
+  /* Selection hint */
+  .pick-hint {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    background: rgba(11,11,16,0.92);
+    backdrop-filter: blur(12px);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    animation: hintIn 0.6s 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    z-index: 100;
+    cursor: default;
+  }
+  @keyframes hintIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="pick-hint">Hover sobre cada layout · click no requerido</div>
+
+<header class="page-header">
+  <div class="eyebrow">Orbix Studio · Design Archive · Vol 12</div>
+  <h1>intrapcsolutions.com<span class="accent">/ 5 layouts</span></h1>
+  <p>Cinco maneras de presentar Orbix Studio en una sola landing — todas con el lenguaje <em>Apple Premium White</em>. Elige la composición, no el estilo.</p>
+  <div class="meta-row">
+    <span><strong>Tipografía</strong> · Geist + Geist Mono + Fraunces italic</span>
+    <span><strong>Acento</strong> · Apple system blue #0A84FF</span>
+    <span><strong>Hospedaje</strong> · GitHub Pages + Cloudflare</span>
+  </div>
+</header>
+
+<section class="concepts">
+
+  <!-- ═══════════════ 01 ═══════════════ -->
+  <article class="concept" data-concept="01">
+    <div class="preview-frame">
+      <div class="browser-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="url">intrapcsolutions.com</div>
+      </div>
+      <div class="preview-stage">
+        <nav class="nav">
+          <div class="brand">Orbix Studio</div>
+          <div class="nav-links"><span>Productos</span><span>Acerca</span><span>Contacto</span></div>
+        </nav>
+        <h1 class="hero-h1">Diseñamos experiencias móviles premium</h1>
+        <p class="hero-tag">Wallpapers, audio bienestar y herramientas que se sienten distintas.</p>
+        <div class="hero-card">
+          <div class="label">Producto destacado</div>
+          <div class="phone-mock"></div>
+          <div class="title">Pixora IA</div>
+          <div class="pill-cta">Descargar</div>
+        </div>
+        <div class="grid-2">
+          <div class="product-card">
+            <div class="icon"></div>
+            <div class="name">BlackHoleGlow</div>
+            <div class="desc">Live wallpaper espacial</div>
+          </div>
+          <div class="product-card">
+            <div class="icon tv"></div>
+            <div class="name">BHG · TV</div>
+            <div class="desc">Para Android TV</div>
+          </div>
+          <div class="product-card">
+            <div class="icon watch"></div>
+            <div class="name">BHG · Watch</div>
+            <div class="desc">Watch Face Wear OS</div>
+          </div>
+          <div class="product-card">
+            <div class="icon guard"></div>
+            <div class="name">FolderGuard</div>
+            <div class="desc">Cifrado de carpetas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// No. 01 — Apple Store Homepage</div>
+      <div class="name">Hero centrado · grid de productos</div>
+      <div class="tag">Composición clásica de Apple Store: producto destacado arriba, secundarios abajo en grid 2×2.</div>
+      <div class="palette">
+        <span style="background:#FFFFFF; border-color:#E5E5EA"></span>
+        <span style="background:#0A84FF"></span>
+        <span style="background:#F5F5F7"></span>
+        <span style="background:#0B0B10"></span>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═══════════════ 02 ═══════════════ -->
+  <article class="concept" data-concept="02">
+    <div class="preview-frame">
+      <div class="browser-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="url">intrapcsolutions.com</div>
+      </div>
+      <div class="preview-stage">
+        <nav class="nav">
+          <div class="brand">Orbix Studio</div>
+          <div class="links"><span>Newsroom</span><span>Productos</span><span>Acerca</span></div>
+        </nav>
+        <h2 class="editorial-title">Construyendo el futuro de la <em>estética móvil</em>.</h2>
+        <div class="body-grid">
+          <article class="featured">
+            <div class="hero"></div>
+            <div class="meta-row">
+              <div class="tag-pill">Pixora IA</div>
+              <div class="date">2026 · 05 · 09</div>
+            </div>
+            <div class="body">
+              <h3>Aurora Borealis loader llega al detalle del wallpaper</h3>
+              <p>La espera ahora es parte de la experiencia, no una pantalla congelada. Diseño cuidado en cada microinteracción.</p>
+              <div class="read-more">Leer más →</div>
+            </div>
+          </article>
+          <aside class="sidebar">
+            <div class="item">
+              <div class="cat">BlackHoleGlow</div>
+              <div class="name">Live wallpaper · Android</div>
+              <div class="desc">OpenGL ES 2.0 · escenas espaciales 3D</div>
+            </div>
+            <div class="item">
+              <div class="cat">BHG · TV</div>
+              <div class="name">Para Android TV</div>
+              <div class="desc">Versión optimizada Leanback</div>
+            </div>
+            <div class="item">
+              <div class="cat">BHG · Watch</div>
+              <div class="name">Wear OS 4+</div>
+              <div class="desc">Watch face analógica</div>
+            </div>
+            <div class="item">
+              <div class="cat">FolderGuard</div>
+              <div class="name">Windows · .NET 8</div>
+              <div class="desc">Cifrado AES + menú contextual</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// No. 02 — Apple Newsroom Editorial</div>
+      <div class="name">Tipografía editorial · titular gigante</div>
+      <div class="tag">Layout tipo magazine. Un titular grande conduce la narrativa, productos como "stories" laterales.</div>
+      <div class="palette">
+        <span style="background:#F5F5F7; border-color:#E5E5EA"></span>
+        <span style="background:#0A84FF"></span>
+        <span style="background:#FFFFFF; border-color:#E5E5EA"></span>
+        <span style="background:#0B0B10"></span>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═══════════════ 03 ═══════════════ -->
+  <article class="concept" data-concept="03">
+    <div class="preview-frame">
+      <div class="browser-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="url">intrapcsolutions.com</div>
+      </div>
+      <div class="preview-stage">
+        <div class="header-row">
+          <div>
+            <div class="date">VIERNES · 9 MAYO</div>
+            <div class="day">Hoy</div>
+          </div>
+          <div class="avatar"></div>
+        </div>
+        <div class="hero-card">
+          <div class="top-label">App del día</div>
+          <div>
+            <div class="title">Pixora IA, reimaginada.</div>
+            <div class="subtitle">Wallpapers vivos, AURA wellness audio y generación AI en una sola app.</div>
+            <div class="cta">Descargar</div>
+          </div>
+        </div>
+        <div class="top-row">
+          <div class="row-title">Top apps de Orbix</div>
+          <div class="apps">
+            <div class="app-item">
+              <div class="app-icon"></div>
+              <div class="app-name">BHG</div>
+              <div class="app-cat">Live wallpaper</div>
+            </div>
+            <div class="app-item tv">
+              <div class="app-icon"></div>
+              <div class="app-name">BHG · TV</div>
+              <div class="app-cat">Android TV</div>
+            </div>
+            <div class="app-item watch">
+              <div class="app-icon"></div>
+              <div class="app-name">BHG · Watch</div>
+              <div class="app-cat">Wear OS</div>
+            </div>
+            <div class="app-item guard">
+              <div class="app-icon"></div>
+              <div class="app-name">FolderGuard</div>
+              <div class="app-cat">Windows</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// No. 03 — App Store Today Tab</div>
+      <div class="name">Hero cinematográfico · curaduría diaria</div>
+      <div class="tag">Carta heroica al estilo App Store Today. Grande, narrativa, irresistible. Ideal si Pixora siempre será el centro.</div>
+      <div class="palette">
+        <span style="background:#FFFFFF; border-color:#E5E5EA"></span>
+        <span style="background:#7C4DFF"></span>
+        <span style="background:#5BC7FF"></span>
+        <span style="background:#0B0B10"></span>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═══════════════ 04 ═══════════════ -->
+  <article class="concept" data-concept="04">
+    <div class="preview-frame">
+      <div class="browser-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="url">intrapcsolutions.com</div>
+      </div>
+      <div class="preview-stage">
+        <div class="top-bar">
+          <div class="back">‹ Inicio</div>
+          <div class="title">Orbix Studio</div>
+          <div class="edit">Editar</div>
+        </div>
+        <div class="header-block">
+          <div class="logo"></div>
+          <div class="h1">Orbix Studio</div>
+          <div class="sub">Software independiente desde Guadalajara</div>
+        </div>
+        <div class="group-label">Productos</div>
+        <div class="group">
+          <div class="row">
+            <div class="icon"></div>
+            <div class="name">Pixora IA</div>
+            <div class="value">v1.7.11</div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="icon"></div>
+            <div class="name">BlackHoleGlow</div>
+            <div class="value">Android</div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="icon tv"></div>
+            <div class="name">BHG · TV</div>
+            <div class="value">Android TV</div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="icon watch"></div>
+            <div class="name">BHG · Watch</div>
+            <div class="value">Wear OS</div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="icon guard"></div>
+            <div class="name">FolderGuard</div>
+            <div class="value">Windows</div>
+            <div class="chev">›</div>
+          </div>
+        </div>
+        <div class="group-label">Acerca</div>
+        <div class="group">
+          <div class="row">
+            <div class="icon about"></div>
+            <div class="name">Nuestra historia</div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="icon contact"></div>
+            <div class="name">Contacto</div>
+            <div class="chev">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// No. 04 — iOS Settings Grouped</div>
+      <div class="name">Listas agrupadas · navegación familiar</div>
+      <div class="tag">Replica el patrón de iOS Settings. Cada producto es una "row" con icono, nombre y chevron. Familiar, escaneable.</div>
+      <div class="palette">
+        <span style="background:#F5F5F7; border-color:#E5E5EA"></span>
+        <span style="background:#0A84FF"></span>
+        <span style="background:#FFFFFF; border-color:#E5E5EA"></span>
+        <span style="background:#34C759"></span>
+      </div>
+    </div>
+  </article>
+
+  <!-- ═══════════════ 05 ═══════════════ -->
+  <article class="concept" data-concept="05">
+    <div class="preview-frame">
+      <div class="browser-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="url">intrapcsolutions.com</div>
+      </div>
+      <div class="preview-stage">
+        <nav class="keynote-nav">
+          <div class="brand">Orbix Studio</div>
+          <div class="links"><span>Productos</span><span>Eventos</span><span>Soporte</span></div>
+        </nav>
+        <div class="keynote-hero">
+          <div class="eyebrow">Mayo 2026 · Keynote</div>
+          <h1>Pixora IA.<br><em>Reimaginada.</em></h1>
+          <div class="subtitle">Wallpapers vivos, generación AI y wellness audio. Una sola app, infinitos estados de ánimo.</div>
+        </div>
+        <div class="product-stage">
+          <div class="device"></div>
+          <div class="reflection"></div>
+        </div>
+        <div class="features">
+          <div class="feat">
+            <div class="ico"></div>
+            <div class="label">Live</div>
+            <div class="desc">Video wallpapers</div>
+          </div>
+          <div class="feat">
+            <div class="ico"></div>
+            <div class="label">AURA</div>
+            <div class="desc">Audio bienestar</div>
+          </div>
+          <div class="feat">
+            <div class="ico"></div>
+            <div class="label">AI Gen</div>
+            <div class="desc">Crea con IA</div>
+          </div>
+        </div>
+        <div class="more">
+          <div class="label">Más de Orbix Studio</div>
+          <div class="logos">
+            <span></span>
+            <span class="tv"></span>
+            <span class="watch"></span>
+            <span class="guard"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">// No. 05 — Apple Event Keynote</div>
+      <div class="name">Cinematográfico · Pixora como héroe</div>
+      <div class="tag">Aspiracional. Pixora ocupa el escenario completo, otros productos como cameo al final. Para causar impacto.</div>
+      <div class="palette">
+        <span style="background:#FFFFFF; border-color:#E5E5EA"></span>
+        <span style="background:#0A84FF"></span>
+        <span style="background:#F5F5F7"></span>
+        <span style="background:#0B0B10"></span>
+      </div>
+    </div>
+  </article>
+
+</section>
+
+<footer class="page-footer">
+  Orbix Studio · Landing Design Archive · Mayo 2026
+</footer>
+
+</body>
+</html>

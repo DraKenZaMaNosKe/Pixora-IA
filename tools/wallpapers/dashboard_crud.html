@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Wallpapers Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --panel: #14141F;
+    --panel-2: #1C1C2A;
+    --hairline: rgba(255,255,255,0.06);
+    --hairline-strong: rgba(255,255,255,0.12);
+    --text: #F5F5F7;
+    --text-dim: #9B9BA8;
+    --text-faint: #5A5A6E;
+    --accent: #0A84FF;
+    --accent-deep: #0066CC;
+    --green: #34C759;
+    --red: #FF3B30;
+    --orange: #FF9500;
+    --yellow: #FFD60A;
+    --pink: #FF2D55;
+    --purple: #AF52DE;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 32px 28px;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  /* ─────────── Header ─────────── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  header h1 .accent {
+    color: var(--accent);
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-left: 10px;
+    background: rgba(10,132,255,0.12);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  header .meta {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  /* ─────────── Controls ─────────── */
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .controls input[type="text"] {
+    flex: 1;
+    min-width: 240px;
+    background: var(--panel);
+    border: 1px solid var(--hairline-strong);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .controls input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(10,132,255,0.18);
+  }
+  .controls select {
+    background: var(--panel);
+    border: 1px solid var(--hairline-strong);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.15s ease;
+  }
+  .btn:hover { background: var(--accent-deep); transform: translateY(-1px); }
+  .btn.danger { background: var(--red); }
+  .btn.ghost { background: transparent; border: 1px solid var(--hairline-strong); color: var(--text-dim); }
+  .btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ─────────── Stats bar ─────────── */
+  .stats {
+    display: flex;
+    gap: 32px;
+    padding: 18px 24px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .num {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .stat .label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 32px rgba(10,132,255,0.18);
+  }
+  .card .preview {
+    aspect-ratio: 9 / 16;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+  .card .preview img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .card .preview .badge {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+  }
+  .card .preview .badge.new { background: var(--pink); }
+  .card .preview .cat-pill {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(6px);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+  .card .info { padding: 12px 14px; }
+  .card .info .name {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+  .card .info .id {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .card .info .meta {
+    display: flex;
+    gap: 8px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .card .info .sort {
+    background: var(--panel-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* ─────────── Modal ─────────── */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .modal-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .modal-header .close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+  }
+  .modal-body { padding: 24px; }
+  .modal-body .preview-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  .modal-body .preview-row .thumb {
+    width: 80px; height: 142px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #000;
+  }
+  .modal-body .preview-row .thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .modal-body .preview-row .info code {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    word-break: break-all;
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+  .field label {
+    display: block;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--hairline-strong);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    border-top: 1px solid var(--hairline);
+    gap: 10px;
+  }
+  .modal-footer .right-actions { display: flex; gap: 10px; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--panel-2);
+    border: 1px solid var(--hairline-strong);
+    color: var(--text);
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { border-color: var(--red); }
+  .toast.success { border-color: var(--green); }
+
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-dim);
+  }
+  .empty .ico { font-size: 48px; margin-bottom: 12px; }
+
+  .loading {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-dim);
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+
+  .auth-banner {
+    background: var(--orange);
+    color: black;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    text-align: center;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Pixora <span class="accent">Wallpapers Manager</span></h1>
+    <div class="meta">CRUD · LIVE WALLPAPERS · Supabase</div>
+  </header>
+
+  <div id="authBanner" class="auth-banner" style="display:none">
+    Pega tu Supabase Service Role Key (botón <strong>Auth</strong>) para empezar. Tip: crea <code>tools/wallpapers/dashboard_crud_key.local.js</code> con <code>window.SUPABASE_SERVICE_KEY = "eyJ..."</code> y nunca más te lo pide.
+  </div>
+
+  <!-- Auto-cargar la key desde archivo local gitignored (si existe).
+       Si no existe, el navegador ignora el 404 y caemos a localStorage / paste manual. -->
+  <script src="dashboard_crud_key.local.js" onerror="this.remove()"></script>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Buscar por nombre, id, tag..." />
+    <select id="filterCat">
+      <option value="">Todas las categorías</option>
+    </select>
+    <button class="btn ghost" onclick="reload()">Recargar</button>
+    <button class="btn ghost" onclick="askServiceKey()">Auth</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div id="content"></div>
+
+</div>
+
+<!-- ─────────── EDIT MODAL ─────────── -->
+<div class="modal-backdrop" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Editar wallpaper</h2>
+      <button class="close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="preview-row">
+        <div class="thumb"><img id="m_thumb" src="" alt=""></div>
+        <div class="info">
+          <code id="m_id"></code>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Nombre (mostrado al usuario)</label>
+        <input type="text" id="m_name">
+      </div>
+
+      <div class="field">
+        <label>Descripción</label>
+        <textarea id="m_description" rows="2"></textarea>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Categoría</label>
+          <select id="m_category">
+            <option>ANIME</option>
+            <option>GAMING</option>
+            <option>FANTASY</option>
+            <option>HEROES</option>
+            <option>HORROR</option>
+            <option>SCIFI</option>
+            <option>NATURE</option>
+            <option>CHILL</option>
+            <option>PIXEL</option>
+            <option>MISC</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Sort Order</label>
+          <input type="number" id="m_sortOrder">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Badge (NEW, HOT, blank)</label>
+          <input type="text" id="m_badge" placeholder="NEW / HOT / vacio">
+        </div>
+        <div class="field">
+          <label>Glow color (hex)</label>
+          <input type="text" id="m_glowColor" placeholder="#FF4500">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Tags (separados por coma)</label>
+        <input type="text" id="m_tags">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn danger" onclick="deleteWallpaper()">Eliminar</button>
+      <div class="right-actions">
+        <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+        <button class="btn" onclick="saveWallpaper()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────── AUTH MODAL ─────────── -->
+<div class="modal-backdrop" id="authModal" onclick="if(event.target===this)closeAuthModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Service Role Key (Supabase)</h2>
+      <button class="close" onclick="closeAuthModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:14px">
+        Necesaria para editar el catalog JSON. Se guarda en localStorage de tu navegador.
+        Solo TÚ la ves. Está en <code style="background:var(--panel-2);padding:2px 6px;border-radius:4px">KEYS_LOCAL.md</code> sección Supabase.
+      </p>
+      <div class="field">
+        <label>SERVICE_ROLE_KEY</label>
+        <textarea id="serviceKey" rows="4" placeholder="eyJ..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div></div>
+      <div class="right-actions">
+        <button class="btn ghost" onclick="closeAuthModal()">Cancelar</button>
+        <button class="btn" onclick="saveServiceKey()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PROJECT_URL = 'https://vzuwvsmlyigjtsearxym.supabase.co';
+const BUCKET = 'wallpaper-videos';
+const CATALOG_PATH = 'live_wallpaper_catalog.json';
+const PUBLIC_BASE = `${PROJECT_URL}/storage/v1/object/public/${BUCKET}`;
+
+let catalog = null;
+let currentEditId = null;
+
+// ─────────── Auth (service role key) ───────────
+// Priority: 1) window.SUPABASE_SERVICE_KEY from dashboard_crud_key.local.js (gitignored)
+//           2) localStorage (paste once via Auth modal)
+function getServiceKey() {
+  if (typeof window.SUPABASE_SERVICE_KEY === 'string' &&
+      window.SUPABASE_SERVICE_KEY.startsWith('eyJ')) {
+    return window.SUPABASE_SERVICE_KEY;
+  }
+  return localStorage.getItem('supabaseServiceKey');
+}
+
+function askServiceKey() {
+  document.getElementById('serviceKey').value = getServiceKey() || '';
+  document.getElementById('authModal').classList.add('open');
+}
+
+function closeAuthModal() {
+  document.getElementById('authModal').classList.remove('open');
+}
+
+function saveServiceKey() {
+  const k = document.getElementById('serviceKey').value.trim();
+  if (!k.startsWith('eyJ')) {
+    alert('Service Role Key debe empezar con eyJ');
+    return;
+  }
+  localStorage.setItem('supabaseServiceKey', k);
+  toast('Service key guardada', 'success');
+  document.getElementById('authBanner').style.display = 'none';
+  closeAuthModal();
+}
+
+// ─────────── Catalog fetch ───────────
+async function loadCatalog() {
+  document.getElementById('content').innerHTML = '<div class="loading">Cargando catálogo...</div>';
+  try {
+    const r = await fetch(`${PUBLIC_BASE}/${CATALOG_PATH}?t=${Date.now()}`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    catalog = await r.json();
+    render();
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      `<div class="empty"><div class="ico">⚠️</div><div>Error: ${e.message}</div></div>`;
+  }
+}
+
+function reload() { loadCatalog(); }
+
+// ─────────── Catalog upload ───────────
+async function uploadCatalog() {
+  const key = getServiceKey();
+  if (!key) {
+    askServiceKey();
+    throw new Error('Service key needed');
+  }
+  const r = await fetch(`${PROJECT_URL}/storage/v1/object/${BUCKET}/${CATALOG_PATH}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      'x-upsert': 'true',
+    },
+    body: JSON.stringify(catalog, null, 2),
+  });
+  if (!r.ok) {
+    const errText = await r.text();
+    throw new Error('Upload failed: ' + errText);
+  }
+}
+
+// ─────────── Filter + render ───────────
+function getFilteredWallpapers() {
+  if (!catalog || !catalog.wallpapers) return [];
+  const search = document.getElementById('search').value.toLowerCase().trim();
+  const cat = document.getElementById('filterCat').value;
+  let list = catalog.wallpapers;
+  if (cat) list = list.filter(w => w.category === cat);
+  if (search) {
+    list = list.filter(w => {
+      const blob = (w.name + ' ' + w.id + ' ' + (w.description || '') + ' ' + (w.tags || []).join(' ')).toLowerCase();
+      return blob.includes(search);
+    });
+  }
+  return list;
+}
+
+function render() {
+  if (!catalog) return;
+
+  // Categories dropdown
+  const cats = [...new Set(catalog.wallpapers.map(w => w.category).filter(Boolean))].sort();
+  const select = document.getElementById('filterCat');
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">Todas las categorías</option>' +
+    cats.map(c => `<option value="${c}" ${c===currentVal?'selected':''}>${c}</option>`).join('');
+
+  // Stats
+  const total = catalog.wallpapers.length;
+  const newCount = catalog.wallpapers.filter(w => (w.badge || '').toUpperCase() === 'NEW').length;
+  const catCounts = {};
+  catalog.wallpapers.forEach(w => { catCounts[w.category] = (catCounts[w.category] || 0) + 1; });
+  const topCats = Object.entries(catCounts).sort((a,b) => b[1] - a[1]).slice(0, 3);
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><span class="num">${total}</span><span class="label">Total</span></div>
+    <div class="stat"><span class="num">${newCount}</span><span class="label">Badge NEW</span></div>
+    ${topCats.map(([c,n]) => `<div class="stat"><span class="num">${n}</span><span class="label">${c}</span></div>`).join('')}
+  `;
+
+  // Grid
+  const filtered = getFilteredWallpapers();
+  if (filtered.length === 0) {
+    document.getElementById('content').innerHTML =
+      '<div class="empty"><div class="ico">🔍</div><div>No hay wallpapers que coincidan</div></div>';
+    return;
+  }
+
+  const sorted = [...filtered].sort((a, b) => {
+    const ad = a.createdAt || '';
+    const bd = b.createdAt || '';
+    if (ad && bd) return bd.localeCompare(ad);
+    return (b.sortOrder || 0) - (a.sortOrder || 0);
+  });
+
+  document.getElementById('content').innerHTML =
+    `<div class="grid">${sorted.map(cardHtml).join('')}</div>`;
+}
+
+function cardHtml(w) {
+  const preview = `${PUBLIC_BASE}/${w.previewFile}`;
+  const isNew = (w.badge || '').toUpperCase() === 'NEW';
+  return `
+    <div class="card" onclick="openEdit('${w.id}')">
+      <div class="preview">
+        <img src="${preview}" alt="${escapeHtml(w.name)}" onerror="this.style.display='none'">
+        ${w.badge ? `<span class="badge ${isNew ? 'new' : ''}">${escapeHtml(w.badge)}</span>` : ''}
+        <span class="cat-pill">${escapeHtml(w.category || '?')}</span>
+      </div>
+      <div class="info">
+        <div class="name">${escapeHtml(w.name || w.id)}</div>
+        <div class="id">${escapeHtml(w.id)}</div>
+        <div class="meta">
+          <span class="sort">#${w.sortOrder || 0}</span>
+          <span>${(w.videoSize / 1024 / 1024).toFixed(1)}MB</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ─────────── Edit modal ───────────
+function openEdit(id) {
+  const w = catalog.wallpapers.find(x => x.id === id);
+  if (!w) return;
+  currentEditId = id;
+  document.getElementById('m_thumb').src = `${PUBLIC_BASE}/${w.previewFile}`;
+  document.getElementById('m_id').textContent = w.id;
+  document.getElementById('m_name').value = w.name || '';
+  document.getElementById('m_description').value = w.description || '';
+  document.getElementById('m_category').value = w.category || 'MISC';
+  document.getElementById('m_sortOrder').value = w.sortOrder || 0;
+  document.getElementById('m_badge').value = w.badge || '';
+  document.getElementById('m_glowColor').value = w.glowColor || '#FF4500';
+  document.getElementById('m_tags').value = (w.tags || []).join(', ');
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  currentEditId = null;
+}
+
+async function saveWallpaper() {
+  if (!currentEditId) return;
+  const idx = catalog.wallpapers.findIndex(x => x.id === currentEditId);
+  if (idx < 0) return;
+
+  const w = catalog.wallpapers[idx];
+  w.name = document.getElementById('m_name').value.trim();
+  w.description = document.getElementById('m_description').value.trim();
+  w.category = document.getElementById('m_category').value;
+  w.sortOrder = parseInt(document.getElementById('m_sortOrder').value, 10) || 0;
+  const badge = document.getElementById('m_badge').value.trim();
+  w.badge = badge || null;
+  w.glowColor = document.getElementById('m_glowColor').value.trim() || '#FF4500';
+  w.tags = document.getElementById('m_tags').value
+    .split(',').map(t => t.trim()).filter(Boolean);
+
+  catalog.lastUpdated = new Date().toISOString();
+
+  try {
+    await uploadCatalog();
+    toast('Guardado ✓', 'success');
+    closeModal();
+    render();
+  } catch (e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+async function deleteWallpaper() {
+  if (!currentEditId) return;
+  if (!confirm(`¿Eliminar "${currentEditId}" del catálogo?\n\nNota: esto solo lo quita del JSON. Los archivos en Storage NO se borran (puedes recuperarlo agregando manualmente otra vez).`)) return;
+
+  const idx = catalog.wallpapers.findIndex(x => x.id === currentEditId);
+  if (idx < 0) return;
+  catalog.wallpapers.splice(idx, 1);
+  catalog.lastUpdated = new Date().toISOString();
+
+  try {
+    await uploadCatalog();
+    toast('Eliminado ✓', 'success');
+    closeModal();
+    render();
+  } catch (e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+// ─────────── Toast ───────────
+function toast(msg, kind = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + kind;
+  setTimeout(() => { t.className = 'toast ' + kind; }, 2500);
+}
+
+// ─────────── Init ───────────
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('filterCat').addEventListener('change', render);
+
+if (!getServiceKey()) {
+  document.getElementById('authBanner').style.display = 'block';
+}
+
+loadCatalog();
+</script>
+
+</body>
+</html>

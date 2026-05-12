@@ -416,6 +416,46 @@ tbody tr:hover {
 .pill.preview    { background: rgba(185,108,255,.10); color: var(--cosmo-purple);border-color: rgba(185,108,255,.4); }
 .pill.download   { background: rgba(212,175,55,.10); color: var(--gold-bright);  border-color: var(--gold-dark); }
 
+/* ── Edit panel form grid (inside wallpaper modal) ────────────────── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  background: var(--cosmos-deep);
+  border: 1px solid var(--gold-dark);
+  color: var(--ink);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold-glow);
+}
+@media (max-width: 720px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+
 .scrollable { max-height: 420px; overflow-y: auto; }
 .scrollable::-webkit-scrollbar { width: 7px; }
 .scrollable::-webkit-scrollbar-track { background: var(--cosmos-deep); }
@@ -514,16 +554,17 @@ tbody tr:hover {
     linear-gradient(180deg, var(--cosmos-card), var(--cosmos-mid));
   border: 1px solid var(--gold-saint);
   border-radius: 6px;
-  width: min(960px, 92vw); max-height: 90vh; overflow: hidden;
-  display: grid; grid-template-columns: 280px 1fr;
+  width: min(960px, 94vw); max-height: 92vh; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
   box-shadow: 0 24px 60px rgba(0,0,0,.7), 0 0 80px var(--gold-glow);
 }
 .modal .left {
   background: linear-gradient(180deg, var(--cosmos-mid), var(--cosmos-deep));
-  padding: 28px 24px; display:flex; flex-direction:column; gap:16px;
+  padding: 24px 18px; display:flex; flex-direction:column; gap:14px;
   border-right: 1px solid var(--gold-dark);
-  overflow-y: auto;  /* allow stats column to scroll independently */
-  max-height: 90vh;
+  overflow-y: auto; overflow-x: hidden;  /* stats column scrolls vertically, never horizontally */
+  max-height: 92vh;
+  min-width: 0;  /* let the grid track shrink below intrinsic content width */
 }
 .modal .preview {
   width:100%; aspect-ratio: 9/16; border-radius:4px;
@@ -532,7 +573,10 @@ tbody tr:hover {
   border: 1px solid var(--gold-dark);
   box-shadow: 0 8px 24px rgba(0,0,0,.6), 0 0 24px rgba(212,175,55,.15);
 }
-.modal .right { padding: 28px 32px; overflow-y: auto; max-height: 90vh; }
+.modal .right {
+  padding: 26px 28px; overflow-y: auto; overflow-x: hidden;
+  max-height: 92vh; min-width: 0;
+}
 .modal h2 {
   font-family:'Cinzel Decorative', 'Cinzel', serif; font-weight: 700;
   font-size: 30px; margin: 0 0 6px;
@@ -558,21 +602,27 @@ tbody tr:hover {
   border: 1px solid var(--gold-dark); text-transform: uppercase;
 }
 .modal .stat-grid {
-  display:grid; grid-template-columns: repeat(4,1fr); gap:8px; margin-bottom:14px;
+  display:grid;
+  /* 4 cols only when there is room; otherwise wrap to 2 cols at 110px each */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 88px), 1fr));
+  gap:8px; margin-bottom:14px;
 }
 .modal .stat {
-  background: var(--cosmos-card); padding: 12px 8px; border-radius: 4px; text-align:center;
+  background: var(--cosmos-card); padding: 12px 6px; border-radius: 4px; text-align:center;
   border: 1px solid var(--cosmos-line);
+  min-width: 0;  /* no min-content overflow */
 }
 .modal .stat .v {
-  font-family:'Cinzel', serif; font-weight:700; font-size:22px;
+  font-family:'Cinzel', serif; font-weight:700; font-size: clamp(16px, 2.2vw, 22px);
   color: var(--gold-bright);
   text-shadow: 0 0 10px var(--gold-glow);
+  word-break: break-word;
 }
 .modal .stat .l {
   font-size: 9px; text-transform:uppercase; color: var(--dim);
-  letter-spacing:.18em; margin-top:4px;
+  letter-spacing:.14em; margin-top:4px;
   font-family: 'Cinzel', serif;
+  word-break: break-word;
 }
 .modal .close {
   position: absolute; top: 18px; right: 22px; z-index: 10;
@@ -707,6 +757,31 @@ footer .ornament {
   .nav button { white-space: nowrap; padding: 12px 16px; font-size: 11px; }
   .row2 { grid-template-columns: 1fr; }
   .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+  /* Modal column shrinks but keeps side-by-side */
+  .modal { grid-template-columns: minmax(0, 220px) minmax(0, 1fr); }
+  .modal .left { padding: 20px 14px; }
+  .modal .right { padding: 22px 22px; }
+  .modal h2 { font-size: 26px; }
+}
+
+/* Stack modal vertically earlier — when the side-by-side gets cramped */
+@media (max-width: 900px) {
+  .modal { grid-template-columns: 1fr; max-height: 94vh; }
+  .modal .left {
+    border-right: none; border-bottom: 1px solid var(--gold-dark);
+    padding: 18px; max-height: none;
+    flex-direction: row; align-items: flex-start; gap: 16px; flex-wrap: wrap;
+  }
+  .modal .preview {
+    max-width: 160px; flex-shrink: 0;
+  }
+  .modal .stat-grid {
+    flex: 1 1 240px;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    margin-bottom: 0;
+  }
+  .modal .right { padding: 20px 22px; max-height: none; }
 }
 
 @media (max-width: 720px) {
@@ -749,12 +824,13 @@ footer .ornament {
   .scrollable { overflow-x: auto; }
   table { min-width: 480px; }
 
-  /* Modal stacks vertical */
-  .modal { grid-template-columns: 1fr; max-height: 92vh; }
-  .modal .left { border-right: none; border-bottom: 1px solid var(--gold-dark); padding: 18px; }
-  .modal .right { padding: 20px; }
-  .modal h2 { font-size: 24px; }
-  .modal .preview { max-width: 200px; margin: 0 auto; }
+  /* Modal — extra tightening for phones (vertical stack already kicks in at 900px) */
+  .modal .left { padding: 14px; flex-direction: column; align-items: stretch; }
+  .modal .preview { max-width: 160px; margin: 0 auto; }
+  .modal .stat-grid { flex: 1 1 auto; }
+  .modal .right { padding: 16px; }
+  .modal h2 { font-size: 22px; }
+  .modal .close { top: 12px; right: 14px; width: 28px; height: 28px; font-size: 16px; }
 
   /* Wallpaper grid smaller cards */
   .wp-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
@@ -1256,10 +1332,51 @@ button { white-space: nowrap; }
       </div>
     </div>
     <div class="right">
-      <h2 id="m-name">--</h2>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <h2 id="m-name" style="flex:1">--</h2>
+        <button id="m-edit-btn" class="ghost" style="display:none; flex-shrink:0; margin-top:6px;" title="Editar nombre, categoría, tags, etc.">
+          <span class="material-symbols-rounded">edit</span> Editar
+        </button>
+      </div>
       <div class="subhead" id="m-id">--</div>
       <div class="desc" id="m-desc">--</div>
       <div class="tags" id="m-tags"></div>
+
+      <!-- ── EDIT PANEL (hidden by default; shown when Editar is clicked) ── -->
+      <div id="m-edit-panel" style="display:none; background:rgba(255,215,0,0.04); border:1px solid var(--gold-dark); border-radius:10px; padding:18px; margin: 12px 0 18px;">
+        <h3 style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.15em; color:var(--gold); margin: 0 0 14px;">
+          Editar wallpaper · <span id="me-kind" class="mono" style="color:var(--muted)">live</span>
+        </h3>
+        <div class="form-grid">
+          <label>Nombre <input type="text" id="me-name" /></label>
+          <label>Categoría
+            <select id="me-category">
+              <option>ANIME</option><option>GAMING</option><option>FANTASY</option>
+              <option>HEROES</option><option>HORROR</option><option>SCIFI</option>
+              <option>NATURE</option><option>CHILL</option><option>PIXEL</option>
+              <option>CULTURE</option><option>MISC</option>
+            </select>
+          </label>
+          <label style="grid-column: 1 / -1">Descripción <textarea id="me-description" rows="2"></textarea></label>
+          <label>Sort Order <input type="number" id="me-sortOrder" /></label>
+          <label>Badge (NEW/HOT/vacío) <input type="text" id="me-badge" placeholder="NEW · HOT · vacío" /></label>
+          <label>Glow color <input type="text" id="me-glowColor" placeholder="#FF4500" /></label>
+          <label>Tags (separados por coma) <input type="text" id="me-tags" /></label>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; gap:10px;">
+          <button id="me-delete" class="ghost" style="color:#ff6b6b; border-color:rgba(255,107,107,0.4)">
+            <span class="material-symbols-rounded">delete</span> Eliminar del catálogo
+          </button>
+          <div style="display:flex; gap:8px;">
+            <button id="me-cancel" class="ghost">Cancelar</button>
+            <button id="me-save" class="primary">
+              <span class="material-symbols-rounded">save</span> Guardar
+            </button>
+          </div>
+        </div>
+        <div id="me-status" class="mono dim" style="font-size:11px; margin-top:10px; min-height:14px;"></div>
+      </div>
+
       <h3 style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.15em; color:var(--muted); margin: 8px 0 12px;">
         Instalado por <span id="m-installers-count" style="color:var(--accent)">0</span> identidades
       </h3>
@@ -1899,6 +2016,9 @@ async function openModal(id) {
   $('#m-devices').textContent = fmt(b.unique_devices ?? 0);
   $('#m-rate').textContent = `${(b.install_rate_pct || 0).toFixed(1)}%`;
 
+  // Show EDITAR button only if this wallpaper is in one of our catalogs
+  checkEditAvailable(id);
+
   // Helper to enrich an identity with name+email from the cross-tab cache
   function whoLabelFor(ident, identityType) {
     const cached = window._userInfo[ident];
@@ -1969,6 +2089,163 @@ async function openModal(id) {
 
 function closeModal() {
   $('#modal').classList.remove('open');
+  // Reset edit panel so it's collapsed next time
+  const panel = document.getElementById('m-edit-panel');
+  if (panel) panel.style.display = 'none';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CATALOG CRUD — edit wallpapers in the live catalog directly from the modal.
+// Server holds SERVICE_KEY; we just POST/GET our local /api/catalog/<kind>.
+// ════════════════════════════════════════════════════════════════════════════
+// Map kind -> top-level items-array key inside its JSON. Must match
+// CATALOGS in wp_admin_server.py.
+const _catalogItemsKey = {
+  live:      'wallpapers',
+  static:    'wallpapers',
+  stories:   'stories',
+  day_cycle: 'scenes',
+  ringtones: 'ringtones',
+};
+// Order matters: the first catalog where we find the ID wins. Live and
+// static are the only ones the dashboard currently lists in its grid;
+// stories / day_cycle / ringtones can be added later.
+const _catalogSearchOrder = ['live', 'static'];
+
+const _catalogCache = {};   // kind -> parsed JSON (lazy-loaded)
+let _currentEditWp = null;  // { kind, id, index } of the wallpaper open in edit panel
+
+async function loadCatalog(kind) {
+  if (_catalogCache[kind]) return _catalogCache[kind];
+  const r = await fetch(`/api/catalog/${kind}`, { cache: 'no-store' });
+  if (!r.ok) throw new Error(`Catalog ${kind} HTTP ${r.status}`);
+  _catalogCache[kind] = await r.json();
+  return _catalogCache[kind];
+}
+
+async function saveCatalog(kind) {
+  const r = await fetch(`/api/catalog/${kind}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(_catalogCache[kind]),
+  });
+  if (!r.ok) {
+    const errText = await r.text();
+    throw new Error(`Save failed: ${errText.slice(0, 200)}`);
+  }
+  return r.json();
+}
+
+function _catalogItems(kind) {
+  const cat = _catalogCache[kind];
+  if (!cat) return [];
+  return cat[_catalogItemsKey[kind]] || [];
+}
+
+// Called from openModal once the wallpaper meta is loaded. Shows the EDITAR
+// button only if the wallpaper is present in any of our known catalogs.
+async function checkEditAvailable(wallpaperId) {
+  const btn = document.getElementById('m-edit-btn');
+  btn.style.display = 'none';
+  _currentEditWp = null;
+  for (const kind of _catalogSearchOrder) {
+    try {
+      await loadCatalog(kind);
+      const idx = _catalogItems(kind).findIndex(w => w.id === wallpaperId);
+      if (idx >= 0) {
+        _currentEditWp = { kind, id: wallpaperId, index: idx };
+        btn.style.display = '';
+        return;
+      }
+    } catch (e) {
+      console.warn(`checkEditAvailable (${kind}):`, e);
+    }
+  }
+}
+
+function openEditPanel() {
+  if (!_currentEditWp) return;
+  const { kind, index } = _currentEditWp;
+  const w = _catalogItems(kind)[index];
+  $('#me-kind').textContent = kind;
+  $('#me-name').value = w.name || '';
+  $('#me-description').value = w.description || '';
+  $('#me-category').value = w.category || 'MISC';
+  $('#me-sortOrder').value = w.sortOrder ?? 0;
+  $('#me-badge').value = w.badge || '';
+  $('#me-glowColor').value = w.glowColor || '#FF4500';
+  $('#me-tags').value = (w.tags || []).join(', ');
+  $('#me-status').textContent = '';
+  $('#m-edit-panel').style.display = '';
+  $('#me-name').focus();
+}
+
+function closeEditPanel() {
+  $('#m-edit-panel').style.display = 'none';
+}
+
+async function saveEditPanel() {
+  if (!_currentEditWp) return;
+  const { kind, index } = _currentEditWp;
+  const cat = _catalogCache[kind];
+  const w = _catalogItems(kind)[index];
+  const status = $('#me-status');
+  status.textContent = 'Guardando…';
+  status.style.color = 'var(--muted)';
+
+  w.name = $('#me-name').value.trim();
+  w.description = $('#me-description').value.trim();
+  w.category = $('#me-category').value;
+  w.sortOrder = parseInt($('#me-sortOrder').value, 10) || 0;
+  const badge = $('#me-badge').value.trim();
+  w.badge = badge || null;
+  w.glowColor = $('#me-glowColor').value.trim() || '#FF4500';
+  w.tags = $('#me-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+  cat.lastUpdated = new Date().toISOString();
+
+  try {
+    await saveCatalog(kind);
+    status.textContent = '✓ Guardado en Supabase Storage';
+    status.style.color = 'var(--gold-bright)';
+    // Update the visible modal fields with the new values
+    $('#m-name').textContent = w.name || w.id;
+    $('#m-desc').textContent = w.description || '';
+    $('#m-tags').innerHTML = (w.tags || []).map(t => `<span class="tag">${escape(t)}</span>`).join('');
+    toast(`Wallpaper "${w.name}" actualizado`);
+    setTimeout(closeEditPanel, 900);
+  } catch (e) {
+    status.textContent = '✗ ' + e.message;
+    status.style.color = '#ff6b6b';
+  }
+}
+
+async function deleteFromCatalog() {
+  if (!_currentEditWp) return;
+  const { kind, index } = _currentEditWp;
+  const items = _catalogItems(kind);
+  const w = items[index];
+  if (!confirm(`¿Eliminar "${w.name}" del catálogo ${kind}?\n\nNota: solo lo quita del JSON. Los archivos en Storage NO se borran (puedes recuperarlo agregándolo manualmente otra vez).`)) return;
+  const status = $('#me-status');
+  status.textContent = 'Eliminando…';
+  items.splice(index, 1);
+  _catalogCache[kind].lastUpdated = new Date().toISOString();
+  try {
+    await saveCatalog(kind);
+    toast(`"${w.name}" eliminado del catálogo`);
+    closeModal();
+  } catch (e) {
+    status.textContent = '✗ ' + e.message;
+    status.style.color = '#ff6b6b';
+    // Re-insert if it failed (catalog cache should still reflect storage)
+    items.splice(index, 0, w);
+  }
+}
+
+function wireEditPanel() {
+  $('#m-edit-btn').addEventListener('click', openEditPanel);
+  $('#me-cancel').addEventListener('click', closeEditPanel);
+  $('#me-save').addEventListener('click', saveEditPanel);
+  $('#me-delete').addEventListener('click', deleteFromCatalog);
 }
 
 function escape(s) {
@@ -2240,6 +2517,7 @@ function stopAutoRefresh() {
 
 setupCategorySelector();
 bindEvents();
+wireEditPanel();
 refreshAll().then(doSearch);
 startAutoRefresh();
 </script>
