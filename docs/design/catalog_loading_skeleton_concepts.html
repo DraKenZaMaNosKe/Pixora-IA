@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Catalog Loading · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    /* Page (B&G ambient) */
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --surface:     #14141F;
+    --surface-2:   #1c1c2a;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS White */
+    --ios-bg:        #FAF7F2;
+    --ios-surface:   #FFFFFF;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-divider:   #E5E5EA;
+    --ios-blue:      #0A84FF;
+    --ios-shadow:    rgba(0,0,0,0.06);
+    --ios-shadow-2:  rgba(0,0,0,0.10);
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 31% 91%, rgba(255,255,255,0.4), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at top, rgba(80,40,120,0.08), transparent 65%);
+  }
+
+  /* ─────────── Layout ─────────── */
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  header { margin-bottom: 56px; position: relative; }
+  header::before {
+    content: '// PIXORA · CATALOG-LOADING-STATES / DOC-008';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent { color: var(--gold-bright); font-style: italic; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 680px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Concept row ─────────── */
+  .concept-row {
+    margin-bottom: 96px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept-row:nth-child(1) { animation-delay: 0ms; }
+  .concept-row:nth-child(2) { animation-delay: 150ms; }
+  .concept-row:nth-child(3) { animation-delay: 300ms; }
+  .concept-row:nth-child(4) { animation-delay: 450ms; }
+  .concept-row:nth-child(5) { animation-delay: 600ms; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .concept-header {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .concept-header .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .concept-header .name {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(22px, 3vw, 30px);
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .concept-header .tag {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-left: auto;
+    text-align: right;
+    max-width: 420px;
+    line-height: 1.45;
+  }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+  @media (max-width: 760px) {
+    .compare { grid-template-columns: 1fr; }
+    .concept-header { flex-direction: column; gap: 6px; align-items: flex-start; }
+    .concept-header .tag { margin-left: 0; text-align: left; }
+  }
+
+  .side {
+    position: relative;
+  }
+  .side-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .side-label .swatch {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .side-label.bg .swatch  { background: var(--gold-bright); box-shadow: 0 0 8px var(--gold-glow); }
+  .side-label.ios .swatch { background: var(--ios-bg); border: 1px solid rgba(255,255,255,0.18); }
+  .side-label.bg span  { color: var(--gold-bright); }
+  .side-label.ios span { color: #b8d4ff; }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 260px;
+    aspect-ratio: 260 / 540;
+    margin: 0 auto;
+    background: var(--ink);
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.05),
+      0 0 0 9px #1a1a22,
+      0 24px 48px rgba(0,0,0,0.6),
+      0 0 80px var(--gold-haze);
+  }
+  .phone.ios {
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.05),
+      0 0 0 9px #2a2c2e,
+      0 24px 48px rgba(0,0,0,0.6);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 18px;
+    background: #000;
+    border-radius: 0 0 14px 14px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 22px;
+    font-family: 'Geist', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 11;
+  }
+  .phone.ios .statusbar { color: var(--ios-text); }
+  .phone .statusbar .battery {
+    width: 14px; height: 7px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 4px; bottom: 2px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--ink);
+  }
+  .phone.ios .screen { background: var(--ios-bg); }
+  .phone .nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 36px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(20,20,31,0.6);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    z-index: 11;
+  }
+  .phone.ios .nav {
+    background: rgba(255,255,255,0.85);
+    border-top: 1px solid var(--ios-divider);
+  }
+  .phone .nav .item {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--text-faint);
+  }
+  .phone .nav .item.active {
+    background: var(--gold-bright);
+    box-shadow: 0 0 6px var(--gold-glow);
+  }
+  .phone.ios .nav .item.active {
+    background: var(--ios-blue);
+    box-shadow: 0 0 6px rgba(10,132,255,0.4);
+  }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    margin-top: 20px;
+    padding: 0 8px;
+  }
+  .meta .palette {
+    display: flex; gap: 6px;
+    margin-top: 12px;
+  }
+  .meta .palette .sw {
+    width: 20px; height: 20px;
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* Verdict box */
+  .verdict {
+    margin-top: 22px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: rgba(212,175,55,0.06);
+    border-left: 2px solid var(--gold);
+    font-family: 'Geist', sans-serif;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .verdict strong { color: var(--gold-bright); font-weight: 600; }
+  .verdict.warn { background: rgba(255,100,80,0.06); border-left-color: #ff7a6b; }
+  .verdict.warn strong { color: #ffb1a6; }
+  .verdict.great { background: rgba(98,228,158,0.05); border-left-color: #62E49E; }
+  .verdict.great strong { color: #99FFCB; }
+
+  footer {
+    text-align: center;
+    margin-top: 80px;
+    padding-top: 36px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer::before {
+    content: '◆';
+    display: block;
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     AURORA SHARED ANIMATIONS (used by multiple concepts)
+     ════════════════════════════════════════════════════════════ */
+  /* B&G aurora: deep cosmos */
+  .aurora-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 50% at 30% 30%, rgba(90,45,130,0.85) 0%, transparent 60%),
+      radial-gradient(55% 45% at 70% 60%, rgba(31,58,138,0.75) 0%, transparent 65%),
+      radial-gradient(50% 50% at 50% 80%, rgba(15,118,110,0.55) 0%, transparent 70%),
+      radial-gradient(40% 60% at 20% 75%, rgba(212,175,55,0.4) 0%, transparent 70%),
+      var(--ink);
+    filter: blur(18px);
+    animation: auroraFlow 7s ease-in-out infinite;
+  }
+  .aurora-bg.shimmer {
+    background:
+      linear-gradient(180deg, transparent 0%, rgba(245,214,118,0.12) 50%, transparent 100%);
+    mix-blend-mode: screen;
+    animation: auroraSweep 5s ease-in-out infinite;
+    filter: none;
+  }
+  /* iOS aurora: pastel */
+  .aurora-ios {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 50% at 30% 30%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 45% at 70% 60%, rgba(180,200,255,0.7) 0%, transparent 65%),
+      radial-gradient(50% 50% at 50% 80%, rgba(180,240,210,0.55) 0%, transparent 70%),
+      radial-gradient(40% 60% at 20% 75%, rgba(255,220,160,0.55) 0%, transparent 70%),
+      #faf7f2;
+    filter: blur(18px);
+    animation: auroraFlow 7s ease-in-out infinite;
+  }
+  .aurora-ios.shimmer {
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+    mix-blend-mode: screen;
+    filter: none;
+    animation: auroraSweep 5s ease-in-out infinite;
+  }
+  @keyframes auroraFlow {
+    0%, 100% {
+      background-position: 0% 0%, 100% 100%, 50% 100%, 0% 50%;
+      transform: scale(1.05);
+    }
+    50% {
+      background-position: 30% 60%, 60% 0%, 80% 30%, 100% 30%;
+      transform: scale(1.12);
+    }
+  }
+  @keyframes auroraSweep {
+    0%, 100% { transform: translateY(-30%); opacity: 0; }
+    50%      { transform: translateY(30%);  opacity: 1; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 01 — FAITHFUL MIRROR
+     ════════════════════════════════════════════════════════════ */
+  .c01-content {
+    position: absolute;
+    top: 22px; left: 12px; right: 12px; bottom: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+  }
+  .c01-hero {
+    height: 32%;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--gold-dark);
+  }
+  .c01-ios .c01-hero { border-color: var(--ios-divider); }
+  .c01-titlebar {
+    height: 10px;
+    width: 45%;
+    background: var(--surface-2);
+    border-radius: 4px;
+  }
+  .c01-ios .c01-titlebar { background: var(--ios-divider); }
+  .c01-row {
+    display: flex;
+    gap: 8px;
+    height: 28%;
+  }
+  .c01-card {
+    flex: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--gold-dark);
+  }
+  .c01-ios .c01-card { border-color: var(--ios-divider); }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 02 — CINEMATIC CURTAIN
+     ════════════════════════════════════════════════════════════ */
+  .c02-content {
+    position: absolute;
+    inset: 22px 0 36px;
+    overflow: hidden;
+  }
+  .c02-fill {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0;
+    height: 100%;
+    overflow: hidden;
+    clip-path: inset(60% 0 0 0);
+    animation: curtainRise 5s cubic-bezier(.4,.05,.55,.95) infinite;
+  }
+  @keyframes curtainRise {
+    0%   { clip-path: inset(95% 0 0 0); }
+    50%  { clip-path: inset(15% 0 0 0); }
+    100% { clip-path: inset(95% 0 0 0); }
+  }
+  /* Wave edge at top of fill */
+  .c02-wave {
+    position: absolute;
+    left: 0; right: 0;
+    top: -2px;
+    height: 14px;
+    background:
+      radial-gradient(ellipse 12px 14px at 8px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 28px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 48px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 68px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 88px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 108px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 128px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 148px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 168px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 188px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 208px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 228px 14px, var(--ink) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 248px 14px, var(--ink) 49%, transparent 51%);
+    z-index: 3;
+    pointer-events: none;
+    animation: waveShift 1.6s linear infinite;
+  }
+  .c02-ios .c02-wave {
+    background:
+      radial-gradient(ellipse 12px 14px at 8px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 28px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 48px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 68px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 88px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 108px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 128px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 148px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 168px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 188px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 208px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 228px 14px, var(--ios-bg) 49%, transparent 51%),
+      radial-gradient(ellipse 12px 14px at 248px 14px, var(--ios-bg) 49%, transparent 51%);
+  }
+  @keyframes waveShift {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-20px); }
+  }
+  .c02-brand {
+    position: absolute;
+    bottom: 60px; left: 0; right: 0;
+    text-align: center;
+    z-index: 6;
+    pointer-events: none;
+  }
+  .c02-brand .p-sigil {
+    width: 36px; height: 36px;
+    margin: 0 auto 10px;
+    color: var(--gold-bright);
+    filter: drop-shadow(0 0 8px var(--gold-glow));
+    animation: pPulse 2s ease-in-out infinite;
+  }
+  .c02-ios .c02-brand .p-sigil { color: var(--ios-blue); filter: drop-shadow(0 0 8px rgba(10,132,255,0.3)); }
+  @keyframes pPulse {
+    0%, 100% { transform: scale(0.95); opacity: 0.7; }
+    50%      { transform: scale(1.05); opacity: 1; }
+  }
+  .c02-brand .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.32em;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+  }
+  .c02-ios .c02-brand .label { color: var(--ios-text-dim); }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 03 — CONSTELLATION P
+     ════════════════════════════════════════════════════════════ */
+  .c03-content {
+    position: absolute;
+    inset: 22px 0 36px;
+    overflow: hidden;
+  }
+  .c03-canvas {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .c03-canvas svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+  .c03-bg-stars { fill: rgba(255,255,255,0.5); }
+  .c03-ios .c03-bg-stars { fill: rgba(28,28,30,0.45); }
+  .c03-p-star {
+    fill: var(--gold-bright);
+    filter: drop-shadow(0 0 4px var(--gold-glow));
+    opacity: 0;
+    animation: starAppear 4s ease-out infinite;
+  }
+  .c03-ios .c03-p-star {
+    fill: var(--ios-blue);
+    filter: drop-shadow(0 0 4px rgba(10,132,255,0.4));
+  }
+  @keyframes starAppear {
+    0%, 10%   { opacity: 0; }
+    35%       { opacity: 1; }
+    85%       { opacity: 1; }
+    100%      { opacity: 0; }
+  }
+  .c03-p-line {
+    stroke: var(--gold-bright);
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    fill: none;
+    filter: drop-shadow(0 0 3px var(--gold-glow));
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: pDraw 4s ease-out infinite;
+  }
+  .c03-ios .c03-p-line {
+    stroke: var(--ios-blue);
+    filter: drop-shadow(0 0 3px rgba(10,132,255,0.4));
+  }
+  @keyframes pDraw {
+    0%, 8%    { stroke-dashoffset: 200; }
+    55%       { stroke-dashoffset: 0; }
+    88%       { stroke-dashoffset: 0; opacity: 1; }
+    100%      { stroke-dashoffset: 0; opacity: 0; }
+  }
+  .c03-label {
+    position: absolute;
+    bottom: 50px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.32em;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+    z-index: 4;
+    animation: labelCycle 4s ease-in-out infinite;
+  }
+  .c03-ios .c03-label { color: var(--ios-text-dim); }
+  @keyframes labelCycle {
+    0%, 25%   { opacity: 0; }
+    30%, 75%  { opacity: 0.9; }
+    80%, 100% { opacity: 0; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 04 — MARQUEE TICKER
+     ════════════════════════════════════════════════════════════ */
+  .c04-content {
+    position: absolute;
+    inset: 22px 0 36px;
+    overflow: hidden;
+  }
+  .c04-ambient {
+    position: absolute;
+    inset: 0;
+    opacity: 0.35;
+  }
+  .c04-ticker {
+    position: absolute;
+    left: 0; right: 0;
+    height: 24px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));
+    border-top: 1px solid var(--gold-dark);
+    border-bottom: 1px solid var(--gold-dark);
+    z-index: 3;
+  }
+  .c04-ticker.top    { top: 28px; }
+  .c04-ticker.bottom { bottom: 12px; }
+  .c04-ios .c04-ticker {
+    background: linear-gradient(180deg, rgba(10,132,255,0.10), rgba(10,132,255,0.04));
+    border-top: 1px solid rgba(10,132,255,0.25);
+    border-bottom: 1px solid rgba(10,132,255,0.25);
+  }
+  .c04-tape {
+    display: flex;
+    gap: 18px;
+    white-space: nowrap;
+    padding: 0 12px;
+    animation: tickerScroll 18s linear infinite;
+  }
+  .c04-ticker.bottom .c04-tape {
+    animation: tickerScrollReverse 22s linear infinite;
+  }
+  .c04-tape .entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--gold-bright);
+    letter-spacing: 0.1em;
+  }
+  .c04-ios .c04-tape .entry { color: var(--ios-blue); }
+  .c04-tape .entry .dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+  .c04-ios .c04-tape .entry .dot { background: var(--ios-blue); }
+  @keyframes tickerScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes tickerScrollReverse {
+    0%   { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
+  .c04-mark {
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    transform: translateY(-50%);
+    text-align: center;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .c04-mark h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 28px;
+    color: var(--gold-bright);
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+    text-shadow: 0 0 16px var(--gold-glow);
+  }
+  .c04-ios .c04-mark h2 {
+    color: var(--ios-text);
+    text-shadow: none;
+  }
+  .c04-mark .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+  }
+  .c04-ios .c04-mark .sub { color: var(--ios-text-dim); }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 05 — CARD STAGGER MATERIALIZATION
+     ════════════════════════════════════════════════════════════ */
+  .c05-content {
+    position: absolute;
+    inset: 22px 12px 36px;
+    overflow: hidden;
+  }
+  .c05-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .c05-card {
+    aspect-ratio: 9 / 14;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--gold-dark);
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+    animation: cardMaterialize 4s cubic-bezier(.22,.61,.36,1) infinite;
+  }
+  .c05-ios .c05-card { border-color: var(--ios-divider); }
+  .c05-card:nth-child(1)  { animation-delay: 0ms; }
+  .c05-card:nth-child(2)  { animation-delay: 90ms; }
+  .c05-card:nth-child(3)  { animation-delay: 180ms; }
+  .c05-card:nth-child(4)  { animation-delay: 270ms; }
+  .c05-card:nth-child(5)  { animation-delay: 360ms; }
+  .c05-card:nth-child(6)  { animation-delay: 450ms; }
+  .c05-card:nth-child(7)  { animation-delay: 540ms; }
+  .c05-card:nth-child(8)  { animation-delay: 630ms; }
+  @keyframes cardMaterialize {
+    0%        { opacity: 0; transform: translateY(14px) scale(0.96); }
+    35%, 80%  { opacity: 1; transform: translateY(0) scale(1); }
+    100%      { opacity: 0; transform: translateY(0) scale(1); }
+  }
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      Pixora<span class="ornament">·</span><span class="accent">Catalog Loading</span>
+      <br/>
+      <span style="font-style:normal; font-weight:300; font-size:0.55em; color:var(--text-dim);">cinco maneras de esperar</span>
+    </h1>
+    <p class="subtitle">
+      Estados de carga full-tab — qué ve el usuario mientras se descarga el catálogo del Storage.
+      Cada concepto en ambos temas (Black &amp; Gold + iOS White) para escoger el que se sienta
+      coherente en los dos lados.
+    </p>
+    <div class="header-rule">
+      <span>archive · doc-008</span>
+      <div class="line"></div>
+      <span>mayo · MMXXVI</span>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 01 — FAITHFUL MIRROR
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 01</span>
+      <span class="name">Faithful Mirror</span>
+      <span class="tag">Espejo exacto del grid real — cada slot muestra Aurora dentro de su forma de tarjeta. Sin sorpresas, transición suave.</span>
+    </div>
+    <div class="compare">
+      <!-- B&G -->
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black &amp; Gold</span></div>
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c01-content">
+              <div class="c01-hero">
+                <div class="aurora-bg"></div>
+                <div class="aurora-bg shimmer"></div>
+              </div>
+              <div class="c01-titlebar"></div>
+              <div class="c01-row">
+                <div class="c01-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c01-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c01-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+              </div>
+              <div class="c01-titlebar"></div>
+              <div class="c01-row">
+                <div class="c01-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c01-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- iOS -->
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White</span></div>
+        <div class="phone ios c01-ios">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c01-content">
+              <div class="c01-hero">
+                <div class="aurora-ios"></div>
+                <div class="aurora-ios shimmer"></div>
+              </div>
+              <div class="c01-titlebar"></div>
+              <div class="c01-row">
+                <div class="c01-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c01-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c01-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+              </div>
+              <div class="c01-titlebar"></div>
+              <div class="c01-row">
+                <div class="c01-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c01-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <strong>✓ Profesional, sin layout shift.</strong>
+      Predecible, content-aware. El usuario nota que el catálogo está cargando y la transición a contenido real es invisible. Riesgo: se siente "estándar Material" — muchas apps usan esto. Funciona perfectamente en ambos temas.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 02 — CINEMATIC CURTAIN
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 02</span>
+      <span class="name">Cinematic Curtain</span>
+      <span class="tag">Aurora sube como líquido llenando un vaso. Wave edge en el frente, sigil P + tagline abajo. Anticipación.</span>
+    </div>
+    <div class="compare">
+      <!-- B&G -->
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black &amp; Gold</span></div>
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c02-content">
+              <div class="c02-fill">
+                <div class="c02-wave"></div>
+                <div class="aurora-bg"></div>
+                <div class="aurora-bg shimmer"></div>
+              </div>
+              <div class="c02-brand">
+                <svg class="p-sigil" viewBox="0 0 36 36">
+                  <path d="M 9 6 L 9 30 M 9 6 L 22 6 Q 28 6 28 13 Q 28 20 22 20 L 9 20"
+                        stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="label">cargando wallpapers</div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- iOS -->
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White</span></div>
+        <div class="phone ios c02-ios">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c02-content">
+              <div class="c02-fill">
+                <div class="c02-wave"></div>
+                <div class="aurora-ios"></div>
+                <div class="aurora-ios shimmer"></div>
+              </div>
+              <div class="c02-brand">
+                <svg class="p-sigil" viewBox="0 0 36 36">
+                  <path d="M 9 6 L 9 30 M 9 6 L 22 6 Q 28 6 28 13 Q 28 20 22 20 L 9 20"
+                        stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="label">cargando wallpapers</div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict great">
+      <strong>★ Más cinematográfico de los 5.</strong>
+      Anticipación premium. Cada cold-start se siente "preparando el escenario". Pega muy fuerte en B&G; en iOS más suave pero igual elegante. Riesgo: si la carga es lenta (10s+), la "espera" se nota — mejor combinarlo con cache para que casi nunca aparezca completo.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 03 — CONSTELLATION P
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 03</span>
+      <span class="name">Constellation P</span>
+      <span class="tag">Estrellas en starfield se conectan dibujando la letra "P" de Pixora. Místico, zodiacal — match con tu branding.</span>
+    </div>
+    <div class="compare">
+      <!-- B&G -->
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black &amp; Gold</span></div>
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c03-content">
+              <div class="c03-canvas" id="c03-bg-canvas"></div>
+              <div class="c03-label" id="c03-bg-label">preparando galeria</div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- iOS -->
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White</span></div>
+        <div class="phone ios c03-ios">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c03-content">
+              <div class="c03-canvas" id="c03-ios-canvas"></div>
+              <div class="c03-label" id="c03-ios-label">preparando galeria</div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict great">
+      <strong>★ Más memorable y on-brand.</strong>
+      Las estrellas forman la "P" — momento Instagram-worthy. Refuerza identidad zodiacal de tu marca. Riesgo: animación tarda ~3s en "performar" — si la carga es <1s, el usuario apenas la alcanza a ver. Mejor para cold-start frío.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 04 — MARQUEE TICKER
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 04</span>
+      <span class="name">Marquee Ticker</span>
+      <span class="tag">Ticker dorado tipo bolsa de valores con números de boleto — editorial, "la galería prepara entradas".</span>
+    </div>
+    <div class="compare">
+      <!-- B&G -->
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black &amp; Gold</span></div>
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c04-content">
+              <div class="c04-ambient">
+                <div class="aurora-bg"></div>
+              </div>
+              <div class="c04-ticker top">
+                <div class="c04-tape">
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 326</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 408</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 192</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 071</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 533</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 615</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 248</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 326</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 408</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 192</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 071</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 533</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 615</span>
+                  <span class="entry"><span class="dot"></span>ADMIT Nº 248</span>
+                </div>
+              </div>
+              <div class="c04-mark">
+                <h2>Pixora</h2>
+                <div class="sub">galería · preparando</div>
+              </div>
+              <div class="c04-ticker bottom">
+                <div class="c04-tape">
+                  <span class="entry"><span class="dot"></span>62 LIVE</span>
+                  <span class="entry"><span class="dot"></span>279 STATIC</span>
+                  <span class="entry"><span class="dot"></span>14 STORIES</span>
+                  <span class="entry"><span class="dot"></span>8 SCENES</span>
+                  <span class="entry"><span class="dot"></span>342 TOTAL</span>
+                  <span class="entry"><span class="dot"></span>NEW WEEKLY</span>
+                  <span class="entry"><span class="dot"></span>62 LIVE</span>
+                  <span class="entry"><span class="dot"></span>279 STATIC</span>
+                  <span class="entry"><span class="dot"></span>14 STORIES</span>
+                  <span class="entry"><span class="dot"></span>8 SCENES</span>
+                  <span class="entry"><span class="dot"></span>342 TOTAL</span>
+                  <span class="entry"><span class="dot"></span>NEW WEEKLY</span>
+                </div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- iOS -->
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White</span></div>
+        <div class="phone ios c04-ios">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c04-content">
+              <div class="c04-ambient">
+                <div class="aurora-ios"></div>
+              </div>
+              <div class="c04-ticker top">
+                <div class="c04-tape">
+                  <span class="entry"><span class="dot"></span>NEW Nº 326</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 408</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 192</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 071</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 533</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 615</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 248</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 326</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 408</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 192</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 071</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 533</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 615</span>
+                  <span class="entry"><span class="dot"></span>NEW Nº 248</span>
+                </div>
+              </div>
+              <div class="c04-mark">
+                <h2>Pixora</h2>
+                <div class="sub">galería · preparando</div>
+              </div>
+              <div class="c04-ticker bottom">
+                <div class="c04-tape">
+                  <span class="entry"><span class="dot"></span>62 LIVE</span>
+                  <span class="entry"><span class="dot"></span>279 STATIC</span>
+                  <span class="entry"><span class="dot"></span>14 STORIES</span>
+                  <span class="entry"><span class="dot"></span>8 SCENES</span>
+                  <span class="entry"><span class="dot"></span>342 TOTAL</span>
+                  <span class="entry"><span class="dot"></span>NEW WEEKLY</span>
+                  <span class="entry"><span class="dot"></span>62 LIVE</span>
+                  <span class="entry"><span class="dot"></span>279 STATIC</span>
+                  <span class="entry"><span class="dot"></span>14 STORIES</span>
+                  <span class="entry"><span class="dot"></span>8 SCENES</span>
+                  <span class="entry"><span class="dot"></span>342 TOTAL</span>
+                  <span class="entry"><span class="dot"></span>NEW WEEKLY</span>
+                </div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict warn">
+      <strong>⚠ Distinctivo pero ruidoso.</strong>
+      Very Saint Seiya editorial, juega con el branding ticket-stub. Riesgo: dos tapes en direcciones opuestas + Aurora ambient + tipografía grande = mucha información compitiendo. En iOS se siente fuera de tono (Apple Music no hace cosas así).
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 05 — CARD STAGGER MATERIALIZATION
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 05</span>
+      <span class="name">Card Stagger</span>
+      <span class="tag">Las tarjetas aparecen una por una con fade+rise+scale. Sensación activa de "construyendo galería".</span>
+    </div>
+    <div class="compare">
+      <!-- B&G -->
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black &amp; Gold</span></div>
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c05-content">
+              <div class="c05-grid">
+                <div class="c05-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-bg"></div><div class="aurora-bg shimmer"></div></div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- iOS -->
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White</span></div>
+        <div class="phone ios c05-ios">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="battery"></span>
+          </div>
+          <div class="screen">
+            <div class="c05-content">
+              <div class="c05-grid">
+                <div class="c05-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+                <div class="c05-card"><div class="aurora-ios"></div><div class="aurora-ios shimmer"></div></div>
+              </div>
+            </div>
+            <div class="nav">
+              <div class="item active"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <strong>✓ Dynamic, sensación de progreso.</strong>
+      Las cards "materializan" → el usuario siente que algo está pasando, no espera pasivo. Funciona muy bien en ambos temas. Riesgo: si las cards de verdad llegan justo durante la animación, hay layout shift visible (pero es 200-300ms, casi imperceptible).
+    </div>
+  </section>
+
+  <footer>
+    Pixora · catalog loading states · dual theme archive · mayo MMXXVI
+  </footer>
+</div>
+
+<script>
+  /* ════════════════════════════════════════════════════════════════
+     CONCEPT 03 — Constellation forming "P" letter
+     ════════════════════════════════════════════════════════════════ */
+  (function () {
+    const NS = 'http://www.w3.org/2000/svg';
+    function build(canvasId) {
+      const host = document.getElementById(canvasId);
+      if (!host) return;
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('viewBox', '0 0 100 155');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+      host.appendChild(svg);
+
+      // P-letter coordinates (vertices that will be the "constellation")
+      // Mapped into the 100x155 viewBox, centered around the middle.
+      // Stroke order: bottom-left → top-left → top-right corner → curve to middle-right → middle
+      const pPath = [
+        [40, 105], // 0 bottom of stem
+        [40, 50],  // 1 top-left
+        [54, 50],  // 2 top-right (corner before bowl)
+        [62, 53],  // 3 upper bowl curve
+        [66, 60],  // 4 outer bowl right
+        [62, 67],  // 5 lower bowl curve
+        [54, 70],  // 6 bowl back-to-stem
+        [40, 70],  // 7 bowl meets stem
+      ];
+
+      // Background scatter stars
+      let seed = canvasId.charCodeAt(0) + 17;
+      function rng() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+      const bgStars = 36;
+      for (let i = 0; i < bgStars; i++) {
+        const cx = +(rng() * 100).toFixed(1);
+        const cy = +(rng() * 155).toFixed(1);
+        const r = rng() < 0.2 ? 0.9 : 0.5;
+        // Skip stars very close to the P (so it doesn't get cluttered)
+        const tooCloseToP = pPath.some(([px, py]) => Math.hypot(cx - px, cy - py) < 6);
+        if (tooCloseToP && rng() < 0.7) continue;
+        const c = document.createElementNS(NS, 'circle');
+        c.setAttribute('cx', cx);
+        c.setAttribute('cy', cy);
+        c.setAttribute('r', r);
+        c.setAttribute('class', 'c03-bg-stars');
+        c.style.opacity = 0.3 + rng() * 0.5;
+        svg.appendChild(c);
+      }
+
+      // P-letter stars (the constellation points)
+      pPath.forEach(([cx, cy], idx) => {
+        const c = document.createElementNS(NS, 'circle');
+        c.setAttribute('cx', cx);
+        c.setAttribute('cy', cy);
+        c.setAttribute('r', 1.6);
+        c.setAttribute('class', 'c03-p-star');
+        c.style.animationDelay = (idx * 200) + 'ms';
+        svg.appendChild(c);
+      });
+
+      // P-letter line that draws progressively
+      const polyD = 'M ' + pPath.map(([x, y]) => `${x} ${y}`).join(' L ');
+      const line = document.createElementNS(NS, 'path');
+      line.setAttribute('d', polyD);
+      line.setAttribute('class', 'c03-p-line');
+      // Compute approximate path length and set dasharray to match
+      svg.appendChild(line);
+      requestAnimationFrame(() => {
+        try {
+          const len = line.getTotalLength();
+          line.style.strokeDasharray = len;
+          line.style.strokeDashoffset = len;
+          // Set the keyframe targets via CSS variable trick:
+          // We use a real CSS keyframe, so just set initial dashoffset.
+          // The animation in CSS goes 0% offset=200 → 55% offset=0 → 100% offset=0.
+          // For accuracy override with computed length:
+          line.style.setProperty('--dl', len + '');
+          line.animate(
+            [
+              { strokeDashoffset: len, offset: 0 },
+              { strokeDashoffset: len, offset: 0.08 },
+              { strokeDashoffset: 0, offset: 0.55 },
+              { strokeDashoffset: 0, opacity: 1, offset: 0.88 },
+              { strokeDashoffset: 0, opacity: 0, offset: 1 },
+            ],
+            { duration: 4000, iterations: Infinity, easing: 'ease-out' }
+          );
+        } catch (_) { /* ignore */ }
+      });
+
+      // Cycle the label text
+      const labelEl = document.getElementById(canvasId.replace('-canvas', '-label'));
+      if (labelEl) {
+        const phrases = ['preparando galeria', 'cargando contenido', 'casi listo...'];
+        let i = 0;
+        setInterval(() => { i = (i + 1) % phrases.length; labelEl.textContent = phrases[i]; }, 1400);
+      }
+    }
+    build('c03-bg-canvas');
+    build('c03-ios-canvas');
+  })();
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/services/catalog_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/wallpaper_providers.dart';
 import '../widgets/hero_banner.dart';
@@ -15,7 +16,12 @@ class WallpapersPage extends ConsumerWidget {
 
     return RefreshIndicator(
       onRefresh: () async {
+        // Pull-to-refresh — fuerza fetch fresco del Storage. Sin clearCache()
+        // el singleton retorna su cache vigente (TTL 30min) y el provider
+        // re-fetched no traería nada nuevo.
+        CatalogService.instance.clearCache();
         ref.invalidate(catalogProvider);
+        await ref.read(catalogProvider.future);
       },
       child: catalogAsync.when(
         loading: () => const CustomScrollView(

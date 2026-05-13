@@ -1,8 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import '../core/design/hud_tokens.dart';
-import '../core/widgets/aurora_loading_indicator.dart';
+import '../core/widgets/aurora_waves_loading.dart';
 
 /// Memory-conscious wrapper around [CachedNetworkImage].
 ///
@@ -55,17 +54,13 @@ class CachedWallpaperImage extends StatelessWidget {
       memCacheWidth: decodeWidth,
       maxWidthDiskCache: 1080,
       fadeInDuration: const Duration(milliseconds: 160),
-      placeholder: (context, url) => useAuroraLoader
-          ? Container(
-              color: const Color(0xFF0A0A0F),
-              alignment: Alignment.center,
-              child: const AuroraLoadingIndicator(),
-            )
-          : Shimmer.fromColors(
-              baseColor: context.hud.surface,
-              highlightColor: context.hud.surfaceHi,
-              child: Container(color: context.hud.surface),
-            ),
+      // Grid cards y detail page comparten ahora el mismo placeholder:
+      // Aurora Waves — gradientes radiales suaves que ondulan organicamente.
+      // El widget se adapta solo al tema (B&G → morados/dorados profundos,
+      // iOS → pasteles rosa/lavanda/menta/durazno).
+      // El parametro `useAuroraLoader` se conserva para compatibilidad de
+      // llamados existentes pero ya no cambia comportamiento.
+      placeholder: (context, url) => const AuroraWavesLoading(),
       errorWidget: (context, url, error) => Container(
         color: context.hud.surface,
         child: Icon(

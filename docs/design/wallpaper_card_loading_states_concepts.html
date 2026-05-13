@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Loading States · Dual Theme Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    /* Page (Black & Gold ambient) */
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --surface:     #14141F;
+    --surface-2:   #1c1c2a;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS White theme tokens */
+    --ios-bg:        #FAF7F2;
+    --ios-surface:   #FFFFFF;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-divider:   #E5E5EA;
+    --ios-blue:      #0A84FF;
+    --ios-shadow:    rgba(0,0,0,0.06);
+    --ios-shadow-2:  rgba(0,0,0,0.10);
+    --ios-pill-bg:   #1C1C1E;
+    --ios-pill-tx:   #FFFFFF;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 31% 91%, rgba(255,255,255,0.4), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at top, rgba(80,40,120,0.08), transparent 65%);
+  }
+
+  /* ─────────── Layout ─────────── */
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  header { margin-bottom: 48px; position: relative; }
+  header::before {
+    content: '// PIXORA · LOADING-STATES / DUAL-THEME COMPARISON';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent { color: var(--gold-bright); font-style: italic; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 640px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Concept row (one per concept) ─────────── */
+  .concept-row {
+    margin-bottom: 88px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept-row:nth-child(1) { animation-delay: 0ms; }
+  .concept-row:nth-child(2) { animation-delay: 130ms; }
+  .concept-row:nth-child(3) { animation-delay: 260ms; }
+  .concept-row:nth-child(4) { animation-delay: 390ms; }
+  .concept-row:nth-child(5) { animation-delay: 520ms; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .concept-header {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .concept-header .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .concept-header .name {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 28px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .concept-header .tag {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-left: auto;
+    text-align: right;
+    max-width: 380px;
+    line-height: 1.45;
+  }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .compare { grid-template-columns: 1fr; }
+    .concept-header { flex-direction: column; gap: 6px; }
+    .concept-header .tag { margin-left: 0; text-align: left; }
+  }
+
+  /* Each side of compare — labeled card */
+  .side {
+    position: relative;
+  }
+  .side-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .side-label .swatch {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .side-label.bg .swatch  { background: var(--gold-bright); box-shadow: 0 0 8px var(--gold-glow); }
+  .side-label.ios .swatch { background: var(--ios-bg); border: 1px solid rgba(255,255,255,0.18); }
+  .side-label.bg span  { color: var(--gold-bright); }
+  .side-label.ios span { color: #b8d4ff; }
+
+  /* ════════════════════════════════════════════════════════════
+     TICKET FRAME — Black & Gold (Saint Seiya style)
+     ════════════════════════════════════════════════════════════ */
+  .ticket {
+    position: relative;
+    width: 100%;
+    max-width: 240px;
+    aspect-ratio: 240 / 430;
+    margin: 0 auto;
+    padding: 10px 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--gold-dark);
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 0 4px var(--surface),
+      inset 0 0 0 5px var(--gold-dark),
+      0 18px 40px rgba(0,0,0,0.7),
+      0 0 60px var(--gold-haze);
+  }
+  .ticket::before,
+  .ticket::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border: 1px solid var(--gold-bright);
+    pointer-events: none;
+    z-index: 5;
+  }
+  .ticket::before { top: 12px; left: 12px;  border-right: none; border-bottom: none; }
+  .ticket::after  { top: 12px; right: 12px; border-left: none;  border-bottom: none; }
+
+  .ticket-top {
+    position: absolute;
+    top: 22px; left: 24px; right: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 6; pointer-events: none;
+  }
+  .pill-admit {
+    background: var(--gold); color: var(--ink);
+    font-family: 'Geist', sans-serif; font-weight: 700;
+    font-size: 8.5px; letter-spacing: 0.22em;
+    padding: 4px 8px; border-radius: 2px;
+  }
+  .pill-num {
+    color: var(--gold-bright);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 500;
+  }
+  .ticket-window {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 14;
+    margin-top: 36px;
+    overflow: hidden;
+    background: var(--ink);
+    border: 1px solid rgba(212,175,55,0.18);
+  }
+  .ticket-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px 16px 12px;
+    background: linear-gradient(0deg, var(--surface) 60%, transparent);
+    z-index: 4;
+  }
+  .stats {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--gold-bright);
+    margin-bottom: 8px; letter-spacing: 0.04em;
+  }
+  .stats .stat { display: inline-flex; align-items: center; gap: 5px; }
+  .stats .stat svg { width: 11px; height: 11px; stroke: var(--gold-bright); fill: none; stroke-width: 1.5; }
+  .perforation {
+    display: flex; gap: 4px; align-items: center;
+    justify-content: space-between; overflow: hidden;
+  }
+  .perforation::before,
+  .perforation::after {
+    content: ''; flex: 1; height: 1px;
+    background: repeating-linear-gradient(90deg, var(--gold-deep) 0 4px, transparent 4px 8px);
+  }
+  .perforation .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+  .ticket-notch-l, .ticket-notch-r {
+    position: absolute; width: 10px; height: 10px;
+    background: var(--ink); border-radius: 50%;
+    top: 56%; z-index: 3;
+  }
+  .ticket-notch-l { left: -5px; }
+  .ticket-notch-r { right: -5px; }
+
+  /* ════════════════════════════════════════════════════════════
+     CARD FRAME — iOS White (Apple Music Now Playing style)
+     ════════════════════════════════════════════════════════════ */
+  .iosc {
+    position: relative;
+    width: 100%;
+    max-width: 240px;
+    aspect-ratio: 240 / 430;
+    margin: 0 auto;
+    background: var(--ios-surface);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.65) inset,
+      0 1px 2px var(--ios-shadow),
+      0 14px 34px var(--ios-shadow-2),
+      0 0 0 1px var(--ios-divider);
+  }
+  .iosc-top {
+    position: absolute;
+    top: 16px; left: 16px; right: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 6; pointer-events: none;
+  }
+  .ios-pill-new {
+    background: var(--ios-pill-bg); color: var(--ios-pill-tx);
+    font-family: 'Geist', sans-serif; font-weight: 600;
+    font-size: 9px; letter-spacing: 0.10em;
+    padding: 4px 9px; border-radius: 999px;
+  }
+  .ios-pill-fav {
+    width: 24px; height: 24px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px var(--ios-shadow);
+  }
+  .ios-pill-fav svg {
+    width: 12px; height: 12px;
+    stroke: var(--ios-text); fill: none; stroke-width: 1.6;
+  }
+  .iosc-window {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 14;
+    overflow: hidden;
+    background: #f0eee9;
+  }
+  .iosc-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 14px 14px;
+    background: var(--ios-surface);
+    z-index: 4;
+  }
+  .iosc-bottom .title {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600; font-size: 13px;
+    color: var(--ios-text);
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .iosc-bottom .meta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Geist', sans-serif;
+    font-size: 11px; color: var(--ios-text-dim);
+  }
+  .iosc-bottom .meta-row .stat {
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .iosc-bottom .meta-row .stat svg {
+    width: 11px; height: 11px; stroke: var(--ios-text-dim); fill: none; stroke-width: 1.6;
+  }
+
+  /* ─────────── Vote indicator ─────────── */
+  .verdict {
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(212,175,55,0.07);
+    border-left: 2px solid var(--gold);
+    font-family: 'Geist', sans-serif;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .verdict strong { color: var(--gold-bright); font-weight: 600; }
+  .verdict.warn { background: rgba(255,100,80,0.06); border-left-color: #ff7a6b; }
+  .verdict.warn strong { color: #ffb1a6; }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    text-align: center;
+    margin-top: 80px;
+    padding-top: 30px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.32em;
+    color: var(--gold-deep); text-transform: uppercase;
+  }
+  footer::before {
+    content: '◆';
+    display: block;
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 01 — AURORA WAVES
+     ════════════════════════════════════════════════════════════ */
+  /* Black & Gold variant (deep purples/golds) */
+  .c01-bg .aurora {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 50% at 30% 30%, rgba(90,45,130,0.85) 0%, transparent 60%),
+      radial-gradient(55% 45% at 70% 60%, rgba(31,58,138,0.75) 0%, transparent 65%),
+      radial-gradient(50% 50% at 50% 80%, rgba(15,118,110,0.55) 0%, transparent 70%),
+      radial-gradient(40% 60% at 20% 75%, rgba(212,175,55,0.4) 0%, transparent 70%),
+      var(--ink);
+    filter: blur(18px);
+    animation: auroraFlow 7s ease-in-out infinite;
+  }
+  .c01-bg .aurora-shimmer {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(245,214,118,0.12) 50%, transparent 100%);
+    mix-blend-mode: screen;
+    animation: auroraSweep 5s ease-in-out infinite;
+  }
+  /* iOS White variant (pastel pink/peach/mint/lavender) */
+  .c01-ios .aurora {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 50% at 30% 30%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 45% at 70% 60%, rgba(180,200,255,0.7) 0%, transparent 65%),
+      radial-gradient(50% 50% at 50% 80%, rgba(180,240,210,0.55) 0%, transparent 70%),
+      radial-gradient(40% 60% at 20% 75%, rgba(255,220,160,0.55) 0%, transparent 70%),
+      #faf7f2;
+    filter: blur(18px);
+    animation: auroraFlow 7s ease-in-out infinite;
+  }
+  .c01-ios .aurora-shimmer {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+    mix-blend-mode: screen;
+    animation: auroraSweep 5s ease-in-out infinite;
+  }
+
+  @keyframes auroraFlow {
+    0%, 100% {
+      background-position: 0% 0%, 100% 100%, 50% 100%, 0% 50%;
+      transform: scale(1.05);
+    }
+    50% {
+      background-position: 30% 60%, 60% 0%, 80% 30%, 100% 30%;
+      transform: scale(1.12);
+    }
+  }
+  @keyframes auroraSweep {
+    0%, 100% { transform: translateY(-30%); opacity: 0; }
+    50%      { transform: translateY(30%);  opacity: 1; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 02 — CONSTELLATIONS
+     ════════════════════════════════════════════════════════════ */
+  .c02-bg .void {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, rgba(10,10,31,0.95), var(--ink) 70%),
+      var(--ink);
+  }
+  .c02-ios .void {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, #ffffff 0%, #f5f1ea 75%),
+      #faf7f2;
+  }
+  .c02-bg svg, .c02-ios svg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+  }
+  .c02-bg .star {
+    fill: rgba(255,255,255,0.85);
+    animation: starTwinkle 3s ease-in-out infinite;
+  }
+  .c02-bg .star.gold {
+    fill: var(--gold-bright);
+    filter: drop-shadow(0 0 3px var(--gold-glow));
+  }
+  .c02-bg .line {
+    stroke: var(--gold-bright); stroke-width: 0.45;
+    opacity: 0; stroke-linecap: round;
+    filter: drop-shadow(0 0 1.5px var(--gold-glow));
+    animation: lineFade 4s ease-in-out infinite;
+  }
+  .c02-ios .star {
+    fill: rgba(28,28,30,0.75);
+    animation: starTwinkle 3s ease-in-out infinite;
+  }
+  .c02-ios .star.accent {
+    fill: var(--ios-blue);
+    filter: drop-shadow(0 0 3px rgba(10,132,255,0.4));
+  }
+  .c02-ios .line {
+    stroke: var(--ios-blue); stroke-width: 0.45;
+    opacity: 0; stroke-linecap: round;
+    filter: drop-shadow(0 0 1.5px rgba(10,132,255,0.3));
+    animation: lineFade 4s ease-in-out infinite;
+  }
+  @keyframes starTwinkle {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 1; }
+  }
+  @keyframes lineFade {
+    0%, 100% { opacity: 0; }
+    30%      { opacity: 0.6; }
+    65%      { opacity: 0.6; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 03 — GOLD SHIMMER BARS
+     ════════════════════════════════════════════════════════════ */
+  .c03-bg .base {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, var(--ink-2) 0%, var(--surface) 50%, var(--ink-2) 100%);
+  }
+  .c03-bg .gridlines {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(0deg, rgba(212,175,55,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px);
+    background-size: 20px 20px; pointer-events: none;
+  }
+  .c03-bg .bar {
+    position: absolute; top: -30%; height: 160%; width: 38%;
+    background: linear-gradient(90deg, transparent 0%, rgba(212,175,55,0) 30%, rgba(245,214,118,0.55) 50%, rgba(212,175,55,0) 70%, transparent 100%);
+    transform: rotate(-20deg); filter: blur(2px);
+  }
+  .c03-bg .bar.b1 { left: -50%; animation: barSlide 2.8s cubic-bezier(.55,.05,.40,.95) infinite; }
+  .c03-bg .bar.b2 { left: -50%; animation: barSlide 2.8s cubic-bezier(.55,.05,.40,.95) infinite; animation-delay: 0.6s; opacity: 0.7; }
+  .c03-bg .bar.b3 { left: -50%; animation: barSlide 2.8s cubic-bezier(.55,.05,.40,.95) infinite; animation-delay: 1.2s; opacity: 0.5; }
+
+  .c03-ios .base {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #ebe7df 0%, #f5f1ea 50%, #ebe7df 100%);
+  }
+  .c03-ios .gridlines {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-size: 20px 20px; pointer-events: none;
+  }
+  .c03-ios .bar {
+    position: absolute; top: -30%; height: 160%; width: 38%;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0) 70%, transparent 100%);
+    transform: rotate(-20deg); filter: blur(2px);
+  }
+  .c03-ios .bar.b1 { left: -50%; animation: barSlide 2.8s cubic-bezier(.55,.05,.40,.95) infinite; }
+  .c03-ios .bar.b2 { left: -50%; animation: barSlide 2.8s cubic-bezier(.55,.05,.40,.95) infinite; animation-delay: 0.6s; opacity: 0.7; }
+  .c03-ios .bar.b3 { left: -50%; animation: barSlide 2.8s cubic-bezier(.55,.05,.40,.95) infinite; animation-delay: 1.2s; opacity: 0.5; }
+
+  @keyframes barSlide {
+    0%   { left: -50%; }
+    100% { left: 150%; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 04 — PULSING SIGIL
+     ════════════════════════════════════════════════════════════ */
+  .c04-bg .sigil-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, rgba(26,20,40,0.7), var(--ink) 80%),
+      var(--ink);
+  }
+  .c04-bg .halo {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 140px; height: 140px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--gold-glow), transparent 70%);
+    animation: haloPulse 2.6s ease-in-out infinite;
+  }
+  .c04-bg .ring { border-color: var(--gold-dark); }
+
+  .c04-ios .sigil-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, #ffffff 0%, #f0ece4 80%),
+      #faf7f2;
+  }
+  .c04-ios .halo {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 140px; height: 140px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(10,132,255,0.18), transparent 70%);
+    animation: haloPulse 2.6s ease-in-out infinite;
+  }
+  .c04-ios .ring { border-color: rgba(10,132,255,0.25); }
+  .c04-ios .sigil { filter: drop-shadow(0 0 6px rgba(10,132,255,0.4)); }
+
+  @keyframes haloPulse {
+    0%, 100% { width: 120px; height: 120px; opacity: 0.55; }
+    50%      { width: 180px; height: 180px; opacity: 0.9; }
+  }
+  .sigil {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 56px; height: 56px;
+    transform: translate(-50%, -50%);
+    animation: sigilBreath 2.4s ease-in-out infinite, sigilSpin 24s linear infinite;
+  }
+  @keyframes sigilBreath {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.92); }
+    50%      { transform: translate(-50%, -50%) scale(1.05); }
+  }
+  @keyframes sigilSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+  .rings {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px; height: 220px;
+    pointer-events: none;
+  }
+  .ring {
+    position: absolute; inset: 0;
+    border: 1px solid;
+    border-radius: 50%;
+    opacity: 0;
+    animation: ringWave 2.6s ease-out infinite;
+  }
+  .ring.r2 { animation-delay: 0.8s; }
+  .ring.r3 { animation-delay: 1.6s; }
+  @keyframes ringWave {
+    0%   { transform: scale(0.5); opacity: 0.8; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 05 — CINEMATIC IRIS
+     ════════════════════════════════════════════════════════════ */
+  .c05-bg .iris-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(
+      circle at center,
+      var(--gold-bright) 0%,
+      var(--gold) 10%,
+      var(--gold-deep) 30%,
+      #2a1f0a 55%,
+      #0a0805 80%,
+      #000 100%
+    );
+    animation: irisPulse 3.5s cubic-bezier(.42,0,.58,1) infinite;
+  }
+  .c05-bg .loading-text {
+    position: absolute;
+    bottom: 38px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.32em;
+    color: rgba(255,255,255,0.85);
+    text-shadow: 0 0 4px rgba(0,0,0,0.8);
+    text-transform: uppercase;
+    z-index: 3; white-space: nowrap; overflow: hidden;
+  }
+  .c05-ios .iris-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(
+      circle at center,
+      #FFFFFF 0%,
+      #FFEAD0 12%,
+      #FFD27F 28%,
+      #E8C887 50%,
+      #B8A479 75%,
+      #5a4d2e 95%
+    );
+    animation: irisPulse 3.5s cubic-bezier(.42,0,.58,1) infinite;
+  }
+  .c05-ios .loading-text {
+    position: absolute;
+    bottom: 38px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.32em;
+    color: rgba(28,28,30,0.85);
+    text-shadow: 0 0 6px rgba(255,255,255,0.9);
+    text-transform: uppercase;
+    z-index: 3; white-space: nowrap; overflow: hidden;
+  }
+  @keyframes irisPulse {
+    0%, 100% {
+      background-size: 100% 100%;
+      filter: brightness(0.9) saturate(1);
+    }
+    50% {
+      background-size: 200% 200%;
+      filter: brightness(1.15) saturate(1.3);
+    }
+  }
+  .iris-rings {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .iris-line {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 4px; height: 80%;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.4), transparent);
+    transform-origin: center; opacity: 0.6;
+  }
+  .iris-line.l1 { transform: translate(-50%, -50%) rotate(0deg); }
+  .iris-line.l2 { transform: translate(-50%, -50%) rotate(60deg); }
+  .iris-line.l3 { transform: translate(-50%, -50%) rotate(120deg); }
+  .c05-ios .iris-line {
+    background: linear-gradient(180deg, transparent, rgba(28,28,30,0.18), transparent);
+  }
+  .loading-text::after {
+    content: '|';
+    margin-left: 1px;
+    animation: caretBlink 0.7s steps(2) infinite;
+  }
+  @keyframes caretBlink {
+    0%, 50%  { opacity: 1; }
+    51%, 100%{ opacity: 0; }
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      Pixora<span class="ornament">·</span><span class="accent">Loading dual</span>
+      <br/>
+      <span style="font-style:normal; font-weight:300; font-size:0.55em; color:var(--text-dim);">cinco conceptos × dos temas</span>
+    </h1>
+    <p class="subtitle">
+      Cada concepto mostrado en ambos marcos: <strong style="color:var(--gold-bright)">Black &amp; Gold</strong>
+      (ticket Saint Seiya) y <strong style="color:#b8d4ff">iOS White</strong> (card Apple Music).
+      El objetivo: escoger uno que funcione visualmente en los dos temas.
+    </p>
+    <div class="header-rule">
+      <span>archive · doc-007b</span>
+      <div class="line"></div>
+      <span>mayo · MMXXVI</span>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 01 — AURORA WAVES
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 01</span>
+      <span class="name">Aurora Waves</span>
+      <span class="tag">Gradientes vivos ondulando como aurora boreal — cósmico, etéreo. Continuación del Aurora loader del detail page.</span>
+    </div>
+    <div class="compare">
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black & Gold · Ticket Saint Seiya</span></div>
+        <div class="ticket c01-bg">
+          <div class="ticket-top">
+            <span class="pill-admit">ADMIT</span>
+            <span class="pill-num">Nº 326</span>
+          </div>
+          <div class="ticket-notch-l"></div>
+          <div class="ticket-notch-r"></div>
+          <div class="ticket-window">
+            <div class="aurora"></div>
+            <div class="aurora-shimmer"></div>
+          </div>
+          <div class="ticket-bottom">
+            <div class="stats">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg><span>—</span></span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg><span>—</span></span>
+            </div>
+            <div class="perforation"><span class="dot"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White · Apple Music card</span></div>
+        <div class="iosc c01-ios">
+          <div class="iosc-top">
+            <span class="ios-pill-new">NEW</span>
+            <span class="ios-pill-fav"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg></span>
+          </div>
+          <div class="iosc-window">
+            <div class="aurora"></div>
+            <div class="aurora-shimmer"></div>
+          </div>
+          <div class="iosc-bottom">
+            <div class="title">Cargando wallpaper…</div>
+            <div class="meta-row">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg> —</span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg> —</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <strong>✓ Funciona en ambos.</strong> En B&G usa morados/dorados profundos; en iOS los mismos gradientes con pasteles (rosa, lavanda, menta, ocre). La animación es idéntica, solo cambian colores. Premium en ambos lados.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 02 — CONSTELLATIONS
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 02</span>
+      <span class="name">Constelaciones</span>
+      <span class="tag">Puntos titilan; líneas trazan constelaciones efímeras — mística zodiacal, perfecta con el branding.</span>
+    </div>
+    <div class="compare">
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black & Gold · Ticket Saint Seiya</span></div>
+        <div class="ticket c02-bg">
+          <div class="ticket-top">
+            <span class="pill-admit">ADMIT</span>
+            <span class="pill-num">Nº 408</span>
+          </div>
+          <div class="ticket-notch-l"></div>
+          <div class="ticket-notch-r"></div>
+          <div class="ticket-window">
+            <div class="void"></div>
+            <svg viewBox="0 0 100 155" preserveAspectRatio="xMidYMid slice" id="c02bg-svg"></svg>
+          </div>
+          <div class="ticket-bottom">
+            <div class="stats">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg><span>—</span></span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg><span>—</span></span>
+            </div>
+            <div class="perforation"><span class="dot"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White · Apple Music card</span></div>
+        <div class="iosc c02-ios">
+          <div class="iosc-top">
+            <span class="ios-pill-new">NEW</span>
+            <span class="ios-pill-fav"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg></span>
+          </div>
+          <div class="iosc-window">
+            <div class="void"></div>
+            <svg viewBox="0 0 100 155" preserveAspectRatio="xMidYMid slice" id="c02ios-svg"></svg>
+          </div>
+          <div class="iosc-bottom">
+            <div class="title">Cargando wallpaper…</div>
+            <div class="meta-row">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg> —</span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg> —</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <strong>✓ Funciona en ambos, con cambio de identidad.</strong> En B&G las estrellas son blancas+doradas (zodiaco). En iOS son puntos gris oscuro y las líneas usan el azul iOS — se ve más como diagrama técnico/refinado, menos místico. Distinto pero coherente.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 03 — GOLD SHIMMER
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 03</span>
+      <span class="name">Gold Shimmer</span>
+      <span class="tag">Tres barras diagonales sliding sobre fondo gris — minimal, refined, Apple-style.</span>
+    </div>
+    <div class="compare">
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black & Gold · Ticket Saint Seiya</span></div>
+        <div class="ticket c03-bg">
+          <div class="ticket-top">
+            <span class="pill-admit">ADMIT</span>
+            <span class="pill-num">Nº 192</span>
+          </div>
+          <div class="ticket-notch-l"></div>
+          <div class="ticket-notch-r"></div>
+          <div class="ticket-window">
+            <div class="base"></div>
+            <div class="gridlines"></div>
+            <div class="bar b1"></div>
+            <div class="bar b2"></div>
+            <div class="bar b3"></div>
+          </div>
+          <div class="ticket-bottom">
+            <div class="stats">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg><span>—</span></span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg><span>—</span></span>
+            </div>
+            <div class="perforation"><span class="dot"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White · Apple Music card</span></div>
+        <div class="iosc c03-ios">
+          <div class="iosc-top">
+            <span class="ios-pill-new">NEW</span>
+            <span class="ios-pill-fav"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg></span>
+          </div>
+          <div class="iosc-window">
+            <div class="base"></div>
+            <div class="gridlines"></div>
+            <div class="bar b1"></div>
+            <div class="bar b2"></div>
+            <div class="bar b3"></div>
+          </div>
+          <div class="iosc-bottom">
+            <div class="title">Cargando wallpaper…</div>
+            <div class="meta-row">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg> —</span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg> —</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <strong>✓ Funciona en ambos — el más universal.</strong> En B&G las barras son doradas sobre gris oscuro; en iOS son blancas brillantes sobre gris claro. Es literalmente el patrón de Apple/Material — siempre se ve correcto. Riesgo: se siente <em>genérico</em>, no Pixora.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 04 — PULSING SIGIL
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 04</span>
+      <span class="name">Pulsing Sigil</span>
+      <span class="tag">Cosmos de Saint Seiya respirando con halo expansivo — heráldico, brand-centric.</span>
+    </div>
+    <div class="compare">
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black & Gold · Ticket Saint Seiya</span></div>
+        <div class="ticket c04-bg">
+          <div class="ticket-top">
+            <span class="pill-admit">ADMIT</span>
+            <span class="pill-num">Nº 071</span>
+          </div>
+          <div class="ticket-notch-l"></div>
+          <div class="ticket-notch-r"></div>
+          <div class="ticket-window">
+            <div class="sigil-bg"></div>
+            <div class="rings"><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div></div>
+            <div class="halo"></div>
+            <svg class="sigil" viewBox="0 0 56 56">
+              <defs>
+                <linearGradient id="sg-bg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%"  stop-color="#FFE9A8"/>
+                  <stop offset="50%" stop-color="#F5D676"/>
+                  <stop offset="100%" stop-color="#8B7228"/>
+                </linearGradient>
+              </defs>
+              <g fill="url(#sg-bg)" stroke="#F5D676" stroke-width="0.6" stroke-linejoin="round">
+                <path d="M28 2 L31 22 L51 25 L31 28 L28 48 L25 28 L5 25 L25 22 Z"/>
+                <path d="M14 14 L24 24 M42 14 L32 24 M14 42 L24 32 M42 42 L32 32"
+                      stroke="#F5D676" stroke-width="1" fill="none"/>
+                <circle cx="28" cy="25" r="3" fill="#070710" stroke="#F5D676" stroke-width="0.8"/>
+                <circle cx="28" cy="25" r="1" fill="#F5D676"/>
+              </g>
+            </svg>
+          </div>
+          <div class="ticket-bottom">
+            <div class="stats">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg><span>—</span></span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg><span>—</span></span>
+            </div>
+            <div class="perforation"><span class="dot"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White · Apple Music card</span></div>
+        <div class="iosc c04-ios">
+          <div class="iosc-top">
+            <span class="ios-pill-new">NEW</span>
+            <span class="ios-pill-fav"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg></span>
+          </div>
+          <div class="iosc-window">
+            <div class="sigil-bg"></div>
+            <div class="rings"><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div></div>
+            <div class="halo"></div>
+            <svg class="sigil" viewBox="0 0 56 56">
+              <defs>
+                <linearGradient id="sg-ios" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%"  stop-color="#5BB3FF"/>
+                  <stop offset="50%" stop-color="#0A84FF"/>
+                  <stop offset="100%" stop-color="#0050C5"/>
+                </linearGradient>
+              </defs>
+              <g fill="url(#sg-ios)" stroke="#0A84FF" stroke-width="0.6" stroke-linejoin="round">
+                <path d="M28 2 L31 22 L51 25 L31 28 L28 48 L25 28 L5 25 L25 22 Z"/>
+                <path d="M14 14 L24 24 M42 14 L32 24 M14 42 L24 32 M42 42 L32 32"
+                      stroke="#0A84FF" stroke-width="1" fill="none"/>
+                <circle cx="28" cy="25" r="3" fill="#FFFFFF" stroke="#0A84FF" stroke-width="0.8"/>
+                <circle cx="28" cy="25" r="1" fill="#0A84FF"/>
+              </g>
+            </svg>
+          </div>
+          <div class="iosc-bottom">
+            <div class="title">Cargando wallpaper…</div>
+            <div class="meta-row">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg> —</span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg> —</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <strong>✓ Funciona pero cambia personalidad.</strong> En B&G la estrella dorada es heráldica zodiacal; en iOS la misma estrella en azul iOS se ve más como un "loading sigil" tipo Apple TV+. Sigue identificable como Pixora. La marca queda al frente.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════
+       NO. 05 — CINEMATIC IRIS
+       ════════════════════════════════════════════════════════════ -->
+  <section class="concept-row">
+    <div class="concept-header">
+      <span class="num">// NO. 05</span>
+      <span class="name">Cinematic Iris</span>
+      <span class="tag">Diafragma de cámara expandiendo y contrayendo — anticipación, "la foto está por revelarse".</span>
+    </div>
+    <div class="compare">
+      <div class="side">
+        <div class="side-label bg"><span class="swatch"></span><span>Black & Gold · Ticket Saint Seiya</span></div>
+        <div class="ticket c05-bg">
+          <div class="ticket-top">
+            <span class="pill-admit">ADMIT</span>
+            <span class="pill-num">Nº 533</span>
+          </div>
+          <div class="ticket-notch-l"></div>
+          <div class="ticket-notch-r"></div>
+          <div class="ticket-window">
+            <div class="iris-bg"></div>
+            <div class="iris-rings">
+              <div class="iris-line l1"></div>
+              <div class="iris-line l2"></div>
+              <div class="iris-line l3"></div>
+            </div>
+            <div class="loading-text" id="c05bg-txt"></div>
+          </div>
+          <div class="ticket-bottom">
+            <div class="stats">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg><span>—</span></span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg><span>—</span></span>
+            </div>
+            <div class="perforation"><span class="dot"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="side-label ios"><span class="swatch"></span><span>iOS White · Apple Music card</span></div>
+        <div class="iosc c05-ios">
+          <div class="iosc-top">
+            <span class="ios-pill-new">NEW</span>
+            <span class="ios-pill-fav"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg></span>
+          </div>
+          <div class="iosc-window">
+            <div class="iris-bg"></div>
+            <div class="iris-rings">
+              <div class="iris-line l1"></div>
+              <div class="iris-line l2"></div>
+              <div class="iris-line l3"></div>
+            </div>
+            <div class="loading-text" id="c05ios-txt"></div>
+          </div>
+          <div class="iosc-bottom">
+            <div class="title">Cargando wallpaper…</div>
+            <div class="meta-row">
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg> —</span>
+              <span class="stat"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-9.5C1.5 7 4 4 7 4c2 0 4 1.5 5 3.5C13 5.5 15 4 17 4c3 0 5.5 3 4 7.5-2 5-9 9.5-9 9.5z"/></svg> —</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict warn">
+      <strong>⚠ Funciona pero domina visual.</strong> El iris brillante es bonito pero <em>llena</em> la celda — cuando hay 24 cards a la vez en grid, son 24 destellos pulsando = ruido visual. Mejor para detail page que para grid. En iOS pega especialmente fuerte.
+    </div>
+  </section>
+
+  <footer>
+    Pixora · loading states · dual theme archive · mayo MMXXVI
+  </footer>
+</div>
+
+<script>
+  /* CONCEPT 02 — Constellation generator (used twice: bg + ios) */
+  function makeConstellation(svgId, theme) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    const W = 100, H = 155;
+    const NS = 'http://www.w3.org/2000/svg';
+    const stars = [];
+    let s = svgId.charCodeAt(0) + svgId.length * 17;
+    function rng() { s = (s * 9301 + 49297) % 233280; return s / 233280; }
+
+    for (let i = 0; i < 22; i++) {
+      const cx = +(rng() * (W - 12) + 6).toFixed(2);
+      const cy = +(rng() * (H - 12) + 6).toFixed(2);
+      const r  = rng() < 0.18 ? 1.1 : 0.55;
+      const accent = rng() < 0.22;
+      stars.push({ cx, cy, r, accent });
+    }
+
+    stars.forEach((st) => {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', st.cx);
+      c.setAttribute('cy', st.cy);
+      c.setAttribute('r', st.r);
+      const cls = ['star'];
+      if (st.accent) cls.push(theme === 'ios' ? 'accent' : 'gold');
+      c.setAttribute('class', cls.join(' '));
+      c.style.animationDelay = (rng() * 3) + 's';
+      svg.appendChild(c);
+    });
+
+    function newConstellation() {
+      svg.querySelectorAll('.line').forEach(n => n.remove());
+      const used = new Set();
+      const numLines = 4 + Math.floor(rng() * 3);
+      for (let k = 0; k < numLines; k++) {
+        const a = Math.floor(rng() * stars.length);
+        let b = Math.floor(rng() * stars.length);
+        let tries = 0;
+        while ((b === a || used.has(a + '-' + b) || used.has(b + '-' + a)) && tries < 10) {
+          b = Math.floor(rng() * stars.length); tries++;
+        }
+        used.add(a + '-' + b);
+        const A = stars[a], B = stars[b];
+        const dx = A.cx - B.cx, dy = A.cy - B.cy;
+        if (Math.sqrt(dx*dx + dy*dy) > 45) continue;
+        const line = document.createElementNS(NS, 'line');
+        line.setAttribute('x1', A.cx); line.setAttribute('y1', A.cy);
+        line.setAttribute('x2', B.cx); line.setAttribute('y2', B.cy);
+        line.setAttribute('class', 'line');
+        line.style.animationDelay = (k * 0.12) + 's';
+        svg.appendChild(line);
+      }
+    }
+    newConstellation();
+    setInterval(newConstellation, 4200);
+  }
+  makeConstellation('c02bg-svg', 'bg');
+  makeConstellation('c02ios-svg', 'ios');
+
+  /* CONCEPT 05 — Typing loading text (used twice) */
+  function makeTypingText(elId) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const phases = ['cargando', 'rendering', 'cargando', 'preparando'];
+    let pi = 0;
+    function typeOnce() {
+      const word = phases[pi % phases.length];
+      el.textContent = '';
+      let i = 0;
+      const step = () => {
+        if (i <= word.length) { el.textContent = word.slice(0, i); i++; setTimeout(step, 95); }
+        else { setTimeout(eraseOnce, 1500); }
+      };
+      step();
+      function eraseOnce() {
+        let j = word.length;
+        const back = () => {
+          if (j >= 0) { el.textContent = word.slice(0, j); j--; setTimeout(back, 50); }
+          else { pi++; setTimeout(typeOnce, 400); }
+        };
+        back();
+      }
+    }
+    typeOnce();
+  }
+  makeTypingText('c05bg-txt');
+  makeTypingText('c05ios-txt');
+</script>
+</body>
+</html>

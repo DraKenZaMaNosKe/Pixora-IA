@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/design/hud_tokens.dart';
-import 'package:shimmer/shimmer.dart';
+import '../../../../core/widgets/aurora_waves_loading.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
@@ -424,7 +424,12 @@ class _CarouselDashPainter extends CustomPainter {
   bool shouldRepaint(covariant _CarouselDashPainter old) => old.color != color;
 }
 
-/// Shimmer placeholder for a carousel row while loading.
+/// Catalog loading skeleton — Faithful Mirror (concept #01, 2026-05-13).
+///
+/// Reemplaza el shimmer genérico Material con tarjetas tipo wallpaper que
+/// contienen el mismo Aurora Waves que se ve dentro de los cards reales.
+/// El título es una barra sólida (no shimmer). El usuario percibe el layout
+/// real apareciendo, sin layout-shift cuando llegue la data.
 class CarouselRowShimmer extends StatelessWidget {
   const CarouselRowShimmer({super.key});
 
@@ -434,23 +439,20 @@ class CarouselRowShimmer extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Title shimmer
+        // Title placeholder — solid gray bar, no animation
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-          child: Shimmer.fromColors(
-            baseColor: h.surface,
-            highlightColor: h.surfaceHi,
-            child: Container(
-              width: 120,
-              height: 18,
-              decoration: BoxDecoration(
-                color: h.surface,
-                borderRadius: BorderRadius.circular(4),
-              ),
+          child: Container(
+            width: 120,
+            height: 18,
+            decoration: BoxDecoration(
+              color: h.surface,
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
         ),
-        // Cards shimmer
+        // Card placeholders — same dimensions as real carousel cards, each
+        // hosting an AuroraWavesLoading inside its rounded rect.
         SizedBox(
           height: 200,
           child: ListView.builder(
@@ -459,16 +461,17 @@ class CarouselRowShimmer extends StatelessWidget {
             itemCount: 4,
             itemBuilder: (_, __) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Shimmer.fromColors(
-                baseColor: h.surface,
-                highlightColor: h.surfaceHi,
-                child: Container(
-                  width: 130,
-                  decoration: BoxDecoration(
-                    color: h.surface,
-                    borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 130,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: h.divider.withValues(alpha: 0.4),
+                    width: 1,
                   ),
                 ),
+                child: const AuroraWavesLoading(),
               ),
             ),
           ),

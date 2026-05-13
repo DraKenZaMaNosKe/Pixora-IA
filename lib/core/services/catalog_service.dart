@@ -20,7 +20,7 @@ class CatalogService {
   CatalogService._();
   static final instance = CatalogService._();
 
-  static const _cacheHours = 6;
+  static const _cacheMinutes = 30;
   List<Wallpaper> _wallpapers = [];
   DateTime? _lastFetch;
 
@@ -33,10 +33,36 @@ class CatalogService {
     _lastFetch = null;
   }
 
+  /// Cold-start optimization: lee el catalog_cache.json de disco ANTES de
+  /// runApp() y popula el cache in-memory. Resultado: la primera pantalla
+  /// que pide el catálogo (WallpapersPage) recibe data al instante en vez
+  /// de mostrar el skeleton de loading 1-3s mientras Postgres responde.
+  ///
+  /// Idempotente — si ya hay data en memoria, no hace nada. Silencioso ante
+  /// cualquier error (primera instalación = no cache = comportamiento normal
+  /// con loading skeleton).
+  Future<void> preloadFromDiskCache() async {
+    if (_wallpapers.isNotEmpty) return;
+    try {
+      final cached = await _loadFromCache();
+      if (cached == null || cached.isEmpty) return;
+      _wallpapers = cached;
+      // Tratamos la cache como recién obtenida — el TTL de 30 min empieza
+      // a contar desde el cold start. La próxima request fresca pasará el
+      // _isCacheValid check y se atenderá desde memoria; al expirar, Riverpod
+      // / pull-to-refresh dispararán el fetch real a Postgres.
+      _lastFetch = DateTime.now();
+      debugPrint(
+          '[Pixora] Catalog preloaded from disk: ${_wallpapers.length} wallpapers');
+    } catch (e) {
+      debugPrint('[Pixora] Disk preload failed: $e');
+    }
+  }
+
   bool get _isCacheValid =>
       _lastFetch != null &&
       DateTime.now().difference(_lastFetch!) <
-          const Duration(hours: _cacheHours);
+          const Duration(minutes: _cacheMinutes);
 
   Future<List<Wallpaper>> fetchCatalog({bool forceRefresh = false}) async {
     if (_wallpapers.isNotEmpty && _isCacheValid && !forceRefresh) {

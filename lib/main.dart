@@ -9,9 +9,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/analytics_service.dart';
+import 'core/services/catalog_service.dart';
 import 'core/services/credit_service.dart';
 import 'core/services/grace_pass_service.dart';
 import 'core/services/legal_service.dart';
+import 'core/services/live_wallpaper_catalog_service.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/services/subscription_service.dart';
 import 'core/services/theme_service.dart';
@@ -108,6 +110,16 @@ Future<void> main() async {
     // in the background; failures only log debug, never crash UI.
     unawaited(PushNotificationService.instance.init());
     AdService.instance.initialize();
+    // Cold-start optimization — precarga los catálogos desde disco antes
+    // de runApp() para que las pantallas Wallpapers/LIVE arranquen con
+    // data al instante en vez del skeleton 1-3s. Hacemos ambos en
+    // paralelo (~20-40ms total). Si falta la cache (primera instalación)
+    // o falla la lectura, los providers de Riverpod muestran el skeleton
+    // como siempre — comportamiento normal.
+    await Future.wait([
+      CatalogService.instance.preloadFromDiskCache(),
+      LiveWallpaperCatalogService.instance.preloadFromDiskCache(),
+    ]);
     // Sync the wallpaper engine coordinator from native state so we know
     // which rotation engine (AutoRotate / DayCycle / Story) was active
     // before app restart. Fire-and-forget — UI doesn't block on this.
