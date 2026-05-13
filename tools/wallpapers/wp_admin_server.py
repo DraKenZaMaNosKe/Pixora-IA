@@ -13,9 +13,14 @@ Press Ctrl+C to stop.
 """
 from __future__ import annotations
 import json, os, re, sys, urllib.request, urllib.parse, urllib.error, webbrowser
+from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from threading import Timer
+
+
+def datetime_now_iso() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 if sys.platform == "win32":
     # Under pythonw.exe stdout/stderr can be None; HTTPServer's log_message
@@ -94,6 +99,132 @@ class Handler(BaseHTTPRequestHandler):
     def _send_json(self, obj, status: int = 200):
         body = json.dumps(obj).encode("utf-8")
         self._send(status, "application/json; charset=utf-8", body)
+
+    # ─────────────────────────────────────────────────────────────
+    # Catalog search — unified across all CATALOGS (Storage source).
+    # Caches each catalog in-memory for 60s to avoid hammering Storage.
+    # ─────────────────────────────────────────────────────────────
+    _catalog_cache: dict = {}  # kind -> (timestamp, parsed_json)
+
+    def _get_catalog(self, kind: str):
+        """Return parsed catalog dict, with a 60s in-memory cache."""
+        import time as _time
+        now = _time.time()
+        cached = Handler._catalog_cache.get(kind)
+        if cached and (now - cached[0]) < 60:
+            return cached[1]
+        bucket, fname, _ = CATALOGS[kind]
+        url = f"{SUPABASE_STORAGE}/object/public/{bucket}/{fname}"
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url), timeout=15) as r:
+                parsed = json.loads(r.read().decode("utf-8"))
+            Handler._catalog_cache[kind] = (now, parsed)
+            return parsed
+        except Exception as e:
+            print(f"[catalog-cache] fetch {kind} failed: {e}")
+            return None
+
+    def _normalize_item(self, item: dict, kind: str) -> dict:
+        """Map catalog entry → unified card row matching what the grid expects."""
+        bucket, _, items_key = CATALOGS[kind]
+        prev = item.get("previewFile") or item.get("imageFile") or ""
+        prev_url = f"{SUPABASE_STORAGE}/object/public/{bucket}/{prev}" if prev else ""
+        return {
+            "id": item.get("id"),
+            "name": item.get("name") or item.get("id") or "",
+            "category": item.get("category") or "",
+            "description": item.get("description", ""),
+            "tags": item.get("tags", []),
+            "preview_url": prev_url,
+            "kind": kind,                   # 'live' | 'static' | 'stories' | ...
+            "sort_order": item.get("sortOrder", 0),
+            "badge": item.get("badge"),
+            "created_at": item.get("createdAt") or item.get("created_at"),
+            # Stats — filled below from admin_wallpaper_breakdown if available
+            "view_count": 0,
+            "install_count": 0,
+            "share_count": 0,
+        }
+
+    def _enrich_with_stats(self, items: list) -> None:
+        """Batch-fetch stats from admin_wallpaper_breakdown for the given IDs."""
+        if not items:
+            return
+        ids = [i["id"] for i in items if i.get("id")]
+        if not ids:
+            return
+        # Postgrest in.(...) needs comma-separated, no spaces, URL-encoded
+        ids_csv = ",".join(urllib.parse.quote(x, safe="") for x in ids)
+        stats, status = self._proxy(
+            f"admin_wallpaper_breakdown?id=in.({ids_csv})&select=id,views,installs,shares"
+        )
+        if status != 200 or not isinstance(stats, list):
+            return
+        by_id = {row["id"]: row for row in stats}
+        for it in items:
+            row = by_id.get(it["id"])
+            if row:
+                it["view_count"] = row.get("views", 0) or 0
+                it["install_count"] = row.get("installs", 0) or 0
+                it["share_count"] = row.get("shares", 0) or 0
+
+    def _handle_catalog_search(self, query):
+        q = (query.get("q", [""])[0] or "").lower().strip()
+        cat = (query.get("category", [""])[0] or "").strip()
+        kinds_param = query.get("kinds", [""])[0]
+        kinds = [k for k in kinds_param.split(",") if k] or ["live", "static"]
+        limit = int(query.get("limit", ["24"])[0])
+        offset = int(query.get("offset", ["0"])[0])
+
+        # 1. Aggregate items from each requested catalog
+        all_items: list[dict] = []
+        for kind in kinds:
+            if kind not in CATALOGS:
+                continue
+            catalog = self._get_catalog(kind)
+            if not catalog:
+                continue
+            _, _, items_key = CATALOGS[kind]
+            for raw in catalog.get(items_key, []):
+                all_items.append(self._normalize_item(raw, kind))
+
+        # 2. Sort: newest first (createdAt desc), fallback sort_order desc
+        def sort_key(it):
+            return (it.get("created_at") or "", it.get("sort_order") or 0)
+        all_items.sort(key=sort_key, reverse=True)
+
+        # 3. Filter by query + category
+        def matches(it):
+            if cat and it.get("category", "").upper() != cat.upper():
+                return False
+            if q:
+                blob = " ".join([
+                    it.get("name", ""),
+                    it.get("id", ""),
+                    it.get("description", ""),
+                    " ".join(it.get("tags", [])),
+                    it.get("category", ""),
+                ]).lower()
+                if q not in blob:
+                    return False
+            return True
+        filtered = [it for it in all_items if matches(it)]
+
+        # 4. Paginate
+        page = filtered[offset:offset + limit]
+
+        # 5. Enrich with stats (best-effort; if it fails, page still renders)
+        try:
+            self._enrich_with_stats(page)
+        except Exception as e:
+            print(f"[catalog-search] enrich stats failed: {e}")
+
+        return self._send_json({
+            "rows": page,
+            "total": len(filtered),
+            "offset": offset,
+            "limit": limit,
+        })
 
     def _proxy(self, sub_path: str, method: str = "GET", body: bytes | None = None):
         url = f"{SUPABASE_REST}/{sub_path}"
@@ -186,6 +317,13 @@ class Handler(BaseHTTPRequestHandler):
                 json.dumps(params).encode("utf-8")
             )
             return self._send_json(data, status)
+
+        # ─── Unified catalog search (LIVE + STATIC from Storage) ─
+        # Reads the catalog JSONs (Storage) so admin sees TODO el contenido,
+        # not only items with tracked events. Stats are enriched best-effort
+        # from admin_wallpaper_breakdown for the items in the current page.
+        if path == "/api/catalog-search":
+            return self._handle_catalog_search(query)
 
         if path == "/api/user-history":
             ident = query.get("id", [""])[0]
@@ -364,6 +502,108 @@ class Handler(BaseHTTPRequestHandler):
 
         return self._send(404, "text/plain", b"not found")
 
+    # ─── Editable field map (catalog JSON key → Postgres column) ─
+    # Solo aplica a la tabla `wallpapers` (static). LIVE no toca Postgres.
+    _STATIC_FIELD_MAP = {
+        "name": "name",
+        "description": "description",
+        "category": "category",
+        "tags": "tags",
+        "sortOrder": "sort_order",
+        "badge": "badge",
+        "glowColor": "glow_color",
+    }
+
+    def _update_static_postgres(self, wid: str, fields: dict) -> tuple[dict, int]:
+        """PATCH una sola fila en `wallpapers` con los campos editables."""
+        body = {}
+        for json_key, pg_col in self._STATIC_FIELD_MAP.items():
+            if json_key in fields:
+                body[pg_col] = fields[json_key]
+        if not body:
+            return ({"warning": "no editable fields"}, 200)
+        # `updated_at` lo actualiza un trigger en la tabla, no lo mandamos.
+        url = f"{SUPABASE_REST}/wallpapers?id=eq.{urllib.parse.quote(wid)}"
+        req = urllib.request.Request(
+            url, data=json.dumps(body).encode("utf-8"), method="PATCH"
+        )
+        req.add_header("apikey", SERVICE_KEY)
+        req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+        req.add_header("Content-Type", "application/json")
+        req.add_header("Prefer", "return=representation")
+        try:
+            with urllib.request.urlopen(req, timeout=15) as r:
+                return (json.loads(r.read() or b"[]"), r.status)
+        except urllib.error.HTTPError as e:
+            return ({"error": e.read().decode()[:300]}, e.code)
+
+    def do_POST(self):
+        path = urllib.parse.urlparse(self.path).path
+
+        # ─── Single-wallpaper edit (Postgres + JSON sync) ────────
+        # POST /api/wallpaper-edit
+        # body: {kind: "static"|"live", id: "...", fields: {name, ...}}
+        if path == "/api/wallpaper-edit":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+
+            kind = payload.get("kind")
+            wid = payload.get("id")
+            fields = payload.get("fields", {})
+            if kind not in CATALOGS or not wid:
+                return self._send_json({"error": "kind/id missing"}, 400)
+            if not isinstance(fields, dict) or not fields:
+                return self._send_json({"error": "fields required"}, 400)
+
+            result = {"kind": kind, "id": wid, "postgres": None, "storage": None}
+
+            # 1) Si es static, UPDATE en Postgres (fuente primaria de la app)
+            if kind == "static":
+                pg_resp, pg_status = self._update_static_postgres(wid, fields)
+                result["postgres"] = {"status": pg_status, "response": pg_resp}
+                if pg_status >= 400:
+                    return self._send_json(result, pg_status)
+
+            # 2) Sincronizar el JSON en Storage (backup + LIVE primary)
+            bucket, fname, items_key = CATALOGS[kind]
+            # Re-fetch catalog desde Storage (bypass cache para tener latest)
+            Handler._catalog_cache.pop(kind, None)
+            cat = self._get_catalog(kind)
+            if not cat:
+                result["storage"] = {"error": "could not load catalog"}
+                return self._send_json(result, 500)
+            items = cat.get(items_key, [])
+            idx = next((i for i, w in enumerate(items) if w.get("id") == wid), -1)
+            if idx < 0:
+                result["storage"] = {"error": f"id {wid} not in catalog"}
+                return self._send_json(result, 404)
+            # Apply fields
+            for k, v in fields.items():
+                items[idx][k] = v
+            cat["lastUpdated"] = datetime_now_iso()
+            # PUT back to Storage
+            payload_bytes = json.dumps(cat, indent=2, ensure_ascii=False).encode("utf-8")
+            url = f"{SUPABASE_STORAGE}/object/{bucket}/{fname}"
+            req = urllib.request.Request(url, data=payload_bytes, method="PUT")
+            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+            req.add_header("Content-Type", "application/json")
+            req.add_header("x-upsert", "true")
+            try:
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    result["storage"] = {"status": r.status, "ok": True}
+                Handler._catalog_cache.pop(kind, None)
+            except urllib.error.HTTPError as e:
+                result["storage"] = {"error": e.read().decode()[:300], "status": e.code}
+                return self._send_json(result, e.code)
+
+            return self._send_json(result)
+
+        return self._send(404, "text/plain", b"not found")
+
     def do_PUT(self):
         path = urllib.parse.urlparse(self.path).path
 
@@ -393,6 +633,9 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 with urllib.request.urlopen(req, timeout=20) as r:
                     resp = r.read().decode("utf-8")
+                # Invalida el cache in-memory para que el siguiente GET / search
+                # traiga la versión nueva de Storage (si no, sirve stale por 60s).
+                Handler._catalog_cache.pop(kind, None)
                 return self._send_json({
                     "ok": True,
                     "bucket": bucket,

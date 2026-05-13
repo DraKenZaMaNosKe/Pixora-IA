@@ -533,6 +533,32 @@ tbody tr:hover {
   display:flex; gap:12px; margin-top:8px;
   color: var(--gold-saint); font-family:'JetBrains Mono',monospace; font-size: 10px;
 }
+/* LIVE / STATIC kind badge on each card */
+.wp-card .wp-kind {
+  position: absolute; top: 6px; left: 6px;
+  display: inline-flex; align-items: center; gap: 3px;
+  background: rgba(0,0,0,.72); backdrop-filter: blur(6px);
+  color: var(--star);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: .12em; font-weight: 600;
+  padding: 3px 7px 3px 5px; border-radius: 999px;
+  border: 1px solid var(--gold-dark);
+  z-index: 3; line-height: 1;
+}
+.wp-card .wp-kind.live   { color: #ff6b9b; border-color: rgba(255,107,155,.5); }
+.wp-card .wp-kind.static { color: var(--gold-saint); }
+.wp-card .wp-kind .material-symbols-rounded { font-size: 11px; }
+
+.wp-card .wp-badge {
+  position: absolute; top: 6px; right: 6px;
+  background: var(--gold-bright); color: var(--cosmos-deep);
+  font-family: 'Cinzel', serif; font-weight: 700;
+  font-size: 9px; letter-spacing: .14em;
+  padding: 3px 7px; border-radius: 3px;
+  z-index: 3; box-shadow: 0 0 10px var(--gold-glow);
+}
+.wp-card .wp-badge.new { background: #ff3b6b; color: white; }
+.wp-card .thumb { position: relative; }
 .wp-card .stats span .material-symbols-rounded {
   font-size: 13px; vertical-align: -2px; color: var(--gold-saint);
 }
@@ -1354,7 +1380,8 @@ button { white-space: nowrap; }
               <option>ANIME</option><option>GAMING</option><option>FANTASY</option>
               <option>HEROES</option><option>HORROR</option><option>SCIFI</option>
               <option>NATURE</option><option>CHILL</option><option>PIXEL</option>
-              <option>CULTURE</option><option>MISC</option>
+              <option>CULTURE</option><option>PAISAJISMO</option><option>TV</option>
+              <option>ARTE</option><option>VARIOS</option><option>MISC</option>
             </select>
           </label>
           <label style="grid-column: 1 / -1">Descripción <textarea id="me-description" rows="2"></textarea></label>
@@ -1403,7 +1430,8 @@ button { white-space: nowrap; }
 
 const CATEGORIES = ['WALLPAPERS','PANORAMIC','NATURE','ANIME','GAMING','MISC',
   'CALENDAR','ART','FANTASY','SCIFI','CULTURE','SCENES','SPECIAL',
-  'CHRISTMAS','HORROR','ANIMALS','LIFESTYLE','UNIVERSE','DARK'];
+  'CHRISTMAS','HORROR','ANIMALS','LIFESTYLE','UNIVERSE','DARK',
+  'PAISAJISMO','TV','ARTE','VARIOS'];
 
 const $ = sel => document.querySelector(sel);
 const fmt = n => (n ?? 0).toLocaleString('es-MX');
@@ -1910,6 +1938,12 @@ async function loadFeed() {
 // ─── Pagination state ─────────────────────────────────────────────────────
 const pager = { page: 1, size: 24, lastWasFull: false, lastQuery: '', lastCat: '' };
 
+// When using /api/catalog-search, the server returns the real total, so we
+// trust that value over the estimated counts from the analytics view.
+function totalFromLastSearch() {
+  return pager.lastTotal;
+}
+
 function totalForCurrentFilter() {
   const totalPublished = parseInt($('#kpi-published').textContent.replace(/,/g, ''), 10) || 279;
   // If category set, try to get its count from the cached stats
@@ -1945,16 +1979,17 @@ async function doSearch(resetPage = true) {
   const cat = $('#search-category').value;
   pager.lastQuery = q; pager.lastCat = cat;
   const offset = (pager.page - 1) * pager.size;
-  const url = `/api/search?q=${encodeURIComponent(q)}${cat ? `&category=${cat}` : ''}&limit=${pager.size}&offset=${offset}`;
-  const rows = await api(url);
-  if (!Array.isArray(rows)) return;
+  // NEW endpoint: reads Storage catalogs (live + static) directly, so admin
+  // sees ALL content — including wallpapers never viewed/installed yet.
+  const url = `/api/catalog-search?q=${encodeURIComponent(q)}${cat ? `&category=${cat}` : ''}&limit=${pager.size}&offset=${offset}`;
+  const resp = await api(url);
+  const rows = (resp && Array.isArray(resp.rows)) ? resp.rows : [];
+  const total = (resp && typeof resp.total === 'number') ? resp.total : rows.length;
   pager.lastWasFull = rows.length === pager.size;
-  const total = totalForCurrentFilter();
+  pager.lastTotal = total;
   const startIdx = offset + 1;
   const endIdx   = offset + rows.length;
-  $('#search-count').textContent = q
-    ? `${rows.length} resultados`
-    : `${startIdx}-${endIdx} de ${total}`;
+  $('#search-count').textContent = `${startIdx}-${endIdx} de ${fmt(total)}`;
   const grid = $('#search-grid');
   grid.innerHTML = '';
   if (!rows.length) {
@@ -1966,8 +2001,19 @@ async function doSearch(resetPage = true) {
     const card = document.createElement('div');
     card.className = 'wp-card';
     card.onclick = () => openModal(w.id);
+    const kindLabel = (w.kind || '').toUpperCase();
+    const isLive = w.kind === 'live';
+    const badgeHtml = w.badge
+      ? `<div class="wp-badge ${(w.badge || '').toLowerCase()}">${escape(w.badge)}</div>` : '';
+    const kindHtml = `<div class="wp-kind ${isLive ? 'live' : 'static'}">
+      <span class="material-symbols-rounded">${isLive ? 'play_circle' : 'image'}</span>
+      ${escape(kindLabel)}
+    </div>`;
     card.innerHTML = `
-      <div class="thumb" style="background-image:url('${escape(w.preview_url)}')"></div>
+      <div class="thumb" style="background-image:url('${escape(w.preview_url)}')">
+        ${kindHtml}
+        ${badgeHtml}
+      </div>
       <div class="meta">
         <div class="name">${escape(w.name)}</div>
         <div class="stats">
@@ -2005,11 +2051,40 @@ async function openModal(id) {
   const m = (Array.isArray(meta) && meta[0]) || {};
   const b = (Array.isArray(breakdown) && breakdown[0]) || {};
 
-  $('#m-name').textContent = m.name || id;
-  $('#m-id').textContent = `${m.id || id}  ·  ${m.category || ''}  ·  ${m.type || ''}`;
-  $('#m-desc').textContent = m.description || '';
-  $('#m-tags').innerHTML = (m.tags || []).map(t => `<span class="tag">${escape(t)}</span>`).join('');
-  $('#modal-preview').style.backgroundImage = m.preview_url ? `url('${escape(m.preview_url)}')` : '';
+  // PRIORIDAD: leer del catálogo JSON (source of truth real, lo que editamos)
+  // antes que de admin_wallpaper_breakdown (vista Postgres con nombres
+  // cacheados de cuando se trackeó el evento). Si no se encuentra en
+  // catálogo, fall back a la vista.
+  let catalogEntry = null;
+  let catalogKind = null;
+  for (const kind of _catalogSearchOrder) {
+    try {
+      await loadCatalog(kind);
+      const found = _catalogItems(kind).find(w => w.id === id);
+      if (found) { catalogEntry = found; catalogKind = kind; break; }
+    } catch (_) { /* ignore */ }
+  }
+
+  const name = (catalogEntry && catalogEntry.name) || m.name || id;
+  const cat = (catalogEntry && catalogEntry.category) || m.category || '';
+  const desc = (catalogEntry && catalogEntry.description) || m.description || '';
+  const tags = (catalogEntry && catalogEntry.tags) || m.tags || [];
+  // Preview URL — armar desde el catálogo si lo tenemos (más confiable que
+  // el preview_url que pueda venir de la vista Postgres).
+  let prevUrl = m.preview_url || '';
+  if (catalogEntry && catalogKind) {
+    const bucket = catalogKind === 'live' ? 'wallpaper-videos' : 'wallpaper-images';
+    const prevFile = catalogEntry.previewFile || catalogEntry.imageFile;
+    if (prevFile) {
+      prevUrl = `https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/${bucket}/${prevFile}`;
+    }
+  }
+
+  $('#m-name').textContent = name;
+  $('#m-id').textContent = `${id}  ·  ${cat}  ·  ${catalogKind ? catalogKind.toUpperCase() : (m.type || '')}`;
+  $('#m-desc').textContent = desc;
+  $('#m-tags').innerHTML = tags.map(t => `<span class="tag">${escape(t)}</span>`).join('');
+  $('#modal-preview').style.backgroundImage = prevUrl ? `url('${escape(prevUrl)}')` : '';
   $('#m-views').textContent = fmt(b.views ?? m.view_count ?? 0);
   $('#m-installs').textContent = fmt(b.installs ?? m.install_count ?? 0);
   $('#m-shares').textContent = fmt(b.shares ?? m.share_count ?? 0);
@@ -2186,32 +2261,54 @@ function closeEditPanel() {
 
 async function saveEditPanel() {
   if (!_currentEditWp) return;
-  const { kind, index } = _currentEditWp;
-  const cat = _catalogCache[kind];
-  const w = _catalogItems(kind)[index];
+  const { kind, id, index } = _currentEditWp;
   const status = $('#me-status');
   status.textContent = 'Guardando…';
   status.style.color = 'var(--muted)';
 
-  w.name = $('#me-name').value.trim();
-  w.description = $('#me-description').value.trim();
-  w.category = $('#me-category').value;
-  w.sortOrder = parseInt($('#me-sortOrder').value, 10) || 0;
+  const fields = {
+    name: $('#me-name').value.trim(),
+    description: $('#me-description').value.trim(),
+    category: $('#me-category').value,
+    sortOrder: parseInt($('#me-sortOrder').value, 10) || 0,
+    tags: $('#me-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    glowColor: $('#me-glowColor').value.trim() || '#FF4500',
+  };
   const badge = $('#me-badge').value.trim();
-  w.badge = badge || null;
-  w.glowColor = $('#me-glowColor').value.trim() || '#FF4500';
-  w.tags = $('#me-tags').value.split(',').map(t => t.trim()).filter(Boolean);
-  cat.lastUpdated = new Date().toISOString();
+  fields.badge = badge || null;
 
   try {
-    await saveCatalog(kind);
-    status.textContent = '✓ Guardado en Supabase Storage';
+    // Nuevo endpoint: para STATIC actualiza Postgres + Storage, para LIVE
+    // solo Storage. Ambos quedan en sync. La app lee de Postgres (static)
+    // o Storage (live), así que esto cubre los dos casos.
+    const r = await fetch('/api/wallpaper-edit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind, id, fields }),
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(t.slice(0, 200));
+    }
+    const result = await r.json();
+
+    // Update local cache para reflejar inmediatamente en el grid
+    if (_catalogCache[kind]) {
+      const w = _catalogItems(kind)[index];
+      if (w) Object.assign(w, fields);
+    }
+
+    const pgOk = !result.postgres || result.postgres.status < 400;
+    const stOk = result.storage && result.storage.ok;
+    status.textContent = (pgOk && stOk)
+      ? (kind === 'static' ? '✓ Guardado en Postgres + Storage' : '✓ Guardado en Storage')
+      : '⚠ Guardado parcial — checar consola';
     status.style.color = 'var(--gold-bright)';
-    // Update the visible modal fields with the new values
-    $('#m-name').textContent = w.name || w.id;
-    $('#m-desc').textContent = w.description || '';
-    $('#m-tags').innerHTML = (w.tags || []).map(t => `<span class="tag">${escape(t)}</span>`).join('');
-    toast(`Wallpaper "${w.name}" actualizado`);
+    // Update visible modal fields
+    $('#m-name').textContent = fields.name || id;
+    $('#m-desc').textContent = fields.description || '';
+    $('#m-tags').innerHTML = (fields.tags || []).map(t => `<span class="tag">${escape(t)}</span>`).join('');
+    toast(`Wallpaper "${fields.name}" actualizado`);
     setTimeout(closeEditPanel, 900);
   } catch (e) {
     status.textContent = '✗ ' + e.message;
