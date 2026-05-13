@@ -110,12 +110,17 @@ class CatalogService {
   }
 
   /// Read from `wallpapers_v` view via Supabase client. Returns null on error.
+  ///
+  /// Filtra `published = true` para respetar el toggle visible/oculto
+  /// del dashboard. Los wallpapers ocultos siguen existiendo en la DB pero
+  /// no aparecen en el catálogo público.
   Future<List<Wallpaper>?> _fetchFromSupabase() async {
     try {
       final client = Supabase.instance.client;
       final rows = await client
           .from('wallpapers_v')
           .select()
+          .eq('published', true)
           .order('sort_order', ascending: true)
           .timeout(const Duration(seconds: 12));
       final list = (rows as List)

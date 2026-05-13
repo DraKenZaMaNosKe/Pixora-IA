@@ -147,26 +147,36 @@ class Handler(BaseHTTPRequestHandler):
         }
 
     def _enrich_with_stats(self, items: list) -> None:
-        """Batch-fetch stats from admin_wallpaper_breakdown for the given IDs."""
+        """Batch-fetch stats + published flag from Postgres for the page."""
         if not items:
             return
         ids = [i["id"] for i in items if i.get("id")]
         if not ids:
             return
-        # Postgrest in.(...) needs comma-separated, no spaces, URL-encoded
         ids_csv = ",".join(urllib.parse.quote(x, safe="") for x in ids)
+        # Stats vienen de la vista; published viene de la tabla.
         stats, status = self._proxy(
             f"admin_wallpaper_breakdown?id=in.({ids_csv})&select=id,views,installs,shares"
         )
-        if status != 200 or not isinstance(stats, list):
-            return
-        by_id = {row["id"]: row for row in stats}
+        by_id_stats: dict = {}
+        if status == 200 and isinstance(stats, list):
+            by_id_stats = {row["id"]: row for row in stats}
+        pub_rows, pub_status = self._proxy(
+            f"wallpapers?id=in.({ids_csv})&select=id,published"
+        )
+        by_id_pub: dict = {}
+        if pub_status == 200 and isinstance(pub_rows, list):
+            by_id_pub = {row["id"]: row for row in pub_rows}
         for it in items:
-            row = by_id.get(it["id"])
-            if row:
-                it["view_count"] = row.get("views", 0) or 0
-                it["install_count"] = row.get("installs", 0) or 0
-                it["share_count"] = row.get("shares", 0) or 0
+            sr = by_id_stats.get(it["id"])
+            if sr:
+                it["view_count"] = sr.get("views", 0) or 0
+                it["install_count"] = sr.get("installs", 0) or 0
+                it["share_count"] = sr.get("shares", 0) or 0
+            pr = by_id_pub.get(it["id"])
+            # Defaultea a True si Postgres no tiene la fila (ej. LIVE wallpapers
+            # solo viven en Storage, no en tabla wallpapers).
+            it["published"] = (pr.get("published", True) if pr else True)
 
     def _handle_catalog_search(self, query):
         q = (query.get("q", [""])[0] or "").lower().strip()
@@ -512,6 +522,7 @@ class Handler(BaseHTTPRequestHandler):
         "sortOrder": "sort_order",
         "badge": "badge",
         "glowColor": "glow_color",
+        "published": "published",   # bool — false = oculto del app
     }
 
     def _update_static_postgres(self, wid: str, fields: dict) -> tuple[dict, int]:
