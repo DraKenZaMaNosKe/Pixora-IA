@@ -162,7 +162,7 @@ class Handler(BaseHTTPRequestHandler):
         if status == 200 and isinstance(stats, list):
             by_id_stats = {row["id"]: row for row in stats}
         pub_rows, pub_status = self._proxy(
-            f"wallpapers?id=in.({ids_csv})&select=id,published"
+            f"wallpapers?id=in.({ids_csv})&select=id,published,daily_eligible"
         )
         by_id_pub: dict = {}
         if pub_status == 200 and isinstance(pub_rows, list):
@@ -177,6 +177,7 @@ class Handler(BaseHTTPRequestHandler):
             # Defaultea a True si Postgres no tiene la fila (ej. LIVE wallpapers
             # solo viven en Storage, no en tabla wallpapers).
             it["published"] = (pr.get("published", True) if pr else True)
+            it["daily_eligible"] = (pr.get("daily_eligible", False) if pr else False)
 
     def _handle_catalog_search(self, query):
         q = (query.get("q", [""])[0] or "").lower().strip()
@@ -522,7 +523,8 @@ class Handler(BaseHTTPRequestHandler):
         "sortOrder": "sort_order",
         "badge": "badge",
         "glowColor": "glow_color",
-        "published": "published",   # bool — false = oculto del app
+        "published": "published",          # bool — false = oculto del app
+        "dailyEligible": "daily_eligible", # bool — true = rota en Pixora Daily curado
     }
 
     def _update_static_postgres(self, wid: str, fields: dict) -> tuple[dict, int]:

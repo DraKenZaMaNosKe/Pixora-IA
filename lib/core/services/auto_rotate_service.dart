@@ -50,10 +50,15 @@ class AutoRotateService {
         return false;
       }
 
-      // Filter by category if specified
-      final filtered = category != null
-          ? catalog.where((w) => w.category == category).toList()
-          : catalog;
+      // Filter by category. Caso especial: 'DAILY' no es una categoría
+      // real (aunque exista en el enum), es un FLAG. Filtramos por el
+      // boolean daily_eligible para que el wallpaper conserve su categoría
+      // natural (ANIME, GAMING, etc.) pero rote en Pixora Daily curado.
+      final filtered = category == 'DAILY'
+          ? catalog.where((w) => w.dailyEligible).toList()
+          : (category != null
+              ? catalog.where((w) => w.category == category).toList()
+              : catalog);
 
       if (filtered.isEmpty) {
         debugPrint('[AutoRotate] No wallpapers for category: $category');

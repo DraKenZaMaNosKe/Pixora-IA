@@ -69,7 +69,12 @@ class WallpapersPage extends ConsumerWidget {
             // New
             SliverToBoxAdapter(child: _NewRow()),
 
-            // Category rows
+            // Curated sections — multi-category via tags. Un wallpaper
+            // PANORAMIC con tag `arte` aparece aquí Y en su categoría natural.
+            SliverToBoxAdapter(child: _ArteRow()),
+            SliverToBoxAdapter(child: _MitologiaRow()),
+
+            // Category rows (excluye categorías ya curadas arriba)
             SliverToBoxAdapter(child: _CategoryRows()),
 
             // Bottom padding
@@ -104,6 +109,34 @@ class _NewRow extends ConsumerWidget {
           ? const SizedBox.shrink()
           : WallpaperCarouselRow(title: 'New', items: items),
       loading: () => const CarouselRowShimmer(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _ArteRow extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(arteWallpapersProvider);
+    return async.when(
+      data: (items) => items.isEmpty
+          ? const SizedBox.shrink()
+          : WallpaperCarouselRow(title: 'Arte', items: items),
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _MitologiaRow extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(mitologiaWallpapersProvider);
+    return async.when(
+      data: (items) => items.isEmpty
+          ? const SizedBox.shrink()
+          : WallpaperCarouselRow(title: 'Mitología', items: items),
+      loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
     );
   }

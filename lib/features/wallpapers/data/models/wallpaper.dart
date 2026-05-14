@@ -17,6 +17,7 @@ class Wallpaper {
     this.badge,
     this.sortOrder = 0,
     this.featured = false,
+    this.dailyEligible = false,
     this.tags = const [],
     this.downloadCount = 0,
     this.createdAt,
@@ -35,6 +36,11 @@ class Wallpaper {
   final String? badge;
   final int sortOrder;
   final bool featured;
+  // True si el admin marcó este wallpaper como eligible para rotar en
+  // Pixora Daily (curado). Independiente de category — un wallpaper puede
+  // estar en ANIME y a la vez ser daily_eligible. Solo en STATIC wallpapers
+  // (la tabla Postgres tiene la columna).
+  final bool dailyEligible;
   final List<String> tags;
   final int downloadCount;
   final DateTime? createdAt;
@@ -69,6 +75,7 @@ class Wallpaper {
       badge: json['badge'] as String?,
       sortOrder: json['sortOrder'] as int? ?? 0,
       featured: json['featured'] as bool? ?? false,
+      dailyEligible: json['dailyEligible'] as bool? ?? false,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
               const [],
@@ -99,6 +106,7 @@ class Wallpaper {
       badge: row['badge'] as String?,
       sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
       featured: row['featured'] as bool? ?? false,
+      dailyEligible: row['daily_eligible'] as bool? ?? false,
       tags:
           (row['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
               const [],

@@ -12,6 +12,32 @@ const _arcanoCategories = {'ARCANO'};
 bool _isArcano(Wallpaper w) =>
     _arcanoCategories.contains(w.category.toUpperCase());
 
+/// Helper para comprobar si un wallpaper tiene un tag específico
+/// (case-insensitive, sin acentos en convención).
+bool _hasTag(Wallpaper w, String tag) {
+  final needle = tag.toLowerCase();
+  return w.tags.any((t) => t.toLowerCase() == needle);
+}
+
+/// Match para sección "Arte": tag `arte` O categoría ART/ARTE.
+bool _isArte(Wallpaper w) {
+  if (_hasTag(w, 'arte')) return true;
+  final c = w.category.toUpperCase();
+  return c == 'ART' || c == 'ARTE';
+}
+
+/// Match para sección "Mitología": tag `mitologia` O categoría MITOLOGIA.
+/// NO incluye ARCANO porque tiene tab propia (LiveCalendar).
+bool _isMitologia(Wallpaper w) {
+  if (_hasTag(w, 'mitologia')) return true;
+  return w.category.toUpperCase() == 'MITOLOGIA';
+}
+
+/// Categorías que NO deben aparecer en _CategoryRows porque ya tienen su
+/// propio carousel curado arriba (Arte, Mitología). Evita duplicación
+/// visual: un wallpaper "ARTE" no debe verse en 2 rows distintos.
+const _curatedSectionCategories = {'ART', 'ARTE', 'MITOLOGIA'};
+
 /// Raw catalog from Supabase (every wallpaper, used internally + by the
 /// ARCANO provider). UI feeds should consume `catalogPublicProvider`.
 final catalogProvider = FutureProvider<List<Wallpaper>>((ref) async {
@@ -77,13 +103,35 @@ final newWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   return newOnes.take(15).toList();
 });
 
+/// Sección "Arte" — wallpapers de arte/galería (curados via tag `arte`
+/// o categoría ART/ARTE). Multi-categoría real: un wallpaper PANORAMIC
+/// con tag `arte` aparece tanto en su categoría natural como aquí.
+final arteWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogPublicProvider.future);
+  return wallpapers.where(_isArte).toList()
+    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+});
+
+/// Sección "Mitología" — wallpapers de mitologías (Aztec, Egipto, Griega,
+/// Norse, etc.). Curados via tag `mitologia` o categoría MITOLOGIA.
+final mitologiaWallpapersProvider =
+    FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogPublicProvider.future);
+  return wallpapers.where(_isMitologia).toList()
+    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+});
+
 /// Category rows: grouped by category, min 3 items per row.
+/// Excluye las categorías que ya tienen su propio carousel curado arriba
+/// (Arte, Mitología) para evitar duplicación visual.
 final categoryRowsProvider =
     FutureProvider<List<({String title, List<Wallpaper> items})>>((ref) async {
   final wallpapers = await ref.watch(catalogPublicProvider.future);
   final map = <String, List<Wallpaper>>{};
   for (final w in wallpapers) {
     if (Platform.isIOS && w.category.toUpperCase() == 'PANORAMIC') continue;
+    // Skip categorías que ya tienen sección dedicada arriba (Arte, Mitología).
+    if (_curatedSectionCategories.contains(w.category.toUpperCase())) continue;
     map.putIfAbsent(w.category, () => []).add(w);
   }
   return map.entries

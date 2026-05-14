@@ -185,6 +185,8 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
     final v = await showModalBottomSheet<String?>(
       context: context,
       backgroundColor: const Color(0xFF1C1C1E),
+      isScrollControlled:
+          true, // permite que el sheet sea más alto que la mitad
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -196,6 +198,11 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
             LocaleHelper.pick(es: 'Todas las categorías', en: 'All categories')
           ),
           (
+            'DAILY',
+            LocaleHelper.pick(
+                es: 'Pixora Daily (curado)', en: 'Pixora Daily (curated)')
+          ),
+          (
             'PANORAMIC',
             LocaleHelper.pick(es: 'Solo panorámicos', en: 'Panoramic only')
           ),
@@ -205,6 +212,7 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
           ('SCIFI', LocaleHelper.pick(es: 'Sci-Fi', en: 'Sci-Fi')),
           ('FANTASY', LocaleHelper.pick(es: 'Fantasía', en: 'Fantasy')),
           ('CULTURE', LocaleHelper.pick(es: 'Cultura', en: 'Culture')),
+          ('CALENDAR', LocaleHelper.pick(es: 'Calendarios', en: 'Calendar')),
         ],
         current: _category,
       ),
@@ -618,57 +626,73 @@ class _PickerSheet<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Cap the sheet at 75% de la pantalla — el resto deja ver la página
+    // detrás. Si los items no caben, scroll vertical (antes hacía overflow
+    // por 74px con 8 items + status/nav bars en pantallas chicas).
+    final maxH = MediaQuery.of(context).size.height * 0.75;
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: -0.3,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxH),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20, bottom: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    letterSpacing: -0.3,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 14),
-            for (final (val, label) in items)
-              InkWell(
-                onTap: () => Navigator.pop(context, val),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  child: Row(
+              const SizedBox(height: 14),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: Text(
-                          label,
-                          style: TextStyle(
-                            fontFamily: 'Geist',
-                            fontSize: 15,
-                            color: Colors.white,
+                      for (final (val, label) in items)
+                        InkWell(
+                          onTap: () => Navigator.pop(context, val),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 14),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    label,
+                                    style: const TextStyle(
+                                      fontFamily: 'Geist',
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                if (val == current)
+                                  const Icon(
+                                    Icons.check,
+                                    color: Color(0xFF0A84FF),
+                                    size: 20,
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      if (val == current)
-                        const Icon(
-                          Icons.check,
-                          color: Color(0xFF0A84FF),
-                          size: 20,
-                        ),
+                      const SizedBox(height: 6),
                     ],
                   ),
                 ),
               ),
-            const SizedBox(height: 6),
-          ],
+            ],
+          ),
         ),
       ),
     );
