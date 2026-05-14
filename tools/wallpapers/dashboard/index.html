@@ -1408,26 +1408,42 @@ button { white-space: nowrap; }
           <label>Nombre <input type="text" id="me-name" /></label>
           <label>Categoría
             <select id="me-category">
-              <!-- Solo las 18 categorías que Postgres acepta. Otras como
-                   PAISAJISMO/TV/HEROES/CHILL fallaban con error 22P02. -->
-              <option>ANIMALS</option>
-              <option>ANIME</option>
-              <option>ARCANO</option>
-              <option>ART</option>
-              <option>CALENDAR</option>
-              <option>CHRISTMAS</option>
-              <option>CULTURE</option>
-              <option>DARK</option>
-              <option>FANTASY</option>
-              <option>GAMING</option>
-              <option>HORROR</option>
-              <option>MISC</option>
-              <option>NATURE</option>
-              <option>PANORAMIC</option>
-              <option>SCENES</option>
-              <option>SCIFI</option>
-              <option>SPECIAL</option>
-              <option>UNIVERSE</option>
+              <!-- Las 25 categorías válidas en el enum wallpaper_category
+                   de Postgres. PAISAJISMO/TV/ARTE/VARIOS agregadas via
+                   ALTER TYPE ADD VALUE el 2026-05-13. Listadas alfabéticamente
+                   excepto las "tuyas" arriba para fácil acceso. -->
+              <optgroup label="Tuyas (nuevas)">
+                <option>PAISAJISMO</option>
+                <option>TV</option>
+                <option>ARTE</option>
+                <option>VARIOS</option>
+              </optgroup>
+              <optgroup label="Estándar">
+                <option>ANIMALS</option>
+                <option>ANIME</option>
+                <option>ARCANO</option>
+                <option>ART</option>
+                <option>AURA</option>
+                <option>CALENDAR</option>
+                <option>CHILL</option>
+                <option>CHRISTMAS</option>
+                <option>CULTURE</option>
+                <option>DARK</option>
+                <option>FANTASY</option>
+                <option>GAMING</option>
+                <option>HEROES</option>
+                <option>HORROR</option>
+                <option>LIFESTYLE</option>
+                <option>MISC</option>
+                <option>NATURE</option>
+                <option>PANORAMIC</option>
+                <option>PIXEL</option>
+                <option>SCENES</option>
+                <option>SCIFI</option>
+                <option>SPECIAL</option>
+                <option>UNIVERSE</option>
+                <option>WALLPAPERS</option>
+              </optgroup>
             </select>
           </label>
           <label style="grid-column: 1 / -1">Descripción <textarea id="me-description" rows="2"></textarea></label>
@@ -1481,10 +1497,13 @@ button { white-space: nowrap; }
 // Pixora Admin Dashboard — vanilla JS
 // ============================================================================
 
-const CATEGORIES = ['WALLPAPERS','PANORAMIC','NATURE','ANIME','GAMING','MISC',
-  'CALENDAR','ART','FANTASY','SCIFI','CULTURE','SCENES','SPECIAL',
-  'CHRISTMAS','HORROR','ANIMALS','LIFESTYLE','UNIVERSE','DARK',
-  'PAISAJISMO','TV','ARTE','VARIOS'];
+// Match exact con el enum wallpaper_category de Postgres (28 valores).
+// CHILL/HEROES/PIXEL fueron agregados al enum 2026-05-13 para preservar
+// los 14 LIVE wallpapers que ya usaban esas categorias en Storage JSON.
+const CATEGORIES = ['PAISAJISMO','TV','ARTE','VARIOS',
+  'ANIMALS','ANIME','ARCANO','ART','AURA','CALENDAR','CHILL','CHRISTMAS',
+  'CULTURE','DARK','FANTASY','GAMING','HEROES','HORROR','LIFESTYLE','MISC',
+  'NATURE','PANORAMIC','PIXEL','SCENES','SCIFI','SPECIAL','UNIVERSE','WALLPAPERS'];
 
 const $ = sel => document.querySelector(sel);
 const fmt = n => (n ?? 0).toLocaleString('es-MX');
