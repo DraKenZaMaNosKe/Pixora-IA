@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/design/hud_shapes.dart';
 import '../../../../core/design/hud_tokens.dart';
-import '../../../../core/design/hud_widgets.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../../providers/wallpaper_providers.dart';
@@ -94,7 +93,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
                 itemBuilder: (context, index) =>
                     _HeroPage(wallpaper: wallpapers[index]),
               ),
-              // Dot indicators
+              // Dot indicators — Strict B&G (gold) in dark; Apple Blue in iOS
               Positioned(
                 bottom: 16,
                 left: 0,
@@ -103,13 +102,16 @@ class _HeroBannerState extends ConsumerState<HeroBanner> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(wallpapers.length, (i) {
                     final active = i == _currentPage;
+                    final activeColor = h.isIosStyle
+                        ? const Color(0xFF0A84FF)
+                        : HudTokens.goldBright;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.symmetric(horizontal: 3),
                       width: active ? 28 : 8,
                       height: 3,
                       color: active
-                          ? h.accent
+                          ? activeColor
                           : Colors.white.withValues(alpha: 0.25),
                     );
                   }),
@@ -156,13 +158,11 @@ class _HeroPage extends StatelessWidget {
               ),
             ),
           ),
-          // HUD status tag top-right
-          Positioned(
-            top: 60,
-            right: 16,
-            child: HudStatusTag(text: '▲ LOADED', color: h.accent),
-          ),
-          // Info
+          // ▲ LOADED tag removed in Strict B&G concept #01 (2026-05-15) —
+          // it added clutter without value. Image + pill speak for themselves.
+
+          // Category pill — Strict B&G (gold) in dark; Apple Blue in iOS.
+          // Reemplaza el mint green que choca tanto con B&G como con iOS White.
           Positioned(
             bottom: 44,
             left: 20,
@@ -175,20 +175,31 @@ class _HeroPage extends StatelessWidget {
                       horizontal: h.isIosStyle ? 10 : HudTokens.sp2,
                       vertical: h.isIosStyle ? 4 : 3),
                   decoration: BoxDecoration(
-                    color: h.accent,
+                    color: h.isIosStyle
+                        ? const Color(0xFF0A84FF)
+                        : HudTokens.goldBright,
                     borderRadius: BorderRadius.circular(h.isIosStyle ? 999 : 0),
+                    boxShadow: h.isIosStyle
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: HudTokens.gold.withValues(alpha: 0.35),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                   ),
                   child: Text(
                     wallpaper.category.toUpperCase(),
                     style: HudTokens.mono(
                       size: 9,
                       weight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: h.isIosStyle ? 0.6 : 0.15,
+                      color:
+                          h.isIosStyle ? Colors.white : const Color(0xFF070710),
+                      letterSpacing: h.isIosStyle ? 0.6 : 0.8,
                     ),
                   ),
                 ),
-                // Wallpaper name + description hidden — image speaks first.
               ],
             ),
           ),

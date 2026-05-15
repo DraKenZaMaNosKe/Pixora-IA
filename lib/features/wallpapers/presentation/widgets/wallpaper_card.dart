@@ -138,13 +138,16 @@ class _IosCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                  // Stats bar top-right (likes/views/downloads)
+                  // Stats bar bottom-centered (likes/views/downloads)
                   Positioned(
-                    right: 8,
-                    top: 8,
-                    child: WallpaperStatsBar(
-                      wallpaperId: wallpaper.id,
-                      glowColor: h.accent,
+                    left: 0,
+                    right: 0,
+                    bottom: 8,
+                    child: Center(
+                      child: WallpaperStatsBar(
+                        wallpaperId: wallpaper.id,
+                        glowColor: h.accent,
+                      ),
                     ),
                   ),
                 ],

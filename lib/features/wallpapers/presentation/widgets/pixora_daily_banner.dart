@@ -193,30 +193,27 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
     );
   }
 
-  /// Black & Gold theme — original gradient design (gold/blue tinted bg
-  /// with white text). Already had good contrast on dark surface.
+  /// Black & Gold theme — Concept #01 "Strict Black & Gold" (2026-05-15).
+  /// Always gold accent (no more blue when ACTIVO). Coherente con dashboard
+  /// + LIVE hero. El "ACTIVO" / "NUEVO" pill ahora es gold también — el
+  /// dot pulsante distingue estado, no el color.
   Widget _buildDarkTheme() {
+    const goldDeep = Color(0xFFD9B14A);
+    const goldBright = Color(0xFFF5D676);
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: _enabled
-              ? [
-                  const Color(0xFF0A84FF).withValues(alpha: 0.18),
-                  const Color(0xFF0072E0).withValues(alpha: 0.10),
-                ]
-              : [
-                  const Color(0xFFD9B14A).withValues(alpha: 0.18),
-                  const Color(0xFF8A7A56).withValues(alpha: 0.08),
-                ],
+          colors: [
+            goldDeep.withValues(alpha: 0.18),
+            const Color(0xFF8A7A56).withValues(alpha: 0.08),
+          ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _enabled
-              ? const Color(0xFF0A84FF).withValues(alpha: 0.45)
-              : const Color(0xFFD9B14A).withValues(alpha: 0.45),
+          color: goldDeep.withValues(alpha: 0.45),
           width: 1,
         ),
       ),
@@ -226,24 +223,13 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: _enabled
-                    ? [
-                        const Color(0xFF0A84FF),
-                        const Color(0xFF0072E0),
-                      ]
-                    : [
-                        const Color(0xFFD9B14A),
-                        const Color(0xFFF5D676),
-                      ],
+              gradient: const LinearGradient(
+                colors: [goldDeep, goldBright],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: (_enabled
-                          ? const Color(0xFF0A84FF)
-                          : const Color(0xFFD9B14A))
-                      .withValues(alpha: 0.4),
+                  color: goldDeep.withValues(alpha: 0.4),
                   blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
@@ -251,7 +237,7 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
             ),
             child: const Icon(
               Icons.autorenew_rounded,
-              color: Colors.white,
+              color: Color(0xFF070710),
               size: 24,
             ),
           ),
@@ -274,49 +260,51 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    if (_enabled)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color:
-                              const Color(0xFF34D399).withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color:
-                                const Color(0xFF34D399).withValues(alpha: 0.5),
-                            width: 0.5,
-                          ),
-                        ),
-                        child: Text(
-                          'ACTIVO',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1,
-                            color: const Color(0xFF34D399),
-                          ),
-                        ),
-                      )
-                    else
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color:
-                              const Color(0xFFD9B14A).withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'NUEVO',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1,
-                            color: const Color(0xFFD9B14A),
-                          ),
-                        ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: goldDeep.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(4),
+                        border: _enabled
+                            ? Border.all(
+                                color: goldBright.withValues(alpha: 0.6),
+                                width: 0.5,
+                              )
+                            : null,
                       ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_enabled) ...[
+                            Container(
+                              width: 5,
+                              height: 5,
+                              decoration: const BoxDecoration(
+                                color: goldBright,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: goldBright,
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                          Text(
+                            _enabled ? 'ACTIVO' : 'NUEVO',
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1,
+                              color: goldBright,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -327,8 +315,8 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
                           en: 'Changes every ${_intervalLabel(_intervalMinutes)}',
                         )
                       : LocaleHelper.pick(
-                          es: 'Tu pantalla cambia sola, como Bing Spotlight',
-                          en: 'Your screen changes itself, like Bing Spotlight',
+                          es: 'Tu pantalla cambia sola, curado por ti',
+                          en: 'Your screen changes itself, curated by you',
                         ),
                   style: TextStyle(
                     fontSize: 12,
@@ -342,7 +330,7 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
           const SizedBox(width: 8),
           Icon(
             Icons.chevron_right_rounded,
-            color: Colors.white.withValues(alpha: 0.5),
+            color: goldBright.withValues(alpha: 0.7),
             size: 22,
           ),
         ],

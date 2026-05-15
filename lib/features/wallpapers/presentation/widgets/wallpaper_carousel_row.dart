@@ -266,13 +266,16 @@ class _ParallaxCarouselCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    // Stats bar (likes/views/downloads) top-right
+                    // Stats bar (likes/views/downloads) bottom-centered
                     Positioned(
-                      top: 8,
-                      right: 8,
-                      child: WallpaperStatsBar(
-                        wallpaperId: wallpaper.id,
-                        glowColor: h.accent,
+                      left: 0,
+                      right: 0,
+                      bottom: 8,
+                      child: Center(
+                        child: WallpaperStatsBar(
+                          wallpaperId: wallpaper.id,
+                          glowColor: h.accent,
+                        ),
                       ),
                     ),
                   ],
@@ -350,13 +353,16 @@ class _ParallaxCarouselCard extends StatelessWidget {
                               imageUrl: wallpaper.previewUrl),
                         ),
                       ),
-                      // Stats bar top-right
+                      // Stats bar bottom-centered
                       Positioned(
-                        top: 4,
-                        right: 4,
-                        child: WallpaperStatsBar(
-                          wallpaperId: wallpaper.id,
-                          glowColor: context.hud.accent,
+                        left: 0,
+                        right: 0,
+                        bottom: 4,
+                        child: Center(
+                          child: WallpaperStatsBar(
+                            wallpaperId: wallpaper.id,
+                            glowColor: context.hud.accent,
+                          ),
                         ),
                       ),
                       // Badge top-left
