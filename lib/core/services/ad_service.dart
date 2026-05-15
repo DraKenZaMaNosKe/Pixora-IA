@@ -110,15 +110,34 @@ class AdService {
   /// Current flag value for debugging.
   int get debugFlag => _actionCount;
 
+  /// Test device IDs registrados PERMANENTEMENTE en TODA build (debug y
+  /// release). Cualquier ad servido a estos devices queda marcado como
+  /// "test impression" — los clicks NO cuentan como tráfico real, no
+  /// generan ingresos, y NUNCA disparan el detector de actividad inválida
+  /// de AdMob. Esto blinda el AdMob account contra suspensiones por
+  /// publisher self-clicks.
+  ///
+  /// Origen: 2026-05-14 — AdMob suspendió la cuenta 29 días por self-clicks
+  /// detectados durante testing en el Samsung principal. Lección aprendida:
+  /// SIEMPRE registrar test devices, aún en release builds, mientras la
+  /// app no esté en Production con tráfico real masivo.
+  ///
+  /// Cómo obtener un nuevo Test Device ID: instala la app, conecta vía adb,
+  /// `adb logcat | grep "setTestDeviceIds"` — la primera vez que el SDK
+  /// inicializa, loguea el hint con el ID exacto. Agrégalo aquí.
+  static const _testDeviceIds = <String>[
+    '6EE9F3D60B4F39A34BA3308FE533F24F', // Samsung RF8X903KZ3K (Eduardo principal)
+  ];
+
   /// Initialize Mobile Ads SDK. Call once at app startup.
   Future<void> initialize() async {
+    // Registrar test devices ANTES de initialize() para que la primera
+    // request los respete. El RequestConfiguration es global y persiste
+    // todo el lifecycle del app.
+    await MobileAds.instance.updateRequestConfiguration(
+      RequestConfiguration(testDeviceIds: _testDeviceIds),
+    );
     await MobileAds.instance.initialize();
-
-    // 2026-05-08 night: REMOVED MaxAdContentRating.g call — was added
-    // earlier today to filter playables but ads kept stuttering anyway,
-    // and modifying the global RequestConfiguration may itself confuse
-    // AdMob v8 in subtle ways. Going back to bare initialize() per the
-    // original ad_service.dart that worked in earlier repos.
     loadInterstitialAd();
   }
 
