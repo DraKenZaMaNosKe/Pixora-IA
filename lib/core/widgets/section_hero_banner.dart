@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../core/design/hud_tokens.dart';
@@ -154,11 +155,13 @@ class _BannerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Concept #03 Frosted Glass — wallpaper full-bleed + glass card flotante
+    // con todo el texto adentro. Resuelve contraste sobre wallpapers brillantes.
+    // Eduardo eligió este de 5 mockups el 2026-05-15.
     return Stack(
       fit: StackFit.expand,
       children: [
-        // ── Background image ──────────────────────────────────
-
+        // ── Wallpaper full-bleed ──────────────────────────────
         item.imageUrl.isEmpty
             ? const _HeroFallback()
             : CachedNetworkImage(
@@ -170,121 +173,130 @@ class _BannerPage extends StatelessWidget {
                 errorWidget: (_, __, ___) => const _HeroFallback(),
               ),
 
-        // ── Bottom gradient fade ──────────────────────────────
-
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.transparent,
-                  context.hud.bg.withValues(alpha: 0.6),
-                  context.hud.bg,
+        // ── Category pill (flota top-left sobre wallpaper) ────
+        if (item.badge.isNotEmpty)
+          Positioned(
+            top: 14,
+            left: 14,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+              decoration: BoxDecoration(
+                color: item.accentColor,
+                borderRadius: BorderRadius.circular(999),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.35),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
-                stops: const [0.0, 0.35, 0.7, 1.0],
+              ),
+              child: Text(
+                item.badge.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
               ),
             ),
           ),
-        ),
 
-        // ── Content overlay ───────────────────────────────────
-
+        // ── Frosted glass card (bottom, 14px inset) ───────────
         Positioned(
-          bottom: 32,
-          left: 16,
-          right: 16,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Badge chip
-
-              if (item.badge.isNotEmpty)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: item.accentColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(6),
-                    border:
-                        Border.all(color: item.accentColor.withValues(alpha: 0.5)),
+          left: 14,
+          right: 14,
+          bottom: 14,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF14141F).withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: const Color(0xFFF5D676).withValues(alpha: 0.25),
+                    width: 1,
                   ),
-                  child: Text(
-                    item.badge.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: item.accentColor,
-                      letterSpacing: 0.8,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
                     ),
-                  ),
+                  ],
                 ),
-
-              // Title
-
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.2,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              // Subtitle
-
-              if (item.subtitle.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  item.subtitle,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.white60,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-
-              // Editorial EXPLORE — flat gold, black label, no shadow.
-              const SizedBox(height: 14),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                color: context.hud.accent,
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Title
                     Text(
-                      'EXPLORE',
-                      style: HudTokens.display(
-                        size: 12,
-                        weight: FontWeight.w900,
-                        color: context.hud.bg,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '→',
-                      style: TextStyle(
-                        color: context.hud.bg,
-                        fontSize: 16,
-                        height: 1,
+                      item.title,
+                      style: const TextStyle(
+                        fontSize: 18,
                         fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        height: 1.15,
+                        letterSpacing: -0.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (item.subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        item.subtitle,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: Colors.white.withValues(alpha: 0.85),
+                          height: 1.35,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    // EXPLORE button — white pill on glass, dark text
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'EXPLORE',
+                            style: HudTokens.display(
+                              size: 11,
+                              weight: FontWeight.w800,
+                              color: const Color(0xFF070710),
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          const Text(
+                            '→',
+                            style: TextStyle(
+                              color: Color(0xFF070710),
+                              fontSize: 14,
+                              height: 1,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ],
