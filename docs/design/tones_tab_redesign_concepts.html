@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · TONES Tab · 5 Conceptos de Rediseño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --surface:     #14141F;
+    --surface-2:   #1c1c2a;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --green:       #10B981;
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at top, rgba(80,40,120,0.08), transparent 65%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · TONES-TAB-REDESIGN / DOC-010';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent { color: var(--gold-bright); }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 700px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid of concepts ─────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 56px 36px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0ms; }
+  .concept:nth-child(2) { animation-delay: 130ms; }
+  .concept:nth-child(3) { animation-delay: 260ms; }
+  .concept:nth-child(4) { animation-delay: 390ms; }
+  .concept:nth-child(5) { animation-delay: 520ms; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─────────── Phone frame (shared) ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 540;
+    margin: 0 auto 22px;
+    background: var(--ink);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.05),
+      0 0 0 9px #1a1a22,
+      0 24px 56px rgba(0,0,0,0.65),
+      0 0 80px var(--gold-haze);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 18px;
+    background: #000;
+    border-radius: 0 0 14px 14px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 22px;
+    font-family: 'Geist', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 11;
+  }
+  .phone .statusbar .battery {
+    width: 14px; height: 7px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 4px; bottom: 2px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  /* App header (TONES + avatar + diamond pill) - common skeleton */
+  .app-head {
+    position: absolute;
+    top: 26px; left: 12px; right: 12px;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 6;
+  }
+  .app-head .ava {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6a4cff, #2a1a6a);
+    color: white;
+    font: 700 12px 'Geist', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .app-head .label {
+    font: 800 14px/1 'Geist', sans-serif;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .app-head .credits {
+    margin-left: auto;
+    background: rgba(20,20,31,0.7);
+    border: 1px solid rgba(16,185,129,0.4);
+    color: var(--green);
+    border-radius: 999px;
+    padding: 3px 10px 3px 8px;
+    font: 600 10px 'Geist', sans-serif;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .app-head .credits::before { content: '◆'; font-size: 8px; }
+
+  /* Filter chips row */
+  .chips {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+    display: flex; gap: 6px;
+    z-index: 5;
+  }
+  .chip {
+    padding: 5px 10px;
+    border-radius: 999px;
+    font: 600 9px 'Geist', sans-serif;
+    letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    margin-top: 18px;
+    padding: 0 6px;
+  }
+  .meta .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .meta .name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+  .meta .tag {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .meta .palette {
+    display: flex; gap: 5px;
+    margin-bottom: 12px;
+  }
+  .meta .palette .sw {
+    width: 18px; height: 18px;
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .verdict {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(212,175,55,0.06);
+    border-left: 2px solid var(--gold);
+    font-family: 'Geist', sans-serif;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .verdict strong { color: var(--gold-bright); font-weight: 600; }
+  .verdict.warn  { background: rgba(255,100,80,0.06); border-left-color: #ff7a6b; }
+  .verdict.warn strong { color: #ffb1a6; }
+  .verdict.great { background: rgba(98,228,158,0.05); border-left-color: #62E49E; }
+  .verdict.great strong { color: #99FFCB; }
+
+  footer {
+    text-align: center;
+    margin-top: 88px;
+    padding-top: 30px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer::before {
+    content: '◆';
+    display: block;
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 01 — SPOTIFY DARK
+     ════════════════════════════════════════════════════════════ */
+  .c01 .screen {
+    background: linear-gradient(180deg, #0d0d18 0%, #070710 60%);
+  }
+  .c01 .chip {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .c01 .chip.active {
+    background: var(--gold-bright);
+    color: var(--ink);
+    border-color: var(--gold-bright);
+  }
+  .c01 .hero {
+    position: absolute;
+    top: 92px; left: 12px; right: 12px;
+    height: 130px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1f3a 0%, #2c1e3a 100%);
+    border: 1px solid rgba(245,214,118,0.18);
+  }
+  .c01 .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(123,68,255,0.4), transparent 60%),
+      radial-gradient(circle at 80% 70%, rgba(212,175,55,0.3), transparent 60%);
+  }
+  .c01 .hero-content {
+    position: absolute;
+    inset: 14px;
+    display: flex; gap: 12px; align-items: center;
+  }
+  .c01 .pack-art {
+    width: 80px; height: 80px;
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 30% 30%, #4a90e2, transparent 60%),
+      linear-gradient(135deg, #1a3a52, #0c1e2a);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .c01 .pack-art::after {
+    content: '♬';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(245,214,118,0.85);
+    font-size: 32px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .c01 .hero-text { flex: 1; min-width: 0; }
+  .c01 .hero-cat {
+    font: 600 8px 'Geist', sans-serif;
+    letter-spacing: 0.18em;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .c01 .hero-title {
+    font: 700 14px/1.1 'Geist', sans-serif;
+    color: white;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .c01 .hero-meta {
+    font: 400 9.5px 'Geist', sans-serif;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .c01 .play-btn {
+    display: inline-flex;
+    align-items: center; gap: 4px;
+    background: var(--gold-bright);
+    color: var(--ink);
+    padding: 4px 10px 4px 8px;
+    border-radius: 999px;
+    font: 700 9px 'Geist', sans-serif;
+    letter-spacing: 0.06em;
+  }
+  .c01 .play-btn::before { content: '▶'; font-size: 8px; }
+  .c01 .recommend {
+    position: absolute;
+    top: 240px; left: 12px; right: 12px;
+  }
+  .c01 .recommend .sec-label {
+    font: 700 12px 'Geist', sans-serif;
+    color: white;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .c01 .row {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .c01 .tone-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .c01 .tone-art {
+    width: 36px; height: 36px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #ff6b35, #c63d18);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px;
+  }
+  .c01 .tone-row.b1 .tone-art {
+    background: linear-gradient(135deg, #4a90e2, #1d4a7a);
+  }
+  .c01 .tone-row.b2 .tone-art {
+    background: linear-gradient(135deg, #9b6dff, #4a1da0);
+  }
+  .c01 .tone-info { flex: 1; min-width: 0; }
+  .c01 .tone-title {
+    font: 600 10px 'Geist', sans-serif;
+    color: white;
+    margin-bottom: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .c01 .tone-sub {
+    font: 400 8.5px 'Geist Mono', monospace;
+    color: var(--text-dim);
+  }
+  .c01 .eq {
+    display: flex; gap: 2px; align-items: flex-end;
+    height: 16px; width: 16px;
+  }
+  .c01 .eq span {
+    width: 2px;
+    background: var(--gold-bright);
+    border-radius: 1px;
+    animation: eqBars 0.9s ease-in-out infinite;
+  }
+  .c01 .eq span:nth-child(1) { animation-delay: 0s; }
+  .c01 .eq span:nth-child(2) { animation-delay: 0.2s; }
+  .c01 .eq span:nth-child(3) { animation-delay: 0.4s; }
+  .c01 .eq span:nth-child(4) { animation-delay: 0.1s; }
+  @keyframes eqBars {
+    0%, 100% { height: 30%; }
+    50%      { height: 100%; }
+  }
+  .c01 .play-mini {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 02 — VINYL RECORD
+     ════════════════════════════════════════════════════════════ */
+  .c02 .screen {
+    background:
+      radial-gradient(ellipse at top, #2a1810, #1a0e08 70%),
+      #1a0e08;
+  }
+  .c02 .screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence baseFrequency='0.7' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.4'/></svg>");
+    opacity: 0.25;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .c02 .app-head .label {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    color: #d4a86a;
+  }
+  .c02 .chip {
+    background: rgba(212,168,106,0.08);
+    color: #c9a961;
+    border: 1px solid rgba(212,168,106,0.25);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    text-transform: lowercase;
+    letter-spacing: normal;
+  }
+  .c02 .chip.active {
+    background: linear-gradient(180deg, #c9a961, #8b6f33);
+    color: #1a0e08;
+    border-color: #c9a961;
+    font-weight: 700;
+  }
+  .c02 .hero {
+    position: absolute;
+    top: 92px; left: 12px; right: 12px;
+    height: 145px;
+    border-radius: 4px;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, #2d1f12, #1a0e08),
+      #1a0e08;
+    border: 1px solid rgba(212,168,106,0.3);
+    display: flex; align-items: center; padding: 12px 14px; gap: 14px;
+  }
+  .c02 .vinyl {
+    position: relative;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #2a1208 18%, transparent 19%),
+      repeating-radial-gradient(circle, #0a0a0a 0, #0a0a0a 1.5px, #1a1a1a 1.5px, #1a1a1a 3px),
+      #050505;
+    box-shadow:
+      0 4px 12px rgba(0,0,0,0.6),
+      inset 0 0 4px rgba(255,255,255,0.1);
+    flex-shrink: 0;
+    animation: vinylSpin 6s linear infinite;
+  }
+  .c02 .vinyl::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36%; height: 36%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #d4a86a 0, #b8893d 60%, #6e4e1f 100%);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3);
+  }
+  .c02 .vinyl::after {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #050505;
+  }
+  @keyframes vinylSpin {
+    to { transform: rotate(360deg); }
+  }
+  .c02 .album-info { flex: 1; min-width: 0; }
+  .c02 .album-cat {
+    font: 600 8px 'Geist Mono', monospace;
+    color: #c9a961;
+    letter-spacing: 0.22em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .c02 .album-title {
+    font: italic 400 16px/1 'Fraunces', serif;
+    color: #f4e4c1;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .c02 .album-tracks {
+    font: 400 9px 'Fraunces', serif;
+    font-style: italic;
+    color: #a48962;
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+  .c02 .album-tracks .num {
+    color: #c9a961;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .c02 .play-btn {
+    display: inline-flex;
+    align-items: center; gap: 5px;
+    background: linear-gradient(180deg, #d4a86a, #8b6f33);
+    color: #1a0e08;
+    padding: 5px 12px 5px 10px;
+    border-radius: 2px;
+    font: 700 9px 'Fraunces', serif;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .c02 .play-btn::before { content: '▶'; font-size: 8px; }
+
+  .c02 .recommend {
+    position: absolute;
+    top: 254px; left: 12px; right: 12px;
+  }
+  .c02 .recommend .sec-label {
+    font: italic 500 14px 'Fraunces', serif;
+    color: #d4a86a;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+  }
+  .c02 .vinyl-row {
+    display: flex; gap: 10px; justify-content: space-around;
+  }
+  .c02 .vinyl-mini {
+    width: 64px;
+    text-align: center;
+  }
+  .c02 .vinyl-mini .disc {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #2a1208 18%, transparent 19%),
+      repeating-radial-gradient(circle, #0a0a0a 0, #0a0a0a 1px, #1a1a1a 1px, #1a1a1a 2px),
+      #050505;
+    margin: 0 auto 6px;
+    position: relative;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+  }
+  .c02 .vinyl-mini .disc::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36%; height: 36%; border-radius: 50%;
+    background: radial-gradient(circle, #c9a961, #8b6f33);
+  }
+  .c02 .vinyl-mini.spinning .disc {
+    animation: vinylSpin 4s linear infinite;
+  }
+  .c02 .vinyl-mini .title {
+    font: italic 500 9px 'Fraunces', serif;
+    color: #d4a86a;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .c02 .vinyl-mini .dur {
+    font: 400 7.5px 'Geist Mono', monospace;
+    color: #6e4e1f;
+    letter-spacing: 0.1em;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 03 — STUDIO CONSOLE
+     ════════════════════════════════════════════════════════════ */
+  .c03 .screen {
+    background:
+      linear-gradient(180deg, #1f2638 0%, #14182a 100%),
+      #1a1f2e;
+  }
+  .c03 .screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(0deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 14px 14px;
+    pointer-events: none;
+  }
+  .c03 .app-head .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: #ff8c42;
+    font-size: 13px;
+    text-shadow: 0 0 8px rgba(255,140,66,0.4);
+  }
+  .c03 .chip {
+    background: rgba(20,28,46,0.8);
+    color: #8a99b3;
+    border: 1px solid rgba(255,140,66,0.18);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 8px;
+  }
+  .c03 .chip.active {
+    background: rgba(255,140,66,0.18);
+    color: #ff8c42;
+    border-color: #ff8c42;
+    box-shadow: 0 0 8px rgba(255,140,66,0.3);
+  }
+  .c03 .console {
+    position: absolute;
+    top: 92px; left: 12px; right: 12px;
+    height: 165px;
+    background:
+      linear-gradient(180deg, #232a3e, #1a1f2e),
+      #1a1f2e;
+    border: 1px solid rgba(255,140,66,0.22);
+    border-radius: 6px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.05),
+      0 4px 12px rgba(0,0,0,0.5);
+    padding: 10px;
+  }
+  .c03 .console-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,140,66,0.15);
+  }
+  .c03 .console-head .lbl {
+    font: 700 8.5px 'JetBrains Mono', monospace;
+    color: #ff8c42;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .c03 .leds {
+    display: flex; gap: 3px;
+  }
+  .c03 .leds .led {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(255,140,66,0.18);
+  }
+  .c03 .leds .led.on {
+    background: #ff8c42;
+    box-shadow: 0 0 6px #ff8c42;
+  }
+  .c03 .leds .led.green { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+  .c03 .console-name {
+    font: italic 500 14px 'Fraunces', serif;
+    color: #f4e9d8;
+    margin-bottom: 4px;
+  }
+  .c03 .console-meta {
+    font: 600 9px 'JetBrains Mono', monospace;
+    color: #8a99b3;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+  .c03 .console-meta span { color: #ff8c42; }
+  .c03 .faders {
+    display: flex; gap: 8px; align-items: flex-end;
+    height: 50px;
+    padding: 0 4px;
+  }
+  .c03 .fader {
+    flex: 1;
+    height: 100%;
+    background:
+      linear-gradient(180deg, #0d111a 0%, #1a1f2e 100%);
+    border-radius: 2px;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .c03 .fader .level {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg,
+      #ff8c42 0%, #ffb573 50%, #ff8c42 100%);
+    border-radius: 1px 1px 0 0;
+    box-shadow: 0 0 8px rgba(255,140,66,0.5);
+  }
+  .c03 .fader:nth-child(1) .level { height: 75%; }
+  .c03 .fader:nth-child(2) .level { height: 60%; }
+  .c03 .fader:nth-child(3) .level { height: 90%; background: linear-gradient(180deg, #4ade80 0%, #86efac 50%, #4ade80 100%); box-shadow: 0 0 8px rgba(74,222,128,0.5); }
+  .c03 .fader:nth-child(4) .level { height: 45%; }
+  .c03 .fader:nth-child(5) .level { height: 70%; }
+  .c03 .fader:nth-child(6) .level { height: 35%; }
+  .c03 .fader:nth-child(7) .level { height: 80%; }
+  .c03 .fader:nth-child(8) .level { height: 55%; }
+
+  .c03 .recommend {
+    position: absolute;
+    top: 274px; left: 12px; right: 12px;
+  }
+  .c03 .recommend .sec-label {
+    font: 700 10px 'JetBrains Mono', monospace;
+    color: #ff8c42;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 10px;
+  }
+  .c03 .modules { display: flex; gap: 6px; }
+  .c03 .module {
+    flex: 1;
+    background:
+      linear-gradient(180deg, #232a3e, #1a1f2e);
+    border: 1px solid rgba(255,140,66,0.2);
+    border-radius: 4px;
+    padding: 6px 6px 8px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .c03 .module .knob {
+    width: 26px; height: 26px;
+    margin: 0 auto 5px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #4a5468, #1a1f2e);
+    border: 1px solid rgba(255,140,66,0.25);
+    position: relative;
+  }
+  .c03 .module .knob::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 50%;
+    transform: translateX(-50%);
+    width: 1.5px; height: 8px;
+    background: #ff8c42;
+    border-radius: 1px;
+  }
+  .c03 .module:nth-child(2) .knob::after { transform: translateX(-50%) rotate(45deg); transform-origin: center 9px; }
+  .c03 .module:nth-child(3) .knob::after { transform: translateX(-50%) rotate(-30deg); transform-origin: center 9px; }
+  .c03 .module .label-mini {
+    font: 700 7px 'JetBrains Mono', monospace;
+    color: #ff8c42;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+  }
+  .c03 .module .val {
+    font: 600 7px 'JetBrains Mono', monospace;
+    color: #8a99b3;
+    text-align: center;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 04 — CINEMA SOUNDTRACK
+     ════════════════════════════════════════════════════════════ */
+  .c04 .screen {
+    background:
+      radial-gradient(ellipse at top, rgba(212,175,55,0.08), transparent 70%),
+      linear-gradient(180deg, #1a0707 0%, #0d0303 100%);
+  }
+  .c04 .screen::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 200%; height: 100%;
+    background:
+      radial-gradient(ellipse 50% 30% at 30% 0%, rgba(245,214,118,0.18), transparent 70%),
+      radial-gradient(ellipse 50% 30% at 70% 0%, rgba(245,214,118,0.12), transparent 70%);
+    pointer-events: none;
+  }
+  .c04 .app-head .label {
+    font: italic 500 18px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 12px rgba(245,214,118,0.3);
+  }
+  .c04 .chip {
+    background: transparent;
+    color: rgba(245,214,118,0.6);
+    border: 1px solid rgba(245,214,118,0.25);
+    font: italic 500 9px 'Fraunces', serif;
+    text-transform: lowercase;
+    letter-spacing: normal;
+  }
+  .c04 .chip.active {
+    background: var(--gold-bright);
+    color: #1a0707;
+    border-color: var(--gold-bright);
+    box-shadow: 0 0 12px rgba(245,214,118,0.4);
+    font-weight: 700;
+  }
+  .c04 .poster {
+    position: absolute;
+    top: 92px; left: 12px; right: 12px;
+    height: 200px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #2d0e0e, #1a0707);
+    border: 1px solid rgba(245,214,118,0.25);
+    box-shadow:
+      0 8px 24px rgba(0,0,0,0.6),
+      inset 0 1px 0 rgba(245,214,118,0.1);
+    padding: 14px 16px;
+  }
+  .c04 .poster::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    width: 70%; height: 70%;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse, rgba(245,214,118,0.18), transparent 70%);
+    pointer-events: none;
+  }
+  .c04 .poster-cat {
+    font: 700 8.5px 'Geist Mono', monospace;
+    color: var(--gold);
+    letter-spacing: 0.32em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .c04 .poster-cat::after {
+    content: ' · OST · MMXXVI';
+    color: rgba(212,175,55,0.5);
+  }
+  .c04 .poster-title {
+    font: italic 400 26px/1 'Fraunces', serif;
+    color: #fff8e7;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .c04 .poster-by {
+    font: 400 9px 'Fraunces', serif;
+    font-style: italic;
+    color: rgba(245,214,118,0.7);
+    margin-bottom: 12px;
+  }
+  .c04 .poster-by strong { color: var(--gold-bright); font-weight: 600; }
+  .c04 .poster-meta {
+    font: 400 9px 'Geist', sans-serif;
+    color: rgba(255,248,231,0.65);
+    line-height: 1.4;
+    margin-bottom: 12px;
+    border-left: 1px solid var(--gold);
+    padding-left: 8px;
+  }
+  .c04 .poster-cta {
+    display: inline-flex;
+    align-items: center; gap: 6px;
+    color: var(--gold-bright);
+    border: 1px solid var(--gold-bright);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font: italic 600 10px 'Fraunces', serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .c04 .poster-cta::before { content: '♪'; font-style: normal; font-size: 11px; }
+  .c04 .poster-deco {
+    position: absolute;
+    bottom: 8px; right: 12px;
+    font: 700 7px 'Geist Mono', monospace;
+    color: rgba(245,214,118,0.4);
+    letter-spacing: 0.3em;
+  }
+  .c04 .recommend {
+    position: absolute;
+    top: 308px; left: 12px; right: 12px;
+  }
+  .c04 .recommend .sec-label {
+    font: italic 500 14px 'Fraunces', serif;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+  .c04 .posters-row { display: flex; gap: 6px; }
+  .c04 .mini-poster {
+    flex: 1;
+    aspect-ratio: 3 / 4;
+    border-radius: 3px;
+    background:
+      linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7)),
+      linear-gradient(135deg, #4a1a1a, #1a0707);
+    border: 1px solid rgba(245,214,118,0.25);
+    padding: 6px 6px;
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .c04 .mini-poster:nth-child(2) { background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7)), linear-gradient(135deg, #5a1f0a, #1a0707); }
+  .c04 .mini-poster:nth-child(3) { background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7)), linear-gradient(135deg, #3a1a4a, #0d0303); }
+  .c04 .mini-poster .ttl {
+    font: italic 500 9px/1.05 'Fraunces', serif;
+    color: var(--gold-bright);
+  }
+  .c04 .mini-poster .num {
+    position: absolute;
+    top: 4px; left: 5px;
+    font: 700 6.5px 'Geist Mono', monospace;
+    color: rgba(245,214,118,0.6);
+    letter-spacing: 0.15em;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 05 — RETRO CASSETTE / WALKMAN 80s
+     ════════════════════════════════════════════════════════════ */
+  .c05 .screen {
+    background:
+      linear-gradient(180deg, #2a0a4a 0%, #0a0533 50%, #1a0a2a 100%);
+  }
+  .c05 .screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(0deg, rgba(255,20,147,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.06) 1px, transparent 1px);
+    background-size: 12px 12px;
+    pointer-events: none;
+  }
+  .c05 .screen::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -50%; right: -50%;
+    height: 280px;
+    background:
+      linear-gradient(0deg,
+        transparent 0%,
+        rgba(255,20,147,0.12) 30%,
+        transparent 60%);
+    transform: perspective(80px) rotateX(45deg);
+    transform-origin: bottom;
+    pointer-events: none;
+  }
+  .c05 .app-head .label {
+    font: 800 16px 'Geist', sans-serif;
+    color: #FF1493;
+    letter-spacing: 0.12em;
+    text-shadow:
+      0 0 4px #FF1493,
+      0 0 12px rgba(255,20,147,0.5),
+      2px 0 0 rgba(0,255,255,0.5);
+  }
+  .c05 .chip {
+    background: rgba(0,255,255,0.06);
+    color: #00FFFF;
+    border: 1px solid rgba(0,255,255,0.4);
+    font: 700 9px 'Geist', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 4px rgba(0,255,255,0.5);
+  }
+  .c05 .chip.active {
+    background: linear-gradient(180deg, #FF1493, #c1106f);
+    color: white;
+    border-color: #FF1493;
+    box-shadow: 0 0 12px rgba(255,20,147,0.6);
+    text-shadow: none;
+  }
+  .c05 .cassette {
+    position: absolute;
+    top: 92px; left: 12px; right: 12px;
+    height: 145px;
+    border-radius: 6px;
+    background:
+      linear-gradient(180deg, #1a0a4a, #0a0530);
+    border: 2px solid #FF1493;
+    box-shadow:
+      0 0 20px rgba(255,20,147,0.4),
+      inset 0 0 20px rgba(0,255,255,0.1);
+    padding: 16px;
+    overflow: hidden;
+  }
+  .c05 .cassette::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 14px;
+    background: linear-gradient(90deg, #FF1493, #00FFFF);
+  }
+  .c05 .cassette-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 4px;
+    margin-bottom: 12px;
+  }
+  .c05 .cassette-cat {
+    font: 800 8px 'Geist', sans-serif;
+    color: #00FFFF;
+    letter-spacing: 0.18em;
+    text-shadow: 0 0 6px rgba(0,255,255,0.6);
+    text-transform: uppercase;
+    background: rgba(0,255,255,0.1);
+    border: 1px solid rgba(0,255,255,0.4);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+  .c05 .cassette-side {
+    font: 800 8px 'Geist Mono', monospace;
+    color: #FF1493;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 6px rgba(255,20,147,0.6);
+  }
+  .c05 .reels {
+    display: flex; justify-content: space-between;
+    padding: 0 16px 12px;
+  }
+  .c05 .reel {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #2a0a4a 25%, transparent 26%),
+      conic-gradient(from 0deg, #00FFFF, #FF1493, #00FFFF);
+    border: 1px solid rgba(0,255,255,0.5);
+    position: relative;
+    animation: reelSpin 2s linear infinite;
+    box-shadow: 0 0 8px rgba(255,20,147,0.4);
+  }
+  .c05 .reel::after {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #1a0a2a;
+  }
+  @keyframes reelSpin {
+    to { transform: rotate(360deg); }
+  }
+  .c05 .cassette-title {
+    font: 800 14px 'Geist', sans-serif;
+    color: #FFE6F8;
+    letter-spacing: 0.04em;
+    text-align: center;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    text-shadow:
+      0 0 4px rgba(255,20,147,0.6),
+      0 0 12px rgba(255,20,147,0.3);
+  }
+  .c05 .cassette-meta {
+    font: 600 8.5px 'Geist Mono', monospace;
+    color: rgba(0,255,255,0.85);
+    text-align: center;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .c05 .recommend {
+    position: absolute;
+    top: 254px; left: 12px; right: 12px;
+  }
+  .c05 .recommend .sec-label {
+    font: 800 11px 'Geist', sans-serif;
+    color: #FFE6F8;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 10px;
+    text-shadow: 0 0 6px rgba(255,20,147,0.4);
+  }
+  .c05 .tape-row {
+    display: flex; gap: 8px;
+  }
+  .c05 .tape-mini {
+    flex: 1;
+    height: 60px;
+    background:
+      linear-gradient(180deg, #1a0a4a, #0a0530);
+    border: 1px solid rgba(255,20,147,0.5);
+    border-radius: 4px;
+    padding: 6px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 8px rgba(255,20,147,0.2);
+  }
+  .c05 .tape-mini::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #FF1493, #00FFFF);
+  }
+  .c05 .tape-mini .reels-mini {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 6px; margin-bottom: 4px;
+  }
+  .c05 .tape-mini .reels-mini .r {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #2a0a4a 30%, transparent 31%),
+      conic-gradient(from 0deg, #00FFFF, #FF1493, #00FFFF);
+    animation: reelSpin 3s linear infinite;
+  }
+  .c05 .tape-mini .ttl {
+    font: 700 7.5px 'Geist', sans-serif;
+    color: #FFE6F8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .c05 .tape-mini .dur {
+    font: 600 6.5px 'Geist Mono', monospace;
+    color: #00FFFF;
+    text-align: center;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      Pixora<span class="ornament">·</span><span class="accent">TONES Tab</span>
+      <br/>
+      <span style="font-style:normal; font-weight:300; font-size:0.55em; color:var(--text-dim);">cinco identidades para una sección de audio</span>
+    </h1>
+    <p class="subtitle">
+      El tab actual se ve <em>blanco y plano</em> — no parece parte de Pixora.
+      Cinco enfoques radicalmente distintos, cada uno con un lenguaje visual
+      propio para resolver el "feels like a different app" problem.
+    </p>
+    <div class="header-rule">
+      <span>archive · doc-010</span>
+      <div class="line"></div>
+      <span>mayo · MMXXVI</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 01 — SPOTIFY DARK
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c01">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="label">TONES</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="chips">
+            <span class="chip active">All</span>
+            <span class="chip">Ringtones</span>
+            <span class="chip">Messages</span>
+          </div>
+          <div class="hero">
+            <div class="hero-content">
+              <div class="pack-art"></div>
+              <div class="hero-text">
+                <div class="hero-cat">GAMING · 9 TONES</div>
+                <div class="hero-title">Legend of Zelda</div>
+                <div class="hero-meta">Iconic sounds from Hyrule</div>
+                <span class="play-btn">EXPLORE</span>
+              </div>
+            </div>
+          </div>
+          <div class="recommend">
+            <div class="sec-label">Recommended for You</div>
+            <div class="row">
+              <div class="tone-row">
+                <div class="tone-art">♪</div>
+                <div class="tone-info">
+                  <div class="tone-title">Navi - Hey Listen</div>
+                  <div class="tone-sub">notification · 2s · POPULAR</div>
+                </div>
+                <div class="eq"><span></span><span></span><span></span><span></span></div>
+              </div>
+              <div class="tone-row b1">
+                <div class="tone-art">♬</div>
+                <div class="tone-info">
+                  <div class="tone-title">Heart Container</div>
+                  <div class="tone-sub">notification · 3s · NEW</div>
+                </div>
+                <span class="play-mini">▶</span>
+              </div>
+              <div class="tone-row b2">
+                <div class="tone-art">♩</div>
+                <div class="tone-info">
+                  <div class="tone-title">Ocarina · Saria's Song</div>
+                  <div class="tone-sub">ringtone · 8s</div>
+                </div>
+                <span class="play-mini">▶</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 01</div>
+        <div class="name">Spotify Dark</div>
+        <div class="tag">UX probada de streaming. Lista vertical, equalizer animado, gold accent. Familiar al instante.</div>
+        <div class="palette">
+          <span class="sw" style="background:#070710"></span>
+          <span class="sw" style="background:#14141F"></span>
+          <span class="sw" style="background:#F5D676"></span>
+          <span class="sw" style="background:#ffffff"></span>
+        </div>
+        <div class="verdict">
+          <strong>✓ Familiar y funcional.</strong>
+          Patrón conocido de Spotify dark mode. Riesgo: se siente "Spotify clone" si no agregamos carácter Pixora.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 02 — VINYL RECORD
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c02">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="label">tones</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="chips">
+            <span class="chip active">all</span>
+            <span class="chip">ringtones</span>
+            <span class="chip">messages</span>
+          </div>
+          <div class="hero">
+            <div class="vinyl"></div>
+            <div class="album-info">
+              <div class="album-cat">GAMING · LP-09</div>
+              <div class="album-title">Legend<br/>of Zelda</div>
+              <div class="album-tracks">
+                <span class="num">A1</span> Hey Listen<br/>
+                <span class="num">A2</span> Heart Container<br/>
+                <span class="num">A3</span> Saria's Song
+              </div>
+              <span class="play-btn">explore</span>
+            </div>
+          </div>
+          <div class="recommend">
+            <div class="sec-label">Recomendados</div>
+            <div class="vinyl-row">
+              <div class="vinyl-mini spinning">
+                <div class="disc"></div>
+                <div class="title">Hey Listen</div>
+                <div class="dur">— 2s</div>
+              </div>
+              <div class="vinyl-mini">
+                <div class="disc"></div>
+                <div class="title">Heart C.</div>
+                <div class="dur">— 3s</div>
+              </div>
+              <div class="vinyl-mini">
+                <div class="disc"></div>
+                <div class="title">Ocarina</div>
+                <div class="dur">— 8s</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 02</div>
+        <div class="name">Vinyl Record</div>
+        <div class="tag">Discos de vinil giratorios + tipografía serif. Audio-store nostálgico, premium artisanal.</div>
+        <div class="palette">
+          <span class="sw" style="background:#1a0e08"></span>
+          <span class="sw" style="background:#8b6f33"></span>
+          <span class="sw" style="background:#c9a961"></span>
+          <span class="sw" style="background:#f4e4c1"></span>
+        </div>
+        <div class="verdict great">
+          <strong>★ Distintivo total.</strong>
+          Ningún competidor (ZEDGE, Walli) hace esto. Identidad propia. Riesgo: vinilos toman más espacio = menos tones por screen.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 03 — STUDIO CONSOLE
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c03">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="label">TONES</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="chips">
+            <span class="chip active">ALL</span>
+            <span class="chip">RING</span>
+            <span class="chip">MSG</span>
+          </div>
+          <div class="console">
+            <div class="console-head">
+              <span class="lbl">CH-09 · GAMING</span>
+              <div class="leds">
+                <span class="led on"></span>
+                <span class="led on"></span>
+                <span class="led on"></span>
+                <span class="led green"></span>
+              </div>
+            </div>
+            <div class="console-name">Legend of Zelda</div>
+            <div class="console-meta">9 TRACKS · <span>120 BPM</span> · 16-BIT MASTER</div>
+            <div class="faders">
+              <div class="fader"><div class="level"></div></div>
+              <div class="fader"><div class="level"></div></div>
+              <div class="fader"><div class="level"></div></div>
+              <div class="fader"><div class="level"></div></div>
+              <div class="fader"><div class="level"></div></div>
+              <div class="fader"><div class="level"></div></div>
+              <div class="fader"><div class="level"></div></div>
+              <div class="fader"><div class="level"></div></div>
+            </div>
+          </div>
+          <div class="recommend">
+            <div class="sec-label">// MODULES</div>
+            <div class="modules">
+              <div class="module">
+                <div class="knob"></div>
+                <div class="label-mini">NAVI</div>
+                <div class="val">2.0s</div>
+              </div>
+              <div class="module">
+                <div class="knob"></div>
+                <div class="label-mini">HEART</div>
+                <div class="val">3.0s</div>
+              </div>
+              <div class="module">
+                <div class="knob"></div>
+                <div class="label-mini">SARIA</div>
+                <div class="val">8.4s</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 03</div>
+        <div class="name">Studio Console</div>
+        <div class="tag">Faders + LEDs + knobs como mesa de mezclas. Pro audio gear, Roland/Korg synth aesthetic.</div>
+        <div class="palette">
+          <span class="sw" style="background:#1a1f2e"></span>
+          <span class="sw" style="background:#FF8C42"></span>
+          <span class="sw" style="background:#4ade80"></span>
+          <span class="sw" style="background:#f4e9d8"></span>
+        </div>
+        <div class="verdict">
+          <strong>✓ Premium pro-audio feel.</strong>
+          Muy on-brand para "tonos". Visualmente rico — riesgo de sentirse "busy" si se sobrecarga con elementos.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 04 — CINEMA SOUNDTRACK
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c04">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="label">tones</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="chips">
+            <span class="chip active">all</span>
+            <span class="chip">ringtones</span>
+            <span class="chip">messages</span>
+          </div>
+          <div class="poster">
+            <div class="poster-cat">GAMING · ZELDA</div>
+            <div class="poster-title">Legend<br/>of Zelda</div>
+            <div class="poster-by">composed by <strong>Koji Kondo</strong> · arr. P</div>
+            <div class="poster-meta">9 ceremonial tones, ocarina meditations, fairy chimes — sonic relics from Hyrule.</div>
+            <span class="poster-cta">EXPLORE</span>
+            <div class="poster-deco">OST · MMXXVI</div>
+          </div>
+          <div class="recommend">
+            <div class="sec-label">Featured Tracks</div>
+            <div class="posters-row">
+              <div class="mini-poster">
+                <span class="num">N° I</span>
+                <div class="ttl">Hey Listen<br/><span style="opacity:0.5">— 2s</span></div>
+              </div>
+              <div class="mini-poster">
+                <span class="num">N° XVII</span>
+                <div class="ttl">Heart Cont.<br/><span style="opacity:0.5">— 3s</span></div>
+              </div>
+              <div class="mini-poster">
+                <span class="num">N° XXIII</span>
+                <div class="ttl">Saria's Song<br/><span style="opacity:0.5">— 8s</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 04</div>
+        <div class="name">Cinema Soundtrack</div>
+        <div class="tag">Rojo profundo + gold + Fraunces italic. Album de banda sonora cinematográfica.</div>
+        <div class="palette">
+          <span class="sw" style="background:#1a0707"></span>
+          <span class="sw" style="background:#5a0a0a"></span>
+          <span class="sw" style="background:#F5D676"></span>
+          <span class="sw" style="background:#fff8e7"></span>
+        </div>
+        <div class="verdict great">
+          <strong>★ Más on-brand con el resto de Pixora.</strong>
+          Coherente con sistema Black & Gold. Premium, refinado. Riesgo: se siente "música clásica", menos "tones".
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 05 — RETRO CASSETTE / WALKMAN 80s
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c05">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="label">TONES</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="chips">
+            <span class="chip active">All</span>
+            <span class="chip">Ring</span>
+            <span class="chip">Msg</span>
+          </div>
+          <div class="cassette">
+            <div class="cassette-head">
+              <span class="cassette-cat">GAMING</span>
+              <span class="cassette-side">SIDE A</span>
+            </div>
+            <div class="reels">
+              <div class="reel"></div>
+              <div class="reel"></div>
+            </div>
+            <div class="cassette-title">Zelda OST</div>
+            <div class="cassette-meta">9 TRACKS · 0:00/2:34</div>
+          </div>
+          <div class="recommend">
+            <div class="sec-label">★ Top Mixtape</div>
+            <div class="tape-row">
+              <div class="tape-mini">
+                <div class="reels-mini"><div class="r"></div><div class="r"></div></div>
+                <div class="ttl">Hey Listen</div>
+                <div class="dur">— 2s</div>
+              </div>
+              <div class="tape-mini">
+                <div class="reels-mini"><div class="r"></div><div class="r"></div></div>
+                <div class="ttl">Heart C.</div>
+                <div class="dur">— 3s</div>
+              </div>
+              <div class="tape-mini">
+                <div class="reels-mini"><div class="r"></div><div class="r"></div></div>
+                <div class="ttl">Saria</div>
+                <div class="dur">— 8s</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 05</div>
+        <div class="name">Retro Cassette</div>
+        <div class="tag">Synthwave 80s · cassettes con reels girando · neón pink/cyan · pixel grid bg.</div>
+        <div class="palette">
+          <span class="sw" style="background:#1a0a4a"></span>
+          <span class="sw" style="background:#FF1493"></span>
+          <span class="sw" style="background:#00FFFF"></span>
+          <span class="sw" style="background:#FFE6F8"></span>
+        </div>
+        <div class="verdict warn">
+          <strong>⚠ Bold pero inconsistente.</strong>
+          Distintivo y divertido. Pero el aesthetic 80s no encaja con el sistema Black & Gold del resto de Pixora — se sentiría "tab de otro app".
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Pixora · TONES redesign · design archive · mayo MMXXVI
+  </footer>
+</div>
+
+</body>
+</html>

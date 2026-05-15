@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · DAY CYCLE Tab · 5 Conceptos de Rediseño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --surface:     #14141F;
+    --surface-2:   #1c1c2a;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at top, rgba(80,40,120,0.08), transparent 65%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* Header */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · DAY-CYCLE-REDESIGN / DOC-012';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent { color: var(--gold-bright); }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 720px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 56px 36px;
+  }
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0ms; }
+  .concept:nth-child(2) { animation-delay: 130ms; }
+  .concept:nth-child(3) { animation-delay: 260ms; }
+  .concept:nth-child(4) { animation-delay: 390ms; }
+  .concept:nth-child(5) { animation-delay: 520ms; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Phone frame (shared) */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 540;
+    margin: 0 auto 22px;
+    background: var(--ink);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.05),
+      0 0 0 9px #1a1a22,
+      0 24px 56px rgba(0,0,0,0.65),
+      0 0 80px var(--gold-haze);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 18px;
+    background: #000;
+    border-radius: 0 0 14px 14px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 22px;
+    font: 600 9px 'Geist', sans-serif;
+    color: var(--text);
+    z-index: 11;
+  }
+  .phone .statusbar .battery {
+    width: 14px; height: 7px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 4px; bottom: 2px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    overflow: hidden;
+  }
+
+  /* App header (per concept) */
+  .app-head {
+    position: absolute;
+    top: 26px; left: 12px; right: 12px;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 8;
+  }
+  .app-head .ava {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6a4cff, #2a1a6a);
+    color: white;
+    font: 700 12px 'Geist', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .app-head .credits {
+    margin-left: auto;
+    background: rgba(20,20,31,0.7);
+    border: 1px solid rgba(212,175,55,0.4);
+    color: var(--gold-bright);
+    border-radius: 999px;
+    padding: 3px 10px 3px 8px;
+    font: 600 10px 'Geist', sans-serif;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .app-head .credits::before { content: '◆'; font-size: 8px; }
+
+  /* Meta block */
+  .meta {
+    margin-top: 18px;
+    padding: 0 6px;
+  }
+  .meta .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .meta .name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+  .meta .tag {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .meta .palette {
+    display: flex; gap: 5px;
+    margin-bottom: 12px;
+  }
+  .meta .palette .sw {
+    width: 18px; height: 18px;
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .verdict {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(212,175,55,0.06);
+    border-left: 2px solid var(--gold);
+    font-family: 'Geist', sans-serif;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .verdict strong { color: var(--gold-bright); font-weight: 600; }
+  .verdict.warn  { background: rgba(255,100,80,0.06); border-left-color: #ff7a6b; }
+  .verdict.warn strong { color: #ffb1a6; }
+  .verdict.great { background: rgba(98,228,158,0.05); border-left-color: #62E49E; }
+  .verdict.great strong { color: #99FFCB; }
+
+  footer {
+    text-align: center;
+    margin-top: 88px;
+    padding-top: 30px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer::before {
+    content: '◆';
+    display: block;
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  /* Sample alien planet phase gradients (4 phases) */
+  .alien-morning {
+    background:
+      radial-gradient(circle at 70% 25%, #ff8ab8 0%, transparent 30%),
+      radial-gradient(circle at 30% 30%, #ffd2a8 0%, transparent 35%),
+      linear-gradient(180deg, #6a4f8c 0%, #b07a99 35%, #d99a85 60%, #4a3a6a 100%);
+  }
+  .alien-noon {
+    background:
+      radial-gradient(circle at 70% 22%, #ffe566 0%, transparent 30%),
+      radial-gradient(circle at 30% 25%, #ffb185 0%, transparent 35%),
+      linear-gradient(180deg, #b94d8c 0%, #e07a5b 40%, #ffb085 70%, #663355 100%);
+  }
+  .alien-evening {
+    background:
+      radial-gradient(circle at 70% 30%, #ff5a6f 0%, transparent 30%),
+      radial-gradient(circle at 30% 28%, #ff8a3d 0%, transparent 35%),
+      linear-gradient(180deg, #4a1a4a 0%, #c2424f 40%, #ff7a3a 70%, #2a0a35 100%);
+  }
+  .alien-night {
+    background:
+      radial-gradient(circle at 70% 22%, #6a8aff 0%, transparent 25%),
+      radial-gradient(circle at 30% 25%, #a55fff 0%, transparent 30%),
+      linear-gradient(180deg, #0a0830 0%, #1a1248 35%, #3a1a55 65%, #050518 100%);
+  }
+  .alien-night::after, .alien-evening::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 12% 16%, rgba(255,255,255,0.7), transparent 60%),
+      radial-gradient(1px 1px at 36% 8%, rgba(255,255,255,0.5), transparent 60%),
+      radial-gradient(1px 1px at 58% 14%, rgba(255,255,255,0.85), transparent 60%),
+      radial-gradient(1px 1px at 80% 6%, rgba(255,255,255,0.6), transparent 60%);
+  }
+
+  /* Mountains silhouette overlay (used in some concepts) */
+  .alien-mountains::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 35%;
+    background:
+      linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 100%);
+    clip-path: polygon(
+      0% 100%, 0% 65%, 8% 50%, 18% 60%, 28% 35%, 40% 55%,
+      52% 30%, 64% 50%, 76% 25%, 88% 45%, 100% 35%, 100% 100%
+    );
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 01 — SUNDIAL COMPASS
+     ════════════════════════════════════════════════════════════ */
+  .c01 .app-head .title {
+    font: italic 500 18px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.02em;
+  }
+  .c01 .featured {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+    height: 240px;
+    border-radius: 14px;
+    background:
+      radial-gradient(ellipse at 50% 30%, #1a1530 0%, #07071a 70%),
+      var(--surface);
+    border: 1px solid var(--gold-dark);
+    overflow: hidden;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .c01 .featured::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 50% 110%, rgba(245,214,118,0.18), transparent 60%);
+  }
+  .c01 .pack-cat {
+    font: 700 8.5px 'JetBrains Mono', monospace;
+    color: var(--gold);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 2;
+  }
+  .c01 .pack-title {
+    font: italic 400 18px 'Fraunces', serif;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+    position: relative;
+    z-index: 2;
+  }
+  .c01 .dial {
+    position: relative;
+    width: 150px; height: 150px;
+    margin: 4px auto 0;
+    border-radius: 50%;
+    border: 2px solid var(--gold-bright);
+    box-shadow:
+      0 0 24px rgba(212,175,55,0.3),
+      inset 0 0 24px rgba(212,175,55,0.18);
+    z-index: 2;
+  }
+  .c01 .dial::before {
+    /* hour marks */
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background:
+      conic-gradient(from 0deg,
+        transparent 0deg, transparent 28deg,
+        rgba(245,214,118,0.4) 30deg, transparent 32deg, transparent 58deg,
+        rgba(245,214,118,0.4) 60deg, transparent 62deg, transparent 88deg,
+        rgba(245,214,118,0.6) 90deg, transparent 92deg, transparent 118deg,
+        rgba(245,214,118,0.4) 120deg, transparent 122deg, transparent 148deg,
+        rgba(245,214,118,0.4) 150deg, transparent 152deg, transparent 178deg,
+        rgba(245,214,118,0.6) 180deg, transparent 182deg, transparent 208deg,
+        rgba(245,214,118,0.4) 210deg, transparent 212deg, transparent 238deg,
+        rgba(245,214,118,0.4) 240deg, transparent 242deg, transparent 268deg,
+        rgba(245,214,118,0.6) 270deg, transparent 272deg, transparent 298deg,
+        rgba(245,214,118,0.4) 300deg, transparent 302deg, transparent 328deg,
+        rgba(245,214,118,0.4) 330deg, transparent 332deg, transparent 360deg);
+    -webkit-mask: radial-gradient(circle, transparent 60%, black 62%);
+            mask: radial-gradient(circle, transparent 60%, black 62%);
+  }
+  .c01 .dial-glyph {
+    position: absolute;
+    color: var(--gold-bright);
+    font: italic 500 11px 'Fraunces', serif;
+    text-shadow: 0 0 6px var(--gold-glow);
+    z-index: 2;
+  }
+  .c01 .dial-glyph.top { top: 10px; left: 50%; transform: translateX(-50%); }
+  .c01 .dial-glyph.right { right: 10px; top: 50%; transform: translateY(-50%); }
+  .c01 .dial-glyph.bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
+  .c01 .dial-glyph.left { left: 10px; top: 50%; transform: translateY(-50%); }
+  .c01 .dial-arm {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 50%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-bright));
+    transform-origin: left center;
+    transform: translateY(-50%) rotate(-45deg);
+    animation: dialSpin 12s linear infinite;
+    z-index: 3;
+    border-radius: 1px;
+    box-shadow: 0 0 6px var(--gold-glow);
+  }
+  .c01 .dial-arm::after {
+    content: '';
+    position: absolute;
+    right: -4px; top: 50%;
+    width: 12px; height: 12px;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff8d6, var(--gold-bright));
+    box-shadow: 0 0 16px var(--gold-bright), 0 0 28px var(--gold-glow);
+  }
+  @keyframes dialSpin {
+    to { transform: translateY(-50%) rotate(315deg); }
+  }
+  .c01 .dial-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; height: 40%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #1a1530, #07071a);
+    border: 1px solid var(--gold-dark);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 4;
+  }
+  .c01 .dial-center .now {
+    font: 700 13px 'JetBrains Mono', monospace;
+    color: var(--gold-bright);
+    letter-spacing: 0.04em;
+  }
+  .c01 .dial-center .next {
+    font: 400 7px 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    letter-spacing: 0.16em;
+    margin-top: 1px;
+  }
+  .c01 .pack-list {
+    position: absolute;
+    top: 314px; left: 12px; right: 12px;
+  }
+  .c01 .pack-list-label {
+    font: 700 9px 'JetBrains Mono', monospace;
+    color: var(--gold-deep);
+    letter-spacing: 0.22em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .c01 .mini-dial {
+    background: var(--surface);
+    border: 1px solid var(--gold-dark);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .c01 .mini-dial-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--gold-bright);
+    background:
+      conic-gradient(
+        var(--alien-morning) 0deg 90deg,
+        var(--alien-noon) 90deg 180deg,
+        var(--alien-evening) 180deg 270deg,
+        var(--alien-night) 270deg 360deg);
+    --alien-morning: #b07a99;
+    --alien-noon: #e07a5b;
+    --alien-evening: #c2424f;
+    --alien-night: #1a1248;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .c01 .mini-dial-circle::after {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold-bright);
+    box-shadow: 0 0 6px var(--gold-glow);
+  }
+  .c01 .mini-dial-info { flex: 1; }
+  .c01 .mini-dial-title {
+    font: italic 500 12px 'Fraunces', serif;
+    color: var(--gold-bright);
+  }
+  .c01 .mini-dial-sub {
+    font: 400 8px 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    margin-top: 1px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 02 — ASTRO ALMANAC (editorial)
+     ════════════════════════════════════════════════════════════ */
+  .c02 .screen {
+    background:
+      radial-gradient(ellipse at top, rgba(245,214,118,0.04), transparent 70%),
+      var(--ink);
+  }
+  .c02 .app-head .title {
+    font: italic 500 22px 'Fraunces', serif;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .c02 .almanac {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+  }
+  .c02 .alm-eye {
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    color: var(--gold-deep);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .c02 .alm-eye::before { content: '◆◆◆ '; color: var(--gold); }
+  .c02 .alm-title {
+    font: italic 400 22px 'Fraunces', serif;
+    color: var(--gold-bright);
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .c02 .alm-by {
+    font: italic 400 10px 'Fraunces', serif;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .c02 .alm-by::after { content: ' · ALIEN PLANET'; font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; color: var(--gold-deep); }
+  .c02 .alm-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .c02 .alm-divider::after {
+    content: '☼';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--ink);
+    color: var(--gold);
+    padding: 0 8px;
+    font-size: 11px;
+  }
+  .c02 .ephemeris {
+    background: var(--ink-2);
+    border: 1px solid var(--gold-dark);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .c02 .eph-row {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(245,214,118,0.1);
+  }
+  .c02 .eph-row:last-child { border-bottom: none; }
+  .c02 .eph-row.now {
+    background: rgba(245,214,118,0.06);
+    margin: 0 -8px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border-bottom: 1px solid rgba(245,214,118,0.1);
+  }
+  .c02 .eph-icon {
+    font: 400 11px 'Fraunces', serif;
+    color: var(--gold-bright);
+    text-align: center;
+  }
+  .c02 .eph-label {
+    font: italic 400 11px 'Fraunces', serif;
+    color: var(--text);
+  }
+  .c02 .eph-row.now .eph-label { color: var(--gold-bright); font-weight: 600; }
+  .c02 .eph-time {
+    font: 600 10px 'JetBrains Mono', monospace;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+  }
+  .c02 .alm-strip {
+    height: 16px;
+    border-radius: 2px;
+    background:
+      linear-gradient(90deg,
+        #b07a99 0%, #b07a99 25%,
+        #e07a5b 25%, #e07a5b 50%,
+        #c2424f 50%, #c2424f 75%,
+        #1a1248 75%, #1a1248 100%);
+    border: 1px solid var(--gold-dark);
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .c02 .alm-strip-marker {
+    position: absolute;
+    top: -3px; bottom: -3px; left: 38%;
+    width: 1.5px;
+    background: var(--gold-bright);
+    box-shadow: 0 0 6px var(--gold-bright);
+  }
+  .c02 .pack-list-label {
+    font: 700 8px 'JetBrains Mono', monospace;
+    color: var(--gold-deep);
+    letter-spacing: 0.22em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .c02 .alm-pack {
+    border-bottom: 1px solid rgba(245,214,118,0.12);
+    padding: 10px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .c02 .alm-pack-title {
+    font: italic 500 13px 'Fraunces', serif;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .c02 .alm-pack-meta {
+    font: 400 8.5px 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+  .c02 .alm-pack-strip {
+    width: 56px; height: 18px;
+    border-radius: 1px;
+    background:
+      linear-gradient(90deg,
+        #4a3a6a 0%, #4a3a6a 25%,
+        #b94d8c 25%, #b94d8c 50%,
+        #c2424f 50%, #c2424f 75%,
+        #0a0830 75%, #0a0830 100%);
+    border: 1px solid rgba(245,214,118,0.3);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 03 — DAY STRIP TIMELINE
+     ════════════════════════════════════════════════════════════ */
+  .c03 .app-head .title {
+    font: 700 14px 'Geist', sans-serif;
+    color: var(--text);
+    letter-spacing: 0.06em;
+  }
+  .c03 .featured {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--gold-dark);
+    padding: 14px 14px 16px;
+  }
+  .c03 .feat-cat {
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    color: var(--gold-bright);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .c03 .feat-title {
+    font: 700 18px 'Geist', sans-serif;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  /* the strip */
+  .c03 .strip {
+    height: 78px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    border: 1px solid var(--gold-dark);
+  }
+  .c03 .strip > div {
+    flex: 1;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+  }
+  .c03 .strip .seg.morning  { background: linear-gradient(180deg, #6a4f8c, #b07a99 50%, #d99a85); }
+  .c03 .strip .seg.noon     { background: linear-gradient(180deg, #b94d8c, #e07a5b 50%, #ffb085); }
+  .c03 .strip .seg.evening  { background: linear-gradient(180deg, #4a1a4a, #c2424f 50%, #ff7a3a); }
+  .c03 .strip .seg.night    { background: linear-gradient(180deg, #0a0830, #1a1248 50%, #3a1a55); }
+  .c03 .strip .seg::before {
+    /* mountains silhouette */
+    content: '';
+    position: absolute;
+    bottom: 0; left: -4px; right: -4px;
+    height: 30%;
+    background: rgba(0,0,0,0.5);
+    clip-path: polygon(0% 100%, 0% 70%, 25% 40%, 50% 65%, 75% 35%, 100% 60%, 100% 100%);
+  }
+  .c03 .strip .seg .label {
+    position: absolute;
+    top: 4px; left: 4px;
+    font: 700 6.5px 'JetBrains Mono', monospace;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+  .c03 .strip-axis {
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    font: 600 8px 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    padding: 0 2px;
+  }
+  /* live marker */
+  .c03 .strip .live-marker {
+    position: absolute;
+    top: -4px; bottom: -4px;
+    width: 2px;
+    background: var(--gold-bright);
+    box-shadow: 0 0 10px var(--gold-bright), 0 0 22px var(--gold-glow);
+    z-index: 5;
+    left: 0;
+    animation: liveSlide 18s linear infinite;
+  }
+  @keyframes liveSlide {
+    0%   { left: 5%; }
+    100% { left: 95%; }
+  }
+  .c03 .strip .live-marker::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--gold-bright);
+  }
+  .c03 .strip-time {
+    margin-top: 12px;
+    text-align: center;
+    font: 700 12px 'JetBrains Mono', monospace;
+    color: var(--gold-bright);
+    letter-spacing: 0.08em;
+  }
+  .c03 .strip-time small {
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-left: 6px;
+    font-size: 9px;
+  }
+  .c03 .pack-list {
+    position: absolute;
+    top: 280px; left: 12px; right: 12px;
+  }
+  .c03 .pack-row {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .c03 .pack-strip-row {
+    background: var(--surface);
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .c03 .pack-strip-row .name {
+    font: 700 11px 'Geist', sans-serif;
+    color: var(--text);
+    margin-bottom: 5px;
+    letter-spacing: -0.01em;
+  }
+  .c03 .pack-strip-row .mini-strip {
+    height: 14px;
+    border-radius: 2px;
+    overflow: hidden;
+    display: flex;
+    border: 1px solid rgba(245,214,118,0.2);
+    position: relative;
+  }
+  .c03 .pack-strip-row .mini-strip > div { flex: 1; }
+  .c03 .pack-strip-row .mini-strip .live {
+    position: absolute;
+    top: -2px; bottom: -2px;
+    width: 1.5px;
+    background: var(--gold-bright);
+    box-shadow: 0 0 4px var(--gold-bright);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 04 — HELIOS CHARIOT
+     ════════════════════════════════════════════════════════════ */
+  .c04 .screen {
+    background:
+      radial-gradient(ellipse at top, rgba(245,214,118,0.06), transparent 60%),
+      linear-gradient(180deg, #0a0820 0%, #050518 100%);
+  }
+  .c04 .screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 8% 22%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 22% 65%, rgba(245,214,118,0.5), transparent 50%),
+      radial-gradient(1px 1px at 38% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 52% 48%, rgba(245,214,118,0.85), transparent 50%),
+      radial-gradient(1px 1px at 68% 22%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 82% 70%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 92% 18%, rgba(245,214,118,0.7), transparent 50%);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .c04 .app-head .title {
+    font: italic 500 18px 'Fraunces', serif;
+    color: var(--gold-bright);
+    text-shadow: 0 0 10px var(--gold-glow);
+    letter-spacing: 0.02em;
+  }
+  .c04 .app-head .title::before {
+    content: '☼ ';
+    color: var(--gold-bright);
+    font-style: normal;
+    font-size: 14px;
+  }
+  .c04 .featured {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+    border-radius: 14px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at top, rgba(245,214,118,0.18), transparent 60%),
+      linear-gradient(180deg, #1a1042 0%, #0a0830 50%, #050518 100%);
+    border: 1px solid var(--gold-bright);
+    box-shadow: 0 0 20px rgba(212,175,55,0.2);
+    padding: 18px 16px 16px;
+    text-align: center;
+    height: 240px;
+  }
+  .c04 .helios-cat {
+    font: 700 8px 'JetBrains Mono', monospace;
+    color: var(--gold-bright);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .c04 .helios-cat::before, .c04 .helios-cat::after { content: ' ✦ '; color: var(--gold); }
+  .c04 .helios-title {
+    font: italic 400 22px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+    text-shadow: 0 0 12px var(--gold-glow);
+  }
+  /* the chariot path */
+  .c04 .arc {
+    position: relative;
+    width: 90%;
+    height: 100px;
+    margin: 4px auto;
+  }
+  .c04 .arc-svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .c04 .arc-svg .path {
+    stroke: var(--gold-bright);
+    stroke-width: 1;
+    fill: none;
+    stroke-dasharray: 2 3;
+    opacity: 0.6;
+  }
+  .c04 .arc-svg .station {
+    fill: var(--gold-bright);
+    stroke: var(--gold);
+    stroke-width: 0.5;
+  }
+  .c04 .arc-svg .station-label {
+    fill: var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 5.5px;
+    text-anchor: middle;
+    letter-spacing: 0.1em;
+  }
+  .c04 .helios-sun {
+    position: absolute;
+    top: 28%; left: 0;
+    transform: translate(-50%, -50%);
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff8d6 20%, var(--gold-bright) 60%, transparent);
+    box-shadow:
+      0 0 18px var(--gold-bright),
+      0 0 36px var(--gold-glow);
+    animation: heliosArc 12s ease-in-out infinite;
+    z-index: 3;
+  }
+  @keyframes heliosArc {
+    0%   { left: 5%;  top: 70%; }
+    25%  { left: 30%; top: 28%; }
+    50%  { left: 50%; top: 18%; }
+    75%  { left: 70%; top: 28%; }
+    100% { left: 95%; top: 70%; }
+  }
+  .c04 .helios-meta {
+    font: italic 400 10px 'Fraunces', serif;
+    color: rgba(245,214,118,0.7);
+    margin-top: 10px;
+  }
+  .c04 .pack-list {
+    position: absolute;
+    top: 314px; left: 12px; right: 12px;
+  }
+  .c04 .pl-label {
+    font: italic 500 12px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+  }
+  .c04 .pl-label::before { content: '✦ '; color: var(--gold); }
+  .c04 .const-card {
+    position: relative;
+    background:
+      radial-gradient(ellipse at right, rgba(245,214,118,0.12), transparent 50%),
+      linear-gradient(120deg, #1a1042 0%, #0a0830 100%);
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    padding: 10px 12px;
+    overflow: hidden;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .c04 .const-card .const-mini {
+    width: 50px; height: 30px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .c04 .const-card .const-mini svg { width: 100%; height: 100%; overflow: visible; }
+  .c04 .const-info { flex: 1; }
+  .c04 .const-name {
+    font: italic 500 12px 'Fraunces', serif;
+    color: var(--gold-bright);
+  }
+  .c04 .const-meta {
+    font: 400 8px 'JetBrains Mono', monospace;
+    color: rgba(245,214,118,0.55);
+    letter-spacing: 0.1em;
+    margin-top: 1px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 05 — SKY PHASES CINEMATIC
+     ════════════════════════════════════════════════════════════ */
+  .c05 .app-head .title {
+    font: 600 16px 'Geist', sans-serif;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .c05 .featured {
+    position: absolute;
+    top: 60px; left: 0; right: 0;
+    height: 300px;
+    overflow: hidden;
+  }
+  .c05 .featured .layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.8s;
+    animation: phaseMorph 12s ease-in-out infinite;
+  }
+  @keyframes phaseMorph {
+    0%, 22%   { opacity: 1; } /* show */
+    25%, 97%  { opacity: 0; } /* hide */
+  }
+  .c05 .featured .layer.morning { animation-delay: 0s; }
+  .c05 .featured .layer.noon    { animation-delay: 3s; }
+  .c05 .featured .layer.evening { animation-delay: 6s; }
+  .c05 .featured .layer.night   { animation-delay: 9s; }
+  .c05 .featured .layer::after {
+    /* mountains silhouette */
+    content: '';
+    position: absolute;
+    bottom: 0; left: -8px; right: -8px;
+    height: 38%;
+    background: rgba(0,0,0,0.55);
+    clip-path: polygon(
+      0% 100%, 0% 70%, 8% 55%, 18% 65%, 28% 40%, 42% 60%,
+      55% 35%, 68% 55%, 80% 30%, 92% 50%, 100% 40%, 100% 100%
+    );
+  }
+  .c05 .featured .overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.7) 100%);
+    z-index: 5;
+    pointer-events: none;
+  }
+  .c05 .featured-content {
+    position: absolute;
+    top: 16px; left: 16px; right: 16px;
+    z-index: 6;
+  }
+  .c05 .feat-cat {
+    font: 700 8px 'JetBrains Mono', monospace;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+  .c05 .feat-title {
+    font: 700 24px 'Geist', sans-serif;
+    color: white;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  }
+  .c05 .phase-badge {
+    position: absolute;
+    bottom: 16px; left: 16px;
+    z-index: 7;
+    background: rgba(20,20,31,0.55);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(245,214,118,0.4);
+    color: var(--gold-bright);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    animation: phaseLabelMorph 12s ease-in-out infinite;
+  }
+  @keyframes phaseLabelMorph {
+    0%, 22%   { content: 'MORNING'; }
+    25%, 47%  { content: 'NOON'; }
+    50%, 72%  { content: 'EVENING'; }
+    75%, 100% { content: 'NIGHT'; }
+  }
+  .c05 .phase-dots {
+    position: absolute;
+    bottom: 16px; right: 16px;
+    z-index: 7;
+    display: flex; gap: 4px;
+  }
+  .c05 .phase-dots .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+  }
+  .c05 .phase-dots .dot.active {
+    background: var(--gold-bright);
+    box-shadow: 0 0 6px var(--gold-glow);
+    width: 16px;
+    border-radius: 3px;
+  }
+  .c05 .pack-list {
+    position: absolute;
+    top: 376px; left: 12px; right: 12px;
+  }
+  .c05 .pl-row {
+    display: flex; gap: 8px;
+  }
+  .c05 .pl-card {
+    flex: 1;
+    aspect-ratio: 9/14;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(245,214,118,0.18);
+  }
+  .c05 .pl-card.b1 { background: linear-gradient(180deg, #6a4f8c 0%, #b07a99 50%, #d99a85 100%); }
+  .c05 .pl-card.b2 { background: linear-gradient(180deg, #c2424f 0%, #ff7a3a 70%, #2a0a35 100%); }
+  .c05 .pl-card.b3 { background: linear-gradient(180deg, #1a1248 0%, #3a1a55 60%, #050518 100%); }
+  .c05 .pl-card .ttl {
+    position: absolute;
+    bottom: 6px; left: 6px; right: 6px;
+    font: 600 9px 'Geist', sans-serif;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+  .c05 .pl-card .pdots {
+    position: absolute;
+    top: 6px; right: 6px;
+    display: flex; gap: 2px;
+  }
+  .c05 .pl-card .pdots .pd {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+  }
+  .c05 .pl-card .pdots .pd.on {
+    background: var(--gold-bright);
+  }
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      Pixora<span class="ornament">·</span><span class="accent">DAY CYCLE Tab</span>
+      <br/>
+      <span style="font-style:normal; font-weight:300; font-size:0.55em; color:var(--text-dim);">cinco maneras de visualizar las horas</span>
+    </h1>
+    <p class="subtitle">
+      Identidad visual para el feature de wallpapers que <em>cambian con la hora del día</em>.
+      Cinco aproximaciones — desde instrumento navegacional hasta Apple TV screensaver.
+    </p>
+    <div class="header-rule">
+      <span>archive · doc-012</span>
+      <div class="line"></div>
+      <span>mayo · MMXXVI</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 01 — SUNDIAL COMPASS
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c01">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">Day Cycle</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="featured">
+            <div class="pack-cat">DAY CYCLE · LP-04</div>
+            <div class="pack-title">Alien Planet</div>
+            <div class="dial">
+              <div class="dial-glyph top">XII</div>
+              <div class="dial-glyph right">III</div>
+              <div class="dial-glyph bottom">VI</div>
+              <div class="dial-glyph left">IX</div>
+              <div class="dial-arm"></div>
+              <div class="dial-center">
+                <div class="now">14:32</div>
+                <div class="next">NOON · 02:14</div>
+              </div>
+            </div>
+          </div>
+          <div class="pack-list">
+            <div class="pack-list-label">// Otros ciclos</div>
+            <div class="mini-dial">
+              <div class="mini-dial-circle"></div>
+              <div class="mini-dial-info">
+                <div class="mini-dial-title">Tokyo Skyline</div>
+                <div class="mini-dial-sub">4 PHASES · ~4MB</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 01</div>
+        <div class="name">Sundial Compass</div>
+        <div class="tag">Reloj de sol con sun marker rotando. Las 4 fases como cuadrantes. Concepto literal-mente time-aware.</div>
+        <div class="palette">
+          <span class="sw" style="background:#070710"></span>
+          <span class="sw" style="background:#14141F"></span>
+          <span class="sw" style="background:#D4AF37"></span>
+          <span class="sw" style="background:#F5D676"></span>
+        </div>
+        <div class="verdict great">
+          <strong>★ Distintivo y on-brand.</strong>
+          Time concept es UI-native: el dial ES el feature. Riesgo: ocupa espacio vertical, complejo de animar smoothly en Flutter (CustomPaint).
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 02 — ASTRO ALMANAC
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c02">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">Almanac</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="almanac">
+            <div class="alm-eye">PIXORA · DAY CYCLE · MMXXVI</div>
+            <div class="alm-title">Alien Planet</div>
+            <div class="alm-by">a bioluminescent world</div>
+            <div class="alm-divider"></div>
+            <div class="ephemeris">
+              <div class="eph-row">
+                <div class="eph-icon">☼</div>
+                <div class="eph-label">morning</div>
+                <div class="eph-time">06:42</div>
+              </div>
+              <div class="eph-row now">
+                <div class="eph-icon">☉</div>
+                <div class="eph-label">noon · ahora</div>
+                <div class="eph-time">13:18</div>
+              </div>
+              <div class="eph-row">
+                <div class="eph-icon">☽</div>
+                <div class="eph-label">evening</div>
+                <div class="eph-time">19:54</div>
+              </div>
+              <div class="eph-row">
+                <div class="eph-icon">★</div>
+                <div class="eph-label">night</div>
+                <div class="eph-time">22:30</div>
+              </div>
+            </div>
+            <div class="alm-strip">
+              <div class="alm-strip-marker"></div>
+            </div>
+            <div class="pack-list-label">// EFEMÉRIDES</div>
+            <div class="alm-pack">
+              <div>
+                <div class="alm-pack-title">Tokyo Skyline</div>
+                <div class="alm-pack-meta">06:30 · 12:45 · 19:20 · 22:00</div>
+              </div>
+              <div class="alm-pack-strip"></div>
+            </div>
+            <div class="alm-pack">
+              <div>
+                <div class="alm-pack-title">Forest Mist</div>
+                <div class="alm-pack-meta">06:45 · 13:30 · 19:50 · 22:30</div>
+              </div>
+              <div class="alm-pack-strip"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 02</div>
+        <div class="name">Astro Almanac</div>
+        <div class="tag">Layout editorial con efemérides reales. Fraunces italic + JetBrains Mono. Old Farmer's Almanac aesthetic.</div>
+        <div class="palette">
+          <span class="sw" style="background:#070710"></span>
+          <span class="sw" style="background:#0d0d18"></span>
+          <span class="sw" style="background:#D4AF37"></span>
+          <span class="sw" style="background:#F5D676"></span>
+        </div>
+        <div class="verdict">
+          <strong>✓ Data-rich y refinado.</strong>
+          Premium editorial, feels like a curated almanac — única en la categoría wallpaper. Riesgo: menos visual "wow" upfront, requiere lookup de geolocation para times reales.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 03 — DAY STRIP TIMELINE
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c03">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">DAY CYCLE</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="featured">
+            <div class="feat-cat">DAY CYCLE · FEATURED</div>
+            <div class="feat-title">Alien Planet</div>
+            <div class="strip">
+              <div class="seg morning"><span class="label">06:42</span></div>
+              <div class="seg noon"><span class="label">13:18</span></div>
+              <div class="seg evening"><span class="label">19:54</span></div>
+              <div class="seg night"><span class="label">22:30</span></div>
+              <div class="live-marker"></div>
+            </div>
+            <div class="strip-axis">
+              <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
+            </div>
+            <div class="strip-time">14:32 <small>NOON · 04:18 hasta evening</small></div>
+          </div>
+          <div class="pack-list">
+            <div class="pack-row">
+              <div class="pack-strip-row">
+                <div class="name">Tokyo Skyline</div>
+                <div class="mini-strip">
+                  <div style="background:#5d6d8c"></div>
+                  <div style="background:#e0a06b"></div>
+                  <div style="background:#c25a3a"></div>
+                  <div style="background:#0a0830"></div>
+                  <div class="live" style="left:42%"></div>
+                </div>
+              </div>
+              <div class="pack-strip-row">
+                <div class="name">Forest Mist</div>
+                <div class="mini-strip">
+                  <div style="background:#3a5a4a"></div>
+                  <div style="background:#85a070"></div>
+                  <div style="background:#7a5530"></div>
+                  <div style="background:#0a1820"></div>
+                  <div class="live" style="left:42%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 03</div>
+        <div class="name">Day Strip Timeline</div>
+        <div class="tag">Tira horizontal con 4 segmentos = 4 fases. Marker dorado se desliza con el reloj real.</div>
+        <div class="palette">
+          <span class="sw" style="background:#b07a99"></span>
+          <span class="sw" style="background:#e07a5b"></span>
+          <span class="sw" style="background:#c2424f"></span>
+          <span class="sw" style="background:#1a1248"></span>
+        </div>
+        <div class="verdict great">
+          <strong>★ Visual representación literal del feature.</strong>
+          Easy a entender, sleek tipo video editor. Riesgo: necesita componer 4-frame strips por pack (más asset work al subir contenido).
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 04 — HELIOS CHARIOT
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c04">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">Helios</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="featured">
+            <div class="helios-cat">DAY CYCLE</div>
+            <div class="helios-title">Alien Planet</div>
+            <div class="arc">
+              <svg class="arc-svg" viewBox="0 0 200 100" preserveAspectRatio="none">
+                <path class="path" d="M 10 80 Q 100 -10 190 80"/>
+                <circle class="station" cx="10"  cy="80" r="3"/>
+                <circle class="station" cx="68"  cy="32" r="3"/>
+                <circle class="station" cx="132" cy="32" r="3"/>
+                <circle class="station" cx="190" cy="80" r="3"/>
+                <text class="station-label" x="10"  y="94">DAWN</text>
+                <text class="station-label" x="68"  y="22">NOON</text>
+                <text class="station-label" x="132" y="22">DUSK</text>
+                <text class="station-label" x="190" y="94">NIGHT</text>
+              </svg>
+              <div class="helios-sun"></div>
+            </div>
+            <div class="helios-meta">~ now: noon · chariot at zenith</div>
+          </div>
+          <div class="pack-list">
+            <div class="pl-label">other constellations</div>
+            <div class="const-card">
+              <div class="const-mini">
+                <svg viewBox="0 0 50 30">
+                  <circle cx="6"  cy="22" r="1.5" fill="#F5D676"/>
+                  <circle cx="18" cy="10" r="1.5" fill="#F5D676"/>
+                  <circle cx="32" cy="10" r="1.5" fill="#F5D676"/>
+                  <circle cx="44" cy="22" r="1.5" fill="#F5D676"/>
+                  <line x1="6" y1="22" x2="18" y2="10" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                  <line x1="18" y1="10" x2="32" y2="10" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                  <line x1="32" y1="10" x2="44" y2="22" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                </svg>
+              </div>
+              <div class="const-info">
+                <div class="const-name">Tokyo Skyline</div>
+                <div class="const-meta">URBANUS CONSTELLATION</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 04</div>
+        <div class="name">Helios Chariot</div>
+        <div class="tag">Mitología griega · sol Helios cruzando el cielo · 4 estaciones. Full Saint Seiya commitment.</div>
+        <div class="palette">
+          <span class="sw" style="background:#0a0820"></span>
+          <span class="sw" style="background:#1a1042"></span>
+          <span class="sw" style="background:#F5D676"></span>
+          <span class="sw" style="background:#fff8d6"></span>
+        </div>
+        <div class="verdict">
+          <strong>★ 100% on-brand zodiacal.</strong>
+          Match perfecto con dashboard + Pixora identity. Riesgo: aesthetic muy específico — mejor para users que ya compraron la identidad zodiacal, neutro para los demás.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 05 — SKY PHASES CINEMATIC
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c05">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">Day Cycle</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="featured">
+            <div class="layer alien-morning morning"></div>
+            <div class="layer alien-noon noon"></div>
+            <div class="layer alien-evening evening"></div>
+            <div class="layer alien-night night"></div>
+            <div class="overlay"></div>
+            <div class="featured-content">
+              <div class="feat-cat">DAY CYCLE</div>
+              <div class="feat-title">Alien Planet</div>
+            </div>
+            <div class="phase-badge">MORNING</div>
+            <div class="phase-dots">
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+          <div class="pack-list">
+            <div class="pl-row">
+              <div class="pl-card b1">
+                <div class="pdots"><span class="pd on"></span><span class="pd"></span><span class="pd"></span><span class="pd"></span></div>
+                <div class="ttl">Tokyo Skyline</div>
+              </div>
+              <div class="pl-card b2">
+                <div class="pdots"><span class="pd"></span><span class="pd"></span><span class="pd on"></span><span class="pd"></span></div>
+                <div class="ttl">Desert Dunes</div>
+              </div>
+              <div class="pl-card b3">
+                <div class="pdots"><span class="pd"></span><span class="pd"></span><span class="pd"></span><span class="pd on"></span></div>
+                <div class="ttl">Aurora Falls</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 05</div>
+        <div class="name">Sky Phases Cinematic</div>
+        <div class="tag">Hero gigante que morphea EN VIVO entre las 4 fases (loop 12s). Apple TV screensaver vibe.</div>
+        <div class="palette">
+          <span class="sw" style="background:#b07a99"></span>
+          <span class="sw" style="background:#e07a5b"></span>
+          <span class="sw" style="background:#c2424f"></span>
+          <span class="sw" style="background:#1a1248"></span>
+        </div>
+        <div class="verdict great">
+          <strong>★ Demo viva del feature.</strong>
+          El usuario VE qué hace el feature al instante. Cinematic. Riesgo: morphear 4 imágenes reales costaría memoria — viable con gradients pre-renderizados.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Pixora · DAY CYCLE redesign · design archive · mayo MMXXVI
+  </footer>
+</div>
+
+</body>
+</html>

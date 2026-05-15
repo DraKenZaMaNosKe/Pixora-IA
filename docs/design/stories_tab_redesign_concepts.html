@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · STORIES Tab · 5 Conceptos de Rediseño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Bangers&family=Bebas+Neue&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --surface:     #14141F;
+    --surface-2:   #1c1c2a;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* Dragon Ball Z hero gradient palette */
+    --dbz-orange:  #ff8a1a;
+    --dbz-yellow:  #ffd866;
+    --dbz-purple:  #6a3aa8;
+    --dbz-magenta: #c2425e;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at top, rgba(80,40,120,0.08), transparent 65%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* Header */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · STORIES-REDESIGN / DOC-013';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent { color: var(--gold-bright); }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 720px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 56px 36px;
+  }
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.5s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.8s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.1s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Phone frame (shared) */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 540;
+    margin: 0 auto 22px;
+    background: var(--ink);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.05),
+      0 0 0 9px #1a1a22,
+      0 24px 56px rgba(0,0,0,0.65),
+      0 0 80px var(--gold-haze);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 18px;
+    background: #000;
+    border-radius: 0 0 14px 14px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 22px;
+    font: 600 9px 'Geist', sans-serif;
+    color: var(--text);
+    z-index: 11;
+  }
+  .phone .statusbar .battery {
+    width: 14px; height: 7px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 4px; bottom: 2px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    overflow: hidden;
+  }
+
+  /* App header (per concept) */
+  .app-head {
+    position: absolute;
+    top: 26px; left: 12px; right: 12px;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 8;
+  }
+  .app-head .ava {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6a4cff, #2a1a6a);
+    color: white;
+    font: 700 12px 'Geist', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .app-head .credits {
+    margin-left: auto;
+    background: rgba(20,20,31,0.7);
+    border: 1px solid rgba(212,175,55,0.4);
+    color: var(--gold-bright);
+    border-radius: 999px;
+    padding: 3px 10px 3px 8px;
+    font: 600 10px 'Geist', sans-serif;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .app-head .credits::before { content: '◆'; font-size: 8px; }
+
+  /* Meta block */
+  .meta {
+    margin-top: 18px;
+    padding: 0 6px;
+  }
+  .meta .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .meta .name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+  .meta .tag {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .meta .palette {
+    display: flex; gap: 5px;
+    margin-bottom: 12px;
+  }
+  .meta .palette .sw {
+    width: 18px; height: 18px;
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.07);
+    cursor: help;
+    transition: transform 0.15s;
+  }
+  .meta .palette .sw:hover { transform: scale(1.4); }
+  .verdict {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(212,175,55,0.06);
+    border-left: 2px solid var(--gold);
+    font-family: 'Geist', sans-serif;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .verdict strong { color: var(--gold-bright); font-weight: 600; }
+  .verdict.warn  { background: rgba(255,100,80,0.06); border-left-color: #ff7a6b; }
+  .verdict.warn strong { color: #ffb1a6; }
+  .verdict.great { background: rgba(98,228,158,0.05); border-left-color: #62E49E; }
+  .verdict.great strong { color: #99FFCB; }
+
+  footer {
+    text-align: center;
+    margin-top: 88px;
+    padding-top: 30px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer::before {
+    content: '◆';
+    display: block;
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  /* ──────────────────────────────────────────────
+     Shared: Dragon Ball Z hero gradient
+     ────────────────────────────────────────────── */
+  .dbz-hero {
+    background:
+      radial-gradient(circle at 50% 60%, var(--dbz-yellow) 0%, var(--dbz-orange) 22%, transparent 55%),
+      radial-gradient(ellipse at 30% 80%, var(--dbz-magenta) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(120,40,160,0.7) 0%, transparent 55%),
+      linear-gradient(160deg, #2a0a4a 0%, var(--dbz-purple) 35%, #2a0a4a 100%);
+    position: relative;
+  }
+  .dbz-hero::before {
+    /* energy aura rays */
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 50% 60%, rgba(255,232,180,0.4) 0%, transparent 25%),
+      conic-gradient(from 0deg at 50% 60%,
+        rgba(255,200,80,0) 0deg, rgba(255,200,80,0.18) 8deg, rgba(255,200,80,0) 16deg,
+        rgba(255,200,80,0) 40deg, rgba(255,200,80,0.18) 48deg, rgba(255,200,80,0) 56deg,
+        rgba(255,200,80,0) 80deg, rgba(255,200,80,0.18) 88deg, rgba(255,200,80,0) 96deg,
+        rgba(255,200,80,0) 130deg, rgba(255,200,80,0.18) 138deg, rgba(255,200,80,0) 146deg,
+        rgba(255,200,80,0) 180deg, rgba(255,200,80,0.18) 188deg, rgba(255,200,80,0) 196deg,
+        rgba(255,200,80,0) 230deg, rgba(255,200,80,0.18) 238deg, rgba(255,200,80,0) 246deg,
+        rgba(255,200,80,0) 280deg, rgba(255,200,80,0.18) 288deg, rgba(255,200,80,0) 296deg,
+        rgba(255,200,80,0) 330deg, rgba(255,200,80,0.18) 338deg, rgba(255,200,80,0) 346deg);
+    mix-blend-mode: screen;
+  }
+  .dbz-hero::after {
+    /* fighter silhouette suggestion */
+    content: '';
+    position: absolute;
+    bottom: 12%; left: 50%;
+    transform: translateX(-50%);
+    width: 28%; height: 55%;
+    background:
+      radial-gradient(ellipse 50% 35% at 50% 18%, rgba(20,5,30,0.85) 60%, transparent 75%),
+      radial-gradient(ellipse 70% 55% at 50% 60%, rgba(20,5,30,0.85) 55%, transparent 75%);
+    filter: blur(0.4px);
+  }
+  /* Variants for B-list cards (smaller heroes) */
+  .dbz-hero.alt-2 {
+    background:
+      radial-gradient(circle at 50% 50%, #ffe2a3 0%, #ff6a3d 20%, transparent 50%),
+      radial-gradient(ellipse at 70% 30%, #4a8aff 0%, transparent 55%),
+      linear-gradient(180deg, #0a0826 0%, #1a1248 60%, #050518 100%);
+  }
+  .dbz-hero.alt-3 {
+    background:
+      radial-gradient(circle at 30% 70%, #b85aff 0%, #6a2aa8 30%, transparent 60%),
+      radial-gradient(ellipse at 70% 30%, #ff6aa6 0%, transparent 50%),
+      linear-gradient(160deg, #1a0a2a 0%, #3a1a55 50%, #050518 100%);
+  }
+
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 01 — COMIC BOOK PANEL
+     manga / comic book aesthetic, asymmetric panels with
+     thick gold borders, halftone textures, speech bubbles
+     ════════════════════════════════════════════════════════════ */
+  .c01 .screen {
+    background:
+      radial-gradient(circle at 50% 30%, rgba(245,214,118,0.05), transparent 70%),
+      var(--ink);
+  }
+  .c01 .app-head .title {
+    font: 900 14px 'Bebas Neue', 'Geist', sans-serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .c01 .panels {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+    height: 240px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    background: #000;
+    border: 2px solid var(--gold-bright);
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px var(--ink), 0 0 18px rgba(245,214,118,0.18);
+  }
+  .c01 .panel {
+    position: relative;
+    overflow: hidden;
+    border: 1.5px solid var(--gold-bright);
+    background: #1a0a2a;
+  }
+  .c01 .panel.big {
+    grid-row: 1 / span 2;
+  }
+  .c01 .panel .halftone {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(rgba(0,0,0,0.55) 1px, transparent 1.4px);
+    background-size: 4px 4px;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .c01 .panel.big .dbz-hero { position: absolute; inset: 0; }
+  .c01 .panel.s1 .dbz-hero,
+  .c01 .panel.s2 .dbz-hero { position: absolute; inset: 0; }
+  /* speech bubble */
+  .c01 .bubble {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: white;
+    color: #000;
+    border: 1.5px solid #000;
+    border-radius: 50% 50% 50% 6px / 60% 60% 60% 8px;
+    padding: 4px 8px;
+    font: 900 7px 'Bangers', cursive;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-transform: uppercase;
+    z-index: 4;
+    transform: rotate(-4deg);
+    box-shadow: 2px 2px 0 var(--gold-bright);
+  }
+  /* onomatopoeia */
+  .c01 .boom {
+    position: absolute;
+    top: 60%; right: 8px;
+    font: 900 22px 'Bangers', cursive;
+    color: var(--gold-bright);
+    -webkit-text-stroke: 1.5px #000;
+    letter-spacing: 0.04em;
+    transform: rotate(-12deg);
+    text-shadow:
+      2px 2px 0 #c2425e,
+      4px 4px 0 #000;
+    z-index: 4;
+    line-height: 1;
+    animation: boomPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes boomPulse {
+    0%, 100% { transform: rotate(-12deg) scale(1); }
+    50%      { transform: rotate(-12deg) scale(1.08); }
+  }
+  /* chapter ribbon */
+  .c01 .chapter-ribbon {
+    position: absolute;
+    bottom: 10px; left: -4px;
+    background: var(--gold-bright);
+    color: #000;
+    font: 900 8px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.16em;
+    padding: 4px 10px 4px 8px;
+    z-index: 5;
+    clip-path: polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%);
+  }
+  .c01 .chapter-title {
+    position: absolute;
+    bottom: 36px; left: 8px; right: 60px;
+    font: 900 13px 'Bebas Neue', sans-serif;
+    color: white;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-shadow:
+      -1px -1px 0 #000, 1px -1px 0 #000,
+      -1px  1px 0 #000, 1px  1px 0 #000,
+      0 0 8px rgba(0,0,0,0.7);
+    z-index: 4;
+    line-height: 1;
+  }
+  .c01 .episode-pill {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: #000;
+    color: var(--gold-bright);
+    border: 1.5px solid var(--gold-bright);
+    font: 900 7px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.18em;
+    padding: 3px 6px;
+    z-index: 5;
+  }
+  .c01 .pack-list {
+    position: absolute;
+    top: 314px; left: 12px; right: 12px;
+  }
+  .c01 .pack-list-label {
+    font: 900 9px 'Bebas Neue', sans-serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.32em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .c01 .pack-list-label::before { content: '☄ '; color: var(--gold); }
+  .c01 .comic-card {
+    position: relative;
+    height: 80px;
+    background: #000;
+    border: 2px solid var(--gold-bright);
+    border-radius: 3px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    margin-bottom: 6px;
+  }
+  .c01 .comic-card .cover {
+    position: relative;
+    border-right: 2px solid var(--gold-bright);
+    overflow: hidden;
+  }
+  .c01 .comic-card .cover .halftone {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(rgba(0,0,0,0.5) 1px, transparent 1.4px);
+    background-size: 3px 3px;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+  }
+  .c01 .comic-card .cover .ribbon {
+    position: absolute;
+    top: 4px; left: -2px;
+    background: var(--gold-bright);
+    color: #000;
+    font: 900 7px 'Bebas Neue', sans-serif;
+    padding: 2px 5px;
+    letter-spacing: 0.1em;
+  }
+  .c01 .comic-card .info {
+    padding: 10px;
+    background: linear-gradient(180deg, #14141F, #0a0a14);
+  }
+  .c01 .comic-card .info .ttl {
+    font: 900 10px 'Bebas Neue', sans-serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .c01 .comic-card .info .meta {
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+  .c01 .comic-card .info .meta .dot { color: var(--gold); margin: 0 3px; }
+
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 02 — TV EPISODE CARD (Crunchyroll/Netflix)
+     Wide cinematic poster with EP badge + duration + progress
+     ════════════════════════════════════════════════════════════ */
+  .c02 .screen {
+    background:
+      linear-gradient(180deg, #0a0a14 0%, var(--ink) 60%);
+  }
+  .c02 .app-head .title {
+    font: 800 14px 'Geist', sans-serif;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+  .c02 .app-head .title::before {
+    content: 'P';
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    background: var(--gold-bright);
+    color: #000;
+    font: 900 10px 'Geist', sans-serif;
+    text-align: center;
+    line-height: 14px;
+    margin-right: 5px;
+    vertical-align: -2px;
+  }
+  .c02 .featured {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  }
+  .c02 .featured .dbz-hero { position: absolute; inset: 0; }
+  .c02 .featured .scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.3) 0%,
+      transparent 35%,
+      rgba(0,0,0,0.85) 100%);
+    z-index: 2;
+  }
+  .c02 .ep-badge {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: var(--gold-bright);
+    color: #000;
+    font: 900 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    padding: 3px 7px;
+    border-radius: 3px;
+    z-index: 4;
+  }
+  .c02 .duration-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    color: white;
+    font: 600 8px 'Geist', sans-serif;
+    letter-spacing: 0.06em;
+    padding: 3px 7px;
+    border-radius: 3px;
+    z-index: 4;
+  }
+  .c02 .feat-content {
+    position: absolute;
+    bottom: 30px; left: 10px; right: 10px;
+    z-index: 4;
+  }
+  .c02 .feat-cat {
+    font: 700 7px 'JetBrains Mono', monospace;
+    color: var(--gold-bright);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .c02 .feat-title {
+    font: 800 14px 'Geist', sans-serif;
+    color: white;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 2px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+  .c02 .feat-sub {
+    font: 500 9px 'Geist', sans-serif;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 0.02em;
+  }
+  .c02 .play-btn {
+    position: absolute;
+    bottom: 8px; left: 10px;
+    background: var(--gold-bright);
+    color: #000;
+    font: 800 9px 'Geist', sans-serif;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+    border-radius: 3px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-transform: uppercase;
+  }
+  .c02 .play-btn::before { content: '▶'; font-size: 7px; }
+  .c02 .pack-list {
+    position: absolute;
+    top: 246px; left: 12px; right: 12px;
+  }
+  .c02 .pl-section {
+    font: 800 9px 'Geist', sans-serif;
+    color: white;
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .c02 .pl-section::before {
+    content: '';
+    width: 3px; height: 12px;
+    background: var(--gold-bright);
+    border-radius: 1px;
+  }
+  .c02 .ep-card {
+    background: var(--surface);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 8px;
+  }
+  .c02 .ep-card .thumb {
+    aspect-ratio: 16/9;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .c02 .ep-card .thumb .dbz-hero { position: absolute; inset: 0; }
+  .c02 .ep-card .info { display: flex; flex-direction: column; }
+  .c02 .ep-card .info .ttl {
+    font: 700 10px 'Geist', sans-serif;
+    color: white;
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+  }
+  .c02 .ep-card .info .frames-meta {
+    font: 500 8px 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  /* progress bar */
+  .c02 .progress {
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: auto;
+    position: relative;
+  }
+  .c02 .progress .fill {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    background: var(--gold-bright);
+    border-radius: 2px;
+  }
+  .c02 .progress-label {
+    font: 600 7.5px 'JetBrains Mono', monospace;
+    color: var(--gold-bright);
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 03 — CINEMA FILMSTRIP
+     vertical filmstrip with sprocket holes + film cells
+     ════════════════════════════════════════════════════════════ */
+  .c03 .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(245,214,118,0.05), transparent 65%),
+      linear-gradient(180deg, #0a0810 0%, #050508 100%);
+  }
+  .c03 .screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 2px,
+        rgba(255,255,255,0.015) 2px,
+        rgba(255,255,255,0.015) 3px);
+    pointer-events: none;
+  }
+  .c03 .app-head .title {
+    font: italic 500 16px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.02em;
+  }
+  .c03 .featured {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+    height: 270px;
+  }
+  .c03 .feat-head {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .c03 .feat-cat {
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    color: var(--gold);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .c03 .feat-cat::before, .c03 .feat-cat::after { content: '— '; color: var(--gold-deep); }
+  .c03 .feat-cat::after { content: ' —'; }
+  .c03 .feat-title {
+    font: italic 400 17px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .c03 .feat-meta {
+    font: 400 8px 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    letter-spacing: 0.18em;
+    margin-top: 2px;
+  }
+  /* the filmstrip */
+  .c03 .filmstrip {
+    position: relative;
+    width: 140px;
+    margin: 8px auto 0;
+    background: #0a0a0a;
+    padding: 6px 0;
+    border-radius: 2px;
+    box-shadow:
+      0 0 0 1px var(--gold-dark),
+      0 6px 16px rgba(0,0,0,0.6),
+      inset 0 0 0 1px rgba(245,214,118,0.1);
+    overflow: hidden;
+    height: 200px;
+  }
+  /* sprocket holes */
+  .c03 .filmstrip::before, .c03 .filmstrip::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 10px;
+    background-image:
+      radial-gradient(circle, #050505 1.6px, transparent 2px);
+    background-size: 10px 16px;
+    background-repeat: repeat-y;
+    background-position: center;
+  }
+  .c03 .filmstrip::before { left: 0; }
+  .c03 .filmstrip::after { right: 0; }
+  .c03 .film-track {
+    margin: 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    animation: filmRoll 20s linear infinite;
+  }
+  @keyframes filmRoll {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-46%); }
+  }
+  .c03 .film-cell {
+    aspect-ratio: 9/14;
+    border: 1px solid #1a1a1a;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .c03 .film-cell .dbz-hero { position: absolute; inset: 0; }
+  .c03 .film-cell::after {
+    /* film grain + dim */
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 100%);
+  }
+  .c03 .film-cell-num {
+    position: absolute;
+    top: 2px; right: 3px;
+    font: 700 6px 'JetBrains Mono', monospace;
+    color: var(--gold-bright);
+    letter-spacing: 0.1em;
+    z-index: 3;
+    text-shadow: 0 1px 1px #000;
+  }
+  /* projector toggle */
+  .c03 .projector-btn {
+    position: absolute;
+    top: 50%; right: -6px;
+    transform: translateY(-50%);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #2a2a2a 30%, #1a1a1a 80%);
+    border: 1.5px solid var(--gold-bright);
+    box-shadow:
+      0 0 12px var(--gold-glow),
+      inset 0 0 6px rgba(0,0,0,0.6);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .c03 .projector-btn::after {
+    content: '▶';
+    color: var(--gold-bright);
+    font-size: 12px;
+    margin-left: 2px;
+    text-shadow: 0 0 6px var(--gold-glow);
+  }
+  .c03 .pack-list {
+    position: absolute;
+    top: 344px; left: 12px; right: 12px;
+  }
+  .c03 .pack-list-label {
+    font: italic 500 10px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .c03 .pack-list-label::before { content: '— now showing — '; color: var(--gold-deep); font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 7px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .c03 .reel-card {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 10px;
+    padding: 6px;
+    background: linear-gradient(180deg, #0e0e16, #07070a);
+    border: 1px solid var(--gold-dark);
+    border-radius: 4px;
+    margin-bottom: 6px;
+    align-items: center;
+  }
+  .c03 .reel-card .mini-strip {
+    background: #0a0a0a;
+    padding: 4px 0;
+    border-radius: 1px;
+    position: relative;
+    overflow: hidden;
+    height: 40px;
+  }
+  .c03 .reel-card .mini-strip::before, .c03 .reel-card .mini-strip::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 5px;
+    background-image: radial-gradient(circle, #000 1px, transparent 1.4px);
+    background-size: 5px 8px;
+    background-repeat: repeat-y;
+    background-position: center;
+  }
+  .c03 .reel-card .mini-strip::before { left: 0; }
+  .c03 .reel-card .mini-strip::after { right: 0; }
+  .c03 .reel-card .mini-strip .mini-cells {
+    margin: 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    height: 100%;
+  }
+  .c03 .reel-card .mini-strip .mc {
+    flex: 1;
+    background: linear-gradient(180deg, var(--dbz-orange), var(--dbz-purple));
+  }
+  .c03 .reel-card .info .name {
+    font: italic 500 12px 'Fraunces', serif;
+    color: var(--gold-bright);
+  }
+  .c03 .reel-card .info .meta {
+    font: 400 7.5px 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    margin-top: 1px;
+    text-transform: uppercase;
+  }
+
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 04 — MANGA MAGAZINE COVER
+     Shounen Jump style, vertical kanji-like text, sun-bursts,
+     big bold VOL stamp, cover blurbs
+     ════════════════════════════════════════════════════════════ */
+  .c04 .screen {
+    background:
+      radial-gradient(circle at 50% 35%,
+        #fff8e0 0%,
+        #ffd866 18%,
+        #ff8a1a 35%,
+        #c2425e 60%,
+        #2a0a4a 100%);
+  }
+  .c04 .screen::before {
+    /* sun-burst rays radiating from center */
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 280px;
+    background:
+      conic-gradient(from 0deg at 50% 50%,
+        rgba(255,255,255,0) 0deg, rgba(255,255,255,0.25) 6deg, rgba(255,255,255,0) 12deg,
+        rgba(255,255,255,0) 28deg, rgba(255,255,255,0.25) 34deg, rgba(255,255,255,0) 40deg,
+        rgba(255,255,255,0) 56deg, rgba(255,255,255,0.25) 62deg, rgba(255,255,255,0) 68deg,
+        rgba(255,255,255,0) 84deg, rgba(255,255,255,0.25) 90deg, rgba(255,255,255,0) 96deg,
+        rgba(255,255,255,0) 112deg, rgba(255,255,255,0.25) 118deg, rgba(255,255,255,0) 124deg,
+        rgba(255,255,255,0) 140deg, rgba(255,255,255,0.25) 146deg, rgba(255,255,255,0) 152deg,
+        rgba(255,255,255,0) 168deg, rgba(255,255,255,0.25) 174deg, rgba(255,255,255,0) 180deg,
+        rgba(255,255,255,0) 196deg, rgba(255,255,255,0.25) 202deg, rgba(255,255,255,0) 208deg,
+        rgba(255,255,255,0) 224deg, rgba(255,255,255,0.25) 230deg, rgba(255,255,255,0) 236deg,
+        rgba(255,255,255,0) 252deg, rgba(255,255,255,0.25) 258deg, rgba(255,255,255,0) 264deg,
+        rgba(255,255,255,0) 280deg, rgba(255,255,255,0.25) 286deg, rgba(255,255,255,0) 292deg,
+        rgba(255,255,255,0) 308deg, rgba(255,255,255,0.25) 314deg, rgba(255,255,255,0) 320deg,
+        rgba(255,255,255,0) 336deg, rgba(255,255,255,0.25) 342deg, rgba(255,255,255,0) 348deg);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: sunSpin 60s linear infinite;
+  }
+  @keyframes sunSpin { to { transform: rotate(360deg); } }
+  .c04 .screen::after {
+    /* bottom black panel for the lower section */
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 220px;
+    background: linear-gradient(180deg, transparent 0%, #0a0410 30%, #050208 100%);
+    pointer-events: none;
+  }
+  .c04 .app-head .title {
+    font: 900 14px 'Bebas Neue', sans-serif;
+    color: #000;
+    letter-spacing: 0.18em;
+    background: white;
+    padding: 2px 8px;
+    border: 1.5px solid #000;
+    border-radius: 2px;
+    box-shadow: 2px 2px 0 #c2425e;
+  }
+  .c04 .app-head .ava { background: white; color: #c2425e; border: 1.5px solid #000; }
+  .c04 .app-head .credits { background: white; color: #000; border-color: #000; box-shadow: 2px 2px 0 var(--gold-bright); }
+  .c04 .app-head .credits::before { color: #c2425e; }
+
+  /* magazine masthead */
+  .c04 .masthead {
+    position: absolute;
+    top: 60px; left: 12px; right: 12px;
+    z-index: 4;
+    text-align: center;
+  }
+  .c04 .masthead .pixora-jump {
+    font: 900 28px 'Bebas Neue', sans-serif;
+    color: white;
+    -webkit-text-stroke: 2px #000;
+    letter-spacing: 0.04em;
+    text-shadow: 4px 4px 0 #c2425e;
+    line-height: 1;
+    transform: skewX(-6deg);
+  }
+  .c04 .masthead .issue {
+    font: 700 8px 'JetBrains Mono', monospace;
+    color: #000;
+    background: var(--gold-bright);
+    display: inline-block;
+    padding: 2px 8px;
+    margin-top: 4px;
+    letter-spacing: 0.18em;
+    border: 1.5px solid #000;
+    transform: skewX(-6deg);
+  }
+
+  /* vertical kanji-like title down the side */
+  .c04 .vertical-title {
+    position: absolute;
+    top: 110px;
+    left: 8px;
+    z-index: 5;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font: 900 20px 'Noto Serif JP', serif;
+    color: #000;
+    background: var(--gold-bright);
+    padding: 8px 4px;
+    border: 1.5px solid #000;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    box-shadow: 3px 3px 0 #c2425e;
+  }
+
+  .c04 .vol-stamp {
+    position: absolute;
+    top: 130px;
+    right: 8px;
+    z-index: 6;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    background: var(--gold-bright);
+    border: 3px solid #000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transform: rotate(-12deg);
+    box-shadow: 3px 3px 0 #c2425e, 0 0 0 6px rgba(0,0,0,0.06);
+    animation: stampWiggle 4s ease-in-out infinite;
+  }
+  @keyframes stampWiggle {
+    0%, 100% { transform: rotate(-12deg) scale(1); }
+    50%      { transform: rotate(-10deg) scale(1.04); }
+  }
+  .c04 .vol-stamp .v-num {
+    font: 900 26px 'Bebas Neue', sans-serif;
+    color: #000;
+    line-height: 1;
+    letter-spacing: 0.04em;
+  }
+  .c04 .vol-stamp .v-lbl {
+    font: 900 8px 'Bebas Neue', sans-serif;
+    color: #c2425e;
+    letter-spacing: 0.18em;
+    margin-top: 1px;
+  }
+
+  /* hero artwork in the middle */
+  .c04 .cover-art {
+    position: absolute;
+    top: 130px; left: 50%;
+    transform: translateX(-50%);
+    width: 130px; height: 170px;
+    z-index: 4;
+  }
+  .c04 .cover-art .silhouette {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 30% 18% at 50% 22%, #1a0010 70%, transparent 80%),
+      radial-gradient(ellipse 50% 45% at 50% 60%, #1a0010 60%, transparent 80%);
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+  }
+  .c04 .cover-art .energy {
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    width: 70px; height: 14px;
+    background: radial-gradient(ellipse, var(--gold-bright), transparent 70%);
+    filter: blur(2px);
+  }
+
+  /* cover blurbs */
+  .c04 .blurb {
+    position: absolute;
+    z-index: 6;
+    background: white;
+    color: #000;
+    border: 1.5px solid #000;
+    padding: 3px 6px;
+    font: 900 7px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transform: rotate(-4deg);
+    box-shadow: 2px 2px 0 #c2425e;
+  }
+  .c04 .blurb.b1 { top: 220px; left: 18px; transform: rotate(-8deg); }
+  .c04 .blurb.b2 { top: 210px; right: 22px; transform: rotate(6deg); background: var(--gold-bright); }
+  .c04 .blurb.b3 { top: 264px; left: 30px; transform: rotate(-4deg); }
+
+  /* lower magazine grid */
+  .c04 .next-up-strip {
+    position: absolute;
+    top: 318px; left: 12px; right: 12px;
+    z-index: 6;
+  }
+  .c04 .nu-label {
+    background: white;
+    color: #000;
+    border: 1.5px solid #000;
+    padding: 2px 8px;
+    font: 900 9px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.18em;
+    display: inline-block;
+    margin-bottom: 8px;
+    box-shadow: 2px 2px 0 var(--gold-bright);
+  }
+  .c04 .mini-covers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .c04 .mini-cover {
+    position: relative;
+    aspect-ratio: 3/4;
+    border: 1.5px solid #000;
+    overflow: hidden;
+    background: #1a0a2a;
+  }
+  .c04 .mini-cover .dbz-hero { position: absolute; inset: 0; }
+  .c04 .mini-cover .vol-tag {
+    position: absolute;
+    top: 3px; right: 3px;
+    background: var(--gold-bright);
+    color: #000;
+    border: 1px solid #000;
+    font: 900 7px 'Bebas Neue', sans-serif;
+    padding: 1px 4px;
+    letter-spacing: 0.1em;
+  }
+  .c04 .mini-cover .name {
+    position: absolute;
+    bottom: 2px; left: 2px; right: 2px;
+    background: white;
+    color: #000;
+    border: 1px solid #000;
+    font: 900 7px 'Bebas Neue', sans-serif;
+    padding: 1px 3px;
+    letter-spacing: 0.06em;
+    text-align: center;
+  }
+
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 05 — SAINT SEIYA CINEMATIC
+     Full-bleed cosmic hero, gold energy, italic Fraunces
+     ════════════════════════════════════════════════════════════ */
+  .c05 .screen {
+    background:
+      radial-gradient(ellipse at 50% 35%, rgba(245,214,118,0.16) 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 80%, rgba(98,40,160,0.4) 0%, transparent 65%),
+      linear-gradient(180deg, #04020a 0%, #0a0418 60%, #050208 100%);
+  }
+  .c05 .screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 8% 22%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 22% 65%, rgba(245,214,118,0.5), transparent 50%),
+      radial-gradient(1px 1px at 38% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 52% 48%, rgba(245,214,118,0.85), transparent 50%),
+      radial-gradient(1px 1px at 68% 22%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 82% 70%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.5px 1.5px at 92% 18%, rgba(245,214,118,0.7), transparent 50%);
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .c05 .app-head .title {
+    font: italic 500 18px 'Fraunces', serif;
+    color: var(--gold-bright);
+    text-shadow: 0 0 10px var(--gold-glow);
+    letter-spacing: 0.02em;
+  }
+  .c05 .app-head .title::before {
+    content: '✦ ';
+    color: var(--gold-bright);
+    font-style: normal;
+    font-size: 12px;
+  }
+  .c05 .featured {
+    position: absolute;
+    top: 56px; left: 0; right: 0;
+    height: 320px;
+    overflow: hidden;
+  }
+  .c05 .featured .cosmic-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 50% 55%,
+        #fff8d6 0%, var(--gold-bright) 6%, var(--dbz-orange) 14%,
+        var(--dbz-magenta) 28%, var(--dbz-purple) 50%, transparent 75%),
+      linear-gradient(180deg, transparent 0%, rgba(5,2,8,0.95) 100%);
+  }
+  /* radial light rays */
+  .c05 .featured .rays {
+    position: absolute; inset: 0;
+    background:
+      conic-gradient(from 0deg at 50% 55%,
+        rgba(255,232,180,0) 0deg, rgba(255,232,180,0.35) 4deg, rgba(255,232,180,0) 12deg,
+        rgba(255,232,180,0) 30deg, rgba(255,232,180,0.3) 36deg, rgba(255,232,180,0) 44deg,
+        rgba(255,232,180,0) 60deg, rgba(255,232,180,0.35) 66deg, rgba(255,232,180,0) 74deg,
+        rgba(255,232,180,0) 100deg, rgba(255,232,180,0.3) 106deg, rgba(255,232,180,0) 114deg,
+        rgba(255,232,180,0) 140deg, rgba(255,232,180,0.35) 146deg, rgba(255,232,180,0) 154deg,
+        rgba(255,232,180,0) 180deg, rgba(255,232,180,0.3) 186deg, rgba(255,232,180,0) 194deg,
+        rgba(255,232,180,0) 220deg, rgba(255,232,180,0.35) 226deg, rgba(255,232,180,0) 234deg,
+        rgba(255,232,180,0) 260deg, rgba(255,232,180,0.3) 266deg, rgba(255,232,180,0) 274deg,
+        rgba(255,232,180,0) 300deg, rgba(255,232,180,0.35) 306deg, rgba(255,232,180,0) 314deg,
+        rgba(255,232,180,0) 340deg, rgba(255,232,180,0.3) 346deg, rgba(255,232,180,0) 354deg);
+    mix-blend-mode: screen;
+    animation: cosmicSpin 50s linear infinite;
+  }
+  @keyframes cosmicSpin { to { transform: rotate(360deg); } }
+
+  /* energy pulse */
+  .c05 .featured .pulse {
+    position: absolute;
+    top: 55%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,248,214,0.7) 0%, transparent 65%);
+    animation: cosmicPulse 3s ease-in-out infinite;
+  }
+  @keyframes cosmicPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    50%      { transform: translate(-50%, -50%) scale(1.18); opacity: 1; }
+  }
+
+  /* character silhouette */
+  .c05 .featured .saint {
+    position: absolute;
+    top: 38%; left: 50%;
+    transform: translateX(-50%);
+    width: 70px; height: 130px;
+    background:
+      radial-gradient(ellipse 35% 18% at 50% 16%, #050208 75%, transparent 85%),
+      radial-gradient(ellipse 55% 50% at 50% 60%, #050208 65%, transparent 85%);
+    filter: drop-shadow(0 0 10px var(--gold-bright));
+    z-index: 3;
+  }
+
+  .c05 .featured .scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg,
+      rgba(5,2,8,0.4) 0%,
+      transparent 25%,
+      rgba(5,2,8,0.85) 100%);
+    z-index: 4;
+  }
+
+  .c05 .feat-content {
+    position: absolute;
+    bottom: 16px; left: 16px; right: 16px;
+    z-index: 5;
+    text-align: center;
+  }
+  .c05 .ep-eyebrow {
+    font: 700 8px 'JetBrains Mono', monospace;
+    color: var(--gold-bright);
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    text-shadow: 0 0 8px var(--gold-glow);
+  }
+  .c05 .ep-eyebrow::before, .c05 .ep-eyebrow::after { content: ' ✦ '; color: var(--gold); }
+  .c05 .ep-roman {
+    font: italic 400 28px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-shadow: 0 0 14px var(--gold-glow);
+  }
+  .c05 .ep-roman .small { font-size: 14px; opacity: 0.85; }
+  .c05 .ep-title {
+    font: italic 400 16px 'Fraunces', serif;
+    color: white;
+    letter-spacing: -0.01em;
+    margin-top: 4px;
+    text-shadow: 0 1px 4px #000;
+  }
+  .c05 .ep-meta {
+    font: 500 8.5px 'JetBrains Mono', monospace;
+    color: rgba(245,214,118,0.7);
+    letter-spacing: 0.18em;
+    margin-top: 4px;
+  }
+
+  .c05 .pack-list {
+    position: absolute;
+    top: 396px; left: 12px; right: 12px;
+    z-index: 5;
+  }
+  .c05 .pl-label {
+    font: italic 500 11px 'Fraunces', serif;
+    color: var(--gold-bright);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .c05 .pl-label::before, .c05 .pl-label::after { content: ' ◆ '; color: var(--gold-deep); font-style: normal; }
+
+  .c05 .const-card {
+    position: relative;
+    background:
+      radial-gradient(ellipse at right, rgba(245,214,118,0.12), transparent 60%),
+      linear-gradient(120deg, #1a0d35 0%, #0a0418 100%);
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    padding: 8px 10px;
+    overflow: hidden;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .c05 .const-card .const-mini {
+    width: 42px; height: 38px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .c05 .const-card .const-mini svg { width: 100%; height: 100%; overflow: visible; }
+  .c05 .const-info { flex: 1; }
+  .c05 .const-eyebrow {
+    font: 700 6.5px 'JetBrains Mono', monospace;
+    color: var(--gold);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .c05 .const-name {
+    font: italic 500 12px 'Fraunces', serif;
+    color: var(--gold-bright);
+    line-height: 1.1;
+  }
+  .c05 .const-meta {
+    font: 400 7.5px 'JetBrains Mono', monospace;
+    color: rgba(245,214,118,0.55);
+    letter-spacing: 0.1em;
+    margin-top: 1px;
+  }
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      Pixora<span class="ornament">·</span><span class="accent">STORIES Tab</span><span class="ornament">·</span>5 Conceptos
+      <br/>
+      <span style="font-style:normal; font-weight:300; font-size:0.55em; color:var(--text-dim);">identidad para wallpapers episódicos</span>
+    </h1>
+    <p class="subtitle">
+      Identidad para wallpapers episódicos — anime, manga, series narrativas que rotan por capítulos.
+      Cada story = secuencia de 4–8 frames que cambian cada 30 min. Aquí cinco aproximaciones distintas para que se sienta como
+      <em>contenido narrativo</em>, no como una grilla más.
+    </p>
+    <div class="header-rule">
+      <span>archive · doc-013</span>
+      <div class="line"></div>
+      <span>mayo · MMXXVI</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 01 — COMIC BOOK PANEL
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c01">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">STORIES</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="panels">
+            <div class="panel big">
+              <div class="dbz-hero"></div>
+              <div class="halftone"></div>
+              <div class="bubble">¡el inicio!</div>
+              <div class="boom">¡KA-POW!</div>
+              <div class="episode-pill">CAP. 01</div>
+              <div class="chapter-title">Dragon Ball Super</div>
+              <div class="chapter-ribbon">7 FRAMES</div>
+            </div>
+            <div class="panel s1">
+              <div class="dbz-hero alt-2"></div>
+              <div class="halftone"></div>
+            </div>
+            <div class="panel s2">
+              <div class="dbz-hero alt-3"></div>
+              <div class="halftone"></div>
+            </div>
+          </div>
+          <div class="pack-list">
+            <div class="pack-list-label">próximos capítulos</div>
+            <div class="comic-card">
+              <div class="cover">
+                <div class="dbz-hero alt-2"></div>
+                <div class="halftone"></div>
+                <div class="ribbon">CAP. 02</div>
+              </div>
+              <div class="info">
+                <div class="ttl">Saiyajin Saga</div>
+                <div class="meta">6 FRAMES <span class="dot">·</span> 30 MIN</div>
+              </div>
+            </div>
+            <div class="comic-card">
+              <div class="cover">
+                <div class="dbz-hero alt-3"></div>
+                <div class="halftone"></div>
+                <div class="ribbon">CAP. 03</div>
+              </div>
+              <div class="info">
+                <div class="ttl">Frieza Arc</div>
+                <div class="meta">8 FRAMES <span class="dot">·</span> 30 MIN</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 01</div>
+        <div class="name">Comic Book Panel</div>
+        <div class="tag">Página de manga · paneles asimétricos con borde dorado grueso · halftone, onomatopeyas y bocadillos. Vibra Marvel/Shōnen.</div>
+        <div class="palette">
+          <span class="sw" style="background:#070710" title="#070710 · ink"></span>
+          <span class="sw" style="background:#F5D676" title="#F5D676 · gold-bright"></span>
+          <span class="sw" style="background:#c2425e" title="#c2425e · pulp red"></span>
+          <span class="sw" style="background:#ff8a1a" title="#ff8a1a · DBZ orange"></span>
+        </div>
+        <div class="verdict">
+          <strong>★ Instantáneamente narrativo.</strong>
+          Te grita "esto es contenido episódico". Riesgo: muy comprometido con la estética anime/manga — un story ambiental tipo "Aurora Boreal" se ve raro acá.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 02 — TV EPISODE CARD (Crunchyroll/Netflix)
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c02">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">Stories</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="featured">
+            <div class="dbz-hero"></div>
+            <div class="scrim"></div>
+            <div class="ep-badge">EP 1 OF 7</div>
+            <div class="duration-badge">~3.5 HRS</div>
+            <div class="feat-content">
+              <div class="feat-cat">STORIES · DESTACADO</div>
+              <div class="feat-title">Dragon Ball Super</div>
+              <div class="feat-sub">Cap. 1 · 7 frames · cada 30 min</div>
+            </div>
+            <div class="play-btn">Play episodio</div>
+          </div>
+          <div class="pack-list">
+            <div class="pl-section">Continuar viendo</div>
+            <div class="ep-card">
+              <div class="thumb"><div class="dbz-hero alt-2"></div></div>
+              <div class="info">
+                <div class="ttl">Saiyajin Saga</div>
+                <div class="frames-meta">EP 2 · 6 FRAMES</div>
+                <div class="progress"><div class="fill" style="width:71%"></div></div>
+                <div class="progress-label">5/7 FRAMES VISTOS</div>
+              </div>
+            </div>
+            <div class="ep-card">
+              <div class="thumb"><div class="dbz-hero alt-3"></div></div>
+              <div class="info">
+                <div class="ttl">Frieza Arc</div>
+                <div class="frames-meta">EP 3 · 8 FRAMES</div>
+                <div class="progress"><div class="fill" style="width:25%"></div></div>
+                <div class="progress-label">2/8 FRAMES VISTOS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 02</div>
+        <div class="name">TV Episode Card</div>
+        <div class="tag">Hero 16:9 + EP badge + duración + barra de progreso. Familiar como Crunchyroll/Netflix — UX que el usuario ya conoce.</div>
+        <div class="palette">
+          <span class="sw" style="background:#070710" title="#070710 · ink"></span>
+          <span class="sw" style="background:#14141F" title="#14141F · surface"></span>
+          <span class="sw" style="background:#F5D676" title="#F5D676 · gold-bright"></span>
+          <span class="sw" style="background:#ffffff" title="#ffffff · text"></span>
+        </div>
+        <div class="verdict great">
+          <strong>★ UX instantáneo.</strong>
+          El usuario sabe usarlo en 0 segundos: viene de Netflix/Crunchyroll. Riesgo: se siente "clónico" — pierde personalidad de Pixora si no se cuida la tipografía.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 03 — CINEMA FILMSTRIP
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c03">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">Filmstrip</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="featured">
+            <div class="feat-head">
+              <div class="feat-cat">REEL 01</div>
+              <div class="feat-title">Dragon Ball Super</div>
+              <div class="feat-meta">7 FRAMES · 30 MIN/CADA</div>
+            </div>
+            <div class="filmstrip">
+              <div class="film-track">
+                <div class="film-cell"><div class="dbz-hero"></div><span class="film-cell-num">01</span></div>
+                <div class="film-cell"><div class="dbz-hero alt-2"></div><span class="film-cell-num">02</span></div>
+                <div class="film-cell"><div class="dbz-hero alt-3"></div><span class="film-cell-num">03</span></div>
+                <div class="film-cell"><div class="dbz-hero"></div><span class="film-cell-num">04</span></div>
+                <div class="film-cell"><div class="dbz-hero alt-2"></div><span class="film-cell-num">05</span></div>
+                <div class="film-cell"><div class="dbz-hero alt-3"></div><span class="film-cell-num">06</span></div>
+                <div class="film-cell"><div class="dbz-hero"></div><span class="film-cell-num">07</span></div>
+                <!-- duplicates for seamless loop -->
+                <div class="film-cell"><div class="dbz-hero"></div><span class="film-cell-num">01</span></div>
+                <div class="film-cell"><div class="dbz-hero alt-2"></div><span class="film-cell-num">02</span></div>
+                <div class="film-cell"><div class="dbz-hero alt-3"></div><span class="film-cell-num">03</span></div>
+              </div>
+              <div class="projector-btn"></div>
+            </div>
+          </div>
+          <div class="pack-list">
+            <div class="pack-list-label">Saiyajin Saga</div>
+            <div class="reel-card">
+              <div class="mini-strip">
+                <div class="mini-cells">
+                  <div class="mc"></div><div class="mc"></div><div class="mc"></div>
+                </div>
+              </div>
+              <div class="info">
+                <div class="name">Saiyajin Saga</div>
+                <div class="meta">REEL 02 · 6 frames</div>
+              </div>
+            </div>
+            <div class="reel-card">
+              <div class="mini-strip">
+                <div class="mini-cells">
+                  <div class="mc"></div><div class="mc"></div><div class="mc"></div>
+                </div>
+              </div>
+              <div class="info">
+                <div class="name">Frieza Arc</div>
+                <div class="meta">REEL 03 · 8 frames</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 03</div>
+        <div class="name">Cinema Filmstrip</div>
+        <div class="tag">Tira de 35mm vertical con sprocket holes y celdas de película desfilando. Cada cuadro es un frame del story. Cinema vintage.</div>
+        <div class="palette">
+          <span class="sw" style="background:#050508" title="#050508 · cinema black"></span>
+          <span class="sw" style="background:#F5D676" title="#F5D676 · gold-bright"></span>
+          <span class="sw" style="background:#D4AF37" title="#D4AF37 · gold"></span>
+          <span class="sw" style="background:#1a0a2a" title="#1a0a2a · scene tint"></span>
+        </div>
+        <div class="verdict great">
+          <strong>★ Comunica "secuencia de frames" perfectamente.</strong>
+          La tira misma ES la metáfora del feature — ves los frames apilados literalmente. Riesgo: ocupa harto vertical; en pantallas chicas el filmstrip puede competir con el listado.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 04 — MANGA MAGAZINE COVER
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c04">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">JUMP</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="masthead">
+            <div class="pixora-jump">PIXORA JUMP</div>
+            <div class="issue">VOL. 01 · MAY 2026</div>
+          </div>
+          <div class="vertical-title">少年</div>
+          <div class="vol-stamp">
+            <div class="v-num">01</div>
+            <div class="v-lbl">CAP</div>
+          </div>
+          <div class="cover-art">
+            <div class="silhouette"></div>
+            <div class="energy"></div>
+          </div>
+          <div class="blurb b1">¡7 frames!</div>
+          <div class="blurb b2">cada 30 min</div>
+          <div class="blurb b3">+ 12 stories</div>
+
+          <div class="next-up-strip">
+            <div class="nu-label">PRÓXIMO NÚMERO</div>
+            <div class="mini-covers">
+              <div class="mini-cover">
+                <div class="dbz-hero alt-2"></div>
+                <div class="vol-tag">V.02</div>
+                <div class="name">SAIYAJIN</div>
+              </div>
+              <div class="mini-cover">
+                <div class="dbz-hero alt-3"></div>
+                <div class="vol-tag">V.03</div>
+                <div class="name">FRIEZA</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 04</div>
+        <div class="name">Manga Magazine Cover</div>
+        <div class="tag">Portada estilo Shōnen Jump · sun-burst radial, kanji vertical, sello "VOL. 01", blurbs de portada. Ultra-distintivo.</div>
+        <div class="palette">
+          <span class="sw" style="background:#ffd866" title="#ffd866 · jump yellow"></span>
+          <span class="sw" style="background:#c2425e" title="#c2425e · pulp red"></span>
+          <span class="sw" style="background:#000000" title="#000 · ink stroke"></span>
+          <span class="sw" style="background:#ff8a1a" title="#ff8a1a · sun orange"></span>
+        </div>
+        <div class="verdict warn">
+          <strong>⚠ Ultra-distintivo, ultra-específico.</strong>
+          Si Pixora Stories es 100% anime/manga, este concepto es ORO. Si quieres que también funcione para "Aurora Boreal" o "Vida Marina", esto se siente fuera de lugar.
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════
+         NO. 05 — SAINT SEIYA CINEMATIC
+         ════════════════════════════════════════════════════════ -->
+    <div class="concept">
+      <div class="phone c05">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+        <div class="screen">
+          <div class="app-head">
+            <div class="ava">e</div>
+            <div class="title">Stories</div>
+            <div class="credits">450</div>
+          </div>
+          <div class="featured">
+            <div class="cosmic-bg"></div>
+            <div class="rays"></div>
+            <div class="pulse"></div>
+            <div class="saint"></div>
+            <div class="scrim"></div>
+            <div class="feat-content">
+              <div class="ep-eyebrow">CHAPTER ONE</div>
+              <div class="ep-roman">EPISODE <span class="small">I</span></div>
+              <div class="ep-title">Dragon Ball Super</div>
+              <div class="ep-meta">7 FRAMES · 30 MIN</div>
+            </div>
+          </div>
+          <div class="pack-list">
+            <div class="pl-label">otras crónicas</div>
+            <div class="const-card" style="margin-bottom:6px">
+              <div class="const-mini">
+                <svg viewBox="0 0 50 38">
+                  <circle cx="8"  cy="30" r="1.6" fill="#F5D676"/>
+                  <circle cx="20" cy="14" r="1.8" fill="#F5D676"/>
+                  <circle cx="34" cy="10" r="1.6" fill="#F5D676"/>
+                  <circle cx="44" cy="26" r="1.6" fill="#F5D676"/>
+                  <circle cx="26" cy="32" r="1.4" fill="#F5D676"/>
+                  <line x1="8"  y1="30" x2="20" y2="14" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                  <line x1="20" y1="14" x2="34" y2="10" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                  <line x1="34" y1="10" x2="44" y2="26" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                  <line x1="20" y1="14" x2="26" y2="32" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                </svg>
+              </div>
+              <div class="const-info">
+                <div class="const-eyebrow">EP. II</div>
+                <div class="const-name">Saiyajin Saga</div>
+                <div class="const-meta">6 FRAMES · 30 MIN</div>
+              </div>
+            </div>
+            <div class="const-card">
+              <div class="const-mini">
+                <svg viewBox="0 0 50 38">
+                  <circle cx="6"  cy="20" r="1.4" fill="#F5D676"/>
+                  <circle cx="16" cy="8"  r="1.8" fill="#F5D676"/>
+                  <circle cx="30" cy="20" r="1.6" fill="#F5D676"/>
+                  <circle cx="40" cy="12" r="1.6" fill="#F5D676"/>
+                  <circle cx="46" cy="30" r="1.4" fill="#F5D676"/>
+                  <line x1="6"  y1="20" x2="16" y2="8"  stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                  <line x1="16" y1="8"  x2="30" y2="20" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                  <line x1="30" y1="20" x2="40" y2="12" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                  <line x1="30" y1="20" x2="46" y2="30" stroke="#D4AF37" stroke-width="0.5" opacity="0.6"/>
+                </svg>
+              </div>
+              <div class="const-info">
+                <div class="const-eyebrow">EP. III</div>
+                <div class="const-name">Frieza Arc</div>
+                <div class="const-meta">8 FRAMES · 30 MIN</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="num">// NO. 05</div>
+        <div class="name">Saint Seiya Cinematic</div>
+        <div class="tag">Hero cósmico full-bleed · energía dorada radiante pulsante · "EPISODE I" en Fraunces italic. Stories como crónicas/constelaciones.</div>
+        <div class="palette">
+          <span class="sw" style="background:#04020a" title="#04020a · cosmos"></span>
+          <span class="sw" style="background:#F5D676" title="#F5D676 · gold-bright"></span>
+          <span class="sw" style="background:#D4AF37" title="#D4AF37 · gold"></span>
+          <span class="sw" style="background:#6a3aa8" title="#6a3aa8 · mystic purple"></span>
+        </div>
+        <div class="verdict great">
+          <strong>★ 100% on-brand zodiacal Pixora.</strong>
+          Fluye con el resto de la app (Mictlantecuhtli, Cultura, Helios). Riesgo: la estética cósmica disuelve un poquito la lectura "esto es episódico" — los frames se ven como "obras", no como "capítulos".
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Pixora · STORIES redesign · design archive · mayo MMXXVI
+  </footer>
+</div>
+
+</body>
+</html>
