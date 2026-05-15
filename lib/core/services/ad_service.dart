@@ -64,18 +64,32 @@ class AdService {
     return _appVersion!;
   }
 
-  /// DEBUG flag — bypass ads in debug builds only.
-  /// Release AABs ship with kDebugMode=false, so revenue is never accidentally
-  /// disabled in production (lesson from v1.7.2: a hardcoded `true` left over
-  /// from local dev cost us 100% of ad revenue for several days).
+  /// Master switch: TRUE = ads completamente desactivados (cero AdMob calls,
+  /// cero UI de ad, onAdDismissed se llama al toque y el usuario recibe
+  /// credits inmediatamente). FALSE = ads se cargan y muestran normal.
   ///
-  /// 2026-05-08 madrugada: ads RE-HABILITADOS en debug porque el Navigator
-  /// overlay (push de _AdOverlayScaffold antes del show) elimina la
-  /// contención de memoria entre Flutter UI y AdMob. Ya NO matamos el
-  /// :wallpaper process (causaba ANR) — el overlay sidesteps lifecycle
-  /// completamente, removiendo widgets pesados del tree mientras el ad
-  /// está visible.
-  static bool get _debugDisableAds => false;
+  /// Estado actual (2026-05-14): TRUE durante toda la fase pre-Production.
+  /// Razón: AdMob suspendió la cuenta 29 días por self-clicks de Eduardo
+  /// durante testing. Para evitar segunda ofensa (ban permanente + retención
+  /// 60d ingresos), apagamos AdMob completamente mientras la app sigue en
+  /// Closed Testing y antes de tener tráfico real masivo. Pixora no genera
+  /// revenue significativo aún (~$0-3/mes con 5 testers), no vale el riesgo.
+  ///
+  /// PARA REACTIVAR cuando lleguemos a Production con DAU real (~1000+):
+  ///   1. Cambiar este getter a `false`
+  ///   2. Cambiar `_interstitialAdUnitId` (línea ~30) del TEST ID al
+  ///      production: 'ca-app-pub-6734758230109098/6687118537'
+  ///   3. Verificar que `_testDeviceIds` tenga registrados todos los devices
+  ///      donde Eduardo prueba la app
+  ///   4. Build appbundle + subir a Play Console
+  ///
+  /// El flag se lee en showInterstitialAd() Y en initialize() — cuando está
+  /// TRUE no se inicializa MobileAds SDK ni se hace loadInterstitialAd(),
+  /// quedando AdMob completamente dormant del lado del cliente.
+  ///
+  /// History: v1.7.2 tuvo el bug opuesto (true left over) que costó revenue
+  /// real. Ahora es intencional y documentado, no leftover.
+  static bool get _debugDisableAds => true;
 
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;
@@ -130,7 +144,13 @@ class AdService {
   ];
 
   /// Initialize Mobile Ads SDK. Call once at app startup.
+  /// Cuando _debugDisableAds está TRUE, NO inicializa el SDK ni hace
+  /// requests — AdMob queda completamente dormant del lado del cliente.
   Future<void> initialize() async {
+    if (_debugDisableAds) {
+      debugPrint('[AdService] Ads disabled — skipping MobileAds init entirely');
+      return;
+    }
     // Registrar test devices ANTES de initialize() para que la primera
     // request los respete. El RequestConfiguration es global y persiste
     // todo el lifecycle del app.
