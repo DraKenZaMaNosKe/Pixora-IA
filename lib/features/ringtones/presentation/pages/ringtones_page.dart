@@ -2,24 +2,34 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../../../core/design/hud_tokens.dart';
-import '../../../../core/widgets/ticket_stub_card.dart';
+
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/preview_player_service.dart';
-import '../../../../core/utils/color_utils.dart';
-import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../../core/services/ringtone_service.dart';
+import '../../../../core/utils/locale_helper.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/ringtone_providers.dart';
 import '../../data/models/ringtone_pack.dart';
 import 'ringtone_pack_page.dart';
 
+// ── Retro Cassette palette (concept #05, Eduardo 2026-05-15) ──────────
+// Synthwave 80s — TONES tiene su propia personalidad audio (rompe a propósito
+// con el Black & Gold del resto del app).
+const _neonPink = Color(0xFFFF1493);
+const _neonCyan = Color(0xFF00FFFF);
+const _cream = Color(0xFFFFE6F8);
+const _bgTop = Color(0xFF2A0A4A);
+const _bgMid = Color(0xFF0A0533);
+const _bgBot = Color(0xFF1A0A2A);
+const _bodyA = Color(0xFF1A0A4A);
+const _bodyB = Color(0xFF0A0530);
+
 // ── Filter type ────────────────────────────────────────────────────
 enum _ToneFilter { all, ringtone, notification, alarm }
 
-// ── Main page ──────────────────────────────────────────────────────
 class RingtonesPage extends ConsumerStatefulWidget {
   const RingtonesPage({super.key});
 
@@ -67,15 +77,15 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       if (mounted) {
         setState(() => _playingId = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Could not play preview'),
-              backgroundColor: context.hud.accent),
+          const SnackBar(
+            content: Text('Could not play preview'),
+            backgroundColor: _neonPink,
+          ),
         );
       }
     }
   }
 
-  // ── Set as ringtone/notification/alarm ────────────────────────────
   Future<void> _setAs(RingtoneTone tone, int type) async {
     if (_playingId != null) {
       await _previewPlayer.stop();
@@ -86,41 +96,56 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       if (mounted) await _showPermissionDialog(tone, type);
       return;
     }
-    // Route through AdService — alternates ad/no-ad, awards credits on
-    // dismissal, and is the single point that respects active subscriptions.
     AdService.instance.showInterstitialAd(
-        placement: 'ringtone_play',
-        onAdDismissed: () {
-          if (mounted) _doSetAs(tone, type);
-        });
+      placement: 'ringtone_play',
+      onAdDismissed: () {
+        if (mounted) _doSetAs(tone, type);
+      },
+    );
   }
 
   Future<void> _showPermissionDialog(RingtoneTone tone, int type) async {
     showDialog(
       context: context,
       builder: (ctx) {
-        final h = ctx.hud;
         return AlertDialog(
-          backgroundColor: h.surface,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: _bodyA,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: const BorderSide(color: _neonPink, width: 1),
+          ),
           title: Row(
             children: [
-              Icon(Icons.settings, color: h.accent2, size: 24),
+              const Icon(Icons.settings, color: _neonCyan, size: 22),
               const SizedBox(width: 10),
-              Text('Permission needed',
-                  style: TextStyle(fontSize: 17, color: h.text)),
+              Text(
+                LocaleHelper.pick(
+                    es: 'Permiso necesario', en: 'Permission needed'),
+                style: GoogleFonts.inter(
+                    fontSize: 15, fontWeight: FontWeight.w700, color: _cream),
+              ),
             ],
           ),
           content: Text(
-            'To set ringtones, Pixora needs permission to modify system settings.\n\n'
-            'Tap "Open Settings" below, then enable the toggle.',
-            style: TextStyle(color: h.textDim, fontSize: 14, height: 1.5),
+            LocaleHelper.pick(
+              es: 'Para asignar tonos, Pixora necesita permiso para modificar '
+                  'la configuración del sistema. Toca "Abrir ajustes" y '
+                  'activa el switch.',
+              en: 'To set ringtones, Pixora needs permission to modify '
+                  'system settings. Tap "Open Settings" and enable the toggle.',
+            ),
+            style: GoogleFonts.inter(
+                color: _cream.withValues(alpha: 0.75),
+                fontSize: 13,
+                height: 1.5),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text('Cancel', style: TextStyle(color: h.textDim)),
+              child: Text(
+                LocaleHelper.pick(es: 'Cancelar', en: 'Cancel'),
+                style: GoogleFonts.inter(color: _neonCyan),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -128,12 +153,16 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                 await RingtoneService.instance.requestPermission();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: h.accent,
+                backgroundColor: _neonPink,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(4)),
               ),
-              child: const Text('Open Settings'),
+              child: Text(
+                LocaleHelper.pick(es: 'Abrir ajustes', en: 'Open Settings'),
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w700, fontSize: 12),
+              ),
             ),
           ],
         );
@@ -147,9 +176,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     if (path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Download failed'),
-              backgroundColor: context.hud.accent),
+          const SnackBar(
+            content: Text('Download failed'),
+            backgroundColor: _neonPink,
+          ),
         );
       }
       setState(() => _settingId = null);
@@ -162,9 +192,9 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(success
-              ? '${tone.name} set as ${typeNames[type]}!'
+              ? '${tone.name} → ${typeNames[type]}'
               : 'Failed to set ringtone'),
-          backgroundColor: success ? context.hud.accent : HudTokens.goldDeep,
+          backgroundColor: success ? _neonCyan : _neonPink,
         ),
       );
     }
@@ -174,12 +204,12 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   void _showSetAsDialog(RingtoneTone tone) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: context.hud.surface,
+      backgroundColor: _bodyA,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        side: BorderSide(color: _neonPink, width: 1),
       ),
       builder: (ctx) {
-        final h = ctx.hud;
         return Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -187,31 +217,47 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
             children: [
               Container(
                 width: 40,
-                height: 4,
+                height: 3,
                 decoration: BoxDecoration(
-                  color: h.divider,
+                  color: _neonCyan.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 16),
-              Text(tone.name,
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: h.text)),
+              Text(
+                tone.name.toUpperCase(),
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: _cream,
+                  letterSpacing: 0.5,
+                ),
+              ),
               const SizedBox(height: 16),
-              _buildSetOption(ctx, Icons.phone_in_talk, 'Ringtone', () {
-                Navigator.pop(ctx);
-                _setAs(tone, 0);
-              }),
-              _buildSetOption(ctx, Icons.notifications, 'Notification', () {
-                Navigator.pop(ctx);
-                _setAs(tone, 1);
-              }),
-              _buildSetOption(ctx, Icons.alarm, 'Alarm', () {
-                Navigator.pop(ctx);
-                _setAs(tone, 2);
-              }),
+              _buildSetOption(
+                Icons.phone_in_talk,
+                LocaleHelper.pick(es: 'Tono de llamada', en: 'Ringtone'),
+                () {
+                  Navigator.pop(ctx);
+                  _setAs(tone, 0);
+                },
+              ),
+              _buildSetOption(
+                Icons.notifications,
+                LocaleHelper.pick(es: 'Notificación', en: 'Notification'),
+                () {
+                  Navigator.pop(ctx);
+                  _setAs(tone, 1);
+                },
+              ),
+              _buildSetOption(
+                Icons.alarm,
+                LocaleHelper.pick(es: 'Alarma', en: 'Alarm'),
+                () {
+                  Navigator.pop(ctx);
+                  _setAs(tone, 2);
+                },
+              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -220,77 +266,16 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     );
   }
 
-  Widget _buildSetOption(
-      BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
-    final h = ctx.hud;
+  Widget _buildSetOption(IconData icon, String label, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: h.accent),
-      title: Text(label, style: TextStyle(color: h.text)),
-      trailing: Icon(Icons.chevron_right, color: h.textDim),
+      leading: Icon(icon, color: _neonCyan),
+      title: Text(label,
+          style: GoogleFonts.inter(
+              color: _cream, fontWeight: FontWeight.w600, fontSize: 14)),
+      trailing: Icon(Icons.chevron_right, color: _cream.withValues(alpha: 0.4)),
       onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
     );
-  }
-
-  // ── Helpers ───────────────────────────────────────────────────────
-  Color _parseGlow(String hex) => parseHexColor(hex);
-
-  List<Color> _toneGradient(RingtoneTone tone, Color glow) {
-    // Black & Gold: ignore per-character brand colors — every tone renders on
-    // a unified gold gradient. Was previously 22 hardcoded palettes.
-    return [
-      HudTokens.goldDeep,
-      Theme.of(context).extension<HudTheme>()?.bg ?? HudTokens.nightBg
-    ];
-  }
-
-  IconData _toneIcon(RingtoneTone tone) {
-    final n = tone.name.toLowerCase();
-    if (n.contains('mario') ||
-        n.contains('yoshi') ||
-        n.contains('coin') ||
-        n.contains('powerup') ||
-        n.contains('level')) return Icons.videogame_asset;
-    if (n.contains('goku') ||
-        n.contains('saiyan') ||
-        n.contains('kamehameha') ||
-        n.contains('dragon') ||
-        n.contains('dbgt')) return Icons.flash_on;
-    if (n.contains('zelda') ||
-        n.contains('navi') ||
-        n.contains('hyrule') ||
-        n.contains('fairy') ||
-        n.contains('rupee')) return Icons.shield;
-    if (n.contains('homero') ||
-        n.contains('simpson') ||
-        n.contains('bob') ||
-        n.contains('esponja') ||
-        n.contains('sponge')) return Icons.tv;
-    if (n.contains('death') || n.contains('note')) return Icons.menu_book;
-    if (n.contains('shrek')) return Icons.forest;
-    if (n.contains('phone') ||
-        n.contains('rotary') ||
-        n.contains('classic') ||
-        n.contains('nokia')) return Icons.phone_callback;
-    if (n.contains('iphone') ||
-        n.contains('modern') ||
-        n.contains('digital') ||
-        n.contains('future')) return Icons.smartphone;
-    if (n.contains('soft') ||
-        n.contains('gentle') ||
-        n.contains('ambient') ||
-        n.contains('chill')) return Icons.spa;
-    if (n.contains('alarm') || n.contains('alert')) return Icons.alarm;
-    if (n.contains('minecraft')) return Icons.landscape;
-    if (n.contains('fnaf')) return Icons.nights_stay;
-    if (n.contains('hadouken') || n.contains('street')) return Icons.sports_mma;
-    if (n.contains('fall guys')) return Icons.emoji_events;
-    if (n.contains('hazbin') || n.contains('alastor'))
-      return Icons.local_fire_department;
-    if (n.contains('casa') || n.contains('papel')) return Icons.masks;
-    if (n.contains('pou')) return Icons.pets;
-    if (n.contains('kill bill')) return Icons.content_cut;
-    return Icons.music_note;
   }
 
   // ── Build ─────────────────────────────────────────────────────────
@@ -298,33 +283,81 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   Widget build(BuildContext context) {
     final packsAsync = ref.watch(ringtonePacksProvider);
 
-    return packsAsync.when(
-      loading: () => const _ShimmerLoading(),
-      error: (e, _) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline, color: context.hud.accent, size: 48),
-            const SizedBox(height: 12),
-            Text('Failed to load tones',
-                style: TextStyle(color: context.hud.textDim)),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => ref.invalidate(ringtonePacksProvider),
-              child: const Text('Retry'),
-            ),
-          ],
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: [0.0, 0.5, 1.0],
+          colors: [_bgTop, _bgMid, _bgBot],
         ),
       ),
-      data: (packs) {
-        if (packs.isEmpty) {
-          return Center(
-            child: Text('No tones available yet',
-                style: TextStyle(color: context.hud.textDim)),
-          );
-        }
-        return _buildDiscoveryView(packs);
-      },
+      child: Stack(
+        children: [
+          const Positioned.fill(child: _PixelGridBg()),
+          // Synthwave horizon at bottom
+          Positioned(
+            left: -60,
+            right: -60,
+            bottom: -60,
+            height: 220,
+            child: IgnorePointer(
+              child: Transform(
+                alignment: Alignment.bottomCenter,
+                transform: Matrix4.identity()
+                  ..setEntry(3, 2, 0.001)
+                  ..rotateX(0.7),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        _neonPink.withValues(alpha: 0.18),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.7],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          packsAsync.when(
+            loading: () => const _ShimmerLoading(),
+            error: (e, _) => Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, color: _neonPink, size: 48),
+                  const SizedBox(height: 12),
+                  Text('Failed to load tones',
+                      style: GoogleFonts.inter(
+                          color: _cream.withValues(alpha: 0.6))),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => ref.invalidate(ringtonePacksProvider),
+                    child: Text('Retry',
+                        style: GoogleFonts.inter(color: _neonCyan)),
+                  ),
+                ],
+              ),
+            ),
+            data: (packs) {
+              if (packs.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No tones available yet',
+                    style:
+                        GoogleFonts.inter(color: _cream.withValues(alpha: 0.6)),
+                  ),
+                );
+              }
+              return _buildDiscoveryView(packs);
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -345,9 +378,11 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   }
 
   Widget _buildDiscoveryView(List<RingtonePack> packs) {
-    // Pick recommended tones (mix from different packs)
+    final featured = packs.first;
+    final featuredFiltered = _packFilteredTones(featured);
+
     final recommended = <RingtoneTone>[];
-    for (final pack in packs) {
+    for (final pack in packs.skip(1)) {
       final filtered = _packFilteredTones(pack);
       if (filtered.isNotEmpty) {
         recommended.add(filtered[0]);
@@ -355,18 +390,17 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       }
     }
 
-    // Build pack section widgets
     final packSections = <Widget>[];
-    for (final pack in packs) {
+    for (final pack in packs.skip(1)) {
       final filtered = _packFilteredTones(pack);
       if (filtered.isNotEmpty) {
-        packSections.add(const SizedBox(height: 24));
+        packSections.add(const SizedBox(height: 22));
         packSections.add(_buildSectionHeader(pack.name, () {
           Navigator.push(context,
               MaterialPageRoute(builder: (_) => RingtonePackPage(pack: pack)));
         }));
-        packSections.add(const SizedBox(height: 12));
-        packSections.add(_buildToneGrid(filtered, _parseGlow(pack.glowColor)));
+        packSections.add(const SizedBox(height: 10));
+        packSections.add(_buildToneGrid(filtered));
       }
     }
 
@@ -375,61 +409,80 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Filter Chips ──────────────────────────────────────
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           _buildFilterChips(),
-
-          // ── Hero Banner ───────────────────────────────────────
-          const SizedBox(height: 16),
-          SectionHeroBanner(
-            items: packs
-                .take(5)
-                .map((pack) => HeroBannerItem(
-                      imageUrl: pack.previewUrl,
-                      title: pack.name,
-                      subtitle:
-                          '${pack.tones.length} tones \u00b7 ${pack.description}',
-                      badge: pack.category,
-                      accentColor: context.hud.accent,
-                    ))
-                .toList(),
-            onTap: (i) => Navigator.push(
+          const SizedBox(height: 14),
+          // ── Featured Cassette Hero ─────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: _CassetteHero(
+              pack: featured,
+              currentlyPlayingTone: featuredFiltered.firstWhere(
+                (t) => t.id == _playingId,
+                orElse: () => featuredFiltered.isNotEmpty
+                    ? featuredFiltered.first
+                    : RingtoneTone(
+                        id: '',
+                        name: featured.name,
+                        file: '',
+                        duration: 0,
+                        suggestedType: 'ringtone',
+                      ),
+              ),
+              isPlaying: _playingId != null &&
+                  featuredFiltered.any((t) => t.id == _playingId),
+              onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => RingtonePackPage(pack: packs[i]),
-                )),
-            height: 0.32,
+                  builder: (_) => RingtonePackPage(pack: featured),
+                ),
+              ),
+            ),
           ),
-
-          // ── Recommended ───────────────────────────────────────
           if (recommended.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildSectionHeader('Recommended for You', null),
-            const SizedBox(height: 12),
+            const SizedBox(height: 22),
+            _buildSectionHeader(
+              LocaleHelper.pick(es: 'TOP MIXTAPE', en: 'TOP MIXTAPE'),
+              null,
+            ),
+            const SizedBox(height: 10),
             _buildRecommendedRow(recommended, packs),
           ],
-
-          // ── Pack Sections ─────────────────────────────────────
           ...packSections,
         ],
       ),
     );
   }
 
-  // ── Filter Chips ──────────────────────────────────────────────────
+  // ── Filter Chips (neon synthwave) ─────────────────────────────────
   Widget _buildFilterChips() {
     final filters = [
-      (_ToneFilter.all, 'All', Icons.music_note),
-      (_ToneFilter.ringtone, 'Ringtones', Icons.phone_in_talk),
-      (_ToneFilter.notification, 'Messages', Icons.notifications),
-      (_ToneFilter.alarm, 'Alarms', Icons.alarm),
+      (
+        _ToneFilter.all,
+        LocaleHelper.pick(es: 'TODOS', en: 'ALL'),
+        Icons.music_note
+      ),
+      (
+        _ToneFilter.ringtone,
+        LocaleHelper.pick(es: 'RING', en: 'RING'),
+        Icons.phone_in_talk
+      ),
+      (
+        _ToneFilter.notification,
+        LocaleHelper.pick(es: 'MSG', en: 'MSG'),
+        Icons.notifications
+      ),
+      (
+        _ToneFilter.alarm,
+        LocaleHelper.pick(es: 'ALARMA', en: 'ALARM'),
+        Icons.alarm
+      ),
     ];
-
     return SizedBox(
-      height: 42,
+      height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         itemCount: filters.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
@@ -438,28 +491,41 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           return GestureDetector(
             onTap: () => setState(() => _filter = filter),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: selected ? context.hud.accent : context.hud.surface,
+                color: selected ? _neonPink : _neonCyan.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: selected ? context.hud.accent : context.hud.divider,
+                  color:
+                      selected ? _neonPink : _neonCyan.withValues(alpha: 0.45),
+                  width: 1,
                 ),
+                boxShadow: selected
+                    ? [
+                        BoxShadow(
+                          color: _neonPink.withValues(alpha: 0.55),
+                          blurRadius: 12,
+                        ),
+                      ]
+                    : null,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(icon,
-                      size: 16,
-                      color: selected ? Colors.white : context.hud.textDim),
-                  const SizedBox(width: 6),
+                  Icon(
+                    icon,
+                    size: 13,
+                    color: selected ? Colors.white : _neonCyan,
+                  ),
+                  const SizedBox(width: 5),
                   Text(
                     label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                      color: selected ? Colors.white : context.hud.textDim,
+                    style: GoogleFonts.inter(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      color: selected ? Colors.white : _neonCyan,
+                      letterSpacing: 1.4,
                     ),
                   ),
                 ],
@@ -471,20 +537,34 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     );
   }
 
-  // ── Section Header ────────────────────────────────────────────────
+  // ── Section Header (neon glow) ────────────────────────────────────
   Widget _buildSectionHeader(String title, VoidCallback? onSeeAll) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: context.hud.text,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('★', style: TextStyle(color: _neonPink, fontSize: 11)),
+              const SizedBox(width: 6),
+              Text(
+                title.toUpperCase(),
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: _cream,
+                  letterSpacing: 2.0,
+                  shadows: [
+                    Shadow(
+                      color: _neonPink.withValues(alpha: 0.5),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           if (onSeeAll != null)
             GestureDetector(
@@ -493,17 +573,16 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'See All',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: context.hud.accent.withValues(alpha: 0.9),
-                      fontWeight: FontWeight.w600,
+                    LocaleHelper.pick(es: 'VER TODO', en: 'SEE ALL'),
+                    style: GoogleFonts.inter(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      color: _neonCyan,
+                      letterSpacing: 1.4,
                     ),
                   ),
                   const SizedBox(width: 2),
-                  Icon(Icons.chevron_right,
-                      size: 18,
-                      color: context.hud.accent.withValues(alpha: 0.9)),
+                  const Icon(Icons.chevron_right, size: 14, color: _neonCyan),
                 ],
               ),
             ),
@@ -512,73 +591,57 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     );
   }
 
-  // ── Recommended Row (horizontal scroll) ───────────────────────────
+  // ── Top Mixtape (horizontal mini cassettes) ───────────────────────
   Widget _buildRecommendedRow(
       List<RingtoneTone> tones, List<RingtonePack> packs) {
-    // Assign badges
-    final badges = <String, String>{};
-    if (tones.isNotEmpty) badges[tones[0].id] = 'POPULAR';
-    if (tones.length > 1) badges[tones[1].id] = 'NEW';
-    if (tones.length > 3) badges[tones[3].id] = 'TOP';
-
     return SizedBox(
-      height: 200,
+      height: 86,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         itemCount: tones.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
           final tone = tones[i];
-          // Find glow color from parent pack
-          final parentPack = packs.firstWhere(
-            (p) => p.tones.any((t) => t.id == tone.id),
-            orElse: () => packs.first,
-          );
-          final glow = _parseGlow(parentPack.glowColor);
-
-          return _RecommendedCard(
-            tone: tone,
-            glow: glow,
-            gradient: _toneGradient(tone, glow),
-            icon: _toneIcon(tone),
-            badge: badges[tone.id],
+          return _TapeMini(
+            title: tone.name,
+            duration: tone.durationFormatted,
             isPlaying: _playingId == tone.id,
             isSetting: _settingId == tone.id,
             onTap: () => _togglePreview(tone),
             onLongPress: () => _showSetAsDialog(tone),
-            index: i,
+            width: 110,
+            statsId: 'tone_${tone.id}',
           );
         },
       ),
     );
   }
 
-  // ── Tone Grid (2 columns per pack section) ────────────────────────
-  Widget _buildToneGrid(List<RingtoneTone> tones, Color glow) {
+  // ── Tone Grid (3 columns, mini cassettes) ─────────────────────────
+  Widget _buildToneGrid(List<RingtoneTone> tones) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 0.6,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 1.05,
         ),
         itemCount: tones.length > 6 ? 6 : tones.length,
         itemBuilder: (_, i) {
           final tone = tones[i];
-          return _ToneGridCard(
-            tone: tone,
-            glow: glow,
-            gradient: _toneGradient(tone, glow),
-            icon: _toneIcon(tone),
+          return _TapeMini(
+            title: tone.name,
+            duration: tone.durationFormatted,
             isPlaying: _playingId == tone.id,
             isSetting: _settingId == tone.id,
             onTap: () => _togglePreview(tone),
             onLongPress: () => _showSetAsDialog(tone),
+            statsId: 'tone_${tone.id}',
           );
         },
       ),
@@ -586,196 +649,190 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   }
 }
 
-// ── Recommended Card ────────────────────────────────────────────────
-/// Editorial Black & Gold card for a tone. Sharp gold frame, numeric index,
-/// Playfair title, serif italic type label. No gradient backgrounds — the
-/// color comes from a subtle breathing-gold glow around the play button.
-class _RecommendedCard extends StatelessWidget {
-  final RingtoneTone tone;
-  final Color glow; // kept for API compat; ignored — always uses gold
-  final List<Color> gradient; // kept for API compat; no longer rendered
-  final IconData icon;
-  final String? badge;
-  final bool isPlaying;
-  final bool isSetting;
-  final VoidCallback onTap;
-  final VoidCallback onLongPress;
-  final int index;
-
-  const _RecommendedCard({
-    required this.tone,
-    required this.glow,
-    required this.gradient,
-    required this.icon,
-    this.badge,
-    required this.isPlaying,
-    required this.isSetting,
-    required this.onTap,
-    required this.onLongPress,
-    this.index = 0,
-  });
-
-  String _roman(int n) {
-    // Supports 1..20 (enough for horizontal card rows).
-    const r = [
-      '',
-      'I',
-      'II',
-      'III',
-      'IV',
-      'V',
-      'VI',
-      'VII',
-      'VIII',
-      'IX',
-      'X',
-      'XI',
-      'XII',
-      'XIII',
-      'XIV',
-      'XV',
-      'XVI',
-      'XVII',
-      'XVIII',
-      'XIX',
-      'XX',
-    ];
-    return n >= 1 && n < r.length ? r[n] : n.toString();
-  }
+// ═════════════════════════════════════════════════════════════════════
+// Pixel grid background overlay
+// ═════════════════════════════════════════════════════════════════════
+class _PixelGridBg extends StatelessWidget {
+  const _PixelGridBg();
 
   @override
   Widget build(BuildContext context) {
+    return CustomPaint(painter: _GridPainter());
+  }
+}
+
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    const step = 14.0;
+    final pinkPaint = Paint()
+      ..color = _neonPink.withValues(alpha: 0.05)
+      ..strokeWidth = 0.6;
+    final cyanPaint = Paint()
+      ..color = _neonCyan.withValues(alpha: 0.04)
+      ..strokeWidth = 0.6;
+    for (var x = 0.0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), cyanPaint);
+    }
+    for (var y = 0.0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), pinkPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Cassette Hero — featured pack as a giant cassette tape
+// ═════════════════════════════════════════════════════════════════════
+class _CassetteHero extends StatelessWidget {
+  const _CassetteHero({
+    required this.pack,
+    required this.currentlyPlayingTone,
+    required this.isPlaying,
+    required this.onTap,
+  });
+  final RingtonePack pack;
+  final RingtoneTone currentlyPlayingTone;
+  final bool isPlaying;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = (isPlaying && currentlyPlayingTone.name.isNotEmpty)
+        ? currentlyPlayingTone.name
+        : pack.name;
     return GestureDetector(
       onTap: onTap,
-      onLongPress: onLongPress,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        width: 150,
+      child: Container(
+        height: 168,
         decoration: BoxDecoration(
-          color: context.hud.surface,
-          border: Border.all(
-            color: isPlaying
-                ? context.hud.accent2
-                : context.hud.accent.withValues(alpha: 0.45),
-            width: isPlaying ? 2 : 1,
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_bodyA, _bodyB],
           ),
-          boxShadow: isPlaying
-              ? [
-                  BoxShadow(
-                    color: context.hud.accent.withValues(alpha: 0.35),
-                    blurRadius: 22,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _neonPink, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: _neonPink.withValues(alpha: 0.4),
+              blurRadius: 24,
+            ),
+            BoxShadow(
+              color: _neonCyan.withValues(alpha: 0.08),
+              blurRadius: 12,
+              spreadRadius: -2,
+              offset: const Offset(0, 0),
+            ),
+          ],
         ),
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+        clipBehavior: Clip.antiAlias,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Text(
-                  'No. ${_roman(index + 1)}',
-                  style: TextStyle(
-                    fontFamily: 'serif',
-                    fontStyle: FontStyle.italic,
-                    fontSize: 11,
-                    color: context.hud.accent,
-                    letterSpacing: 0.15,
-                  ),
+            // Top stripe — pink to cyan gradient
+            Container(
+              height: 12,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [_neonPink, _neonCyan],
                 ),
-                const Spacer(),
-                if (badge != null)
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+              child: Row(
+                children: [
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    color: context.hud.accent,
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: _neonCyan.withValues(alpha: 0.10),
+                      border: Border.all(
+                        color: _neonCyan.withValues(alpha: 0.45),
+                        width: 0.6,
+                      ),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                     child: Text(
-                      badge!,
-                      style: const TextStyle(
+                      pack.category.toUpperCase(),
+                      style: GoogleFonts.inter(
                         fontSize: 8,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                        letterSpacing: 0.2,
+                        fontWeight: FontWeight.w800,
+                        color: _neonCyan,
+                        letterSpacing: 1.8,
+                        shadows: [
+                          Shadow(
+                            color: _neonCyan.withValues(alpha: 0.6),
+                            blurRadius: 6,
+                          ),
+                        ],
                       ),
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            // Sized box constrains the layout to 54x54 so the playing-state
-            // 80x80 radial halo doesn't push the row past its 200px height.
-            // Halo extends visually via clipBehavior: Clip.none on the Stack.
-            SizedBox(
-              width: 54,
-              height: 54,
-              child: Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: [
-                  if (isPlaying)
-                    // Subtle radial breathing glow behind the play button.
-                    Positioned(
-                      width: 80,
-                      height: 80,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              context.hud.accent.withValues(alpha: 0.35),
-                              context.hud.accent.withValues(alpha: 0.0),
-                            ],
-                          ),
+                  const Spacer(),
+                  Text(
+                    'SIDE A',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w800,
+                      color: _neonPink,
+                      letterSpacing: 2,
+                      shadows: [
+                        Shadow(
+                          color: _neonPink.withValues(alpha: 0.6),
+                          blurRadius: 6,
                         ),
-                      ),
-                    ),
-                  Container(
-                    width: 54,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: context.hud.accent, width: 1.2),
-                      color: context.hud.bg,
-                    ),
-                    child: _PlayButton(
-                      isPlaying: isPlaying,
-                      isSetting: isSetting,
-                      glow: context.hud.accent,
-                      size: 54,
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
-            if (isPlaying)
-              Center(child: _MiniWave(color: context.hud.accent))
-            else
-              const SizedBox(height: 16),
-            const SizedBox(height: 10),
-            Text(
-              tone.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontFamily: 'serif',
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: -0.01,
+            // Reels
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 36),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _Reel(size: 36, spinning: isPlaying),
+                  _Reel(size: 36, spinning: isPlaying),
+                ],
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Text(
+                title.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: _cream,
+                  letterSpacing: 0.6,
+                  shadows: [
+                    Shadow(
+                      color: _neonPink.withValues(alpha: 0.65),
+                      blurRadius: 6,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
             Text(
-              '— ${_typeLabel(tone.suggestedType).toLowerCase()} · ${tone.durationFormatted}',
-              style: TextStyle(
-                fontFamily: 'serif',
-                fontStyle: FontStyle.italic,
-                fontSize: 11,
-                color: context.hud.accent.withValues(alpha: 0.75),
-                letterSpacing: 0.05,
+              '${pack.tones.length} ${LocaleHelper.pick(es: "TRACKS", en: "TRACKS")} · ${pack.description.toUpperCase()}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 8.5,
+                fontWeight: FontWeight.w600,
+                color: _neonCyan.withValues(alpha: 0.9),
+                letterSpacing: 1.6,
               ),
             ),
           ],
@@ -783,178 +840,244 @@ class _RecommendedCard extends StatelessWidget {
       ),
     );
   }
-
-  String _typeLabel(String type) {
-    switch (type) {
-      case 'ringtone':
-        return 'Ringtone';
-      case 'notification':
-        return 'Notification';
-      case 'alarm':
-        return 'Alarm';
-      default:
-        return 'Tone';
-    }
-  }
 }
 
-// ── Play Button (reusable, prominent style like RingFlix) ───────────
-class _PlayButton extends StatelessWidget {
-  final bool isPlaying;
-  final bool isSetting;
-  final Color glow;
-  final double size;
-
-  const _PlayButton({
-    required this.isPlaying,
-    required this.isSetting,
-    required this.glow,
-    this.size = 44,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (isSetting) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.5),
-          shape: BoxShape.circle,
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(size * 0.22),
-          child: CircularProgressIndicator(strokeWidth: 2.5, color: glow),
-        ),
-      );
-    }
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: isPlaying ? glow : Colors.white.withValues(alpha: 0.2),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isPlaying ? glow : Colors.white.withValues(alpha: 0.4),
-          width: 2,
-        ),
-        boxShadow: isPlaying
-            ? [
-                BoxShadow(
-                    color: glow.withValues(alpha: 0.6),
-                    blurRadius: 16,
-                    spreadRadius: 2)
-              ]
-            : [
-                BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3), blurRadius: 8)
-              ],
-      ),
-      child: Icon(
-        isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
-        color: Colors.white,
-        size: size * 0.55,
-      ),
-    );
-  }
-}
-
-// ── Tone Grid Card (Ticket Stub) ────────────────────────────────────
-class _ToneGridCard extends StatelessWidget {
-  final RingtoneTone tone;
-  final Color glow; // kept for API compat — ignored
-  final List<Color> gradient; // kept for API compat — ignored
-  final IconData icon;
-  final bool isPlaying;
-  final bool isSetting;
-  final VoidCallback onTap;
-  final VoidCallback onLongPress;
-
-  const _ToneGridCard({
-    required this.tone,
-    required this.glow,
-    required this.gradient,
-    required this.icon,
+// ═════════════════════════════════════════════════════════════════════
+// Mini cassette tape — used for both Top Mixtape row and tone grid
+// ═════════════════════════════════════════════════════════════════════
+class _TapeMini extends StatelessWidget {
+  const _TapeMini({
+    required this.title,
+    required this.duration,
     required this.isPlaying,
     required this.isSetting,
     required this.onTap,
     required this.onLongPress,
+    required this.statsId,
+    this.width,
   });
+  final String title;
+  final String duration;
+  final bool isPlaying;
+  final bool isSetting;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final String statsId;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: onTap,
       onLongPress: onLongPress,
-      child: TicketStubCard(
-        admitLabel: isPlaying ? 'NOW' : 'TONE',
-        title: tone.name,
-        category: tone.durationFormatted.toUpperCase(),
-        isHighlighted: isPlaying,
-        onTap: onTap,
-        overlayTopRight: WallpaperStatsBar(
-          wallpaperId: 'tone_${tone.id}',
-          glowColor: context.hud.accent,
-        ),
-        child: Container(
-          color: context.hud.surfaceHi,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Gold radial glow that pulses when playing.
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      context.hud.accent
-                          .withValues(alpha: isPlaying ? 0.4 : 0.15),
-                      Colors.transparent,
-                    ],
-                    radius: 0.8,
-                  ),
-                ),
-              ),
-              // Center icon + play ring
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, color: context.hud.accent, size: 26),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: context.hud.bg.withValues(alpha: 0.5),
-                        border: Border.all(color: context.hud.accent, width: 1),
-                      ),
-                      child: _PlayButton(
-                        isPlaying: isPlaying,
-                        isSetting: isSetting,
-                        glow: context.hud.accent,
-                        size: 38,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (isPlaying)
-                Positioned(
-                  bottom: 6,
-                  left: 0,
-                  right: 0,
-                  child: Center(child: _MiniWave(color: context.hud.accent)),
-                ),
-            ],
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        width: width,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_bodyA, _bodyB],
           ),
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(
+            color: isPlaying ? _neonCyan : _neonPink.withValues(alpha: 0.5),
+            width: isPlaying ? 1.4 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: (isPlaying ? _neonCyan : _neonPink)
+                  .withValues(alpha: isPlaying ? 0.6 : 0.18),
+              blurRadius: isPlaying ? 18 : 8,
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            // Top stripe
+            Container(
+              height: 5,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [_neonPink, _neonCyan],
+                ),
+              ),
+            ),
+            // Reels
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _Reel(size: 14, spinning: isPlaying),
+                  _Reel(size: 14, spinning: isPlaying),
+                ],
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                title.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 8,
+                  fontWeight: FontWeight.w800,
+                  color: _cream,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '— $duration',
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 7.5,
+                fontWeight: FontWeight.w600,
+                color: _neonCyan.withValues(alpha: 0.7),
+                letterSpacing: 0.6,
+              ),
+            ),
+            const Spacer(),
+            // Bottom indicator: playing state + stats
+            Padding(
+              padding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isSetting)
+                    const SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1.5,
+                        color: _neonPink,
+                      ),
+                    )
+                  else if (isPlaying)
+                    const _MiniWave(color: _neonCyan)
+                  else
+                    Icon(
+                      Icons.play_arrow_rounded,
+                      size: 14,
+                      color: _neonPink.withValues(alpha: 0.85),
+                    ),
+                ],
+              ),
+            ),
+            // Stats bar (small footer)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              color: Colors.black.withValues(alpha: 0.25),
+              child: Center(
+                child: WallpaperStatsBar(
+                  wallpaperId: statsId,
+                  glowColor: _neonCyan,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-// ── Mini Playing Wave ───────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════
+// Cassette reel — conic gradient pink/cyan, spins when playing
+// ═════════════════════════════════════════════════════════════════════
+class _Reel extends StatefulWidget {
+  const _Reel({required this.size, required this.spinning});
+  final double size;
+  final bool spinning;
+
+  @override
+  State<_Reel> createState() => _ReelState();
+}
+
+class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    if (widget.spinning) _c.repeat();
+  }
+
+  @override
+  void didUpdateWidget(_Reel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.spinning && !_c.isAnimating) {
+      _c.repeat();
+    } else if (!widget.spinning && _c.isAnimating) {
+      _c.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (_, __) {
+        return Transform.rotate(
+          angle: _c.value * 2 * math.pi,
+          child: Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const SweepGradient(
+                colors: [_neonCyan, _neonPink, _neonCyan],
+              ),
+              border: Border.all(
+                color: _neonCyan.withValues(alpha: 0.5),
+                width: 0.8,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _neonPink.withValues(alpha: 0.4),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: Center(
+              child: Container(
+                width: widget.size * 0.32,
+                height: widget.size * 0.32,
+                decoration: BoxDecoration(
+                  color: _bgBot,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: _neonPink.withValues(alpha: 0.5),
+                    width: 0.5,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Mini playing wave (4 bars)
+// ═════════════════════════════════════════════════════════════════════
 class _MiniWave extends StatefulWidget {
   final Color color;
   const _MiniWave({required this.color});
@@ -971,8 +1094,9 @@ class _MiniWaveState extends State<_MiniWave>
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 900))
-      ..repeat();
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
   }
 
   @override
@@ -989,17 +1113,19 @@ class _MiniWaveState extends State<_MiniWave>
         mainAxisSize: MainAxisSize.min,
         children: List.generate(4, (i) {
           final phase = (_c.value + i * 0.18) % 1.0;
-          final h = 4.0 + 10.0 * (0.5 + 0.5 * math.sin(phase * math.pi * 2));
+          final h = 3.0 + 8.0 * (0.5 + 0.5 * math.sin(phase * math.pi * 2));
           return Container(
-            width: 2.5,
+            width: 2,
             height: h,
             margin: const EdgeInsets.symmetric(horizontal: 1),
             decoration: BoxDecoration(
               color: widget.color,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(1),
               boxShadow: [
                 BoxShadow(
-                    color: widget.color.withValues(alpha: 0.4), blurRadius: 3)
+                  color: widget.color.withValues(alpha: 0.6),
+                  blurRadius: 3,
+                ),
               ],
             ),
           );
@@ -1009,86 +1135,62 @@ class _MiniWaveState extends State<_MiniWave>
   }
 }
 
-// ── Shimmer Loading ─────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════
+// Shimmer Loading
+// ═════════════════════════════════════════════════════════════════════
 class _ShimmerLoading extends StatelessWidget {
   const _ShimmerLoading();
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filter chips shimmer
           Row(
             children: List.generate(
-                3,
-                (i) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Shimmer.fromColors(
-                        baseColor: context.hud.surface,
-                        highlightColor: context.hud.surfaceHi,
-                        child: Container(
-                          width: 90,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: context.hud.surface,
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        ),
-                      ),
-                    )),
-          ),
-          const SizedBox(height: 16),
-          // Hero shimmer
-          Shimmer.fromColors(
-            baseColor: context.hud.surface,
-            highlightColor: context.hud.surfaceHi,
-            child: Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: context.hud.surface,
-                borderRadius: BorderRadius.circular(20),
+              3,
+              (i) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Shimmer.fromColors(
+                  baseColor: _bodyA,
+                  highlightColor: _bodyB,
+                  child: Container(
+                    width: 70,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: _bodyA,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 24),
-          // Section shimmer
+          const SizedBox(height: 14),
           Shimmer.fromColors(
-            baseColor: context.hud.surface,
-            highlightColor: context.hud.surfaceHi,
+            baseColor: _bodyA,
+            highlightColor: _bodyB,
             child: Container(
-              width: 160,
-              height: 20,
+              height: 168,
               decoration: BoxDecoration(
-                color: context.hud.surface,
+                color: _bodyA,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          // Cards shimmer row
-          SizedBox(
-            height: 170,
-            child: Row(
-              children: List.generate(
-                  3,
-                  (i) => Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Shimmer.fromColors(
-                          baseColor: context.hud.surface,
-                          highlightColor: context.hud.surfaceHi,
-                          child: Container(
-                            width: 140,
-                            height: 170,
-                            decoration: BoxDecoration(
-                              color: context.hud.surface,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                        ),
-                      )),
+          const SizedBox(height: 22),
+          Shimmer.fromColors(
+            baseColor: _bodyA,
+            highlightColor: _bodyB,
+            child: Container(
+              width: 140,
+              height: 14,
+              decoration: BoxDecoration(
+                color: _bodyA,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
           ),
         ],
