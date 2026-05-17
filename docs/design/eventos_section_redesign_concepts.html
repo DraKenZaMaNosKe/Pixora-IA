@@ -1,0 +1,2594 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · EVENTOS Section · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=Great+Vibes&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Pinyon+Script&family=Tangerine:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-text-soft: #3C3C43;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+    --ios-blue-soft: rgba(10,132,255,0.10);
+    --ios-indigo:    #5E5CE6;
+    --ios-purple:    #BF5AF2;
+    --ios-pink:      #FF375F;
+    --ios-silver:    #C0C5CC;
+
+    /* B&G theme */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* EVENTOS palette — exclusivity / luxury (NO green mint) */
+    --ev-burgundy:  #6B1F2E;
+    --ev-crimson:   #C0392B;
+    --ev-amber:     #E8B86E;
+    --ev-copper:    #B87333;
+    --ev-pumpkin:   #E07020;
+    --ev-marigold:  #F5A623;
+    --ev-rose:      #E8A5C5;
+    --ev-cream:     #F8F4E8;
+    --ev-parchment: #EDE3CC;
+    --ev-navy:      #1A2A4A;
+    --ev-violet:    #6A4FB5;
+    --ev-emerald:   #2C5F4A;
+    --ev-holo-1:    #FFB7E8;
+    --ev-holo-2:    #87C5E8;
+    --ev-holo-3:    #F5D676;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.55), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(232,184,110,0.45), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(232,165,197,0.45), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(107,31,46,0.12), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(232,184,110,0.06), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(192,57,43,0.07), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · EVENTOS SECTION · REDESIGN / DOC-046';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: var(--ev-rose); }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.55;
+  }
+  .subtitle em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--ev-amber);
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 36px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 290px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 620;
+    background: #fff;
+    border-radius: 38px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 7px #1a1a22,
+      0 20px 46px rgba(0,0,0,0.65),
+      0 0 60px rgba(232,184,110,0.16);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 7px #0a0a14,
+      0 20px 46px rgba(0,0,0,0.7),
+      0 0 70px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 66px; height: 15px;
+    background: #000;
+    border-radius: 0 0 11px 11px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    font: 600 8.5px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 13px; height: 6.5px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─────────── EVENTOS Header (avatar + title + credits) ─────────── */
+  .ev-header {
+    position: relative;
+    padding: 30px 14px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 4;
+  }
+  .ev-header .left {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ev-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ev-amber), var(--ev-burgundy));
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 0 8px rgba(232,184,110,0.5);
+  }
+  .ev-title {
+    font: 700 13px 'Inter', sans-serif;
+    letter-spacing: 0.04em;
+  }
+  .ev-credits-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font: 600 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .ev-credits-pill::before { content: '◆'; font-size: 7px; }
+
+  /* Section label (Próximamente / Recuerdos) */
+  .ev-section-label {
+    padding: 8px 14px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 4;
+    position: relative;
+  }
+  .ev-section-label .l-title {
+    font: 600 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .ev-section-label .l-count {
+    font: 500 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.15em;
+  }
+
+  /* Carousel of cards */
+  .ev-carousel {
+    padding: 4px 12px 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    z-index: 4;
+    position: relative;
+  }
+  .ev-carousel.recuerdos {
+    grid-template-columns: 1fr 0.4fr;
+    gap: 6px;
+  }
+  .ev-card {
+    position: relative;
+    aspect-ratio: 9 / 14;
+    overflow: hidden;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Stats bar at BOTTOM centered (consistency) */
+  .ev-stats {
+    margin-top: auto;
+    padding: 8px 14px 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    z-index: 4;
+    position: relative;
+  }
+  .ev-stat {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.12em;
+  }
+  .ev-stat .ring {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+  }
+  .ev-stat .heart {
+    width: 9px; height: 9px;
+    background: currentColor;
+    clip-path: path('M4.5 8 C 1 5.5, 0 3.5, 1.5 1.8 C 2.8 0.5, 4 1.2, 4.5 2.3 C 5 1.2, 6.2 0.5, 7.5 1.8 C 9 3.5, 8 5.5, 4.5 8 Z');
+  }
+
+  /* ─────────── META block ─────────── */
+  .meta { padding: 12px 0 0; }
+  .meta .num {
+    font: 500 11px 'JetBrains Mono', monospace;
+    letter-spacing: 0.28em;
+    color: var(--gold-deep);
+    margin-bottom: 12px;
+  }
+  .meta h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .meta h2 .acc { color: var(--gold-bright); }
+  .meta .tagline {
+    font: italic 400 13px 'Cormorant Garamond', serif;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    border-left: 1.5px solid var(--gold-dark);
+    padding-left: 12px;
+  }
+  .meta .description {
+    font: 400 12.5px 'Geist', sans-serif;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .meta .meta-section-title {
+    font: 500 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin: 16px 0 8px;
+  }
+  .palette-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .palette-pair .label {
+    font: 500 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .palette-pair .label.ios { color: #5e8eb8; }
+  .palette-pair .label.bg  { color: var(--gold-deep); }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .sw {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .sw:hover::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: 105%; left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--text);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font: 500 9px 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    pointer-events: none;
+    border: 1px solid var(--gold-dark);
+  }
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .pros, .cons {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font: 400 11px 'Geist', sans-serif;
+    line-height: 1.45;
+  }
+  .pros {
+    background: rgba(232,184,110,0.06);
+    color: var(--text);
+    border-left: 2px solid var(--ev-amber);
+  }
+  .cons {
+    background: rgba(192,57,43,0.06);
+    color: var(--text);
+    border-left: 2px solid var(--ev-crimson);
+  }
+  .pros .h, .cons .h {
+    font: 600 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.2em;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  .pros .h { color: var(--ev-amber); }
+  .cons .h { color: var(--ev-crimson); }
+  .verdict {
+    margin-top: 12px;
+    padding: 14px 14px;
+    background: rgba(212,175,55,0.05);
+    border: 1px solid var(--gold-dark);
+    border-radius: 10px;
+    font: italic 400 12px 'Cormorant Garamond', serif;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 01 — LUXURY CONCIERGE (Soho House / Private Club)
+     ═══════════════════════════════════════════════════════ */
+  .c1 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(232,184,110,0.10), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(107,31,46,0.06), transparent 60%),
+      var(--ios-bg);
+  }
+  .c1 .light .ev-avatar {
+    background: linear-gradient(135deg, var(--ios-blue), #003C71);
+  }
+  .c1 .light .ev-title {
+    color: var(--ios-text);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .c1 .light .ev-credits-pill {
+    background: rgba(10,132,255,0.08);
+    color: var(--ios-blue);
+    border: 1px solid rgba(10,132,255,0.2);
+  }
+  .c1 .light .ev-section-label .l-title { color: var(--ios-text); }
+  .c1 .light .ev-section-label .l-count { color: var(--ios-text-dim); }
+  .c1 .light .ev-stat { color: var(--ios-text-dim); }
+  .c1 .light .ev-stat.heart-c { color: var(--ev-crimson); }
+
+  .c1 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.12), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(107,31,46,0.10), transparent 60%),
+      var(--bg-ink);
+  }
+  .c1 .dark .ev-avatar {
+    background: linear-gradient(135deg, var(--gold-bright), var(--ev-burgundy));
+  }
+  .c1 .dark .ev-title {
+    color: var(--bg-text);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .c1 .dark .ev-credits-pill {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.35);
+  }
+  .c1 .dark .ev-section-label .l-title { color: var(--bg-gold-bright); }
+  .c1 .dark .ev-section-label .l-count { color: var(--bg-text-dim); }
+  .c1 .dark .ev-stat { color: var(--bg-text-dim); }
+  .c1 .dark .ev-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Concierge card */
+  .concierge-card {
+    border-radius: 8px;
+    padding: 8px 6px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .c1 .light .concierge-card {
+    background: linear-gradient(180deg, #FBF8F1, #F2EDE0);
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(10,30,60,0.08);
+  }
+  .c1 .dark .concierge-card {
+    background: linear-gradient(180deg, #18141C, #0E0B14);
+    border: 1px solid rgba(212,175,55,0.25);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.6), inset 0 0 22px rgba(212,175,55,0.04);
+  }
+  .concierge-card .members-badge {
+    font: 600 5.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    padding: 2px 5px;
+    border-radius: 2px;
+    margin-bottom: 5px;
+    position: relative;
+    text-transform: uppercase;
+  }
+  .c1 .light .concierge-card .members-badge {
+    background: linear-gradient(90deg, #0066CC, #0A84FF, #0066CC);
+    background-size: 200% 100%;
+    animation: foilShimmer 4s linear infinite;
+    color: #fff;
+  }
+  .c1 .dark .concierge-card .members-badge {
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright), var(--gold-deep));
+    background-size: 200% 100%;
+    animation: foilShimmer 4s linear infinite;
+    color: #0a0a14;
+  }
+  @keyframes foilShimmer {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+  }
+  .concierge-card .ev-date {
+    font: 400 16px 'Fraunces', serif;
+    line-height: 0.9;
+    margin: 3px 0 0;
+  }
+  .concierge-card .ev-month {
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    margin-top: 2px;
+  }
+  .concierge-card .ev-name {
+    font: italic 400 9.5px 'Fraunces', serif;
+    line-height: 1.1;
+    margin-top: 6px;
+    padding: 0 2px;
+  }
+  .concierge-card .ev-divider {
+    width: 30%;
+    height: 1px;
+    margin: 5px auto;
+  }
+  .concierge-card .ev-spots {
+    font: 500 5.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    margin-bottom: 4px;
+  }
+  .concierge-card .ev-cta {
+    margin-top: auto;
+    font: 600 6px 'Inter', sans-serif;
+    letter-spacing: 0.16em;
+    padding: 4px 6px;
+    border-radius: 3px;
+    text-align: center;
+    text-transform: uppercase;
+    width: 100%;
+  }
+  .c1 .light .concierge-card .ev-date { color: var(--ios-text); }
+  .c1 .light .concierge-card .ev-month { color: var(--ios-blue); }
+  .c1 .light .concierge-card .ev-name { color: var(--ios-text); }
+  .c1 .light .concierge-card .ev-divider { background: linear-gradient(90deg, transparent, rgba(10,132,255,0.5), transparent); }
+  .c1 .light .concierge-card .ev-spots { color: var(--ev-crimson); }
+  .c1 .light .concierge-card .ev-cta {
+    background: var(--ios-text);
+    color: #fff;
+  }
+  .c1 .dark .concierge-card .ev-date { color: var(--bg-gold-bright); }
+  .c1 .dark .concierge-card .ev-month { color: var(--gold); }
+  .c1 .dark .concierge-card .ev-name { color: var(--bg-text); }
+  .c1 .dark .concierge-card .ev-divider { background: linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent); }
+  .c1 .dark .concierge-card .ev-spots { color: var(--ev-rose); }
+  .c1 .dark .concierge-card .ev-cta {
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color: #0a0a14;
+    box-shadow: 0 1px 3px rgba(212,175,55,0.4);
+  }
+  .c1 .concierge-card.past { opacity: 0.65; filter: saturate(0.7); }
+  .c1 .concierge-card.past .ev-cta { background: transparent; border: 1px solid currentColor; color: currentColor; }
+  .c1 .light .concierge-card.past .ev-cta { color: var(--ios-text-dim); }
+  .c1 .dark .concierge-card.past .ev-cta { color: var(--bg-text-dim); }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 02 — CINEMATIC MOVIE POSTER
+     ═══════════════════════════════════════════════════════ */
+  .c2 .light .screen { background: #0A0A12; }
+  .c2 .light .ev-avatar {
+    background: linear-gradient(135deg, var(--ios-blue), #003C71);
+  }
+  .c2 .light .ev-title {
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+  }
+  .c2 .light .ev-credits-pill {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .c2 .light .ev-section-label .l-title { color: #fff; font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 0.22em; }
+  .c2 .light .ev-section-label .l-count { color: rgba(255,255,255,0.55); }
+  .c2 .light .ev-stat { color: rgba(255,255,255,0.55); }
+  .c2 .light .ev-stat.heart-c { color: var(--ev-crimson); }
+
+  .c2 .dark .screen { background: #060610; }
+  .c2 .dark .ev-avatar {
+    background: linear-gradient(135deg, var(--gold-bright), var(--ev-crimson));
+  }
+  .c2 .dark .ev-title {
+    color: var(--bg-gold-bright);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+  }
+  .c2 .dark .ev-credits-pill {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.35);
+  }
+  .c2 .dark .ev-section-label .l-title { color: var(--bg-gold-bright); font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 0.22em; }
+  .c2 .dark .ev-section-label .l-count { color: var(--bg-text-dim); }
+  .c2 .dark .ev-stat { color: var(--bg-text-dim); }
+  .c2 .dark .ev-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Cinema poster card */
+  .cinema-card {
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .cinema-card .bg-art {
+    position: absolute; inset: 0;
+    z-index: 1;
+  }
+  .cinema-card .marquee {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 3px 0;
+    text-align: center;
+    font: 700 5.5px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.28em;
+    z-index: 3;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    overflow: hidden;
+  }
+  .cinema-card .marquee span {
+    display: inline-block;
+    animation: marqueeScroll 6s linear infinite;
+  }
+  @keyframes marqueeScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .cinema-card .release {
+    position: absolute; top: 16px; left: 6px;
+    font: 400 22px 'Bebas Neue', sans-serif;
+    line-height: 0.85;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    z-index: 3;
+  }
+  .cinema-card .release .small {
+    display: block;
+    font-size: 7.5px;
+    letter-spacing: 0.18em;
+    margin-bottom: 2px;
+  }
+  .cinema-card .title-block {
+    position: relative;
+    z-index: 3;
+    padding: 5px 5px 4px;
+  }
+  .cinema-card .title-block .title-line {
+    font: 400 11px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+  .cinema-card .countdown {
+    position: relative;
+    z-index: 3;
+    margin: 3px 5px 4px;
+    display: flex;
+    justify-content: space-between;
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: rgba(0,0,0,0.55);
+    padding: 3px 4px;
+    border-radius: 2px;
+    animation: marqueePulse 1.5s ease-in-out infinite;
+  }
+  @keyframes marqueePulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(232,184,110,0); }
+    50%      { box-shadow: 0 0 8px rgba(232,184,110,0.5); }
+  }
+  .cinema-card .countdown b { color: var(--ev-amber); font-weight: 700; }
+  .cinema-card .cta-strip {
+    position: relative;
+    z-index: 3;
+    margin: 0 5px 5px;
+    padding: 4px;
+    text-align: center;
+    font: 700 6.5px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.18em;
+    border-radius: 2px;
+  }
+  /* Independencia art */
+  .cinema-card.independencia .bg-art {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(232,184,110,0.5), transparent 60%),
+      linear-gradient(180deg, #006847 0%, #006847 33%, #FFFFFF 33%, #FFFFFF 66%, #CE1126 66%, #CE1126 100%);
+  }
+  .cinema-card.independencia .bg-art::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(232,184,110,0.4), transparent 35%),
+      linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.6) 100%);
+  }
+  /* Halloween art */
+  .cinema-card.halloween .bg-art {
+    background:
+      radial-gradient(ellipse at 50% 70%, rgba(224,112,32,0.6), transparent 55%),
+      radial-gradient(circle at 50% 35%, rgba(245,166,35,0.3), transparent 40%),
+      linear-gradient(180deg, #1A0A24 0%, #3A1A0A 100%);
+  }
+  .cinema-card.halloween .bg-art::after {
+    content: '🎃';
+    position: absolute;
+    top: 38%; left: 50%;
+    transform: translateX(-50%);
+    font-size: 32px;
+    filter: drop-shadow(0 4px 14px rgba(245,166,35,0.6));
+  }
+  /* Muertos art */
+  .cinema-card.muertos .bg-art {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(245,166,35,0.45), transparent 50%),
+      linear-gradient(180deg, #2A0A2C 0%, #5A1A2C 60%, #C0392B 100%);
+  }
+  .cinema-card.muertos .bg-art::after {
+    content: '💀';
+    position: absolute;
+    top: 30%; left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+    filter: drop-shadow(0 4px 12px rgba(255,255,255,0.4));
+  }
+  /* Día de la Madre — past */
+  .cinema-card.madre .bg-art {
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(232,165,197,0.55), transparent 55%),
+      linear-gradient(180deg, #C75FA8 0%, #6B1F2E 100%);
+  }
+  .cinema-card.madre .bg-art::after {
+    content: '🌹';
+    position: absolute;
+    top: 32%; left: 50%;
+    transform: translateX(-50%);
+    font-size: 28px;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+  }
+  .cinema-card .past-stamp {
+    position: absolute;
+    top: 36%; left: 50%;
+    transform: translate(-50%,-50%) rotate(-12deg);
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 2px 6px;
+    font: 700 8px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.15em;
+    z-index: 4;
+    opacity: 0.8;
+  }
+  .c2 .light .cinema-card .marquee { background: rgba(10,132,255,0.85); color: #fff; }
+  .c2 .light .cinema-card .cta-strip { background: var(--ios-blue); color: #fff; }
+  .c2 .dark .cinema-card .marquee { background: linear-gradient(90deg, var(--gold-deep), var(--gold), var(--gold-deep)); color: #0a0a14; }
+  .c2 .dark .cinema-card .cta-strip { background: linear-gradient(180deg, var(--gold-bright), var(--gold)); color: #0a0a14; }
+  .c2 .cinema-card.past { opacity: 0.7; }
+  .c2 .cinema-card.past .cta-strip { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 03 — FESTIVAL TICKET (Coachella / Tomorrowland)
+     ═══════════════════════════════════════════════════════ */
+  .c3 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(10,132,255,0.06), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(232,184,110,0.06), transparent 60%),
+      var(--ios-bg);
+  }
+  .c3 .light .ev-avatar {
+    background: conic-gradient(from 0deg, var(--ev-holo-1), var(--ev-holo-2), var(--ev-holo-3), var(--ev-holo-1));
+  }
+  .c3 .light .ev-title {
+    color: var(--ios-text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  .c3 .light .ev-credits-pill {
+    background: rgba(10,132,255,0.08);
+    color: var(--ios-blue);
+    border: 1px solid rgba(10,132,255,0.2);
+  }
+  .c3 .light .ev-section-label .l-title { color: var(--ios-text); }
+  .c3 .light .ev-section-label .l-count { color: var(--ios-text-dim); }
+  .c3 .light .ev-stat { color: var(--ios-text-dim); }
+  .c3 .light .ev-stat.heart-c { color: var(--ev-crimson); }
+
+  .c3 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.12), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(184,115,51,0.10), transparent 60%),
+      var(--bg-ink);
+  }
+  .c3 .dark .ev-avatar {
+    background: conic-gradient(from 0deg, var(--gold), var(--ev-copper), var(--gold-bright), var(--gold));
+  }
+  .c3 .dark .ev-title {
+    color: var(--bg-gold-bright);
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  .c3 .dark .ev-credits-pill {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.35);
+  }
+  .c3 .dark .ev-section-label .l-title { color: var(--bg-gold-bright); }
+  .c3 .dark .ev-section-label .l-count { color: var(--bg-text-dim); }
+  .c3 .dark .ev-stat { color: var(--bg-text-dim); }
+  .c3 .dark .ev-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Festival ticket */
+  .ticket-card {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .ticket-card .holo-bar {
+    height: 13px;
+    background: linear-gradient(90deg, var(--ev-holo-1), var(--ev-holo-2), var(--ev-holo-3), var(--ev-holo-1));
+    background-size: 200% 100%;
+    animation: holoShine 3s linear infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @keyframes holoShine {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+  }
+  .ticket-card .holo-bar .tier {
+    font: 800 6.5px 'Inter', sans-serif;
+    letter-spacing: 0.22em;
+    color: #1a1a1a;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .ticket-card .body {
+    flex: 1;
+    padding: 4px 5px 4px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .ticket-card .ev-name {
+    font: 700 9.5px 'Inter', sans-serif;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-top: 3px;
+  }
+  .ticket-card .ev-sub {
+    font: 500 6px 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+  .ticket-card .perforation {
+    height: 1px;
+    margin: 4px -5px;
+    background-image: radial-gradient(circle, currentColor 0.5px, transparent 1px);
+    background-size: 4px 1px;
+    background-repeat: repeat-x;
+    opacity: 0.45;
+  }
+  .ticket-card .countdown-row {
+    display: flex;
+    justify-content: space-between;
+    font: 700 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    margin: 2px 0;
+  }
+  .ticket-card .countdown-row span { display: inline-block; padding: 0 1px; }
+  .ticket-card .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 4px;
+  }
+  .ticket-card .price-row .from {
+    font: 500 5.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .ticket-card .price-row .price {
+    font: 700 9px 'Inter', sans-serif;
+  }
+  .ticket-card .qr {
+    margin: 5px auto 3px;
+    width: 16px; height: 16px;
+    background:
+      linear-gradient(45deg, transparent 25%, currentColor 25% 50%, transparent 50% 75%, currentColor 75%) 0 0/4px 4px,
+      currentColor;
+    opacity: 0.55;
+    border-radius: 1px;
+  }
+  /* iOS festival colors */
+  .c3 .light .ticket-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(10,30,60,0.1);
+  }
+  .c3 .light .ticket-card .ev-name { color: var(--ios-text); }
+  .c3 .light .ticket-card .ev-sub { color: var(--ios-blue); }
+  .c3 .light .ticket-card .perforation { color: var(--ios-text-dim); }
+  .c3 .light .ticket-card .countdown-row { color: var(--ios-text); }
+  .c3 .light .ticket-card .countdown-row b { color: var(--ios-blue); }
+  .c3 .light .ticket-card .price-row .from { color: var(--ios-text-dim); }
+  .c3 .light .ticket-card .price-row .price { color: var(--ev-crimson); }
+  .c3 .light .ticket-card .qr { color: var(--ios-text); }
+  /* B&G festival colors */
+  .c3 .dark .ticket-card {
+    background: linear-gradient(180deg, #18141C, #0E0B14);
+    border: 1px solid rgba(212,175,55,0.3);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+  }
+  .c3 .dark .ticket-card .ev-name { color: var(--bg-text); }
+  .c3 .dark .ticket-card .ev-sub { color: var(--gold-bright); }
+  .c3 .dark .ticket-card .perforation { color: var(--gold); }
+  .c3 .dark .ticket-card .countdown-row { color: var(--bg-text); }
+  .c3 .dark .ticket-card .countdown-row b { color: var(--bg-gold-bright); }
+  .c3 .dark .ticket-card .price-row .from { color: var(--bg-text-dim); }
+  .c3 .dark .ticket-card .price-row .price { color: var(--bg-gold-bright); }
+  .c3 .dark .ticket-card .qr { color: var(--bg-gold-bright); }
+  .c3 .ticket-card.past { opacity: 0.7; filter: saturate(0.6); }
+  .c3 .ticket-card.past .holo-bar {
+    background: linear-gradient(90deg, #888, #aaa, #888);
+    animation: none;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 04 — VINTAGE POSTCARD COLLECTION
+     ═══════════════════════════════════════════════════════ */
+  .c4 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(232,184,110,0.10), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(184,115,51,0.06), transparent 60%),
+      #FBF7EE;
+  }
+  .c4 .light .ev-avatar {
+    background: linear-gradient(135deg, var(--ev-copper), var(--ev-burgundy));
+  }
+  .c4 .light .ev-title {
+    color: #3A2A1A;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .c4 .light .ev-credits-pill {
+    background: rgba(184,115,51,0.10);
+    color: var(--ev-copper);
+    border: 1px solid rgba(184,115,51,0.3);
+  }
+  .c4 .light .ev-section-label .l-title { color: #3A2A1A; }
+  .c4 .light .ev-section-label .l-count { color: rgba(58,42,26,0.6); }
+  .c4 .light .ev-stat { color: rgba(58,42,26,0.6); }
+  .c4 .light .ev-stat.heart-c { color: var(--ev-crimson); }
+
+  .c4 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.12), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(107,31,46,0.10), transparent 60%),
+      var(--bg-ink);
+  }
+  .c4 .dark .ev-avatar {
+    background: linear-gradient(135deg, var(--gold-bright), var(--ev-burgundy));
+  }
+  .c4 .dark .ev-title {
+    color: var(--bg-gold-bright);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .c4 .dark .ev-credits-pill {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.35);
+  }
+  .c4 .dark .ev-section-label .l-title { color: var(--bg-gold-bright); }
+  .c4 .dark .ev-section-label .l-count { color: var(--bg-text-dim); }
+  .c4 .dark .ev-stat { color: var(--bg-text-dim); }
+  .c4 .dark .ev-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Postcard */
+  .postcard {
+    position: relative;
+    border-radius: 4px;
+    padding: 4px 4px 5px;
+    transform-origin: center;
+    animation: postcardSway 5s ease-in-out infinite;
+  }
+  .postcard:nth-child(1) { animation-delay: 0s; transform: rotate(-2deg); }
+  .postcard:nth-child(2) { animation-delay: 1s; transform: rotate(1deg); }
+  .postcard:nth-child(3) { animation-delay: 2s; transform: rotate(-1deg); }
+  @keyframes postcardSway {
+    0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
+    50%      { transform: rotate(var(--rot, 0deg)) translateY(-2px); }
+  }
+  .c4 .light .postcard {
+    background: linear-gradient(180deg, #FBF5E5, #E8DDC2);
+    border: 1px solid rgba(184,115,51,0.3);
+    box-shadow:
+      0 1px 3px rgba(60,40,20,0.15),
+      0 3px 10px rgba(60,40,20,0.18);
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0 6px, rgba(192,57,43,0.6) 6px 8px, transparent 8px 12px, rgba(0,40,100,0.5) 12px 14px, transparent 14px 20px);
+    background-size: 100% 4px;
+    background-position: 0 0;
+    background-repeat: repeat-x;
+    background-blend-mode: normal;
+  }
+  .c4 .dark .postcard {
+    background: linear-gradient(180deg, #2A1F1A, #1A1410);
+    border: 1px solid rgba(212,175,55,0.4);
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.6),
+      0 3px 10px rgba(0,0,0,0.5);
+  }
+  .postcard .border-airmail {
+    position: absolute; inset: 0;
+    border: 1.5px solid transparent;
+    border-image: repeating-linear-gradient(45deg, var(--ev-crimson) 0 5px, transparent 5px 8px, var(--ev-navy) 8px 13px, transparent 13px 18px) 4;
+    pointer-events: none;
+  }
+  .c4 .dark .postcard .border-airmail {
+    border-image: repeating-linear-gradient(45deg, var(--gold) 0 5px, transparent 5px 8px, var(--ev-rose) 8px 13px, transparent 13px 18px) 4;
+  }
+  .postcard .inner {
+    position: relative;
+    padding: 6px 4px 4px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .postcard .stamp {
+    position: absolute;
+    top: 3px; right: 3px;
+    width: 16px; height: 20px;
+    padding: 1px;
+    border: 1px dashed currentColor;
+    font-size: 9px;
+    text-align: center;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .c4 .light .postcard .stamp { color: var(--ev-burgundy); }
+  .c4 .dark .postcard .stamp { color: var(--gold-bright); }
+  .postcard .ev-name {
+    font: 400 13px 'Tangerine', cursive;
+    line-height: 0.9;
+    margin-top: 6px;
+    padding-right: 18px;
+  }
+  .postcard .postmark {
+    margin-top: 4px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font: 600 5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    transform: rotate(-8deg);
+    opacity: 0.7;
+    align-self: center;
+  }
+  .postcard .postmark .pday { font-size: 8px; line-height: 1; font-family: 'Fraunces', serif; font-style: italic; opacity: 0.95; }
+  .postcard .ev-tag {
+    font: italic 400 7px 'Cormorant Garamond', serif;
+    text-align: center;
+    margin-top: 4px;
+    line-height: 1.1;
+  }
+  .postcard .countdown-edge {
+    margin-top: auto;
+    font: 600 5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-align: center;
+    padding: 3px 2px;
+    border-top: 1px dashed currentColor;
+  }
+  .postcard .add-btn {
+    margin-top: 3px;
+    padding: 3px;
+    text-align: center;
+    font: 600 5.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+    border-radius: 2px;
+  }
+  .c4 .light .postcard .ev-name { color: var(--ev-burgundy); }
+  .c4 .light .postcard .postmark { color: var(--ev-burgundy); }
+  .c4 .light .postcard .ev-tag { color: var(--ev-copper); }
+  .c4 .light .postcard .countdown-edge { color: var(--ev-burgundy); }
+  .c4 .light .postcard .add-btn {
+    background: var(--ev-burgundy);
+    color: #FBF5E5;
+  }
+  .c4 .dark .postcard .ev-name { color: var(--gold-bright); }
+  .c4 .dark .postcard .postmark { color: var(--gold); }
+  .c4 .dark .postcard .ev-tag { color: var(--ev-rose); }
+  .c4 .dark .postcard .countdown-edge { color: var(--gold-bright); }
+  .c4 .dark .postcard .add-btn {
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color: #0a0a14;
+  }
+  .c4 .postcard.past .add-btn { background: transparent; border: 1px solid currentColor; }
+  .c4 .light .postcard.past .add-btn { color: var(--ev-burgundy); }
+  .c4 .dark .postcard.past .add-btn { color: var(--gold-bright); }
+
+  /* Tape pieces */
+  .postcard::before, .postcard::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 6px;
+    background: rgba(255,255,255,0.6);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    z-index: 5;
+  }
+  .postcard::before {
+    top: -3px; left: 8px;
+    transform: rotate(-6deg);
+  }
+  .postcard::after {
+    top: -3px; right: 8px;
+    transform: rotate(8deg);
+  }
+  .c4 .dark .postcard::before, .c4 .dark .postcard::after {
+    background: rgba(245,214,118,0.2);
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 05 — ROYAL INVITATION SUITE
+     ═══════════════════════════════════════════════════════ */
+  .c5 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(10,40,90,0.06), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(212,175,55,0.06), transparent 60%),
+      var(--ios-bg);
+  }
+  .c5 .light .ev-avatar {
+    background: radial-gradient(circle, var(--ev-navy) 0%, transparent 70%);
+    border: 1px solid var(--ev-navy);
+  }
+  .c5 .light .ev-title {
+    color: var(--ev-navy);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    font-size: 10px;
+  }
+  .c5 .light .ev-credits-pill {
+    background: transparent;
+    color: var(--ev-navy);
+    border: 1px solid var(--ev-navy);
+  }
+  .c5 .light .ev-section-label .l-title { color: var(--ev-navy); font-family: 'Cinzel', serif; font-weight: 500; letter-spacing: 0.22em; font-size: 9px; }
+  .c5 .light .ev-section-label .l-count { color: var(--ios-text-dim); }
+  .c5 .light .ev-stat { color: var(--ev-navy); opacity: 0.6; }
+  .c5 .light .ev-stat.heart-c { color: var(--ev-crimson); opacity: 1; }
+
+  .c5 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.12), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(107,31,46,0.10), transparent 60%),
+      var(--bg-ink);
+  }
+  .c5 .dark .ev-avatar {
+    background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+    border: 1px solid var(--gold);
+  }
+  .c5 .dark .ev-title {
+    color: var(--bg-gold-bright);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    font-size: 10px;
+  }
+  .c5 .dark .ev-credits-pill {
+    background: transparent;
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold);
+  }
+  .c5 .dark .ev-section-label .l-title { color: var(--bg-gold-bright); font-family: 'Cinzel', serif; font-weight: 500; letter-spacing: 0.22em; font-size: 9px; }
+  .c5 .dark .ev-section-label .l-count { color: var(--bg-text-dim); }
+  .c5 .dark .ev-stat { color: var(--bg-text-dim); }
+  .c5 .dark .ev-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Royal invitation */
+  .invitation {
+    position: relative;
+    padding: 5px 4px 4px;
+    border-radius: 3px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+  .c5 .light .invitation {
+    background: linear-gradient(180deg, #FFFCF3, #F5EFDE);
+    border: 1px solid var(--ev-navy);
+    box-shadow:
+      inset 0 0 0 3px #FFFCF3,
+      inset 0 0 0 4px rgba(212,175,55,0.4),
+      0 2px 6px rgba(10,30,60,0.12);
+  }
+  .c5 .dark .invitation {
+    background: linear-gradient(180deg, #14101A, #0A0810);
+    border: 1px solid rgba(212,175,55,0.6);
+    box-shadow:
+      inset 0 0 0 3px #14101A,
+      inset 0 0 0 4px rgba(212,175,55,0.35),
+      0 2px 8px rgba(0,0,0,0.6);
+  }
+  .invitation .ornament-top {
+    font: 400 9px 'Cinzel', serif;
+    letter-spacing: 0.25em;
+    margin-bottom: 2px;
+    opacity: 0.7;
+  }
+  .invitation .formal-line {
+    font: italic 400 6px 'Cormorant Garamond', serif;
+    line-height: 1.1;
+    margin-bottom: 2px;
+    opacity: 0.85;
+    padding: 0 2px;
+  }
+  .invitation .ev-name-script {
+    font: 400 18px 'Pinyon Script', cursive;
+    line-height: 0.9;
+    margin: 1px 0 1px;
+  }
+  .invitation .date-formal {
+    font: 600 6px 'Cinzel', serif;
+    letter-spacing: 0.2em;
+    margin-top: 3px;
+  }
+  .invitation .detail {
+    font: italic 400 5.5px 'Cormorant Garamond', serif;
+    margin-top: 3px;
+    opacity: 0.75;
+    padding: 0 3px;
+    line-height: 1.15;
+  }
+  .invitation .wax-seal {
+    position: relative;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    margin: 4px auto 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 700 7px 'Cinzel', serif;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+    animation: waxPulse 3s ease-in-out infinite;
+  }
+  @keyframes waxPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    50%      { transform: scale(1.05); box-shadow: 0 2px 8px rgba(192,57,43,0.5); }
+  }
+  .invitation.indep .wax-seal {
+    background: radial-gradient(circle at 30% 30%, #E63946, #6B1F2E);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4);
+  }
+  .invitation.hall .wax-seal {
+    background: radial-gradient(circle at 30% 30%, #F5A623, #8B3A0A);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4);
+  }
+  .invitation.muert .wax-seal {
+    background: radial-gradient(circle at 30% 30%, #C75FA8, #4A1A3E);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4);
+  }
+  .invitation.madre .wax-seal {
+    background: radial-gradient(circle at 30% 30%, #E8A5C5, #6B1F4E);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4);
+  }
+  .invitation .cta-accept {
+    margin-top: auto;
+    padding: 4px 4px;
+    font: 600 5.5px 'Cinzel', serif;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    width: 100%;
+    border-radius: 1px;
+  }
+  /* Light colors */
+  .c5 .light .invitation .ornament-top { color: var(--ev-navy); }
+  .c5 .light .invitation .formal-line { color: var(--ios-text-soft); }
+  .c5 .light .invitation .ev-name-script { color: var(--ev-navy); }
+  .c5 .light .invitation .date-formal { color: var(--ev-copper); }
+  .c5 .light .invitation .detail { color: var(--ios-text-soft); }
+  .c5 .light .invitation .cta-accept {
+    background: var(--ev-navy);
+    color: #FFFCF3;
+  }
+  /* Dark colors */
+  .c5 .dark .invitation .ornament-top { color: var(--gold-bright); }
+  .c5 .dark .invitation .formal-line { color: var(--bg-text-dim); }
+  .c5 .dark .invitation .ev-name-script { color: var(--gold-bright); text-shadow: 0 0 8px rgba(245,214,118,0.3); }
+  .c5 .dark .invitation .date-formal { color: var(--gold); }
+  .c5 .dark .invitation .detail { color: var(--bg-text-dim); }
+  .c5 .dark .invitation .cta-accept {
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color: #0a0a14;
+  }
+  .c5 .invitation.past .cta-accept { background: transparent; border: 1px solid currentColor; }
+  .c5 .light .invitation.past .cta-accept { color: var(--ev-navy); }
+  .c5 .dark .invitation.past .cta-accept { color: var(--gold-bright); }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    margin-top: 90px;
+    padding-top: 28px;
+    border-top: 1px solid var(--hairline);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 18px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      Pixora <span class="ornament">·</span> <span class="accent">EVENTOS</span> Section <span class="ornament">·</span> <em>5 Conceptos</em>
+    </h1>
+    <p class="subtitle">
+      Sección de eventos especiales — diseño que <em>convierte</em>, exclusividad, ganas de participar. Cinco aproximaciones que transforman un mosaico tipo álbum escolar en una experiencia premium que el usuario quiere desbloquear.
+    </p>
+    <div class="header-rule">
+      <span>05 conceptos</span>
+      <span class="line"></span>
+      <span>iOS · B&amp;G · MAY 2026</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ═══════════════════════════════════════════════════════
+         NO. 01 — LUXURY CONCIERGE
+         ═══════════════════════════════════════════════════════ -->
+    <section class="concept c1">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">Eventos Pixora</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// Próximamente</div>
+                  <div class="l-count">03 EVENTOS</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="concierge-card">
+                      <div class="members-badge">MEMBERS ONLY</div>
+                      <div class="ev-date">16</div>
+                      <div class="ev-month">SEPT</div>
+                      <div class="ev-name">Día de la Independencia</div>
+                      <div class="ev-divider"></div>
+                      <div class="ev-spots">47 SPOTS LEFT</div>
+                      <div class="ev-cta">Reservar</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="concierge-card">
+                      <div class="members-badge">EXCLUSIVE</div>
+                      <div class="ev-date">31</div>
+                      <div class="ev-month">OCT</div>
+                      <div class="ev-name">Halloween Suite</div>
+                      <div class="ev-divider"></div>
+                      <div class="ev-spots">12 SPOTS LEFT</div>
+                      <div class="ev-cta">Reservar</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="concierge-card">
+                      <div class="members-badge">PREMIERE</div>
+                      <div class="ev-date">02</div>
+                      <div class="ev-month">NOV</div>
+                      <div class="ev-name">Día de Muertos</div>
+                      <div class="ev-divider"></div>
+                      <div class="ev-spots">88 SPOTS LEFT</div>
+                      <div class="ev-cta">Reservar</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// Recuerdos</div>
+                  <div class="l-count">01 PASADO</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="concierge-card past">
+                      <div class="members-badge">ARCHIVED</div>
+                      <div class="ev-date">10</div>
+                      <div class="ev-month">MAY</div>
+                      <div class="ev-name">Día de la Madre</div>
+                      <div class="ev-divider"></div>
+                      <div class="ev-spots">VISTO POR 12.4K</div>
+                      <div class="ev-cta">Revivir</div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">Eventos Pixora</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// Próximamente</div>
+                  <div class="l-count">03 EVENTOS</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="concierge-card">
+                      <div class="members-badge">MEMBERS ONLY</div>
+                      <div class="ev-date">16</div>
+                      <div class="ev-month">SEPT</div>
+                      <div class="ev-name">Día de la Independencia</div>
+                      <div class="ev-divider"></div>
+                      <div class="ev-spots">47 SPOTS LEFT</div>
+                      <div class="ev-cta">Reservar</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="concierge-card">
+                      <div class="members-badge">EXCLUSIVE</div>
+                      <div class="ev-date">31</div>
+                      <div class="ev-month">OCT</div>
+                      <div class="ev-name">Halloween Suite</div>
+                      <div class="ev-divider"></div>
+                      <div class="ev-spots">12 SPOTS LEFT</div>
+                      <div class="ev-cta">Reservar</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="concierge-card">
+                      <div class="members-badge">PREMIERE</div>
+                      <div class="ev-date">02</div>
+                      <div class="ev-month">NOV</div>
+                      <div class="ev-name">Día de Muertos</div>
+                      <div class="ev-divider"></div>
+                      <div class="ev-spots">88 SPOTS LEFT</div>
+                      <div class="ev-cta">Reservar</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// Recuerdos</div>
+                  <div class="l-count">01 PASADO</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="concierge-card past">
+                      <div class="members-badge">ARCHIVED</div>
+                      <div class="ev-date">10</div>
+                      <div class="ev-month">MAY</div>
+                      <div class="ev-name">Día de la Madre</div>
+                      <div class="ev-divider"></div>
+                      <div class="ev-spots">VISTO POR 12.4K</div>
+                      <div class="ev-cta">Revivir</div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 01</div>
+          <h2>Luxury <span class="acc">Concierge</span></h2>
+          <div class="tagline">"Soho House meets Amex Centurion — cada evento es una invitación privada con cupo escaso y badge metálico."</div>
+          <div class="description">
+            Cada evento se presenta como una tarjeta de club privado: badge holográfico con foil shimmer ("MEMBERS ONLY", "EXCLUSIVE", "PREMIERE"), fecha en tipografía editorial, nombre del evento en serif italic, chip de escasez ("47 SPOTS LEFT") y CTA tipo RSVP. En iOS la base es crema y el foil se hace en Apple Blue; en B&amp;G la tarjeta es ink oscuro con foil dorado animado. La sensación es la de entrar a un club privado donde reservar es el acto premium.
+          </div>
+
+          <div class="meta-section-title">// Concierge palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#F2EDE0" data-name="#F2EDE0"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+                <div class="sw" style="background:#1C1C1E" data-name="#1C1C1E"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#18141C" data-name="#18141C"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Convierte por escasez y prestigio · sensación de club exclusivo · perfecto para usuarios que pagan por status</div>
+            <div class="cons"><div class="h">CONS</div>Copy en inglés ("MEMBERS ONLY") puede sentirse forzado · menos universal · requiere balance para no parecer pretencioso</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el que más rápido convierte para el segmento <em>high-spender</em>. Pensado para que ver "12 SPOTS LEFT" dispare la suscripción en automático. Funciona porque copia el lenguaje real de NetJets, Soho House y Amex — códigos que el usuario premium reconoce al instante.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         NO. 02 — CINEMATIC MOVIE POSTER
+         ═══════════════════════════════════════════════════════ -->
+    <section class="concept c2">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">EVENTOS PIXORA</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">PRÓXIMAMENTE</div>
+                  <div class="l-count">03 RELEASES</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="cinema-card independencia">
+                      <div class="bg-art"></div>
+                      <div class="marquee"><span>COMING SOON · COMING SOON · </span></div>
+                      <div class="release"><span class="small">09 / 16</span>IN<br>4D</div>
+                      <div class="title-block">
+                        <div class="title-line">INDEPENDENCIA</div>
+                      </div>
+                      <div class="countdown"><b>D124</b><span>H04</span><span>M23</span></div>
+                      <div class="cta-strip">Tickets Now</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="cinema-card halloween">
+                      <div class="bg-art"></div>
+                      <div class="marquee"><span>PREMIERE · PREMIERE · </span></div>
+                      <div class="release"><span class="small">10 / 31</span>OCT<br>31</div>
+                      <div class="title-block">
+                        <div class="title-line">HALLOWEEN</div>
+                      </div>
+                      <div class="countdown"><b>D168</b><span>H12</span><span>M05</span></div>
+                      <div class="cta-strip">Tickets Now</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="cinema-card muertos">
+                      <div class="bg-art"></div>
+                      <div class="marquee"><span>RELEASE · RELEASE · </span></div>
+                      <div class="release"><span class="small">11 / 02</span>NOV<br>02</div>
+                      <div class="title-block">
+                        <div class="title-line">MUERTOS</div>
+                      </div>
+                      <div class="countdown"><b>D170</b><span>H02</span><span>M48</span></div>
+                      <div class="cta-strip">Tickets Now</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">RECUERDOS</div>
+                  <div class="l-count">01 ARCHIVED</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="cinema-card madre past">
+                      <div class="bg-art"></div>
+                      <div class="past-stamp">SOLD OUT</div>
+                      <div class="title-block">
+                        <div class="title-line">DÍA MADRE</div>
+                      </div>
+                      <div class="cta-strip">On Demand</div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">EVENTOS PIXORA</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">PRÓXIMAMENTE</div>
+                  <div class="l-count">03 RELEASES</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="cinema-card independencia">
+                      <div class="bg-art"></div>
+                      <div class="marquee"><span>COMING SOON · COMING SOON · </span></div>
+                      <div class="release"><span class="small">09 / 16</span>IN<br>4D</div>
+                      <div class="title-block">
+                        <div class="title-line">INDEPENDENCIA</div>
+                      </div>
+                      <div class="countdown"><b>D124</b><span>H04</span><span>M23</span></div>
+                      <div class="cta-strip">Get Tickets</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="cinema-card halloween">
+                      <div class="bg-art"></div>
+                      <div class="marquee"><span>PREMIERE · PREMIERE · </span></div>
+                      <div class="release"><span class="small">10 / 31</span>OCT<br>31</div>
+                      <div class="title-block">
+                        <div class="title-line">HALLOWEEN</div>
+                      </div>
+                      <div class="countdown"><b>D168</b><span>H12</span><span>M05</span></div>
+                      <div class="cta-strip">Get Tickets</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="cinema-card muertos">
+                      <div class="bg-art"></div>
+                      <div class="marquee"><span>RELEASE · RELEASE · </span></div>
+                      <div class="release"><span class="small">11 / 02</span>NOV<br>02</div>
+                      <div class="title-block">
+                        <div class="title-line">MUERTOS</div>
+                      </div>
+                      <div class="countdown"><b>D170</b><span>H02</span><span>M48</span></div>
+                      <div class="cta-strip">Get Tickets</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">RECUERDOS</div>
+                  <div class="l-count">01 ARCHIVED</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="cinema-card madre past">
+                      <div class="bg-art"></div>
+                      <div class="past-stamp">SOLD OUT</div>
+                      <div class="title-block">
+                        <div class="title-line">DÍA MADRE</div>
+                      </div>
+                      <div class="cta-strip">On Demand</div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 02</div>
+          <h2>Cinematic <span class="acc">Movie Poster</span></h2>
+          <div class="tagline">"Apple TV+ IMAX premiere — cada evento es el estreno del año con marquesina, countdown y CTA 'Get Tickets'."</div>
+          <div class="description">
+            Cada card es un póster de cine en full-bleed: art dramático (bandera mexicana, calabaza, calavera), marquesina superior animada con "COMING SOON" en loop, fecha de release en tipografía Bebas Neue IMAX, countdown ticker DD-HH-MM y franja CTA "Tickets Now". El ticker pulsa con glow ámbar generando urgencia constante. El B&amp;G suma franjas doradas tipo Hollywood premiere; iOS usa Apple Blue como acento de la app de cine moderno.
+          </div>
+
+          <div class="meta-section-title">// Cinema palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#0A0A12" data-name="#0A0A12"></div>
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+                <div class="sw" style="background:#E8B86E" data-name="#E8B86E"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#C0392B" data-name="#C0392B"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Drama instantáneo · countdown crea urgencia visual · lenguaje de cine es universal · escala bien con cualquier evento</div>
+            <div class="cons"><div class="h">CONS</div>Menos íntimo que polaroid · pierde el feel "álbum personal" · puede sentirse más "marketing" que "memoria"</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más cinematográfico y el que mejor crea <em>anticipation</em>. Si los eventos son contenido de calidad (videos premium, wallpapers exclusivos), este formato los vende como estrenos. El countdown vivo es el mejor driver de "tengo que estar suscrito cuando salga".
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         NO. 03 — FESTIVAL TICKET
+         ═══════════════════════════════════════════════════════ -->
+    <section class="concept c3">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">EVENTOS</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// LINEUP · PRÓXIMAMENTE</div>
+                  <div class="l-count">03 TICKETS</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="ticket-card">
+                      <div class="holo-bar"><span class="tier">VIP</span></div>
+                      <div class="body">
+                        <div class="ev-name">Independencia</div>
+                        <div class="ev-sub">09.16.26 · MX</div>
+                        <div class="perforation"></div>
+                        <div class="countdown-row"><span><b>124</b>D</span><span><b>04</b>H</span><span><b>23</b>M</span></div>
+                        <div class="price-row">
+                          <span class="from">From</span>
+                          <span class="price">$49</span>
+                        </div>
+                        <div class="qr"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="ticket-card">
+                      <div class="holo-bar"><span class="tier">GENERAL</span></div>
+                      <div class="body">
+                        <div class="ev-name">Halloween</div>
+                        <div class="ev-sub">10.31.26 · MX</div>
+                        <div class="perforation"></div>
+                        <div class="countdown-row"><span><b>168</b>D</span><span><b>12</b>H</span><span><b>05</b>M</span></div>
+                        <div class="price-row">
+                          <span class="from">From</span>
+                          <span class="price">$29</span>
+                        </div>
+                        <div class="qr"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="ticket-card">
+                      <div class="holo-bar"><span class="tier">EARLY BIRD</span></div>
+                      <div class="body">
+                        <div class="ev-name">Muertos</div>
+                        <div class="ev-sub">11.02.26 · MX</div>
+                        <div class="perforation"></div>
+                        <div class="countdown-row"><span><b>170</b>D</span><span><b>02</b>H</span><span><b>48</b>M</span></div>
+                        <div class="price-row">
+                          <span class="from">From</span>
+                          <span class="price">$19</span>
+                        </div>
+                        <div class="qr"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// PAST LINEUP</div>
+                  <div class="l-count">01 USED</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="ticket-card past">
+                      <div class="holo-bar"><span class="tier">USED</span></div>
+                      <div class="body">
+                        <div class="ev-name">Día Madre</div>
+                        <div class="ev-sub">05.10.26 · MX</div>
+                        <div class="perforation"></div>
+                        <div class="countdown-row"><span><b>SOLD</b></span><span><b>OUT</b></span></div>
+                        <div class="price-row">
+                          <span class="from">12.4K vistas</span>
+                          <span class="price">✓</span>
+                        </div>
+                        <div class="qr"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">EVENTOS</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// LINEUP · PRÓXIMAMENTE</div>
+                  <div class="l-count">03 TICKETS</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="ticket-card">
+                      <div class="holo-bar"><span class="tier">VIP</span></div>
+                      <div class="body">
+                        <div class="ev-name">Independencia</div>
+                        <div class="ev-sub">09.16.26 · MX</div>
+                        <div class="perforation"></div>
+                        <div class="countdown-row"><span><b>124</b>D</span><span><b>04</b>H</span><span><b>23</b>M</span></div>
+                        <div class="price-row">
+                          <span class="from">From</span>
+                          <span class="price">$49</span>
+                        </div>
+                        <div class="qr"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="ticket-card">
+                      <div class="holo-bar"><span class="tier">GENERAL</span></div>
+                      <div class="body">
+                        <div class="ev-name">Halloween</div>
+                        <div class="ev-sub">10.31.26 · MX</div>
+                        <div class="perforation"></div>
+                        <div class="countdown-row"><span><b>168</b>D</span><span><b>12</b>H</span><span><b>05</b>M</span></div>
+                        <div class="price-row">
+                          <span class="from">From</span>
+                          <span class="price">$29</span>
+                        </div>
+                        <div class="qr"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="ticket-card">
+                      <div class="holo-bar"><span class="tier">EARLY BIRD</span></div>
+                      <div class="body">
+                        <div class="ev-name">Muertos</div>
+                        <div class="ev-sub">11.02.26 · MX</div>
+                        <div class="perforation"></div>
+                        <div class="countdown-row"><span><b>170</b>D</span><span><b>02</b>H</span><span><b>48</b>M</span></div>
+                        <div class="price-row">
+                          <span class="from">From</span>
+                          <span class="price">$19</span>
+                        </div>
+                        <div class="qr"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// PAST LINEUP</div>
+                  <div class="l-count">01 USED</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="ticket-card past">
+                      <div class="holo-bar"><span class="tier">USED</span></div>
+                      <div class="body">
+                        <div class="ev-name">Día Madre</div>
+                        <div class="ev-sub">05.10.26 · MX</div>
+                        <div class="perforation"></div>
+                        <div class="countdown-row"><span><b>SOLD</b></span><span><b>OUT</b></span></div>
+                        <div class="price-row">
+                          <span class="from">12.4K vistas</span>
+                          <span class="price">✓</span>
+                        </div>
+                        <div class="qr"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 03</div>
+          <h2>Festival <span class="acc">Ticket</span></h2>
+          <div class="tagline">"Coachella + Tomorrowland — wristband holográfico, tiers (VIP/General/Early Bird) y precio visible. Implica acceso pagado."</div>
+          <div class="description">
+            Cada evento es un ticket de festival con header holográfico animado que rota colores (rosa/cian/oro), tier en mayúsculas ("VIP", "GENERAL", "EARLY BIRD"), nombre+fecha+ubicación tipo stub real, perforación punteada que separa cuerpo y countdown, precio en grande ("From $49") y QR sugerido al fondo. El precio visible normaliza la idea de pagar por acceso. En iOS los holo brillan en colores festival; en B&amp;G la holo se desvía a oro/cobre/dorado intenso. Pasados se ven en gris.
+          </div>
+
+          <div class="meta-section-title">// Festival palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#FFB7E8" data-name="#FFB7E8"></div>
+                <div class="sw" style="background:#87C5E8" data-name="#87C5E8"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#B87333" data-name="#B87333"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Tiers comunican monetización clara · holo brillante atrae la vista · QR sugiere acceso real · referencia universal a festivales premium</div>
+            <div class="cons"><div class="h">CONS</div>Más complejo visualmente · puede saturar si hay muchos eventos · holo animado consume batería</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más explícito en monetización. Si quieres que el usuario entienda <em>"hay tiers, hay precio, esto vale dinero"</em>, este formato no deja dudas. El VIP/General/Early Bird empuja directo a la suscripción premium para desbloquear el tier alto.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         NO. 04 — VINTAGE POSTCARD COLLECTION
+         ═══════════════════════════════════════════════════════ -->
+    <section class="concept c4">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">Eventos Pixora</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// Próximamente</div>
+                  <div class="l-count">03 POSTALES</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="postcard" style="--rot:-2deg">
+                      <div class="border-airmail"></div>
+                      <div class="inner">
+                        <div class="stamp">MX</div>
+                        <div class="ev-name">Independencia</div>
+                        <div class="postmark"><div class="pday">16</div>SEP</div>
+                        <div class="ev-tag">"Wish you were here"</div>
+                        <div class="countdown-edge">EN 124 DÍAS</div>
+                        <div class="add-btn">+ COLECCIÓN</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="postcard" style="--rot:1deg">
+                      <div class="border-airmail"></div>
+                      <div class="inner">
+                        <div class="stamp">MX</div>
+                        <div class="ev-name">Halloween</div>
+                        <div class="postmark"><div class="pday">31</div>OCT</div>
+                        <div class="ev-tag">"Greetings from the dark"</div>
+                        <div class="countdown-edge">EN 168 DÍAS</div>
+                        <div class="add-btn">+ COLECCIÓN</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="postcard" style="--rot:-1deg">
+                      <div class="border-airmail"></div>
+                      <div class="inner">
+                        <div class="stamp">MX</div>
+                        <div class="ev-name">Muertos</div>
+                        <div class="postmark"><div class="pday">02</div>NOV</div>
+                        <div class="ev-tag">"Postal del más allá"</div>
+                        <div class="countdown-edge">EN 170 DÍAS</div>
+                        <div class="add-btn">+ COLECCIÓN</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// Recuerdos</div>
+                  <div class="l-count">01 SELLADA</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="postcard past" style="--rot:-3deg">
+                      <div class="border-airmail"></div>
+                      <div class="inner">
+                        <div class="stamp">MX</div>
+                        <div class="ev-name">Día Madre</div>
+                        <div class="postmark"><div class="pday">10</div>MAY</div>
+                        <div class="ev-tag">"Recibida con amor"</div>
+                        <div class="countdown-edge">12.4K LA VIERON</div>
+                        <div class="add-btn">REVIVIR</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">Eventos Pixora</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// Próximamente</div>
+                  <div class="l-count">03 POSTALES</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="postcard" style="--rot:-2deg">
+                      <div class="border-airmail"></div>
+                      <div class="inner">
+                        <div class="stamp">MX</div>
+                        <div class="ev-name">Independencia</div>
+                        <div class="postmark"><div class="pday">16</div>SEP</div>
+                        <div class="ev-tag">"Wish you were here"</div>
+                        <div class="countdown-edge">EN 124 DÍAS</div>
+                        <div class="add-btn">+ COLECCIÓN</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="postcard" style="--rot:1deg">
+                      <div class="border-airmail"></div>
+                      <div class="inner">
+                        <div class="stamp">MX</div>
+                        <div class="ev-name">Halloween</div>
+                        <div class="postmark"><div class="pday">31</div>OCT</div>
+                        <div class="ev-tag">"Greetings from the dark"</div>
+                        <div class="countdown-edge">EN 168 DÍAS</div>
+                        <div class="add-btn">+ COLECCIÓN</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="postcard" style="--rot:-1deg">
+                      <div class="border-airmail"></div>
+                      <div class="inner">
+                        <div class="stamp">MX</div>
+                        <div class="ev-name">Muertos</div>
+                        <div class="postmark"><div class="pday">02</div>NOV</div>
+                        <div class="ev-tag">"Postal del más allá"</div>
+                        <div class="countdown-edge">EN 170 DÍAS</div>
+                        <div class="add-btn">+ COLECCIÓN</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">// Recuerdos</div>
+                  <div class="l-count">01 SELLADA</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="postcard past" style="--rot:-3deg">
+                      <div class="border-airmail"></div>
+                      <div class="inner">
+                        <div class="stamp">MX</div>
+                        <div class="ev-name">Día Madre</div>
+                        <div class="postmark"><div class="pday">10</div>MAY</div>
+                        <div class="ev-tag">"Recibida con amor"</div>
+                        <div class="countdown-edge">12.4K LA VIERON</div>
+                        <div class="add-btn">REVIVIR</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 04</div>
+          <h2>Vintage <span class="acc">Postcard</span> Collection</h2>
+          <div class="tagline">"Polaroid evolucionado a postal vintage premium — bordes airmail, sello, postmark, caligrafía Tangerine. La metáfora 'álbum' se mantiene pero elevada."</div>
+          <div class="description">
+            Cada evento se vuelve una postal de viaje con bordes airmail rojos/azules a 45°, sello "MX", postmark circular con fecha en italic Fraunces, nombre en Tangerine cursiva ("Independencia", "Halloween"), tagline "Wish you were here", countdown en el borde y cinta adhesiva (tape pieces blancos translúcidos) en las esquinas. El "Add to collection" es la mecánica de gamificación. Animación sway sutil que da movimiento tipo postal recibida. En B&amp;G la base es pergamino oscuro con bordes en oro+rosa.
+          </div>
+
+          <div class="meta-section-title">// Postcard palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FBF7EE" data-name="#FBF7EE"></div>
+                <div class="sw" style="background:#E8DDC2" data-name="#E8DDC2"></div>
+                <div class="sw" style="background:#B87333" data-name="#B87333"></div>
+                <div class="sw" style="background:#6B1F2E" data-name="#6B1F2E"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#2A1F1A" data-name="#2A1F1A"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#E8A5C5" data-name="#E8A5C5"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Conserva la narrativa "mi álbum" actual · emocional/coleccionable · gamificación de coleccionar postales engancha · más cálido que un poster</div>
+            <div class="cons"><div class="h">CONS</div>Menos directo en monetización · "Add to collection" no es CTA de pago · puede sentirse menos urgente que un countdown grande</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más <em>emocional</em> y el que mejor preserva la idea original. Convierte por <em>retention</em> y FOMO de coleccionar — el usuario que ya colecciona 8 postales no va a perder la novena. Excelente para combinar con "completa tu álbum para desbloquear edición especial".
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         NO. 05 — ROYAL INVITATION SUITE
+         ═══════════════════════════════════════════════════════ -->
+    <section class="concept c5">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">EVENTOS</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">PRÓXIMAMENTE</div>
+                  <div class="l-count">III · INVITACIONES</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="invitation indep">
+                      <div class="ornament-top">❦</div>
+                      <div class="formal-line">Está cordialmente invitado a</div>
+                      <div class="ev-name-script">Independencia</div>
+                      <div class="date-formal">XVI · IX · MMXXVI</div>
+                      <div class="detail">Edición limitada a 200 invitados</div>
+                      <div class="wax-seal">MX</div>
+                      <div class="cta-accept">Accept</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="invitation hall">
+                      <div class="ornament-top">❦</div>
+                      <div class="formal-line">Tiene el honor de asistir a</div>
+                      <div class="ev-name-script">Halloween</div>
+                      <div class="date-formal">XXXI · X · MMXXVI</div>
+                      <div class="detail">Black tie · 150 invitados</div>
+                      <div class="wax-seal">H</div>
+                      <div class="cta-accept">Accept</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="invitation muert">
+                      <div class="ornament-top">❦</div>
+                      <div class="formal-line">Le invita a la ceremonia de</div>
+                      <div class="ev-name-script">Muertos</div>
+                      <div class="date-formal">II · XI · MMXXVI</div>
+                      <div class="detail">Edición Mictlán · 120 invitados</div>
+                      <div class="wax-seal">M</div>
+                      <div class="cta-accept">Accept</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">RECUERDOS</div>
+                  <div class="l-count">I · ARCHIVADA</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="invitation madre past">
+                      <div class="ornament-top">❦</div>
+                      <div class="formal-line">Asistió a la celebración de</div>
+                      <div class="ev-name-script">Día Madre</div>
+                      <div class="date-formal">X · V · MMXXVI</div>
+                      <div class="detail">Vista por 12.4K invitados</div>
+                      <div class="wax-seal">D</div>
+                      <div class="cta-accept">Revivir</div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="ev-header">
+                  <div class="left">
+                    <div class="ev-avatar"></div>
+                    <div class="ev-title">EVENTOS</div>
+                  </div>
+                  <div class="ev-credits-pill">240</div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">PRÓXIMAMENTE</div>
+                  <div class="l-count">III · INVITACIONES</div>
+                </div>
+                <div class="ev-carousel">
+                  <div class="ev-card">
+                    <div class="invitation indep">
+                      <div class="ornament-top">❦</div>
+                      <div class="formal-line">Está cordialmente invitado a</div>
+                      <div class="ev-name-script">Independencia</div>
+                      <div class="date-formal">XVI · IX · MMXXVI</div>
+                      <div class="detail">Edición limitada a 200 invitados</div>
+                      <div class="wax-seal">MX</div>
+                      <div class="cta-accept">Accept</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="invitation hall">
+                      <div class="ornament-top">❦</div>
+                      <div class="formal-line">Tiene el honor de asistir a</div>
+                      <div class="ev-name-script">Halloween</div>
+                      <div class="date-formal">XXXI · X · MMXXVI</div>
+                      <div class="detail">Black tie · 150 invitados</div>
+                      <div class="wax-seal">H</div>
+                      <div class="cta-accept">Accept</div>
+                    </div>
+                  </div>
+                  <div class="ev-card">
+                    <div class="invitation muert">
+                      <div class="ornament-top">❦</div>
+                      <div class="formal-line">Le invita a la ceremonia de</div>
+                      <div class="ev-name-script">Muertos</div>
+                      <div class="date-formal">II · XI · MMXXVI</div>
+                      <div class="detail">Edición Mictlán · 120 invitados</div>
+                      <div class="wax-seal">M</div>
+                      <div class="cta-accept">Accept</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ev-section-label">
+                  <div class="l-title">RECUERDOS</div>
+                  <div class="l-count">I · ARCHIVADA</div>
+                </div>
+                <div class="ev-carousel recuerdos">
+                  <div class="ev-card">
+                    <div class="invitation madre past">
+                      <div class="ornament-top">❦</div>
+                      <div class="formal-line">Asistió a la celebración de</div>
+                      <div class="ev-name-script">Día Madre</div>
+                      <div class="date-formal">X · V · MMXXVI</div>
+                      <div class="detail">Vista por 12.4K invitados</div>
+                      <div class="wax-seal">D</div>
+                      <div class="cta-accept">Revivir</div>
+                    </div>
+                  </div>
+                  <div class="ev-card"></div>
+                </div>
+                <div class="ev-stats">
+                  <div class="ev-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="ev-stat"><div class="ring"></div>128</div>
+                  <div class="ev-stat"><div class="ring"></div>04</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 05</div>
+          <h2>Royal <span class="acc">Invitation</span> Suite</h2>
+          <div class="tagline">"Wedding suite + gala invitation — letterpress embossing, lengua formal, fecha en numerales romanos, sello de cera. Ultra-premium aspirational."</div>
+          <div class="description">
+            Cada evento es una invitación formal con doble borde embossed (oro sobre crema en iOS, oro sobre ink en B&amp;G), ornamento floral arriba (❦), línea de cortesía italic ("Está cordialmente invitado a"), nombre del evento en script Pinyon, fecha en numerales romanos ("XVI · IX · MMXXVI"), detalle de exclusividad ("Black tie · Limited to 200 guests") y sello de cera con pulse animation. CTA "Accept" en Cinzel mayúsculas. Es el más aspiracional — habla al usuario como si fuera un dignatario.
+          </div>
+
+          <div class="meta-section-title">// Royal palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFCF3" data-name="#FFFCF3"></div>
+                <div class="sw" style="background:#1A2A4A" data-name="#1A2A4A"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#C0392B" data-name="#C0392B"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#14101A" data-name="#14101A"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Máxima percepción de exclusividad · ultra premium / aspirational · sello de cera y numerales romanos comunican "obra única"</div>
+            <div class="cons"><div class="h">CONS</div>Muy formal/protocolar · puede sentirse "stuffy" para Halloween · script Pinyon a este tamaño exige pruebas de legibilidad</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más <em>aspirational</em> y el que mejor justifica precios premium. Funciona si Pixora se posiciona como "marca de arte/colección", no como "app de wallpapers gratis". Combina excelente con el lenguaje del B&amp;G theme — es prácticamente la misma estética que ya tiene el zodiacal.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <span>PIXORA · EVENTOS SECTION · DESIGN ARCHIVE · MAY 2026</span>
+    <span class="line"></span>
+    <span>05 / 05</span>
+  </footer>
+
+</div>
+</body>
+</html>

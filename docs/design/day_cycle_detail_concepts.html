@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora · Day Cycle Detail · 5 Conceptos · Design Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500;1,600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --ink:#0a0908;
+  --ink-2:#13110f;
+  --ink-3:#1A1816;
+  --paper:#f5efe6;
+  --paper-2:#ede4d3;
+  --brass:#c9a14a;
+  --brass-2:#e6c178;
+  --brass-3:#8a6f2c;
+  --gold:#f4c060;
+  --rose:#d97a6c;
+  --plum:#5e3a6e;
+  --teal:#3a7d7b;
+  --crimson:#c13a2b;
+  --txt:#f3ece0;
+  --txt-mute:#a89b86;
+  --line:rgba(244,192,96,.18);
+  --mono:'JetBrains Mono', ui-monospace, monospace;
+  --serif:'Fraunces', 'Cormorant Garamond', serif;
+  --display:'Cinzel', serif;
+  --body:'Geist', system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--ink);color:var(--txt);font-family:var(--body);-webkit-font-smoothing:antialiased}
+body{
+  background:
+    radial-gradient(ellipse 1200px 700px at 18% -10%, rgba(94,58,110,.20), transparent 70%),
+    radial-gradient(ellipse 1000px 600px at 88% 18%, rgba(58,125,123,.16), transparent 65%),
+    radial-gradient(ellipse 900px 600px at 50% 110%, rgba(201,161,74,.10), transparent 70%),
+    linear-gradient(180deg, #08070a 0%, #0a0908 50%, #060507 100%);
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* ============ STARFIELD (page bg) ============ */
+.starfield{
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,.4), transparent 60%),
+    radial-gradient(2px 2px at 65% 45%, rgba(255,255,255,.35), transparent 60%),
+    radial-gradient(1px 1px at 10% 85%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,.4), transparent 60%),
+    radial-gradient(1px 1px at 55% 18%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(1px 1px at 30% 55%, rgba(255,255,255,.35), transparent 60%);
+  background-size: 900px 900px;
+  animation: drift 90s linear infinite;
+  opacity:.65;
+}
+@keyframes drift{
+  from{background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;}
+  to{background-position: 900px 900px, -900px 900px, 900px -900px, -900px -900px, 900px 900px, -900px 900px, 900px -900px, -900px -900px;}
+}
+
+/* ============ SHELL ============ */
+.shell{max-width:1280px; margin:0 auto; padding:56px 32px 96px; position:relative; z-index:2}
+.eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--brass-2)}
+h1.title{
+  font-family:var(--serif); font-style:italic; font-weight:400;
+  font-size:clamp(40px, 6vw, 64px); line-height:1.02; margin:14px 0 18px; letter-spacing:-.01em;
+}
+h1.title .grad{
+  background: linear-gradient(92deg, #f4c060 0%, #e6c178 25%, #c084fc 55%, #7dd3fc 80%, #f4c060 100%);
+  background-size: 250% 250%;
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation: irid 14s ease-in-out infinite;
+}
+@keyframes irid{ 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+.sub{max-width:780px; color:var(--txt-mute); font-family:var(--serif); font-style:italic; font-weight:300; font-size:19px; line-height:1.55}
+
+.divider{
+  display:flex; align-items:center; gap:16px; margin:48px 0 28px;
+  font-family:var(--mono); font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--brass);
+}
+.divider::before, .divider::after{content:""; flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--line), transparent)}
+
+/* ============ ROW LAYOUT ============ */
+.row{
+  display:grid; grid-template-columns: 360px 1fr; gap:48px; align-items:flex-start;
+  padding:36px 0; border-top:1px solid rgba(244,192,96,.10);
+  opacity:0; transform:translateY(18px);
+  animation: rise .9s ease-out forwards;
+}
+.row:nth-of-type(1){animation-delay:.50s}
+.row:nth-of-type(2){animation-delay:.65s}
+.row:nth-of-type(3){animation-delay:.80s}
+.row:nth-of-type(4){animation-delay:.95s}
+.row:nth-of-type(5){animation-delay:1.10s}
+@keyframes rise{to{opacity:1; transform:none}}
+
+.phone-wrap{position:relative}
+.phone{
+  width:340px; height:740px;
+  border-radius:46px; padding:10px;
+  background: linear-gradient(160deg, #1c1a17 0%, #0a0908 60%, #15120e 100%);
+  box-shadow:
+    0 30px 90px -20px rgba(0,0,0,.7),
+    0 0 0 1px rgba(244,192,96,.08),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+  position:relative;
+}
+.phone::after{
+  content:""; position:absolute; top:14px; left:50%; transform:translateX(-50%);
+  width:108px; height:24px; background:#000; border-radius:14px; z-index:50;
+}
+.screen{
+  width:100%; height:100%; border-radius:38px; overflow:hidden; position:relative;
+  isolation:isolate;
+}
+
+.meta{padding-top:8px}
+.meta h2{
+  font-family:var(--serif); font-style:italic; font-weight:500;
+  font-size:32px; line-height:1.05; margin:0 0 8px;
+}
+.meta .no{font-family:var(--mono); font-size:11px; color:var(--brass-2); letter-spacing:.22em; text-transform:uppercase}
+.meta .tag{font-family:var(--serif); font-style:italic; color:var(--txt-mute); margin:4px 0 16px; font-size:18px}
+.meta p.desc{color:#cdc3b3; font-size:14.5px; line-height:1.65; max-width:520px}
+.palette{display:flex; gap:8px; margin:18px 0 18px}
+.sw{width:34px; height:34px; border-radius:8px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)}
+.verdict{
+  border:1px solid var(--line); border-radius:14px; padding:14px 16px; max-width:520px;
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.20));
+}
+.verdict .v-title{font-family:var(--mono); font-size:10px; letter-spacing:.24em; color:var(--brass-2); text-transform:uppercase; margin-bottom:8px}
+.verdict ul{margin:0; padding:0; list-style:none; display:grid; gap:6px}
+.verdict li{font-size:13px; color:#cdc3b3; line-height:1.5; padding-left:18px; position:relative}
+.verdict li::before{position:absolute; left:0; top:1px; font-family:var(--mono); font-weight:600}
+.verdict li.pro::before{content:"+"; color:#86efac}
+.verdict li.con::before{content:"−"; color:#fca5a5}
+
+/* ============ ICONS ============ */
+.mi{font-family:'Material Symbols Outlined'; font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24}
+
+/* ============ COMMON PHASE GRADIENTS (placeholders for the 4 phases) ============ */
+.ph-morning{background: linear-gradient(160deg, #FEC089 0%, #FFA5C5 65%, #b88da6 100%)}
+.ph-noon{background: linear-gradient(160deg, #7DD3FC 0%, #0EA5E9 70%, #0c4a6e 100%)}
+.ph-evening{background: linear-gradient(160deg, #FB923C 0%, #C084FC 65%, #6b21a8 100%)}
+.ph-night{background: linear-gradient(160deg, #1E1B4B 0%, #312e81 50%, #0F0A2E 100%)}
+
+/* tiny sun/moon/star deco on phase tiles */
+.ph-decor{position:absolute; inset:0; pointer-events:none}
+.ph-decor.sun::before{content:""; position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:50%; background: radial-gradient(circle, #fff 0%, #ffd7a8 60%, transparent 70%); filter: blur(1px)}
+.ph-decor.cloud::after{content:""; position:absolute; bottom:18%; left:18%; width:60px; height:14px; border-radius:50%; background: rgba(255,255,255,.55); filter: blur(2px)}
+.ph-decor.bigsun::before{content:""; position:absolute; top:30%; left:50%; transform:translateX(-50%); width:64px; height:64px; border-radius:50%; background: radial-gradient(circle, #fff 0%, #ffe9a8 50%, transparent 70%)}
+.ph-decor.dusk::before{content:""; position:absolute; bottom:14%; left:50%; transform:translateX(-50%); width:80px; height:80px; border-radius:50%; background: radial-gradient(circle, #ffd9a8 0%, #fb923c 50%, transparent 75%); filter: blur(2px)}
+.ph-decor.stars::before, .ph-decor.stars::after{content:""; position:absolute; border-radius:50%; background:white; box-shadow: 0 0 6px white}
+.ph-decor.stars::before{top:20%; left:30%; width:2px; height:2px}
+.ph-decor.stars::after{top:35%; left:65%; width:3px; height:3px}
+.ph-decor.moon{}
+.ph-decor.moon::after{content:""; position:absolute; top:18%; right:22%; width:26px; height:26px; border-radius:50%; background:#f3ece0; box-shadow: -6px 6px 0 -2px #1E1B4B}
+
+/* ============ ============ ============ ============ ============
+   NO. 01 — ASTRONOMICAL ALMANAC
+============ ============ ============ ============ ============ */
+.dd01 .screen{
+  background:
+    radial-gradient(ellipse 500px 300px at 50% 0%, rgba(94,58,110,.45), transparent 70%),
+    radial-gradient(ellipse 400px 300px at 80% 100%, rgba(201,161,74,.25), transparent 70%),
+    #0b0a08;
+  color:#f3ece0;
+  display:flex; flex-direction:column;
+  overflow-y:auto;
+}
+.dd01 .stars{
+  position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background-image:
+    radial-gradient(1px 1px at 12% 8%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(1px 1px at 78% 4%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1px 1px at 33% 6%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(2px 2px at 90% 12%, rgba(255,255,255,.5), transparent 60%);
+}
+.dd01 .topbar{position:absolute; top:46px; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:0 18px; z-index:30}
+.dd01 .topbar .back{width:36px; height:36px; border-radius:50%; background: rgba(0,0,0,.45); display:grid; place-items:center; backdrop-filter: blur(8px); color:#f3ece0; cursor:pointer}
+.dd01 .topbar .doc{font-family:var(--mono); font-size:9px; letter-spacing:.24em; color:var(--brass-2); text-transform:uppercase}
+.dd01 .topbar .save{width:36px; height:36px; border-radius:50%; background: rgba(0,0,0,.45); display:grid; place-items:center; backdrop-filter: blur(8px); color:var(--brass-2)}
+
+.dd01 .hero{
+  height:300px; position:relative; overflow:hidden;
+  margin-top:0;
+}
+.dd01 .hero .crop{position:absolute; inset:0}
+.dd01 .hero .fade{position:absolute; inset:0; background: linear-gradient(180deg, transparent 40%, rgba(11,10,8,.6) 80%, #0b0a08 100%)}
+
+.dd01 .compass{
+  position:absolute; top:64px; right:14px; width:96px; height:96px; z-index:25;
+  animation: compass-spin 60s linear infinite;
+}
+@keyframes compass-spin { to { transform: rotate(360deg); } }
+.dd01 .compass svg{width:100%; height:100%; filter: drop-shadow(0 4px 14px rgba(0,0,0,.6))}
+
+.dd01 .titleblock{padding:14px 22px 8px; position:relative; z-index:20; margin-top:-30px}
+.dd01 .titleblock .no7{font-family:var(--mono); font-size:10px; letter-spacing:.28em; color:var(--brass); text-transform:uppercase; margin-bottom:6px}
+.dd01 .titleblock h1{font-family:var(--display); font-weight:600; font-size:22px; letter-spacing:.04em; margin:0; line-height:1.15}
+.dd01 .titleblock h1 .brass{color:var(--brass-2)}
+.dd01 .titleblock .lede{font-family:var(--serif); font-style:italic; font-weight:300; color:#cdc3b3; font-size:13px; line-height:1.55; margin-top:8px}
+
+/* panorama strip — 4 phases stitched */
+.dd01 .panorama{
+  margin:14px 16px 6px; height:64px; border-radius:8px; overflow:hidden;
+  display:grid; grid-template-columns: repeat(4,1fr); position:relative;
+  box-shadow: 0 4px 18px rgba(0,0,0,.5), inset 0 0 0 1px var(--line);
+}
+.dd01 .panorama > div{position:relative}
+.dd01 .panorama .label{
+  position:absolute; bottom:4px; left:0; right:0; text-align:center;
+  font-family:var(--mono); font-size:7.5px; letter-spacing:.18em; color:rgba(255,255,255,.78); text-transform:uppercase;
+}
+.dd01 .panorama .nowmark{
+  position:absolute; top:-6px; bottom:-6px; left:62%; width:2px;
+  background: linear-gradient(180deg, var(--gold), var(--brass-3));
+  box-shadow: 0 0 10px var(--gold);
+}
+.dd01 .panorama .nowmark::after{
+  content:""; position:absolute; top:-4px; left:-3px; width:8px; height:8px; border-radius:50%;
+  background: var(--gold); box-shadow: 0 0 10px var(--gold);
+}
+
+/* almanac entries */
+.dd01 .almanac{padding:14px 18px 100px}
+.dd01 .almanac h3{font-family:var(--mono); font-size:9px; letter-spacing:.28em; color:var(--brass); text-transform:uppercase; margin:6px 0 12px; display:flex; align-items:center; gap:8px}
+.dd01 .almanac h3::before, .dd01 .almanac h3::after{content:""; flex:1; height:1px; background: linear-gradient(90deg, transparent, var(--line), transparent)}
+.dd01 .entry{
+  display:grid; grid-template-columns: 78px 1fr; gap:12px; align-items:flex-start;
+  padding:10px 8px 12px; border-bottom:1px solid rgba(244,192,96,.10);
+  position:relative;
+}
+.dd01 .entry .mini{width:78px; height:78px; border-radius:6px; position:relative; overflow:hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)}
+.dd01 .entry.now{background: linear-gradient(90deg, rgba(244,192,96,.08), transparent 60%)}
+.dd01 .entry.now::before{content:""; position:absolute; top:8px; bottom:8px; left:-8px; width:3px; background: linear-gradient(180deg, var(--gold), var(--brass-3)); border-radius:2px; box-shadow: 0 0 10px var(--gold)}
+.dd01 .entry .body{padding-top:2px}
+.dd01 .entry .chap{font-family:var(--mono); font-size:8.5px; letter-spacing:.26em; color:var(--brass); text-transform:uppercase; margin-bottom:4px; display:flex; align-items:center; gap:8px}
+.dd01 .entry.now .chap .now{background: var(--gold); color:#1a1300; padding:1px 6px; border-radius:3px; font-weight:600}
+.dd01 .entry .name{font-family:var(--display); font-size:15px; font-weight:600; letter-spacing:.04em; margin:0}
+.dd01 .entry .time{font-family:var(--mono); font-size:10px; color:var(--txt-mute); margin-top:4px}
+.dd01 .entry .stats{font-family:var(--mono); font-size:9.5px; color:var(--txt-mute); margin-top:4px; display:flex; gap:10px}
+.dd01 .entry .stats span{display:inline-flex; align-items:center; gap:3px}
+.dd01 .entry .stats .mi{font-size:11px}
+
+/* APPLY sticky */
+.dd01 .cta{
+  position:absolute; left:14px; right:14px; bottom:18px; z-index:40;
+  display:flex; align-items:center; gap:10px;
+}
+.dd01 .cta .apply{
+  flex:1; height:48px; border-radius:24px;
+  background: linear-gradient(180deg, #f4c060 0%, #c9a14a 60%, #8a6f2c 100%);
+  color:#1a1300; font-family:var(--display); font-weight:600; letter-spacing:.18em; font-size:13px;
+  display:grid; place-items:center;
+  box-shadow: 0 10px 28px -8px rgba(244,192,96,.55), inset 0 1px 0 rgba(255,255,255,.4);
+}
+.dd01 .cta .save2{
+  width:48px; height:48px; border-radius:50%;
+  border:1px solid var(--line); background: rgba(0,0,0,.5); display:grid; place-items:center; color:var(--brass-2); backdrop-filter: blur(8px);
+}
+
+/* ============ ============ ============ ============ ============
+   NO. 02 — LIQUID SKY SHOWCASE (immersive full-bleed)
+============ ============ ============ ============ ============ */
+.dd02 .screen{
+  background:#000; color:white;
+  overflow:hidden; position:relative;
+}
+.dd02 .scroller{
+  position:absolute; inset:0;
+  animation: scroll-hint 14s ease-in-out infinite;
+}
+@keyframes scroll-hint{
+  0%, 8% {transform: translateY(0)}
+  25% {transform: translateY(-220px)}
+  50% {transform: translateY(-440px)}
+  75% {transform: translateY(-660px)}
+  92%, 100% {transform: translateY(0)}
+}
+.dd02 .section{
+  height:520px; position:relative; overflow:hidden;
+}
+.dd02 .section .bgImg{position:absolute; inset:0}
+.dd02 .section .grain{position:absolute; inset:0; background:
+  radial-gradient(circle at 30% 20%, rgba(0,0,0,.0), rgba(0,0,0,.45) 100%)}
+.dd02 .section .label{
+  position:absolute; top:30px; left:22px; font-family:var(--mono); font-size:10px; letter-spacing:.24em; color:rgba(255,255,255,.85); text-transform:uppercase;
+}
+.dd02 .section .label .dot{display:inline-block; width:6px; height:6px; background:var(--gold); border-radius:50%; margin-right:8px; vertical-align:middle; box-shadow:0 0 8px var(--gold)}
+.dd02 .section .phase{
+  position:absolute; left:18px; right:18px; bottom:62px;
+  font-family:var(--serif); font-style:italic; font-weight:400;
+  font-size:64px; line-height:.9; letter-spacing:-.02em;
+  color:white; text-shadow: 0 6px 30px rgba(0,0,0,.7);
+}
+.dd02 .section .phase small{
+  display:block; font-family:var(--mono); font-style:normal; font-weight:400;
+  font-size:11px; letter-spacing:.22em; color:rgba(255,255,255,.85); margin-top:10px; text-transform:uppercase;
+}
+.dd02 .section .timeBar{
+  position:absolute; left:18px; right:18px; bottom:24px;
+  display:flex; align-items:center; gap:12px;
+}
+.dd02 .section .timeBar::before, .dd02 .section .timeBar::after{
+  content:""; flex:1; height:1px; background: linear-gradient(90deg, transparent, rgba(244,192,96,.7), transparent);
+}
+.dd02 .section .timeBar .t{font-family:var(--mono); font-size:10px; color:var(--gold); letter-spacing:.18em}
+
+.dd02 .topnav{
+  position:absolute; top:46px; left:0; right:0; z-index:60;
+  display:flex; align-items:center; justify-content:space-between; padding:0 16px;
+}
+.dd02 .topnav .back{width:34px; height:34px; border-radius:50%; background: rgba(0,0,0,.4); backdrop-filter: blur(10px); color:white; display:grid; place-items:center}
+.dd02 .topnav .title{font-family:var(--serif); font-style:italic; font-weight:400; font-size:14px; color:rgba(255,255,255,.92)}
+.dd02 .topnav .clock{font-family:var(--mono); font-size:11px; color:var(--gold); letter-spacing:.10em}
+
+.dd02 .cta-glass{
+  position:absolute; left:0; right:0; bottom:0; z-index:60;
+  padding:14px 16px 26px;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.55) 30%, rgba(0,0,0,.85));
+  backdrop-filter: blur(14px);
+  display:flex; align-items:center; gap:10px;
+}
+.dd02 .cta-glass .stats{flex:1; display:flex; gap:14px; font-family:var(--mono); font-size:10.5px; color:rgba(255,255,255,.85); align-items:center}
+.dd02 .cta-glass .stats span{display:inline-flex; align-items:center; gap:4px}
+.dd02 .cta-glass .stats .mi{font-size:13px; color:var(--gold)}
+.dd02 .cta-glass .apply{
+  height:44px; padding:0 22px; border-radius:22px;
+  background: linear-gradient(180deg, #f4c060 0%, #c9a14a 70%);
+  color:#1a1300; font-family:var(--display); font-weight:600; letter-spacing:.16em; font-size:11.5px;
+  display:inline-flex; align-items:center; gap:8px;
+  box-shadow: 0 8px 26px -8px rgba(244,192,96,.55), inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+.dd02 .scroll-cue{
+  position:absolute; bottom:90px; left:50%; transform:translateX(-50%);
+  font-family:var(--mono); font-size:9px; letter-spacing:.24em; color:rgba(255,255,255,.65); text-transform:uppercase;
+  display:flex; flex-direction:column; align-items:center; gap:4px; z-index:60;
+  animation: cue-bob 2.2s ease-in-out infinite;
+}
+@keyframes cue-bob{0%,100%{transform:translate(-50%,0); opacity:.55} 50%{transform:translate(-50%,5px); opacity:1}}
+
+/* ============ ============ ============ ============ ============
+   NO. 03 — 4-SQUARE GALLERY (paper editorial)
+============ ============ ============ ============ ============ */
+.dd03 .screen{
+  background:
+    radial-gradient(ellipse 500px 250px at 20% 100%, rgba(0,0,0,.04), transparent 70%),
+    #f5efe6;
+  color:#1a1816;
+  overflow-y:auto;
+  font-family: var(--body);
+}
+.dd03 .paper-noise{
+  position:absolute; inset:0; pointer-events:none; opacity:.35; mix-blend-mode:multiply;
+  background-image:
+    radial-gradient(1px 1px at 10% 30%, rgba(0,0,0,.08), transparent 60%),
+    radial-gradient(1px 1px at 70% 60%, rgba(0,0,0,.06), transparent 60%),
+    radial-gradient(1px 1px at 40% 80%, rgba(0,0,0,.05), transparent 60%);
+}
+.dd03 .topbar{position:absolute; top:46px; left:0; right:0; padding:0 18px; display:flex; align-items:center; justify-content:space-between; z-index:30}
+.dd03 .topbar .back{width:36px; height:36px; border-radius:50%; background:#fff; display:grid; place-items:center; color:#1a1816; box-shadow: 0 2px 8px rgba(0,0,0,.10)}
+.dd03 .topbar .eb{font-family:var(--mono); font-size:9px; letter-spacing:.24em; color:#6b6151; text-transform:uppercase}
+.dd03 .topbar .save{width:36px; height:36px; border-radius:50%; background:#fff; display:grid; place-items:center; color:#1a1816; box-shadow: 0 2px 8px rgba(0,0,0,.10)}
+
+.dd03 .hero{
+  margin:90px 14px 0; height:340px; border-radius:6px; overflow:hidden; position:relative;
+  box-shadow: 0 18px 40px -10px rgba(0,0,0,.30);
+}
+.dd03 .hero .crop{position:absolute; inset:0}
+.dd03 .hero .veil{position:absolute; inset:0; background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.55))}
+.dd03 .hero .eb{position:absolute; top:14px; left:14px; font-family:var(--mono); font-size:9.5px; letter-spacing:.26em; color:rgba(255,255,255,.95); text-transform:uppercase}
+.dd03 .hero .ch{position:absolute; top:14px; right:14px; font-family:var(--display); font-weight:600; font-size:14px; color:rgba(255,255,255,.92); letter-spacing:.10em}
+.dd03 .hero .t{
+  position:absolute; left:14px; right:14px; bottom:14px;
+  font-family:var(--serif); font-style:italic; font-weight:400; color:#fff;
+  font-size:44px; line-height:.92; letter-spacing:-.02em;
+}
+.dd03 .hero .t small{display:block; font-family:var(--mono); font-style:normal; font-size:9.5px; letter-spacing:.24em; color:rgba(255,255,255,.85); margin-top:6px; text-transform:uppercase}
+
+.dd03 .gridSection{padding:20px 14px 8px}
+.dd03 .gridSection h3{font-family:var(--mono); font-size:9.5px; letter-spacing:.26em; color:#6b6151; text-transform:uppercase; margin:0 0 12px; display:flex; align-items:center; gap:8px}
+.dd03 .gridSection h3 .rule{flex:1; height:1px; background: rgba(0,0,0,.20)}
+.dd03 .grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.dd03 .tile{
+  position:relative; height:170px; border-radius:4px; overflow:hidden;
+  box-shadow: 0 6px 18px -6px rgba(0,0,0,.20);
+  cursor:pointer;
+}
+.dd03 .tile .img{position:absolute; inset:0}
+.dd03 .tile .veil2{position:absolute; inset:0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,.55))}
+.dd03 .tile .name{position:absolute; left:10px; bottom:10px; font-family:var(--serif); font-style:italic; font-weight:500; color:#fff; font-size:20px; line-height:1; letter-spacing:-.01em}
+.dd03 .tile .time{position:absolute; right:10px; bottom:10px; font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:rgba(255,255,255,.92); background: rgba(0,0,0,.35); padding:3px 6px; border-radius:8px; backdrop-filter: blur(6px)}
+.dd03 .tile .dot{position:absolute; top:10px; right:10px; width:8px; height:8px; border-radius:50%; background: rgba(255,255,255,.65); box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.dd03 .tile.active{outline: 3px solid var(--brass); outline-offset:-3px; box-shadow: 0 12px 30px -6px rgba(201,161,74,.45)}
+.dd03 .tile.active .dot{background: var(--gold); box-shadow: 0 0 12px var(--gold); animation: pulse-dot 1.6s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{transform:scale(1); opacity:1} 50%{transform:scale(1.4); opacity:.6}}
+.dd03 .tile.active .sticker{
+  position:absolute; top:10px; left:10px;
+  background: var(--gold); color:#1a1300;
+  font-family:var(--display); font-weight:700; font-size:9.5px; letter-spacing:.18em;
+  padding:5px 9px; border-radius:3px;
+  transform: rotate(-3deg);
+  box-shadow: 0 4px 14px rgba(244,192,96,.5);
+  animation: sticker-wobble 3.4s ease-in-out infinite;
+}
+@keyframes sticker-wobble{0%,100%{transform:rotate(-3deg) translateY(0)} 50%{transform:rotate(-1deg) translateY(-2px)}}
+
+.dd03 .descBlock{padding:8px 14px 14px}
+.dd03 .descBlock p{font-family:var(--serif); font-style:italic; font-weight:300; color:#4a4339; font-size:13.5px; line-height:1.55; margin:6px 0 12px}
+.dd03 .statRow{display:flex; gap:14px; font-family:var(--mono); font-size:10.5px; color:#6b6151; align-items:center; padding-top:10px; border-top:1px solid rgba(0,0,0,.10)}
+.dd03 .statRow span{display:inline-flex; align-items:center; gap:4px}
+.dd03 .statRow .mi{font-size:14px; color:#8a7a5e}
+
+.dd03 .ctaPaper{
+  position:absolute; left:0; right:0; bottom:0; padding:14px 14px 26px;
+  background: linear-gradient(180deg, rgba(245,239,230,0), #f5efe6 30%);
+  display:flex; justify-content:center;
+}
+.dd03 .ctaPaper .pill{
+  display:inline-flex; align-items:center; gap:10px;
+  height:46px; padding:0 24px; border-radius:24px;
+  background:#1a1816; color:#f5efe6;
+  font-family:var(--body); font-weight:500; font-size:14px; letter-spacing:.04em;
+  box-shadow: 0 10px 28px -6px rgba(0,0,0,.40);
+  position:relative;
+}
+.dd03 .ctaPaper .pill::after{
+  content:""; position:absolute; left:14%; right:14%; bottom:-6px;
+  height:2px; background: linear-gradient(90deg, transparent, var(--brass), transparent);
+}
+
+/* ============ ============ ============ ============ ============
+   NO. 04 — VINYL SPINNING DAY
+============ ============ ============ ============ ============ */
+.dd04 .screen{
+  background:
+    radial-gradient(ellipse 400px 280px at 50% 28%, rgba(94,58,110,.45), transparent 70%),
+    radial-gradient(ellipse 500px 280px at 50% 90%, rgba(201,161,74,.18), transparent 70%),
+    #0a0807;
+  color:#f3ece0;
+  overflow:hidden; position:relative;
+}
+.dd04 .stars{
+  position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background-image:
+    radial-gradient(1px 1px at 12% 12%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(1px 1px at 78% 8%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1px 1px at 32% 22%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(2px 2px at 92% 26%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(1px 1px at 18% 78%, rgba(255,255,255,.4), transparent 60%),
+    radial-gradient(1px 1px at 86% 88%, rgba(255,255,255,.4), transparent 60%);
+}
+.dd04 .topbar{position:absolute; top:46px; left:0; right:0; padding:0 18px; display:flex; align-items:center; justify-content:space-between; z-index:30}
+.dd04 .topbar .back, .dd04 .topbar .heart{width:36px; height:36px; border-radius:50%; background: rgba(0,0,0,.45); backdrop-filter: blur(8px); color:#f3ece0; display:grid; place-items:center}
+.dd04 .topbar .eb{font-family:var(--mono); font-size:9px; letter-spacing:.24em; color:var(--brass-2); text-transform:uppercase}
+
+.dd04 .titleblock{padding:90px 22px 0; text-align:center; position:relative; z-index:20}
+.dd04 .titleblock .eb{font-family:var(--mono); font-size:9.5px; letter-spacing:.28em; color:var(--brass); text-transform:uppercase}
+.dd04 .titleblock h1{font-family:var(--serif); font-style:italic; font-weight:400; font-size:30px; margin:6px 0 0; letter-spacing:-.01em}
+.dd04 .titleblock h1 small{display:block; font-family:var(--mono); font-style:normal; font-size:9.5px; letter-spacing:.26em; color:var(--txt-mute); text-transform:uppercase; margin-top:8px}
+
+/* turntable */
+.dd04 .stage{position:relative; height:340px; margin-top:12px}
+.dd04 .vinyl{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:240px; height:240px; border-radius:50%;
+  background:
+    radial-gradient(circle, transparent 32%, rgba(0,0,0,.0) 33%),
+    repeating-radial-gradient(circle, #0c0a09 0, #0c0a09 1px, #141210 2px, #141210 3px),
+    #0c0a09;
+  box-shadow:
+    0 18px 50px -8px rgba(0,0,0,.7),
+    0 0 0 1px rgba(244,192,96,.18),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+  display:grid; place-items:center;
+  animation: spin 28s linear infinite;
+}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.dd04 .label-disc{
+  width:108px; height:108px; border-radius:50%;
+  position:relative; overflow:hidden;
+  box-shadow: inset 0 0 0 2px rgba(244,192,96,.45), 0 4px 14px rgba(0,0,0,.6);
+}
+.dd04 .label-disc::after{
+  content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:14px; height:14px; border-radius:50%; background:#0a0807; box-shadow: 0 0 0 1px var(--brass-2);
+}
+.dd04 .needle{
+  position:absolute; top:8%; right:8%;
+  width:130px; height:8px; transform-origin: right center; transform: rotate(28deg);
+  z-index:20;
+}
+.dd04 .needle .arm{
+  width:100%; height:5px; background: linear-gradient(180deg, #d6d2c8 0, #8a857a 100%);
+  border-radius:3px; position:relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,.6);
+}
+.dd04 .needle .head{
+  position:absolute; left:-6px; top:-3px; width:18px; height:11px;
+  background: linear-gradient(180deg, #f4c060 0, #8a6f2c 100%);
+  border-radius:3px;
+}
+.dd04 .needle .pivot{
+  position:absolute; right:-6px; top:-6px; width:20px; height:20px; border-radius:50%;
+  background: radial-gradient(circle, #f4c060 0%, #8a6f2c 80%);
+  box-shadow: 0 2px 6px rgba(0,0,0,.6);
+}
+
+/* phase tiles around vinyl at 12/3/6/9 */
+.dd04 .phase-orbit{position:absolute; inset:0; pointer-events:none}
+.dd04 .phase-orbit .p{
+  position:absolute; width:60px; height:60px; border-radius:50%; overflow:hidden;
+  box-shadow: 0 6px 16px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.dd04 .phase-orbit .p .lab{
+  position:absolute; left:50%; transform:translateX(-50%); top:64px;
+  font-family:var(--mono); font-size:8px; letter-spacing:.22em; color:var(--txt-mute); text-transform:uppercase; white-space:nowrap;
+}
+.dd04 .phase-orbit .p.noon{top:4px; left:50%; margin-left:-30px}
+.dd04 .phase-orbit .p.evening{top:50%; right:8px; margin-top:-30px}
+.dd04 .phase-orbit .p.evening .lab{top:auto; bottom:64px}
+.dd04 .phase-orbit .p.night{bottom:4px; left:50%; margin-left:-30px}
+.dd04 .phase-orbit .p.night .lab{top:auto; bottom:64px}
+.dd04 .phase-orbit .p.morning{top:50%; left:8px; margin-top:-30px}
+.dd04 .phase-orbit .p.morning .lab{top:auto; bottom:64px}
+.dd04 .phase-orbit .p.active{outline:2px solid var(--gold); outline-offset:2px; box-shadow: 0 0 22px rgba(244,192,96,.7), 0 6px 16px rgba(0,0,0,.5)}
+.dd04 .phase-orbit .p.active .lab{color:var(--gold)}
+
+.dd04 .timer{
+  position:absolute; left:0; right:0; bottom:130px; text-align:center; z-index:30;
+}
+.dd04 .timer .big{font-family:var(--mono); font-weight:500; font-size:24px; color:#f3ece0; letter-spacing:.14em}
+.dd04 .timer .sub{font-family:var(--mono); font-size:10px; color:var(--brass); letter-spacing:.24em; text-transform:uppercase; margin-top:4px}
+.dd04 .timer .sub .gold{color:var(--gold)}
+
+.dd04 .descBlock{position:absolute; left:18px; right:18px; bottom:96px; text-align:center}
+.dd04 .descBlock p{font-family:var(--serif); font-style:italic; font-weight:300; font-size:12.5px; color:#cdc3b3; margin:0; line-height:1.55}
+
+.dd04 .ctaWrap{
+  position:absolute; left:14px; right:14px; bottom:22px;
+  display:flex; gap:10px; align-items:center; z-index:30;
+}
+.dd04 .ctaWrap .stats{flex:1; display:flex; gap:12px; font-family:var(--mono); font-size:10px; color:var(--txt-mute); align-items:center}
+.dd04 .ctaWrap .stats .mi{color:var(--brass-2); font-size:13px}
+.dd04 .ctaWrap .play{
+  height:50px; padding:0 20px; border-radius:25px;
+  background: linear-gradient(180deg, #f4c060 0%, #c9a14a 70%);
+  color:#1a1300; font-family:var(--mono); font-weight:600; letter-spacing:.16em; font-size:11px;
+  display:inline-flex; align-items:center; gap:8px;
+  box-shadow: 0 10px 28px -8px rgba(244,192,96,.55), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.dd04 .ctaWrap .play .mi{font-size:18px}
+.dd04 .ctaWrap .play small{display:block; font-family:var(--mono); font-size:7.5px; letter-spacing:.20em; color:#5a4710; font-weight:400; margin-top:1px}
+
+/* ============ ============ ============ ============ ============
+   NO. 05 — IMAX THEATER MARQUEE
+============ ============ ============ ============ ============ */
+.dd05 .screen{
+  background: #000;
+  color:#f3ece0;
+  overflow-y:auto;
+}
+.dd05 .marquee-lights{
+  position:absolute; left:0; right:0; top:0; height:6px; z-index:40;
+  background: repeating-linear-gradient(90deg, #f4c060 0, #f4c060 6px, #6b4a08 6px, #6b4a08 14px);
+  animation: marquee-blink 1.6s steps(2) infinite;
+}
+@keyframes marquee-blink{
+  50% { filter: brightness(.55) saturate(.6); }
+}
+.dd05 .topbar{position:absolute; top:46px; left:0; right:0; padding:0 18px; display:flex; align-items:center; justify-content:space-between; z-index:30}
+.dd05 .topbar .back{width:36px; height:36px; border-radius:50%; background: rgba(255,255,255,.06); color:#f3ece0; display:grid; place-items:center; border:1px solid rgba(244,192,96,.18)}
+.dd05 .topbar .eb{font-family:var(--mono); font-size:9px; letter-spacing:.28em; color:var(--crimson); text-transform:uppercase}
+.dd05 .topbar .save{width:36px; height:36px; border-radius:50%; background: rgba(255,255,255,.06); color:#f3ece0; display:grid; place-items:center; border:1px solid rgba(244,192,96,.18)}
+
+.dd05 .feature-tag{
+  text-align:center; margin-top:90px;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.32em; color:#f4c060; text-transform:uppercase;
+}
+.dd05 .feature-tag .glow{text-shadow: 0 0 12px rgba(244,192,96,.6)}
+
+.dd05 .letterbox{
+  margin:10px 14px 0; height:200px;
+  border:1px solid rgba(244,192,96,.30);
+  position:relative; overflow:hidden;
+  box-shadow: 0 0 0 6px #000, 0 0 30px rgba(244,192,96,.18);
+}
+.dd05 .letterbox .img{position:absolute; inset:0}
+.dd05 .letterbox .top-bar, .dd05 .letterbox .bot-bar{
+  position:absolute; left:0; right:0; height:14px; background:#000;
+}
+.dd05 .letterbox .top-bar{top:0}
+.dd05 .letterbox .bot-bar{bottom:0}
+.dd05 .letterbox .meta{
+  position:absolute; left:8px; bottom:18px; font-family:var(--mono); font-size:8px; letter-spacing:.24em; color:rgba(255,255,255,.85); text-transform:uppercase;
+}
+.dd05 .letterbox .meta .red{color:#ef4444}
+
+.dd05 .title-cinema{
+  text-align:center; margin:14px 14px 4px;
+  font-family:'Bangers', cursive; font-weight:400; font-size:42px; letter-spacing:.06em;
+  color:#f3ece0; line-height:.95;
+  text-shadow: 0 0 18px rgba(244,192,96,.25);
+}
+.dd05 .title-cinema .red{color:#ef4444}
+.dd05 .subline{
+  text-align:center; font-family:var(--mono); font-size:9.5px; letter-spacing:.28em; color:var(--brass-2); text-transform:uppercase;
+  margin-bottom:14px;
+}
+
+.dd05 .showtimes{padding:0 14px 90px}
+.dd05 .showtimes h3{
+  font-family:var(--mono); font-size:10px; letter-spacing:.30em; color:var(--brass); text-transform:uppercase;
+  display:flex; align-items:center; gap:10px; margin: 4px 0 12px;
+}
+.dd05 .showtimes h3 .rule{flex:1; height:1px; background: linear-gradient(90deg, transparent, var(--line), transparent)}
+
+.dd05 .reel{
+  position:relative; margin-bottom:12px;
+  background:#0a0807; border:1px solid rgba(244,192,96,.22);
+  display:grid; grid-template-columns: 56px 1fr 78px;
+  overflow:hidden;
+}
+/* perforations */
+.dd05 .reel::before, .dd05 .reel::after{
+  content:""; position:absolute; left:6px; right:6px; height:6px;
+  background-image: radial-gradient(circle, #000 2.2px, transparent 2.5px);
+  background-size: 14px 6px; background-repeat:repeat-x;
+}
+.dd05 .reel::before{top:0}
+.dd05 .reel::after{bottom:0}
+.dd05 .reel .num{
+  background:#000; color:var(--gold);
+  display:grid; place-items:center;
+  font-family:'Bangers', cursive; font-size:26px; letter-spacing:.04em;
+  border-right:1px dashed rgba(244,192,96,.30);
+}
+.dd05 .reel .num small{display:block; font-family:var(--mono); font-size:7.5px; letter-spacing:.22em; color:var(--brass); margin-top:-2px}
+.dd05 .reel .mid{
+  height:90px; position:relative; overflow:hidden;
+}
+.dd05 .reel .mid .img{position:absolute; inset:0}
+.dd05 .reel .mid .veil{position:absolute; inset:0; background: linear-gradient(90deg, rgba(0,0,0,.55), transparent 40%, rgba(0,0,0,.6))}
+.dd05 .reel .mid .name{
+  position:absolute; left:10px; bottom:8px;
+  font-family:'Bangers', cursive; font-size:22px; color:#fff; letter-spacing:.04em;
+  text-shadow: 0 2px 8px rgba(0,0,0,.7);
+}
+.dd05 .reel .mid .name small{display:block; font-family:var(--mono); font-size:8px; letter-spacing:.20em; color:rgba(255,255,255,.75); margin-top:-2px; text-transform:uppercase}
+.dd05 .reel .time{
+  display:grid; place-items:center; background:#000;
+  font-family:var(--mono); font-size:10.5px; color:var(--brass-2); letter-spacing:.10em;
+  border-left:1px dashed rgba(244,192,96,.30);
+  text-align:center; line-height:1.3;
+}
+.dd05 .reel .time small{display:block; font-family:var(--mono); font-size:7.5px; color:var(--txt-mute); letter-spacing:.18em; margin-top:2px}
+
+.dd05 .reel.now{
+  box-shadow: 0 0 0 1px var(--crimson), 0 0 20px rgba(239,68,68,.32);
+  border-color: rgba(239,68,68,.55);
+}
+.dd05 .reel.now .num{color:#ef4444}
+.dd05 .reel.now .sticker{
+  position:absolute; top:8px; right:8px;
+  background:#ef4444; color:#fff;
+  font-family:'Bangers', cursive; font-size:10px; letter-spacing:.10em;
+  padding:3px 8px; border-radius:3px;
+  transform: rotate(4deg); z-index:5;
+  box-shadow: 0 4px 12px rgba(239,68,68,.5);
+  animation: sticker-wobble 3.4s ease-in-out infinite;
+}
+.dd05 .reel.now .time{color:#ef4444}
+
+.dd05 .ticket-cta{
+  position:absolute; left:14px; right:14px; bottom:20px; z-index:50;
+  height:54px; background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+  color:#fff; font-family:'Bangers', cursive; font-size:16px; letter-spacing:.08em;
+  display:grid; place-items:center;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 4% 50%);
+  box-shadow: 0 10px 24px -6px rgba(239,68,68,.55), inset 0 1px 0 rgba(255,255,255,.25);
+  text-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+.dd05 .ticket-cta::before{
+  content:""; position:absolute; left:14px; top:0; bottom:0; width:1px;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.35) 0 4px, transparent 4px 8px);
+}
+.dd05 .ticket-cta .mi{font-size:18px; vertical-align:-3px; margin-right:6px}
+
+/* ============ FOOTER ============ */
+footer{
+  margin-top:80px; padding:32px 0 14px;
+  border-top:1px solid rgba(244,192,96,.12);
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--brass-2);
+  text-align:center;
+}
+
+@media (max-width: 900px){
+  .row{grid-template-columns:1fr; gap:24px}
+  .phone-wrap{display:flex; justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="starfield" aria-hidden="true"></div>
+
+<div class="shell">
+
+  <div class="eyebrow">// PIXORA · DAY CYCLE DETAIL · DOC-111 · MAY 2026</div>
+  <h1 class="title">Day Cycle Detail · 5 <span class="grad">Conceptos</span></h1>
+  <p class="sub">El usuario tocó un tema. Esta pantalla debe vender la idea de wallpaper vivo — 4 fases, 4 imágenes épicas, un solo día.</p>
+
+  <!-- ======================================================
+       NO. 01 — ASTRONOMICAL ALMANAC
+  ====================================================== -->
+  <div class="divider">No. 01 · Astronomical Almanac · brass &amp; cosmos</div>
+
+  <div class="row dd01">
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+
+        <div class="stars"></div>
+
+        <div class="topbar">
+          <div class="back"><span class="mi" style="font-size:20px">arrow_back</span></div>
+          <div class="doc">DOC · CYCLE · ALMANAC</div>
+          <div class="save"><span class="mi" style="font-size:20px">bookmark_border</span></div>
+        </div>
+
+        <div class="hero">
+          <div class="crop ph-evening"><div class="ph-decor dusk"></div></div>
+          <div class="fade"></div>
+        </div>
+
+        <!-- compass rose -->
+        <div class="compass" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="brassg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#f4c060"/>
+                <stop offset="60%" stop-color="#c9a14a"/>
+                <stop offset="100%" stop-color="#8a6f2c"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="46" fill="rgba(11,10,8,.85)" stroke="url(#brassg)" stroke-width="1.5"/>
+            <circle cx="50" cy="50" r="34" fill="none" stroke="url(#brassg)" stroke-width=".6" stroke-dasharray="2 4"/>
+            <!-- 4 ticks N S E W -->
+            <g stroke="url(#brassg)" stroke-width="1.2">
+              <line x1="50" y1="6" x2="50" y2="14"/>
+              <line x1="50" y1="86" x2="50" y2="94"/>
+              <line x1="6" y1="50" x2="14" y2="50"/>
+              <line x1="86" y1="50" x2="94" y2="50"/>
+            </g>
+            <!-- labels -->
+            <g fill="#e6c178" font-family="Cinzel, serif" font-size="6" text-anchor="middle">
+              <text x="50" y="22">N</text>
+              <text x="50" y="83">S</text>
+              <text x="22" y="52">W</text>
+              <text x="80" y="52">E</text>
+            </g>
+            <!-- compass arrow -->
+            <g transform="rotate(220 50 50)">
+              <polygon points="50,12 54,50 50,46 46,50" fill="#f4c060"/>
+              <polygon points="50,88 46,50 50,54 54,50" fill="#8a6f2c"/>
+            </g>
+            <circle cx="50" cy="50" r="3" fill="#f4c060"/>
+          </svg>
+        </div>
+
+        <div class="titleblock">
+          <div class="no7">CYCLE NO. VII · ORBIX OBSERVATORY</div>
+          <h1>Alien <span class="brass">Planet</span></h1>
+          <div class="lede">Un día completo en un mundo lejano — cuatro paisajes que tu pantalla habita conforme el reloj de la Tierra gira.</div>
+        </div>
+
+        <!-- panorama -->
+        <div class="panorama">
+          <div class="ph-morning"><div class="ph-decor sun"></div><div class="label">06 — 12</div></div>
+          <div class="ph-noon"><div class="ph-decor bigsun"></div><div class="label">12 — 18</div></div>
+          <div class="ph-evening"><div class="ph-decor dusk"></div><div class="label">18 — 22</div></div>
+          <div class="ph-night"><div class="ph-decor stars"></div><div class="label">22 — 06</div></div>
+          <div class="nowmark"></div>
+        </div>
+
+        <div class="almanac">
+          <h3>Almanac · 4 phases</h3>
+
+          <div class="entry">
+            <div class="mini ph-morning"><div class="ph-decor sun"></div></div>
+            <div class="body">
+              <div class="chap">I. Aurora</div>
+              <div class="name">MORNING</div>
+              <div class="time">06:00 → 12:00 · soft pink rise</div>
+              <div class="stats"><span><span class="mi">visibility</span> 8.2K</span><span><span class="mi">favorite</span> 412</span></div>
+            </div>
+          </div>
+
+          <div class="entry">
+            <div class="mini ph-noon"><div class="ph-decor bigsun"></div></div>
+            <div class="body">
+              <div class="chap">II. Meridiano</div>
+              <div class="name">AFTERNOON</div>
+              <div class="time">12:00 → 18:00 · azure noon</div>
+              <div class="stats"><span><span class="mi">visibility</span> 6.4K</span><span><span class="mi">favorite</span> 308</span></div>
+            </div>
+          </div>
+
+          <div class="entry now">
+            <div class="mini ph-evening"><div class="ph-decor dusk"></div></div>
+            <div class="body">
+              <div class="chap">III. Crepúsculo <span class="now">NOW · 17:01</span></div>
+              <div class="name">EVENING</div>
+              <div class="time">18:00 → 22:00 · violet burn</div>
+              <div class="stats"><span><span class="mi">visibility</span> 12.1K</span><span><span class="mi">favorite</span> 988</span></div>
+            </div>
+          </div>
+
+          <div class="entry">
+            <div class="mini ph-night"><div class="ph-decor stars"></div></div>
+            <div class="body">
+              <div class="chap">IV. Nocturno</div>
+              <div class="name">NIGHT</div>
+              <div class="time">22:00 → 06:00 · deep indigo</div>
+              <div class="stats"><span><span class="mi">visibility</span> 9.7K</span><span><span class="mi">favorite</span> 642</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cta">
+          <div class="apply">APPLY · START CYCLE</div>
+          <div class="save2"><span class="mi" style="font-size:20px">download</span></div>
+        </div>
+
+      </div></div>
+    </div>
+
+    <div class="meta">
+      <div class="no">No. 01 · Almanac series</div>
+      <h2>Astronomical Almanac</h2>
+      <div class="tag">"un diario de observatorio del siglo XIX, pero del año 3045"</div>
+      <p class="desc">Editorial profundo, premium, con autoridad. Cinzel para los capítulos romanos (I. Aurora, II. Meridiano, III. Crepúsculo, IV. Nocturno), Cormorant para la descripción. Una compass rose de latón gira lento en el hero y marca dónde está el sol ahora. Abajo, una <em>panorámica continua</em> stitched de las 4 fases con un marcador dorado vertical que dice exactamente dónde estás en el ciclo. La fase actual tiene un lomo dorado y eyebrow "NOW". El usuario siente que está leyendo el almanaque oficial de Alien Planet.</p>
+      <div class="palette">
+        <div class="sw" style="background:#0b0a08"></div>
+        <div class="sw" style="background:#c9a14a"></div>
+        <div class="sw" style="background:#e6c178"></div>
+        <div class="sw" style="background:#5e3a6e"></div>
+        <div class="sw" style="background:#f3ece0"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-title">Verdict</div>
+        <ul>
+          <li class="pro">Vende seriedad y craftsmanship — se siente curado, no auto-generado</li>
+          <li class="pro">La panorámica stitched comunica las 4 fases de un solo vistazo</li>
+          <li class="pro">Compass rose es un visual hook único, "wow esto está hecho con detalle"</li>
+          <li class="con">Cinzel + Cormorant pueden chocar con el resto de la app (vibes premium aislada)</li>
+          <li class="con">Hero pequeño — el usuario quiere ver la imagen MÁS grande</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       NO. 02 — LIQUID SKY SHOWCASE
+  ====================================================== -->
+  <div class="divider">No. 02 · Liquid Sky Showcase · full-bleed immersive</div>
+
+  <div class="row dd02">
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+
+        <div class="topnav">
+          <div class="back"><span class="mi" style="font-size:20px">arrow_back</span></div>
+          <div class="title">Alien Planet</div>
+          <div class="clock">17:01</div>
+        </div>
+
+        <div class="scroller">
+          <!-- section 1 — morning -->
+          <div class="section">
+            <div class="bgImg ph-morning"><div class="ph-decor sun"></div><div class="ph-decor cloud"></div></div>
+            <div class="grain"></div>
+            <div class="label"><span class="dot"></span>Phase 01 of 04</div>
+            <div class="phase">Morning<small>Soft Pink Rise · Aurora</small></div>
+            <div class="timeBar"><div class="t">06:00 → 12:00</div></div>
+          </div>
+
+          <!-- section 2 — noon -->
+          <div class="section">
+            <div class="bgImg ph-noon"><div class="ph-decor bigsun"></div></div>
+            <div class="grain"></div>
+            <div class="label"><span class="dot"></span>Phase 02 of 04</div>
+            <div class="phase">Afternoon<small>Azure Noon · Meridiano</small></div>
+            <div class="timeBar"><div class="t">12:00 → 18:00</div></div>
+          </div>
+
+          <!-- section 3 — evening (NOW) -->
+          <div class="section">
+            <div class="bgImg ph-evening"><div class="ph-decor dusk"></div></div>
+            <div class="grain"></div>
+            <div class="label"><span class="dot" style="background:#fff;box-shadow:0 0 8px #fff"></span>NOW PLAYING · 17:01</div>
+            <div class="phase">Evening<small>Violet Burn · Crepúsculo</small></div>
+            <div class="timeBar"><div class="t">18:00 → 22:00</div></div>
+          </div>
+
+          <!-- section 4 — night -->
+          <div class="section">
+            <div class="bgImg ph-night"><div class="ph-decor stars"></div><div class="ph-decor moon"></div></div>
+            <div class="grain"></div>
+            <div class="label"><span class="dot"></span>Phase 04 of 04</div>
+            <div class="phase">Night<small>Deep Indigo · Nocturno</small></div>
+            <div class="timeBar"><div class="t">22:00 → 06:00</div></div>
+          </div>
+        </div>
+
+        <div class="scroll-cue">SCROLL TO PREVIEW<br>↓</div>
+
+        <div class="cta-glass">
+          <div class="stats">
+            <span><span class="mi">visibility</span> 36K</span>
+            <span><span class="mi">favorite</span> 2.3K</span>
+          </div>
+          <button class="apply"><span class="mi" style="font-size:14px">play_arrow</span> APPLY</button>
+        </div>
+
+      </div></div>
+    </div>
+
+    <div class="meta">
+      <div class="no">No. 02 · Immersive series</div>
+      <h2>Liquid Sky Showcase</h2>
+      <div class="tag">"Apple Music Now Playing, pero para wallpapers"</div>
+      <p class="desc">Cero chrome. La imagen ES la pantalla. Scrolleas hacia abajo y cada fase ocupa toda la pantalla como un capítulo. Fraunces italic gigante encima de cada imagen, divisor dorado fino con el rango horario, eyebrow NOW PLAYING en la fase actual. El cue "SCROLL TO PREVIEW" guía al usuario. CTA sticky abajo en glass dark con stats al lado. Es el más content-first de los 5 — el usuario se enamora de cada fase antes de aplicar.</p>
+      <div class="palette">
+        <div class="sw" style="background:#000"></div>
+        <div class="sw" style="background:#FEC089"></div>
+        <div class="sw" style="background:#7DD3FC"></div>
+        <div class="sw" style="background:#C084FC"></div>
+        <div class="sw" style="background:#f4c060"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-title">Verdict</div>
+        <ul>
+          <li class="pro">Más emocional — el usuario VIVE cada fase a tamaño completo</li>
+          <li class="pro">Mínimo cognitive load, máximo impacto visual</li>
+          <li class="pro">Excelente para captura screenshot / share en redes</li>
+          <li class="con">Requiere scroll para ver todas las fases (no overview de un golpe)</li>
+          <li class="con">Stats y metadata quedan enterrados — menos info densa</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       NO. 03 — 4-SQUARE GALLERY
+  ====================================================== -->
+  <div class="divider">No. 03 · 4-Square Gallery · paper editorial</div>
+
+  <div class="row dd03">
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+
+        <div class="paper-noise"></div>
+
+        <div class="topbar">
+          <div class="back"><span class="mi" style="font-size:20px">arrow_back</span></div>
+          <div class="eb">Live Wallpaper Series</div>
+          <div class="save"><span class="mi" style="font-size:20px">bookmark_border</span></div>
+        </div>
+
+        <div class="hero">
+          <div class="crop ph-evening"><div class="ph-decor dusk"></div></div>
+          <div class="veil"></div>
+          <div class="eb">Day Cycle · Featured</div>
+          <div class="ch">·VII·</div>
+          <div class="t">Alien Planet<small>Currently playing · Evening</small></div>
+        </div>
+
+        <div class="gridSection">
+          <h3>The four phases<span class="rule"></span>04</h3>
+          <div class="grid">
+            <div class="tile">
+              <div class="img ph-morning"><div class="ph-decor sun"></div><div class="ph-decor cloud"></div></div>
+              <div class="veil2"></div>
+              <div class="dot"></div>
+              <div class="name">Morning</div>
+              <div class="time">06 — 12</div>
+            </div>
+            <div class="tile">
+              <div class="img ph-noon"><div class="ph-decor bigsun"></div></div>
+              <div class="veil2"></div>
+              <div class="dot"></div>
+              <div class="name">Noon</div>
+              <div class="time">12 — 18</div>
+            </div>
+            <div class="tile active">
+              <div class="img ph-evening"><div class="ph-decor dusk"></div></div>
+              <div class="veil2"></div>
+              <div class="dot"></div>
+              <div class="sticker">NOW PLAYING</div>
+              <div class="name">Evening</div>
+              <div class="time">18 — 22</div>
+            </div>
+            <div class="tile">
+              <div class="img ph-night"><div class="ph-decor stars"></div><div class="ph-decor moon"></div></div>
+              <div class="veil2"></div>
+              <div class="dot"></div>
+              <div class="name">Night</div>
+              <div class="time">22 — 06</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="descBlock">
+          <p>"Un planeta lejano cambia su luz a lo largo del día — cuatro pinturas que tu pantalla vive como una sola."</p>
+          <div class="statRow">
+            <span><span class="mi">visibility</span> 36K</span>
+            <span><span class="mi">favorite</span> 2.3K</span>
+            <span><span class="mi">download</span> 8.1K</span>
+            <span style="margin-left:auto; color:#c9a14a">Free · Plus</span>
+          </div>
+        </div>
+
+        <div class="ctaPaper">
+          <div class="pill">Apply this cycle <span class="mi" style="font-size:18px">arrow_forward</span></div>
+        </div>
+
+      </div></div>
+    </div>
+
+    <div class="meta">
+      <div class="no">No. 03 · Gallery series</div>
+      <h2>4-Square Gallery</h2>
+      <div class="tag">"un mural de exposición — 4 cuadros en pared blanca"</div>
+      <p class="desc">Fondo papel off-white — limpio, calmo, refinado. Hero grande arriba con la fase actual, eyebrow "Day Cycle · Featured" y un número de capítulo "·VII·". Abajo un grid 2×2 con las 4 fases como mini-cuadros — la activa marcada con borde dorado grueso, sticker rotado "NOW PLAYING" y dot pulsante. Descripción en serif italic, stats horizontales monoespaciadas. CTA negro pill con underline brass. Vibe Vogue, vinyl collection, MoMA.</p>
+      <div class="palette">
+        <div class="sw" style="background:#f5efe6"></div>
+        <div class="sw" style="background:#ede4d3"></div>
+        <div class="sw" style="background:#1a1816"></div>
+        <div class="sw" style="background:#c9a14a"></div>
+        <div class="sw" style="background:#6b6151"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-title">Verdict</div>
+        <ul>
+          <li class="pro">Las 4 fases VISIBLES de un golpe en grid grande — overview total</li>
+          <li class="pro">El sticker "NOW PLAYING" rotado y pulsante es un destacado claro y juguetón</li>
+          <li class="pro">Fondo paper diferencia este screen del resto de la app oscura — se siente especial</li>
+          <li class="con">Rompe el dark mode del resto — coherencia visual con la lista cuestionable</li>
+          <li class="con">Menos cinemático que 02 — más catalog-y</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       NO. 04 — VINYL SPINNING DAY
+  ====================================================== -->
+  <div class="divider">No. 04 · Vinyl Spinning Day · turntable premium</div>
+
+  <div class="row dd04">
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+
+        <div class="stars"></div>
+
+        <div class="topbar">
+          <div class="back"><span class="mi" style="font-size:20px">arrow_back</span></div>
+          <div class="eb">Turntable · Cycle VII</div>
+          <div class="heart"><span class="mi" style="font-size:20px">favorite_border</span></div>
+        </div>
+
+        <div class="titleblock">
+          <div class="eb">Now Spinning</div>
+          <h1>Alien Planet<small>4 sides · 24-hour rotation</small></h1>
+        </div>
+
+        <div class="stage">
+          <div class="vinyl">
+            <div class="label-disc ph-evening"><div class="ph-decor dusk"></div></div>
+          </div>
+
+          <div class="needle">
+            <div class="arm"></div>
+            <div class="head"></div>
+            <div class="pivot"></div>
+          </div>
+
+          <div class="phase-orbit">
+            <div class="p noon"><div class="ph-noon" style="width:100%;height:100%"><div class="ph-decor bigsun"></div></div><div class="lab">NOON</div></div>
+            <div class="p evening active"><div class="ph-evening" style="width:100%;height:100%"><div class="ph-decor dusk"></div></div><div class="lab">EVENING · NOW</div></div>
+            <div class="p night"><div class="ph-night" style="width:100%;height:100%"><div class="ph-decor stars"></div></div><div class="lab">NIGHT</div></div>
+            <div class="p morning"><div class="ph-morning" style="width:100%;height:100%"><div class="ph-decor sun"></div></div><div class="lab">MORN</div></div>
+          </div>
+        </div>
+
+        <div class="timer">
+          <div class="big">17:01 <span style="color:var(--brass)">·</span> SIDE B</div>
+          <div class="sub">03:24 <span class="gold">to next phase</span></div>
+        </div>
+
+        <div class="descBlock">
+          <p>"Cuatro caras, un solo disco — el día de un planeta lejano gira contigo todo el día."</p>
+        </div>
+
+        <div class="ctaWrap">
+          <div class="stats">
+            <span><span class="mi">visibility</span> 36K</span>
+            <span><span class="mi">favorite</span> 2.3K</span>
+          </div>
+          <button class="play">
+            <span class="mi">play_arrow</span>
+            <div>START<small>CYCLE</small></div>
+          </button>
+        </div>
+
+      </div></div>
+    </div>
+
+    <div class="meta">
+      <div class="no">No. 04 · Mechanical series</div>
+      <h2>Vinyl Spinning Day</h2>
+      <div class="tag">"un tocadiscos donde cada hora es una pista"</div>
+      <p class="desc">El protagonista es un disco de vinilo girando lento al centro con la imagen de la fase actual como etiqueta central. Una aguja dorada apunta a la fase. Las otras 3 fases viven en órbita a las 12/3/6/9 — la activa marcada con halo dorado. Abajo un timer estilo BPM con "17:01 · SIDE B · 03:24 to next phase". CTA es un botón ▶ START con caption mono "CYCLE". Premium, mecánico, nostálgico — vibe de "estoy poniendo música en mi tornamesa".</p>
+      <div class="palette">
+        <div class="sw" style="background:#0a0807"></div>
+        <div class="sw" style="background:#0c0a09"></div>
+        <div class="sw" style="background:#5e3a6e"></div>
+        <div class="sw" style="background:#f4c060"></div>
+        <div class="sw" style="background:#cdc3b3"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-title">Verdict</div>
+        <ul>
+          <li class="pro">Visual ABSOLUTAMENTE distintivo — nadie más hace esto en wallpaper apps</li>
+          <li class="pro">La metáfora vinyl/tornamesa hace que aplicar = "poner el disco" — emocional</li>
+          <li class="pro">El timer "03:24 to next phase" añade anticipation activa</li>
+          <li class="con">Los 4 phase tiles de 60px son pequeños — vuelve al problema actual</li>
+          <li class="con">Metáfora puede confundir a usuarios jóvenes sin contexto vinyl</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       NO. 05 — IMAX THEATER MARQUEE
+  ====================================================== -->
+  <div class="divider">No. 05 · IMAX Theater Marquee · cinematic premium</div>
+
+  <div class="row dd05">
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+
+        <div class="marquee-lights"></div>
+
+        <div class="topbar">
+          <div class="back"><span class="mi" style="font-size:20px">arrow_back</span></div>
+          <div class="eb">NOW SHOWING</div>
+          <div class="save"><span class="mi" style="font-size:20px">bookmark_border</span></div>
+        </div>
+
+        <div class="feature-tag"><span class="glow">★ FEATURE PRESENTATION ★</span></div>
+
+        <div class="letterbox">
+          <div class="img ph-evening"><div class="ph-decor dusk"></div></div>
+          <div class="top-bar"></div>
+          <div class="bot-bar"></div>
+          <div class="meta">CINEMASCOPE · 21:9 · <span class="red">● LIVE 17:01</span></div>
+        </div>
+
+        <div class="title-cinema">ALIEN <span class="red">PLANET</span></div>
+        <div class="subline">CYCLE VII · 4 REELS · 24 HRS RUNTIME</div>
+
+        <div class="showtimes">
+          <h3>Showtimes · 4 reels<span class="rule"></span></h3>
+
+          <div class="reel">
+            <div class="num">01<small>REEL</small></div>
+            <div class="mid">
+              <div class="img ph-morning"><div class="ph-decor sun"></div><div class="ph-decor cloud"></div></div>
+              <div class="veil"></div>
+              <div class="name">MORNING<small>aurora rise</small></div>
+            </div>
+            <div class="time">06:00<small>↓ 12:00</small></div>
+          </div>
+
+          <div class="reel">
+            <div class="num">02<small>REEL</small></div>
+            <div class="mid">
+              <div class="img ph-noon"><div class="ph-decor bigsun"></div></div>
+              <div class="veil"></div>
+              <div class="name">AFTERNOON<small>meridiano</small></div>
+            </div>
+            <div class="time">12:00<small>↓ 18:00</small></div>
+          </div>
+
+          <div class="reel now">
+            <div class="sticker">NOW PLAYING</div>
+            <div class="num">03<small>REEL</small></div>
+            <div class="mid">
+              <div class="img ph-evening"><div class="ph-decor dusk"></div></div>
+              <div class="veil"></div>
+              <div class="name">EVENING<small>violet burn</small></div>
+            </div>
+            <div class="time">18:00<small>↓ 22:00</small></div>
+          </div>
+
+          <div class="reel">
+            <div class="num">04<small>REEL</small></div>
+            <div class="mid">
+              <div class="img ph-night"><div class="ph-decor stars"></div><div class="ph-decor moon"></div></div>
+              <div class="veil"></div>
+              <div class="name">NIGHT<small>nocturno</small></div>
+            </div>
+            <div class="time">22:00<small>↓ 06:00</small></div>
+          </div>
+        </div>
+
+        <div class="ticket-cta">
+          <span><span class="mi">play_arrow</span>BUY YOUR TICKET · APPLY CYCLE</span>
+        </div>
+
+      </div></div>
+    </div>
+
+    <div class="meta">
+      <div class="no">No. 05 · Cinema series</div>
+      <h2>IMAX Theater Marquee</h2>
+      <div class="tag">"vintage movie marquee — el día como película"</div>
+      <p class="desc">Negro absoluto, marquee de luces parpadeantes arriba. "FEATURE PRESENTATION" mono eyebrow + hero en letterbox cinematic 21:9 con barras negras arriba/abajo y tag rojo "● LIVE 17:01". Título "ALIEN PLANET" en Bangers gigante (PLANET rojo). Subline "CYCLE VII · 4 REELS". Las 4 fases son <em>REEL 01/02/03/04</em> con borde perforado tipo cinta de cine, número Bangers grande, hora a la derecha. La reel activa tiene sticker rojo rotado "NOW PLAYING" + glow. CTA es un boleto de cine con forma jagged a la izquierda: "BUY YOUR TICKET · APPLY CYCLE". Vibe AMC marquee, palomitas, sábado en la noche.</p>
+      <div class="palette">
+        <div class="sw" style="background:#000"></div>
+        <div class="sw" style="background:#ef4444"></div>
+        <div class="sw" style="background:#f4c060"></div>
+        <div class="sw" style="background:#c9a14a"></div>
+        <div class="sw" style="background:#f3ece0"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-title">Verdict</div>
+        <ul>
+          <li class="pro">PERSONALIDAD máxima — imposible confundirlo con otra wallpaper app</li>
+          <li class="pro">Las reel cards son grandes y muestran las fases con autoridad</li>
+          <li class="pro">CTA "BUY YOUR TICKET" es memorable, divertido, share-able</li>
+          <li class="con">Bangers + rojo + amarillo = high-octane, no apto para todos los temas (¿funciona en un ciclo zen de bambú?)</li>
+          <li class="con">Riesgo de sentirse cheesy / kitsch si no se ejecuta con cuidado</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>PIXORA · DAY CYCLE DETAIL · DESIGN ARCHIVE · MAY 2026</footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Section Headers · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    /* Page (archive) palette — deep ink starfield */
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS White theme tokens (inside iOS phone) */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+
+    /* B&G theme tokens (inside dark phone) */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(184,168,232,0.3), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(80,40,120,0.08), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.06), transparent 55%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · SECTION-HEADERS / DOC-021';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: #B8A8E8; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid (one concept per row) ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row layout: phones left, meta right */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(560px, 0.9fr) 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) {
+    .concept-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios     { color: #5e8eb8; }
+  .phone-wrap .label.bg      { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 260px;
+    aspect-ratio: 260 / 520;
+    background: #fff;
+    border-radius: 36px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 8px #1a1a22,
+      0 22px 50px rgba(0,0,0,0.65),
+      0 0 70px var(--gold-haze);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 8px #0a0a14,
+      0 22px 50px rgba(0,0,0,0.7),
+      0 0 80px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 76px; height: 17px;
+    background: #000;
+    border-radius: 0 0 13px 13px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 21px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 22px;
+    font: 600 9px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+
+  .phone .statusbar .battery {
+    width: 14px; height: 7px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* App top header (always present, minimal) */
+  .app-top {
+    position: absolute;
+    top: 26px; left: 14px; right: 14px;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 8;
+  }
+  .app-top .ava {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    color: white;
+    font: 700 10px 'Inter', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .phone.light .app-top .ava { background: linear-gradient(135deg, #0A84FF, #0066CC); }
+  .phone.dark  .app-top .ava { background: linear-gradient(135deg, var(--bg-gold), var(--bg-gold-deep)); color: #1a1300; }
+
+  .app-top .brand {
+    font: 800 12px 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+  }
+  .phone.light .app-top .brand { color: var(--ios-text); }
+  .phone.dark  .app-top .brand { color: var(--bg-text); }
+
+  .app-top .credits {
+    margin-left: auto;
+    border-radius: 999px;
+    padding: 3px 9px 3px 7px;
+    font: 600 9px 'Inter', sans-serif;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .app-top .credits::before { content: '◆'; font-size: 7px; }
+  .phone.light .app-top .credits { background: var(--ios-surface); color: var(--ios-blue); }
+  .phone.dark  .app-top .credits { background: rgba(212,175,55,0.12); color: var(--bg-gold-bright); border: 1px solid rgba(212,175,55,0.25); }
+
+  /* ─────────── Sections container ─────────── */
+  .sections {
+    position: absolute;
+    top: 60px; left: 0; right: 0; bottom: 0;
+    padding: 12px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+  }
+  .section { display: flex; flex-direction: column; gap: 7px; }
+
+  /* Mini wallpaper card thumbnails (gray, suggestive) */
+  .cards {
+    display: flex; gap: 6px;
+  }
+  .card {
+    flex: 1;
+    aspect-ratio: 9 / 16;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Light theme cards (subtle gradients so they feel like real wallpapers) */
+  .phone.light .card.k1 { background: linear-gradient(160deg, #d6d6e0 0%, #aaaab8 60%, #777787 100%); }
+  .phone.light .card.k2 { background: linear-gradient(160deg, #f0e0d2 0%, #b89878 60%, #6a4d36 100%); }
+  .phone.light .card.k3 { background: linear-gradient(160deg, #c9d8e8 0%, #7a98c2 60%, #2e4a78 100%); }
+  /* Dark theme cards */
+  .phone.dark .card.k1 { background: radial-gradient(ellipse at 50% 30%, #c9a55c 0%, #2a1d0a 70%); }
+  .phone.dark .card.k2 { background: radial-gradient(ellipse at 50% 50%, #5a2e8a 0%, #150a25 70%); }
+  .phone.dark .card.k3 { background: linear-gradient(160deg, #1a1830 0%, #0a0820 60%, #060410 100%); }
+
+  /* ════════════════════════════════════════════════════════════
+     SHARED: section header base (overridden per concept)
+     ════════════════════════════════════════════════════════════ */
+  .sec-head {
+    position: relative;
+  }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    padding: 4px 6px;
+  }
+  .meta .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .meta .name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.012em;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.06;
+  }
+  .meta .name .accent { color: var(--gold-bright); }
+  .meta .tag {
+    font-family: 'Geist', sans-serif;
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 18px;
+    max-width: 460px;
+  }
+  .meta .palettes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 24px;
+    margin-bottom: 18px;
+  }
+  .meta .pal-block .pal-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--text-faint);
+  }
+  .meta .pal-block.ios .pal-label { color: #5e8eb8; }
+  .meta .pal-block.bg  .pal-label { color: var(--gold-deep); }
+  .meta .palette {
+    display: flex; gap: 5px;
+  }
+  .meta .sw {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: help;
+    transition: transform .2s;
+  }
+  .meta .sw:hover { transform: scale(1.2); }
+  .verdict {
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(212,175,55,0.06);
+    border-left: 2px solid var(--gold);
+    font-family: 'Geist', sans-serif;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .verdict strong { color: var(--gold-bright); font-weight: 600; }
+  .verdict.warn  { background: rgba(255,100,80,0.06); border-left-color: #ff7a6b; }
+  .verdict.warn strong { color: #ffb1a6; }
+  .verdict.great { background: rgba(98,228,158,0.05); border-left-color: #62E49E; }
+  .verdict.great strong { color: #99FFCB; }
+  .verdict.cool  { background: rgba(10,132,255,0.07); border-left-color: var(--ios-blue); }
+  .verdict.cool strong { color: #6BB6FF; }
+
+  footer {
+    text-align: center;
+    margin-top: 88px;
+    padding-top: 30px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer::before {
+    content: '◆';
+    display: block;
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 01 — STAMPED FOIL
+     ════════════════════════════════════════════════════════════ */
+  .c01 .sec-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px 5px 9px;
+    border-radius: 4px;
+    font: 700 11px 'Inter', sans-serif;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    align-self: flex-start;
+    position: relative;
+    overflow: hidden;
+  }
+  .c01 .sec-head .glyph {
+    font-size: 11px;
+    line-height: 1;
+  }
+  .c01 .sec-head::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.6) 50%, transparent 70%);
+    transform: translateX(-100%);
+    animation: foilShimmer 4.5s ease-in-out infinite;
+  }
+  @keyframes foilShimmer {
+    0%, 60% { transform: translateX(-100%); }
+    80% { transform: translateX(100%); }
+    100% { transform: translateX(100%); }
+  }
+  /* iOS foil: subtle blue shimmer over dark text + hairline border */
+  .phone.light .c01 .sec-head {
+    color: var(--ios-text);
+    border: 1px solid rgba(28,28,30,0.55);
+    background: linear-gradient(180deg, #fafafd 0%, #ececf2 100%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+  }
+  .phone.light .c01 .sec-head .glyph { color: var(--ios-blue); }
+  /* B&G foil: gold text + dark gold outline + bright gold star */
+  .phone.dark .c01 .sec-head {
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--bg-gold-deep);
+    background: linear-gradient(180deg, rgba(212,175,55,0.10) 0%, rgba(212,175,55,0.02) 100%);
+    box-shadow: inset 0 0 0 1px rgba(245,214,118,0.15), 0 0 12px rgba(212,175,55,0.18);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+  }
+  .phone.dark .c01 .sec-head .glyph { color: var(--bg-gold-bright); text-shadow: 0 0 6px rgba(245,214,118,0.6); }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 02 — CINEMATIC MARQUEE
+     ════════════════════════════════════════════════════════════ */
+  .c02 .sec-head {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding-bottom: 5px;
+  }
+  .c02 .sec-head .marquee-mark {
+    width: 4px;
+    align-self: stretch;
+    border-radius: 1px;
+    margin-top: 4px;
+  }
+  .c02 .sec-head .stack {
+    display: flex; flex-direction: column;
+    line-height: 1;
+  }
+  .c02 .sec-head .title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+  }
+  .c02 .sec-head .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: 0.18em;
+    margin-top: 3px;
+    text-transform: uppercase;
+  }
+  .phone.light .c02 .sec-head .marquee-mark { background: var(--ios-text); }
+  .phone.light .c02 .sec-head .title { color: var(--ios-text); }
+  .phone.light .c02 .sec-head .sub { color: var(--ios-blue); }
+  .phone.dark .c02 .sec-head .marquee-mark { background: var(--bg-gold-bright); box-shadow: 0 0 6px rgba(245,214,118,0.5); }
+  .phone.dark .c02 .sec-head .title { color: var(--bg-text); }
+  .phone.dark .c02 .sec-head .sub { color: var(--bg-gold); }
+  .phone.dark .c02 .sec-head { border-bottom: 1px solid rgba(212,175,55,0.22); }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 03 — EDITORIAL MAGAZINE
+     ════════════════════════════════════════════════════════════ */
+  .c03 .sec-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 6px;
+  }
+  .c03 .sec-head .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 7.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .c03 .sec-head .title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    line-height: 0.96;
+  }
+  .c03 .sec-head .underline {
+    height: 1px;
+    width: 32px;
+    margin-top: 5px;
+  }
+  .phone.light .c03 .sec-head .eyebrow { color: var(--ios-text-dim); }
+  .phone.light .c03 .sec-head .title { color: var(--ios-text); }
+  .phone.light .c03 .sec-head .underline { background: var(--ios-text); }
+  .phone.dark .c03 .sec-head .eyebrow { color: var(--bg-gold); font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .phone.dark .c03 .sec-head .title { color: var(--bg-text); }
+  .phone.dark .c03 .sec-head .title em { font-style: italic; color: var(--bg-gold-bright); }
+  .phone.dark .c03 .sec-head .underline {
+    background: linear-gradient(90deg, var(--bg-gold), transparent);
+    width: 48px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 04 — ZODIACAL SIGIL
+     ════════════════════════════════════════════════════════════ */
+  .c04 .sec-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding-bottom: 5px;
+    position: relative;
+  }
+  .c04 .sec-head .sigil {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    position: relative;
+    animation: sigilRotate 38s linear infinite;
+  }
+  @keyframes sigilRotate {
+    to { transform: rotate(360deg); }
+  }
+  .c04 .sec-head .stack {
+    display: flex; flex-direction: column;
+    gap: 2px;
+  }
+  .c04 .sec-head .title {
+    font-size: 14px;
+    line-height: 1;
+  }
+  .c04 .sec-head .filigree {
+    height: 1px;
+    width: 60%;
+    margin-top: 3px;
+  }
+  .c04 .sec-head .accent-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: 6px;
+  }
+  /* iOS sigil: thin geometric + Inter title + Apple Blue dot */
+  .phone.light .c04 .sec-head .sigil {
+    border: 1px solid var(--ios-text);
+    color: var(--ios-text);
+    background: transparent;
+  }
+  .phone.light .c04 .sec-head .title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    color: var(--ios-text);
+    letter-spacing: -0.01em;
+  }
+  .phone.light .c04 .sec-head .filigree { background: var(--ios-divider); }
+  .phone.light .c04 .sec-head .accent-dot { background: var(--ios-blue); box-shadow: 0 0 6px rgba(10,132,255,0.5); }
+  /* B&G sigil: ornate gold + Fraunces italic + gold filigree */
+  .phone.dark .c04 .sec-head .sigil {
+    border: 1px solid var(--bg-gold);
+    color: var(--bg-gold-bright);
+    background: radial-gradient(circle, rgba(212,175,55,0.14) 0%, transparent 70%);
+    box-shadow: 0 0 10px rgba(212,175,55,0.3), inset 0 0 8px rgba(212,175,55,0.15);
+  }
+  .phone.dark .c04 .sec-head .title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--bg-text);
+    font-size: 16px;
+  }
+  .phone.dark .c04 .sec-head .filigree {
+    background: linear-gradient(90deg, var(--bg-gold), transparent);
+    height: 1px;
+  }
+  .phone.dark .c04 .sec-head .accent-dot { background: var(--bg-gold-bright); box-shadow: 0 0 8px rgba(245,214,118,0.7); }
+
+  /* ════════════════════════════════════════════════════════════
+     CONCEPT 05 — NEON TAG / TICKET STUB
+     ════════════════════════════════════════════════════════════ */
+  .c05 .sec-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 6px 10px;
+    align-self: flex-start;
+    /* notched parallelogram via clip-path */
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    font: 700 11px 'Inter', sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .c05 .sec-head .badge-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    padding: 2px 5px;
+    border-radius: 2px;
+  }
+  .c05 .sec-head .neon-pulse {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    animation: neonPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes neonPulse {
+    0%, 100% { opacity: 0.45; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+  /* iOS ticket: white card + Apple Blue border + blue badge */
+  .phone.light .c05 .sec-head {
+    background: #fff;
+    color: var(--ios-blue);
+    border: 1px solid var(--ios-blue);
+    box-shadow: 0 2px 6px rgba(10,132,255,0.16);
+  }
+  .phone.light .c05 .sec-head .badge-num { background: var(--ios-blue); color: #fff; }
+  .phone.light .c05 .sec-head .neon-pulse { background: var(--ios-blue); box-shadow: 0 0 8px rgba(10,132,255,0.7); }
+  /* B&G ticket: dark surface + gold border + gold caps + glow */
+  .phone.dark .c05 .sec-head {
+    background: var(--bg-surface);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--bg-gold);
+    box-shadow:
+      0 0 12px rgba(212,175,55,0.35),
+      inset 0 0 6px rgba(212,175,55,0.10);
+  }
+  .phone.dark .c05 .sec-head .badge-num {
+    background: var(--bg-gold);
+    color: #1a1300;
+  }
+  .phone.dark .c05 .sec-head .neon-pulse {
+    background: var(--bg-gold-bright);
+    box-shadow: 0 0 10px rgba(245,214,118,0.85);
+  }
+
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ─────────── Header ─────────── -->
+    <header>
+      <h1>
+        Pixora <span class="ornament">·</span>
+        <span class="accent">Section Headers</span> <span class="ornament">·</span>
+        <span class="accent2">5 Conceptos</span>
+      </h1>
+      <p class="subtitle">Headers especiales para cada sección del HOME tab — variantes iOS White y Black &amp; Gold lado a lado. Cinco direcciones para reemplazar el "Trending" italic genérico por algo apantallante, premium y bien detallado que eleve el contenido debajo.</p>
+      <div class="header-rule">
+        <span>theme · ios + b&amp;g</span>
+        <div class="line"></div>
+        <span>2026-05-15 · gdl</span>
+      </div>
+    </header>
+
+    <!-- ─────────── Grid ─────────── -->
+    <div class="grid">
+
+      <!-- ═════════ CONCEPT 01 — STAMPED FOIL ═════════ -->
+      <div class="concept c01">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head"><span class="glyph">★</span>Trending</div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head"><span class="glyph">✦</span>New Arrivals</div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head"><span class="glyph">❖</span>Anime</div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head"><span class="glyph">★</span>Trending</div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head"><span class="glyph">✦</span>New Arrivals</div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head"><span class="glyph">❖</span>Anime</div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 01 · Stamped Foil</div>
+            <div class="name">Sello de <span class="accent">Lámina Metálica</span></div>
+            <div class="tag">Cada nombre de sección renderizado como si fuera estampado en lámina metálica, con borde fino, glifo ornamental (★ ✦ ❖) y un shimmer sutil que pasa cada 4.5s. Vibe sello de pasaporte / moneda grabada / lacre de cera.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#fafafd" title="#FAFAFD · Foil base"></span>
+                  <span class="sw" style="background:#1C1C1E" title="#1C1C1E · Stamp text"></span>
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Blue glyph"></span>
+                  <span class="sw" style="background:#ECECF2" title="#ECECF2 · Foil shadow"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#070710" title="#070710 · Ink"></span>
+                  <span class="sw" style="background:#D4AF37" title="#D4AF37 · Gold border"></span>
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Bright gold text"></span>
+                  <span class="sw" style="background:#8B7228" title="#8B7228 · Deep gold shadow"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict great">
+              <strong>Veredicto:</strong> Se siente coleccionable, premium y especial sin exagerar. Funciona igual de bien en ambos temas. Riesgo: tunear el grosor del borde — muy grueso en iOS y se vuelve cartoon.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 02 — CINEMATIC MARQUEE ═════════ -->
+      <div class="concept c02">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="marquee-mark"></div>
+                        <div class="stack">
+                          <div class="title">TRENDING</div>
+                          <div class="sub">CURATED · 24 ITEMS</div>
+                        </div>
+                      </div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="marquee-mark"></div>
+                        <div class="stack">
+                          <div class="title">NEW ARRIVALS</div>
+                          <div class="sub">FEATURED · UPDATED 2H AGO</div>
+                        </div>
+                      </div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="marquee-mark"></div>
+                        <div class="stack">
+                          <div class="title">ANIME</div>
+                          <div class="sub">EDITORIAL · 38 ITEMS</div>
+                        </div>
+                      </div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="marquee-mark"></div>
+                        <div class="stack">
+                          <div class="title">TRENDING</div>
+                          <div class="sub">CURATED · 24 ITEMS</div>
+                        </div>
+                      </div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="marquee-mark"></div>
+                        <div class="stack">
+                          <div class="title">NEW ARRIVALS</div>
+                          <div class="sub">FEATURED · UPDATED 2H AGO</div>
+                        </div>
+                      </div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="marquee-mark"></div>
+                        <div class="stack">
+                          <div class="title">ANIME</div>
+                          <div class="sub">EDITORIAL · 38 ITEMS</div>
+                        </div>
+                      </div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 02 · Cinematic Marquee</div>
+            <div class="name">Marquesina <span class="accent">Cinematográfica</span></div>
+            <div class="tag">Título uppercase bold (Bebas Neue) + tagline mono secundario debajo con metadata. Marca vertical tipo "play" a la izquierda. Vibe poster de cine / Mubi / Letterboxd, jerarquía editorial rica.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#FFFFFF" title="#FFFFFF · BG"></span>
+                  <span class="sw" style="background:#1C1C1E" title="#1C1C1E · Bebas caps"></span>
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Mono tagline"></span>
+                  <span class="sw" style="background:#8E8E93" title="#8E8E93 · Subtle text"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#070710" title="#070710 · Ink"></span>
+                  <span class="sw" style="background:#F5F4EE" title="#F5F4EE · Cream caps"></span>
+                  <span class="sw" style="background:#D4AF37" title="#D4AF37 · Gold tagline"></span>
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Bright gold mark"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict cool">
+              <strong>Veredicto:</strong> Editorial, informa mucho de un golpe (cuántos items, cuándo se actualizó). Pero ocupa más espacio vertical — calcular si vale la pena en un grid denso.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 03 — EDITORIAL MAGAZINE ═════════ -->
+      <div class="concept c03">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="eyebrow">PIXORA HOME / 01</div>
+                        <div class="title">Trending</div>
+                        <div class="underline"></div>
+                      </div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="eyebrow">PIXORA HOME / 02</div>
+                        <div class="title">New Arrivals</div>
+                        <div class="underline"></div>
+                      </div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="eyebrow">PIXORA HOME / 03</div>
+                        <div class="title">Anime</div>
+                        <div class="underline"></div>
+                      </div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="eyebrow">PIXORA HOME / 01</div>
+                        <div class="title"><em>Trending</em></div>
+                        <div class="underline"></div>
+                      </div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="eyebrow">PIXORA HOME / 02</div>
+                        <div class="title"><em>New Arrivals</em></div>
+                        <div class="underline"></div>
+                      </div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="eyebrow">PIXORA HOME / 03</div>
+                        <div class="title"><em>Anime</em></div>
+                        <div class="underline"></div>
+                      </div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 03 · Editorial Magazine</div>
+            <div class="name">Cabecera <span class="accent">Editorial / Magazine</span></div>
+            <div class="tag">Título italic display grande (Fraunces) + eyebrow uppercase pequeño arriba. Inspirado en mastheads NYT Sunday / T Magazine / revistas premium. Atemporal, elegante, reconocible como calidad.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#FFFFFF" title="#FFFFFF · BG"></span>
+                  <span class="sw" style="background:#1C1C1E" title="#1C1C1E · Title"></span>
+                  <span class="sw" style="background:#8E8E93" title="#8E8E93 · Eyebrow"></span>
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Accent reserve"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#070710" title="#070710 · Ink"></span>
+                  <span class="sw" style="background:#F5F4EE" title="#F5F4EE · Cream title"></span>
+                  <span class="sw" style="background:#D4AF37" title="#D4AF37 · Gold eyebrow"></span>
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Italic accent"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict great">
+              <strong>Veredicto:</strong> Atemporal y elegantísimo, transmite "calidad editorial" inmediato. Toma más espacio vertical que un header de una sola línea — usar solo en secciones con varios items abajo.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 04 — ZODIACAL SIGIL ═════════ -->
+      <div class="concept c04">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="sigil">♋</div>
+                        <div class="stack">
+                          <div class="title">Trending</div>
+                          <div class="filigree"></div>
+                        </div>
+                        <div class="accent-dot"></div>
+                      </div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="sigil">☾</div>
+                        <div class="stack">
+                          <div class="title">New Arrivals</div>
+                          <div class="filigree"></div>
+                        </div>
+                        <div class="accent-dot"></div>
+                      </div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="sigil">⚔</div>
+                        <div class="stack">
+                          <div class="title">Anime</div>
+                          <div class="filigree"></div>
+                        </div>
+                        <div class="accent-dot"></div>
+                      </div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="sigil">♋</div>
+                        <div class="stack">
+                          <div class="title">Trending</div>
+                          <div class="filigree"></div>
+                        </div>
+                        <div class="accent-dot"></div>
+                      </div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="sigil">☾</div>
+                        <div class="stack">
+                          <div class="title">New Arrivals</div>
+                          <div class="filigree"></div>
+                        </div>
+                        <div class="accent-dot"></div>
+                      </div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <div class="sigil">⚔</div>
+                        <div class="stack">
+                          <div class="title">Anime</div>
+                          <div class="filigree"></div>
+                        </div>
+                        <div class="accent-dot"></div>
+                      </div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 04 · Zodiacal Sigil</div>
+            <div class="name">Sigilo <span class="accent">Zodiacal</span></div>
+            <div class="tag">Sigilo decorativo a la izquierda (uno por sección — ♋ ☾ ⚔ etc.) que rota lentamente, título y filigrana ornamental al pie. Cada sección se siente como un "capítulo" de un grimorio. ULTRA on-brand para Black &amp; Gold (Saint Seiya / cartas zodiacales).</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#FFFFFF" title="#FFFFFF · BG"></span>
+                  <span class="sw" style="background:#1C1C1E" title="#1C1C1E · Sigil & title"></span>
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Accent dot"></span>
+                  <span class="sw" style="background:rgba(60,60,67,0.12)" title="rgba(60,60,67,0.12) · Filigree"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#070710" title="#070710 · Ink"></span>
+                  <span class="sw" style="background:#D4AF37" title="#D4AF37 · Gold sigil"></span>
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Bright accent"></span>
+                  <span class="sw" style="background:#F5F4EE" title="#F5F4EE · Italic title"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict great">
+              <strong>Veredicto:</strong> Genial para B&amp;G — los sigilos son la firma visual perfecta. iOS funciona pero menos místico (más "geométrico moderno"). Costo: hay que diseñar/elegir un sigilo por tipo de sección.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 05 — NEON TAG / TICKET STUB ═════════ -->
+      <div class="concept c05">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head">
+                        <span class="badge-num">01</span>
+                        Trending
+                        <span class="neon-pulse"></span>
+                      </div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <span class="badge-num">02</span>
+                        New Arrivals
+                        <span class="neon-pulse"></span>
+                      </div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <span class="badge-num">03</span>
+                        Anime
+                        <span class="neon-pulse"></span>
+                      </div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="credits">450</div>
+                  </div>
+                  <div class="sections">
+                    <div class="section">
+                      <div class="sec-head">
+                        <span class="badge-num">01</span>
+                        Trending
+                        <span class="neon-pulse"></span>
+                      </div>
+                      <div class="cards"><div class="card k1"></div><div class="card k2"></div><div class="card k3"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <span class="badge-num">02</span>
+                        New Arrivals
+                        <span class="neon-pulse"></span>
+                      </div>
+                      <div class="cards"><div class="card k2"></div><div class="card k3"></div><div class="card k1"></div></div>
+                    </div>
+                    <div class="section">
+                      <div class="sec-head">
+                        <span class="badge-num">03</span>
+                        Anime
+                        <span class="neon-pulse"></span>
+                      </div>
+                      <div class="cards"><div class="card k3"></div><div class="card k1"></div><div class="card k2"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 05 · Neon Tag / Ticket Stub</div>
+            <div class="name">Etiqueta <span class="accent">Neón / Boleto</span></div>
+            <div class="tag">Header con forma de boleto roto / etiqueta neón (parallelogram con esquinas cortadas vía clip-path), número en badge mono y un pulso neón al final. Vibe ticket stub, arcade neón, sello vintage. La forma distintiva hace que se escanee al instante.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#FFFFFF" title="#FFFFFF · Card BG"></span>
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Border + text"></span>
+                  <span class="sw" style="background:#0066CC" title="#0066CC · Badge solid"></span>
+                  <span class="sw" style="background:#F2F2F7" title="#F2F2F7 · Surface"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#14141F" title="#14141F · Surface"></span>
+                  <span class="sw" style="background:#D4AF37" title="#D4AF37 · Gold border"></span>
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Caps text"></span>
+                  <span class="sw" style="background:#1a1300" title="#1A1300 · Badge text"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict warn">
+              <strong>Veredicto:</strong> Máximo contraste visual y forma única — imposible no notarlo. Pero la estética es muy específica (arcade/ticket); puede chocar con secciones más "serenas" como AURA o stories románticas.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─────────── Footer ─────────── -->
+    <footer>
+      Pixora · Section Headers · Design Archive · May 2026
+    </footer>
+
+  </div>
+</body>
+</html>

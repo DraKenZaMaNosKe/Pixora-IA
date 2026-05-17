@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Onboarding Modal · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Pinyon+Script&family=Tangerine:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-text-soft: #3C3C43;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+    --ios-blue-soft: rgba(10,132,255,0.10);
+
+    /* B&G theme */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-text-faint: #5a5752;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* CONCEPT 01 — Celestial Twilight */
+    --c01-lavender:  #B4A5D1;
+    --c01-rose:      #E8B4C6;
+    --c01-peach:     #F2D5A8;
+    --c01-deep:      #4A3F6B;
+    --c01-night:     #1A1830;
+    --c01-night-2:   #2B1F4A;
+    --c01-star:      #FFE9C7;
+
+    /* CONCEPT 02 — Botanical Editorial */
+    --c02-paper:     #F5EFE2;
+    --c02-paper-2:   #ECE3CE;
+    --c02-sepia:     #6B5D43;
+    --c02-ink-dark:  #2A2418;
+    --c02-leaf:      #6B7855;
+    --c02-leaf-2:    #4A5A3E;
+    --c02-aged:      #1A150C;
+    --c02-aged-2:    #2A2316;
+
+    /* CONCEPT 03 — Sacred Temple */
+    --c03-sand:      #E8D5B0;
+    --c03-sand-2:    #D4BC8E;
+    --c03-limestone: #F0E4CC;
+    --c03-ochre:     #B8884A;
+    --c03-obsidian:  #0F0B08;
+    --c03-obsidian-2:#1C1410;
+    --c03-temple-gold:#C9A961;
+
+    /* CONCEPT 04 — Aurora Garden */
+    --c04-mint:      #B8E4D0;
+    --c04-lilac:     #D9C5E8;
+    --c04-peach:     #F5D0BC;
+    --c04-aqua:      #A5D8E0;
+    --c04-deep:      #2A1F3D;
+    --c04-deep-2:    #1A1530;
+    --c04-glow:      #E5C9F0;
+
+    /* CONCEPT 05 — Premium Stationery */
+    --c05-ivory:     #F8F1E0;
+    --c05-ivory-2:   #EFE6D0;
+    --c05-navy:      #1A2A4A;
+    --c05-navy-2:    #0F1A30;
+    --c05-wax-gold:  #B8924A;
+    --c05-velvet:    #18121A;
+    --c05-velvet-2:  #25182C;
+    --c05-wax-red:   #8A2A2A;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(180,165,209,0.4), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(232,180,198,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(165,216,224,0.35), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 92% 88%, rgba(10,132,255,0.30), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(180,165,209,0.10), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.07), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(232,180,198,0.05), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · ONBOARDING MODAL · WELCOME RITUAL / DOC-118';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: var(--c01-lavender); }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 880px;
+    line-height: 1.55;
+  }
+  .subtitle em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold-bright);
+  }
+  .subtitle strong { color: var(--text); font-weight: 600; }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid { display: flex; flex-direction: column; gap: 120px; }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
+
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    justify-items: center;
+  }
+  @media (max-width: 1100px) {
+    .phones { grid-template-columns: repeat(2, 1fr); gap: 24px 28px; }
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+  .phone-wrap .label.extra { color: var(--c01-lavender); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 270px;
+    aspect-ratio: 270 / 580;
+    background: #fff;
+    border-radius: 34px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 6px #1a1a22,
+      0 18px 42px rgba(0,0,0,0.65),
+      0 0 50px rgba(10,132,255,0.10);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 6px #0a0a14,
+      0 18px 42px rgba(0,0,0,0.7),
+      0 0 60px rgba(212,175,55,0.16);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60px; height: 14px;
+    background: #000;
+    border-radius: 0 0 10px 10px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 18px;
+    font: 600 8.5px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 13px; height: 6.5px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─── Shared dimmed app preview behind modal ─── */
+  .app-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.18;
+    filter: blur(2px);
+  }
+  .app-hint.light {
+    background:
+      linear-gradient(180deg, #fff 0%, #f5f5fa 100%);
+  }
+  .app-hint.dark {
+    background:
+      linear-gradient(180deg, #14141F 0%, #070710 100%);
+  }
+  .app-hint .ah-tile {
+    position: absolute;
+    border-radius: 10px;
+  }
+  .app-hint .ah-1 { top: 14%; left: 6%; right: 6%; height: 24%;
+    background: linear-gradient(135deg, #7c3aed, #ec4899); }
+  .app-hint .ah-2 { top: 40%; left: 6%; width: 44%; height: 18%;
+    background: linear-gradient(135deg, #0a3a5a, #38bdf8); }
+  .app-hint .ah-3 { top: 40%; right: 6%; width: 44%; height: 18%;
+    background: linear-gradient(135deg, #2a0a1a, #dc2626); }
+  .app-hint .ah-4 { bottom: 6%; left: 6%; right: 6%; height: 28%;
+    background: linear-gradient(135deg, #064e3b, #10b981); }
+
+  .dim {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.42);
+    z-index: 5;
+    backdrop-filter: blur(8px);
+  }
+  .phone.light .dim { background: rgba(28,28,30,0.36); backdrop-filter: blur(10px); }
+
+  /* ─── Generic modal frame ─── */
+  .modal {
+    position: absolute;
+    left: 14px; right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 8;
+    padding: 20px 18px 18px;
+    border-radius: 22px;
+    display: flex; flex-direction: column;
+    gap: 12px;
+  }
+
+  .modal .eyebrow {
+    font: 700 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .modal .title {
+    font-family: 'Fraunces', serif;
+    font-weight: 350;
+    font-style: italic;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .modal .desc {
+    font: 400 9.5px 'Geist', sans-serif;
+    line-height: 1.5;
+  }
+  .modal .field-label {
+    font: 600 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .modal .field {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    font: 500 11px 'Geist', sans-serif;
+  }
+  .modal .field .glyph {
+    font-size: 13px;
+  }
+  .modal .cta {
+    margin-top: 6px;
+    height: 42px;
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font: 600 11px 'Geist', sans-serif;
+    letter-spacing: 0.06em;
+    position: relative;
+    overflow: hidden;
+  }
+  .modal .footer-note {
+    font: 500 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    padding: 18px 22px;
+    border-left: 1px solid var(--gold-dark);
+    background: linear-gradient(180deg, rgba(212,175,55,0.04), transparent 80%);
+  }
+  .meta-eyebrow {
+    font: 700 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .meta h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--gold-bright);
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .meta .tagline {
+    font: 400 13px 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.45;
+    margin-bottom: 18px;
+  }
+  .meta .swatches-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .meta .swatches-row .lbl {
+    font: 600 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .meta .swatches {
+    display: flex; gap: 5px;
+  }
+  .meta .swatch {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05) inset;
+  }
+  .meta .verdict {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hairline);
+    font: 400 11px 'Geist Mono', monospace;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .meta .verdict .pro,
+  .meta .verdict .con {
+    display: block;
+    margin-top: 4px;
+  }
+  .meta .verdict .pro::before { content: '+ '; color: #5fb380; font-weight: 700; }
+  .meta .verdict .con::before { content: '− '; color: #c9805e; font-weight: 700; }
+
+  /* ═══════════════════════════════════════════════════
+     CONCEPT 01 — CELESTIAL TWILIGHT
+     ═══════════════════════════════════════════════════ */
+
+  @keyframes starDrift {
+    0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+    50%      { transform: translate(2px, -1px); opacity: 1; }
+  }
+  @keyframes twilightShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes moonPhase {
+    0%, 100% { box-shadow: inset -6px 0 0 0 currentColor; }
+    50%      { box-shadow: inset -3px 0 0 0 currentColor; }
+  }
+
+  .c01 .modal {
+    background: linear-gradient(165deg,
+      rgba(232,180,198,0.96) 0%,
+      rgba(180,165,209,0.96) 50%,
+      rgba(242,213,168,0.96) 100%);
+    background-size: 200% 200%;
+    animation: twilightShift 14s ease-in-out infinite;
+    box-shadow:
+      0 16px 50px rgba(74,63,107,0.35),
+      0 0 0 1px rgba(255,255,255,0.4) inset,
+      0 0 0 4px rgba(255,233,199,0.18);
+  }
+  .phone.dark .c01 .modal {
+    background: linear-gradient(165deg,
+      rgba(43,31,74,0.97) 0%,
+      rgba(26,24,48,0.97) 50%,
+      rgba(74,63,107,0.97) 100%);
+    box-shadow:
+      0 16px 50px rgba(0,0,0,0.75),
+      0 0 0 1px rgba(245,214,118,0.25) inset,
+      0 0 0 4px rgba(245,214,118,0.08);
+  }
+  .c01 .modal::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 22px;
+    pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 18% 22%, rgba(255,233,199,0.9), transparent 50%),
+      radial-gradient(1px 1px at 78% 14%, rgba(255,255,255,0.85), transparent 50%),
+      radial-gradient(1.2px 1.2px at 62% 65%, rgba(255,233,199,0.75), transparent 50%),
+      radial-gradient(1px 1px at 28% 75%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 88% 82%, rgba(255,233,199,0.6), transparent 50%);
+    animation: starDrift 4s ease-in-out infinite;
+  }
+  .c01 .modal > * { position: relative; z-index: 1; }
+  .c01 .modal .eyebrow {
+    color: var(--c01-deep);
+  }
+  .phone.dark .c01 .modal .eyebrow {
+    color: var(--c01-star);
+  }
+  .c01 .modal .title {
+    color: #2A1F4A;
+    font-weight: 400;
+  }
+  .phone.dark .c01 .modal .title {
+    color: #FFE9C7;
+  }
+  .c01 .modal .desc {
+    color: rgba(42,31,74,0.78);
+  }
+  .phone.dark .c01 .modal .desc {
+    color: rgba(255,233,199,0.78);
+  }
+  .c01 .modal .field-label {
+    color: var(--c01-deep);
+  }
+  .phone.dark .c01 .modal .field-label {
+    color: var(--c01-star);
+  }
+  .c01 .modal .field {
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(74,63,107,0.25);
+    color: #1A1830;
+  }
+  .phone.dark .c01 .modal .field {
+    background: rgba(7,7,16,0.45);
+    border: 1px solid rgba(245,214,118,0.30);
+    color: #FFE9C7;
+  }
+  .c01 .modal .field .glyph {
+    color: var(--c01-deep);
+    text-shadow: 0 0 4px rgba(255,233,199,0.6);
+  }
+  .phone.dark .c01 .modal .field .glyph {
+    color: var(--c01-star);
+  }
+  .c01 .modal .cta {
+    background: linear-gradient(120deg,
+      #B4A5D1 0%, #E8B4C6 50%, #F2D5A8 100%);
+    color: #1A1830;
+    font-weight: 700;
+    box-shadow:
+      0 8px 20px rgba(74,63,107,0.35),
+      0 0 0 1px rgba(255,255,255,0.5) inset;
+  }
+  .phone.dark .c01 .modal .cta {
+    background: linear-gradient(120deg,
+      #4A3F6B 0%, #2B1F4A 50%, #1A1830 100%);
+    color: #FFE9C7;
+    box-shadow:
+      0 8px 20px rgba(0,0,0,0.5),
+      0 0 0 1px rgba(245,214,118,0.40) inset;
+  }
+  .c01 .modal .cta::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 20% 50%, rgba(255,255,255,0.8), transparent 50%),
+      radial-gradient(1px 1px at 80% 30%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 65% 70%, rgba(255,233,199,0.9), transparent 50%);
+    animation: starDrift 3s ease-in-out infinite;
+  }
+  .c01 .modal .footer-note {
+    color: rgba(42,31,74,0.62);
+  }
+  .phone.dark .c01 .modal .footer-note {
+    color: rgba(255,233,199,0.55);
+  }
+
+  /* C01 — Sky-chart date picker */
+  .c01-sky-modal {
+    background: linear-gradient(180deg,
+      rgba(43,31,74,0.97) 0%,
+      rgba(26,24,48,0.97) 100%) !important;
+  }
+  .c01-sky {
+    position: relative;
+    height: 220px;
+    border-radius: 14px;
+    background:
+      radial-gradient(ellipse at 50% 60%, rgba(74,63,107,0.6), transparent 70%),
+      linear-gradient(180deg, #1A1830 0%, #0a0815 100%);
+    overflow: hidden;
+    border: 1px solid rgba(245,214,118,0.18);
+  }
+  .c01-sky::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.85), transparent 50%),
+      radial-gradient(1.2px 1.2px at 25% 35%, rgba(255,233,199,0.9), transparent 50%),
+      radial-gradient(1px 1px at 42% 22%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 60% 45%, rgba(255,233,199,0.8), transparent 50%),
+      radial-gradient(1px 1px at 75% 30%, rgba(255,255,255,0.75), transparent 50%),
+      radial-gradient(1.4px 1.4px at 88% 18%, rgba(245,214,118,0.85), transparent 50%),
+      radial-gradient(1px 1px at 18% 65%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 55% 78%, rgba(255,233,199,0.7), transparent 50%),
+      radial-gradient(1px 1px at 82% 70%, rgba(255,255,255,0.65), transparent 50%),
+      radial-gradient(1px 1px at 35% 85%, rgba(245,214,118,0.6), transparent 50%);
+    animation: starDrift 5s ease-in-out infinite;
+  }
+  .c01-moon {
+    position: absolute;
+    top: 28px; right: 28px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #FFE9C7;
+    color: #1A1830;
+    box-shadow:
+      inset -6px 0 0 0 #1A1830,
+      0 0 16px rgba(255,233,199,0.5);
+    animation: moonPhase 8s ease-in-out infinite;
+  }
+  .c01-constellation {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .c01-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,214,118,0.6), transparent);
+  }
+  .c01-l1 { top: 55%; left: 18%; width: 22%; transform: rotate(-15deg); }
+  .c01-l2 { top: 58%; left: 38%; width: 18%; transform: rotate(12deg); }
+  .c01-l3 { top: 50%; left: 54%; width: 24%; transform: rotate(-8deg); }
+  .c01-sky-date {
+    margin-top: 12px;
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: #FFE9C7;
+    letter-spacing: 0.04em;
+  }
+  .c01-sky-date .small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 8px;
+    letter-spacing: 0.28em;
+    color: rgba(245,214,118,0.55);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     CONCEPT 02 — BOTANICAL EDITORIAL
+     ═══════════════════════════════════════════════════ */
+
+  @keyframes underlineDraw {
+    0%   { width: 0; }
+    100% { width: 100%; }
+  }
+  @keyframes leafSway {
+    0%, 100% { transform: rotate(0deg); }
+    50%      { transform: rotate(2deg); }
+  }
+  .c02 .modal {
+    background:
+      radial-gradient(ellipse at top, rgba(212,175,55,0.04), transparent 70%),
+      linear-gradient(180deg, #F5EFE2 0%, #ECE3CE 100%);
+    box-shadow:
+      0 16px 50px rgba(107,93,67,0.25),
+      0 0 0 1px rgba(107,93,67,0.20) inset;
+  }
+  .phone.dark .c02 .modal {
+    background:
+      radial-gradient(ellipse at top, rgba(212,175,55,0.07), transparent 70%),
+      linear-gradient(180deg, #2A2316 0%, #1A150C 100%);
+    box-shadow:
+      0 16px 50px rgba(0,0,0,0.75),
+      0 0 0 1px rgba(212,175,55,0.25) inset;
+  }
+  .c02 .modal::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 22px;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(107,93,67,0.10) 1px, transparent 0);
+    background-size: 4px 4px;
+    opacity: 0.4;
+  }
+  .phone.dark .c02 .modal::before {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(212,175,55,0.08) 1px, transparent 0);
+  }
+  .c02-corner {
+    position: absolute;
+    width: 48px; height: 48px;
+    pointer-events: none;
+    opacity: 0.6;
+    animation: leafSway 6s ease-in-out infinite;
+  }
+  .c02-corner.tl { top: 6px; left: 6px; transform-origin: top left; }
+  .c02-corner.br { bottom: 6px; right: 6px; transform: rotate(180deg); transform-origin: bottom right; }
+  .c02 .modal > * { position: relative; z-index: 2; }
+  .c02 .modal .eyebrow {
+    color: var(--c02-leaf-2);
+    letter-spacing: 0.34em;
+  }
+  .phone.dark .c02 .modal .eyebrow {
+    color: var(--gold-bright);
+  }
+  .c02 .modal .title {
+    color: var(--c02-ink-dark);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    position: relative;
+    padding-bottom: 6px;
+  }
+  .c02 .modal .title::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--c02-leaf-2), transparent);
+    width: 100%;
+    animation: underlineDraw 1.6s 1.0s ease-out both;
+  }
+  .phone.dark .c02 .modal .title {
+    color: var(--gold-bright);
+  }
+  .phone.dark .c02 .modal .title::after {
+    background: linear-gradient(90deg, var(--gold-bright), transparent);
+  }
+  .c02 .modal .desc {
+    color: rgba(42,36,24,0.75);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    font-style: italic;
+    line-height: 1.55;
+  }
+  .phone.dark .c02 .modal .desc {
+    color: rgba(245,244,238,0.65);
+  }
+  .c02 .modal .field-label {
+    color: var(--c02-leaf-2);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 10px;
+    letter-spacing: 0.20em;
+    font-weight: 600;
+  }
+  .phone.dark .c02 .modal .field-label {
+    color: var(--gold-bright);
+  }
+  .c02 .modal .field {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(107,93,67,0.40);
+    border-radius: 0;
+    padding: 8px 4px;
+    color: var(--c02-ink-dark);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+  }
+  .phone.dark .c02 .modal .field {
+    border-bottom-color: rgba(212,175,55,0.45);
+    color: var(--bg-text);
+  }
+  .c02 .modal .field .glyph {
+    color: var(--c02-leaf-2);
+    font-size: 11px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+  }
+  .phone.dark .c02 .modal .field .glyph {
+    color: var(--gold);
+  }
+  .c02 .modal .cta {
+    background: transparent;
+    border: 1px solid var(--c02-leaf-2);
+    border-radius: 4px;
+    color: var(--c02-ink-dark);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    letter-spacing: 0.16em;
+    font-size: 12px;
+    height: 40px;
+    position: relative;
+  }
+  .phone.dark .c02 .modal .cta {
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+  .c02 .modal .cta::before, .c02 .modal .cta::after {
+    content: '❦';
+    position: absolute;
+    font-size: 9px;
+    color: var(--c02-leaf-2);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .c02 .modal .cta::before { left: 12px; }
+  .c02 .modal .cta::after  { right: 12px; }
+  .phone.dark .c02 .modal .cta::before,
+  .phone.dark .c02 .modal .cta::after { color: var(--gold); }
+  .c02 .modal .footer-note {
+    color: rgba(42,36,24,0.55);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: none;
+  }
+  .phone.dark .c02 .modal .footer-note {
+    color: rgba(245,244,238,0.50);
+  }
+
+  /* C02 — Almanac date picker */
+  .c02-almanac {
+    height: 220px;
+    background:
+      linear-gradient(180deg, var(--c02-paper) 0%, var(--c02-paper-2) 100%);
+    border: 1px solid rgba(107,93,67,0.30);
+    border-radius: 6px;
+    padding: 14px 12px;
+    position: relative;
+  }
+  .c02-almanac::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border: 1px dashed rgba(107,93,67,0.20);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .c02-almanac-head {
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--c02-leaf-2);
+    margin-bottom: 8px;
+    letter-spacing: 0.06em;
+  }
+  .c02-almanac-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    font: 500 8px 'Cormorant Garamond', serif;
+    text-align: center;
+    color: var(--c02-ink-dark);
+  }
+  .c02-almanac-grid .dayh {
+    color: var(--c02-leaf-2);
+    font-style: italic;
+    font-size: 7px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(107,93,67,0.20);
+  }
+  .c02-almanac-grid .day {
+    padding: 3px 0;
+    font-size: 9px;
+  }
+  .c02-almanac-grid .day.sel {
+    background: var(--c02-leaf-2);
+    color: var(--c02-paper);
+    border-radius: 50%;
+    font-style: italic;
+    font-weight: 600;
+  }
+  .c02-almanac-grid .day.mut { color: rgba(42,36,24,0.30); }
+  .c02-almanac-foot {
+    margin-top: 8px;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 9px;
+    color: var(--c02-leaf-2);
+    border-top: 1px solid rgba(107,93,67,0.20);
+    padding-top: 4px;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     CONCEPT 03 — SACRED TEMPLE
+     ═══════════════════════════════════════════════════ */
+
+  @keyframes sunRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes hieroPulse {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 0.65; }
+  }
+  .c03 .modal {
+    background:
+      linear-gradient(180deg, var(--c03-limestone) 0%, var(--c03-sand) 100%);
+    box-shadow:
+      0 16px 50px rgba(184,136,74,0.30),
+      0 0 0 1px var(--c03-ochre) inset,
+      0 0 0 4px rgba(184,136,74,0.15);
+  }
+  .phone.dark .c03 .modal {
+    background:
+      linear-gradient(180deg, var(--c03-obsidian-2) 0%, var(--c03-obsidian) 100%);
+    box-shadow:
+      0 16px 50px rgba(0,0,0,0.75),
+      0 0 0 1px var(--c03-temple-gold) inset,
+      0 0 0 4px rgba(201,169,97,0.15);
+  }
+  .c03 .modal::before {
+    content: '𓂀  𓋹  𓊨  𓆣  𓀀  𓍖  𓎟  𓏏  𓊪  𓇳  𓉔  𓁹  𓏤';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 22px;
+    padding: 14px;
+    font-size: 12px;
+    color: var(--c03-ochre);
+    opacity: 0.18;
+    pointer-events: none;
+    word-spacing: 24px;
+    line-height: 60px;
+    overflow: hidden;
+    animation: hieroPulse 6s ease-in-out infinite;
+  }
+  .phone.dark .c03 .modal::before {
+    color: var(--c03-temple-gold);
+    opacity: 0.22;
+  }
+  .c03 .modal > * { position: relative; z-index: 2; }
+  .c03 .modal .eyebrow {
+    color: var(--c03-ochre);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.36em;
+  }
+  .phone.dark .c03 .modal .eyebrow {
+    color: var(--c03-temple-gold);
+  }
+  .c03 .modal .title {
+    font-family: 'Cinzel', serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 19px;
+    letter-spacing: 0.04em;
+    color: var(--c03-obsidian);
+    text-transform: none;
+    line-height: 1.2;
+  }
+  .phone.dark .c03 .modal .title {
+    color: var(--c03-temple-gold);
+    text-shadow: 0 0 12px rgba(201,169,97,0.4);
+  }
+  .c03 .modal .desc {
+    color: rgba(15,11,8,0.72);
+    font-size: 10px;
+  }
+  .phone.dark .c03 .modal .desc {
+    color: rgba(232,213,176,0.70);
+  }
+  .c03 .modal .field-label {
+    color: var(--c03-ochre);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    font-size: 8px;
+  }
+  .phone.dark .c03 .modal .field-label {
+    color: var(--c03-temple-gold);
+  }
+  .c03 .modal .field {
+    background: rgba(240,228,204,0.65);
+    border: 1px solid var(--c03-ochre);
+    border-radius: 3px;
+    color: var(--c03-obsidian);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    position: relative;
+    padding-left: 28px;
+  }
+  .phone.dark .c03 .modal .field {
+    background: rgba(15,11,8,0.55);
+    border-color: var(--c03-temple-gold);
+    color: var(--c03-limestone);
+  }
+  .c03 .modal .field::before {
+    content: '𓊪';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--c03-ochre);
+    font-size: 14px;
+  }
+  .c03 .modal .field.date::before { content: '𓇳'; }
+  .phone.dark .c03 .modal .field::before { color: var(--c03-temple-gold); }
+  .c03 .modal .cta {
+    background:
+      linear-gradient(180deg, var(--c03-sand) 0%, var(--c03-sand-2) 100%);
+    border: 1px solid var(--c03-ochre);
+    color: var(--c03-obsidian);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 0.20em;
+    font-size: 11px;
+    border-radius: 4px;
+    box-shadow:
+      0 4px 12px rgba(184,136,74,0.30),
+      0 0 0 1px rgba(255,255,255,0.4) inset;
+  }
+  .phone.dark .c03 .modal .cta {
+    background:
+      linear-gradient(180deg, #2A1F14 0%, #1C1410 100%);
+    border-color: var(--c03-temple-gold);
+    color: var(--c03-temple-gold);
+    box-shadow:
+      0 4px 16px rgba(0,0,0,0.6),
+      0 0 0 1px rgba(201,169,97,0.20) inset;
+  }
+  .c03 .modal .cta::before { content: '☥ '; margin-right: 4px; font-size: 12px; }
+  .c03 .modal .cta::after  { content: ' ☥'; margin-left: 4px; font-size: 12px; }
+  .c03 .modal .footer-note {
+    color: rgba(15,11,8,0.55);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.22em;
+  }
+  .phone.dark .c03 .modal .footer-note {
+    color: rgba(232,213,176,0.55);
+  }
+
+  /* C03 — Sun-disk date picker */
+  .c03-sundisk {
+    height: 220px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(ellipse at center, var(--c03-obsidian-2) 0%, var(--c03-obsidian) 100%);
+    border: 1px solid var(--c03-temple-gold);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .c03-sun-outer {
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px dashed rgba(201,169,97,0.40);
+    animation: sunRotate 60s linear infinite;
+  }
+  .c03-sun-outer::before {
+    content: '';
+    position: absolute; inset: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,169,97,0.50);
+  }
+  .c03-sun-mid {
+    position: absolute;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #2A1F14 0%, #0F0B08 100%);
+    border: 2px solid var(--c03-temple-gold);
+    box-shadow:
+      0 0 0 1px rgba(201,169,97,0.30) inset,
+      0 0 24px rgba(201,169,97,0.25);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'Cinzel', serif;
+    color: var(--c03-temple-gold);
+  }
+  .c03-sun-month {
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    font-weight: 500;
+  }
+  .c03-sun-day {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 2px 0;
+  }
+  .c03-sun-year {
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    opacity: 0.65;
+  }
+  .c03-sun-glyph {
+    position: absolute;
+    color: var(--c03-temple-gold);
+    font-size: 12px;
+    opacity: 0.6;
+  }
+  .c03-sun-g1 { top: 16px; left: 50%; transform: translateX(-50%); }
+  .c03-sun-g2 { bottom: 16px; left: 50%; transform: translateX(-50%); }
+  .c03-sun-g3 { left: 16px; top: 50%; transform: translateY(-50%); }
+  .c03-sun-g4 { right: 16px; top: 50%; transform: translateY(-50%); }
+
+  /* ═══════════════════════════════════════════════════
+     CONCEPT 04 — AURORA GARDEN
+     ═══════════════════════════════════════════════════ */
+
+  @keyframes auroraMorph {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(8px, -6px) scale(1.08); }
+    66%      { transform: translate(-6px, 8px) scale(0.95); }
+  }
+  @keyframes ctaPulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(217,197,232,0.45), 0 0 0 0 rgba(217,197,232,0.45); }
+    50%      { box-shadow: 0 8px 28px rgba(217,197,232,0.55), 0 0 0 8px rgba(217,197,232,0.00); }
+  }
+  .c04 .modal {
+    background:
+      radial-gradient(circle at 30% 20%, rgba(184,228,208,0.40), transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(217,197,232,0.40), transparent 50%),
+      rgba(255,255,255,0.85);
+    backdrop-filter: blur(14px);
+    box-shadow:
+      0 16px 50px rgba(217,197,232,0.30),
+      0 0 0 1px rgba(255,255,255,0.6) inset;
+    overflow: hidden;
+  }
+  .phone.dark .c04 .modal {
+    background:
+      radial-gradient(circle at 30% 20%, rgba(165,216,224,0.16), transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(217,197,232,0.16), transparent 50%),
+      rgba(26,21,48,0.85);
+    backdrop-filter: blur(14px);
+    box-shadow:
+      0 16px 50px rgba(0,0,0,0.6),
+      0 0 0 1px rgba(217,197,232,0.20) inset;
+  }
+  .c04-bloom {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(28px);
+    pointer-events: none;
+    z-index: 0;
+    animation: auroraMorph 14s ease-in-out infinite;
+  }
+  .c04-b1 { top: -20px; left: -20px; width: 120px; height: 120px;
+    background: var(--c04-mint); opacity: 0.55; }
+  .c04-b2 { top: 40%; right: -30px; width: 140px; height: 140px;
+    background: var(--c04-lilac); opacity: 0.55; animation-delay: -4s; }
+  .c04-b3 { bottom: -30px; left: 20%; width: 130px; height: 130px;
+    background: var(--c04-peach); opacity: 0.50; animation-delay: -8s; }
+  .phone.dark .c04-b1 { opacity: 0.25; }
+  .phone.dark .c04-b2 { opacity: 0.25; }
+  .phone.dark .c04-b3 { opacity: 0.22; }
+  .c04 .modal > *:not(.c04-bloom) { position: relative; z-index: 1; }
+  .c04 .modal .eyebrow {
+    color: var(--c04-deep);
+    opacity: 0.7;
+  }
+  .phone.dark .c04 .modal .eyebrow {
+    color: var(--c04-glow);
+  }
+  .c04 .modal .title {
+    color: var(--c04-deep);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+  }
+  .phone.dark .c04 .modal .title {
+    color: #F5E8FF;
+    text-shadow: 0 0 16px rgba(217,197,232,0.4);
+  }
+  .c04 .modal .desc {
+    color: rgba(42,31,61,0.72);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+  }
+  .phone.dark .c04 .modal .desc {
+    color: rgba(245,232,255,0.70);
+  }
+  .c04 .modal .field-label {
+    color: var(--c04-deep);
+    opacity: 0.7;
+    font-size: 8px;
+    letter-spacing: 0.26em;
+  }
+  .phone.dark .c04 .modal .field-label {
+    color: var(--c04-glow);
+  }
+  .c04 .modal .field {
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(217,197,232,0.60);
+    border-radius: 14px;
+    color: var(--c04-deep);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+  }
+  .c04 .modal .field.focused {
+    border-color: var(--c04-lilac);
+    box-shadow: 0 0 0 3px rgba(217,197,232,0.30);
+    background: rgba(255,255,255,0.75);
+  }
+  .phone.dark .c04 .modal .field {
+    background: rgba(7,7,16,0.45);
+    border: 1px solid rgba(217,197,232,0.30);
+    color: var(--c04-glow);
+  }
+  .phone.dark .c04 .modal .field.focused {
+    border-color: var(--c04-glow);
+    box-shadow: 0 0 0 3px rgba(217,197,232,0.20);
+  }
+  .c04 .modal .field .glyph {
+    color: var(--c04-deep);
+    opacity: 0.55;
+  }
+  .phone.dark .c04 .modal .field .glyph {
+    color: var(--c04-glow);
+  }
+  .c04 .modal .cta {
+    background: linear-gradient(120deg,
+      var(--c04-mint) 0%,
+      var(--c04-lilac) 50%,
+      var(--c04-peach) 100%);
+    color: var(--c04-deep);
+    font-weight: 600;
+    animation: ctaPulse 3s ease-in-out infinite;
+  }
+  .phone.dark .c04 .modal .cta {
+    background: linear-gradient(120deg,
+      rgba(165,216,224,0.35) 0%,
+      rgba(217,197,232,0.45) 50%,
+      rgba(245,208,188,0.35) 100%);
+    color: var(--c04-glow);
+    border: 1px solid rgba(217,197,232,0.45);
+  }
+  .c04 .modal .footer-note {
+    color: rgba(42,31,61,0.50);
+    font-family: 'Caveat', cursive;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-weight: 500;
+  }
+  .phone.dark .c04 .modal .footer-note {
+    color: rgba(245,232,255,0.55);
+  }
+
+  /* C04 — Wellness journal date picker */
+  .c04-journal {
+    height: 220px;
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(217,197,232,0.40);
+    border-radius: 16px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .phone.dark .c04-journal {
+    background: rgba(7,7,16,0.55);
+    border-color: rgba(217,197,232,0.25);
+  }
+  .c04-journal-title {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--c04-deep);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .phone.dark .c04-journal-title { color: var(--c04-glow); }
+  .c04-journal-months {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .c04-month {
+    padding: 8px 4px;
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'Caveat', cursive;
+    font-size: 13px;
+    color: var(--c04-deep);
+    background: rgba(217,197,232,0.18);
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .phone.dark .c04-month {
+    color: var(--c04-glow);
+    background: rgba(217,197,232,0.10);
+  }
+  .c04-month.sel {
+    background: linear-gradient(135deg, var(--c04-lilac), var(--c04-mint));
+    color: var(--c04-deep);
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(217,197,232,0.40);
+  }
+  .phone.dark .c04-month.sel {
+    background: linear-gradient(135deg, rgba(217,197,232,0.5), rgba(165,216,224,0.5));
+    color: var(--c04-glow);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     CONCEPT 05 — PREMIUM STATIONERY LETTER
+     ═══════════════════════════════════════════════════ */
+
+  @keyframes envelopeWobble {
+    0%, 100% { transform: translateY(-50%) rotate(0deg); }
+    50%      { transform: translateY(calc(-50% - 2px)) rotate(0.3deg); }
+  }
+  @keyframes waxSealPulse {
+    0%, 100% { box-shadow: 0 4px 12px rgba(138,42,42,0.40), 0 0 0 0 rgba(138,42,42,0.40); }
+    50%      { box-shadow: 0 4px 16px rgba(138,42,42,0.50), 0 0 0 6px rgba(138,42,42,0.00); }
+  }
+  @keyframes waxSealPulseDark {
+    0%, 100% { box-shadow: 0 4px 12px rgba(184,146,74,0.40), 0 0 0 0 rgba(184,146,74,0.40); }
+    50%      { box-shadow: 0 4px 16px rgba(184,146,74,0.50), 0 0 0 6px rgba(184,146,74,0.00); }
+  }
+  .c05 .modal {
+    background:
+      linear-gradient(180deg, var(--c05-ivory) 0%, var(--c05-ivory-2) 100%);
+    box-shadow:
+      0 16px 50px rgba(26,42,74,0.30),
+      0 0 0 1px rgba(184,146,74,0.40) inset,
+      0 0 0 6px rgba(248,241,224,0.6),
+      0 0 0 7px rgba(184,146,74,0.25);
+    animation: envelopeWobble 8s ease-in-out infinite;
+  }
+  .phone.dark .c05 .modal {
+    background:
+      linear-gradient(180deg, var(--c05-velvet-2) 0%, var(--c05-velvet) 100%);
+    box-shadow:
+      0 16px 50px rgba(0,0,0,0.75),
+      0 0 0 1px rgba(184,146,74,0.45) inset,
+      0 0 0 6px rgba(37,24,44,0.7),
+      0 0 0 7px rgba(184,146,74,0.30);
+  }
+  .c05 .modal::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px dashed rgba(184,146,74,0.30);
+    border-radius: 18px;
+    pointer-events: none;
+  }
+  .phone.dark .c05 .modal::before {
+    border-color: rgba(184,146,74,0.35);
+  }
+  .c05 .modal > * { position: relative; z-index: 2; }
+  .c05 .modal .eyebrow {
+    color: var(--c05-wax-gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 500;
+    letter-spacing: 0.36em;
+    font-size: 8.5px;
+    text-align: center;
+  }
+  .phone.dark .c05 .modal .eyebrow {
+    color: var(--c05-wax-gold);
+  }
+  .c05 .modal .title {
+    font-family: 'Pinyon Script', cursive;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 34px;
+    letter-spacing: 0.01em;
+    line-height: 1.0;
+    color: var(--c05-navy);
+    text-align: center;
+    padding: 6px 0;
+  }
+  .phone.dark .c05 .modal .title {
+    color: var(--gold-bright);
+    text-shadow: 0 0 14px rgba(245,214,118,0.30);
+  }
+  .c05 .modal .desc {
+    color: rgba(26,42,74,0.72);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.45;
+  }
+  .phone.dark .c05 .modal .desc {
+    color: rgba(245,244,238,0.65);
+  }
+  .c05-divider {
+    margin: 4px auto 2px;
+    height: 12px;
+    color: var(--c05-wax-gold);
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.5em;
+  }
+  .c05 .modal .field-label {
+    color: var(--c05-wax-gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.30em;
+    font-size: 7.5px;
+    text-align: center;
+  }
+  .c05 .modal .field {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(26,42,74,0.40);
+    border-radius: 0;
+    padding: 6px 4px;
+    color: var(--c05-navy);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    justify-content: center;
+  }
+  .phone.dark .c05 .modal .field {
+    border-bottom-color: rgba(184,146,74,0.50);
+    color: var(--bg-text);
+  }
+  .c05 .modal .field .glyph {
+    font-family: 'Pinyon Script', cursive;
+    color: var(--c05-wax-gold);
+    font-size: 18px;
+  }
+  .c05 .modal .cta {
+    background:
+      radial-gradient(circle at 30% 30%, #C84A4A 0%, var(--c05-wax-red) 70%);
+    color: #F8F1E0;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    font-size: 10px;
+    border-radius: 50%;
+    width: 88px; height: 88px;
+    margin: 4px auto 0;
+    align-self: center;
+    box-shadow:
+      0 4px 14px rgba(138,42,42,0.40),
+      0 0 0 2px rgba(248,241,224,0.6),
+      0 0 0 3px rgba(138,42,42,0.40),
+      inset 0 -4px 8px rgba(0,0,0,0.25),
+      inset 0 4px 8px rgba(255,255,255,0.20);
+    animation: waxSealPulse 3s ease-in-out infinite;
+    position: relative;
+    line-height: 1.1;
+    text-align: center;
+    padding: 0 8px;
+  }
+  .phone.dark .c05 .modal .cta {
+    background:
+      radial-gradient(circle at 30% 30%, #D4AF37 0%, var(--c05-wax-gold) 70%);
+    color: var(--c05-velvet);
+    box-shadow:
+      0 4px 14px rgba(184,146,74,0.40),
+      0 0 0 2px rgba(37,24,44,0.7),
+      0 0 0 3px rgba(184,146,74,0.40),
+      inset 0 -4px 8px rgba(0,0,0,0.30),
+      inset 0 4px 8px rgba(255,255,255,0.18);
+    animation: waxSealPulseDark 3s ease-in-out infinite;
+  }
+  .c05 .modal .cta::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(248,241,224,0.30);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .phone.dark .c05 .modal .cta::before {
+    border-color: rgba(37,24,44,0.30);
+  }
+  .c05 .modal .footer-note {
+    color: rgba(26,42,74,0.50);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: none;
+  }
+  .phone.dark .c05 .modal .footer-note {
+    color: rgba(245,244,238,0.50);
+  }
+
+  /* C05 — Perpetual calendar wheel */
+  .c05-wheel {
+    height: 220px;
+    background:
+      linear-gradient(180deg, var(--c05-ivory) 0%, var(--c05-ivory-2) 100%);
+    border: 1px solid rgba(184,146,74,0.40);
+    border-radius: 12px;
+    padding: 16px 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .c05-wheel::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border: 1px dashed rgba(184,146,74,0.25);
+    border-radius: 10px;
+    pointer-events: none;
+  }
+  .c05-wheel-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+  }
+  .c05-wheel-col {
+    display: flex; flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--c05-navy);
+    position: relative;
+  }
+  .c05-wheel-col::before {
+    content: attr(data-lbl);
+    position: absolute;
+    top: -4px;
+    font-family: 'Cinzel', serif;
+    font-size: 7px;
+    color: var(--c05-wax-gold);
+    letter-spacing: 0.24em;
+  }
+  .c05-wheel-col .item {
+    font-size: 11px;
+    opacity: 0.35;
+    font-style: italic;
+    padding: 1px 0;
+  }
+  .c05-wheel-col .item.sel {
+    font-size: 17px;
+    opacity: 1;
+    font-weight: 600;
+    color: var(--c05-wax-red);
+    font-style: normal;
+  }
+  .c05-wheel-col .item.near {
+    opacity: 0.55;
+  }
+  .c05-wheel-marker {
+    position: absolute;
+    left: 8px; right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 24px;
+    border-top: 1px solid rgba(184,146,74,0.40);
+    border-bottom: 1px solid rgba(184,146,74,0.40);
+    pointer-events: none;
+  }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font: 500 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  footer .ornament {
+    color: var(--gold-deep);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Pixora <span class="ornament">·</span> <em>Onboarding Modal</em> <span class="ornament">·</span> <span class="accent2">5 Conceptos</span></h1>
+      <p class="subtitle">
+        Modal de captura inicial — <em>bonito, agradable, sutil</em>. <strong>SIN cyberpunk.</strong>
+        Cinco aproximaciones distintas para la primera impresión del usuario, cada una con sus dos variantes de tema:
+        <strong>iOS White</strong> y <strong>Black &amp; Gold</strong>. Pide solo nombre + fecha de nacimiento,
+        pero lo eleva a un ritual de bienvenida. Otro feeling, otra puerta.
+      </p>
+      <div class="header-rule">
+        <span>// V01 — REVIEW</span>
+        <span class="line"></span>
+        <span>2026.05.16</span>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- ═══════════════════════════════════════════════════
+           CONCEPT 01 — CELESTIAL TWILIGHT
+           ═══════════════════════════════════════════════════ -->
+      <section class="concept c01">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint light">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <div class="eyebrow">✦ Bajo el cielo de Pixora</div>
+                    <div class="title">Una<br/>bienvenida<br/>a tu cielo.</div>
+                    <div class="desc">Tu nombre y tu fecha solo viven aquí, en este dispositivo. Con eso afinamos tus lecturas y tu signo bajo las estrellas.</div>
+                    <div>
+                      <div class="field-label">⋆ Tu nombre</div>
+                      <div class="field"><span class="glyph">♈</span><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">⋆ Bajo qué cielo naciste</div>
+                      <div class="field"><span class="glyph">☽</span><span>14 · agosto · 1992</span></div>
+                    </div>
+                    <div class="cta">✦ Cruzar el umbral</div>
+                    <div class="footer-note">Solo en este dispositivo</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White · twilight pastels</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint dark">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <div class="eyebrow">✦ Bajo el cielo de Pixora</div>
+                    <div class="title">Una<br/>bienvenida<br/>a tu cielo.</div>
+                    <div class="desc">Tu nombre y tu fecha solo viven aquí, en este dispositivo. Con eso afinamos tus lecturas y tu signo bajo las estrellas.</div>
+                    <div>
+                      <div class="field-label">⋆ Tu nombre</div>
+                      <div class="field"><span class="glyph">♈</span><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">⋆ Bajo qué cielo naciste</div>
+                      <div class="field"><span class="glyph">☽</span><span>14 · agosto · 1992</span></div>
+                    </div>
+                    <div class="cta">✦ Cruzar el umbral</div>
+                    <div class="footer-note">Solo en este dispositivo</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">B&amp;G · cosmic dusk</div>
+            </div>
+
+            <!-- Custom date picker -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint dark"></div>
+                  <div class="dim"></div>
+                  <div class="modal c01-sky-modal" style="padding: 16px 14px;">
+                    <div class="eyebrow" style="color: var(--c01-star);">✦ Carta del cielo</div>
+                    <div class="c01-sky">
+                      <div class="c01-moon"></div>
+                      <div class="c01-constellation">
+                        <div class="c01-line c01-l1"></div>
+                        <div class="c01-line c01-l2"></div>
+                        <div class="c01-line c01-l3"></div>
+                      </div>
+                    </div>
+                    <div class="c01-sky-date">
+                      <em>14 agosto 1992</em>
+                      <span class="small">♌ Leo · luna creciente</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label extra">date picker · sky chart</div>
+            </div>
+
+          </div>
+
+          <div class="meta">
+            <div class="meta-eyebrow">No. 01 / 05</div>
+            <h2>Celestial Twilight</h2>
+            <p class="tagline">El cielo justo después del atardecer, cuando las primeras estrellas aparecen y todo se vuelve posible. El usuario no llena un formulario — observa el cielo.</p>
+            <div class="swatches-row">
+              <span class="lbl">iOS</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#E8B4C6"></span>
+                <span class="swatch" style="background:#B4A5D1"></span>
+                <span class="swatch" style="background:#F2D5A8"></span>
+                <span class="swatch" style="background:#4A3F6B"></span>
+              </div>
+            </div>
+            <div class="swatches-row">
+              <span class="lbl">B&amp;G</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#1A1830"></span>
+                <span class="swatch" style="background:#2B1F4A"></span>
+                <span class="swatch" style="background:#FFE9C7"></span>
+                <span class="swatch" style="background:#D4AF37"></span>
+              </div>
+            </div>
+            <div class="verdict">
+              <strong>Veredicto:</strong>
+              <span class="pro">Tied directamente a la lectura zodiacal — la fecha de nacimiento es literalmente "bajo qué cielo naciste"</span>
+              <span class="pro">Date picker custom carta-de-cielo es ÚNICO en su categoría</span>
+              <span class="pro">Gradiente twilight 14s subliminal — no agresivo</span>
+              <span class="con">Necesita afinar la densidad de estrellas para no parecer ruido</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           CONCEPT 02 — BOTANICAL EDITORIAL
+           ═══════════════════════════════════════════════════ -->
+      <section class="concept c02">
+        <div class="concept-row">
+          <div class="phones">
+
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint light">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <svg class="c02-corner tl" viewBox="0 0 48 48">
+                      <path d="M 4 4 Q 12 8, 18 16 Q 22 22, 20 30 M 4 4 Q 8 12, 16 18 Q 22 22, 30 20 M 14 14 Q 20 14, 24 12 M 14 14 Q 14 20, 12 24" stroke="#6B7855" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+                      <circle cx="20" cy="30" r="1.5" fill="#6B7855"/>
+                      <circle cx="30" cy="20" r="1.5" fill="#6B7855"/>
+                    </svg>
+                    <svg class="c02-corner br" viewBox="0 0 48 48">
+                      <path d="M 4 4 Q 12 8, 18 16 Q 22 22, 20 30 M 4 4 Q 8 12, 16 18 Q 22 22, 30 20 M 14 14 Q 20 14, 24 12 M 14 14 Q 14 20, 12 24" stroke="#6B7855" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+                      <circle cx="20" cy="30" r="1.5" fill="#6B7855"/>
+                      <circle cx="30" cy="20" r="1.5" fill="#6B7855"/>
+                    </svg>
+                    <div class="eyebrow">Herbarium · Pixora</div>
+                    <div class="title">Pasa,<br/>siéntete en casa.</div>
+                    <div class="desc">Dos datos para personalizar tu jardín de lecturas. Como un nombre escrito al margen de un libro, solo permanece aquí.</div>
+                    <div>
+                      <div class="field-label">Cómo te llamamos</div>
+                      <div class="field"><span class="glyph">N.</span><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">Estación de tu nacimiento</div>
+                      <div class="field"><span class="glyph">D.</span><span>xiv · ago · mcmxcii</span></div>
+                    </div>
+                    <div class="cta">Cruzar el umbral</div>
+                    <div class="footer-note">Tu jardín, solo tuyo. Nada viaja a internet.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White · cream paper</div>
+            </div>
+
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint dark">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <svg class="c02-corner tl" viewBox="0 0 48 48">
+                      <path d="M 4 4 Q 12 8, 18 16 Q 22 22, 20 30 M 4 4 Q 8 12, 16 18 Q 22 22, 30 20 M 14 14 Q 20 14, 24 12 M 14 14 Q 14 20, 12 24" stroke="#D4AF37" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+                      <circle cx="20" cy="30" r="1.5" fill="#D4AF37"/>
+                      <circle cx="30" cy="20" r="1.5" fill="#D4AF37"/>
+                    </svg>
+                    <svg class="c02-corner br" viewBox="0 0 48 48">
+                      <path d="M 4 4 Q 12 8, 18 16 Q 22 22, 20 30 M 4 4 Q 8 12, 16 18 Q 22 22, 30 20 M 14 14 Q 20 14, 24 12 M 14 14 Q 14 20, 12 24" stroke="#D4AF37" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+                      <circle cx="20" cy="30" r="1.5" fill="#D4AF37"/>
+                      <circle cx="30" cy="20" r="1.5" fill="#D4AF37"/>
+                    </svg>
+                    <div class="eyebrow">Herbarium · Pixora</div>
+                    <div class="title">Pasa,<br/>siéntete en casa.</div>
+                    <div class="desc">Dos datos para personalizar tu jardín de lecturas. Como un nombre escrito al margen de un libro, solo permanece aquí.</div>
+                    <div>
+                      <div class="field-label">Cómo te llamamos</div>
+                      <div class="field"><span class="glyph">N.</span><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">Estación de tu nacimiento</div>
+                      <div class="field"><span class="glyph">D.</span><span>xiv · ago · mcmxcii</span></div>
+                    </div>
+                    <div class="cta">Cruzar el umbral</div>
+                    <div class="footer-note">Tu jardín, solo tuyo. Nada viaja a internet.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">B&amp;G · aged parchment</div>
+            </div>
+
+            <!-- Almanac date picker -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint light"></div>
+                  <div class="dim"></div>
+                  <div class="modal" style="padding: 16px 14px;">
+                    <div class="eyebrow">Almanaque · agosto MCMXCII</div>
+                    <div class="c02-almanac">
+                      <div class="c02-almanac-head">~ agosto de mil novecientos noventa y dos ~</div>
+                      <div class="c02-almanac-grid">
+                        <span class="dayh">D</span><span class="dayh">L</span><span class="dayh">M</span><span class="dayh">M</span><span class="dayh">J</span><span class="dayh">V</span><span class="dayh">S</span>
+                        <span class="day mut">26</span><span class="day mut">27</span><span class="day mut">28</span><span class="day mut">29</span><span class="day mut">30</span><span class="day mut">31</span><span class="day">1</span>
+                        <span class="day">2</span><span class="day">3</span><span class="day">4</span><span class="day">5</span><span class="day">6</span><span class="day">7</span><span class="day">8</span>
+                        <span class="day">9</span><span class="day">10</span><span class="day">11</span><span class="day">12</span><span class="day">13</span><span class="day sel">14</span><span class="day">15</span>
+                        <span class="day">16</span><span class="day">17</span><span class="day">18</span><span class="day">19</span><span class="day">20</span><span class="day">21</span><span class="day">22</span>
+                        <span class="day">23</span><span class="day">24</span><span class="day">25</span><span class="day">26</span><span class="day">27</span><span class="day">28</span><span class="day">29</span>
+                      </div>
+                      <div class="c02-almanac-foot"><em>Sol en Leo · luna en cuarto creciente</em></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label extra">date picker · apothecary almanac</div>
+            </div>
+
+          </div>
+
+          <div class="meta">
+            <div class="meta-eyebrow">No. 02 / 05</div>
+            <h2>Botanical Editorial</h2>
+            <p class="tagline">Una página de un herbario antiguo, donde el nombre del usuario se anota al margen. Cottagecore tasteful, sin azúcar excesivo. Maison Margiela meets cuaderno botánico.</p>
+            <div class="swatches-row">
+              <span class="lbl">iOS</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#F5EFE2"></span>
+                <span class="swatch" style="background:#ECE3CE"></span>
+                <span class="swatch" style="background:#6B7855"></span>
+                <span class="swatch" style="background:#2A2418"></span>
+              </div>
+            </div>
+            <div class="swatches-row">
+              <span class="lbl">B&amp;G</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#1A150C"></span>
+                <span class="swatch" style="background:#2A2316"></span>
+                <span class="swatch" style="background:#D4AF37"></span>
+                <span class="swatch" style="background:#F5D676"></span>
+              </div>
+            </div>
+            <div class="verdict">
+              <strong>Veredicto:</strong>
+              <span class="pro">ULTRA refinado, envejece perfecto, nunca pasa de moda</span>
+              <span class="pro">Cormorant Garamond italic + números romanos = autoridad sin gritar</span>
+              <span class="pro">Subtle por diseño — el "wow" lo da la quietud</span>
+              <span class="con">No tan inmediatamente impresionante en la primera mirada</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           CONCEPT 03 — SACRED TEMPLE
+           ═══════════════════════════════════════════════════ -->
+      <section class="concept c03">
+        <div class="concept-row">
+          <div class="phones">
+
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint light">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <div class="eyebrow">·  T E M P L U M  P I X O R A  ·</div>
+                    <div class="title">Traspasa la puerta del templo.</div>
+                    <div class="desc">Los antiguos pedían dos ofrendas en el umbral: el nombre del que entra, y la fecha de su llegada al mundo. Aquí se conservan.</div>
+                    <div>
+                      <div class="field-label">N O M E N</div>
+                      <div class="field"><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">·  N A T A L I S  ·</div>
+                      <div class="field date"><span>XIV · AVG · MCMXCII</span></div>
+                    </div>
+                    <div class="cta">Cruzar el umbral</div>
+                    <div class="footer-note">In hoc loco · in hoc dispositivo</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White · limestone temple</div>
+            </div>
+
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint dark">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <div class="eyebrow">·  T E M P L U M  P I X O R A  ·</div>
+                    <div class="title">Traspasa la puerta del templo.</div>
+                    <div class="desc">Los antiguos pedían dos ofrendas en el umbral: el nombre del que entra, y la fecha de su llegada al mundo. Aquí se conservan.</div>
+                    <div>
+                      <div class="field-label">N O M E N</div>
+                      <div class="field"><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">·  N A T A L I S  ·</div>
+                      <div class="field date"><span>XIV · AVG · MCMXCII</span></div>
+                    </div>
+                    <div class="cta">Cruzar el umbral</div>
+                    <div class="footer-note">In hoc loco · in hoc dispositivo</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">B&amp;G · obsidian + gold</div>
+            </div>
+
+            <!-- Sun-disk date picker -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint dark"></div>
+                  <div class="dim"></div>
+                  <div class="modal" style="background: linear-gradient(180deg, var(--c03-obsidian-2) 0%, var(--c03-obsidian) 100%); padding: 16px 14px;">
+                    <div class="eyebrow">·  D I S C V S  S O L I S  ·</div>
+                    <div class="c03-sundisk">
+                      <div class="c03-sun-outer"></div>
+                      <div class="c03-sun-mid">
+                        <span class="c03-sun-month">AVGVSTVS</span>
+                        <span class="c03-sun-day">XIV</span>
+                        <span class="c03-sun-year">MCMXCII</span>
+                      </div>
+                      <span class="c03-sun-glyph c03-sun-g1">𓇳</span>
+                      <span class="c03-sun-glyph c03-sun-g2">𓊽</span>
+                      <span class="c03-sun-glyph c03-sun-g3">𓋹</span>
+                      <span class="c03-sun-glyph c03-sun-g4">𓂀</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label extra">date picker · disco solar</div>
+            </div>
+
+          </div>
+
+          <div class="meta">
+            <div class="meta-eyebrow">No. 03 / 05</div>
+            <h2>Sacred Temple</h2>
+            <p class="tagline">Cinzel inscripcional, jeroglíficos sutiles latiendo al fondo, disco solar rotando lento. El usuario es un peregrino en la puerta — la app es el templo. Interpretación literal del "umbral".</p>
+            <div class="swatches-row">
+              <span class="lbl">iOS</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#F0E4CC"></span>
+                <span class="swatch" style="background:#E8D5B0"></span>
+                <span class="swatch" style="background:#B8884A"></span>
+                <span class="swatch" style="background:#0F0B08"></span>
+              </div>
+            </div>
+            <div class="swatches-row">
+              <span class="lbl">B&amp;G</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#0F0B08"></span>
+                <span class="swatch" style="background:#1C1410"></span>
+                <span class="swatch" style="background:#C9A961"></span>
+                <span class="swatch" style="background:#F5D676"></span>
+              </div>
+            </div>
+            <div class="verdict">
+              <strong>Veredicto:</strong>
+              <span class="pro">Interpretación más literal de "cruzar el umbral" — el lenguaje ya lo pide</span>
+              <span class="pro">Disco solar como date picker es un MOMENTO — el usuario lo va a screenshotear</span>
+              <span class="pro">On-brand con la línea CULTURA / Egyptian ya shippeada</span>
+              <span class="con">Más ornamental — puede sentirse heavy en pantallas pequeñas</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           CONCEPT 04 — AURORA GARDEN
+           ═══════════════════════════════════════════════════ -->
+      <section class="concept c04">
+        <div class="concept-row">
+          <div class="phones">
+
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint light">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <div class="c04-bloom c04-b1"></div>
+                    <div class="c04-bloom c04-b2"></div>
+                    <div class="c04-bloom c04-b3"></div>
+                    <div class="eyebrow">·  R E S P I R A  ·</div>
+                    <div class="title">Vamos a conocernos suave.</div>
+                    <div class="desc">Dos cositas chiquitas para que Pixora te abrace mejor. Todo se queda dormidito aquí, en tu pantalla.</div>
+                    <div>
+                      <div class="field-label">Tu nombre</div>
+                      <div class="field focused"><span class="glyph">✿</span><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">Tu cumpleaños</div>
+                      <div class="field"><span class="glyph">❀</span><span>14 agosto 1992</span></div>
+                    </div>
+                    <div class="cta">Cruzar el umbral</div>
+                    <div class="footer-note">vive solo en tu teléfono ✿</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White · pastel aurora</div>
+            </div>
+
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint dark">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <div class="c04-bloom c04-b1"></div>
+                    <div class="c04-bloom c04-b2"></div>
+                    <div class="c04-bloom c04-b3"></div>
+                    <div class="eyebrow">·  R E S P I R A  ·</div>
+                    <div class="title">Vamos a conocernos suave.</div>
+                    <div class="desc">Dos cositas chiquitas para que Pixora te abrace mejor. Todo se queda dormidito aquí, en tu pantalla.</div>
+                    <div>
+                      <div class="field-label">Tu nombre</div>
+                      <div class="field focused"><span class="glyph">✿</span><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">Tu cumpleaños</div>
+                      <div class="field"><span class="glyph">❀</span><span>14 agosto 1992</span></div>
+                    </div>
+                    <div class="cta">Cruzar el umbral</div>
+                    <div class="footer-note">vive solo en tu teléfono ✿</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">B&amp;G · cosmic aurora</div>
+            </div>
+
+            <!-- Wellness journal date picker -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint light"></div>
+                  <div class="dim"></div>
+                  <div class="modal" style="padding: 16px 14px;">
+                    <div class="c04-bloom c04-b1"></div>
+                    <div class="c04-bloom c04-b2"></div>
+                    <div class="c04-bloom c04-b3"></div>
+                    <div class="eyebrow" style="color: var(--c04-deep);">·  P I C K  M O N T H  ·</div>
+                    <div class="c04-journal">
+                      <div class="c04-journal-title">~ ¿en qué mes naciste? ~</div>
+                      <div class="c04-journal-months">
+                        <span class="c04-month">enero</span>
+                        <span class="c04-month">febrero</span>
+                        <span class="c04-month">marzo</span>
+                        <span class="c04-month">abril</span>
+                        <span class="c04-month">mayo</span>
+                        <span class="c04-month">junio</span>
+                        <span class="c04-month">julio</span>
+                        <span class="c04-month sel">agosto</span>
+                        <span class="c04-month">sept</span>
+                        <span class="c04-month">oct</span>
+                        <span class="c04-month">nov</span>
+                        <span class="c04-month">dic</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label extra">date picker · diario wellness</div>
+            </div>
+
+          </div>
+
+          <div class="meta">
+            <div class="meta-eyebrow">No. 04 / 05</div>
+            <h2>Aurora Garden</h2>
+            <p class="tagline">Blooms de acuarela morphing 14s, frosted glass, escritura a mano Caveat. Estética spa-wellness (Calm/Headspace) — la app te recibe abrazando, no presentándose.</p>
+            <div class="swatches-row">
+              <span class="lbl">iOS</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#B8E4D0"></span>
+                <span class="swatch" style="background:#D9C5E8"></span>
+                <span class="swatch" style="background:#F5D0BC"></span>
+                <span class="swatch" style="background:#A5D8E0"></span>
+              </div>
+            </div>
+            <div class="swatches-row">
+              <span class="lbl">B&amp;G</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#1A1530"></span>
+                <span class="swatch" style="background:#2A1F3D"></span>
+                <span class="swatch" style="background:#D9C5E8"></span>
+                <span class="swatch" style="background:#E5C9F0"></span>
+              </div>
+            </div>
+            <div class="verdict">
+              <strong>Veredicto:</strong>
+              <span class="pro">Feeling más amable y "agradable" de los 5 — literal le habla al usuario en tono dulce</span>
+              <span class="pro">Caveat font + lenguaje suave ("dormidito", "cositas chiquitas") = nadie se asusta</span>
+              <span class="pro">Date picker mes-grid con script = nueva categoría visual en Pixora</span>
+              <span class="con">Menos "premium" — más cariñoso que aspiracional</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           CONCEPT 05 — PREMIUM STATIONERY LETTER
+           ═══════════════════════════════════════════════════ -->
+      <section class="concept c05">
+        <div class="concept-row">
+          <div class="phones">
+
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint light">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <div class="eyebrow">· UNA CARTA PARA TI ·</div>
+                    <div class="title">Hola, cuéntanos de ti.</div>
+                    <div class="desc">Has recibido una invitación. Solo nos hace falta saber tu nombre y la fecha en que llegaste al mundo, para preparar tu lectura personal.</div>
+                    <div class="c05-divider">✦ ❋ ✦</div>
+                    <div>
+                      <div class="field-label">·  N O M B R E  ·</div>
+                      <div class="field"><span class="glyph">E</span><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">·  F E C H A   N A T A L  ·</div>
+                      <div class="field"><span>14 de agosto de 1992</span></div>
+                    </div>
+                    <div class="cta">CRUZAR<br/>EL<br/>UMBRAL</div>
+                    <div class="footer-note">Sellado en tu dispositivo · no viaja</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White · ivory + navy ink</div>
+            </div>
+
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint dark">
+                    <div class="ah-tile ah-1"></div>
+                    <div class="ah-tile ah-2"></div>
+                    <div class="ah-tile ah-3"></div>
+                    <div class="ah-tile ah-4"></div>
+                  </div>
+                  <div class="dim"></div>
+                  <div class="modal">
+                    <div class="eyebrow">· UNA CARTA PARA TI ·</div>
+                    <div class="title">Hola, cuéntanos de ti.</div>
+                    <div class="desc">Has recibido una invitación. Solo nos hace falta saber tu nombre y la fecha en que llegaste al mundo, para preparar tu lectura personal.</div>
+                    <div class="c05-divider">✦ ❋ ✦</div>
+                    <div>
+                      <div class="field-label">·  N O M B R E  ·</div>
+                      <div class="field"><span class="glyph">E</span><span>Eduardo</span></div>
+                    </div>
+                    <div>
+                      <div class="field-label">·  F E C H A   N A T A L  ·</div>
+                      <div class="field"><span>14 de agosto de 1992</span></div>
+                    </div>
+                    <div class="cta">CRUZAR<br/>EL<br/>UMBRAL</div>
+                    <div class="footer-note">Sellado en tu dispositivo · no viaja</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">B&amp;G · dark velvet envelope</div>
+            </div>
+
+            <!-- Perpetual calendar wheel -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+                <div class="screen">
+                  <div class="app-hint light"></div>
+                  <div class="dim"></div>
+                  <div class="modal" style="padding: 16px 14px;">
+                    <div class="eyebrow" style="text-align: center;">· CALENDARIO PERPETUO ·</div>
+                    <div class="c05-wheel">
+                      <div class="c05-wheel-marker"></div>
+                      <div class="c05-wheel-cols">
+                        <div class="c05-wheel-col" data-lbl="DÍA">
+                          <span class="item">12</span>
+                          <span class="item near">13</span>
+                          <span class="item sel">14</span>
+                          <span class="item near">15</span>
+                          <span class="item">16</span>
+                        </div>
+                        <div class="c05-wheel-col" data-lbl="MES">
+                          <span class="item">jun</span>
+                          <span class="item near">jul</span>
+                          <span class="item sel">ago</span>
+                          <span class="item near">sep</span>
+                          <span class="item">oct</span>
+                        </div>
+                        <div class="c05-wheel-col" data-lbl="AÑO">
+                          <span class="item">1990</span>
+                          <span class="item near">1991</span>
+                          <span class="item sel">1992</span>
+                          <span class="item near">1993</span>
+                          <span class="item">1994</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label extra">date picker · rueda perpetua</div>
+            </div>
+
+          </div>
+
+          <div class="meta">
+            <div class="meta-eyebrow">No. 05 / 05</div>
+            <h2>Premium Stationery</h2>
+            <p class="tagline">Una carta caligráfica con sello de cera real. El CTA NO es un botón — es una estampa de cera presionada en la carta. Pinyon Script + Cormorant Garamond + Cinzel. Boda real, invitación oficial.</p>
+            <div class="swatches-row">
+              <span class="lbl">iOS</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#F8F1E0"></span>
+                <span class="swatch" style="background:#1A2A4A"></span>
+                <span class="swatch" style="background:#8A2A2A"></span>
+                <span class="swatch" style="background:#B8924A"></span>
+              </div>
+            </div>
+            <div class="swatches-row">
+              <span class="lbl">B&amp;G</span>
+              <div class="swatches">
+                <span class="swatch" style="background:#18121A"></span>
+                <span class="swatch" style="background:#25182C"></span>
+                <span class="swatch" style="background:#B8924A"></span>
+                <span class="swatch" style="background:#F5D676"></span>
+              </div>
+            </div>
+            <div class="verdict">
+              <strong>Veredicto:</strong>
+              <span class="pro">ULTRA premium — el usuario siente que RECIBIÓ una invitación, no que se está registrando</span>
+              <span class="pro">Sello de cera como CTA es UN MOMENTO — pulso suave, irresistible</span>
+              <span class="pro">Rueda perpetua = date picker analógico tipo iPod classic, nostalgia mecánica</span>
+              <span class="con">Pinyon Script requiere cuidar legibilidad — solo título, nunca campos</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <footer>
+      <span>PIXORA · ONBOARDING · DESIGN ARCHIVE · MAY 2026</span>
+      <span class="ornament">·  ·  ·</span>
+      <span>5 CONCEPTOS · 2 TEMAS · 10 MOCKUPS · 5 DATE PICKERS</span>
+    </footer>
+
+  </div>
+</body>
+</html>

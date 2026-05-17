@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PIXORA · Header Unificado · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Geist:wght@300..900&family=Geist+Mono:wght@300..700&family=JetBrains+Mono:wght@300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+<style>
+  /* ================= GLOBAL ARCHIVE ================= */
+  :root{
+    --ink:#0a0a0c;
+    --ink2:#13131a;
+    --ink3:#1c1c24;
+    --paper:#f3eee3;
+    --paper-cream:#ede6d6;
+    --ink-text:#ebe7df;
+    --muted:#8c8a85;
+    --brass:#c9a35d;
+    --brass2:#e7c98c;
+    --foil1:#b9a4ff;
+    --foil2:#7fd9ff;
+    --foil3:#e9e2ff;
+    --foil4:#ffb8e1;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--ink);color:var(--ink-text);font-family:'Geist',sans-serif;overflow-x:hidden}
+  body{
+    background:
+      radial-gradient(1200px 600px at 20% -10%, rgba(120,90,200,.10), transparent 60%),
+      radial-gradient(900px 500px at 90% 10%, rgba(60,180,220,.08), transparent 60%),
+      radial-gradient(1100px 700px at 50% 110%, rgba(201,163,93,.06), transparent 60%),
+      var(--ink);
+    min-height:100vh;
+    position:relative;
+  }
+  /* starfield drift */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.55) 50%, transparent 51%),
+      radial-gradient(1px 1px at 78% 14%, rgba(255,255,255,.4) 50%, transparent 51%),
+      radial-gradient(1px 1px at 33% 67%, rgba(255,255,255,.35) 50%, transparent 51%),
+      radial-gradient(1px 1px at 56% 81%, rgba(255,255,255,.45) 50%, transparent 51%),
+      radial-gradient(1px 1px at 88% 56%, rgba(255,255,255,.3) 50%, transparent 51%),
+      radial-gradient(1px 1px at 41% 33%, rgba(255,255,255,.4) 50%, transparent 51%),
+      radial-gradient(1px 1px at 9% 88%, rgba(255,255,255,.3) 50%, transparent 51%),
+      radial-gradient(1px 1px at 67% 44%, rgba(255,255,255,.4) 50%, transparent 51%);
+    background-size:100% 100%;
+    animation:drift 40s linear infinite;
+    opacity:.5;
+  }
+  @keyframes drift{
+    0%{transform:translate3d(0,0,0)}
+    50%{transform:translate3d(-20px,-12px,0)}
+    100%{transform:translate3d(0,0,0)}
+  }
+  .archive{position:relative;z-index:1;max-width:1480px;margin:0 auto;padding:64px 56px 96px}
+
+  /* ================= ARCHIVE HEADER ================= */
+  .eyebrow{
+    font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;
+    color:var(--brass);text-transform:uppercase;
+    display:flex;align-items:center;gap:14px;margin-bottom:18px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--brass);box-shadow:0 0 12px var(--brass)}
+  .eyebrow .pipe{flex:0 0 60px;height:1px;background:linear-gradient(90deg,var(--brass),transparent)}
+  h1.archive-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(40px,5.2vw,68px);line-height:1.02;letter-spacing:-.02em;
+    color:#f6f1e6;margin-bottom:18px;
+  }
+  h1.archive-title .iri{
+    background:linear-gradient(90deg,#b9a4ff 0%,#7fd9ff 25%,#e9e2ff 50%,#ffb8e1 75%,#b9a4ff 100%);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:iri 7s linear infinite;
+  }
+  @keyframes iri{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  .subtitle{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:20px;color:#bdb8ac;max-width:780px;line-height:1.5;margin-bottom:8px;
+  }
+  .meta-line{
+    margin-top:22px;display:flex;gap:24px;flex-wrap:wrap;
+    font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:1.6px;
+    color:var(--muted);text-transform:uppercase;
+  }
+  .meta-line span b{color:#d8d3c5;font-weight:500}
+  hr.divider{
+    border:none;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(201,163,93,.45),transparent);
+    margin:48px 0 32px;
+  }
+
+  /* ================= CONCEPT ROW ================= */
+  .concept{
+    display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:48px;
+    padding:48px 0;border-top:1px solid rgba(255,255,255,.05);
+    opacity:0;transform:translateY(20px);
+    animation:reveal .9s ease forwards;
+  }
+  .concept:nth-of-type(1){animation-delay:.5s}
+  .concept:nth-of-type(2){animation-delay:.65s}
+  .concept:nth-of-type(3){animation-delay:.80s}
+  .concept:nth-of-type(4){animation-delay:.95s}
+  .concept:nth-of-type(5){animation-delay:1.10s}
+  @keyframes reveal{to{opacity:1;transform:none}}
+  .concept-number{
+    font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;
+    color:var(--brass);text-transform:uppercase;margin-bottom:6px;
+  }
+  .concept-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:36px;color:#f6f1e6;line-height:1;letter-spacing:-.01em;
+  }
+  .concept-tagline{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:18px;color:#cdc6b8;margin-top:8px;margin-bottom:18px;
+  }
+  .concept-desc{
+    font-family:'Geist',sans-serif;font-size:13.5px;line-height:1.65;
+    color:#b8b3a6;margin-bottom:18px;
+  }
+  .swatches{display:flex;gap:8px;margin:18px 0 16px}
+  .sw{
+    width:38px;height:38px;border-radius:8px;
+    border:1px solid rgba(255,255,255,.08);
+    position:relative;
+  }
+  .sw::after{
+    content:attr(data-name);position:absolute;left:0;right:0;top:calc(100% + 6px);
+    font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:1px;
+    color:#7a766c;text-align:center;text-transform:uppercase;
+  }
+  .verdict{margin-top:30px;border-top:1px solid rgba(255,255,255,.06);padding-top:18px}
+  .verdict .row{
+    display:flex;gap:10px;font-family:'Geist Mono',monospace;font-size:11px;
+    line-height:1.55;color:#a8a397;margin-bottom:8px;letter-spacing:.4px;
+  }
+  .verdict .row .sym{
+    flex:0 0 18px;font-weight:700;color:var(--brass2);text-align:center;
+  }
+  .verdict .row.neg .sym{color:#9b6f6f}
+
+  /* ================= PHONE MOCK STRIP ================= */
+  .phones{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+  }
+  .phone{
+    position:relative;border-radius:30px;overflow:hidden;
+    background:#000;aspect-ratio:9/12;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.05);
+  }
+  .phone-label{
+    position:absolute;left:10px;bottom:8px;z-index:5;
+    font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:1.6px;
+    color:rgba(255,255,255,.6);text-transform:uppercase;
+    background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
+    padding:3px 7px;border-radius:6px;
+  }
+  /* status bar (universal) */
+  .statusbar{
+    position:relative;z-index:4;
+    height:22px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 14px 0 18px;font-family:'Geist Mono',monospace;
+    font-size:9.5px;font-weight:600;
+    color:#fff;
+  }
+  .statusbar.dark{color:#fff}
+  .statusbar.light{color:#0a0a0c}
+  .statusbar .right{display:flex;gap:5px;align-items:center}
+  .statusbar .right .ico{font-family:'Material Symbols Outlined';font-size:11px}
+
+  /* content backdrops (under header) */
+  .backdrop{position:absolute;inset:0;z-index:1}
+  /* hero — wallpapers (vivid gradient + bottom text) */
+  .bd-hero{
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,210,140,.35), transparent 55%),
+      linear-gradient(180deg,#3a1758 0%,#67235e 40%,#bc4a6a 70%,#f0a36a 100%);
+  }
+  .bd-hero::after{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(2px 2px at 20% 60%, rgba(255,240,200,.7) 50%, transparent 51%),
+      radial-gradient(2px 2px at 70% 80%, rgba(255,240,200,.5) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 40% 90%, rgba(255,240,200,.5) 50%, transparent 51%);
+  }
+  .bd-hero .htxt{
+    position:absolute;left:14px;right:14px;bottom:16px;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:22px;line-height:1;color:#fff;
+    text-shadow:0 2px 14px rgba(0,0,0,.5);
+  }
+  .bd-hero .hsub{
+    font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:2px;
+    color:rgba(255,255,255,.75);margin-bottom:8px;
+  }
+  /* arcano — deep cosmic */
+  .bd-arcano{
+    background:
+      radial-gradient(circle at 60% 40%, rgba(100,60,200,.5), transparent 55%),
+      radial-gradient(circle at 20% 80%, rgba(60,180,220,.25), transparent 55%),
+      linear-gradient(180deg,#06030e 0%,#0e0824 60%,#15082a 100%);
+  }
+  .bd-arcano::after{
+    content:"";position:absolute;inset:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 25% 35%, rgba(255,255,255,.7) 50%, transparent 51%),
+      radial-gradient(1px 1px at 65% 25%, rgba(180,160,255,.6) 50%, transparent 51%),
+      radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,.5) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 40% 70%, rgba(160,200,255,.6) 50%, transparent 51%),
+      radial-gradient(1px 1px at 15% 85%, rgba(255,255,255,.4) 50%, transparent 51%);
+  }
+  .bd-arcano .runa{
+    position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);
+    width:130px;height:130px;border-radius:50%;
+    border:1px solid rgba(180,150,255,.3);
+    box-shadow:inset 0 0 40px rgba(120,80,200,.25);
+  }
+  .bd-arcano .runa::before,.bd-arcano .runa::after{
+    content:"";position:absolute;inset:8px;border-radius:50%;
+    border:1px dashed rgba(180,150,255,.18);
+  }
+  .bd-arcano .runa::after{inset:22px;border-style:dotted}
+  /* cultura — cream magazine */
+  .bd-cultura{
+    background:linear-gradient(180deg,#ede6d6 0%,#e2d8c0 100%);
+  }
+  .bd-cultura .col{
+    position:absolute;inset:auto 14px 14px 14px;top:50%;
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  }
+  .bd-cultura .article{
+    background:#fff8e8;border:1px solid #d4c8a8;border-radius:6px;
+    padding:8px;display:flex;flex-direction:column;gap:4px;
+  }
+  .bd-cultura .article .tag{
+    font-family:'Geist Mono',monospace;font-size:7px;letter-spacing:1.5px;
+    color:#8a6d2a;text-transform:uppercase;
+  }
+  .bd-cultura .article .ttl{
+    font-family:'Fraunces',serif;font-style:italic;font-size:11px;line-height:1.1;color:#2b2419;
+  }
+  .bd-cultura .article .meta{
+    font-family:'Geist Mono',monospace;font-size:6.5px;color:#9c8b62;letter-spacing:1px;
+  }
+  /* settings — list */
+  .bd-settings{
+    background:linear-gradient(180deg,#0f0f15 0%,#16161e 100%);
+  }
+  .bd-settings .item{
+    position:absolute;left:14px;right:14px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+    border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:10px;
+    font-family:'Geist',sans-serif;font-size:10px;color:#cfc9bd;
+  }
+  .bd-settings .item .ico{
+    font-family:'Material Symbols Outlined';font-size:14px;color:#9b9588;
+  }
+  .bd-settings .item .arr{
+    margin-left:auto;font-family:'Material Symbols Outlined';font-size:14px;color:#5b574e;
+  }
+
+  /* ============================================================
+     HEADER 01 — APPLE GLASS BAR
+     ============================================================ */
+  .h01 .hbar{
+    position:absolute;left:0;right:0;top:22px;height:56px;z-index:3;
+    backdrop-filter:blur(20px) saturate(1.4);
+    -webkit-backdrop-filter:blur(20px) saturate(1.4);
+    background:rgba(20,20,28,.42);
+    border-bottom:.5px solid rgba(255,255,255,.12);
+    display:flex;align-items:center;padding:0 14px;gap:12px;
+  }
+  .h01 .hbar.light{
+    background:rgba(245,240,232,.55);
+    border-bottom:.5px solid rgba(0,0,0,.12);
+  }
+  .h01 .avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:rgba(255,255,255,.08);
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .h01 .hbar.light .avatar{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.08)}
+  .h01 .avatar .m{font-family:'Material Symbols Outlined';font-size:20px;color:#bdb8ac}
+  .h01 .hbar.light .avatar .m{color:#5e5a52}
+  .h01 .title{
+    flex:1;text-align:center;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:22px;color:#fff;letter-spacing:-.01em;
+  }
+  .h01 .hbar.light .title{color:#15140f}
+  .h01 .diamond{
+    display:flex;align-items:center;gap:5px;
+    padding:5px 10px;border-radius:20px;
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.1);
+    font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;color:#fff;
+  }
+  .h01 .hbar.light .diamond{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.08);color:#15140f}
+  .h01 .diamond .d{font-family:'Material Symbols Outlined';font-size:14px;color:#7fd9ff}
+  .h01 .hbar.light .diamond .d{color:#0a83a8}
+
+  /* ============================================================
+     HEADER 02 — STAMPED FOIL
+     ============================================================ */
+  .h02 .hbar{
+    position:absolute;left:0;right:0;top:22px;height:60px;z-index:3;
+    background:linear-gradient(180deg,rgba(10,10,12,.85),rgba(10,10,12,.55));
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid transparent;
+    border-image:linear-gradient(90deg,transparent,var(--brass),var(--brass2),var(--brass),transparent) 1;
+    display:flex;align-items:center;padding:0 14px;gap:10px;
+  }
+  .h02 .hbar.light{background:linear-gradient(180deg,rgba(243,238,227,.88),rgba(243,238,227,.65))}
+  .h02 .stamp{
+    position:relative;display:inline-flex;align-items:center;
+    padding:8px 14px;border-radius:4px;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid rgba(201,163,93,.45);
+    font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;
+    letter-spacing:2.4px;color:#f0e8d2;text-transform:uppercase;
+    overflow:hidden;
+  }
+  .h02 .hbar.light .stamp{
+    background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.25));
+    color:#2b2419;border-color:rgba(120,90,30,.4);
+  }
+  .h02 .stamp::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(110deg,transparent 35%,rgba(231,201,140,.55) 50%,transparent 65%);
+    transform:translateX(-100%);
+    animation:foilsweep 4.5s ease-in-out infinite;
+  }
+  @keyframes foilsweep{
+    0%,40%{transform:translateX(-100%)}
+    60%,100%{transform:translateX(100%)}
+  }
+  .h02 .spacer{flex:1}
+  .h02 .avatar{
+    width:30px;height:30px;border-radius:50%;
+    background:rgba(255,255,255,.06);border:1px solid rgba(201,163,93,.4);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .h02 .hbar.light .avatar{background:rgba(0,0,0,.04);border-color:rgba(120,90,30,.4)}
+  .h02 .avatar .m{font-family:'Material Symbols Outlined';font-size:18px;color:#bdb8ac}
+  .h02 .hbar.light .avatar .m{color:#5e5a52}
+  .h02 .diamond{
+    display:flex;align-items:center;gap:5px;
+    padding:5px 10px;border-radius:4px;
+    background:linear-gradient(180deg,rgba(231,201,140,.18),rgba(201,163,93,.08));
+    border:1px solid rgba(201,163,93,.45);
+    font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;
+    color:#f0e8d2;letter-spacing:1px;
+  }
+  .h02 .hbar.light .diamond{color:#2b2419}
+  .h02 .diamond .d{font-family:'Material Symbols Outlined';font-size:14px;color:var(--brass2)}
+
+  /* ============================================================
+     HEADER 03 — HOLOGRAPHIC RIBBON
+     ============================================================ */
+  .h03 .hbar{
+    position:absolute;left:0;right:0;top:22px;height:64px;z-index:3;
+    background:linear-gradient(180deg,rgba(10,10,18,.78),rgba(10,10,18,.45));
+    backdrop-filter:blur(10px);
+    display:flex;align-items:center;padding:0 12px;gap:10px;
+  }
+  .h03 .hbar.light{background:linear-gradient(180deg,rgba(243,238,227,.78),rgba(243,238,227,.5))}
+  .h03 .hbar::before{
+    content:"";position:absolute;left:0;right:0;top:0;height:2px;
+    background:linear-gradient(90deg,#b9a4ff 0%,#7fd9ff 25%,#e9e2ff 50%,#ffb8e1 75%,#b9a4ff 100%);
+    background-size:200% 100%;
+    animation:iri 5s linear infinite;
+  }
+  .h03 .avatar{
+    width:36px;height:36px;border-radius:50%;
+    background:rgba(255,255,255,.06);
+    display:flex;align-items:center;justify-content:center;position:relative;
+    padding:2px;
+  }
+  .h03 .avatar::before{
+    content:"";position:absolute;inset:-1px;border-radius:50%;
+    background:linear-gradient(135deg,#b9a4ff,#7fd9ff,#ffb8e1,#b9a4ff);
+    background-size:200% 200%;
+    animation:iri 5s linear infinite;
+    z-index:-1;
+  }
+  .h03 .avatar .inner{
+    width:100%;height:100%;border-radius:50%;
+    background:#0a0a12;display:flex;align-items:center;justify-content:center;
+  }
+  .h03 .hbar.light .avatar .inner{background:#f3eee3}
+  .h03 .avatar .m{font-family:'Material Symbols Outlined';font-size:20px;color:#cfc9bd}
+  .h03 .hbar.light .avatar .m{color:#5e5a52}
+  .h03 .title{
+    flex:1;text-align:center;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:22px;letter-spacing:-.01em;
+    background:linear-gradient(90deg,#b9a4ff,#7fd9ff,#e9e2ff,#ffb8e1,#b9a4ff);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:iri 6s linear infinite;
+  }
+  .h03 .diamond{
+    display:flex;align-items:center;gap:5px;
+    padding:5px 10px;border-radius:18px;
+    background:rgba(255,255,255,.06);
+    border:1px solid transparent;
+    background-clip:padding-box;
+    position:relative;
+    font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;color:#fff;
+  }
+  .h03 .hbar.light .diamond{color:#15140f}
+  .h03 .diamond::before{
+    content:"";position:absolute;inset:-1px;border-radius:18px;z-index:-1;
+    background:linear-gradient(90deg,#b9a4ff,#7fd9ff,#ffb8e1,#b9a4ff);
+    background-size:200% 100%;
+    animation:iri 5s linear infinite;
+  }
+  .h03 .diamond .d{font-family:'Material Symbols Outlined';font-size:14px;color:#e9e2ff}
+
+  /* ============================================================
+     HEADER 04 — MONO SERIAL HEADER
+     ============================================================ */
+  .h04 .hbar{
+    position:absolute;left:0;right:0;top:22px;height:56px;z-index:3;
+    background:#0a0a0c;
+    display:flex;align-items:center;padding:0 14px;gap:10px;
+    border-bottom:1px solid rgba(201,163,93,.6);
+  }
+  .h04 .hbar.light{background:#f7f3ea}
+  .h04 .left{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+  .h04 .eye{
+    font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:2.2px;
+    color:var(--brass);text-transform:uppercase;line-height:1;
+  }
+  .h04 .ttl{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:24px;line-height:1;color:#f6f1e6;letter-spacing:-.01em;
+  }
+  .h04 .hbar.light .ttl{color:#15140f}
+  .h04 .right{display:flex;align-items:center;gap:8px}
+  .h04 .avatar{
+    width:30px;height:30px;border-radius:50%;
+    background:rgba(255,255,255,.05);border:1px solid rgba(201,163,93,.45);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .h04 .hbar.light .avatar{background:rgba(0,0,0,.04);border-color:rgba(120,90,30,.4)}
+  .h04 .avatar .m{font-family:'Material Symbols Outlined';font-size:18px;color:#bdb8ac}
+  .h04 .hbar.light .avatar .m{color:#5e5a52}
+  .h04 .diamond{
+    display:flex;align-items:center;gap:5px;
+    padding:4px 9px;
+    background:transparent;border:1px solid rgba(201,163,93,.55);
+    font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;color:#f0e8d2;
+    letter-spacing:1px;
+  }
+  .h04 .hbar.light .diamond{color:#2b2419}
+  .h04 .diamond .d{font-family:'Material Symbols Outlined';font-size:13px;color:var(--brass2)}
+  .h04 .hbar::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+    background:linear-gradient(90deg,transparent,var(--brass),var(--brass2),var(--brass),transparent);
+    opacity:.8;
+  }
+
+  /* ============================================================
+     HEADER 05 — AVATAR-FORWARD DOCK
+     ============================================================ */
+  .h05 .hbar{
+    position:absolute;left:0;right:0;top:22px;height:64px;z-index:3;
+    background:linear-gradient(180deg,rgba(8,8,14,.85),rgba(8,8,14,.55));
+    backdrop-filter:blur(12px);
+    display:flex;align-items:center;padding:0 12px;gap:10px;
+  }
+  .h05 .hbar.light{background:linear-gradient(180deg,rgba(243,238,227,.85),rgba(243,238,227,.55))}
+  .h05 .hbar::before{
+    content:"";position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    width:110px;height:110px;border-radius:50%;
+    background:radial-gradient(circle,var(--glow,rgba(180,140,255,.35)) 0%,transparent 65%);
+    pointer-events:none;z-index:0;
+    animation:glowpulse 3.5s ease-in-out infinite;
+  }
+  @keyframes glowpulse{
+    0%,100%{opacity:.55;transform:translateY(-50%) scale(1)}
+    50%{opacity:.85;transform:translateY(-50%) scale(1.08)}
+  }
+  .h05 .avatar{
+    position:relative;z-index:1;
+    width:44px;height:44px;border-radius:50%;
+    background:#0a0a14;
+    display:flex;align-items:center;justify-content:center;
+    padding:3px;
+  }
+  .h05 .hbar.light .avatar{background:#f3eee3}
+  .h05 .avatar::before{
+    content:"";position:absolute;inset:0;border-radius:50%;
+    background:linear-gradient(135deg,var(--brass2),var(--brass),var(--brass2));
+    background-size:200% 200%;
+    animation:ring 3s ease-in-out infinite;
+    z-index:-1;
+  }
+  @keyframes ring{
+    0%,100%{background-position:0% 50%;filter:brightness(1)}
+    50%{background-position:100% 50%;filter:brightness(1.3)}
+  }
+  .h05 .avatar .inner{
+    width:100%;height:100%;border-radius:50%;
+    background:#181420;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .h05 .hbar.light .avatar .inner{background:#ede6d6}
+  .h05 .avatar .m{font-family:'Material Symbols Outlined';font-size:24px;color:#cfc9bd}
+  .h05 .hbar.light .avatar .m{color:#5e5a52}
+  .h05 .stack{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;position:relative;z-index:1}
+  .h05 .stack .ttl{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:18px;line-height:1;color:#f6f1e6;letter-spacing:-.01em;
+  }
+  .h05 .hbar.light .stack .ttl{color:#15140f}
+  .h05 .stack .nme{
+    font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;
+    color:var(--brass);text-transform:uppercase;line-height:1;
+  }
+  .h05 .diamond{
+    position:relative;z-index:1;
+    display:flex;align-items:center;gap:6px;
+    padding:7px 13px;border-radius:22px;
+    background:linear-gradient(180deg,rgba(231,201,140,.28),rgba(201,163,93,.14));
+    border:1px solid rgba(231,201,140,.55);
+    font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;color:#fff5dc;
+    letter-spacing:.5px;
+    box-shadow:0 0 18px rgba(231,201,140,.18);
+  }
+  .h05 .hbar.light .diamond{color:#2b2419}
+  .h05 .diamond .d{font-family:'Material Symbols Outlined';font-size:16px;color:var(--brass2)}
+
+  /* ================= FOOTER ================= */
+  footer{
+    margin-top:80px;padding:40px 0 20px;
+    border-top:1px solid rgba(255,255,255,.06);
+    text-align:center;
+    font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:3px;
+    color:var(--brass);text-transform:uppercase;
+  }
+  footer .dot{display:inline-block;margin:0 14px;color:rgba(201,163,93,.45)}
+
+  /* responsive */
+  @media (max-width:1180px){
+    .concept{grid-template-columns:1fr;gap:32px}
+    .phones{grid-template-columns:repeat(4,1fr)}
+  }
+  @media (max-width:760px){
+    .archive{padding:36px 20px 60px}
+    .phones{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+<main class="archive">
+
+  <!-- ============== ARCHIVE HEADER ============== -->
+  <div class="eyebrow">
+    <span class="dot"></span>
+    <span>// DOC-107 · PIXORA DESIGN ARCHIVE · CHAPTER VII</span>
+    <span class="pipe"></span>
+    <span>HEADER UNIFICADO</span>
+  </div>
+  <h1 class="archive-title">Header <span class="iri">Unificado</span> · 5 Conceptos</h1>
+  <p class="subtitle">Mismo header en TODAS las secciones — debe sentirse premium, cohesivo y trabajar tanto sobre contenido vivo como sobre fondo plano.</p>
+  <div class="meta-line">
+    <span>SECCIONES <b>13</b></span>
+    <span>ALTURA <b>56–64 PX</b></span>
+    <span>FIJOS <b>AVATAR · TÍTULO · DIAMANTE</b></span>
+    <span>PLATAFORMA <b>FLUTTER · ANDROID + IOS</b></span>
+    <span>STATUS <b>EXPLORATORIO</b></span>
+  </div>
+  <hr class="divider" />
+
+  <!-- ============== CONCEPT 01 — APPLE GLASS BAR ============== -->
+  <section class="concept h01">
+    <div class="phones">
+      <!-- WALLPAPERS -->
+      <div class="phone">
+        <div class="backdrop bd-hero">
+          <div class="hsub">// HERO · PIXORA DAILY</div>
+          <div class="htxt">Mictlán<br/>Awakens</div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="avatar"><span class="m">person_outline</span></div>
+          <div class="title">Pixora</div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">WALLPAPERS</div>
+      </div>
+      <!-- ARCANO -->
+      <div class="phone">
+        <div class="backdrop bd-arcano"><div class="runa"></div></div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="avatar"><span class="m">person_outline</span></div>
+          <div class="title">Arcano</div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">ARCANO</div>
+      </div>
+      <!-- CULTURA -->
+      <div class="phone">
+        <div class="backdrop bd-cultura">
+          <div class="col">
+            <div class="article"><span class="tag">// MITOLOGÍA</span><span class="ttl">Quetzal­cóatl</span><span class="meta">04 · LEER</span></div>
+            <div class="article"><span class="tag">// FESTIVAL</span><span class="ttl">Día de Muertos</span><span class="meta">06 · LEER</span></div>
+          </div>
+        </div>
+        <div class="statusbar light"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar light">
+          <div class="avatar"><span class="m">person_outline</span></div>
+          <div class="title">Cultura</div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">CULTURA</div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="phone">
+        <div class="backdrop bd-settings">
+          <div class="item" style="top:90px"><span class="ico">notifications</span><span>Notificaciones</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:140px"><span class="ico">language</span><span>Idioma</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:190px"><span class="ico">workspace_premium</span><span>Pixora Plus</span><span class="arr">chevron_right</span></div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="avatar"><span class="m">person_outline</span></div>
+          <div class="title">Settings</div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">SETTINGS</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="concept-number">NO. 01 · GLASS</div>
+      <h2 class="concept-title">Apple Glass Bar</h2>
+      <p class="concept-tagline">"Refinamiento iOS — claro, restringido, respira."</p>
+      <p class="concept-desc">Barra de 56 px con <b>blur de fondo</b> (backdrop-filter 20 px + saturate 1.4) que se tinta automáticamente según el contenido debajo: oscuro sobre hero vivo o cosmic, claro sobre magazine cream. Avatar 32 px a la izquierda, nombre de sección centrado en Fraunces italic 22 px con casing mixto, píldora de diamante a la derecha. Divisor hairline 0.5 px casi imperceptible. Sin foil, sin ornamento — la calidad vive en la transparencia y el espaciado.</p>
+      <div class="swatches">
+        <div class="sw" data-name="GLASS" style="background:rgba(20,20,28,.42);backdrop-filter:blur(10px)"></div>
+        <div class="sw" data-name="HAIR" style="background:rgba(255,255,255,.12)"></div>
+        <div class="sw" data-name="TITLE" style="background:#f6f1e6"></div>
+        <div class="sw" data-name="ICE" style="background:#7fd9ff"></div>
+      </div>
+      <div class="verdict">
+        <div class="row"><span class="sym">+</span><span>Se sienta sobre cualquier contenido sin pelear · familiar para usuarios iOS · ligero en GPU si Flutter usa BackdropFilter ya cacheado</span></div>
+        <div class="row"><span class="sym">+</span><span>El más seguro — bajo riesgo de polarizar usuarios</span></div>
+        <div class="row neg"><span class="sym">−</span><span>"Demasiado Apple" — no aporta identidad Pixora propia · puede sentirse genérico junto al resto del design system editorial</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CONCEPT 02 — STAMPED FOIL ============== -->
+  <section class="concept h02">
+    <div class="phones">
+      <div class="phone">
+        <div class="backdrop bd-hero">
+          <div class="hsub">// HERO · PIXORA DAILY</div>
+          <div class="htxt">Mictlán<br/>Awakens</div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="stamp">PIXORA</div>
+          <div class="spacer"></div>
+          <div class="avatar"><span class="m">person_outline</span></div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">WALLPAPERS</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-arcano"><div class="runa"></div></div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="stamp">ARCANO</div>
+          <div class="spacer"></div>
+          <div class="avatar"><span class="m">person_outline</span></div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">ARCANO</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-cultura">
+          <div class="col">
+            <div class="article"><span class="tag">// MITOLOGÍA</span><span class="ttl">Quetzal­cóatl</span><span class="meta">04 · LEER</span></div>
+            <div class="article"><span class="tag">// FESTIVAL</span><span class="ttl">Día de Muertos</span><span class="meta">06 · LEER</span></div>
+          </div>
+        </div>
+        <div class="statusbar light"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar light">
+          <div class="stamp">CULTURA</div>
+          <div class="spacer"></div>
+          <div class="avatar"><span class="m">person_outline</span></div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">CULTURA</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-settings">
+          <div class="item" style="top:94px"><span class="ico">notifications</span><span>Notificaciones</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:144px"><span class="ico">language</span><span>Idioma</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:194px"><span class="ico">workspace_premium</span><span>Pixora Plus</span><span class="arr">chevron_right</span></div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="stamp">SETTINGS</div>
+          <div class="spacer"></div>
+          <div class="avatar"><span class="m">person_outline</span></div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">SETTINGS</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="concept-number">NO. 02 · STAMPED FOIL</div>
+      <h2 class="concept-title">Stamped Foil</h2>
+      <p class="concept-tagline">"El archivo editorial — total cohesión con los headers ya enviados."</p>
+      <p class="concept-desc">Barra 60 px que <b>extiende el lenguaje stamped-foil</b> que ya enviamos para los headers de sección dentro de las páginas. El nombre va en un sello dorado con bordes en gold gradient, letterspacing 2.4 px en mono uppercase, y un barrido foil cruza el sello cada 4.5 s. El avatar y diamante se agrupan a la derecha, ambos con bordes brass. Borde inferior 1 px en gradient gold. La identidad de marca vive en el sello — no en el contenido debajo.</p>
+      <div class="swatches">
+        <div class="sw" data-name="INK" style="background:#0a0a0c"></div>
+        <div class="sw" data-name="BRASS" style="background:linear-gradient(135deg,#c9a35d,#e7c98c)"></div>
+        <div class="sw" data-name="STAMP" style="background:rgba(255,255,255,.06);border:1px solid #c9a35d"></div>
+        <div class="sw" data-name="GOLD" style="background:#e7c98c"></div>
+      </div>
+      <div class="verdict">
+        <div class="row"><span class="sym">+</span><span>Continuidad perfecta con headers de sección ya en producción · refuerza el lenguaje editorial archive</span></div>
+        <div class="row"><span class="sym">+</span><span>El foil sweep crea memoria visual sin distraer del contenido</span></div>
+        <div class="row neg"><span class="sym">−</span><span>El sello rompe la simetría centrada que muchos usuarios esperan · podría sentirse pesado en secciones con hero ya saturado de detalle</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CONCEPT 03 — HOLOGRAPHIC RIBBON ============== -->
+  <section class="concept h03">
+    <div class="phones">
+      <div class="phone">
+        <div class="backdrop bd-hero">
+          <div class="hsub">// HERO · PIXORA DAILY</div>
+          <div class="htxt">Mictlán<br/>Awakens</div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="avatar"><div class="inner"><span class="m">person_outline</span></div></div>
+          <div class="title">Pixora</div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">WALLPAPERS</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-arcano"><div class="runa"></div></div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="avatar"><div class="inner"><span class="m">person_outline</span></div></div>
+          <div class="title">Arcano</div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">ARCANO</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-cultura">
+          <div class="col">
+            <div class="article"><span class="tag">// MITOLOGÍA</span><span class="ttl">Quetzal­cóatl</span><span class="meta">04 · LEER</span></div>
+            <div class="article"><span class="tag">// FESTIVAL</span><span class="ttl">Día de Muertos</span><span class="meta">06 · LEER</span></div>
+          </div>
+        </div>
+        <div class="statusbar light"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar light">
+          <div class="avatar"><div class="inner"><span class="m">person_outline</span></div></div>
+          <div class="title">Cultura</div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">CULTURA</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-settings">
+          <div class="item" style="top:96px"><span class="ico">notifications</span><span>Notificaciones</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:146px"><span class="ico">language</span><span>Idioma</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:196px"><span class="ico">workspace_premium</span><span>Pixora Plus</span><span class="arr">chevron_right</span></div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="avatar"><div class="inner"><span class="m">person_outline</span></div></div>
+          <div class="title">Settings</div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">SETTINGS</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="concept-number">NO. 03 · HOLO</div>
+      <h2 class="concept-title">Holographic Ribbon</h2>
+      <p class="concept-tagline">"El primer pixel debajo del status bar ya es Pixora."</p>
+      <p class="concept-desc">Barra 64 px coronada por una <b>cinta holográfica de 2 px</b> que recorre todo el ancho con el gradient iridescente (púrpura → cyan → silver → rosa) shifting cada 5 s — exactamente el mismo foil del marco del hero banner. El avatar lleva un anillo iridescente, el título usa text-gradient holográfico y el diamante una píldora con borde iridescente. La identidad de marca <b>baja desde el hero</b> y vive en el header mismo. Vibe: foil coleccionable raro, premium.</p>
+      <div class="swatches">
+        <div class="sw" data-name="LILAC" style="background:#b9a4ff"></div>
+        <div class="sw" data-name="ICE" style="background:#7fd9ff"></div>
+        <div class="sw" data-name="PEARL" style="background:#e9e2ff"></div>
+        <div class="sw" data-name="ROSE" style="background:#ffb8e1"></div>
+      </div>
+      <div class="verdict">
+        <div class="row"><span class="sym">+</span><span>Identidad de marca instantánea — el header SE SIENTE Pixora desde el primer scroll · une visualmente el header con el hero · alto valor percibido</span></div>
+        <div class="row"><span class="sym">+</span><span>Diferenciador real vs cualquier app del mercado</span></div>
+        <div class="row neg"><span class="sym">−</span><span>Animación corriendo en todas las secciones consume ciclo de GPU constantemente · en secciones planas (Settings) puede sentirse exagerado · más difícil de calibrar el contraste sobre fondos claros</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CONCEPT 04 — MONO SERIAL ============== -->
+  <section class="concept h04">
+    <div class="phones">
+      <div class="phone">
+        <div class="backdrop bd-hero">
+          <div class="hsub">// HERO · PIXORA DAILY</div>
+          <div class="htxt">Mictlán<br/>Awakens</div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="left">
+            <span class="eye">// PIXORA · v1.7</span>
+            <span class="ttl">Wallpapers</span>
+          </div>
+          <div class="right">
+            <div class="avatar"><span class="m">person_outline</span></div>
+            <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+          </div>
+        </div>
+        <div class="phone-label">WALLPAPERS</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-arcano"><div class="runa"></div></div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="left">
+            <span class="eye">// PIXORA · v1.7</span>
+            <span class="ttl">Arcano</span>
+          </div>
+          <div class="right">
+            <div class="avatar"><span class="m">person_outline</span></div>
+            <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+          </div>
+        </div>
+        <div class="phone-label">ARCANO</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-cultura">
+          <div class="col">
+            <div class="article"><span class="tag">// MITOLOGÍA</span><span class="ttl">Quetzal­cóatl</span><span class="meta">04 · LEER</span></div>
+            <div class="article"><span class="tag">// FESTIVAL</span><span class="ttl">Día de Muertos</span><span class="meta">06 · LEER</span></div>
+          </div>
+        </div>
+        <div class="statusbar light"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar light">
+          <div class="left">
+            <span class="eye">// PIXORA · v1.7</span>
+            <span class="ttl">Cultura</span>
+          </div>
+          <div class="right">
+            <div class="avatar"><span class="m">person_outline</span></div>
+            <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+          </div>
+        </div>
+        <div class="phone-label">CULTURA</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-settings">
+          <div class="item" style="top:90px"><span class="ico">notifications</span><span>Notificaciones</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:140px"><span class="ico">language</span><span>Idioma</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:190px"><span class="ico">workspace_premium</span><span>Pixora Plus</span><span class="arr">chevron_right</span></div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar">
+          <div class="left">
+            <span class="eye">// PIXORA · v1.7</span>
+            <span class="ttl">Settings</span>
+          </div>
+          <div class="right">
+            <div class="avatar"><span class="m">person_outline</span></div>
+            <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+          </div>
+        </div>
+        <div class="phone-label">SETTINGS</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="concept-number">NO. 04 · MONO SERIAL</div>
+      <h2 class="concept-title">Mono Serial Header</h2>
+      <p class="concept-tagline">"Terminal log meets dial de reloj de lujo."</p>
+      <p class="concept-desc">Barra 56 px en <b>negro puro / off-white puro</b> sin glass, sin blur — pura geometría. Arriba a la izquierda un eyebrow mono "// PIXORA · v1.7" funciona como serial number del archivo; debajo el nombre de la sección en Fraunces italic 24 px con casing mixto. Avatar + diamante en píldoras rectangulares con borde brass a la derecha. Una línea brass de 1 px corona el bottom del header. Vibe: técnico, restringido, distintivo — Atlas mono editorial.</p>
+      <div class="swatches">
+        <div class="sw" data-name="INK" style="background:#0a0a0c"></div>
+        <div class="sw" data-name="OFF" style="background:#f7f3ea"></div>
+        <div class="sw" data-name="BRASS" style="background:#c9a35d"></div>
+        <div class="sw" data-name="MONO" style="background:#bdb8ac"></div>
+      </div>
+      <div class="verdict">
+        <div class="row"><span class="sym">+</span><span>Cero animación = cero costo de batería · contraste absoluto sobre cualquier fondo · refuerza el lenguaje editorial sin ornamento</span></div>
+        <div class="row"><span class="sym">+</span><span>El eyebrow con versión es honesto, atmosférico y útil para soporte/debug</span></div>
+        <div class="row neg"><span class="sym">−</span><span>El bloque negro plano puede sentirse "frío" sobre el hero vivo — pierde la continuidad visual con el banner · menos "premium" que glass/foil para usuarios no técnicos</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CONCEPT 05 — AVATAR-FORWARD DOCK ============== -->
+  <section class="concept h05">
+    <div class="phones">
+      <div class="phone">
+        <div class="backdrop bd-hero">
+          <div class="hsub">// HERO · PIXORA DAILY</div>
+          <div class="htxt">Mictlán<br/>Awakens</div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar" style="--glow:rgba(231,201,140,.4)">
+          <div class="avatar"><div class="inner"><span class="m">person</span></div></div>
+          <div class="stack"><span class="ttl">Wallpapers</span><span class="nme">EDUARDO</span></div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">WALLPAPERS</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-arcano"><div class="runa"></div></div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar" style="--glow:rgba(150,100,230,.45)">
+          <div class="avatar"><div class="inner"><span class="m">person</span></div></div>
+          <div class="stack"><span class="ttl">Arcano</span><span class="nme">EDUARDO</span></div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">ARCANO</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-cultura">
+          <div class="col">
+            <div class="article"><span class="tag">// MITOLOGÍA</span><span class="ttl">Quetzal­cóatl</span><span class="meta">04 · LEER</span></div>
+            <div class="article"><span class="tag">// FESTIVAL</span><span class="ttl">Día de Muertos</span><span class="meta">06 · LEER</span></div>
+          </div>
+        </div>
+        <div class="statusbar light"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar light" style="--glow:rgba(220,160,80,.3)">
+          <div class="avatar"><div class="inner"><span class="m">person</span></div></div>
+          <div class="stack"><span class="ttl">Cultura</span><span class="nme">EDUARDO</span></div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">CULTURA</div>
+      </div>
+      <div class="phone">
+        <div class="backdrop bd-settings">
+          <div class="item" style="top:96px"><span class="ico">notifications</span><span>Notificaciones</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:146px"><span class="ico">language</span><span>Idioma</span><span class="arr">chevron_right</span></div>
+          <div class="item" style="top:196px"><span class="ico">workspace_premium</span><span>Pixora Plus</span><span class="arr">chevron_right</span></div>
+        </div>
+        <div class="statusbar dark"><span>9:41</span><span class="right"><span class="ico">signal_cellular_4_bar</span><span class="ico">wifi</span><span class="ico">battery_full</span></span></div>
+        <div class="hbar" style="--glow:rgba(120,180,220,.32)">
+          <div class="avatar"><div class="inner"><span class="m">person</span></div></div>
+          <div class="stack"><span class="ttl">Settings</span><span class="nme">EDUARDO</span></div>
+          <div class="diamond"><span class="d">diamond</span><span>248</span></div>
+        </div>
+        <div class="phone-label">SETTINGS</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="concept-number">NO. 05 · DOCK</div>
+      <h2 class="concept-title">Avatar-Forward Dock</h2>
+      <p class="concept-tagline">"HUD personal — el usuario es el protagonista."</p>
+      <p class="concept-desc">Barra 64 px ocupando real estate de dock. El <b>avatar es de 44 px con anillo gold breathing</b> (señalizando Pixora Plus si está suscrito). A su derecha un stack: nombre de sección en Fraunces italic 18 px arriba, primer nombre del usuario en mono uppercase 9 px abajo. El diamante a la derecha es más prominente — fondo gold gradient + borde brass + glow sutil — empuja claramente la monetización. Un radial glow detrás del avatar lleva el color de marca de cada sección (gold en wallpapers, púrpura en arcano, amber en cultura, azul en settings).</p>
+      <div class="swatches">
+        <div class="sw" data-name="GOLD" style="background:linear-gradient(135deg,#c9a35d,#e7c98c)"></div>
+        <div class="sw" data-name="LILAC" style="background:#b9a4ff"></div>
+        <div class="sw" data-name="AMBER" style="background:#e2a96a"></div>
+        <div class="sw" data-name="ICE" style="background:#7fd9ff"></div>
+      </div>
+      <div class="verdict">
+        <div class="row"><span class="sym">+</span><span>Reconocimiento personal — el header recuerda quién eres en cada pantalla · diferencia visible para suscriptores (anillo gold) — refuerza la propuesta de valor de Pixora Plus</span></div>
+        <div class="row"><span class="sym">+</span><span>El glow contextual da identidad por sección sin cambiar el chrome</span></div>
+        <div class="row neg"><span class="sym">−</span><span>Más alto (64 px) come espacio de contenido — sensible en pantallas chicas · el énfasis en el avatar puede sentirse intrusivo para usuarios que prefieren no sign-in · diamante prominente puede leerse como push de monetización agresivo</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <footer>
+    PIXORA <span class="dot">·</span> UNIFIED HEADER <span class="dot">·</span> DESIGN ARCHIVE <span class="dot">·</span> MAY 2026
+  </footer>
+
+</main>
+</body>
+</html>

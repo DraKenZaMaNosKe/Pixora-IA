@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · 3D Section · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --copper:      #B86F3A;
+    --copper-bright:#E89B5F;
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-text-soft: #3C3C43;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+    --ios-blue-soft: rgba(10,132,255,0.10);
+    --ios-indigo:    #5E5CE6;
+    --ios-purple:    #BF5AF2;
+    --ios-pink:      #FF375F;
+    --ios-silver:    #C0C5CC;
+
+    /* B&G theme */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* sample wallpaper (Goku-like anime warrior, stormy) */
+    --wp-storm:    #1a1530;
+    --wp-storm-2:  #2a1f3e;
+    --wp-skin:     #f0d4b3;
+    --wp-orange:   #ff6a1c;
+    --wp-blue-aura:#42b8ff;
+    --wp-purple:   #6840c4;
+
+    /* paper / origami */
+    --cream:       #F4EEDF;
+    --cream-2:     #E8DFC8;
+    --cream-deep:  #C9B98A;
+
+    /* museum vitrina */
+    --limestone:   #ede5d0;
+    --limestone-2: #d8cfb5;
+    --mahogany:    #2a1812;
+    --mahogany-2:  #3a261a;
+    --brass:       #8E7B4E;
+    --brass-bright:#C2A86A;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(184,168,232,0.3), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(80,40,120,0.10), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(10,132,255,0.05), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(212,175,55,0.05), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · 3D SECTION · REDESIGN / DOC-040';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: #6FB1FF; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row: phones grid + meta */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 36px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 290px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 620;
+    background: #fff;
+    border-radius: 38px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 7px #1a1a22,
+      0 20px 46px rgba(0,0,0,0.65),
+      0 0 60px rgba(10,132,255,0.12);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 7px #0a0a14,
+      0 20px 46px rgba(0,0,0,0.7),
+      0 0 70px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 66px; height: 15px;
+    background: #000;
+    border-radius: 0 0 11px 11px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    font: 600 8.5px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 13px; height: 6.5px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─────────── Sample wallpaper (Goku-like anime warrior) ─────────── */
+  .wp-goku {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .wp-goku::before {
+    /* stormy bg */
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 25%, rgba(66,184,255,0.32), transparent 55%),
+      radial-gradient(ellipse at 70% 60%, rgba(255,106,28,0.30), transparent 50%),
+      radial-gradient(ellipse at 50% 95%, rgba(104,64,196,0.45), transparent 60%),
+      linear-gradient(170deg, #1a1530 0%, #2a1f3e 50%, #160d24 100%);
+  }
+  .wp-goku::after {
+    /* lightning streaks */
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(75deg, transparent 38%, rgba(66,184,255,0.16) 39%, transparent 40%),
+      linear-gradient(95deg, transparent 60%, rgba(255,230,180,0.12) 61%, transparent 62%);
+    mix-blend-mode: screen;
+  }
+  /* warrior silhouette via clip-path */
+  .wp-goku .warrior {
+    position: absolute;
+    left: 50%; bottom: 6%;
+    transform: translateX(-50%);
+    width: 56%;
+    aspect-ratio: 1 / 2.1;
+    background:
+      radial-gradient(ellipse at 50% 18%, #f0d4b3 0%, #f0d4b3 8%, transparent 11%),
+      radial-gradient(ellipse at 50% 6%, #ffb347 0%, #ff8c1c 10%, transparent 13%),
+      linear-gradient(180deg, transparent 22%, #ff6a1c 24%, #c43d12 60%, #6f1f08 100%);
+    clip-path: polygon(
+      48% 0%, 52% 0%, 60% 8%, 56% 14%, 62% 20%,
+      66% 35%, 78% 42%, 70% 52%, 75% 65%, 72% 78%,
+      66% 92%, 60% 100%, 40% 100%, 34% 92%,
+      28% 78%, 25% 65%, 30% 52%, 22% 42%, 34% 35%,
+      38% 20%, 44% 14%, 40% 8%
+    );
+    filter: drop-shadow(0 0 8px rgba(66,184,255,0.55)) drop-shadow(0 0 16px rgba(255,140,28,0.4));
+  }
+  .wp-goku .aura-blue {
+    position: absolute;
+    left: 50%; bottom: 10%;
+    transform: translateX(-50%);
+    width: 78%;
+    aspect-ratio: 1 / 2;
+    background: radial-gradient(ellipse at 50% 60%, rgba(66,184,255,0.35), transparent 65%);
+    filter: blur(8px);
+  }
+
+  /* ─────────── Common editorial header (per concept overrides) ─────────── */
+  .ed-header {
+    position: relative;
+    padding: 30px 16px 14px;
+    z-index: 4;
+  }
+  .ed-chip-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .ed-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font: 700 7.5px 'Inter', sans-serif;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .ed-credits {
+    font: 500 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .ed-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: 22px;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+  .ed-title .nl { display: block; }
+
+  /* Common section header */
+  .sec-header {
+    position: relative;
+    padding: 14px 16px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 4;
+  }
+  .sec-header .h {
+    font: 700 9px 'Inter', sans-serif;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .sec-header .count {
+    font: 500 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+  }
+
+  /* Grid 2-col */
+  .grid-2 {
+    padding: 6px 16px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    z-index: 4;
+    position: relative;
+  }
+  .grid-card {
+    position: relative;
+    aspect-ratio: 9 / 14;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  .grid-card .wp-mini {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(255,106,28,0.55), transparent 55%),
+      radial-gradient(ellipse at 50% 80%, rgba(66,184,255,0.45), transparent 60%),
+      linear-gradient(160deg, #1a1530 0%, #2a1f3e 100%);
+    overflow: hidden;
+  }
+  .grid-card .wp-mini::after {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: 6%;
+    transform: translateX(-50%);
+    width: 50%;
+    aspect-ratio: 1 / 2;
+    background: linear-gradient(180deg, #ff8c1c 20%, #c43d12 70%, #6f1f08 100%);
+    clip-path: polygon(40% 0%, 60% 0%, 70% 30%, 75% 70%, 65% 100%, 35% 100%, 25% 70%, 30% 30%);
+  }
+  .grid-3d-chip {
+    position: absolute;
+    top: 6px; right: 6px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font: 700 7px 'Inter', sans-serif;
+    letter-spacing: 0.12em;
+  }
+
+  /* Quote */
+  .ed-quote {
+    padding: 6px 18px 10px;
+    font: italic 400 10.5px 'Cormorant Garamond', serif;
+    line-height: 1.4;
+    z-index: 4;
+    position: relative;
+  }
+
+  /* Hero card base */
+  .hero {
+    position: relative;
+    margin: 8px 14px 8px;
+    aspect-ratio: 16 / 12;
+    border-radius: 14px;
+    overflow: hidden;
+    z-index: 4;
+  }
+  .hero .wp-hero {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 38%, rgba(255,106,28,0.45), transparent 55%),
+      radial-gradient(ellipse at 30% 70%, rgba(66,184,255,0.40), transparent 60%),
+      radial-gradient(ellipse at 80% 25%, rgba(104,64,196,0.40), transparent 55%),
+      linear-gradient(160deg, #1a1530 0%, #2a1f3e 50%, #160d24 100%);
+    overflow: hidden;
+  }
+  .hero .wp-hero::after {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: 0;
+    transform: translateX(-50%);
+    width: 36%;
+    height: 90%;
+    background: linear-gradient(180deg, transparent 8%, #ffb347 12%, #ff6a1c 28%, #c43d12 65%, #6f1f08 100%);
+    clip-path: polygon(46% 0%, 54% 0%, 62% 18%, 70% 38%, 74% 62%, 66% 82%, 60% 100%, 40% 100%, 34% 82%, 26% 62%, 30% 38%, 38% 18%);
+    filter: drop-shadow(0 0 6px rgba(66,184,255,0.5));
+  }
+  .hero .badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font: 700 7.5px 'Inter', sans-serif;
+    letter-spacing: 0.14em;
+  }
+  .hero .hero-title {
+    position: absolute;
+    left: 12px; bottom: 36px; right: 12px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  }
+  .hero .apply-btn {
+    position: absolute;
+    left: 12px; bottom: 10px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font: 700 8.5px 'Inter', sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  /* ─────────── NO. 01 — APPLE PRO DEPTH ─────────── */
+  .c1 .phone.light .screen { background: #FFFFFF; }
+  .c1 .ed-chip.tilt-c1 {
+    background: var(--ios-blue);
+    color: #fff;
+  }
+  .c1 .light .ed-credits { color: var(--ios-text-dim); }
+  .c1 .light .ed-title { color: var(--ios-text); font-family: 'Inter', sans-serif; font-style: normal; font-weight: 800; letter-spacing: -0.03em; }
+  .c1 .light .ed-title .accent { color: var(--ios-blue); }
+  .c1 .light .hero {
+    box-shadow:
+      0 1px 0 rgba(0,0,0,0.04),
+      0 4px 0 #F2F2F7,
+      0 4px 1px rgba(0,0,0,0.04),
+      0 8px 0 #E5E5EA,
+      0 8px 2px rgba(0,0,0,0.05),
+      0 18px 28px rgba(10,30,60,0.18);
+  }
+  .c1 .light .hero .badge { background: var(--ios-blue); color: #fff; }
+  .c1 .light .hero .apply-btn { background: var(--ios-blue); color: #fff; }
+  .c1 .light .ed-quote { color: var(--ios-text-soft); }
+  .c1 .light .sec-header .h { color: var(--ios-text); }
+  .c1 .light .sec-header .count { color: var(--ios-text-dim); }
+  .c1 .light .grid-card {
+    box-shadow:
+      0 1px 0 rgba(0,0,0,0.04),
+      0 3px 0 #F2F2F7,
+      0 3px 1px rgba(0,0,0,0.04),
+      0 6px 0 #E5E5EA,
+      0 6px 2px rgba(0,0,0,0.05),
+      0 12px 18px rgba(10,30,60,0.14);
+  }
+  .c1 .light .grid-3d-chip { background: var(--ios-blue); color: #fff; }
+
+  .c1 .dark .ed-chip.tilt-c1 {
+    background: var(--gold);
+    color: #0a0a14;
+  }
+  .c1 .dark .ed-credits { color: var(--bg-gold-deep); }
+  .c1 .dark .ed-title { color: var(--bg-text); font-family: 'Inter', sans-serif; font-style: normal; font-weight: 800; letter-spacing: -0.03em; }
+  .c1 .dark .ed-title .accent { color: var(--bg-gold-bright); }
+  .c1 .dark .hero {
+    box-shadow:
+      0 1px 0 rgba(212,175,55,0.10),
+      0 4px 0 #14141F,
+      0 4px 1px rgba(0,0,0,0.4),
+      0 8px 0 #1E1E2C,
+      0 8px 2px rgba(212,175,55,0.06),
+      0 18px 28px rgba(0,0,0,0.6);
+  }
+  .c1 .dark .hero .badge { background: var(--gold); color: #0a0a14; }
+  .c1 .dark .hero .apply-btn { background: var(--gold); color: #0a0a14; }
+  .c1 .dark .ed-quote { color: var(--bg-text-dim); }
+  .c1 .dark .sec-header .h { color: var(--bg-text); }
+  .c1 .dark .sec-header .count { color: var(--bg-gold-deep); }
+  .c1 .dark .grid-card {
+    box-shadow:
+      0 1px 0 rgba(212,175,55,0.10),
+      0 3px 0 #14141F,
+      0 6px 0 #1E1E2C,
+      0 12px 18px rgba(0,0,0,0.6);
+  }
+  .c1 .dark .grid-3d-chip { background: var(--gold); color: #0a0a14; }
+
+  /* tilt phone icon */
+  .tilt-icon {
+    display: inline-block;
+    width: 7px; height: 9px;
+    border: 1.2px solid currentColor;
+    border-radius: 1.5px;
+    position: relative;
+    transform: rotate(-15deg);
+  }
+  .tilt-icon::after {
+    content: '';
+    position: absolute;
+    top: 1px; left: 1px; right: 1px; bottom: 2px;
+    background: currentColor;
+    opacity: 0.4;
+  }
+
+  /* ─────────── NO. 02 — FLOATING GLASS LAYERS ─────────── */
+  .c2 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(10,132,255,0.10), transparent 60%),
+      radial-gradient(ellipse at 50% 90%, rgba(94,92,230,0.08), transparent 60%),
+      #FFFFFF;
+  }
+  .c2 .light .ed-chip {
+    background: rgba(255,255,255,0.55);
+    color: var(--ios-text);
+    border: 1px solid rgba(10,132,255,0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+  .c2 .light .ed-chip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.7) 50%, transparent 70%);
+    animation: shimmer 3.5s ease-in-out infinite;
+  }
+  .c2 .light .ed-credits { color: var(--ios-text-dim); }
+  .c2 .light .ed-title { color: var(--ios-text); text-shadow: 0 2px 8px rgba(10,30,60,0.06); }
+  .c2 .light .ed-title .accent { color: var(--ios-blue); font-style: italic; }
+  .c2 .light .ed-quote { color: var(--ios-text-soft); }
+  .c2 .light .sec-header .h { color: var(--ios-text); }
+  .c2 .light .sec-header .count { color: var(--ios-text-dim); }
+
+  /* Glass hero — stacked layers for depth */
+  .c2 .light .hero {
+    border-radius: 18px;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 -1px 0 rgba(10,30,60,0.05) inset,
+      6px 6px 0 rgba(255,255,255,0.35),
+      12px 12px 0 rgba(10,132,255,0.10),
+      0 20px 40px rgba(10,30,60,0.18);
+  }
+  .c2 .light .hero .wp-hero { border-radius: 17px; opacity: 0.92; }
+  .c2 .light .hero .badge {
+    background: rgba(255,255,255,0.30);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+  .c2 .light .hero .badge::after {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(10,132,255,0.4), rgba(191,90,242,0.3), rgba(10,132,255,0.4));
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+  }
+  .c2 .light .hero .apply-btn {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid var(--ios-blue);
+    color: var(--ios-blue);
+  }
+  .c2 .light .grid-card {
+    border-radius: 12px;
+    background: rgba(255,255,255,0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow:
+      3px 3px 0 rgba(10,132,255,0.08),
+      0 8px 20px rgba(10,30,60,0.12);
+  }
+  .c2 .light .grid-card .wp-mini { border-radius: 11px; opacity: 0.95; }
+  .c2 .light .grid-3d-chip {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(10,132,255,0.4);
+    color: var(--ios-blue);
+  }
+
+  .c2 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(212,175,55,0.10), transparent 60%),
+      radial-gradient(ellipse at 50% 90%, rgba(184,168,232,0.05), transparent 60%),
+      var(--bg-ink);
+  }
+  .c2 .dark .ed-chip {
+    background: rgba(20,20,30,0.45);
+    color: var(--bg-text);
+    border: 1px solid rgba(212,175,55,0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+  .c2 .dark .ed-chip::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(245,214,118,0.4) 50%, transparent 70%);
+    animation: shimmer 3.5s ease-in-out infinite;
+  }
+  .c2 .dark .ed-credits { color: var(--bg-gold-deep); }
+  .c2 .dark .ed-title { color: var(--bg-text); }
+  .c2 .dark .ed-title .accent { color: var(--bg-gold-bright); }
+  .c2 .dark .ed-quote { color: var(--bg-text-dim); }
+  .c2 .dark .sec-header .h { color: var(--bg-text); }
+  .c2 .dark .sec-header .count { color: var(--bg-gold-deep); }
+  .c2 .dark .hero {
+    border-radius: 18px;
+    background: rgba(30,30,44,0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212,175,55,0.25);
+    box-shadow:
+      0 1px 0 rgba(245,214,118,0.10) inset,
+      6px 6px 0 rgba(20,20,30,0.5),
+      12px 12px 0 rgba(212,175,55,0.10),
+      0 20px 40px rgba(0,0,0,0.6);
+  }
+  .c2 .dark .hero .wp-hero { border-radius: 17px; opacity: 0.95; }
+  .c2 .dark .hero .badge {
+    background: rgba(30,30,44,0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(212,175,55,0.4);
+    color: var(--bg-gold-bright);
+  }
+  .c2 .dark .hero .apply-btn {
+    background: rgba(30,30,44,0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid var(--gold);
+    color: var(--bg-gold-bright);
+  }
+  .c2 .dark .grid-card {
+    border-radius: 12px;
+    background: rgba(30,30,44,0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212,175,55,0.20);
+    box-shadow:
+      3px 3px 0 rgba(212,175,55,0.10),
+      0 8px 20px rgba(0,0,0,0.5);
+  }
+  .c2 .dark .grid-card .wp-mini { border-radius: 11px; }
+  .c2 .dark .grid-3d-chip {
+    background: rgba(30,30,44,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(212,175,55,0.4);
+    color: var(--bg-gold-bright);
+  }
+  @keyframes shimmer {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+  }
+
+  /* ─────────── NO. 03 — ORIGAMI EDITORIAL ─────────── */
+  .c3 .light .screen {
+    background:
+      linear-gradient(135deg, #FFFFFF 0%, var(--cream) 100%);
+  }
+  .c3 .light .ed-chip {
+    background: var(--cream);
+    color: var(--ios-text);
+    border: 1px solid rgba(10,132,255,0.30);
+    position: relative;
+    padding-right: 14px;
+  }
+  .c3 .light .ed-chip::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 7px; height: 100%;
+    background: var(--ios-blue);
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+  }
+  .c3 .light .ed-credits { color: var(--ios-text-dim); }
+  .c3 .light .ed-title { color: var(--ios-text); }
+  .c3 .light .ed-title .accent { color: var(--ios-blue); }
+  .c3 .light .ed-title .sub {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--ios-text-dim);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .c3 .light .ed-quote { color: var(--ios-text-soft); }
+  .c3 .light .sec-header .h { color: var(--ios-text); font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; }
+  .c3 .light .sec-header .count { color: var(--ios-text-dim); }
+  .c3 .light .hero {
+    background: var(--cream);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(60,40,20,0.18);
+    overflow: visible;
+  }
+  .c3 .light .hero .wp-hero {
+    border-radius: 10px;
+    clip-path: polygon(0 0, 100% 0, 100% 78%, 78% 100%, 0 100%);
+  }
+  /* origami fold reveal */
+  .c3 .hero::before {
+    content: '';
+    position: absolute;
+    right: 0; bottom: 0;
+    width: 26%; height: 26%;
+    background: var(--ios-blue);
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+    z-index: 5;
+  }
+  .c3 .hero::after {
+    content: '';
+    position: absolute;
+    right: 0; bottom: 0;
+    width: 26%; height: 26%;
+    background: linear-gradient(225deg, rgba(0,0,0,0.18), transparent 60%);
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+    z-index: 6;
+  }
+  .c3 .light .hero .badge {
+    background: var(--cream);
+    color: var(--ios-blue);
+    border: 1px solid var(--ios-blue);
+    border-radius: 0;
+    padding: 3px 10px;
+    position: absolute;
+    top: 8px; left: 8px;
+    transform: rotate(-2deg);
+    box-shadow: 1px 1px 0 rgba(60,40,20,0.2);
+  }
+  .c3 .light .hero .apply-btn {
+    background: var(--cream);
+    color: var(--ios-blue);
+    border: 1.5px solid var(--ios-blue);
+    border-radius: 0;
+    padding: 4px 12px;
+    box-shadow: 2px 2px 0 rgba(10,132,255,0.25);
+    z-index: 7;
+  }
+  .c3 .light .grid-card {
+    background: var(--cream);
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(60,40,20,0.14);
+    overflow: visible;
+  }
+  .c3 .light .grid-card .wp-mini { border-radius: 6px; }
+  .c3 .light .grid-card .wp-mini.fold-tr { clip-path: polygon(0 0, 84% 0, 100% 14%, 100% 100%, 0 100%); }
+  .c3 .light .grid-card .wp-mini.fold-tl { clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%, 0 14%); }
+  .c3 .light .grid-card .wp-mini.fold-br { clip-path: polygon(0 0, 100% 0, 100% 84%, 86% 100%, 0 100%); }
+  .c3 .light .grid-card .wp-mini.fold-bl { clip-path: polygon(0 0, 100% 0, 100% 100%, 16% 100%, 0 86%); }
+  .c3 .light .grid-3d-chip {
+    background: var(--ios-blue);
+    color: var(--cream);
+    border-radius: 0;
+    transform: rotate(-3deg);
+  }
+
+  .c3 .dark .screen {
+    background:
+      linear-gradient(135deg, var(--bg-ink) 0%, #1A1320 100%);
+  }
+  .c3 .dark .ed-chip {
+    background: rgba(20,20,30,0.85);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.35);
+    position: relative;
+    padding-right: 14px;
+  }
+  .c3 .dark .ed-chip::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 7px; height: 100%;
+    background: var(--gold);
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+  }
+  .c3 .dark .ed-credits { color: var(--bg-gold-deep); }
+  .c3 .dark .ed-title { color: var(--bg-text); }
+  .c3 .dark .ed-title .accent { color: var(--bg-gold-bright); }
+  .c3 .dark .ed-title .sub {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--bg-gold-deep);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .c3 .dark .ed-quote { color: var(--bg-text-dim); }
+  .c3 .dark .sec-header .h { color: var(--bg-gold-bright); font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; }
+  .c3 .dark .sec-header .count { color: var(--bg-gold-deep); }
+  .c3 .dark .hero {
+    background: #1A1320;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    overflow: visible;
+  }
+  .c3 .dark .hero .wp-hero {
+    border-radius: 10px;
+    clip-path: polygon(0 0, 100% 0, 100% 78%, 78% 100%, 0 100%);
+  }
+  .c3 .dark .hero::before { background: var(--gold); }
+  .c3 .dark .hero::after { background: linear-gradient(225deg, rgba(0,0,0,0.35), transparent 60%); }
+  .c3 .dark .hero .badge {
+    background: var(--bg-ink);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold);
+    border-radius: 0;
+    padding: 3px 10px;
+    position: absolute;
+    top: 8px; left: 8px;
+    transform: rotate(-2deg);
+    box-shadow: 1px 1px 0 rgba(212,175,55,0.3);
+  }
+  .c3 .dark .hero .apply-btn {
+    background: var(--bg-ink);
+    color: var(--bg-gold-bright);
+    border: 1.5px solid var(--gold);
+    border-radius: 0;
+    padding: 4px 12px;
+    box-shadow: 2px 2px 0 rgba(212,175,55,0.35);
+    z-index: 7;
+  }
+  .c3 .dark .grid-card {
+    background: #1A1320;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+    overflow: visible;
+  }
+  .c3 .dark .grid-card .wp-mini { border-radius: 6px; }
+  .c3 .dark .grid-card .wp-mini.fold-tr { clip-path: polygon(0 0, 84% 0, 100% 14%, 100% 100%, 0 100%); }
+  .c3 .dark .grid-card .wp-mini.fold-tl { clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%, 0 14%); }
+  .c3 .dark .grid-card .wp-mini.fold-br { clip-path: polygon(0 0, 100% 0, 100% 84%, 86% 100%, 0 100%); }
+  .c3 .dark .grid-card .wp-mini.fold-bl { clip-path: polygon(0 0, 100% 0, 100% 100%, 16% 100%, 0 86%); }
+  .c3 .dark .grid-3d-chip {
+    background: var(--gold);
+    color: var(--bg-ink);
+    border-radius: 0;
+    transform: rotate(-3deg);
+  }
+
+  /* ─────────── NO. 04 — HOLOGRAPHIC TILT ─────────── */
+  .c4 .light .screen { background: #F8F9FC; }
+  .c4 .light .ed-chip {
+    background: linear-gradient(120deg, #C0C5CC, #F8FAFF, #B8D4FF, #F8FAFF, #C0C5CC);
+    background-size: 300% 100%;
+    color: var(--ios-text);
+    border: 1px solid rgba(10,132,255,0.4);
+    animation: holoShift 4s linear infinite;
+  }
+  .c4 .light .ed-credits { color: var(--ios-text-dim); }
+  .c4 .light .ed-title { color: var(--ios-text); }
+  .c4 .light .ed-title .accent {
+    background: linear-gradient(90deg, var(--ios-blue), var(--ios-indigo), var(--ios-purple), var(--ios-blue));
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: holoShift 4s linear infinite;
+  }
+  .c4 .light .ed-quote { color: var(--ios-text-soft); }
+  .c4 .light .sec-header .h { color: var(--ios-text); }
+  .c4 .light .sec-header .count { color: var(--ios-text-dim); }
+  .c4 .light .hero {
+    border-radius: 14px;
+    background:
+      linear-gradient(120deg,
+        rgba(192,197,204,0.7) 0%,
+        rgba(248,250,255,0.7) 20%,
+        rgba(184,212,255,0.7) 40%,
+        rgba(248,250,255,0.7) 60%,
+        rgba(192,197,204,0.7) 80%,
+        rgba(184,212,255,0.7) 100%);
+    background-size: 300% 100%;
+    animation: holoShift 6s linear infinite;
+    box-shadow:
+      0 0 0 1.5px rgba(10,132,255,0.4),
+      0 8px 24px rgba(10,30,60,0.18);
+    padding: 4px;
+  }
+  .c4 .light .hero .wp-hero { border-radius: 11px; }
+  .c4 .light .hero .badge {
+    background: #fff;
+    color: var(--ios-blue);
+    border: 1px solid var(--ios-blue);
+    font-weight: 800;
+  }
+  .c4 .light .hero .apply-btn {
+    background: linear-gradient(90deg, var(--ios-blue), var(--ios-indigo), var(--ios-purple));
+    background-size: 200% 100%;
+    color: #fff;
+    animation: holoShift 3s linear infinite;
+  }
+  .c4 .light .grid-card {
+    border-radius: 10px;
+    background: linear-gradient(120deg, rgba(192,197,204,0.6), rgba(248,250,255,0.6), rgba(184,212,255,0.6), rgba(248,250,255,0.6));
+    background-size: 250% 100%;
+    animation: holoShift 7s linear infinite;
+    padding: 3px;
+    box-shadow:
+      0 0 0 1px rgba(10,132,255,0.3),
+      0 6px 14px rgba(10,30,60,0.12);
+  }
+  .c4 .light .grid-card .wp-mini { border-radius: 8px; }
+  .c4 .light .grid-3d-chip {
+    background: linear-gradient(90deg, var(--ios-blue), var(--ios-indigo), var(--ios-purple));
+    background-size: 200% 100%;
+    color: #fff;
+    animation: holoShift 3s linear infinite;
+  }
+
+  .c4 .dark .screen { background: var(--bg-ink); }
+  .c4 .dark .ed-chip {
+    background: linear-gradient(120deg, #5A3F12, #F5D676, #B86F3A, #F5D676, #5A3F12);
+    background-size: 300% 100%;
+    color: #0a0a14;
+    border: 1px solid rgba(245,214,118,0.5);
+    animation: holoShift 4s linear infinite;
+    font-weight: 800;
+  }
+  .c4 .dark .ed-credits { color: var(--bg-gold-deep); }
+  .c4 .dark .ed-title { color: var(--bg-text); }
+  .c4 .dark .ed-title .accent {
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--copper-bright), var(--gold));
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: holoShift 4s linear infinite;
+  }
+  .c4 .dark .ed-quote { color: var(--bg-text-dim); }
+  .c4 .dark .sec-header .h { color: var(--bg-text); }
+  .c4 .dark .sec-header .count { color: var(--bg-gold-deep); }
+  .c4 .dark .hero {
+    border-radius: 14px;
+    background:
+      linear-gradient(120deg,
+        rgba(90,63,18,0.85) 0%,
+        rgba(245,214,118,0.85) 20%,
+        rgba(184,111,58,0.85) 40%,
+        rgba(245,214,118,0.85) 60%,
+        rgba(90,63,18,0.85) 80%,
+        rgba(232,155,95,0.85) 100%);
+    background-size: 300% 100%;
+    animation: holoShift 6s linear infinite;
+    box-shadow:
+      0 0 0 1.5px rgba(245,214,118,0.5),
+      0 8px 24px rgba(0,0,0,0.6),
+      0 0 30px rgba(212,175,55,0.2);
+    padding: 4px;
+  }
+  .c4 .dark .hero .wp-hero { border-radius: 11px; }
+  .c4 .dark .hero .badge {
+    background: var(--bg-ink);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold);
+    font-weight: 800;
+  }
+  .c4 .dark .hero .apply-btn {
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--copper-bright), var(--gold));
+    background-size: 200% 100%;
+    color: #0a0a14;
+    animation: holoShift 3s linear infinite;
+  }
+  .c4 .dark .grid-card {
+    border-radius: 10px;
+    background: linear-gradient(120deg, rgba(90,63,18,0.7), rgba(245,214,118,0.7), rgba(184,111,58,0.7), rgba(245,214,118,0.7));
+    background-size: 250% 100%;
+    animation: holoShift 7s linear infinite;
+    padding: 3px;
+    box-shadow:
+      0 0 0 1px rgba(245,214,118,0.4),
+      0 6px 14px rgba(0,0,0,0.5);
+  }
+  .c4 .dark .grid-card .wp-mini { border-radius: 8px; }
+  .c4 .dark .grid-3d-chip {
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--copper-bright));
+    background-size: 200% 100%;
+    color: #0a0a14;
+    animation: holoShift 3s linear infinite;
+  }
+  @keyframes holoShift {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  /* ─────────── NO. 05 — MUSEUM VITRINA ─────────── */
+  .c5 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 10%, rgba(194,168,106,0.10), transparent 50%),
+      linear-gradient(180deg, var(--limestone) 0%, #F4ECD6 100%);
+  }
+  .c5 .light .ed-chip {
+    background: transparent;
+    color: var(--ios-text);
+    border: 1px solid var(--brass);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+  }
+  .c5 .light .ed-credits { color: var(--brass); font-family: 'Cinzel', serif; }
+  .c5 .light .ed-title {
+    color: var(--ios-text);
+    font-family: 'Cinzel', serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .c5 .light .ed-title .accent { color: var(--brass); font-weight: 800; }
+  .c5 .light .ed-title .sub {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.28em;
+    color: var(--brass);
+    margin-top: 5px;
+    font-weight: 500;
+  }
+  .c5 .light .ed-quote { color: var(--ios-text-soft); font-family: 'Cormorant Garamond', serif; }
+  .c5 .light .sec-header .h { color: var(--ios-text); font-family: 'Cinzel', serif; font-weight: 600; letter-spacing: 0.18em; font-size: 8.5px; }
+  .c5 .light .sec-header .count { color: var(--brass); font-family: 'Cinzel', serif; }
+  .c5 .light .hero {
+    border-radius: 4px;
+    border: 2px solid var(--brass);
+    background: var(--limestone-2);
+    padding: 4px;
+    position: relative;
+    box-shadow:
+      inset 0 0 0 1px rgba(194,168,106,0.4),
+      0 4px 14px rgba(60,40,20,0.18);
+  }
+  .c5 .light .hero .wp-hero { border-radius: 2px; }
+  /* brass corners */
+  .c5 .hero::before,
+  .c5 .hero::after {
+    content: '';
+    position: absolute;
+    width: 10px; height: 10px;
+    border: 2px solid var(--brass-bright);
+    z-index: 5;
+  }
+  .c5 .hero::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .c5 .hero::after  { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+  .c5 .light .hero .badge {
+    background: var(--limestone);
+    color: var(--ios-text);
+    border: 1px solid var(--brass);
+    border-radius: 0;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+  }
+  .c5 .light .hero .apply-btn {
+    background: var(--ios-text);
+    color: var(--limestone);
+    border-radius: 0;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    position: relative;
+    overflow: hidden;
+  }
+  .c5 .light .hero .apply-btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(194,168,106,0.5) 50%, transparent 70%);
+    animation: brassShine 5s ease-in-out infinite;
+  }
+  .c5 .light .grid-card {
+    border-radius: 3px;
+    border: 1.5px solid var(--brass);
+    background: var(--limestone-2);
+    padding: 3px;
+    box-shadow: inset 0 0 0 1px rgba(194,168,106,0.3), 0 3px 8px rgba(60,40,20,0.14);
+    overflow: visible;
+  }
+  .c5 .light .grid-card .wp-mini { border-radius: 2px; }
+  .c5 .light .grid-3d-chip {
+    background: var(--limestone);
+    color: var(--ios-text);
+    border: 1px solid var(--brass);
+    border-radius: 0;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.14em;
+  }
+  .c5 .grid-card .specimen {
+    position: absolute;
+    bottom: -12px; left: 4px; right: 4px;
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    text-align: center;
+    z-index: 6;
+  }
+  .c5 .light .grid-card .specimen { color: var(--brass); }
+  .c5 .hero .specimen-tag {
+    position: absolute;
+    bottom: -18px; left: 0; right: 0;
+    text-align: center;
+    font: 600 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    z-index: 6;
+  }
+  .c5 .light .hero .specimen-tag { color: var(--brass); }
+  .c5 .tilt-instr {
+    text-align: center;
+    margin-top: 24px;
+    font: italic 400 9px 'Cormorant Garamond', serif;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    z-index: 4;
+    position: relative;
+  }
+  .c5 .light .tilt-instr { color: var(--brass); }
+  .c5 .dark .tilt-instr { color: var(--bg-gold-deep); }
+
+  .c5 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 10%, rgba(212,175,55,0.12), transparent 50%),
+      linear-gradient(180deg, var(--mahogany) 0%, #1d1108 100%);
+  }
+  .c5 .dark .ed-chip {
+    background: transparent;
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+  }
+  .c5 .dark .ed-credits { color: var(--bg-gold-deep); font-family: 'Cinzel', serif; }
+  .c5 .dark .ed-title {
+    color: var(--bg-gold-bright);
+    font-family: 'Cinzel', serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .c5 .dark .ed-title .accent { color: var(--copper-bright); font-weight: 800; }
+  .c5 .dark .ed-title .sub {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.28em;
+    color: var(--bg-gold-deep);
+    margin-top: 5px;
+    font-weight: 500;
+  }
+  .c5 .dark .ed-quote { color: var(--bg-text-dim); font-family: 'Cormorant Garamond', serif; }
+  .c5 .dark .sec-header .h { color: var(--bg-gold-bright); font-family: 'Cinzel', serif; font-weight: 600; letter-spacing: 0.18em; font-size: 8.5px; }
+  .c5 .dark .sec-header .count { color: var(--bg-gold-deep); font-family: 'Cinzel', serif; }
+  .c5 .dark .hero {
+    border-radius: 4px;
+    border: 2px solid var(--gold);
+    background: var(--mahogany-2);
+    padding: 4px;
+    box-shadow:
+      inset 0 0 0 1px rgba(245,214,118,0.3),
+      0 4px 14px rgba(0,0,0,0.6),
+      0 0 24px rgba(212,175,55,0.12);
+  }
+  .c5 .dark .hero .wp-hero { border-radius: 2px; }
+  .c5 .dark .hero::before { border-color: var(--gold-bright); }
+  .c5 .dark .hero::after  { border-color: var(--gold-bright); }
+  .c5 .dark .hero .badge {
+    background: var(--mahogany);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold);
+    border-radius: 0;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+  }
+  .c5 .dark .hero .apply-btn {
+    background: var(--gold);
+    color: var(--bg-ink);
+    border-radius: 0;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    position: relative;
+    overflow: hidden;
+  }
+  .c5 .dark .hero .apply-btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(245,214,118,0.7) 50%, transparent 70%);
+    animation: brassShine 5s ease-in-out infinite;
+  }
+  .c5 .dark .grid-card {
+    border-radius: 3px;
+    border: 1.5px solid var(--gold);
+    background: var(--mahogany-2);
+    padding: 3px;
+    box-shadow: inset 0 0 0 1px rgba(245,214,118,0.2), 0 3px 8px rgba(0,0,0,0.5);
+    overflow: visible;
+  }
+  .c5 .dark .grid-card .wp-mini { border-radius: 2px; }
+  .c5 .dark .grid-3d-chip {
+    background: var(--mahogany);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold);
+    border-radius: 0;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.14em;
+  }
+  .c5 .dark .grid-card .specimen { color: var(--bg-gold-deep); }
+  .c5 .dark .hero .specimen-tag { color: var(--bg-gold-deep); }
+  @keyframes brassShine {
+    0%, 100% { transform: translateX(-120%); }
+    50% { transform: translateX(120%); }
+  }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    padding-left: 12px;
+    border-left: 1px solid var(--gold-dark);
+    position: sticky;
+    top: 32px;
+  }
+  .meta .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold-deep);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .meta h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.12;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .meta h2 .acc { color: var(--gold-bright); }
+  .meta h2 .acc2 { color: #6FB1FF; }
+  .meta .tagline {
+    font: italic 400 13px 'Cormorant Garamond', serif;
+    color: var(--text-dim);
+    line-height: 1.45;
+    margin-bottom: 14px;
+  }
+  .meta .description {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .meta-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin: 10px 0 6px;
+  }
+  .palette-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .palette-pair .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .palette-pair .label.ios { color: #6FB1FF; }
+  .palette-pair .label.bg  { color: var(--gold-deep); }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .palette .sw {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    border: 1px solid var(--hairline);
+    position: relative;
+  }
+  .palette .sw::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    color: var(--text-faint);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .palette .sw:hover::after { opacity: 1; }
+  .pros-cons {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .pros-cons div { padding: 8px; border-radius: 3px; }
+  .pros-cons .pros {
+    background: rgba(245,214,118,0.05);
+    border: 1px solid var(--gold-dark);
+    color: var(--text);
+  }
+  .pros-cons .cons {
+    background: rgba(111,177,255,0.05);
+    border: 1px solid rgba(111,177,255,0.25);
+    color: var(--text-dim);
+  }
+  .pros-cons .h {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .pros .h { color: var(--gold-bright); }
+  .cons .h { color: #6FB1FF; }
+  .verdict {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--gold-bright);
+    background: rgba(212,175,55,0.06);
+    font: italic 400 12.5px 'Cormorant Garamond', serif;
+    color: var(--text);
+    line-height: 1.45;
+  }
+
+  /* footer */
+  footer {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--hairline);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer .line { height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dark), transparent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      Sección <span class="accent2">3D</span> <span class="ornament">·</span>
+      <em>cinco redes&iacute;ños</em> <span class="ornament">·</span>
+      sin <span class="accent">verde mint</span>.
+    </h1>
+    <p class="subtitle">
+      Cinco aproximaciones premium para la Parallax Wallpapers Page de Pixora. El mint #00C896 desaparece — el feeling 3D se transmite con sombras apiladas, capas de cristal, dobleces origami, foil holográfico y vitrina de museo. Cada concepto en sus dos variantes: iOS White (acento Apple Blue) y Black &amp; Gold (oro Pixora).
+    </p>
+    <div class="header-rule">
+      <span>05 conceptos · 10 variantes</span>
+      <span class="line"></span>
+      <span>iOS + B&amp;G</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ═══════════ NO. 01 — APPLE PRO DEPTH ═══════════ -->
+    <section class="concept c1">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS variant -->
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip tilt-c1"><span class="tilt-icon"></span> TILT FOR DEPTH</span>
+                    <span class="ed-credits">08 piezas</span>
+                  </div>
+                  <div class="ed-title">Profundidad <span class="accent">curada.</span></div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">EDITOR'S PICK</span>
+                  <div class="hero-title">Saiyan Storm · 4K</div>
+                  <span class="apply-btn">APLICAR ›</span>
+                </div>
+                <div class="sec-header">
+                  <span class="h">Más · 3D</span>
+                  <span class="count">07</span>
+                </div>
+                <div class="grid-2">
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G variant -->
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip tilt-c1"><span class="tilt-icon"></span> TILT FOR DEPTH</span>
+                    <span class="ed-credits">08 piezas</span>
+                  </div>
+                  <div class="ed-title">Profundidad <span class="accent">curada.</span></div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">EDITOR'S PICK</span>
+                  <div class="hero-title">Saiyan Storm · 4K</div>
+                  <span class="apply-btn">APLICAR ›</span>
+                </div>
+                <div class="sec-header">
+                  <span class="h">Más · 3D</span>
+                  <span class="count">07</span>
+                </div>
+                <div class="grid-2">
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 01</div>
+          <h2>Apple Pro <span class="acc2">Depth</span></h2>
+          <div class="tagline">"Como un shelf de Apple TV+ — sombras apiladas que sugieren capas físicas debajo de cada card."</div>
+          <div class="description">
+            Estética system-clean: hero con stacked shadows (capa-1 más oscura, capa-2 más profunda) que insinúan estructura física debajo del card. Chip Apple Blue con micro-ícono de teléfono tilteado. Botón APLICAR sólido azul. Cards del grid con la misma técnica de sombra apilada.
+          </div>
+
+          <div class="meta-section-title">// iOS palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#F2F2F7" data-name="#F2F2F7"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+                <div class="sw" style="background:#1C1C1E" data-name="#1C1C1E"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#14141F" data-name="#14141F"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Instantáneamente premium · familiar Apple TV+ · cero learning curve · sombras = depth literal</div>
+            <div class="cons"><div class="h">CONS</div>Menos único · puede sentirse system-clone · sombras apiladas costo de render</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el safe-bet premium. Si Eduardo quiere "que se sienta como una app de Apple" sin riesgo, esto es. La profundidad llega via sombras escalonadas — no holo, no glass, solo Apple Newsroom.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════ NO. 02 — FLOATING GLASS LAYERS ═══════════ -->
+    <section class="concept c2">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip">◆ 3D · SPATIAL</span>
+                    <span class="ed-credits">08 piezas</span>
+                  </div>
+                  <div class="ed-title">Profundidad <span class="accent">flotante.</span></div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">★ EDITOR'S PICK</span>
+                  <div class="hero-title">Saiyan Storm · 4K</div>
+                  <span class="apply-btn">APLICAR</span>
+                </div>
+                <div class="sec-header">
+                  <span class="h">Más · 3D</span>
+                  <span class="count">07</span>
+                </div>
+                <div class="grid-2">
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip">◆ 3D · SPATIAL</span>
+                    <span class="ed-credits">08 piezas</span>
+                  </div>
+                  <div class="ed-title">Profundidad <span class="accent">flotante.</span></div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">★ EDITOR'S PICK</span>
+                  <div class="hero-title">Saiyan Storm · 4K</div>
+                  <span class="apply-btn">APLICAR</span>
+                </div>
+                <div class="sec-header">
+                  <span class="h">Más · 3D</span>
+                  <span class="count">07</span>
+                </div>
+                <div class="grid-2">
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 02</div>
+          <h2>Floating <span class="acc">Glass</span> Layers</h2>
+          <div class="tagline">"Cristales esmerilados apilados — Vision Pro / iOS 18 spatial computing, depth pure through transparency."</div>
+          <div class="description">
+            Glassmorphism pesado: el hero tiene capas de frosted glass desfasadas (sombra-fantasma a 6px y 12px de offset) que literalmente conforman profundidad. Chip con stroke iridescente. Texto del título flota encima del wallpaper. Cards del grid con frosted overlay + shimmer animado.
+          </div>
+
+          <div class="meta-section-title">// Glass palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:rgba(255,255,255,0.4);border:1px solid rgba(10,132,255,0.4)" data-name="frost"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+                <div class="sw" style="background:#5E5CE6" data-name="#5E5CE6"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:rgba(30,30,44,0.4);border:1px solid rgba(212,175,55,0.4)" data-name="frost"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Literalmente comunica parallax via layering · iridiscencia bonita · super coherente con LIVE</div>
+            <div class="cons"><div class="h">CONS</div>backdrop-filter perf cost · puede ser hard de leer en wallpapers busy · más assets shadow</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más "wow" técnico. Si la tarjeta de presentación de la sección 3D es "depth through transparency", esto lo grita. Cuidar el perf en Samsung mid-range.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════ NO. 03 — ORIGAMI EDITORIAL ═══════════ -->
+    <section class="concept c3">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip">▲ 3D · TILT</span>
+                    <span class="ed-credits">08 piezas</span>
+                  </div>
+                  <div class="ed-title">
+                    Profundidad <span class="accent">doblada.</span>
+                    <span class="sub">When · You · Tilt</span>
+                  </div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">PICK · 3D-008</span>
+                  <span class="apply-btn">APLICAR</span>
+                </div>
+                <div class="sec-header">
+                  <span class="h"><em>Más · 3D</em></span>
+                  <span class="count">07</span>
+                </div>
+                <div class="grid-2">
+                  <div class="grid-card"><div class="wp-mini fold-tr"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini fold-bl"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini fold-br"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini fold-tl"></div><span class="grid-3d-chip">3D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip">▲ 3D · TILT</span>
+                    <span class="ed-credits">08 piezas</span>
+                  </div>
+                  <div class="ed-title">
+                    Profundidad <span class="accent">doblada.</span>
+                    <span class="sub">When · You · Tilt</span>
+                  </div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">PICK · 3D-008</span>
+                  <span class="apply-btn">APLICAR</span>
+                </div>
+                <div class="sec-header">
+                  <span class="h"><em>Más · 3D</em></span>
+                  <span class="count">07</span>
+                </div>
+                <div class="grid-2">
+                  <div class="grid-card"><div class="wp-mini fold-tr"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini fold-bl"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini fold-br"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini fold-tl"></div><span class="grid-3d-chip">3D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 03</div>
+          <h2>Origami <span class="acc">Editorial</span></h2>
+          <div class="tagline">"Papel doblado — la profundidad no se simula, se sugiere via dobleces angulares que revelan otra capa de color."</div>
+          <div class="description">
+            Estética de papel plegado japonés. Cada card tiene una esquina "doblada" diagonalmente que revela el accent color debajo (Apple Blue / gold). Cards del grid con fold-corner en posiciones random — siente como una revista de arte. Botón APLICAR como tarjeta de papel con drop-shadow + corner-fold.
+          </div>
+
+          <div class="meta-section-title">// Origami palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#F4EEDF" data-name="#F4EEDF"></div>
+                <div class="sw" style="background:#E8DFC8" data-name="#E8DFC8"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+                <div class="sw" style="background:#1C1C1E" data-name="#1C1C1E"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#1A1320" data-name="#1A1320"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Único · highly editorial · zero perf cost (es solo clip-path) · cada card se siente curada a mano</div>
+            <div class="cons"><div class="h">CONS</div>Requiere disciplina de diseño · puede leerse "decorativo" si abusan los fold angles · menos depth-literal</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más artístico. Si Pixora quiere posicionarse como "wallpaper art house" — esto es. Riesgo: que se vea como diseño de portfolio en vez de app de consumo. Funciona muy bien con la estética cream del cultural cementerio.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════ NO. 04 — HOLOGRAPHIC TILT ═══════════ -->
+    <section class="concept c4">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip">★ TILT ME</span>
+                    <span class="ed-credits">08 piezas</span>
+                  </div>
+                  <div class="ed-title">Profundidad <span class="accent">holográfica.</span></div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">★ HOLO PICK</span>
+                  <div class="hero-title">Saiyan Storm · 4K</div>
+                  <span class="apply-btn">APLICAR ›</span>
+                </div>
+                <div class="sec-header">
+                  <span class="h">Más · 3D</span>
+                  <span class="count">07</span>
+                </div>
+                <div class="grid-2">
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip">★ TILT ME</span>
+                    <span class="ed-credits">08 piezas</span>
+                  </div>
+                  <div class="ed-title">Profundidad <span class="accent">holográfica.</span></div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">★ HOLO PICK</span>
+                  <div class="hero-title">Saiyan Storm · 4K</div>
+                  <span class="apply-btn">APLICAR ›</span>
+                </div>
+                <div class="sec-header">
+                  <span class="h">Más · 3D</span>
+                  <span class="count">07</span>
+                </div>
+                <div class="grid-2">
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 04</div>
+          <h2>Holographic <span class="acc">Tilt</span> Showcase</h2>
+          <div class="tagline">"Foil holográfico animado — el card-frame mismo cambia de color cuando lo tilteas, como un TCG holo de Pokémon."</div>
+          <div class="description">
+            Reusa el lenguaje Trading Card Holo del preview de wallpaper (que ya aprobaste). Coherente porque tilt-to-see-depth = literal a tilt-the-holo-card. iOS: silver/blue/indigo/purple iridescent. B&amp;G: gold/copper/bright iridescent. Cards del grid son mini holo cards animadas.
+          </div>
+
+          <div class="meta-section-title">// Holo palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light · silver/blue</div>
+              <div class="palette">
+                <div class="sw" style="background:linear-gradient(120deg,#C0C5CC,#F8FAFF,#B8D4FF)" data-name="foil"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+                <div class="sw" style="background:#5E5CE6" data-name="#5E5CE6"></div>
+                <div class="sw" style="background:#BF5AF2" data-name="#BF5AF2"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark · gold/copper</div>
+              <div class="palette">
+                <div class="sw" style="background:linear-gradient(120deg,#5A3F12,#F5D676,#B86F3A)" data-name="foil"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+                <div class="sw" style="background:#E89B5F" data-name="#E89B5F"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>COHERENCIA con preview Trading Card Holo · perfecto match conceptual (tilt = holo shift) · ultra premium</div>
+            <div class="cons"><div class="h">CONS</div>Animation cost en grid (4+ cards animando) · puede saturar visualmente · gradient drift en CSS</div>
+          </div>
+          <div class="verdict">
+            Veredicto: la apuesta de continuidad. Si el preview del wallpaper ya es Trading Card Holo, llevarla a la sección entera = un lenguaje coherente que distingue Pixora del resto del market. Cuidar perf: max-2-cards animando, resto static-gradient.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════ NO. 05 — MUSEUM VITRINA ═══════════ -->
+    <section class="concept c5">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip">III · DEPTH HALL</span>
+                    <span class="ed-credits">VIII · OBRAS</span>
+                  </div>
+                  <div class="ed-title">
+                    Profundidad <span class="accent">Curada</span>
+                    <span class="sub">EXHIBIT · 3D · MMXXVI</span>
+                  </div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">EXHIBIT · 3D-008</span>
+                  <span class="apply-btn">APLICAR</span>
+                  <div class="specimen-tag">SP · 3D-008 · TILT · PARALLAX</div>
+                </div>
+                <div class="sec-header">
+                  <span class="h">Vitrina · 3D</span>
+                  <span class="count">VII</span>
+                </div>
+                <div class="grid-2" style="row-gap:18px;padding-bottom:28px;">
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span><div class="specimen">3D-002</div></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span><div class="specimen">3D-003</div></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span><div class="specimen">3D-004</div></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span><div class="specimen">3D-005</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="ed-header">
+                  <div class="ed-chip-row">
+                    <span class="ed-chip">III · DEPTH HALL</span>
+                    <span class="ed-credits">VIII · OBRAS</span>
+                  </div>
+                  <div class="ed-title">
+                    Profundidad <span class="accent">Curada</span>
+                    <span class="sub">EXHIBIT · 3D · MMXXVI</span>
+                  </div>
+                </div>
+                <div class="hero">
+                  <div class="wp-hero"></div>
+                  <span class="badge">EXHIBIT · 3D-008</span>
+                  <span class="apply-btn">APLICAR</span>
+                  <div class="specimen-tag">SP · 3D-008 · TILT · PARALLAX</div>
+                </div>
+                <div class="sec-header">
+                  <span class="h">Vitrina · 3D</span>
+                  <span class="count">VII</span>
+                </div>
+                <div class="grid-2" style="row-gap:18px;padding-bottom:28px;">
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span><div class="specimen">3D-002</div></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span><div class="specimen">3D-003</div></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span><div class="specimen">3D-004</div></div>
+                  <div class="grid-card"><div class="wp-mini"></div><span class="grid-3d-chip">3D</span><div class="specimen">3D-005</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 05</div>
+          <h2>Museum <span class="acc">Vitrina</span></h2>
+          <div class="tagline">"Cada wallpaper es un espécimen en su vitrina con esquinas de latón — la sección 3D como exhibit ceremonial."</div>
+          <div class="description">
+            Marco metálico con corner brackets de latón, etiqueta de espécimen ("SP · 3D-008 · TILT · PARALLAX") debajo de cada card. Tipografía Cinzel uppercase para títulos. Botón APLICAR con brass-shine pasando cada 5s. iOS: limestone + Apple Blue brass. B&amp;G: mahogany + gold brass — full Cabinet of Curiosities.
+          </div>
+
+          <div class="meta-section-title">// Vitrina palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light · limestone</div>
+              <div class="palette">
+                <div class="sw" style="background:#EDE5D0" data-name="#EDE5D0"></div>
+                <div class="sw" style="background:#D8CFB5" data-name="#D8CFB5"></div>
+                <div class="sw" style="background:#8E7B4E" data-name="#8E7B4E"></div>
+                <div class="sw" style="background:#1C1C1E" data-name="#1C1C1E"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark · mahogany</div>
+              <div class="palette">
+                <div class="sw" style="background:#2A1812" data-name="#2A1812"></div>
+                <div class="sw" style="background:#3A261A" data-name="#3A261A"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#C2A86A" data-name="#C2A86A"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Coherente con CULTURA Museum (un solo idioma premium en toda la app) · curated feeling máximo · cero verde</div>
+            <div class="cons"><div class="h">CONS</div>Comparte ADN con CULTURA (puede confundir secciones) · más texto = más traducción · Cinzel pesado en lectura larga</div>
+          </div>
+          <div class="verdict">
+            Veredicto: la apuesta de "Pixora como museo de wallpapers". Si CULTURA ya es vitrina, la sección 3D también-as-vitrina convierte la app entera en un single curated language. Riesgo: blur entre secciones — diferenciar via la specimen-tag (CULTURA usa hieroglyphs, 3D usa TILT · PARALLAX).
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <span>PIXORA · 3D SECTION · DESIGN ARCHIVE · MAY 2026</span>
+    <span class="line"></span>
+    <span>05 / 05</span>
+  </footer>
+
+</div>
+</body>
+</html>

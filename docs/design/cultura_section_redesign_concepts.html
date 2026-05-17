@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · CULTURA · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* Mictlán wallpaper sample */
+    --mc-bone:    #f0e6c8;
+    --mc-jade:    #1d6d57;
+    --mc-blood:   #8b1a1a;
+    --mc-obsidian:#0a0a18;
+    --mc-copper:  #b07644;
+
+    /* Parchment palette */
+    --parch:      #f3e6c4;
+    --parch-2:    #e8d6a8;
+    --parch-deep: #c9a96a;
+    --parch-ink:  #3a2818;
+    --vellum:     #2a1f12;
+    --vellum-2:   #16100a;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(184,168,232,0.3), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(80,40,120,0.10), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.06), transparent 55%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · CULTURA · CODEX-REDESIGN / DOC-031';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: #B8A8E8; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row: 4 phones grid on left, meta on right */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 28px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 270px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 260px;
+    aspect-ratio: 260 / 540;
+    background: #fff;
+    border-radius: 36px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 7px #1a1a22,
+      0 20px 46px rgba(0,0,0,0.65),
+      0 0 60px var(--gold-haze);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 7px #0a0a14,
+      0 20px 46px rgba(0,0,0,0.7),
+      0 0 70px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 66px; height: 15px;
+    background: #000;
+    border-radius: 0 0 11px 11px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    font: 600 8.5px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 13px; height: 6.5px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─────────── Mictlán wallpaper simulation ─────────── */
+  .wp-mc {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 38%, rgba(176,118,68,0.55), transparent 55%),
+      radial-gradient(ellipse at 30% 70%, rgba(29,109,87,0.45), transparent 60%),
+      radial-gradient(ellipse at 80% 25%, rgba(139,26,26,0.5), transparent 55%),
+      linear-gradient(160deg, #0a0a18 0%, #1a0a18 35%, #14101e 100%);
+    overflow: hidden;
+  }
+  .wp-mc::before {
+    /* Aztec glyph silhouette - skull-like center */
+    content: '';
+    position: absolute;
+    top: 38%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56%; height: 38%;
+    background:
+      radial-gradient(ellipse 60% 70% at 50% 45%, rgba(240,230,200,0.45), transparent 60%),
+      radial-gradient(circle 12% at 38% 42%, rgba(10,10,24,0.95), transparent 60%),
+      radial-gradient(circle 12% at 62% 42%, rgba(10,10,24,0.95), transparent 60%);
+    filter: blur(0.6px);
+  }
+  .wp-mc::after {
+    /* glow particles */
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1.4px 1.4px at 18% 22%, rgba(245,214,118,0.85), transparent 50%),
+      radial-gradient(1.2px 1.2px at 62% 68%, rgba(240,230,200,0.7), transparent 50%),
+      radial-gradient(1.6px 1.6px at 85% 18%, rgba(176,118,68,0.8), transparent 50%),
+      radial-gradient(1.2px 1.2px at 38% 78%, rgba(29,109,87,0.6), transparent 50%),
+      radial-gradient(1.4px 1.4px at 12% 56%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1.4px 1.4px at 92% 88%, rgba(139,26,26,0.55), transparent 50%);
+    mix-blend-mode: screen;
+    animation: wpPulse 4s ease-in-out infinite alternate;
+  }
+  @keyframes wpPulse {
+    from { opacity: 0.75; }
+    to   { opacity: 1; }
+  }
+
+  /* Smaller thumb variant */
+  .wp-mc.thumb { border-radius: 4px; }
+
+  /* ════════════════════════════════════════════
+     #01 CODEX MANUSCRIPT
+  ════════════════════════════════════════════ */
+  .c1 .screen { padding: 28px 14px 12px; }
+  .phone.light.c1 .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(201,169,106,0.18), transparent 60%),
+      linear-gradient(180deg, #faf3e0 0%, #f3e6c4 100%);
+  }
+  .phone.dark.c1 .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.10), transparent 60%),
+      linear-gradient(180deg, #14100a 0%, #0a0805 100%);
+  }
+  /* Paper texture lines */
+  .c1 .screen::before {
+    content: '';
+    position: absolute;
+    inset: 22px 0 0 0;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 22px, rgba(58,40,24,0.04) 22px 23px);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .phone.dark.c1 .screen::before {
+    background: repeating-linear-gradient(0deg, transparent 0 22px, rgba(212,175,55,0.04) 22px 23px);
+  }
+  /* Deckled edge */
+  .c1 .screen::after {
+    content: '';
+    position: absolute;
+    inset: 22px 6px 8px 6px;
+    border: 1px solid rgba(58,40,24,0.18);
+    border-radius: 2px;
+    box-shadow: inset 0 0 24px rgba(58,40,24,0.05);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .phone.dark.c1 .screen::after {
+    border-color: rgba(212,175,55,0.22);
+    box-shadow: inset 0 0 24px rgba(212,175,55,0.06);
+  }
+
+  .c1 .codex-head {
+    position: relative; z-index: 3;
+    text-align: center;
+    padding: 4px 8px 10px;
+    border-bottom: 1px solid rgba(58,40,24,0.18);
+    margin-bottom: 8px;
+  }
+  .phone.dark.c1 .codex-head { border-bottom-color: rgba(212,175,55,0.22); }
+  .c1 .codex-head .crest {
+    font: 700 7px 'Cinzel', serif;
+    letter-spacing: 0.4em;
+    color: rgba(58,40,24,0.55);
+    margin-bottom: 4px;
+  }
+  .phone.dark.c1 .codex-head .crest { color: rgba(212,175,55,0.6); }
+  .c1 .codex-head .crest-title {
+    font: italic 350 22px 'Cormorant Garamond', serif;
+    color: var(--parch-ink);
+    line-height: 1;
+  }
+  .phone.dark.c1 .codex-head .crest-title { color: var(--gold-bright); }
+  .c1 .codex-head .flourish {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    color: var(--parch-deep);
+    margin-top: 2px;
+    letter-spacing: 0.3em;
+  }
+  .phone.dark.c1 .codex-head .flourish { color: var(--gold-deep); }
+
+  .c1 .chapter-entry {
+    position: relative; z-index: 3;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    padding: 8px 6px;
+    margin-bottom: 6px;
+  }
+  .c1 .dropcap {
+    font: 600 36px 'Cormorant Garamond', serif;
+    color: var(--mc-blood);
+    line-height: 0.85;
+    text-align: center;
+    text-shadow: 1px 1px 0 rgba(58,40,24,0.15);
+    animation: dropcapIn 1.2s ease-out;
+  }
+  .phone.dark.c1 .dropcap {
+    color: var(--gold-bright);
+    text-shadow: 0 0 8px rgba(245,214,118,0.4);
+  }
+  @keyframes dropcapIn {
+    0% { opacity: 0; transform: scale(0.6) rotate(-12deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  .c1 .chap-body .roman {
+    font: 600 7px 'Cinzel', serif;
+    letter-spacing: 0.3em;
+    color: rgba(58,40,24,0.55);
+    margin-bottom: 2px;
+  }
+  .phone.dark.c1 .chap-body .roman { color: rgba(212,175,55,0.55); }
+  .c1 .chap-body .ctitle {
+    font: italic 500 13px 'Cormorant Garamond', serif;
+    color: var(--parch-ink);
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .phone.dark.c1 .chap-body .ctitle { color: var(--text); }
+  .c1 .chap-body .csub {
+    font: italic 400 8.5px 'Cormorant Garamond', serif;
+    color: rgba(58,40,24,0.7);
+    margin-bottom: 3px;
+  }
+  .phone.dark.c1 .chap-body .csub { color: var(--bg-text-dim); }
+  .c1 .chap-body .marginalia {
+    font: italic 400 6.5px 'Cormorant Garamond', serif;
+    color: rgba(58,40,24,0.55);
+    letter-spacing: 0.12em;
+  }
+  .phone.dark.c1 .chap-body .marginalia { color: rgba(212,175,55,0.5); }
+
+  .c1 .divider {
+    text-align: center;
+    font: 400 10px 'Cormorant Garamond', serif;
+    color: var(--parch-deep);
+    letter-spacing: 0.4em;
+    margin: 4px 0;
+    position: relative; z-index: 3;
+  }
+  .phone.dark.c1 .divider { color: var(--gold-deep); }
+
+  /* Detail page #01 */
+  .c1.detail .hero {
+    position: relative; z-index: 3;
+    height: 38%;
+    margin: 0 -8px 8px;
+    border: 1px solid rgba(58,40,24,0.22);
+    overflow: hidden;
+    border-radius: 2px;
+  }
+  .phone.dark.c1.detail .hero { border-color: rgba(212,175,55,0.3); }
+  .c1.detail .hero .wp-mc { inset: 0; }
+  .c1.detail .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(58,40,24,0.4) 100%);
+  }
+  .c1.detail .hero .corner {
+    position: absolute;
+    width: 18px; height: 18px;
+    border: 1px solid rgba(245,214,118,0.7);
+  }
+  .c1.detail .hero .corner.tl { top: 4px; left: 4px; border-right: none; border-bottom: none; }
+  .c1.detail .hero .corner.tr { top: 4px; right: 4px; border-left: none; border-bottom: none; }
+  .c1.detail .hero .corner.bl { bottom: 4px; left: 4px; border-right: none; border-top: none; }
+  .c1.detail .hero .corner.br { bottom: 4px; right: 4px; border-left: none; border-top: none; }
+
+  .c1.detail .body-text {
+    position: relative; z-index: 3;
+    padding: 0 4px;
+  }
+  .c1.detail .body-text .dropcap-large {
+    float: left;
+    font: 600 50px 'Cormorant Garamond', serif;
+    color: var(--mc-blood);
+    line-height: 0.85;
+    margin: 0 8px 2px 0;
+    text-shadow: 1px 1px 0 rgba(58,40,24,0.15);
+  }
+  .phone.dark.c1.detail .body-text .dropcap-large {
+    color: var(--gold-bright);
+    text-shadow: 0 0 10px rgba(245,214,118,0.5);
+  }
+  .c1.detail .body-text p {
+    font: 400 8.5px 'Cormorant Garamond', serif;
+    color: var(--parch-ink);
+    line-height: 1.55;
+    text-align: justify;
+    margin-bottom: 4px;
+  }
+  .phone.dark.c1.detail .body-text p { color: var(--text); }
+  .c1.detail .body-text p em {
+    color: var(--mc-blood);
+  }
+  .phone.dark.c1.detail .body-text p em { color: var(--gold-bright); }
+
+  .c1.detail .marginalia-tags {
+    position: relative; z-index: 3;
+    margin-top: 6px;
+    padding: 4px 6px;
+    border-top: 1px solid rgba(58,40,24,0.18);
+    font: italic 400 6.5px 'Cormorant Garamond', serif;
+    color: rgba(58,40,24,0.55);
+    letter-spacing: 0.15em;
+    text-align: center;
+  }
+  .phone.dark.c1.detail .marginalia-tags {
+    border-top-color: rgba(212,175,55,0.25);
+    color: rgba(212,175,55,0.5);
+  }
+
+  /* ════════════════════════════════════════════
+     #02 MUSEUM EXHIBIT
+  ════════════════════════════════════════════ */
+  .c2 .screen { padding: 26px 12px 10px; }
+  .phone.light.c2 .screen {
+    background: linear-gradient(180deg, #fafafa 0%, #ececec 100%);
+  }
+  .phone.dark.c2 .screen {
+    background: linear-gradient(180deg, #0a0a14 0%, #14141F 100%);
+  }
+  .c2 .museum-head {
+    border-bottom: 2px solid rgba(28,28,30,0.18);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+  .phone.dark.c2 .museum-head { border-bottom-color: rgba(212,175,55,0.3); }
+  .c2 .museum-head .gallery {
+    font: 700 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.32em;
+    color: rgba(28,28,30,0.5);
+    margin-bottom: 2px;
+  }
+  .phone.dark.c2 .museum-head .gallery { color: rgba(212,175,55,0.6); }
+  .c2 .museum-head .gtitle {
+    font: 600 20px 'Cinzel', serif;
+    letter-spacing: 0.04em;
+    color: var(--ios-text);
+    line-height: 1;
+  }
+  .phone.dark.c2 .museum-head .gtitle { color: var(--gold-bright); }
+  .c2 .museum-head .gsub {
+    font: 400 8px 'Inter', sans-serif;
+    color: var(--ios-text-dim);
+    margin-top: 3px;
+    letter-spacing: 0.1em;
+  }
+  .phone.dark.c2 .museum-head .gsub { color: var(--bg-text-dim); }
+
+  .c2 .exhibit {
+    border: 1px solid rgba(28,28,30,0.18);
+    background: #fff;
+    padding: 8px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .phone.dark.c2 .exhibit {
+    background: var(--bg-surface);
+    border-color: rgba(212,175,55,0.25);
+  }
+  .c2 .exhibit::before {
+    /* brass corner */
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px;
+    width: 12px; height: 12px;
+    border-top: 2px solid var(--ios-blue);
+    border-left: 2px solid var(--ios-blue);
+  }
+  .phone.dark.c2 .exhibit::before { border-color: var(--gold); }
+  .c2 .exhibit::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 12px; height: 12px;
+    border-bottom: 2px solid var(--ios-blue);
+    border-right: 2px solid var(--ios-blue);
+  }
+  .phone.dark.c2 .exhibit::after { border-color: var(--gold); }
+  .c2 .exhibit-grid {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 8px;
+  }
+  .c2 .specimen {
+    position: relative;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    border: 1px solid rgba(28,28,30,0.15);
+  }
+  .phone.dark.c2 .specimen { border-color: rgba(212,175,55,0.2); }
+  .c2 .specimen .wp-mc { inset: 0; }
+  /* measurement marks */
+  .c2 .specimen::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 5px;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 4px, rgba(255,255,255,0.6) 4px 5px);
+    z-index: 3;
+  }
+  .c2 .exhibit-meta .serial {
+    font: 700 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    color: var(--ios-blue);
+    margin-bottom: 2px;
+  }
+  .phone.dark.c2 .exhibit-meta .serial { color: var(--gold-bright); }
+  .c2 .exhibit-meta .placard {
+    font: 600 11px 'Cinzel', serif;
+    color: var(--ios-text);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+  }
+  .phone.dark.c2 .exhibit-meta .placard { color: var(--text); }
+  .c2 .exhibit-meta .ptype {
+    font: italic 400 8px 'Inter', sans-serif;
+    color: var(--ios-text-dim);
+    margin: 1px 0 4px;
+  }
+  .phone.dark.c2 .exhibit-meta .ptype { color: var(--bg-text-dim); }
+  .c2 .exhibit-meta .classif {
+    display: flex; gap: 3px; flex-wrap: wrap;
+  }
+  .c2 .exhibit-meta .classif span {
+    font: 600 5.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.12em;
+    background: rgba(10,132,255,0.1);
+    color: var(--ios-blue);
+    padding: 1.5px 4px;
+    border: 1px solid rgba(10,132,255,0.25);
+  }
+  .phone.dark.c2 .exhibit-meta .classif span {
+    background: rgba(212,175,55,0.1);
+    color: var(--gold-bright);
+    border-color: rgba(212,175,55,0.3);
+  }
+
+  /* Detail page #02 */
+  .c2.detail .specimen-large {
+    position: relative;
+    height: 32%;
+    margin-bottom: 8px;
+    border: 1px solid rgba(28,28,30,0.18);
+    overflow: hidden;
+  }
+  .phone.dark.c2.detail .specimen-large { border-color: rgba(212,175,55,0.3); }
+  .c2.detail .specimen-large .wp-mc { inset: 0; }
+  .c2.detail .specimen-large .placard-overlay {
+    position: absolute;
+    bottom: 6px; left: 6px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid var(--ios-blue);
+    padding: 4px 6px;
+    font: 700 6.5px 'JetBrains Mono', monospace;
+    color: var(--ios-blue);
+    letter-spacing: 0.2em;
+  }
+  .phone.dark.c2.detail .specimen-large .placard-overlay {
+    background: rgba(10,10,20,0.92);
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+  .c2.detail .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 6px;
+    font: 400 7px 'Inter', sans-serif;
+  }
+  .c2.detail .meta-grid > div {
+    padding: 3px 5px;
+    border-left: 2px solid var(--ios-blue);
+    color: var(--ios-text);
+  }
+  .phone.dark.c2.detail .meta-grid > div {
+    border-left-color: var(--gold);
+    color: var(--text);
+  }
+  .c2.detail .meta-grid b {
+    display: block;
+    font: 700 6px 'JetBrains Mono', monospace;
+    letter-spacing: 0.2em;
+    color: var(--ios-text-dim);
+    margin-bottom: 1px;
+  }
+  .phone.dark.c2.detail .meta-grid b { color: var(--bg-text-dim); }
+  .c2.detail .description {
+    font: 400 8px 'Inter', sans-serif;
+    color: var(--ios-text);
+    line-height: 1.55;
+    text-align: justify;
+    padding: 6px;
+    background: rgba(0,0,0,0.03);
+    border-top: 1px solid var(--ios-divider);
+    border-bottom: 1px solid var(--ios-divider);
+  }
+  .phone.dark.c2.detail .description {
+    color: var(--text);
+    background: rgba(212,175,55,0.04);
+    border-color: rgba(212,175,55,0.15);
+  }
+
+  /* ════════════════════════════════════════════
+     #03 TAROT MYSTICAL DECK
+  ════════════════════════════════════════════ */
+  .c3 .screen { padding: 26px 10px 12px; }
+  .phone.light.c3 .screen {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(10,132,255,0.06), transparent 60%),
+      #FFFFFF;
+  }
+  .phone.dark.c3 .screen {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(212,175,55,0.12), transparent 60%),
+      var(--bg-ink);
+  }
+  .c3 .deck-head {
+    text-align: center;
+    margin-bottom: 12px;
+    padding: 0 4px 8px;
+    border-bottom: 1px solid var(--ios-divider);
+  }
+  .phone.dark.c3 .deck-head { border-bottom-color: rgba(212,175,55,0.2); }
+  .c3 .deck-head .label {
+    font: 600 7px 'Cinzel', serif;
+    letter-spacing: 0.4em;
+    color: var(--ios-blue);
+    margin-bottom: 4px;
+  }
+  .phone.dark.c3 .deck-head .label { color: var(--gold-deep); }
+  .c3 .deck-head .name {
+    font: italic 350 22px 'Fraunces', serif;
+    color: var(--ios-text);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .phone.dark.c3 .deck-head .name { color: var(--text); }
+
+  .c3 .deck {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 0 2px;
+  }
+  .c3 .card {
+    position: relative;
+    aspect-ratio: 3 / 5;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(10,132,255,0.4);
+    background: linear-gradient(180deg, #fff 0%, #f8f8fb 100%);
+    transition: transform 0.3s;
+  }
+  .phone.dark.c3 .card {
+    border-color: rgba(212,175,55,0.5);
+    background: linear-gradient(180deg, #1a1a26 0%, #0a0a14 100%);
+    box-shadow: 0 0 12px rgba(212,175,55,0.15);
+  }
+  /* Filigree border */
+  .c3 .card::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(10,132,255,0.5);
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  .phone.dark.c3 .card::before {
+    border-color: rgba(212,175,55,0.5);
+    animation: filigreePulse 3s ease-in-out infinite;
+  }
+  @keyframes filigreePulse {
+    0%,100% { box-shadow: inset 0 0 4px rgba(212,175,55,0.2); }
+    50% { box-shadow: inset 0 0 10px rgba(212,175,55,0.5); }
+  }
+  /* Corner glyphs */
+  .c3 .card::after {
+    content: '✦';
+    position: absolute;
+    top: 7px; right: 8px;
+    font-size: 8px;
+    color: var(--ios-blue);
+  }
+  .phone.dark.c3 .card::after { color: var(--gold-bright); }
+  .c3 .card .roman-top {
+    position: absolute;
+    top: 7px; left: 8px;
+    font: 600 7px 'Cinzel', serif;
+    letter-spacing: 0.15em;
+    color: var(--ios-blue);
+  }
+  .phone.dark.c3 .card .roman-top { color: var(--gold-bright); }
+  .c3 .card .art {
+    position: absolute;
+    top: 22px; left: 10px; right: 10px;
+    aspect-ratio: 1/1.1;
+    overflow: hidden;
+    border-radius: 3px;
+  }
+  .c3 .card .art .wp-mc { inset: 0; }
+  .c3 .card .ctitle {
+    position: absolute;
+    bottom: 18px; left: 8px; right: 8px;
+    text-align: center;
+    font: italic 500 9px 'Fraunces', serif;
+    color: var(--ios-text);
+    line-height: 1;
+  }
+  .phone.dark.c3 .card .ctitle { color: var(--text); }
+  .c3 .card .csub {
+    position: absolute;
+    bottom: 7px; left: 8px; right: 8px;
+    text-align: center;
+    font: 600 5.5px 'Cinzel', serif;
+    letter-spacing: 0.25em;
+    color: var(--ios-text-dim);
+  }
+  .phone.dark.c3 .card .csub { color: var(--gold-deep); }
+
+  /* Detail page #03 — expanded card */
+  .c3.detail .card-big {
+    position: relative;
+    margin: 0 8px 8px;
+    aspect-ratio: 3 / 4.4;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(10,132,255,0.5);
+    background: linear-gradient(180deg, #fff 0%, #f8f8fb 100%);
+  }
+  .phone.dark.c3.detail .card-big {
+    border-color: rgba(212,175,55,0.6);
+    background: linear-gradient(180deg, #1a1a26 0%, #0a0a14 100%);
+    box-shadow: 0 0 20px rgba(212,175,55,0.2);
+  }
+  .c3.detail .card-big::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(10,132,255,0.6);
+    border-radius: 5px;
+    pointer-events: none;
+  }
+  .phone.dark.c3.detail .card-big::before { border-color: rgba(212,175,55,0.6); }
+  /* corner glyphs all 4 */
+  .c3.detail .card-big .glyph {
+    position: absolute;
+    font: 600 10px 'Cinzel', serif;
+    color: var(--ios-blue);
+    z-index: 3;
+  }
+  .phone.dark.c3.detail .card-big .glyph { color: var(--gold-bright); }
+  .c3.detail .card-big .glyph.tl { top: 10px; left: 12px; }
+  .c3.detail .card-big .glyph.tr { top: 10px; right: 12px; font-style: italic; }
+  .c3.detail .card-big .glyph.bl { bottom: 10px; left: 12px; transform: rotate(180deg); font-style: italic; }
+  .c3.detail .card-big .glyph.br { bottom: 10px; right: 12px; transform: rotate(180deg); }
+  .c3.detail .card-big .art-big {
+    position: absolute;
+    top: 32px; left: 14px; right: 14px;
+    aspect-ratio: 1/1.1;
+    overflow: hidden;
+    border-radius: 4px;
+    border: 1px solid rgba(10,132,255,0.3);
+  }
+  .phone.dark.c3.detail .card-big .art-big { border-color: rgba(212,175,55,0.4); }
+  .c3.detail .card-big .art-big .wp-mc { inset: 0; }
+  .c3.detail .card-big .title-big {
+    position: absolute;
+    bottom: 38px; left: 8px; right: 8px;
+    text-align: center;
+    font: italic 500 16px 'Fraunces', serif;
+    color: var(--ios-text);
+    line-height: 1;
+  }
+  .phone.dark.c3.detail .card-big .title-big { color: var(--text); }
+  .c3.detail .card-big .sub-big {
+    position: absolute;
+    bottom: 22px; left: 8px; right: 8px;
+    text-align: center;
+    font: 600 6.5px 'Cinzel', serif;
+    letter-spacing: 0.32em;
+    color: var(--ios-text-dim);
+  }
+  .phone.dark.c3.detail .card-big .sub-big { color: var(--gold-deep); }
+  .c3.detail .card-big .roman-big {
+    position: absolute;
+    top: 14px; left: 50%;
+    transform: translateX(-50%);
+    font: 600 8px 'Cinzel', serif;
+    letter-spacing: 0.4em;
+    color: var(--ios-blue);
+  }
+  .phone.dark.c3.detail .card-big .roman-big { color: var(--gold-bright); }
+  .c3.detail .reading {
+    padding: 4px 12px 0;
+    font: 400 7.5px 'Cormorant Garamond', serif;
+    color: var(--ios-text);
+    line-height: 1.5;
+    text-align: center;
+    font-style: italic;
+  }
+  .phone.dark.c3.detail .reading { color: var(--text); }
+
+  /* ════════════════════════════════════════════
+     #04 CINEMATIC DOCUMENTARY
+  ════════════════════════════════════════════ */
+  .c4 .screen { padding: 0; }
+  .phone.light.c4 .screen { background: #FFFFFF; }
+  .phone.dark.c4 .screen { background: #000; }
+
+  .c4 .featured {
+    position: relative;
+    height: 42%;
+    overflow: hidden;
+  }
+  .c4 .featured .wp-mc { inset: 0; }
+  .c4 .featured::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.85) 100%);
+  }
+  .c4 .featured .eyebrow {
+    position: absolute;
+    top: 30px; left: 14px;
+    font: 700 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.32em;
+    color: var(--ios-blue);
+    z-index: 3;
+  }
+  .phone.dark.c4 .featured .eyebrow { color: var(--gold-bright); }
+  .c4 .featured .ftitle {
+    position: absolute;
+    bottom: 30px; left: 14px; right: 14px;
+    font: 700 20px 'Inter', sans-serif;
+    color: #fff;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    z-index: 3;
+  }
+  .c4 .featured .fmeta {
+    position: absolute;
+    bottom: 14px; left: 14px;
+    display: flex; gap: 8px; align-items: center;
+    font: 600 7px 'Inter', sans-serif;
+    color: rgba(255,255,255,0.85);
+    z-index: 3;
+  }
+  .c4 .featured .play-circ {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 6px;
+  }
+  .phone.dark.c4 .featured .play-circ {
+    background: var(--gold-bright);
+    color: #000;
+  }
+
+  .c4 .section-rail {
+    padding: 10px 14px 4px;
+    font: 700 8px 'Inter', sans-serif;
+    color: var(--ios-text);
+    letter-spacing: 0.04em;
+  }
+  .phone.dark.c4 .section-rail { color: #fff; }
+  .c4 .section-rail .small {
+    font: 400 6.5px 'Inter', sans-serif;
+    color: var(--ios-text-dim);
+    margin-top: 1px;
+  }
+  .phone.dark.c4 .section-rail .small { color: rgba(255,255,255,0.5); }
+
+  .c4 .ep-list {
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .c4 .ep {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 8px;
+    padding: 4px;
+    border-radius: 4px;
+  }
+  .c4 .ep .thumb {
+    position: relative;
+    aspect-ratio: 16/9;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .c4 .ep .thumb .wp-mc { inset: 0; }
+  .c4 .ep .thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%);
+  }
+  .c4 .ep .thumb .duration {
+    position: absolute;
+    bottom: 2px; right: 3px;
+    font: 700 5.5px 'Inter', sans-serif;
+    color: #fff;
+    z-index: 2;
+  }
+  .c4 .ep .info .eyeb {
+    font: 700 6px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--ios-blue);
+    margin-bottom: 1px;
+  }
+  .phone.dark.c4 .ep .info .eyeb { color: var(--gold-bright); }
+  .c4 .ep .info .etitle {
+    font: 600 10px 'Inter', sans-serif;
+    color: var(--ios-text);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .phone.dark.c4 .ep .info .etitle { color: #fff; }
+  .c4 .ep .info .esub {
+    font: 400 7px 'Inter', sans-serif;
+    color: var(--ios-text-dim);
+    margin-top: 1px;
+    line-height: 1.3;
+  }
+  .phone.dark.c4 .ep .info .esub { color: rgba(255,255,255,0.55); }
+
+  /* Detail page #04 */
+  .c4.detail .hero-wide {
+    position: relative;
+    height: 32%;
+    overflow: hidden;
+  }
+  .c4.detail .hero-wide .wp-mc { inset: 0; }
+  .c4.detail .hero-wide::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 35%, transparent 60%, rgba(0,0,0,0.95) 100%);
+  }
+  .c4.detail .hero-wide .back-arrow {
+    position: absolute;
+    top: 30px; left: 14px;
+    color: #fff;
+    font: 600 14px 'Inter', sans-serif;
+    z-index: 3;
+  }
+  .c4.detail .hero-wide .h4-eyeb {
+    position: absolute;
+    bottom: 50px; left: 14px;
+    font: 700 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.32em;
+    color: var(--ios-blue);
+    z-index: 3;
+  }
+  .phone.dark.c4.detail .hero-wide .h4-eyeb { color: var(--gold-bright); }
+  .c4.detail .hero-wide .h4-title {
+    position: absolute;
+    bottom: 22px; left: 14px; right: 14px;
+    font: 700 18px 'Inter', sans-serif;
+    color: #fff;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    z-index: 3;
+  }
+  .c4.detail .hero-wide .h4-sub {
+    position: absolute;
+    bottom: 8px; left: 14px;
+    font: italic 400 9px 'Inter', sans-serif;
+    color: rgba(255,255,255,0.8);
+    z-index: 3;
+  }
+  .c4.detail .doc-body {
+    padding: 10px 14px;
+  }
+  .c4.detail .doc-body .topics {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .c4.detail .doc-body .topics span {
+    font: 700 5.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    background: rgba(10,132,255,0.1);
+    color: var(--ios-blue);
+    padding: 2px 5px;
+    border-radius: 2px;
+  }
+  .phone.dark.c4.detail .doc-body .topics span {
+    background: rgba(212,175,55,0.12);
+    color: var(--gold-bright);
+  }
+  .c4.detail .doc-body p {
+    font: 400 8px 'Inter', sans-serif;
+    color: var(--ios-text);
+    line-height: 1.55;
+    margin-bottom: 4px;
+  }
+  .phone.dark.c4.detail .doc-body p { color: #fff; }
+  .c4.detail .doc-body .cta {
+    margin-top: 6px;
+    padding: 6px;
+    background: var(--ios-blue);
+    color: #fff;
+    text-align: center;
+    border-radius: 3px;
+    font: 700 8px 'Inter', sans-serif;
+    letter-spacing: 0.04em;
+  }
+  .phone.dark.c4.detail .doc-body .cta {
+    background: var(--gold-bright);
+    color: #000;
+  }
+
+  /* ════════════════════════════════════════════
+     #05 ANCIENT SCROLL
+  ════════════════════════════════════════════ */
+  .c5 .screen { padding: 0; }
+  .phone.light.c5 .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(201,169,106,0.25), transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(201,169,106,0.18), transparent 60%),
+      linear-gradient(180deg, var(--parch) 0%, var(--parch-2) 50%, var(--parch) 100%);
+  }
+  .phone.dark.c5 .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.14), transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,0.10), transparent 60%),
+      linear-gradient(180deg, var(--vellum-2) 0%, var(--vellum) 50%, var(--vellum-2) 100%);
+  }
+  /* Parchment grain */
+  .c5 .screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(1px 1px at 10% 10%, rgba(58,40,24,0.18), transparent 50%),
+      radial-gradient(1px 1px at 80% 30%, rgba(58,40,24,0.15), transparent 50%),
+      radial-gradient(1px 1px at 30% 60%, rgba(58,40,24,0.12), transparent 50%),
+      radial-gradient(1px 1px at 70% 85%, rgba(58,40,24,0.16), transparent 50%);
+    pointer-events: none;
+    animation: parchSway 12s ease-in-out infinite alternate;
+  }
+  .phone.dark.c5 .screen::before {
+    background:
+      radial-gradient(1px 1px at 10% 10%, rgba(212,175,55,0.22), transparent 50%),
+      radial-gradient(1px 1px at 80% 30%, rgba(212,175,55,0.18), transparent 50%),
+      radial-gradient(1px 1px at 30% 60%, rgba(212,175,55,0.15), transparent 50%),
+      radial-gradient(1px 1px at 70% 85%, rgba(212,175,55,0.20), transparent 50%);
+  }
+  @keyframes parchSway {
+    0% { transform: translateY(0) translateX(0); }
+    100% { transform: translateY(-2px) translateX(1px); }
+  }
+
+  /* Scroll cap top */
+  .c5 .scroll-cap {
+    position: relative;
+    margin: 22px 0 0;
+    height: 14px;
+    background: linear-gradient(180deg, var(--parch-deep) 0%, var(--parch-2) 70%, transparent 100%);
+    border-bottom: 1px solid rgba(58,40,24,0.3);
+    z-index: 2;
+  }
+  .phone.dark.c5 .scroll-cap {
+    background: linear-gradient(180deg, var(--gold-deep) 0%, var(--vellum) 70%, transparent 100%);
+    border-bottom-color: rgba(212,175,55,0.4);
+  }
+
+  .c5 .scroll-head {
+    text-align: center;
+    padding: 16px 16px 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .c5 .scroll-head .stamp {
+    display: inline-block;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--mc-blood) 0%, #4a0a0a 100%);
+    margin-bottom: 6px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .c5 .scroll-head .stamp::after {
+    content: '✦';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--parch);
+    font-size: 12px;
+  }
+  .phone.dark.c5 .scroll-head .stamp {
+    background: radial-gradient(circle, var(--gold-bright) 0%, var(--gold-deep) 100%);
+  }
+  .phone.dark.c5 .scroll-head .stamp::after { color: var(--vellum-2); }
+  .c5 .scroll-head .crest {
+    font: 700 7px 'Cinzel', serif;
+    letter-spacing: 0.42em;
+    color: var(--parch-ink);
+    opacity: 0.7;
+    margin-bottom: 2px;
+  }
+  .phone.dark.c5 .scroll-head .crest { color: var(--gold-deep); opacity: 1; }
+  .c5 .scroll-head .crest-title {
+    font: italic 350 22px 'Cormorant Garamond', serif;
+    color: var(--parch-ink);
+    line-height: 1;
+  }
+  .phone.dark.c5 .scroll-head .crest-title { color: var(--gold-bright); }
+
+  .c5 .scroll-divider {
+    text-align: center;
+    margin: 8px 0;
+    position: relative;
+    z-index: 2;
+    font: 400 14px 'Cormorant Garamond', serif;
+    color: var(--parch-deep);
+    letter-spacing: 0.4em;
+  }
+  .phone.dark.c5 .scroll-divider { color: var(--gold-deep); }
+  .c5 .scroll-divider::before,
+  .c5 .scroll-divider::after {
+    content: '';
+    display: inline-block;
+    width: 36px; height: 1px;
+    background: var(--parch-deep);
+    vertical-align: middle;
+    margin: 0 6px;
+    opacity: 0.5;
+  }
+  .phone.dark.c5 .scroll-divider::before,
+  .phone.dark.c5 .scroll-divider::after {
+    background: var(--gold-deep);
+  }
+
+  .c5 .chap-row {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 8px;
+    padding: 6px 16px;
+    align-items: center;
+  }
+  .c5 .chap-row .mini-art {
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 1px solid var(--parch-deep);
+    box-shadow: 0 2px 4px rgba(58,40,24,0.2);
+  }
+  .phone.dark.c5 .chap-row .mini-art { border-color: var(--gold-deep); }
+  .c5 .chap-row .mini-art .wp-mc { inset: 0; }
+  .c5 .chap-row .info .num {
+    font: 600 7px 'Cinzel', serif;
+    letter-spacing: 0.32em;
+    color: var(--parch-deep);
+  }
+  .phone.dark.c5 .chap-row .info .num { color: var(--gold-deep); }
+  .c5 .chap-row .info .name {
+    font: italic 500 12px 'Cormorant Garamond', serif;
+    color: var(--parch-ink);
+    line-height: 1.1;
+  }
+  .phone.dark.c5 .chap-row .info .name { color: var(--text); }
+  .c5 .chap-row .info .role {
+    font: italic 400 8px 'Cormorant Garamond', serif;
+    color: rgba(58,40,24,0.65);
+  }
+  .phone.dark.c5 .chap-row .info .role { color: var(--bg-text-dim); }
+
+  /* Detail page #05 */
+  .c5.detail .scroll-head { padding-top: 10px; }
+  .c5.detail .full-art {
+    position: relative;
+    height: 26%;
+    margin: 4px 16px;
+    overflow: hidden;
+    border: 1px solid var(--parch-deep);
+    box-shadow: 0 4px 12px rgba(58,40,24,0.2);
+    z-index: 2;
+  }
+  .phone.dark.c5.detail .full-art {
+    border-color: var(--gold-deep);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+  .c5.detail .full-art .wp-mc { inset: 0; }
+  .c5.detail .full-art::after {
+    /* ornamental corners */
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(245,214,118,0.5);
+    pointer-events: none;
+  }
+  .c5.detail .chap-title-block {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 4px 16px;
+  }
+  .c5.detail .chap-title-block .roman {
+    font: 600 8px 'Cinzel', serif;
+    letter-spacing: 0.4em;
+    color: var(--parch-deep);
+    margin-bottom: 2px;
+  }
+  .phone.dark.c5.detail .chap-title-block .roman { color: var(--gold-deep); }
+  .c5.detail .chap-title-block .ttl {
+    font: italic 500 16px 'Cormorant Garamond', serif;
+    color: var(--parch-ink);
+    line-height: 1;
+  }
+  .phone.dark.c5.detail .chap-title-block .ttl { color: var(--gold-bright); }
+  .c5.detail .chap-title-block .sub {
+    font: italic 400 8.5px 'Cormorant Garamond', serif;
+    color: rgba(58,40,24,0.65);
+    margin-top: 1px;
+  }
+  .phone.dark.c5.detail .chap-title-block .sub { color: var(--bg-text-dim); }
+  .c5.detail .scroll-text {
+    position: relative;
+    z-index: 2;
+    padding: 6px 18px 4px;
+    font: 400 8px 'Cormorant Garamond', serif;
+    color: var(--parch-ink);
+    line-height: 1.55;
+    text-align: justify;
+  }
+  .phone.dark.c5.detail .scroll-text { color: var(--text); }
+  .c5.detail .scroll-text em {
+    font-style: italic;
+    color: var(--mc-blood);
+  }
+  .phone.dark.c5.detail .scroll-text em { color: var(--gold-bright); }
+  .c5.detail .tags-scroll {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 4px 16px;
+    font: italic 400 7px 'Cormorant Garamond', serif;
+    letter-spacing: 0.22em;
+    color: rgba(58,40,24,0.6);
+  }
+  .phone.dark.c5.detail .tags-scroll { color: rgba(212,175,55,0.55); }
+  /* bottom scroll cap */
+  .c5 .scroll-cap-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 12px;
+    background: linear-gradient(0deg, var(--parch-deep) 0%, var(--parch-2) 70%, transparent 100%);
+    border-top: 1px solid rgba(58,40,24,0.3);
+    z-index: 2;
+  }
+  .phone.dark.c5 .scroll-cap-bottom {
+    background: linear-gradient(0deg, var(--gold-deep) 0%, var(--vellum) 70%, transparent 100%);
+    border-top-color: rgba(212,175,55,0.4);
+  }
+
+  /* ─────────── Meta block ─────────── */
+  .meta-block {
+    position: sticky;
+    top: 32px;
+    padding-top: 8px;
+  }
+  .meta-block .id {
+    font: 600 11px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .meta-block .id .num { color: var(--gold-bright); }
+  .meta-block h2 {
+    font: 350 32px 'Fraunces', serif;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+  .meta-block .h2-accent { color: var(--gold-bright); }
+  .meta-block .tagline {
+    font: 400 13px 'Geist', sans-serif;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin-bottom: 18px;
+    max-width: 460px;
+  }
+  .meta-block .row-line {
+    margin: 18px 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dark) 0%, transparent 80%);
+  }
+  .meta-block .palette-section {
+    margin-bottom: 18px;
+  }
+  .meta-block .palette-section .ptitle {
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .meta-block .palette-section .swatches {
+    display: flex; gap: 8px;
+  }
+  .meta-block .sw {
+    width: 34px; height: 34px;
+    border-radius: 7px;
+    position: relative;
+    box-shadow: 0 0 0 1px var(--hairline), inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .meta-block .sw .hex {
+    position: absolute;
+    bottom: -14px; left: 0; right: 0;
+    text-align: center;
+    font: 500 7.5px 'JetBrains Mono', monospace;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .meta-block .verdict {
+    margin-top: 22px;
+    padding: 14px 16px;
+    border-left: 2px solid var(--gold);
+    background: linear-gradient(90deg, rgba(212,175,55,0.06), transparent 60%);
+    border-radius: 0 8px 8px 0;
+  }
+  .meta-block .verdict .vt {
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .meta-block .verdict .vp {
+    font: 400 12px 'Geist', sans-serif;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .meta-block .verdict .vp .pro { color: var(--gold-bright); font-weight: 500; }
+  .meta-block .verdict .vp .con { color: #B8A8E8; font-weight: 500; }
+
+  /* Footer */
+  footer {
+    margin-top: 96px;
+    padding-top: 28px;
+    border-top: 1px solid var(--hairline);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    font: 600 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer .center { color: var(--gold-bright); text-align: center; }
+  footer .right { text-align: right; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ─────────── Header ─────────── -->
+  <header>
+    <h1>
+      <em>Pixora</em>
+      <span class="ornament">·</span>
+      <span class="accent">CULTURA</span>
+      <span class="ornament">·</span>
+      5 <em>Conceptos</em>
+    </h1>
+    <p class="subtitle">
+      Sección de mitología y cultura — feeling premium estilo
+      <em>códice manuscrito</em>, <em>exhibición de museo</em>, <em>baraja de tarot</em>,
+      <em>documental cinemático</em> y <em>pergamino ancestral</em>.
+      Cada concepto se muestra en sus dos temas (iOS White + Black & Gold) y en dos pantallas (lista + detalle).
+    </p>
+    <div class="header-rule">
+      <span>cap · ix · mictlán</span>
+      <span class="line"></span>
+      <span>cdmx · may 2026</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ════════════ #01 CODEX MANUSCRIPT ════════════ -->
+    <section class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <!-- iOS LIST -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · LIST</div>
+            <div class="phone light c1">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="codex-head">
+                  <div class="crest">CODEX PIXORA</div>
+                  <div class="crest-title">Cultura</div>
+                  <div class="flourish">❦  ·  ❦  ·  ❦</div>
+                </div>
+
+                <div class="chapter-entry">
+                  <div class="dropcap">M</div>
+                  <div class="chap-body">
+                    <div class="roman">CAPITVLVM · IX</div>
+                    <div class="ctitle">Mictlantecuhtli</div>
+                    <div class="csub">Señor del inframundo</div>
+                    <div class="marginalia">mexica · tolteca · ix niveles</div>
+                  </div>
+                </div>
+                <div class="divider">·  ❦  ·</div>
+                <div class="chapter-entry">
+                  <div class="dropcap">O</div>
+                  <div class="chap-body">
+                    <div class="roman">CAPITVLVM · X</div>
+                    <div class="ctitle">Osiris</div>
+                    <div class="csub">Dios de la resurrección</div>
+                    <div class="marginalia">kemet · duat · juicio</div>
+                  </div>
+                </div>
+                <div class="divider">·  ❦  ·</div>
+                <div class="chapter-entry">
+                  <div class="dropcap">A</div>
+                  <div class="chap-body">
+                    <div class="roman">CAPITVLVM · XI</div>
+                    <div class="ctitle">Anubis</div>
+                    <div class="csub">Guardián de las almas</div>
+                    <div class="marginalia">chacal · embalsamado</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- iOS DETAIL -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · DETAIL</div>
+            <div class="phone light c1 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="codex-head">
+                  <div class="crest">CAPITVLVM · IX · MICTLÁN</div>
+                  <div class="crest-title">Mictlantecuhtli</div>
+                </div>
+                <div class="hero">
+                  <div class="wp-mc"></div>
+                  <span class="corner tl"></span><span class="corner tr"></span>
+                  <span class="corner bl"></span><span class="corner br"></span>
+                </div>
+                <div class="body-text">
+                  <div class="dropcap-large">E</div>
+                  <p>n el noveno nivel del <em>Mictlán</em> habita el señor descarnado, esposo de <em>Mictecacíhuatl</em>, guardián del último descanso de las almas que cruzaron los ríos del inframundo mexica.</p>
+                  <p>Los toltecas lo llamaron padre del polvo y de la noche.</p>
+                </div>
+                <div class="marginalia-tags">méxica · tolteca · mictlán · ix niveles · mictecacíhuatl</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G LIST -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · LIST</div>
+            <div class="phone dark c1">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="codex-head">
+                  <div class="crest">CODEX PIXORA</div>
+                  <div class="crest-title">Cultura</div>
+                  <div class="flourish">❦  ·  ❦  ·  ❦</div>
+                </div>
+
+                <div class="chapter-entry">
+                  <div class="dropcap">M</div>
+                  <div class="chap-body">
+                    <div class="roman">CAPITVLVM · IX</div>
+                    <div class="ctitle">Mictlantecuhtli</div>
+                    <div class="csub">Señor del inframundo</div>
+                    <div class="marginalia">mexica · tolteca · ix niveles</div>
+                  </div>
+                </div>
+                <div class="divider">·  ❦  ·</div>
+                <div class="chapter-entry">
+                  <div class="dropcap">O</div>
+                  <div class="chap-body">
+                    <div class="roman">CAPITVLVM · X</div>
+                    <div class="ctitle">Osiris</div>
+                    <div class="csub">Dios de la resurrección</div>
+                    <div class="marginalia">kemet · duat · juicio</div>
+                  </div>
+                </div>
+                <div class="divider">·  ❦  ·</div>
+                <div class="chapter-entry">
+                  <div class="dropcap">A</div>
+                  <div class="chap-body">
+                    <div class="roman">CAPITVLVM · XI</div>
+                    <div class="ctitle">Anubis</div>
+                    <div class="csub">Guardián de las almas</div>
+                    <div class="marginalia">chacal · embalsamado</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G DETAIL -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · DETAIL</div>
+            <div class="phone dark c1 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="codex-head">
+                  <div class="crest">CAPITVLVM · IX · MICTLÁN</div>
+                  <div class="crest-title">Mictlantecuhtli</div>
+                </div>
+                <div class="hero">
+                  <div class="wp-mc"></div>
+                  <span class="corner tl"></span><span class="corner tr"></span>
+                  <span class="corner bl"></span><span class="corner br"></span>
+                </div>
+                <div class="body-text">
+                  <div class="dropcap-large">E</div>
+                  <p>n el noveno nivel del <em>Mictlán</em> habita el señor descarnado, esposo de <em>Mictecacíhuatl</em>, guardián del último descanso de las almas que cruzaron los ríos del inframundo mexica.</p>
+                  <p>Los toltecas lo llamaron padre del polvo y de la noche.</p>
+                </div>
+                <div class="marginalia-tags">méxica · tolteca · mictlán · ix niveles · mictecacíhuatl</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta-block">
+          <div class="id"><span class="num">01</span> · CONCEPT</div>
+          <h2><em>Codex</em> <span class="h2-accent">Manuscript</span></h2>
+          <p class="tagline">Cada capítulo es una página de manuscrito iluminado. Drop-cap ornamental, números romanos, marginalia italica, divisores florales y borde deckled. Tipografía Cormorant + Cinzel.</p>
+          <div class="row-line"></div>
+
+          <div class="palette-section">
+            <div class="ptitle">iOS · Cream Vellum</div>
+            <div class="swatches">
+              <div class="sw" style="background:#f3e6c4;"><span class="hex">#F3E6C4</span></div>
+              <div class="sw" style="background:#3a2818;"><span class="hex">#3A2818</span></div>
+              <div class="sw" style="background:#8b1a1a;"><span class="hex">#8B1A1A</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">B&amp;G · Dark Vellum</div>
+            <div class="swatches">
+              <div class="sw" style="background:#14100a;"><span class="hex">#14100A</span></div>
+              <div class="sw" style="background:#0a0805;"><span class="hex">#0A0805</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">Verdict</div>
+            <div class="vp">
+              <span class="pro">Pro:</span> ultra distintivo, se siente como un texto sagrado, perfecto para mitología. La drop-cap roja sobre vellum negro es puro fuego ritual.
+              <br><br>
+              <span class="con">Contra:</span> requiere disciplina tipográfica férrea; un mal kerning rompe todo el ilusión de manuscrito.
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ════════════ #02 MUSEUM EXHIBIT ════════════ -->
+    <section class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <!-- iOS LIST -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · LIST</div>
+            <div class="phone light c2">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="museum-head">
+                  <div class="gallery">PIXORA · GALLERY OF MYTHOS</div>
+                  <div class="gtitle">CULTURA</div>
+                  <div class="gsub">PERMANENT COLLECTION · WING IX</div>
+                </div>
+                <div class="exhibit">
+                  <div class="exhibit-grid">
+                    <div class="specimen"><div class="wp-mc"></div></div>
+                    <div class="exhibit-meta">
+                      <div class="serial">EXHIBIT IX.3 — MICTLÁN</div>
+                      <div class="placard">MICTLANTECUHTLI</div>
+                      <div class="ptype">Lord of the Underworld · c. 1325 CE</div>
+                      <div class="classif"><span>MÉXICA</span><span>TOLTECA</span><span>IX NIVELES</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="exhibit">
+                  <div class="exhibit-grid">
+                    <div class="specimen"><div class="wp-mc"></div></div>
+                    <div class="exhibit-meta">
+                      <div class="serial">EXHIBIT X.1 — KEMET</div>
+                      <div class="placard">OSIRIS</div>
+                      <div class="ptype">God of resurrection · 2400 BCE</div>
+                      <div class="classif"><span>EGYPT</span><span>DUAT</span><span>JUDGEMENT</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- iOS DETAIL -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · DETAIL</div>
+            <div class="phone light c2 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="museum-head">
+                  <div class="gallery">WING IX · MICTLÁN</div>
+                  <div class="gtitle">MICTLANTECUHTLI</div>
+                  <div class="gsub">SEÑOR DEL INFRAMUNDO</div>
+                </div>
+                <div class="specimen-large">
+                  <div class="wp-mc"></div>
+                  <div class="placard-overlay">PLACARD IX.3</div>
+                </div>
+                <div class="meta-grid">
+                  <div><b>CULTURE</b>Mexica · Tolteca</div>
+                  <div><b>REGION</b>Mictlán · Anáhuac</div>
+                  <div><b>EPOCH</b>1325 CE</div>
+                  <div><b>SOURCE</b>Codex Borgia</div>
+                </div>
+                <div class="description">
+                  En el noveno nivel del Mictlán habita el señor descarnado, esposo de Mictecacíhuatl, guardián del último descanso de las almas que cruzaron los nueve ríos.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G LIST -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · LIST</div>
+            <div class="phone dark c2">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="museum-head">
+                  <div class="gallery">PIXORA · GALLERY OF MYTHOS</div>
+                  <div class="gtitle">CULTURA</div>
+                  <div class="gsub">PERMANENT COLLECTION · WING IX</div>
+                </div>
+                <div class="exhibit">
+                  <div class="exhibit-grid">
+                    <div class="specimen"><div class="wp-mc"></div></div>
+                    <div class="exhibit-meta">
+                      <div class="serial">EXHIBIT IX.3 — MICTLÁN</div>
+                      <div class="placard">MICTLANTECUHTLI</div>
+                      <div class="ptype">Lord of the Underworld · c. 1325 CE</div>
+                      <div class="classif"><span>MÉXICA</span><span>TOLTECA</span><span>IX NIVELES</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="exhibit">
+                  <div class="exhibit-grid">
+                    <div class="specimen"><div class="wp-mc"></div></div>
+                    <div class="exhibit-meta">
+                      <div class="serial">EXHIBIT X.1 — KEMET</div>
+                      <div class="placard">OSIRIS</div>
+                      <div class="ptype">God of resurrection · 2400 BCE</div>
+                      <div class="classif"><span>EGYPT</span><span>DUAT</span><span>JUDGEMENT</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G DETAIL -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · DETAIL</div>
+            <div class="phone dark c2 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="museum-head">
+                  <div class="gallery">WING IX · MICTLÁN</div>
+                  <div class="gtitle">MICTLANTECUHTLI</div>
+                  <div class="gsub">SEÑOR DEL INFRAMUNDO</div>
+                </div>
+                <div class="specimen-large">
+                  <div class="wp-mc"></div>
+                  <div class="placard-overlay">PLACARD IX.3</div>
+                </div>
+                <div class="meta-grid">
+                  <div><b>CULTURE</b>Mexica · Tolteca</div>
+                  <div><b>REGION</b>Mictlán · Anáhuac</div>
+                  <div><b>EPOCH</b>1325 CE</div>
+                  <div><b>SOURCE</b>Codex Borgia</div>
+                </div>
+                <div class="description">
+                  En el noveno nivel del Mictlán habita el señor descarnado, esposo de Mictecacíhuatl, guardián del último descanso de las almas que cruzaron los nueve ríos.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta-block">
+          <div class="id"><span class="num">02</span> · CONCEPT</div>
+          <h2><em>Museum</em> <span class="h2-accent">Exhibit</span></h2>
+          <p class="tagline">Cada wallpaper es una pieza catalogada con número de exhibit, placard de bronce, marcas de medición y etiquetas de clasificación. Tipografía Cinzel display + JetBrains Mono para serialización.</p>
+          <div class="row-line"></div>
+
+          <div class="palette-section">
+            <div class="ptitle">iOS · Apple Museum</div>
+            <div class="swatches">
+              <div class="sw" style="background:#FFFFFF;"><span class="hex">#FFFFFF</span></div>
+              <div class="sw" style="background:#ECECEC;"><span class="hex">#ECECEC</span></div>
+              <div class="sw" style="background:#1C1C1E;"><span class="hex">#1C1C1E</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">B&amp;G · Brass Cabinet</div>
+            <div class="swatches">
+              <div class="sw" style="background:#070710;"><span class="hex">#070710</span></div>
+              <div class="sw" style="background:#14141F;"><span class="hex">#14141F</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">Verdict</div>
+            <div class="vp">
+              <span class="pro">Pro:</span> hace que el contenido se sienta curado y educativo, no scrolleado. El usuario percibe la app como una colección, no una galería de stock.
+              <br><br>
+              <span class="con">Contra:</span> aesthetics más sterile/academic — puede sentirse frío si los placards son demasiado "British Museum" y poco místico.
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ════════════ #03 TAROT MYSTICAL DECK ════════════ -->
+    <section class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <!-- iOS LIST -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · LIST</div>
+            <div class="phone light c3">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="deck-head">
+                  <div class="label">PIXORA · ARCANA</div>
+                  <div class="name">Cultura</div>
+                </div>
+                <div class="deck">
+                  <div class="card">
+                    <div class="roman-top">IX</div>
+                    <div class="art"><div class="wp-mc"></div></div>
+                    <div class="ctitle">Mictlantecuhtli</div>
+                    <div class="csub">EL INFRAMUNDO</div>
+                  </div>
+                  <div class="card">
+                    <div class="roman-top">X</div>
+                    <div class="art"><div class="wp-mc"></div></div>
+                    <div class="ctitle">Osiris</div>
+                    <div class="csub">RESURRECCIÓN</div>
+                  </div>
+                  <div class="card">
+                    <div class="roman-top">XI</div>
+                    <div class="art"><div class="wp-mc"></div></div>
+                    <div class="ctitle">Anubis</div>
+                    <div class="csub">EL GUARDIÁN</div>
+                  </div>
+                  <div class="card">
+                    <div class="roman-top">XII</div>
+                    <div class="art"><div class="wp-mc"></div></div>
+                    <div class="ctitle">Quetzalcóatl</div>
+                    <div class="csub">SERPIENTE</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- iOS DETAIL -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · DETAIL</div>
+            <div class="phone light c3 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="deck-head">
+                  <div class="label">ARCANO IX</div>
+                  <div class="name">Mictlán</div>
+                </div>
+                <div class="card-big">
+                  <span class="glyph tl">✦</span><span class="glyph tr">☥</span>
+                  <span class="glyph bl">☥</span><span class="glyph br">✦</span>
+                  <div class="roman-big">— IX —</div>
+                  <div class="art-big"><div class="wp-mc"></div></div>
+                  <div class="title-big">Mictlantecuhtli</div>
+                  <div class="sub-big">EL INFRAMUNDO</div>
+                </div>
+                <div class="reading">"El señor descarnado guarda el noveno nivel — donde las almas hallan reposo."</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G LIST -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · LIST</div>
+            <div class="phone dark c3">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="deck-head">
+                  <div class="label">PIXORA · ARCANA</div>
+                  <div class="name">Cultura</div>
+                </div>
+                <div class="deck">
+                  <div class="card">
+                    <div class="roman-top">IX</div>
+                    <div class="art"><div class="wp-mc"></div></div>
+                    <div class="ctitle">Mictlantecuhtli</div>
+                    <div class="csub">EL INFRAMUNDO</div>
+                  </div>
+                  <div class="card">
+                    <div class="roman-top">X</div>
+                    <div class="art"><div class="wp-mc"></div></div>
+                    <div class="ctitle">Osiris</div>
+                    <div class="csub">RESURRECCIÓN</div>
+                  </div>
+                  <div class="card">
+                    <div class="roman-top">XI</div>
+                    <div class="art"><div class="wp-mc"></div></div>
+                    <div class="ctitle">Anubis</div>
+                    <div class="csub">EL GUARDIÁN</div>
+                  </div>
+                  <div class="card">
+                    <div class="roman-top">XII</div>
+                    <div class="art"><div class="wp-mc"></div></div>
+                    <div class="ctitle">Quetzalcóatl</div>
+                    <div class="csub">SERPIENTE</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G DETAIL -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · DETAIL</div>
+            <div class="phone dark c3 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="deck-head">
+                  <div class="label">ARCANO IX</div>
+                  <div class="name">Mictlán</div>
+                </div>
+                <div class="card-big">
+                  <span class="glyph tl">✦</span><span class="glyph tr">☥</span>
+                  <span class="glyph bl">☥</span><span class="glyph br">✦</span>
+                  <div class="roman-big">— IX —</div>
+                  <div class="art-big"><div class="wp-mc"></div></div>
+                  <div class="title-big">Mictlantecuhtli</div>
+                  <div class="sub-big">EL INFRAMUNDO</div>
+                </div>
+                <div class="reading">"El señor descarnado guarda el noveno nivel — donde las almas hallan reposo."</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta-block">
+          <div class="id"><span class="num">03</span> · CONCEPT</div>
+          <h2><em>Arcana</em> <span class="h2-accent">Deck</span></h2>
+          <p class="tagline">Cada capítulo es una carta vertical 3:5 con filigrana ornamental, número en romano, glifos en las esquinas. La lista es una baraja desplegada. El detalle es una carta grande con frase oracular.</p>
+          <div class="row-line"></div>
+
+          <div class="palette-section">
+            <div class="ptitle">iOS · Light Arcana</div>
+            <div class="swatches">
+              <div class="sw" style="background:#FFFFFF;"><span class="hex">#FFFFFF</span></div>
+              <div class="sw" style="background:#F8F8FB;"><span class="hex">#F8F8FB</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+              <div class="sw" style="background:#1C1C1E;"><span class="hex">#1C1C1E</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">B&amp;G · Cosmic Arcana</div>
+            <div class="swatches">
+              <div class="sw" style="background:#0a0a14;"><span class="hex">#0A0A14</span></div>
+              <div class="sw" style="background:#1a1a26;"><span class="hex">#1A1A26</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">Verdict</div>
+            <div class="vp">
+              <span class="pro">Pro:</span> ultra on-brand con el sistema zodiacal de Pixora (Saint Seiya / cartas cósmicas). Wallpapers se sienten coleccionables. Filigree pulse en B&amp;G es magnético.
+              <br><br>
+              <span class="con">Contra:</span> UX menos típica que una lista vertical — puede requerir onboarding o un hint inicial de "desliza para revelar".
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ════════════ #04 CINEMATIC DOCUMENTARY ════════════ -->
+    <section class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <!-- iOS LIST -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · LIST</div>
+            <div class="phone light c4">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="featured">
+                  <div class="wp-mc"></div>
+                  <div class="eyebrow">FEATURED · EP IX</div>
+                  <div class="ftitle">Mictlantecuhtli</div>
+                  <div class="fmeta">
+                    <span class="play-circ">▶</span>
+                    <span>12 MIN READ · MITOLOGÍA MEXICA</span>
+                  </div>
+                </div>
+                <div class="section-rail">
+                  Continuar mirando
+                  <div class="small">PORQUE TE GUSTÓ EGIPTO</div>
+                </div>
+                <div class="ep-list">
+                  <div class="ep">
+                    <div class="thumb"><div class="wp-mc"></div><span class="duration">12 MIN</span></div>
+                    <div class="info">
+                      <div class="eyeb">EP X · KEMET</div>
+                      <div class="etitle">Osiris</div>
+                      <div class="esub">Dios de la resurrección</div>
+                    </div>
+                  </div>
+                  <div class="ep">
+                    <div class="thumb"><div class="wp-mc"></div><span class="duration">9 MIN</span></div>
+                    <div class="info">
+                      <div class="eyeb">EP XI · NUBIA</div>
+                      <div class="etitle">Anubis</div>
+                      <div class="esub">Guardián de las almas</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- iOS DETAIL -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · DETAIL</div>
+            <div class="phone light c4 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="hero-wide">
+                  <div class="wp-mc"></div>
+                  <span class="back-arrow">‹</span>
+                  <div class="h4-eyeb">EP IX · MITOLOGÍA MEXICA</div>
+                  <div class="h4-title">Mictlantecuhtli</div>
+                  <div class="h4-sub">Señor del inframundo</div>
+                </div>
+                <div class="doc-body">
+                  <div class="topics">
+                    <span>MÉXICA</span><span>TOLTECA</span><span>MICTLÁN</span><span>IX NIVELES</span>
+                  </div>
+                  <p>En el noveno nivel del Mictlán habita el señor descarnado, esposo de Mictecacíhuatl, guardián del último descanso de las almas que cruzaron los nueve ríos del inframundo mexica.</p>
+                  <p>Los toltecas lo llamaron padre del polvo y de la noche.</p>
+                  <div class="cta">▶ APLICAR WALLPAPER</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G LIST -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · LIST</div>
+            <div class="phone dark c4">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="featured">
+                  <div class="wp-mc"></div>
+                  <div class="eyebrow">FEATURED · EP IX</div>
+                  <div class="ftitle">Mictlantecuhtli</div>
+                  <div class="fmeta">
+                    <span class="play-circ">▶</span>
+                    <span>12 MIN READ · MITOLOGÍA MEXICA</span>
+                  </div>
+                </div>
+                <div class="section-rail">
+                  Continuar mirando
+                  <div class="small">PORQUE TE GUSTÓ EGIPTO</div>
+                </div>
+                <div class="ep-list">
+                  <div class="ep">
+                    <div class="thumb"><div class="wp-mc"></div><span class="duration">12 MIN</span></div>
+                    <div class="info">
+                      <div class="eyeb">EP X · KEMET</div>
+                      <div class="etitle">Osiris</div>
+                      <div class="esub">Dios de la resurrección</div>
+                    </div>
+                  </div>
+                  <div class="ep">
+                    <div class="thumb"><div class="wp-mc"></div><span class="duration">9 MIN</span></div>
+                    <div class="info">
+                      <div class="eyeb">EP XI · NUBIA</div>
+                      <div class="etitle">Anubis</div>
+                      <div class="esub">Guardián de las almas</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G DETAIL -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · DETAIL</div>
+            <div class="phone dark c4 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="hero-wide">
+                  <div class="wp-mc"></div>
+                  <span class="back-arrow">‹</span>
+                  <div class="h4-eyeb">EP IX · MITOLOGÍA MEXICA</div>
+                  <div class="h4-title">Mictlantecuhtli</div>
+                  <div class="h4-sub">Señor del inframundo</div>
+                </div>
+                <div class="doc-body">
+                  <div class="topics">
+                    <span>MÉXICA</span><span>TOLTECA</span><span>MICTLÁN</span><span>IX NIVELES</span>
+                  </div>
+                  <p>En el noveno nivel del Mictlán habita el señor descarnado, esposo de Mictecacíhuatl, guardián del último descanso de las almas que cruzaron los nueve ríos del inframundo mexica.</p>
+                  <p>Los toltecas lo llamaron padre del polvo y de la noche.</p>
+                  <div class="cta">▶ APLICAR WALLPAPER</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta-block">
+          <div class="id"><span class="num">04</span> · CONCEPT</div>
+          <h2><em>Cinematic</em> <span class="h2-accent">Documentary</span></h2>
+          <p class="tagline">UX tipo Netflix / Apple TV+ Docs. Featured episode bleed arriba, lista vertical de "capítulos" con thumbnails 16:9, duración tipo "12 min read" y filas por afinidad ("Porque te gustó Egipto").</p>
+          <div class="row-line"></div>
+
+          <div class="palette-section">
+            <div class="ptitle">iOS · Apple TV+</div>
+            <div class="swatches">
+              <div class="sw" style="background:#FFFFFF;"><span class="hex">#FFFFFF</span></div>
+              <div class="sw" style="background:#F2F2F7;"><span class="hex">#F2F2F7</span></div>
+              <div class="sw" style="background:#1C1C1E;"><span class="hex">#1C1C1E</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">B&amp;G · Netflix Premium</div>
+            <div class="swatches">
+              <div class="sw" style="background:#000000;"><span class="hex">#000000</span></div>
+              <div class="sw" style="background:#14141F;"><span class="hex">#14141F</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">Verdict</div>
+            <div class="vp">
+              <span class="pro">Pro:</span> UX súper familiar para cualquier usuario que usa streaming. Hace que el contenido se perciba como premium "documental editorial". Conversión a apply alta.
+              <br><br>
+              <span class="con">Contra:</span> menos único a Pixora — el usuario podría sentir que es "una galería más". Pierde el feeling sagrado/ritual.
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ════════════ #05 ANCIENT SCROLL ════════════ -->
+    <section class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <!-- iOS LIST -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · LIST</div>
+            <div class="phone light c5">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="scroll-cap"></div>
+                <div class="scroll-head">
+                  <div class="stamp"></div>
+                  <div class="crest">CÓDEX · PIXORA</div>
+                  <div class="crest-title">Cultura</div>
+                </div>
+                <div class="scroll-divider">~</div>
+                <div class="chap-row">
+                  <div class="mini-art"><div class="wp-mc"></div></div>
+                  <div class="info">
+                    <div class="num">CAP · IX</div>
+                    <div class="name">Mictlantecuhtli</div>
+                    <div class="role">Señor del inframundo</div>
+                  </div>
+                </div>
+                <div class="scroll-divider">~</div>
+                <div class="chap-row">
+                  <div class="mini-art"><div class="wp-mc"></div></div>
+                  <div class="info">
+                    <div class="num">CAP · X</div>
+                    <div class="name">Osiris</div>
+                    <div class="role">Dios de la resurrección</div>
+                  </div>
+                </div>
+                <div class="scroll-divider">~</div>
+                <div class="chap-row">
+                  <div class="mini-art"><div class="wp-mc"></div></div>
+                  <div class="info">
+                    <div class="num">CAP · XI</div>
+                    <div class="name">Anubis</div>
+                    <div class="role">Guardián de las almas</div>
+                  </div>
+                </div>
+                <div class="scroll-cap-bottom"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- iOS DETAIL -->
+          <div class="phone-wrap">
+            <div class="label ios">iOS · DETAIL</div>
+            <div class="phone light c5 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="scroll-cap"></div>
+                <div class="scroll-head">
+                  <div class="stamp"></div>
+                  <div class="crest">CAP · IX · MICTLÁN</div>
+                </div>
+                <div class="full-art"><div class="wp-mc"></div></div>
+                <div class="chap-title-block">
+                  <div class="roman">— CAPITVLVM IX —</div>
+                  <div class="ttl">Mictlantecuhtli</div>
+                  <div class="sub">Señor del inframundo</div>
+                </div>
+                <div class="scroll-divider">~</div>
+                <div class="scroll-text">
+                  En el noveno nivel del <em>Mictlán</em> habita el señor descarnado, esposo de <em>Mictecacíhuatl</em>, guardián del último descanso.
+                </div>
+                <div class="tags-scroll">méxica · tolteca · ix niveles</div>
+                <div class="scroll-cap-bottom"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G LIST -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · LIST</div>
+            <div class="phone dark c5">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="scroll-cap"></div>
+                <div class="scroll-head">
+                  <div class="stamp"></div>
+                  <div class="crest">CÓDEX · PIXORA</div>
+                  <div class="crest-title">Cultura</div>
+                </div>
+                <div class="scroll-divider">~</div>
+                <div class="chap-row">
+                  <div class="mini-art"><div class="wp-mc"></div></div>
+                  <div class="info">
+                    <div class="num">CAP · IX</div>
+                    <div class="name">Mictlantecuhtli</div>
+                    <div class="role">Señor del inframundo</div>
+                  </div>
+                </div>
+                <div class="scroll-divider">~</div>
+                <div class="chap-row">
+                  <div class="mini-art"><div class="wp-mc"></div></div>
+                  <div class="info">
+                    <div class="num">CAP · X</div>
+                    <div class="name">Osiris</div>
+                    <div class="role">Dios de la resurrección</div>
+                  </div>
+                </div>
+                <div class="scroll-divider">~</div>
+                <div class="chap-row">
+                  <div class="mini-art"><div class="wp-mc"></div></div>
+                  <div class="info">
+                    <div class="num">CAP · XI</div>
+                    <div class="name">Anubis</div>
+                    <div class="role">Guardián de las almas</div>
+                  </div>
+                </div>
+                <div class="scroll-cap-bottom"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G DETAIL -->
+          <div class="phone-wrap">
+            <div class="label bg">B&amp;G · DETAIL</div>
+            <div class="phone dark c5 detail">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="scroll-cap"></div>
+                <div class="scroll-head">
+                  <div class="stamp"></div>
+                  <div class="crest">CAP · IX · MICTLÁN</div>
+                </div>
+                <div class="full-art"><div class="wp-mc"></div></div>
+                <div class="chap-title-block">
+                  <div class="roman">— CAPITVLVM IX —</div>
+                  <div class="ttl">Mictlantecuhtli</div>
+                  <div class="sub">Señor del inframundo</div>
+                </div>
+                <div class="scroll-divider">~</div>
+                <div class="scroll-text">
+                  En el noveno nivel del <em>Mictlán</em> habita el señor descarnado, esposo de <em>Mictecacíhuatl</em>, guardián del último descanso.
+                </div>
+                <div class="tags-scroll">méxica · tolteca · ix niveles</div>
+                <div class="scroll-cap-bottom"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta-block">
+          <div class="id"><span class="num">05</span> · CONCEPT</div>
+          <h2><em>Ancient</em> <span class="h2-accent">Scroll</span></h2>
+          <p class="tagline">La sección entera se lee como un pergamino desenrollado. Cap superior, sello de cera al inicio, capítulos con thumbnail circular tipo medallón, divisores ornamentales, cap inferior. Sutil sway animation en la textura.</p>
+          <div class="row-line"></div>
+
+          <div class="palette-section">
+            <div class="ptitle">iOS · Cream Parchment</div>
+            <div class="swatches">
+              <div class="sw" style="background:#f3e6c4;"><span class="hex">#F3E6C4</span></div>
+              <div class="sw" style="background:#c9a96a;"><span class="hex">#C9A96A</span></div>
+              <div class="sw" style="background:#3a2818;"><span class="hex">#3A2818</span></div>
+              <div class="sw" style="background:#8b1a1a;"><span class="hex">#8B1A1A</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">B&amp;G · Aged Vellum</div>
+            <div class="swatches">
+              <div class="sw" style="background:#16100a;"><span class="hex">#16100A</span></div>
+              <div class="sw" style="background:#2a1f12;"><span class="hex">#2A1F12</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">Verdict</div>
+            <div class="vp">
+              <span class="pro">Pro:</span> ULTRA inmersivo, se siente como leer un documento sagrado. La sway animation suave en la textura le da vida. Sello de cera rojo es un detalle ganador.
+              <br><br>
+              <span class="con">Contra:</span> scroll fatigue si la lista es larga (50+ capítulos). Mejor con paginación por culturas.
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <span>pixora · cultura</span>
+    <span class="center">design archive · may 2026</span>
+    <span class="right">orbix studio</span>
+  </footer>
+
+</div>
+</body>
+</html>

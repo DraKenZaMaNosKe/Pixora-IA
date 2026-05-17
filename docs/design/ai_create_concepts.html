@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pixora · AI Create · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400;1,600;1,700&family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Permanent+Marker&family=Bangers&family=Geist+Mono:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#070512;color:#E8E3F0;font-family:'Inter',sans-serif;overflow-x:hidden}
+  ::selection{background:#7A5BFF;color:#FFF}
+
+  /* ---------- starfield ---------- */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.7) 50%,transparent 51%),
+      radial-gradient(1px 1px at 38% 72%,rgba(255,255,255,.5) 50%,transparent 51%),
+      radial-gradient(1px 1px at 62% 32%,rgba(200,180,255,.6) 50%,transparent 51%),
+      radial-gradient(1px 1px at 78% 58%,rgba(255,255,255,.5) 50%,transparent 51%),
+      radial-gradient(1px 1px at 88% 12%,rgba(180,255,230,.6) 50%,transparent 51%),
+      radial-gradient(1px 1px at 22% 88%,rgba(255,255,255,.4) 50%,transparent 51%),
+      radial-gradient(2px 2px at 48% 48%,rgba(255,255,255,.3) 50%,transparent 51%);
+    animation:drift 90s linear infinite;
+  }
+  @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-80px,-120px,0)}}
+
+  /* ---------- page header ---------- */
+  .page-wrap{position:relative;z-index:2;max-width:1320px;margin:0 auto;padding:80px 48px 120px}
+  .eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.32em;color:#9A8FD3;text-transform:uppercase;display:flex;align-items:center;gap:14px}
+  .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(154,143,211,.5),transparent)}
+  h1.page-title{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:64px;line-height:1.04;margin-top:18px;color:#F2EEFB}
+  h1.page-title .foil{
+    background:linear-gradient(120deg,#9A6BFF 0%,#5BCBE5 30%,#E5E5F0 50%,#FF8FD0 70%,#FFD27A 100%);
+    background-size:300% 100%;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    animation:foilshift 8s linear infinite;
+  }
+  @keyframes foilshift{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .page-sub{font-family:'Fraunces',serif;font-style:italic;font-size:21px;color:#B6AED2;margin-top:24px;max-width:780px;line-height:1.55}
+  .page-sub em{color:#FFD27A;font-style:italic}
+
+  /* ---------- concept rows ---------- */
+  .concept{
+    display:grid;grid-template-columns:380px 1fr;gap:80px;align-items:flex-start;
+    margin-top:120px;opacity:0;transform:translateY(40px);
+    animation:reveal .9s ease-out forwards;
+  }
+  .concept:nth-of-type(1){animation-delay:.5s}
+  .concept:nth-of-type(2){animation-delay:.7s}
+  .concept:nth-of-type(3){animation-delay:.9s}
+  .concept:nth-of-type(4){animation-delay:1.1s}
+  .concept:nth-of-type(5){animation-delay:1.3s}
+  @keyframes reveal{to{opacity:1;transform:translateY(0)}}
+
+  /* phone frame ---- common */
+  .phone{
+    width:340px;height:740px;border-radius:46px;
+    background:#000;padding:11px;position:relative;
+    box-shadow:0 40px 80px -20px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.05);
+    overflow:hidden;
+  }
+  .phone::before{
+    content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    width:110px;height:24px;background:#000;border-radius:20px;z-index:50;
+  }
+  .screen{
+    width:100%;height:100%;border-radius:36px;overflow:hidden;position:relative;
+  }
+
+  /* meta col */
+  .meta{padding-top:18px}
+  .meta .num{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.28em;color:#7A6FB4;text-transform:uppercase}
+  .meta h2{font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:38px;line-height:1.05;color:#F2EEFB;margin-top:10px}
+  .meta .tag{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:#C8BFEA;margin-top:8px}
+  .meta p.desc{font-family:'Inter',sans-serif;font-size:14.5px;line-height:1.65;color:#A8A0C8;margin-top:24px;max-width:540px}
+  .palette{display:flex;gap:10px;margin-top:24px}
+  .swatch{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.08);position:relative}
+  .swatch::after{content:attr(data-hex);position:absolute;bottom:-22px;left:0;font-family:'Geist Mono',monospace;font-size:9.5px;color:#7A6FB4;letter-spacing:.04em}
+  .verdict{margin-top:54px;border-left:2px solid #2F2748;padding:8px 16px;display:flex;flex-direction:column;gap:8px;max-width:540px}
+  .verdict .pro,.verdict .con{font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.04em;line-height:1.55;color:#C8BFEA}
+  .verdict .pro::before{content:"+ ";color:#7BE0A8;font-weight:700}
+  .verdict .con::before{content:"- ";color:#FF7B9E;font-weight:700}
+
+  /* ============================================================ */
+  /* CONCEPT 01 — WIZARD'S ATELIER                                */
+  /* ============================================================ */
+  .ai01 .screen{
+    background:
+      radial-gradient(ellipse at 50% 20%,rgba(255,200,120,.10) 0%,transparent 55%),
+      radial-gradient(ellipse at 80% 80%,rgba(140,90,220,.18) 0%,transparent 60%),
+      linear-gradient(180deg,#0F0820 0%,#1A0F30 100%);
+    font-family:'Cinzel',serif;color:#F0E6C8;
+    position:relative;overflow:hidden;
+  }
+  /* floating gold particles */
+  .ai01 .screen::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(1.5px 1.5px at 18% 22%,#FFD27A,transparent 60%),
+      radial-gradient(1px 1px at 78% 38%,#FFE6A0,transparent 60%),
+      radial-gradient(1.5px 1.5px at 52% 72%,#FFD27A,transparent 60%),
+      radial-gradient(1px 1px at 28% 88%,#FFE6A0,transparent 60%),
+      radial-gradient(1.5px 1.5px at 86% 88%,#FFD27A,transparent 60%);
+    animation:floatGold 12s ease-in-out infinite;
+  }
+  @keyframes floatGold{0%,100%{transform:translateY(0) translateX(0);opacity:.7}50%{transform:translateY(-30px) translateX(15px);opacity:1}}
+
+  .ai01 .head{padding:48px 22px 0;position:relative;z-index:3;text-align:center}
+  .ai01 .head .crown{font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:.32em;color:#C8A877;text-transform:uppercase}
+  .ai01 .head .crown::before,.ai01 .head .crown::after{content:"✦";color:#FFD27A;margin:0 6px;display:inline-block}
+  .ai01 .head .moon{margin:8px auto 0;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFE6A0,#C8A877);box-shadow:0 0 14px rgba(255,210,122,.4)}
+  .ai01 .head .title{font-family:'Cinzel',serif;font-weight:600;font-size:21px;letter-spacing:.16em;color:#FFE6A0;margin-top:12px}
+  .ai01 .head .sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#C8A877;margin-top:4px}
+
+  /* summoning circle around prompt */
+  .ai01 .circle-wrap{position:relative;margin:24px 18px 0;padding:30px 18px}
+  .ai01 .runes-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;animation:spin 60s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .ai01 .scroll{
+    background:linear-gradient(180deg,#F5E7C6 0%,#E8D49A 100%);
+    border-radius:10px;padding:18px 14px;color:#3A2810;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;line-height:1.55;
+    box-shadow:inset 0 0 20px rgba(160,110,40,.3),0 8px 24px rgba(0,0,0,.4);
+    min-height:120px;position:relative;
+  }
+  .ai01 .scroll::before{content:"❦";position:absolute;top:6px;left:10px;color:#8B5A2B;font-size:14px}
+  .ai01 .scroll::after{content:"❦";position:absolute;bottom:6px;right:10px;color:#8B5A2B;font-size:14px}
+  .ai01 .scroll .placeholder{color:#7A5832;opacity:.85;display:block;padding:10px 6px 0}
+  .ai01 .scroll .cursor{display:inline-block;width:1px;height:14px;background:#3A2810;animation:blink 1s steps(1) infinite;vertical-align:middle;margin-left:1px}
+  @keyframes blink{50%{opacity:0}}
+  .ai01 .charc{text-align:right;margin-top:6px;font-family:'Geist Mono',monospace;font-size:8.5px;color:#C8A877;letter-spacing:.06em}
+
+  /* vial chips */
+  .ai01 .vials-label{margin:22px 22px 8px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.28em;color:#C8A877}
+  .ai01 .vials-label::before{content:"❖ ";color:#FFD27A}
+  .ai01 .vials{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0 18px}
+  .ai01 .vial{
+    background:linear-gradient(180deg,rgba(255,230,160,.06),rgba(255,210,122,.02));
+    border:1px solid rgba(200,168,119,.35);border-radius:14px;padding:7px 5px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  .ai01 .vial .icon{width:14px;height:18px;border-radius:50% 50% 40% 40%/60% 60% 40% 40%;position:relative;animation:bubble 3s ease-in-out infinite}
+  .ai01 .vial.v1 .icon{background:linear-gradient(180deg,#FF8FD0,#C260A0)}
+  .ai01 .vial.v2 .icon{background:linear-gradient(180deg,#5BCBE5,#2A8FB8)}
+  .ai01 .vial.v3 .icon{background:linear-gradient(180deg,#9A6BFF,#5B3DBF)}
+  .ai01 .vial.v4 .icon{background:linear-gradient(180deg,#F0EAD0,#A89C70)}
+  .ai01 .vial.v5 .icon{background:linear-gradient(180deg,#7BE0A8,#3A8A5C)}
+  .ai01 .vial.v6 .icon{background:linear-gradient(180deg,#FFB07A,#C46A38)}
+  .ai01 .vial.v7 .icon{background:linear-gradient(180deg,#FFD27A,#B8893C)}
+  .ai01 .vial.v8 .icon{background:linear-gradient(180deg,#3A2848,#0F0820)}
+  .ai01 .vial.active{border-color:#FFD27A;box-shadow:0 0 16px rgba(255,210,122,.4)}
+  .ai01 .vial span{font-family:'Cinzel',serif;font-size:7.5px;letter-spacing:.12em;color:#E8D49A}
+  @keyframes bubble{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+
+  /* cost & cta */
+  .ai01 .cost{margin:22px 22px 0;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Cinzel',serif;font-size:11px;color:#FFD27A;letter-spacing:.14em}
+  .ai01 .cost .gem{font-size:13px}
+  .ai01 .cta{
+    margin:14px 22px 0;padding:14px;border-radius:12px;text-align:center;
+    background:linear-gradient(180deg,#FFD27A 0%,#B8893C 100%);
+    color:#1A0F30;font-family:'Cinzel',serif;font-weight:700;font-size:12.5px;letter-spacing:.22em;
+    border:1px solid rgba(255,230,160,.4);
+    box-shadow:0 8px 24px rgba(255,210,122,.3),inset 0 1px 0 rgba(255,255,255,.5);
+    position:relative;
+  }
+  .ai01 .cta::before,.ai01 .cta::after{content:"✦";color:#1A0F30;margin:0 6px;display:inline-block}
+  .ai01 .grimoire{margin:20px 18px 0}
+  .ai01 .grimoire-title{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:.28em;color:#C8A877}
+  .ai01 .grimoire-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+  .ai01 .thumb{
+    aspect-ratio:9/16;border-radius:6px;border:1px solid rgba(200,168,119,.25);
+  }
+  .ai01 .thumb.t1{background:linear-gradient(135deg,#5B3DBF,#9A6BFF)}
+  .ai01 .thumb.t2{background:linear-gradient(135deg,#C46A38,#FFB07A)}
+  .ai01 .thumb.t3{background:linear-gradient(135deg,#0F0820,#FFD27A)}
+  .ai01 .thumb.t4{background:linear-gradient(135deg,#3A8A5C,#7BE0A8)}
+
+  /* ============================================================ */
+  /* CONCEPT 02 — NEURAL FORGE (CRT terminal)                     */
+  /* ============================================================ */
+  .ai02 .screen{
+    background:#000;color:#5BFF8E;font-family:'JetBrains Mono',monospace;
+    position:relative;overflow:hidden;
+  }
+  .ai02 .screen::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:
+      linear-gradient(rgba(91,255,142,.04) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(91,255,142,.04) 1px,transparent 1px);
+    background-size:14px 14px;
+  }
+  .ai02 .screen::after{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 2px,rgba(0,0,0,.18) 3px);
+    animation:scan 8s linear infinite;
+  }
+  @keyframes scan{from{background-position:0 0}to{background-position:0 -100px}}
+
+  .ai02 .term{position:relative;z-index:5;padding:44px 16px 0;font-size:11px;line-height:1.6}
+  .ai02 .term-head{color:#5BFF8E;display:flex;align-items:center;gap:6px}
+  .ai02 .term-head .led{width:7px;height:7px;border-radius:50%;background:#5BFF8E;box-shadow:0 0 8px #5BFF8E;animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .ai02 .term-head .cur{display:inline-block;width:7px;height:11px;background:#5BFF8E;margin-left:4px;animation:blink 1s steps(1) infinite}
+  .ai02 .model-pill{margin-top:12px;display:inline-flex;align-items:center;gap:5px;border:1px solid #5BFF8E;padding:3px 8px;border-radius:3px;color:#5BFF8E;font-size:9.5px;letter-spacing:.06em}
+  .ai02 .model-pill .led{width:5px;height:5px;border-radius:50%;background:#5BFF8E;box-shadow:0 0 6px #5BFF8E;animation:pulse 1.6s infinite}
+  .ai02 .auth-line{margin-top:12px;color:#3DC75F;font-size:9.5px}
+  .ai02 .auth-line .ok{color:#5BFF8E;font-weight:700}
+  .ai02 .cost-line{margin-top:8px;color:#5BFF8E;font-size:10px}
+  .ai02 .cost-line .dia{color:#7AD0FF}
+
+  .ai02 .prompt-box{margin-top:14px;font-size:10.5px;color:#5BFF8E;line-height:1.5}
+  .ai02 .prompt-box .border-top{letter-spacing:-.5px}
+  .ai02 .prompt-box .body{padding:6px 4px;min-height:110px;border-left:1px solid #5BFF8E;border-right:1px solid #5BFF8E;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9CFFB8}
+  .ai02 .prompt-box .body .prefix{color:#5BFF8E}
+  .ai02 .prompt-box .body .placeholder{color:#3DC75F;opacity:.7}
+  .ai02 .prompt-box .body .blink{display:inline-block;width:6px;height:11px;background:#5BFF8E;animation:blink 1s steps(1) infinite;vertical-align:middle}
+  .ai02 .prompt-box .border-bot{letter-spacing:-.5px}
+  .ai02 .charc{margin-top:4px;font-size:9px;color:#3DC75F;text-align:right}
+
+  .ai02 .flags-label{margin-top:14px;font-size:9.5px;color:#5BFF8E}
+  .ai02 .flags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
+  .ai02 .flag{font-family:'JetBrains Mono',monospace;font-size:9px;border:1px solid #2D6E3F;color:#3DC75F;padding:3px 6px;border-radius:2px;background:transparent}
+  .ai02 .flag.active{border-color:#5BFF8E;color:#000;background:#5BFF8E;box-shadow:0 0 10px rgba(91,255,142,.5)}
+
+  .ai02 .exec{
+    margin:14px 0 0;padding:11px;text-align:center;
+    background:#5BFF8E;color:#000;
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.18em;
+    border:1px solid #5BFF8E;border-radius:2px;
+    box-shadow:0 0 24px rgba(91,255,142,.45);
+  }
+  .ai02 .exec::before{content:"[ "}.ai02 .exec::after{content:" ]"}
+
+  .ai02 .builds{margin-top:14px;font-size:9px;color:#3DC75F}
+  .ai02 .builds-title{color:#5BFF8E;letter-spacing:.06em}
+  .ai02 .build-row{display:flex;justify-content:space-between;gap:6px;border-top:1px dashed #2D6E3F;padding:3px 0;color:#9CFFB8;font-size:8.5px}
+  .ai02 .build-row .ts{color:#3DC75F}
+  .ai02 .build-row .ok{color:#5BFF8E}
+
+  /* ============================================================ */
+  /* CONCEPT 03 — POLAROID WORKSHOP                               */
+  /* ============================================================ */
+  .ai03 .screen{
+    background:#F5EFE2;color:#3A2810;
+    font-family:'Permanent Marker',cursive;
+    position:relative;overflow:hidden;
+  }
+  .ai03 .screen::before{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:
+      radial-gradient(circle at 20% 30%,rgba(160,130,80,.08) 1px,transparent 2px),
+      radial-gradient(circle at 75% 60%,rgba(120,80,50,.06) 1px,transparent 2px),
+      radial-gradient(circle at 50% 85%,rgba(160,130,80,.08) 1px,transparent 2px);
+    background-size:6px 6px,9px 9px,7px 7px;
+  }
+  .ai03 .head03{padding:44px 18px 0;text-align:center;position:relative;z-index:3}
+  .ai03 .cam{width:48px;height:36px;background:#3A2810;border-radius:7px 7px 5px 5px;margin:0 auto;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .ai03 .cam::before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:#1A0F08;box-shadow:inset 0 0 0 2px #8B6E4A,0 0 6px rgba(255,200,100,.3)}
+  .ai03 .cam::after{content:"";position:absolute;top:5px;right:6px;width:5px;height:5px;border-radius:50%;background:#FF6B4A}
+  .ai03 .stamp{font-family:'Permanent Marker',cursive;font-size:22px;color:#3A2810;margin-top:8px;letter-spacing:.04em;transform:rotate(-2deg)}
+  .ai03 .stamp .ink{color:#B8553A}
+  .ai03 .stamp-sub{font-family:'Permanent Marker',cursive;font-size:9px;color:#8B6E4A;letter-spacing:.18em;margin-top:2px;text-transform:uppercase;transform:rotate(-1deg)}
+
+  /* clipboard memo */
+  .ai03 .memo-wrap{margin:24px 18px 0;position:relative}
+  .ai03 .memo{
+    background:#FFFDF7;padding:18px 14px 14px;border-radius:2px;color:#3A2810;
+    font-family:'Permanent Marker',cursive;font-size:13.5px;line-height:1.6;
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
+    min-height:120px;position:relative;border:1px solid rgba(160,130,80,.2);
+    background-image:repeating-linear-gradient(180deg,transparent 0,transparent 22px,rgba(120,80,40,.1) 22px,rgba(120,80,40,.1) 23px);
+  }
+  .ai03 .memo-title{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#B8553A;margin-bottom:6px;font-family:'Permanent Marker',cursive;transform:rotate(-.5deg)}
+  .ai03 .memo .placeholder{color:#A88B68;font-family:'Permanent Marker',cursive;font-size:12px;transform:rotate(-.3deg);display:inline-block}
+  .ai03 .clip{
+    position:absolute;top:-12px;right:18px;background:#B8553A;color:#FFFDF7;
+    font-family:'Permanent Marker',cursive;font-size:9px;letter-spacing:.14em;padding:3px 9px;
+    transform:rotate(8deg);box-shadow:0 4px 8px rgba(0,0,0,.25);text-transform:uppercase;
+    border-radius:1px;
+  }
+
+  /* contact sheet styles */
+  .ai03 .sheet-label{margin:22px 18px 6px;font-family:'Permanent Marker',cursive;font-size:11px;color:#3A2810;letter-spacing:.06em;text-transform:uppercase}
+  .ai03 .sheet{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 16px}
+  .ai03 .pol{
+    background:#FFFDF7;padding:3px 3px 9px;position:relative;
+    box-shadow:0 3px 6px rgba(0,0,0,.15);transform:rotate(var(--r));
+  }
+  .ai03 .pol:nth-child(1){--r:-2deg}.ai03 .pol:nth-child(2){--r:1.5deg}
+  .ai03 .pol:nth-child(3){--r:-1deg}.ai03 .pol:nth-child(4){--r:2deg}
+  .ai03 .pol:nth-child(5){--r:1deg}.ai03 .pol:nth-child(6){--r:-1.5deg}
+  .ai03 .pol:nth-child(7){--r:-2deg}.ai03 .pol:nth-child(8){--r:1deg}
+  .ai03 .pol .img{aspect-ratio:1/1;border-radius:1px}
+  .ai03 .pol.p1 .img{background:linear-gradient(135deg,#FFB0CC,#FF6BA0)}
+  .ai03 .pol.p2 .img{background:linear-gradient(135deg,#7AC8FF,#5B6BCF)}
+  .ai03 .pol.p3 .img{background:linear-gradient(135deg,#A85BFF,#5B3DBF)}
+  .ai03 .pol.p4 .img{background:linear-gradient(135deg,#E8DCB5,#A89570)}
+  .ai03 .pol.p5 .img{background:linear-gradient(135deg,#7BE0A8,#3A8A5C)}
+  .ai03 .pol.p6 .img{background:linear-gradient(135deg,#FFB07A,#C46A38)}
+  .ai03 .pol.p7 .img{background:linear-gradient(135deg,#3A2848,#8B5BA8)}
+  .ai03 .pol.p8 .img{background:linear-gradient(135deg,#1A0F08,#3A2810)}
+  .ai03 .pol .lbl{font-family:'Permanent Marker',cursive;font-size:7.5px;text-align:center;margin-top:3px;color:#3A2810;letter-spacing:.04em}
+  .ai03 .pol.active::before{
+    content:"PICKED";position:absolute;top:-4px;right:-4px;z-index:2;
+    background:#B8553A;color:#FFFDF7;font-family:'Permanent Marker',cursive;font-size:7px;
+    padding:2px 5px;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+    transform:rotate(-12deg);box-shadow:0 2px 4px rgba(0,0,0,.3);
+  }
+
+  /* cost ticket + cta */
+  .ai03 .ticket{
+    margin:18px 18px 0;background:#FFFDF7;display:inline-flex;align-self:center;
+    padding:5px 14px;border:1.5px dashed #B8553A;color:#B8553A;
+    font-family:'Permanent Marker',cursive;font-size:11px;letter-spacing:.08em;
+    transform:rotate(-1deg);
+  }
+  .ai03 .cost-wrap{margin:18px 18px 0;text-align:center}
+  .ai03 .develop{
+    margin:14px 18px 0;padding:13px;text-align:center;
+    background:linear-gradient(180deg,#C8956B 0%,#8B5A2B 100%);
+    color:#FFFDF7;font-family:'Permanent Marker',cursive;font-size:14px;letter-spacing:.12em;
+    box-shadow:0 6px 16px rgba(139,90,43,.4),inset 0 1px 0 rgba(255,255,255,.3);
+    border-radius:3px;
+  }
+  .ai03 .develop .ico{font-family:'Material Symbols Outlined';font-size:14px;vertical-align:-2px;margin-right:4px}
+
+  .ai03 .strip{margin:20px 14px 0}
+  .ai03 .strip-lbl{font-family:'Permanent Marker',cursive;font-size:9.5px;color:#3A2810;letter-spacing:.08em;margin-bottom:6px;padding-left:4px}
+  .ai03 .strip-row{display:flex;gap:6px;justify-content:center}
+  .ai03 .mini{
+    background:#FFFDF7;padding:2px 2px 6px;width:48px;
+    box-shadow:0 2px 4px rgba(0,0,0,.2);transform:rotate(var(--r));
+  }
+  .ai03 .mini:nth-child(1){--r:-4deg}.ai03 .mini:nth-child(2){--r:2deg}
+  .ai03 .mini:nth-child(3){--r:-1deg}.ai03 .mini:nth-child(4){--r:3deg}
+  .ai03 .mini .img{aspect-ratio:9/12;border-radius:1px}
+  .ai03 .mini.m1 .img{background:linear-gradient(135deg,#5B3DBF,#9A6BFF)}
+  .ai03 .mini.m2 .img{background:linear-gradient(135deg,#C46A38,#FFB07A)}
+  .ai03 .mini.m3 .img{background:linear-gradient(135deg,#3A8A5C,#7BE0A8)}
+  .ai03 .mini.m4 .img{background:linear-gradient(135deg,#B8553A,#E89A78)}
+
+  /* ============================================================ */
+  /* CONCEPT 04 — SURREALIST DREAM STUDIO                         */
+  /* ============================================================ */
+  .ai04 .screen{
+    background:
+      radial-gradient(ellipse at 30% 20%,rgba(255,200,180,.15) 0%,transparent 50%),
+      radial-gradient(ellipse at 75% 70%,rgba(150,180,255,.18) 0%,transparent 55%),
+      linear-gradient(180deg,#E8D8C8 0%,#B8A8D0 50%,#7888B0 100%);
+    color:#1A1828;font-family:'Cormorant Garamond',serif;position:relative;overflow:hidden;
+  }
+  /* surrealist parallax shapes */
+  .ai04 .surreal{position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.35}
+  .ai04 .cloud{position:absolute;width:80px;height:32px;background:#FFFDF7;border-radius:50px;filter:blur(2px);animation:cloudDrift 25s linear infinite}
+  .ai04 .cloud.c1{top:12%;left:-10%;animation-delay:0s}
+  .ai04 .cloud.c2{top:36%;left:-20%;width:60px;animation-delay:-8s;animation-duration:32s}
+  .ai04 .cloud.c3{top:62%;left:-15%;width:90px;animation-delay:-15s;animation-duration:40s}
+  @keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(140vw)}}
+  .ai04 .eye{position:absolute;top:52%;right:14%;width:24px;height:14px;background:#FFFDF7;border-radius:50%;filter:blur(.5px);opacity:.5}
+  .ai04 .eye::before{content:"";position:absolute;top:3px;left:8px;width:8px;height:8px;background:#3A2848;border-radius:50%}
+  .ai04 .clock{position:absolute;bottom:18%;left:8%;width:28px;height:28px;border:1.5px solid #3A2848;border-radius:50%;opacity:.35;transform:rotate(-20deg) skew(10deg,5deg);background:rgba(255,253,247,.4)}
+
+  .ai04 .head04{padding:44px 22px 0;position:relative;z-index:3;text-align:center}
+  .ai04 .crown{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:.32em;color:#5B4D7A;text-transform:uppercase}
+  .ai04 .crown::before,.ai04 .crown::after{content:"·";margin:0 8px}
+  .ai04 .title{font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:30px;color:#1A1828;margin-top:14px;letter-spacing:-.01em;line-height:1.1}
+  .ai04 .title .cur{display:inline-block;width:1.5px;height:24px;background:#1A1828;margin-left:3px;vertical-align:middle;animation:blink 1s steps(1) infinite}
+  .ai04 .sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#3A2848;margin-top:6px;opacity:.7}
+
+  /* canvas */
+  .ai04 .canvas-wrap{position:relative;z-index:3;margin:24px 22px 0}
+  .ai04 .canvas{
+    background:#FFFDF7;border-radius:4px;padding:18px 16px;color:#1A1828;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.6;
+    box-shadow:0 18px 36px -8px rgba(40,30,80,.3),inset 0 0 0 1px rgba(0,0,0,.05);
+    min-height:130px;position:relative;
+    background-image:
+      radial-gradient(ellipse 20px 4px at 20% 30%,rgba(180,150,200,.12),transparent 60%),
+      radial-gradient(ellipse 30px 6px at 70% 60%,rgba(150,180,200,.1),transparent 60%);
+  }
+  .ai04 .canvas .placeholder{color:#7868A0;font-style:italic;display:block}
+  .ai04 .canvas .cur{display:inline-block;width:1.5px;height:14px;background:#1A1828;margin-left:2px;vertical-align:middle;animation:blink 1s steps(1) infinite}
+  .ai04 .stroke{position:absolute;bottom:8px;right:12px;font-size:10px;color:#7868A0;letter-spacing:.05em;font-family:'Geist Mono',monospace}
+
+  /* brushes */
+  .ai04 .brushes-lbl{margin:22px 22px 8px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;color:#3A2848;text-align:center;letter-spacing:.1em;text-transform:uppercase}
+  .ai04 .brushes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 22px;position:relative;z-index:3}
+  .ai04 .brush{
+    background:rgba(255,253,247,.6);border-radius:6px;padding:8px 4px;text-align:center;
+    border:1px solid rgba(58,40,72,.08);backdrop-filter:blur(4px);
+  }
+  .ai04 .brush svg{display:block;margin:0 auto;width:32px;height:8px}
+  .ai04 .brush .name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:9.5px;color:#1A1828;margin-top:4px;letter-spacing:.04em}
+  .ai04 .brush.active{background:rgba(255,253,247,.9);border-color:#1A1828;box-shadow:0 4px 12px rgba(58,40,72,.15)}
+
+  .ai04 .cost04{margin:22px 22px 0;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:#1A1828;letter-spacing:.04em;position:relative;z-index:3}
+  .ai04 .cost04 .small{display:block;font-size:9px;font-family:'Geist Mono',monospace;letter-spacing:.24em;text-transform:uppercase;color:#7868A0;margin-bottom:2px;font-style:normal}
+  .ai04 .manifest{
+    margin:14px 22px 0;padding:14px;text-align:center;border-radius:30px;
+    background:linear-gradient(120deg,#1A1828 0%,#3A2848 100%);
+    color:#FFFDF7;font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:15px;letter-spacing:.04em;
+    box-shadow:0 12px 28px -6px rgba(26,24,40,.5);position:relative;overflow:hidden;
+  }
+  .ai04 .manifest::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.2) 50%,transparent 70%);
+    animation:shimmerSweep 4s ease-in-out infinite;
+  }
+  @keyframes shimmerSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+  .ai04 .dreams{margin:20px 22px 0;position:relative;z-index:3}
+  .ai04 .dreams-lbl{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;color:#3A2848;text-align:center;letter-spacing:.08em}
+  .ai04 .dreams-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:6px}
+  .ai04 .oval{aspect-ratio:1/1.4;border-radius:50%;border:1.5px solid #1A1828;background-clip:padding-box;box-shadow:0 4px 10px rgba(26,24,40,.25)}
+  .ai04 .oval.o1{background:radial-gradient(circle,#FFB0CC 30%,#5B3DBF)}
+  .ai04 .oval.o2{background:radial-gradient(circle,#FFE6A0 30%,#C46A38)}
+  .ai04 .oval.o3{background:radial-gradient(circle,#7AC8FF 30%,#3A2848)}
+  .ai04 .oval.o4{background:radial-gradient(circle,#7BE0A8 30%,#1A4828)}
+
+  /* ============================================================ */
+  /* CONCEPT 05 — HOLOGRAPHIC FORGE                               */
+  /* ============================================================ */
+  .ai05 .screen{
+    background:linear-gradient(180deg,#1F1B17 0%,#15110E 100%);
+    color:#F0EAD0;font-family:'Inter',sans-serif;position:relative;overflow:hidden;
+  }
+  /* iridescent ribbon at top */
+  .ai05 .screen::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;z-index:10;
+    background:linear-gradient(90deg,#9A6BFF 0%,#5BCBE5 25%,#E5E5F0 50%,#FF8FD0 75%,#FFD27A 100%);
+    background-size:200% 100%;animation:foilshift 6s linear infinite;
+  }
+  .ai05 .ember{position:absolute;inset:0;pointer-events:none;opacity:.15;
+    background:radial-gradient(ellipse at 50% 0%,#FFB07A 0%,transparent 50%)}
+
+  .ai05 .head05{padding:36px 22px 0;position:relative;z-index:3}
+  .ai05 .crown{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.32em;color:#A89570;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+  .ai05 .crown .led{width:6px;height:6px;border-radius:50%;background:#5BFF8E;box-shadow:0 0 6px #5BFF8E;animation:pulse 1.6s infinite}
+  .ai05 .title{font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:30px;line-height:1.05;margin-top:8px;
+    background:linear-gradient(120deg,#9A6BFF 0%,#5BCBE5 30%,#E5E5F0 50%,#FF8FD0 70%,#FFD27A 100%);
+    background-size:300% 100%;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    animation:foilshift 8s linear infinite;
+  }
+  .ai05 .sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#A89570;margin-top:4px}
+
+  /* model pill */
+  .ai05 .model-pill{margin:14px 22px 0;display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:12px;position:relative;background:rgba(31,27,23,.6);border:1px solid transparent;background-clip:padding-box}
+  .ai05 .model-pill::before{
+    content:"";position:absolute;inset:-1px;border-radius:12px;padding:1px;z-index:-1;
+    background:linear-gradient(120deg,#9A6BFF,#5BCBE5,#E5E5F0,#FF8FD0,#FFD27A);
+    background-size:200% 100%;animation:foilshift 5s linear infinite;
+    -webkit-mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  .ai05 .model-pill .led{width:6px;height:6px;border-radius:50%;background:#5BFF8E;box-shadow:0 0 6px #5BFF8E}
+  .ai05 .model-pill .txt{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.16em;color:#E5E5F0}
+
+  /* foil-framed prompt */
+  .ai05 .prompt-wrap{margin:18px 22px 0;position:relative;border-radius:14px;padding:1.5px;
+    background:linear-gradient(120deg,#9A6BFF 0%,#5BCBE5 25%,#E5E5F0 50%,#FF8FD0 75%,#FFD27A 100%);
+    background-size:300% 100%;animation:foilshift 6s linear infinite}
+  .ai05 .prompt-inner{background:#1F1B17;border-radius:13px;padding:16px 14px;min-height:120px}
+  .ai05 .prompt-lbl{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.18em;color:#A89570;text-transform:uppercase}
+  .ai05 .prompt-txt{margin-top:8px;font-family:'Fraunces',serif;font-style:italic;font-size:14px;line-height:1.5;color:#F0EAD0}
+  .ai05 .prompt-txt .placeholder{color:#7A6E5A;opacity:.8}
+  .ai05 .prompt-txt .cur{display:inline-block;width:1.5px;height:13px;background:#FFD27A;animation:blink 1s steps(1) infinite;vertical-align:middle;margin-left:2px}
+  .ai05 .charc{margin-top:4px;text-align:right;font-family:'Geist Mono',monospace;font-size:8.5px;color:#7A6E5A;letter-spacing:.06em}
+
+  /* style chips foil */
+  .ai05 .style-lbl{margin:22px 22px 8px;font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.22em;color:#A89570;text-transform:uppercase}
+  .ai05 .styles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 22px}
+  .ai05 .chip{
+    position:relative;padding:7px 5px;border-radius:8px;text-align:center;
+    font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:.1em;
+    background:rgba(31,27,23,.5);color:#C8B894;overflow:hidden;
+  }
+  .ai05 .chip::before{
+    content:"";position:absolute;inset:0;border-radius:8px;padding:1px;
+    background:linear-gradient(120deg,#9A6BFF 0%,#5BCBE5 25%,#E5E5F0 50%,#FF8FD0 75%,#FFD27A 100%);
+    background-size:200% 100%;animation:foilshift 6s linear infinite;
+    -webkit-mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:.4;
+  }
+  .ai05 .chip.active{color:#1F1B17;font-weight:700}
+  .ai05 .chip.active::after{
+    content:"";position:absolute;inset:0;border-radius:8px;z-index:-1;
+    background:linear-gradient(120deg,#9A6BFF 0%,#5BCBE5 25%,#E5E5F0 50%,#FF8FD0 75%,#FFD27A 100%);
+    background-size:200% 100%;animation:foilshift 5s linear infinite;
+  }
+  .ai05 .chip.active{background:transparent}
+  .ai05 .chip.active::before{opacity:1}
+  .ai05 .chip span{position:relative;z-index:2}
+
+  /* cost foil pill */
+  .ai05 .cost-row{margin:22px 22px 0;display:flex;justify-content:center}
+  .ai05 .cost05{
+    position:relative;padding:8px 18px;border-radius:24px;
+    font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;color:#FFD27A;
+    background:rgba(31,27,23,.6);
+  }
+  .ai05 .cost05::before{
+    content:"";position:absolute;inset:0;border-radius:24px;padding:1px;
+    background:linear-gradient(120deg,#9A6BFF,#5BCBE5,#FFD27A);background-size:200% 100%;animation:foilshift 4s linear infinite;
+    -webkit-mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  .ai05 .cost05 .dia{font-size:14px;vertical-align:-1px;margin-right:5px}
+
+  /* forge cta */
+  .ai05 .forge{
+    margin:14px 22px 0;padding:16px;text-align:center;border-radius:14px;position:relative;overflow:hidden;
+    background:linear-gradient(120deg,#9A6BFF 0%,#5BCBE5 25%,#E5E5F0 50%,#FF8FD0 75%,#FFD27A 100%);
+    background-size:300% 100%;animation:foilshift 5s linear infinite;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:700;font-size:18px;letter-spacing:.18em;color:#1F1B17;
+    box-shadow:0 14px 32px -6px rgba(154,107,255,.4);
+  }
+  .ai05 .forge::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);
+    animation:shimmerSweep 3s ease-in-out infinite;
+  }
+  .ai05 .forge span{position:relative;z-index:2}
+  .ai05 .forge .sp{display:inline-block;margin:0 8px;color:#FFFDF7}
+
+  .ai05 .recent{margin:22px 22px 0}
+  .ai05 .recent-lbl{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.22em;color:#A89570;text-transform:uppercase}
+  .ai05 .recent-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+  .ai05 .rc{position:relative;border-radius:8px;padding:1px;background:linear-gradient(120deg,#9A6BFF,#5BCBE5,#FFD27A);background-size:200% 100%;animation:foilshift 6s linear infinite}
+  .ai05 .rc .img{border-radius:7px;aspect-ratio:9/16;background:#1F1B17;position:relative;overflow:hidden}
+  .ai05 .rc.r1 .img{background:linear-gradient(135deg,#5B3DBF,#9A6BFF)}
+  .ai05 .rc.r2 .img{background:linear-gradient(135deg,#C46A38,#FFB07A)}
+  .ai05 .rc.r3 .img{background:linear-gradient(135deg,#3A2848,#5BCBE5)}
+  .ai05 .rc .views{position:absolute;bottom:4px;left:4px;font-family:'Geist Mono',monospace;font-size:7.5px;color:#FFFDF7;background:rgba(0,0,0,.5);padding:1px 4px;border-radius:3px;letter-spacing:.04em}
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:160px;padding:32px 0;text-align:center;
+    font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.32em;
+    color:#5A4F88;text-transform:uppercase;border-top:1px solid rgba(154,143,211,.15);
+  }
+
+  @media(max-width:1024px){
+    .concept{grid-template-columns:1fr;gap:40px;justify-items:center}
+    .meta{padding-top:0;text-align:left;max-width:540px;width:100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <p class="eyebrow">// Pixora · AI Create · DOC-113 · MAY 2026</p>
+  <h1 class="page-title">AI Create · 5 <span class="foil">Conceptos</span></h1>
+  <p class="page-sub">Generar wallpapers con IA debe sentirse <em>mágico</em>, no técnico. Esta sección es la apuesta monetaria — debe vender la experiencia.</p>
+
+  <!-- ============================================================ -->
+  <!-- CONCEPT 01 — WIZARD'S ATELIER                                -->
+  <!-- ============================================================ -->
+  <section class="concept ai01">
+    <div class="phone">
+      <div class="screen">
+        <div class="head">
+          <div class="crown">PIXORA · AI ATELIER · WIZARDRY v4</div>
+          <div class="moon"></div>
+          <div class="title">SUMMON A WALLPAPER</div>
+          <div class="sub">— invoca tu visión —</div>
+        </div>
+        <div class="circle-wrap">
+          <svg class="runes-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="150" cy="150" r="138" fill="none" stroke="#C8A877" stroke-width=".7" stroke-dasharray="2 4" opacity=".5"/>
+            <circle cx="150" cy="150" r="128" fill="none" stroke="#FFD27A" stroke-width=".5" opacity=".7"/>
+            <g font-family="Cinzel" font-size="9" fill="#FFD27A" opacity=".8">
+              <text x="150" y="20" text-anchor="middle">✦</text>
+              <text x="150" y="290" text-anchor="middle">✦</text>
+              <text x="10" y="155" text-anchor="middle">❖</text>
+              <text x="290" y="155" text-anchor="middle">❖</text>
+              <text x="44" y="50">⟁</text><text x="252" y="50">⟁</text>
+              <text x="44" y="258">⟁</text><text x="252" y="258">⟁</text>
+            </g>
+          </svg>
+          <div class="scroll">
+            <span class="placeholder">un dragón cyberpunk sobre una ciudad neón en la noche…<span class="cursor"></span></span>
+          </div>
+          <div class="charc">XLII / MCMXCIX</div>
+        </div>
+        <div class="vials-label">elige tu esencia</div>
+        <div class="vials">
+          <div class="vial v1 active"><span class="icon"></span><span>ANIME</span></div>
+          <div class="vial v2"><span class="icon"></span><span>CYBER</span></div>
+          <div class="vial v3"><span class="icon"></span><span>FANTASY</span></div>
+          <div class="vial v4"><span class="icon"></span><span>MINIMAL</span></div>
+          <div class="vial v5"><span class="icon"></span><span>NATURE</span></div>
+          <div class="vial v6"><span class="icon"></span><span>ABSTRACT</span></div>
+          <div class="vial v7"><span class="icon"></span><span>PIXEL</span></div>
+          <div class="vial v8"><span class="icon"></span><span>DARK</span></div>
+        </div>
+        <div class="cost"><span class="gem">💎</span> 30 GEMAS · ORO DE INVOCACIÓN</div>
+        <div class="cta">INVOKE WALLPAPER</div>
+        <div class="grimoire">
+          <div class="grimoire-title">⟁ GRIMORIO · invocaciones de la semana</div>
+          <div class="grimoire-row">
+            <div class="thumb t1"></div><div class="thumb t2"></div><div class="thumb t3"></div><div class="thumb t4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">CONCEPT NO. 01</div>
+      <h2>Wizard's Atelier</h2>
+      <div class="tag">Alquimia, runas, oro líquido y poción.</div>
+      <p class="desc">El usuario entra al taller de un mago: un círculo de invocación rota detrás de su pergamino de prompt, las viales de estilo burbujean como pociones. La CTA "INVOKE WALLPAPER" se siente como conjurar — no como apretar un botón. Tipografía Cinzel + Cormorant italic + acentos dorados sobre violeta profundo. El costo en gemas refuerza el valor mágico: cada generación es un ritual, no un click.</p>
+      <div class="palette">
+        <span class="swatch" style="background:#0F0820" data-hex="#0F0820"></span>
+        <span class="swatch" style="background:#1A0F30" data-hex="#1A0F30"></span>
+        <span class="swatch" style="background:#FFD27A" data-hex="#FFD27A"></span>
+        <span class="swatch" style="background:#C8A877" data-hex="#C8A877"></span>
+        <span class="swatch" style="background:#F5E7C6" data-hex="#F5E7C6"></span>
+      </div>
+      <div class="verdict">
+        <div class="pro">PRO · El ritual eleva el valor percibido — gastar 30 gemas se siente noble, no transaccional.</div>
+        <div class="pro">PRO · Diferenciación brutal vs. cualquier generador IA tipo Midjourney/Leonardo.</div>
+        <div class="con">CON · Tipografía Cinzel + Cormorant sacrifica densidad: caben pocos caracteres en mobile.</div>
+        <div class="con">CON · Vibe muy específica — alienar a usuarios que buscan estética tech/minimal.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CONCEPT 02 — NEURAL FORGE                                    -->
+  <!-- ============================================================ -->
+  <section class="concept ai02">
+    <div class="phone">
+      <div class="screen">
+        <div class="term">
+          <div class="term-head"><span class="led"></span>&gt; PIXORA::AI_FORGE [ONLINE]<span class="cur"></span></div>
+          <div class="model-pill"><span class="led"></span>MODEL: NANO_BANANA v2.3</div>
+          <div class="auth-line">&gt; auth_status: <span class="ok">SIGNED_IN</span> · uid=eduardojcr</div>
+          <div class="cost-line">&gt; cost_per_run: <span class="dia">30 ⌭ DIAMONDS</span> · balance: 248</div>
+          <div class="prompt-box">
+            <div class="border-top">┌─ PROMPT ─────────────────┐</div>
+            <div class="body">
+              <span class="prefix">&gt;_ </span><span class="placeholder">un dragón cyberpunk sobre una ciudad neón en la noche…</span><span class="blink"></span>
+            </div>
+            <div class="border-bot">└──────────────────────────┘</div>
+            <div class="charc">chars: 0042 / 1000</div>
+          </div>
+          <div class="flags-label">&gt; flags:</div>
+          <div class="flags">
+            <span class="flag active">--style:anime</span>
+            <span class="flag">--style:cyberpunk</span>
+            <span class="flag">--style:fantasy</span>
+            <span class="flag">--style:minimal</span>
+            <span class="flag">--style:nature</span>
+            <span class="flag">--style:abstract</span>
+            <span class="flag">--style:pixel</span>
+            <span class="flag">--style:dark</span>
+          </div>
+          <div class="exec">EXECUTE ►</div>
+          <div class="builds">
+            <div class="builds-title">&gt; RECENT_BUILDS</div>
+            <div class="build-row"><span class="ts">[03:12:44]</span><span>dragon_v3.webp</span><span class="ok">OK</span></div>
+            <div class="build-row"><span class="ts">[02:58:11]</span><span>neon_city.webp</span><span class="ok">OK</span></div>
+            <div class="build-row"><span class="ts">[02:41:09]</span><span>samurai_x.webp</span><span class="ok">OK</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">CONCEPT NO. 02</div>
+      <h2>Neural Forge</h2>
+      <div class="tag">CRT, scanlines, neon green, modo hacker.</div>
+      <p class="desc">Terminal CLI puro estilo Copilot — el usuario "ejecuta" un wallpaper. El prompt vive dentro de un cuadro ASCII con cursor parpadeante, los estilos son flags `--style:anime`, el CTA es un chunky `EXECUTE ►` neón. Pantalla negra con grid cyan, scanlines que se deslizan, LED status. Refuerza la idea de que NANO_BANANA es un modelo "serio" — atrae al usuario tech, programador, gamer cyberpunk.</p>
+      <div class="palette">
+        <span class="swatch" style="background:#000000" data-hex="#000000"></span>
+        <span class="swatch" style="background:#5BFF8E" data-hex="#5BFF8E"></span>
+        <span class="swatch" style="background:#3DC75F" data-hex="#3DC75F"></span>
+        <span class="swatch" style="background:#7AD0FF" data-hex="#7AD0FF"></span>
+        <span class="swatch" style="background:#9CFFB8" data-hex="#9CFFB8"></span>
+      </div>
+      <div class="verdict">
+        <div class="pro">PRO · 100% honesto con la audiencia tech/gamer/dev que ya usa Pixora.</div>
+        <div class="pro">PRO · El terminal sugiere "potencia bajo el capó" — justifica el costo en diamonds.</div>
+        <div class="con">CON · El feedback de Eduardo es que YA se ve "programmer-y" — esto duplica esa apuesta en vez de matizarla.</div>
+        <div class="con">CON · Cero invitación a usuarios casual/non-tech (la mitad del mercado).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CONCEPT 03 — POLAROID WORKSHOP                               -->
+  <!-- ============================================================ -->
+  <section class="concept ai03">
+    <div class="phone">
+      <div class="screen">
+        <div class="head03">
+          <div class="cam"></div>
+          <div class="stamp">Pixora <span class="ink">Instant</span></div>
+          <div class="stamp-sub">· revelado al instante ·</div>
+        </div>
+        <div class="memo-wrap">
+          <div class="clip">REVEAL</div>
+          <div class="memo">
+            <div class="memo-title">memo para revelar</div>
+            <span class="placeholder">un dragón cyberpunk sobre una ciudad neón en la noche…</span>
+          </div>
+        </div>
+        <div class="sheet-label">hoja de contacto · escoge una</div>
+        <div class="sheet">
+          <div class="pol p1 active"><div class="img"></div><div class="lbl">anime</div></div>
+          <div class="pol p2"><div class="img"></div><div class="lbl">cyber</div></div>
+          <div class="pol p3"><div class="img"></div><div class="lbl">fantasy</div></div>
+          <div class="pol p4"><div class="img"></div><div class="lbl">minimal</div></div>
+          <div class="pol p5"><div class="img"></div><div class="lbl">nature</div></div>
+          <div class="pol p6"><div class="img"></div><div class="lbl">abstract</div></div>
+          <div class="pol p7"><div class="img"></div><div class="lbl">pixel</div></div>
+          <div class="pol p8"><div class="img"></div><div class="lbl">dark</div></div>
+        </div>
+        <div class="cost-wrap"><span class="ticket">💎 30 · cuota de revelado</span></div>
+        <div class="develop"><span class="ico">camera</span>REVELAR MI POLAROID</div>
+        <div class="strip">
+          <div class="strip-lbl">revelados esta semana</div>
+          <div class="strip-row">
+            <div class="mini m1"><div class="img"></div></div>
+            <div class="mini m2"><div class="img"></div></div>
+            <div class="mini m3"><div class="img"></div></div>
+            <div class="mini m4"><div class="img"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">CONCEPT NO. 03</div>
+      <h2>Polaroid Workshop</h2>
+      <div class="tag">Cámara instantánea, papel kraft, nostalgia análoga.</div>
+      <p class="desc">Eduardo abre el taller de revelado de los 60s: papel beige granulado, una Polaroid dibujada, su prompt vive en un memo clipboard con la nota "memo para revelar". Los estilos son una hoja de contacto — 8 polaroids con un sello "PICKED" en rojo. El CTA es brass-color: "REVELAR MI POLAROID". Quita la fricción técnica completamente — IA se siente como un acto creativo análogo, no como una API. Atrae a usuarios que buscan calidez y juego.</p>
+      <div class="palette">
+        <span class="swatch" style="background:#F5EFE2" data-hex="#F5EFE2"></span>
+        <span class="swatch" style="background:#3A2810" data-hex="#3A2810"></span>
+        <span class="swatch" style="background:#B8553A" data-hex="#B8553A"></span>
+        <span class="swatch" style="background:#8B5A2B" data-hex="#8B5A2B"></span>
+        <span class="swatch" style="background:#FFFDF7" data-hex="#FFFDF7"></span>
+      </div>
+      <div class="verdict">
+        <div class="pro">PRO · Calidez única en un mar de generadores IA dark-mode — destaca en demos y screenshots.</div>
+        <div class="pro">PRO · La metáfora "revelar" desinhibe al usuario novato — no hay miedo al prompt vacío.</div>
+        <div class="con">CON · Choca duro con el resto de Pixora (dark mode, holográfico) — necesitaría un tema dedicado.</div>
+        <div class="con">CON · Permanent Marker en mobile puede leerse desordenado para textos largos.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CONCEPT 04 — SURREALIST DREAM STUDIO                         -->
+  <!-- ============================================================ -->
+  <section class="concept ai04">
+    <div class="phone">
+      <div class="screen">
+        <div class="surreal">
+          <div class="cloud c1"></div>
+          <div class="cloud c2"></div>
+          <div class="cloud c3"></div>
+          <div class="eye"></div>
+          <div class="clock"></div>
+        </div>
+        <div class="head04">
+          <div class="crown">PIXORA · DREAM STUDIO</div>
+          <h2 class="title">Sueña un fondo.<span class="cur"></span></h2>
+          <div class="sub">— y nosotros lo pintamos —</div>
+        </div>
+        <div class="canvas-wrap">
+          <div class="canvas">
+            <span class="placeholder">un dragón cyberpunk sobre una ciudad neón en la noche…<span class="cur"></span></span>
+            <span class="stroke">/ 1000</span>
+          </div>
+        </div>
+        <div class="brushes-lbl">elige tu pincel</div>
+        <div class="brushes">
+          <div class="brush active">
+            <svg viewBox="0 0 40 12"><path d="M2 6 Q10 1 20 6 T38 6" stroke="#FF6BA0" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="name">anime</div>
+          </div>
+          <div class="brush">
+            <svg viewBox="0 0 40 12"><path d="M2 6 Q10 1 20 6 T38 6" stroke="#5BCBE5" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="name">cyber</div>
+          </div>
+          <div class="brush">
+            <svg viewBox="0 0 40 12"><path d="M2 6 Q10 1 20 6 T38 6" stroke="#9A6BFF" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="name">fantasy</div>
+          </div>
+          <div class="brush">
+            <svg viewBox="0 0 40 12"><path d="M2 6 Q10 1 20 6 T38 6" stroke="#A89570" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="name">minimal</div>
+          </div>
+          <div class="brush">
+            <svg viewBox="0 0 40 12"><path d="M2 6 Q10 1 20 6 T38 6" stroke="#3A8A5C" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="name">nature</div>
+          </div>
+          <div class="brush">
+            <svg viewBox="0 0 40 12"><path d="M2 6 Q10 1 20 6 T38 6" stroke="#FFB07A" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="name">abstract</div>
+          </div>
+          <div class="brush">
+            <svg viewBox="0 0 40 12"><path d="M2 6 Q10 1 20 6 T38 6" stroke="#FFD27A" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="name">pixel</div>
+          </div>
+          <div class="brush">
+            <svg viewBox="0 0 40 12"><path d="M2 6 Q10 1 20 6 T38 6" stroke="#1A1828" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+            <div class="name">dark</div>
+          </div>
+        </div>
+        <div class="cost04"><span class="small">precio del sueño</span>30 sueños</div>
+        <div class="manifest">✦ Manifestar ✦</div>
+        <div class="dreams">
+          <div class="dreams-lbl">otros sueños</div>
+          <div class="dreams-row">
+            <div class="oval o1"></div>
+            <div class="oval o2"></div>
+            <div class="oval o3"></div>
+            <div class="oval o4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">CONCEPT NO. 04</div>
+      <h2>Surrealist Dream Studio</h2>
+      <div class="tag">Magritte, Dalí, lienzo en blanco, manifestar.</div>
+      <p class="desc">El fondo es un cielo de Magritte: nubes flotantes, un ojo, un reloj derretido — parallax sutil. El usuario "sueña" su fondo en un lienzo blanco. Los estilos son pinceladas pintadas en SVG. El costo es poético — "30 sueños" en Cormorant italic, sin diamantes. La CTA "Manifestar" es elegante, con sweep iridiscente. Se siente como entrar a una galería de arte, no a una herramienta. Eleva la IA al rango de creación artística — justifica precio premium.</p>
+      <div class="palette">
+        <span class="swatch" style="background:#E8D8C8" data-hex="#E8D8C8"></span>
+        <span class="swatch" style="background:#B8A8D0" data-hex="#B8A8D0"></span>
+        <span class="swatch" style="background:#1A1828" data-hex="#1A1828"></span>
+        <span class="swatch" style="background:#FFFDF7" data-hex="#FFFDF7"></span>
+        <span class="swatch" style="background:#7868A0" data-hex="#7868A0"></span>
+      </div>
+      <div class="verdict">
+        <div class="pro">PRO · Posicionamiento artístico premium — la IA como arte, no como cheap dopamine.</div>
+        <div class="pro">PRO · La poesía del "30 sueños" desviste la transacción — se siente menos a microtransacción.</div>
+        <div class="con">CON · Estética light-mode rompe con dark theme dominante de Pixora.</div>
+        <div class="con">CON · Riesgo de "demasiado artsy" — algunos usuarios solo quieren un fondo rápido, no una experiencia.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CONCEPT 05 — HOLOGRAPHIC FORGE                               -->
+  <!-- ============================================================ -->
+  <section class="concept ai05">
+    <div class="phone">
+      <div class="screen">
+        <div class="ember"></div>
+        <div class="head05">
+          <div class="crown"><span class="led"></span>PIXORA · AI FORGE · v4</div>
+          <h2 class="title">Forge a Wallpaper</h2>
+          <div class="sub">— iridiscente, raro, irrepetible —</div>
+        </div>
+        <div class="model-pill"><span class="led"></span><span class="txt">MODEL · NANO_BANANA v2.3</span></div>
+        <div class="prompt-wrap">
+          <div class="prompt-inner">
+            <div class="prompt-lbl">// PROMPT</div>
+            <div class="prompt-txt">
+              <span class="placeholder">un dragón cyberpunk sobre una ciudad neón en la noche…<span class="cur"></span></span>
+            </div>
+            <div class="charc">0042 / 1000</div>
+          </div>
+        </div>
+        <div class="style-lbl">// STYLE</div>
+        <div class="styles">
+          <div class="chip active"><span>ANIME</span></div>
+          <div class="chip"><span>CYBER</span></div>
+          <div class="chip"><span>FANTASY</span></div>
+          <div class="chip"><span>MINIMAL</span></div>
+          <div class="chip"><span>NATURE</span></div>
+          <div class="chip"><span>ABSTRACT</span></div>
+          <div class="chip"><span>PIXEL</span></div>
+          <div class="chip"><span>DARK</span></div>
+        </div>
+        <div class="cost-row"><div class="cost05"><span class="dia">💎</span>30 · COST</div></div>
+        <div class="forge"><span>✦<span class="sp">FORGE</span>✦</span></div>
+        <div class="recent">
+          <div class="recent-lbl">// RECENT FORGES</div>
+          <div class="recent-row">
+            <div class="rc r1"><div class="img"><div class="views">1.2k</div></div></div>
+            <div class="rc r2"><div class="img"><div class="views">847</div></div></div>
+            <div class="rc r3"><div class="img"><div class="views">2.1k</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">CONCEPT NO. 05</div>
+      <h2>Holographic Forge</h2>
+      <div class="tag">Lámina iridiscente, foil rare card, identidad Pixora.</div>
+      <p class="desc">Misma cinta foil 2px del header de Inkwell + nav Ember. Título "Forge a Wallpaper" en Fraunces italic con foil text-gradient animado. Prompt rodeado por un marco foil iridiscente, chips de estilo con borde foil shimmer (activo = relleno completo). Costo en pill foil. CTA "FORGE" es un rectángulo gigante con sweep iridiscente al pasar el mouse. Cada generación se siente como acuñar una carta rara coleccionable. Consistente 100% con el sistema visual existente de Pixora — cero costo de adopción.</p>
+      <div class="palette">
+        <span class="swatch" style="background:#1F1B17" data-hex="#1F1B17"></span>
+        <span class="swatch" style="background:#9A6BFF" data-hex="#9A6BFF"></span>
+        <span class="swatch" style="background:#5BCBE5" data-hex="#5BCBE5"></span>
+        <span class="swatch" style="background:#FFD27A" data-hex="#FFD27A"></span>
+        <span class="swatch" style="background:#FF8FD0" data-hex="#FF8FD0"></span>
+      </div>
+      <div class="verdict">
+        <div class="pro">PRO · Cero ruptura con identidad Pixora — se integra el día 1 sin re-educar al usuario.</div>
+        <div class="pro">PRO · El foil "rare card" comunica que cada generación es valiosa y coleccionable.</div>
+        <div class="pro">PRO · ShaderMask + foil border son patrones ya probados — implementación rápida.</div>
+        <div class="con">CON · Si el resto de Pixora migra de foil, esta sección queda anclada al pasado.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Pixora · AI Create · Design Archive · MAY 2026</footer>
+
+</div>
+
+</body>
+</html>

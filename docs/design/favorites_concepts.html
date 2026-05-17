@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PIXORA · FAVORITES · 5 CONCEPTOS · DOC-114</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300;1,9..144,500;1,9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Caveat:wght@400;500;700&family=Permanent+Marker&family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+<style>
+/* ============== GLOBAL ============== */
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --ink: #07060A;
+  --ink-2: #0E0C14;
+  --bone: #F4EFE6;
+  --mist: rgba(244,239,230,0.6);
+  --iridescent: linear-gradient(120deg, #f0a8c0 0%, #c39de0 25%, #88b5e0 50%, #a8d8c0 75%, #f0c890 100%);
+}
+html, body { background: var(--ink); color: var(--bone); font-family: 'Geist', sans-serif; overflow-x: hidden; }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(120,90,170,0.10), transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(60,90,160,0.08), transparent 60%),
+    radial-gradient(ellipse at 30% 90%, rgba(180,100,140,0.06), transparent 60%),
+    var(--ink);
+  position: relative;
+}
+/* starfield */
+body::before {
+  content:''; position: fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 250px 220px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 400px 60px, rgba(255,255,255,0.3), transparent),
+    radial-gradient(2px 2px at 550px 180px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 700px 350px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 850px 120px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 1000px 280px, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 1150px 80px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(2px 2px at 1300px 220px, rgba(255,255,255,0.6), transparent);
+  background-repeat: repeat;
+  background-size: 1400px 400px;
+  opacity: 0.6;
+  animation: drift 180s linear infinite;
+}
+@keyframes drift {
+  from { background-position: 0 0; }
+  to { background-position: -1400px 800px; }
+}
+
+.page { max-width: 1320px; margin: 0 auto; padding: 80px 56px 120px; position: relative; z-index: 1; }
+
+/* ============== HEADER ============== */
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--mist);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 1.2s ease 0.1s forwards;
+}
+h1.title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 56px;
+  line-height: 1.05;
+  color: var(--bone);
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+  opacity: 0;
+  animation: fadeUp 1.2s ease 0.25s forwards;
+}
+h1.title .grad {
+  background: var(--iridescent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 8s linear infinite;
+}
+@keyframes shimmer { to { background-position: 200% center; } }
+.subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--mist);
+  max-width: 720px;
+  line-height: 1.55;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 1.2s ease 0.40s forwards;
+}
+.subtitle em { color: #f0c890; font-style: italic; }
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244,239,230,0.25), transparent);
+  margin: 56px 0 80px;
+  opacity: 0;
+  animation: fadeUp 1.2s ease 0.55s forwards;
+}
+
+@keyframes fadeUp { from { opacity:0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
+
+/* ============== CONCEPT ROW LAYOUT ============== */
+.concept-row {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 64px;
+  margin-bottom: 140px;
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeUp 1.2s ease forwards;
+}
+.concept-row.r1 { animation-delay: 0.50s; }
+.concept-row.r2 { animation-delay: 0.65s; }
+.concept-row.r3 { animation-delay: 0.80s; }
+.concept-row.r4 { animation-delay: 0.95s; }
+.concept-row.r5 { animation-delay: 1.10s; }
+
+/* phone frame */
+.phone {
+  width: 340px;
+  height: 720px;
+  background: #000;
+  border-radius: 46px;
+  padding: 10px;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 30px 80px -30px rgba(0,0,0,0.9),
+    0 0 60px rgba(255,255,255,0.04);
+}
+.phone::before {
+  content:'';
+  position:absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 26px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 10;
+}
+.screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 38px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* meta column */
+.meta { padding-top: 12px; max-width: 520px; }
+.meta .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--mist);
+  letter-spacing: 0.2em;
+  margin-bottom: 14px;
+}
+.meta h2 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.meta .tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #c39de0;
+  margin-bottom: 22px;
+  line-height: 1.4;
+}
+.meta .desc {
+  font-family: 'Geist', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(244,239,230,0.78);
+  margin-bottom: 28px;
+}
+.palette { display: flex; gap: 10px; margin-bottom: 26px; }
+.swatch {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);
+}
+.swatch::after {
+  content: attr(data-hex);
+  position: absolute;
+  bottom: -18px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  color: rgba(244,239,230,0.4);
+  white-space: nowrap;
+}
+.verdict {
+  border: 1px solid rgba(244,239,230,0.12);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-top: 36px;
+  background: rgba(244,239,230,0.02);
+}
+.verdict .v-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 10px;
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(244,239,230,0.75);
+}
+.verdict .v-row:last-child { margin-bottom: 0; }
+.verdict .v-sign {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.verdict .plus { color: #88c8a0; }
+.verdict .minus { color: #e0a890; }
+
+/* ============== SCREEN BASE (status + bottom nav) ============== */
+.statusbar {
+  height: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 22px 4px;
+  font-size: 11px;
+  font-family: 'Geist', sans-serif;
+  font-weight: 500;
+}
+.bottomnav {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 12px 12px;
+}
+.navitem {
+  display: flex; flex-direction: column; align-items: center;
+  font-size: 9px; font-family: 'Geist', sans-serif;
+  opacity: 0.5; gap: 2px;
+}
+.navitem.active { opacity: 1; }
+.navitem .material-symbols-outlined { font-size: 22px; }
+
+/* =====================================================
+   CONCEPT 01 — POLAROID MEMORY WALL
+===================================================== */
+.f01 .screen {
+  background: #F5EFE5;
+  color: #2A2520;
+  position: relative;
+}
+.f01 .screen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 25% 30%, rgba(180,160,130,0.10) 0%, transparent 50%),
+    radial-gradient(circle at 75% 70%, rgba(160,140,110,0.08) 0%, transparent 50%),
+    repeating-linear-gradient(45deg, rgba(120,100,80,0.02) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(-45deg, rgba(120,100,80,0.02) 0 1px, transparent 1px 4px);
+  pointer-events: none;
+  z-index: 1;
+}
+.f01 .statusbar { color: #2A2520; z-index: 5; position: relative; }
+.f01 .header {
+  padding: 8px 20px 4px;
+  position: relative; z-index: 5;
+}
+.f01 .header .label {
+  font-family: 'Caveat', cursive;
+  font-size: 28px;
+  color: #2A2520;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.f01 .header .count {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 12px;
+  color: #998060;
+  margin-top: -2px;
+}
+.f01 .albums {
+  display: flex;
+  gap: 10px;
+  padding: 12px 20px;
+  overflow-x: hidden;
+  position: relative; z-index: 5;
+}
+.f01 .album {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px;
+}
+.f01 .album-thumb {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 2px solid #FFF;
+  box-shadow: 0 2px 6px rgba(60,40,20,0.18);
+  background-size: cover; background-position: center;
+}
+.f01 .album.active .album-thumb { border-color: #B8896A; }
+.f01 .album .name {
+  font-family: 'Caveat', cursive;
+  font-size: 11px;
+  color: #2A2520;
+}
+.f01 .wall {
+  padding: 16px 14px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 14px;
+  position: relative;
+  z-index: 5;
+}
+.f01 .polaroid {
+  background: #FFFEFA;
+  padding: 8px 8px 26px;
+  box-shadow: 0 6px 18px -4px rgba(60,40,20,0.30), 0 0 0 0.5px rgba(0,0,0,0.05);
+  position: relative;
+  animation: bobP 4s ease-in-out infinite;
+}
+.f01 .polaroid:nth-child(1) { transform: rotate(-2.5deg); animation-delay: 0s; }
+.f01 .polaroid:nth-child(2) { transform: rotate(2deg); animation-delay: 0.6s; }
+.f01 .polaroid:nth-child(3) { transform: rotate(1.5deg); animation-delay: 1.2s; }
+.f01 .polaroid:nth-child(4) { transform: rotate(-1.5deg); animation-delay: 1.8s; }
+.f01 .polaroid:nth-child(5) { transform: rotate(2.5deg); animation-delay: 2.4s; }
+.f01 .polaroid:nth-child(6) { transform: rotate(-2deg); animation-delay: 3.0s; }
+@keyframes bobP {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-3px) rotate(var(--r, 0deg)); }
+}
+.f01 .polaroid img, .f01 .polaroid .img-bg {
+  width: 100%; height: 130px;
+  display: block;
+  object-fit: cover;
+  background-size: cover; background-position: center;
+}
+.f01 .polaroid .caption {
+  font-family: 'Caveat', cursive;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 6px;
+  color: #3a2e22;
+}
+.f01 .bottomnav { background: #F5EFE5; border-top: 1px solid rgba(60,40,20,0.10); z-index: 6; }
+.f01 .navitem { color: #2A2520; }
+
+/* polaroid image fills - using gradient placeholders */
+.f01 .p1 { background: linear-gradient(135deg, #e8c878, #8a5a2a 60%, #2a1810); }
+.f01 .p2 { background: linear-gradient(180deg, #ff8a4c, #d04020 60%, #1a0a0a); }
+.f01 .p3 { background: linear-gradient(160deg, #1a0a2a, #6b3aa0 60%, #f0c890); }
+.f01 .p4 { background: linear-gradient(180deg, #f0a8c0, #c060a0 50%, #401040); }
+.f01 .p5 { background: linear-gradient(160deg, #303060, #8060c0 60%, #f0d8a0); }
+.f01 .p6 { background: linear-gradient(180deg, #105050, #20c080 60%, #f0f0c0); }
+
+/* =====================================================
+   CONCEPT 02 — APPLE PHOTOS MEMORY LANE
+===================================================== */
+.f02 .screen {
+  background: #FAF9F6;
+  color: #1A1A1F;
+  overflow-y: hidden;
+}
+.f02 .statusbar { color: #1A1A1F; }
+.f02 .header {
+  padding: 8px 20px 12px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+}
+.f02 .header h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.f02 .header .more {
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  color: #4A90E2;
+  font-weight: 500;
+}
+.f02 .filters {
+  display: flex; gap: 6px;
+  padding: 0 16px 12px;
+  overflow-x: hidden;
+}
+.f02 .filter {
+  font-family: 'Geist', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: #EFEEEA;
+  color: #1A1A1F;
+  flex-shrink: 0;
+}
+.f02 .filter.active { background: #1A1A1F; color: #FFF; }
+.f02 .hero {
+  margin: 0 16px 20px;
+  height: 180px;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  background: #1A1A1F;
+  box-shadow: 0 8px 24px -8px rgba(0,0,0,0.20);
+  animation: heroPulse 5s ease-in-out infinite;
+}
+@keyframes heroPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+.f02 .hero-tile {
+  background-size: cover; background-position: center;
+}
+.f02 .hero-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 14px 16px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: #FFF;
+}
+.f02 .hero-overlay .sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  opacity: 0.8;
+  margin-bottom: 2px;
+}
+.f02 .hero-overlay .ttl {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+.f02 .hero::after {
+  content:'';
+  position: absolute; inset: 0;
+  border-radius: 18px;
+  border: 1px solid transparent;
+  background: linear-gradient(120deg, rgba(255,255,255,0.4), transparent 30%, transparent 70%, rgba(255,255,255,0.4)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  background-size: 200% 200%;
+  animation: shimmer 6s linear infinite;
+  pointer-events: none;
+}
+.f02 .group-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: #888;
+  padding: 0 20px 8px;
+  text-transform: uppercase;
+}
+.f02 .carousel {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px 18px;
+  overflow-x: hidden;
+}
+.f02 .pcard {
+  flex-shrink: 0;
+  width: 96px;
+  height: 152px;
+  border-radius: 14px;
+  background-size: cover; background-position: center;
+  box-shadow: 0 4px 12px -4px rgba(0,0,0,0.18);
+  position: relative;
+  overflow: hidden;
+}
+.f02 .pcard .pcard-title {
+  position: absolute;
+  bottom: 6px; left: 8px; right: 8px;
+  color: #FFF;
+  font-family: 'Geist', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+}
+.f02 .bottomnav { background: #FAF9F6; border-top: 1px solid #EFEEEA; }
+.f02 .navitem { color: #1A1A1F; }
+/* tiles */
+.f02 .h1 { background: linear-gradient(135deg,#e8c878,#8a5a2a); }
+.f02 .h2 { background: linear-gradient(135deg,#ff8a4c,#d04020); }
+.f02 .h3 { background: linear-gradient(135deg,#6b3aa0,#1a0a2a); }
+.f02 .h4 { background: linear-gradient(135deg,#f0a8c0,#c060a0); }
+.f02 .pc1 { background: linear-gradient(160deg,#303060,#8060c0); }
+.f02 .pc2 { background: linear-gradient(160deg,#105050,#20c080); }
+.f02 .pc3 { background: linear-gradient(160deg,#502810,#e88040); }
+.f02 .pc4 { background: linear-gradient(160deg,#102030,#3080a0); }
+.f02 .pc5 { background: linear-gradient(160deg,#401040,#a040a0); }
+
+/* =====================================================
+   CONCEPT 03 — MUSEUM SALON WALL
+===================================================== */
+.f03 .screen {
+  background: #1C1612;
+  color: #E8DCC0;
+  position: relative;
+}
+.f03 .screen::before {
+  content:'';
+  position: absolute; top: 0; left: 0; right: 0; height: 60%;
+  background: radial-gradient(ellipse at 30% 0%, rgba(220,170,90,0.18), transparent 65%),
+              radial-gradient(ellipse at 75% 0%, rgba(200,150,70,0.12), transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+.f03 .statusbar { color: #E8DCC0; z-index: 5; position: relative; }
+.f03 .header {
+  padding: 8px 20px 6px;
+  text-align: center;
+  position: relative; z-index: 5;
+}
+.f03 .header .eye {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: #B8946A;
+  letter-spacing: 0.3em;
+  margin-bottom: 4px;
+}
+.f03 .header h3 {
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  color: #E8DCC0;
+}
+.f03 .brass-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #B8946A 40%, #B8946A 60%, transparent);
+  margin: 8px 24px 10px;
+  position: relative; z-index: 5;
+}
+.f03 .brass-divider::before, .f03 .brass-divider::after {
+  content: '◆';
+  position: absolute;
+  top: -7px;
+  color: #B8946A;
+  font-size: 10px;
+}
+.f03 .brass-divider::before { left: 50%; transform: translateX(-50%); }
+.f03 .filters {
+  display: flex; justify-content: center; gap: 16px;
+  padding: 4px 20px 14px;
+  position: relative; z-index: 5;
+}
+.f03 .filter {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: #B8946A;
+  padding-bottom: 3px;
+  position: relative;
+}
+.f03 .filter.active { color: #E8DCC0; }
+.f03 .filter.active::after {
+  content:'';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 12px; height: 1px;
+  background: #E8DCC0;
+}
+.f03 .wall {
+  padding: 8px 14px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 14px;
+  position: relative;
+  z-index: 5;
+}
+.f03 .frame {
+  position: relative;
+  padding: 10px;
+  background: #2E2418;
+  background-image:
+    linear-gradient(135deg, rgba(184,148,106,0.18), transparent 30%, rgba(184,148,106,0.08) 50%, transparent 70%, rgba(184,148,106,0.18));
+  box-shadow: 0 8px 24px -6px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(184,148,106,0.25);
+  animation: spotlight 8s ease-in-out infinite;
+}
+.f03 .frame:nth-child(odd) { animation-delay: 0s; }
+.f03 .frame:nth-child(even) { animation-delay: 4s; }
+@keyframes spotlight {
+  0%, 100% { box-shadow: 0 8px 24px -6px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(184,148,106,0.25); }
+  50% { box-shadow: 0 8px 30px -6px rgba(220,170,90,0.18), inset 0 0 0 1px rgba(184,148,106,0.4); }
+}
+.f03 .frame::before, .f03 .frame::after {
+  content:'';
+  position: absolute;
+  width: 14px; height: 14px;
+  background-image: linear-gradient(135deg, #d4ac6a 0%, #8a6a40 100%);
+  z-index: 2;
+}
+.f03 .frame::before { top: 0; left: 0; clip-path: polygon(0 0, 100% 0, 70% 30%, 30% 70%, 0 100%); }
+.f03 .frame::after { bottom: 0; right: 0; clip-path: polygon(100% 100%, 0 100%, 30% 70%, 70% 30%, 100% 0); }
+.f03 .matboard {
+  background: #F0E6CC;
+  padding: 6px;
+}
+.f03 .artwork {
+  height: 105px;
+  background-size: cover; background-position: center;
+}
+.f03 .plaque {
+  margin-top: 8px;
+  background: linear-gradient(180deg, #c4986a, #8a6a40);
+  padding: 5px 6px;
+  text-align: center;
+  border-radius: 1px;
+  box-shadow: inset 0 1px 2px rgba(255,220,180,0.3), inset 0 -1px 2px rgba(0,0,0,0.2);
+}
+.f03 .plaque .name {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #1C1612;
+  line-height: 1.2;
+}
+.f03 .plaque .meta {
+  font-family: 'Cinzel', serif;
+  font-size: 6px;
+  color: #2E2418;
+  margin-top: 1px;
+  letter-spacing: 0.1em;
+}
+.f03 .bottomnav { background: #14100C; border-top: 1px solid rgba(184,148,106,0.2); z-index: 6; }
+.f03 .navitem { color: #B8946A; }
+.f03 .navitem.active { color: #E8DCC0; }
+
+/* artworks */
+.f03 .a1 { background: linear-gradient(135deg,#e8c878,#8a5a2a); }
+.f03 .a2 { background: linear-gradient(135deg,#ff8a4c,#d04020); }
+.f03 .a3 { background: linear-gradient(135deg,#6b3aa0,#1a0a2a); }
+.f03 .a4 { background: linear-gradient(135deg,#f0a8c0,#c060a0); }
+.f03 .a5 { background: linear-gradient(135deg,#303060,#8060c0); }
+.f03 .a6 { background: linear-gradient(135deg,#105050,#20c080); }
+
+/* =====================================================
+   CONCEPT 04 — ZEN GARDEN DRIFT
+===================================================== */
+.f04 .screen {
+  background: linear-gradient(160deg, #E8E2D8 0%, #DDD8CC 50%, #D4DBC8 100%);
+  color: #3a3a30;
+  position: relative;
+  overflow: hidden;
+}
+.f04 .botanical {
+  position: absolute;
+  width: 100%; height: 100%;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.18;
+  pointer-events: none;
+}
+.f04 .leaf {
+  position: absolute;
+  animation: leafDrift 22s linear infinite;
+}
+.f04 .leaf.l1 { top: 12%; left: 8%; width: 50px; animation-delay: 0s; }
+.f04 .leaf.l2 { top: 35%; right: 6%; width: 38px; animation-delay: -7s; animation-duration: 26s; }
+.f04 .leaf.l3 { top: 60%; left: 14%; width: 44px; animation-delay: -12s; animation-duration: 30s; }
+.f04 .leaf.l4 { top: 78%; right: 10%; width: 36px; animation-delay: -18s; }
+.f04 .dot { position: absolute; width: 4px; height: 4px; background: #8a9070; border-radius: 50%; opacity: 0.4; }
+.f04 .dot.d1 { top: 22%; left: 28%; }
+.f04 .dot.d2 { top: 48%; right: 22%; }
+.f04 .dot.d3 { top: 72%; left: 38%; }
+@keyframes leafDrift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(8px, 12px) rotate(8deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.f04 .statusbar { color: #3a3a30; z-index: 5; position: relative; }
+.f04 .header {
+  padding: 14px 24px 8px;
+  z-index: 5; position: relative;
+}
+.f04 .header h3 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  color: #5a4a30;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.f04 .header .sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: #7a7060;
+  margin-top: 2px;
+}
+.f04 .garden {
+  padding: 18px 18px 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 16px;
+  z-index: 5;
+  position: relative;
+}
+.f04 .stone {
+  background: #FFF;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px -6px rgba(80,70,50,0.18), 0 0 0 0.5px rgba(255,255,255,0.6);
+  animation: zenBob 6s ease-in-out infinite;
+}
+.f04 .stone:nth-child(1) { animation-delay: 0s; animation-duration: 5s; }
+.f04 .stone:nth-child(2) { animation-delay: 1s; animation-duration: 6s; }
+.f04 .stone:nth-child(3) { animation-delay: 2.2s; animation-duration: 7s; }
+.f04 .stone:nth-child(4) { animation-delay: 0.5s; animation-duration: 6.5s; }
+.f04 .stone:nth-child(5) { animation-delay: 1.8s; animation-duration: 5.5s; }
+.f04 .stone:nth-child(6) { animation-delay: 3s; animation-duration: 6.2s; }
+@keyframes zenBob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(0.5deg); }
+}
+.f04 .stone .img {
+  width: 100%; height: 140px;
+  background-size: cover; background-position: center;
+}
+.f04 .stone .name {
+  padding: 8px 10px 10px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #5a4a30;
+}
+.f04 .stones-filter {
+  position: absolute;
+  bottom: 80px;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 6;
+}
+.f04 .pebble {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #5a4a30;
+  box-shadow: 0 2px 6px rgba(80,70,50,0.12);
+  position: relative;
+}
+.f04 .pebble.active {
+  background: #5a4a30;
+  color: #fff;
+}
+.f04 .pebble.active::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(90,74,48,0.3);
+  animation: ripple 2s ease-out infinite;
+}
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.f04 .pebble .material-symbols-outlined { font-size: 16px; }
+.f04 .bottomnav { background: rgba(232,226,216,0.95); border-top: 1px solid rgba(80,70,50,0.10); backdrop-filter: blur(8px); z-index: 6; }
+.f04 .navitem { color: #5a4a30; }
+
+.f04 .s1 { background: linear-gradient(160deg,#e8c878,#8a5a2a); }
+.f04 .s2 { background: linear-gradient(160deg,#ff8a4c,#d04020); }
+.f04 .s3 { background: linear-gradient(160deg,#6b3aa0,#1a0a2a); }
+.f04 .s4 { background: linear-gradient(160deg,#f0a8c0,#c060a0); }
+.f04 .s5 { background: linear-gradient(160deg,#303060,#8060c0); }
+.f04 .s6 { background: linear-gradient(160deg,#105050,#20c080); }
+
+/* =====================================================
+   CONCEPT 05 — CABINET OF CURIOSITIES
+===================================================== */
+.f05 .screen {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(230,180,90,0.16), transparent 50%),
+    radial-gradient(ellipse at 30% 50%, rgba(200,140,60,0.10), transparent 60%),
+    radial-gradient(ellipse at 70% 100%, rgba(180,120,50,0.08), transparent 60%),
+    repeating-linear-gradient(90deg,
+      #2A1A12 0px, #2A1A12 2px,
+      #321F14 2px, #321F14 4px,
+      #2A1A12 4px, #2A1A12 6px),
+    #2A1A12;
+  color: #E8C896;
+  position: relative;
+}
+.f05 .statusbar { color: #E8C896; }
+.f05 .header {
+  padding: 8px 20px 8px;
+}
+.f05 .header h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 22px;
+  color: #E8C896;
+  letter-spacing: -0.01em;
+}
+.f05 .header .sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: #B8946A;
+}
+.f05 .filters {
+  display: flex; gap: 12px;
+  padding: 0 20px 12px;
+  overflow-x: hidden;
+}
+.f05 .filter {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #B8946A;
+  padding-bottom: 2px;
+}
+.f05 .filter.active {
+  color: #F0D8A0;
+  border-bottom: 1px solid #D4AC6A;
+}
+.f05 .section-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 20px 8px;
+}
+.f05 .section-head .label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: #D4AC6A;
+}
+.f05 .section-head .line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, #D4AC6A, transparent);
+}
+.f05 .shelf {
+  padding: 0 14px 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 12px;
+  position: relative;
+}
+.f05 .shelf::after {
+  content:''; position: absolute;
+  bottom: -2px; left: 14px; right: 14px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4AC6A 20%, #D4AC6A 80%, transparent);
+  opacity: 0.5;
+}
+.f05 .shelf-last { margin-bottom: 70px; }
+.f05 .specimen {
+  position: relative;
+  animation: candleflicker 6s ease-in-out infinite;
+}
+.f05 .specimen:nth-child(odd) { animation-delay: 0s; }
+.f05 .specimen:nth-child(even) { animation-delay: 3s; }
+@keyframes candleflicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
+.f05 .specimen .img {
+  width: 100%; height: 120px;
+  background-size: cover; background-position: center;
+  border-radius: 4px;
+  box-shadow: 0 6px 16px -4px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(212,172,106,0.3);
+}
+.f05 .specimen .tag {
+  margin: 0 auto;
+  margin-top: 0;
+  width: 60%;
+  background: #F0E6CC;
+  color: #2A1A12;
+  padding: 4px 6px 5px;
+  text-align: center;
+  position: relative;
+  transform: rotate(-1deg);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  margin-top: -2px;
+}
+.f05 .specimen:nth-child(even) .tag { transform: rotate(1deg); }
+.f05 .specimen .tag::before {
+  content:''; position: absolute;
+  top: -4px; left: 50%; transform: translateX(-50%);
+  width: 1px; height: 8px;
+  background: #8a6a40;
+}
+.f05 .specimen .tag::after {
+  content:''; position: absolute;
+  top: -2px; left: 50%; transform: translateX(-50%);
+  width: 4px; height: 4px;
+  background: #D4AC6A;
+  border-radius: 50%;
+  box-shadow: inset 0 0 2px rgba(0,0,0,0.4);
+}
+.f05 .specimen .tag .nm {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 9px;
+  color: #2A1A12;
+  line-height: 1.1;
+}
+.f05 .specimen .tag .dt {
+  font-family: 'Cinzel', serif;
+  font-size: 6px;
+  color: #6a4a20;
+  margin-top: 1px;
+  letter-spacing: 0.1em;
+}
+.f05 .bottomnav { background: #1A0F08; border-top: 1px solid rgba(212,172,106,0.2); }
+.f05 .navitem { color: #B8946A; }
+.f05 .navitem.active { color: #F0D8A0; }
+
+.f05 .x1 { background: linear-gradient(135deg,#e8c878,#8a5a2a); }
+.f05 .x2 { background: linear-gradient(135deg,#ff8a4c,#d04020); }
+.f05 .x3 { background: linear-gradient(135deg,#6b3aa0,#1a0a2a); }
+.f05 .x4 { background: linear-gradient(135deg,#f0a8c0,#c060a0); }
+.f05 .x5 { background: linear-gradient(135deg,#303060,#8060c0); }
+.f05 .x6 { background: linear-gradient(135deg,#105050,#20c080); }
+
+/* Empty-state mini hint inside concept 04 / 01 */
+.empty-hint {
+  position: absolute;
+  bottom: 96px;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-size: 14px;
+  color: rgba(60,40,20,0.45);
+  z-index: 6;
+}
+
+/* ============== FOOTER ============== */
+.footer {
+  margin-top: 80px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(244,239,230,0.08);
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--mist);
+}
+
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="eyebrow">// PIXORA · FAVORITES · DOC-114 · MAY 2026</div>
+  <h1 class="title">Favoritos · 5 <span class="grad">Conceptos</span></h1>
+  <p class="subtitle">Tu colección personal — debe sentirse <em>tranquila</em>, no apretada. Lugar para volver, no para correr.</p>
+  <div class="divider"></div>
+
+  <!-- =================== CONCEPT 01 =================== -->
+  <div class="concept-row r1 f01">
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span>·  ·  ·</span></div>
+
+        <div class="header">
+          <div class="label">Mis Favoritos</div>
+          <div class="count">8 piezas guardadas</div>
+        </div>
+
+        <div class="albums">
+          <div class="album active">
+            <div class="album-thumb p1"></div>
+            <div class="name">Todo</div>
+          </div>
+          <div class="album">
+            <div class="album-thumb p4"></div>
+            <div class="name">Wallpapers</div>
+          </div>
+          <div class="album">
+            <div class="album-thumb p3"></div>
+            <div class="name">Stories</div>
+          </div>
+          <div class="album">
+            <div class="album-thumb p2"></div>
+            <div class="name">Tonos</div>
+          </div>
+          <div class="album">
+            <div class="album-thumb p6"></div>
+            <div class="name">Day</div>
+          </div>
+        </div>
+
+        <div class="wall">
+          <div class="polaroid"><div class="img-bg p1"></div><div class="caption">Sagittarius Gold</div></div>
+          <div class="polaroid"><div class="img-bg p2"></div><div class="caption">Goku Genkidama</div></div>
+          <div class="polaroid"><div class="img-bg p3"></div><div class="caption">Mictlán</div></div>
+          <div class="polaroid"><div class="img-bg p4"></div><div class="caption">Cancer Cells</div></div>
+          <div class="polaroid"><div class="img-bg p5"></div><div class="caption">Anime Drive</div></div>
+          <div class="polaroid"><div class="img-bg p6"></div><div class="caption">Bosque Lluvioso</div></div>
+        </div>
+
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span>Wall</div>
+          <div class="navitem"><span class="material-symbols-outlined">videocam</span>LIVE</div>
+          <div class="navitem"><span class="material-symbols-outlined">auto_stories</span>Stories</div>
+          <div class="navitem active"><span class="material-symbols-outlined">favorite</span>Favs</div>
+          <div class="navitem"><span class="material-symbols-outlined">settings</span>Ajustes</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 01 · PAPER & MEMORY</div>
+      <h2>Polaroid Memory Wall</h2>
+      <div class="tagline">Álbum familiar setentero, hecho a mano, eternamente cálido.</div>
+      <div class="desc">
+        Fondo de papel crema con grano sutil. Cada favorito vive como una <em>polaroid</em> ligeramente inclinada, con su caption escrito a mano debajo. Los álbumes son botones circulares estilo "Stories", agrupando wallpapers, tonos, stories y day cycles. Un bobeo suave de 3px cada 4 segundos da vida sin distraer. Empty state: una polaroid vacía con leyenda <em>"guarda tu primer favorito ✿"</em>.
+      </div>
+      <div class="palette">
+        <div class="swatch" data-hex="#F5EFE5" style="background:#F5EFE5"></div>
+        <div class="swatch" data-hex="#FFFEFA" style="background:#FFFEFA"></div>
+        <div class="swatch" data-hex="#2A2520" style="background:#2A2520"></div>
+        <div class="swatch" data-hex="#998060" style="background:#998060"></div>
+        <div class="swatch" data-hex="#B8896A" style="background:#B8896A"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Instantáneamente íntimo, te dan ganas de quedarte. Caligrafía hand-written despierta nostalgia inmediata.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>Cada favorito se siente curado, no listado. La inclinación rompe la cuadrícula sin caos.</span></div>
+        <div class="v-row"><span class="v-sign minus">−</span><span>Necesita generación de captions automáticos (fecha + tag) que no existe aún. Densidad menor que grid plano.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== CONCEPT 02 =================== -->
+  <div class="concept-row r2 f02">
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span>·  ·  ·</span></div>
+
+        <div class="header">
+          <h3>Favoritos</h3>
+          <span class="more">Editar</span>
+        </div>
+
+        <div class="filters">
+          <div class="filter active">Todo</div>
+          <div class="filter">Wallpapers</div>
+          <div class="filter">LIVE</div>
+          <div class="filter">Stories</div>
+          <div class="filter">Tonos</div>
+        </div>
+
+        <div class="hero">
+          <div class="hero-tile h1"></div>
+          <div class="hero-tile h2"></div>
+          <div class="hero-tile h3"></div>
+          <div class="hero-tile h4"></div>
+          <div class="hero-overlay">
+            <div class="sub">MEJOR DEL MES · MAYO</div>
+            <div class="ttl">Tu colección, curada</div>
+          </div>
+        </div>
+
+        <div class="group-label">Esta semana</div>
+        <div class="carousel">
+          <div class="pcard pc1"><div class="pcard-title">Anime Drive</div></div>
+          <div class="pcard pc2"><div class="pcard-title">Bosque Lluvia</div></div>
+          <div class="pcard pc3"><div class="pcard-title">Volcano Dragon</div></div>
+        </div>
+
+        <div class="group-label">Octubre</div>
+        <div class="carousel">
+          <div class="pcard pc4"><div class="pcard-title">Cyberpunk Roof</div></div>
+          <div class="pcard pc5"><div class="pcard-title">Cancer Cells</div></div>
+          <div class="pcard pc1"><div class="pcard-title">Mictlán</div></div>
+        </div>
+
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span>Wall</div>
+          <div class="navitem"><span class="material-symbols-outlined">videocam</span>LIVE</div>
+          <div class="navitem"><span class="material-symbols-outlined">auto_stories</span>Stories</div>
+          <div class="navitem active"><span class="material-symbols-outlined">favorite</span>Favs</div>
+          <div class="navitem"><span class="material-symbols-outlined">settings</span>Ajustes</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 02 · CURATED LANE</div>
+      <h2>Apple Photos Memory Lane</h2>
+      <div class="tagline">Sistema operativo de tus recuerdos — limpio, premium, conocido.</div>
+      <div class="desc">
+        Off-white limpio. Un <em>hero</em> arriba ("Mejor del Mes") arma un montaje 2×2 con tus 4 mejores guardados y respira con un pulse muy suave (1.0 → 1.02 en 5s) y un borde shimmer. Debajo, agrupaciones por semana/mes en carruseles horizontales — exactamente el flow del tab Memories de Apple Photos. Filtros tipo chip en la parte superior. Premium y reconocible al instante.
+      </div>
+      <div class="palette">
+        <div class="swatch" data-hex="#FAF9F6" style="background:#FAF9F6"></div>
+        <div class="swatch" data-hex="#EFEEEA" style="background:#EFEEEA"></div>
+        <div class="swatch" data-hex="#1A1A1F" style="background:#1A1A1F"></div>
+        <div class="swatch" data-hex="#4A90E2" style="background:#4A90E2"></div>
+        <div class="swatch" data-hex="#888888" style="background:#888888"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Patrón familiar a millones — cero curva de aprendizaje. Sensación premium-Apple inmediata.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>El hero "Mejor del Mes" da un motivo emocional para volver al tab semana a semana.</span></div>
+        <div class="v-row"><span class="v-sign minus">−</span><span>Requiere lógica de fechas y agrupación inteligente. Si nos copian de Apple sin twist, perdemos personalidad Pixora.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== CONCEPT 03 =================== -->
+  <div class="concept-row r3 f03">
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span>·  ·  ·</span></div>
+
+        <div class="header">
+          <div class="eye">EXHIBITION CATALOG</div>
+          <h3>MMXXVI · PRIVATE COLL.</h3>
+        </div>
+        <div class="brass-divider"></div>
+
+        <div class="filters">
+          <div class="filter active">OPVS</div>
+          <div class="filter">VITAE</div>
+          <div class="filter">STORIA</div>
+          <div class="filter">TONI</div>
+        </div>
+
+        <div class="wall">
+          <div class="frame">
+            <div class="matboard"><div class="artwork a1"></div></div>
+            <div class="plaque">
+              <div class="name">SAGITTARIUS GOLD</div>
+              <div class="meta">IX.MCMXXIV · PIXORA COLL.</div>
+            </div>
+          </div>
+          <div class="frame">
+            <div class="matboard"><div class="artwork a2"></div></div>
+            <div class="plaque">
+              <div class="name">GENKIDAMA</div>
+              <div class="meta">X.MCMXXIV · PIXORA COLL.</div>
+            </div>
+          </div>
+          <div class="frame">
+            <div class="matboard"><div class="artwork a3"></div></div>
+            <div class="plaque">
+              <div class="name">MICTLÁN</div>
+              <div class="meta">XI.MCMXXIV · PIXORA COLL.</div>
+            </div>
+          </div>
+          <div class="frame">
+            <div class="matboard"><div class="artwork a4"></div></div>
+            <div class="plaque">
+              <div class="name">CANCER CELLS</div>
+              <div class="meta">XII.MCMXXIV · PIXORA COLL.</div>
+            </div>
+          </div>
+          <div class="frame">
+            <div class="matboard"><div class="artwork a5"></div></div>
+            <div class="plaque">
+              <div class="name">ANIME DRIVE</div>
+              <div class="meta">I.MMXXV · PIXORA COLL.</div>
+            </div>
+          </div>
+          <div class="frame">
+            <div class="matboard"><div class="artwork a6"></div></div>
+            <div class="plaque">
+              <div class="name">BOSQUE PLUVIA</div>
+              <div class="meta">II.MMXXV · PIXORA COLL.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span>Wall</div>
+          <div class="navitem"><span class="material-symbols-outlined">videocam</span>LIVE</div>
+          <div class="navitem"><span class="material-symbols-outlined">auto_stories</span>Stories</div>
+          <div class="navitem active"><span class="material-symbols-outlined">favorite</span>Favs</div>
+          <div class="navitem"><span class="material-symbols-outlined">settings</span>Ajustes</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 03 · SALON HUNG</div>
+      <h2>Museum Salon Wall</h2>
+      <div class="tagline">Galería privada del siglo XIX — silencio museográfico, materia noble.</div>
+      <div class="desc">
+        Pared cálida oscura con luces ámbar cayendo desde arriba como spots de museo. Cada favorito enmarcado con esquinas de latón y matboard crema. Debajo, una placa de bronce con tipografía Cinzel ("SAGITTARIUS GOLD · IX.MCMXXIV"). El spot pulsa muy suave cada 8s, dando la sensación de luz cálida viva. Headers con números romanos. Para coleccionistas serios.
+      </div>
+      <div class="palette">
+        <div class="swatch" data-hex="#1C1612" style="background:#1C1612"></div>
+        <div class="swatch" data-hex="#2E2418" style="background:#2E2418"></div>
+        <div class="swatch" data-hex="#B8946A" style="background:#B8946A"></div>
+        <div class="swatch" data-hex="#E8DCC0" style="background:#E8DCC0"></div>
+        <div class="swatch" data-hex="#F0E6CC" style="background:#F0E6CC"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Único en el mercado — nadie hace favoritos como museo. Eleva cada pieza al rango de obra.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>Coherente con la cultura/arte que ya empuja Pixora (Cancer Cells, Mictlán). Refuerza identidad de marca.</span></div>
+        <div class="v-row"><span class="v-sign minus">−</span><span>Estética nicho. Usuarios casuales pueden sentirla "pesada" o "rara". Romanos no traducen para todos.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== CONCEPT 04 =================== -->
+  <div class="concept-row r4 f04">
+    <div class="phone">
+      <div class="screen">
+        <div class="botanical">
+          <svg class="leaf l1" viewBox="0 0 60 60" fill="none"><path d="M30 5 C 45 15, 50 35, 30 55 C 10 35, 15 15, 30 5 Z" fill="#7a8060"/><path d="M30 5 L 30 55" stroke="#5a6040" stroke-width="0.5"/></svg>
+          <svg class="leaf l2" viewBox="0 0 60 60" fill="none"><path d="M30 5 C 45 15, 50 35, 30 55 C 10 35, 15 15, 30 5 Z" fill="#8a9070"/></svg>
+          <svg class="leaf l3" viewBox="0 0 60 60" fill="none"><path d="M30 5 C 45 15, 50 35, 30 55 C 10 35, 15 15, 30 5 Z" fill="#7a8060"/></svg>
+          <svg class="leaf l4" viewBox="0 0 60 60" fill="none"><path d="M30 5 C 45 15, 50 35, 30 55 C 10 35, 15 15, 30 5 Z" fill="#8a9070"/></svg>
+          <div class="dot d1"></div>
+          <div class="dot d2"></div>
+          <div class="dot d3"></div>
+        </div>
+
+        <div class="statusbar"><span>9:41</span><span>·  ·  ·</span></div>
+
+        <div class="header">
+          <h3>Tu jardín</h3>
+          <div class="sub">12 piezas recolectadas con calma</div>
+        </div>
+
+        <div class="garden">
+          <div class="stone"><div class="img s1"></div><div class="name">Sagittarius Gold</div></div>
+          <div class="stone"><div class="img s2"></div><div class="name">Goku Genkidama</div></div>
+          <div class="stone"><div class="img s3"></div><div class="name">Mictlán</div></div>
+          <div class="stone"><div class="img s4"></div><div class="name">Cancer Cells</div></div>
+          <div class="stone"><div class="img s5"></div><div class="name">Anime Drive</div></div>
+          <div class="stone"><div class="img s6"></div><div class="name">Bosque Lluvioso</div></div>
+        </div>
+
+        <div class="stones-filter">
+          <div class="pebble active"><span class="material-symbols-outlined">grid_view</span></div>
+          <div class="pebble"><span class="material-symbols-outlined">wallpaper</span></div>
+          <div class="pebble"><span class="material-symbols-outlined">videocam</span></div>
+          <div class="pebble"><span class="material-symbols-outlined">auto_stories</span></div>
+          <div class="pebble"><span class="material-symbols-outlined">music_note</span></div>
+        </div>
+
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span>Wall</div>
+          <div class="navitem"><span class="material-symbols-outlined">videocam</span>LIVE</div>
+          <div class="navitem"><span class="material-symbols-outlined">auto_stories</span>Stories</div>
+          <div class="navitem active"><span class="material-symbols-outlined">favorite</span>Favs</div>
+          <div class="navitem"><span class="material-symbols-outlined">settings</span>Ajustes</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 04 · MINDFUL</div>
+      <h2>Zen Garden Drift</h2>
+      <div class="tagline">Recolectas piedras del jardín; cada una respira a su propio ritmo.</div>
+      <div class="desc">
+        Gradiente salvia + crema. Cada favorito es una piedra redondeada que flota con micro-bobeo de 2px en intervalos desincronizados (5-7s) — vivo pero meditativo. Hojas SVG botánicas derivan en el fondo. Filtros como "piedras" abajo: redondas, blur, con un ripple suave al tap. Header en Fraunces italic minúsculas, color latón suave. <em>Perfectamente alineado con AURA</em>.
+      </div>
+      <div class="palette">
+        <div class="swatch" data-hex="#E8E2D8" style="background:#E8E2D8"></div>
+        <div class="swatch" data-hex="#D4DBC8" style="background:#D4DBC8"></div>
+        <div class="swatch" data-hex="#FFFFFF" style="background:#FFFFFF"></div>
+        <div class="swatch" data-hex="#5A4A30" style="background:#5A4A30"></div>
+        <div class="swatch" data-hex="#7A8060" style="background:#7A8060"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Exactamente el "tranquilo, relax, efectos sutiles" que pediste. Lectura inmediata de paz.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>Conecta visualmente con AURA, reforzando el eje wellness de la marca.</span></div>
+        <div class="v-row"><span class="v-sign minus">−</span><span>Estética puede sentirse "femenina/spa" para una parte del público gamer/anime. No combina con TODO el catálogo (ej. cyberpunk).</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== CONCEPT 05 =================== -->
+  <div class="concept-row r5 f05">
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span>·  ·  ·</span></div>
+
+        <div class="header">
+          <h3>Mi gabinete</h3>
+          <div class="sub">Una colección curada con el tiempo</div>
+        </div>
+
+        <div class="filters">
+          <div class="filter active">Todo</div>
+          <div class="filter">Wallpapers</div>
+          <div class="filter">LIVE</div>
+          <div class="filter">Stories</div>
+          <div class="filter">Tonos</div>
+        </div>
+
+        <div class="section-head">
+          <div class="label">ANIME · IV PIEZAS</div>
+          <div class="line"></div>
+        </div>
+        <div class="shelf">
+          <div class="specimen">
+            <div class="img x2"></div>
+            <div class="tag">
+              <div class="nm">Goku Genkidama</div>
+              <div class="dt">12 · X · XXIV</div>
+            </div>
+          </div>
+          <div class="specimen">
+            <div class="img x5"></div>
+            <div class="tag">
+              <div class="nm">Anime Drive</div>
+              <div class="dt">04 · I · XXV</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div class="label">ARTE · VI PIEZAS</div>
+          <div class="line"></div>
+        </div>
+        <div class="shelf shelf-last">
+          <div class="specimen">
+            <div class="img x1"></div>
+            <div class="tag">
+              <div class="nm">Sagittarius Gold</div>
+              <div class="dt">22 · IX · XXIV</div>
+            </div>
+          </div>
+          <div class="specimen">
+            <div class="img x3"></div>
+            <div class="tag">
+              <div class="nm">Mictlán</div>
+              <div class="dt">01 · XI · XXIV</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span>Wall</div>
+          <div class="navitem"><span class="material-symbols-outlined">videocam</span>LIVE</div>
+          <div class="navitem"><span class="material-symbols-outlined">auto_stories</span>Stories</div>
+          <div class="navitem active"><span class="material-symbols-outlined">favorite</span>Favs</div>
+          <div class="navitem"><span class="material-symbols-outlined">settings</span>Ajustes</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 05 · WUNDERKAMMER</div>
+      <h2>Cabinet of Curiosities</h2>
+      <div class="tagline">Tu biblioteca privada victoriana, con sus especímenes etiquetados a mano.</div>
+      <div class="desc">
+        Madera cálida oscura con luces ámbar. Los favoritos se acomodan en <em>estantes</em> divididos por líneas finas de oro, agrupados por categoría con headers en Cinzel ("ANIME · IV PIEZAS"). De cada pieza cuelga una etiqueta de museo tipo specimen — papel crema, leve rotación, escrito en Cormorant italic con la fecha de captura en romanos. Pulso de candelabro muy lento (6s, opacity 0.95→1.0). Intimo, cálido, coleccionista.
+      </div>
+      <div class="palette">
+        <div class="swatch" data-hex="#2A1A12" style="background:#2A1A12"></div>
+        <div class="swatch" data-hex="#1A0F08" style="background:#1A0F08"></div>
+        <div class="swatch" data-hex="#D4AC6A" style="background:#D4AC6A"></div>
+        <div class="swatch" data-hex="#E8C896" style="background:#E8C896"></div>
+        <div class="swatch" data-hex="#F0E6CC" style="background:#F0E6CC"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Agrupación por categoría con conteo da estructura sin perder calidez. Cada specimen se siente único, etiquetado a mano.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>Hermana visual del concepto Museo pero más cálida y narrativa — funciona muy bien con cultura, arte y anime juntos.</span></div>
+        <div class="v-row"><span class="v-sign minus">−</span><span>Madera oscura puede competir visualmente con los thumbnails coloridos. Requiere assets que respiren contra el fondo cálido.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">PIXORA · FAVORITES · DESIGN ARCHIVE · MAY 2026</div>
+
+</div>
+
+</body>
+</html>

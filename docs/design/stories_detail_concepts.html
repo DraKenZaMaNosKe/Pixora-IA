@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>// Pixora · Stories Detail · 5 Conceptos · DOC-109</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400;1,9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Bangers&family=Permanent+Marker&family=Bowlby+One&family=JetBrains+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&family=Noto+Sans+JP:wght@500;700;900&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
+<style>
+/* =================================================================
+   PIXORA · STORIES DETAIL · 5 CONCEPTOS · DOC-109
+   Editorial archive page · comic-book editorial family
+   ================================================================= */
+
+:root{
+  --ink:#0a0810;
+  --ink-2:#120e1c;
+  --paper:#f4ecdc;
+  --paper-warm:#efe3c8;
+  --brass:#caa257;
+  --brass-deep:#8c6b32;
+  --gold:#f5c948;
+  --crimson:#c01c2a;
+  --crimson-dark:#7a0f1b;
+  --teal:#1d4d54;
+  --plum:#3a1a4d;
+  --bone:#e9dcc1;
+  --char:#1a1721;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--ink);color:#e8e3d6;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ---- Starfield drift background ---- */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(2px 2px at 12% 18%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(1.5px 1.5px at 78% 28%, rgba(255,210,140,.45), transparent 55%),
+    radial-gradient(1px 1px at 38% 62%, rgba(255,255,255,.35), transparent 55%),
+    radial-gradient(1.5px 1.5px at 88% 78%, rgba(180,200,255,.4), transparent 55%),
+    radial-gradient(2.2px 2.2px at 28% 88%, rgba(255,200,160,.4), transparent 55%),
+    radial-gradient(1px 1px at 62% 12%, rgba(255,255,255,.3), transparent 55%),
+    radial-gradient(1px 1px at 8% 52%, rgba(220,200,255,.3), transparent 55%),
+    radial-gradient(ellipse at top, #1a1430 0%, #0a0810 55%, #050308 100%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  animation: drift 60s linear infinite;
+}
+body::after{
+  content:"";position:fixed;inset:-2px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse at 70% 10%, rgba(245,201,72,.06), transparent 50%),
+             radial-gradient(ellipse at 20% 85%, rgba(192,28,42,.05), transparent 55%);
+}
+@keyframes drift{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-40px)}
+}
+
+/* ---- Container ---- */
+.wrap{max-width:1340px;margin:0 auto;padding:80px 48px 120px}
+
+/* ---- Header / Eyebrow / H1 ---- */
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:#b8a878;opacity:.85;margin-bottom:28px;
+  display:flex;align-items:center;gap:14px;
+}
+.eyebrow::before{content:"";display:block;width:38px;height:1px;background:#caa257;opacity:.7}
+
+h1.title{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:clamp(40px,5.5vw,64px);line-height:1.02;letter-spacing:-.02em;
+  color:#f1ead8;margin-bottom:18px;
+}
+h1.title .grad{
+  background:linear-gradient(120deg,#f5c948 0%,#e98e5f 28%,#c64a8a 58%,#7a4ad9 88%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-style:italic;font-weight:700;
+  filter:drop-shadow(0 2px 24px rgba(245,201,72,.18));
+}
+
+p.lede{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:21px;line-height:1.55;color:#cfc4a8;max-width:880px;
+  margin-bottom:14px;
+}
+.meta-row{
+  display:flex;gap:18px;flex-wrap:wrap;margin-top:18px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:#8a7e5e;letter-spacing:.14em;text-transform:uppercase;
+}
+.meta-row span{padding:6px 12px;border:1px solid #3a2f1a;border-radius:2px;background:rgba(202,162,87,.04)}
+
+hr.div{border:0;height:1px;background:linear-gradient(90deg,transparent,rgba(202,162,87,.4),transparent);margin:56px 0 48px}
+
+/* ---- Concept row ---- */
+.concept{
+  display:grid;grid-template-columns:340px 1fr;gap:64px;
+  align-items:flex-start;margin-bottom:96px;
+  opacity:0;transform:translateY(28px);
+  animation:reveal .9s cubic-bezier(.2,.7,.2,1) forwards;
+}
+@keyframes reveal{to{opacity:1;transform:translateY(0)}}
+.concept.c1{animation-delay:.50s}
+.concept.c2{animation-delay:.70s}
+.concept.c3{animation-delay:.85s}
+.concept.c4{animation-delay:.98s}
+.concept.c5{animation-delay:1.10s}
+
+/* ---- Phone frame ---- */
+.phone{
+  width:320px;height:680px;
+  background:#000;border-radius:42px;
+  padding:10px;
+  box-shadow:
+    0 30px 60px -20px rgba(0,0,0,.7),
+    0 0 0 1.5px #2a2435,
+    0 0 0 8px #0e0a18,
+    0 0 0 9px #2a2435,
+    0 50px 100px -30px rgba(167,116,255,.18);
+  position:relative;
+  flex-shrink:0;
+}
+.phone::before{
+  content:"";position:absolute;top:18px;left:50%;transform:translateX(-50%);
+  width:90px;height:24px;background:#000;border-radius:14px;z-index:30;
+}
+.phone-screen{
+  width:100%;height:100%;border-radius:34px;overflow:hidden;
+  position:relative;
+}
+
+/* ---- Meta column ---- */
+.meta{padding-top:8px}
+.meta .num{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:#caa257;letter-spacing:.22em;text-transform:uppercase;
+  margin-bottom:12px;
+}
+.meta h2{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:700;
+  font-size:34px;line-height:1.05;color:#f4ecd8;letter-spacing:-.01em;
+  margin-bottom:8px;
+}
+.meta .tag{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:17px;color:#caa257;margin-bottom:18px;letter-spacing:.01em;
+}
+.meta p.body{
+  font-family:'Geist',sans-serif;font-size:14px;line-height:1.65;
+  color:#cfc6b1;margin-bottom:22px;max-width:520px;
+}
+.palette{display:flex;gap:8px;margin-bottom:22px}
+.swatch{
+  width:36px;height:36px;border-radius:6px;border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+  position:relative;cursor:default;
+}
+.swatch::after{
+  content:attr(data-hex);position:absolute;top:42px;left:50%;transform:translateX(-50%);
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:#8a8068;letter-spacing:.08em;
+  opacity:0;transition:opacity .2s;white-space:nowrap;
+}
+.swatch:hover::after{opacity:1}
+
+.verdict{
+  background:rgba(255,255,255,.025);border:1px solid rgba(202,162,87,.18);
+  border-radius:10px;padding:18px 20px;max-width:520px;
+}
+.verdict .row{display:flex;gap:14px;margin-bottom:8px;font-size:13px;line-height:1.5}
+.verdict .row:last-child{margin-bottom:0}
+.verdict .row .ic{
+  font-family:'JetBrains Mono',monospace;font-weight:500;flex-shrink:0;width:18px;
+}
+.verdict .row.pro .ic{color:#7dd896}
+.verdict .row.con .ic{color:#e07b7b}
+.verdict .row .txt{color:#cfc6b1}
+
+/* =================================================================
+   PHONE SCREEN COMMON
+   ================================================================= */
+.status-bar{
+  position:absolute;top:0;left:0;right:0;height:42px;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 24px;font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:600;color:#fff;z-index:25;
+  pointer-events:none;
+}
+.status-bar .ic{font-family:'Material Symbols Outlined';font-size:13px}
+.status-bar .right{display:flex;gap:5px;align-items:center}
+
+.close-btn{
+  position:absolute;top:54px;right:18px;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Material Symbols Outlined';color:#fff;font-size:20px;
+  z-index:24;
+}
+
+/* =================================================================
+   CONCEPT 01 — MARVEL SPLASH PAGE
+   ================================================================= */
+.s01 .phone-screen{
+  background:#0a0a0a;
+  font-family:'Geist',sans-serif;
+}
+
+/* hero */
+.s01 .hero{
+  position:absolute;top:0;left:0;right:0;height:46%;
+  background:
+    radial-gradient(ellipse at 30% 35%, rgba(255,200,80,.4), transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(255,80,80,.45), transparent 50%),
+    linear-gradient(160deg,#3b1414 0%,#1a0808 70%);
+  overflow:hidden;
+}
+.s01 .hero::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 45% 50%, rgba(255,230,140,.5) 0%, transparent 28%),
+    radial-gradient(circle at 65% 45%, rgba(255,90,60,.6) 0%, transparent 35%);
+  filter:blur(2px);
+  animation:s01-zoom 4s ease-out;
+}
+@keyframes s01-zoom{
+  0%{transform:scale(1.15);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+.s01 .hero-figure{
+  position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);
+  width:60%;height:75%;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(0,0,0,.5), transparent 70%),
+    linear-gradient(180deg,transparent 30%,rgba(0,0,0,.6) 100%);
+  clip-path:polygon(40% 5%,55% 5%,68% 22%,75% 50%,72% 75%,60% 95%,38% 95%,28% 75%,25% 50%,32% 22%);
+  opacity:.85;
+}
+.s01 .speed-lines{
+  position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(115deg, transparent 0 18px, rgba(255,255,255,.06) 18px 19px);
+  mix-blend-mode:overlay;
+}
+
+/* chapter stamp */
+.s01 .ch-stamp{
+  position:absolute;top:62px;left:14px;z-index:10;
+  width:78px;height:78px;
+  background:radial-gradient(circle, var(--crimson) 60%,#7a0f1b 100%);
+  clip-path:polygon(50% 0%, 61% 15%, 80% 10%, 78% 30%, 95% 35%, 84% 50%, 95% 65%, 78% 70%, 80% 90%, 61% 85%, 50% 100%, 39% 85%, 20% 90%, 22% 70%, 5% 65%, 16% 50%, 5% 35%, 22% 30%, 20% 10%, 39% 15%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--gold);
+  font-family:'Bangers',cursive;letter-spacing:.05em;
+  box-shadow:0 4px 12px rgba(0,0,0,.5);
+  animation:s01-stamp-wobble 3.5s ease-in-out infinite;
+}
+.s01 .ch-stamp .word{font-size:9px;line-height:1}
+.s01 .ch-stamp .num{font-size:28px;line-height:1;margin-top:2px}
+@keyframes s01-stamp-wobble{
+  0%,100%{transform:rotate(-6deg) scale(1)}
+  50%{transform:rotate(-3deg) scale(1.04)}
+}
+
+/* title banner */
+.s01 .title-banner{
+  position:absolute;top:34%;left:-8px;right:-8px;z-index:8;
+  background:#000;color:#fff;
+  padding:14px 22px;
+  font-family:'Bowlby One',sans-serif;
+  font-size:21px;line-height:1.05;letter-spacing:.01em;
+  transform:rotate(-3deg);
+  box-shadow:0 6px 16px rgba(0,0,0,.6);
+  border-top:2px solid var(--gold);border-bottom:2px solid var(--gold);
+}
+.s01 .title-banner .sub{
+  display:block;font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:var(--gold);margin-top:4px;letter-spacing:.18em;font-weight:400;
+}
+
+/* narrator caption */
+.s01 .narrator{
+  position:absolute;top:51%;left:14px;right:14px;z-index:7;
+  background:#fde477;border:2px solid #1a1a1a;
+  padding:10px 12px;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:12px;line-height:1.4;color:#1a1a1a;
+  box-shadow:3px 3px 0 #1a1a1a;
+}
+
+/* chips */
+.s01 .chips{
+  position:absolute;top:63%;left:14px;right:14px;z-index:7;
+  display:flex;gap:6px;
+}
+.s01 .chip{
+  flex:1;background:#fff;border:2px solid #1a1a1a;
+  padding:6px 4px;text-align:center;
+  font-family:'Bangers',cursive;letter-spacing:.04em;
+  box-shadow:2px 2px 0 #1a1a1a;
+}
+.s01 .chip .n{display:block;font-size:14px;color:var(--crimson);line-height:1}
+.s01 .chip .l{display:block;font-size:7px;color:#1a1a1a;margin-top:2px;letter-spacing:.1em}
+
+/* frames grid */
+.s01 .panels{
+  position:absolute;top:71%;left:14px;right:14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+}
+.s01 .panels .p{
+  aspect-ratio:1/1;
+  border:2px solid var(--brass);
+  background:linear-gradient(135deg,#2a1a1a 0%,#0a0606 100%);
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 0 0 1px #1a1a1a;
+}
+.s01 .panels .p:nth-child(1){background:linear-gradient(160deg,#3a1414 0%,#0a0306 100%)}
+.s01 .panels .p:nth-child(2){background:linear-gradient(160deg,#3a2c14 0%,#0a0706 100%)}
+.s01 .panels .p:nth-child(3){background:linear-gradient(160deg,#143a3a 0%,#060a0a 100%)}
+.s01 .panels .p:nth-child(4){background:linear-gradient(160deg,#3a143a 0%,#0a060a 100%)}
+.s01 .panels .p .stamp{
+  position:absolute;top:2px;right:2px;
+  background:var(--crimson);color:#fff;
+  font-family:'Bangers',cursive;font-size:8px;
+  padding:1px 4px;letter-spacing:.06em;
+}
+
+/* cta */
+.s01 .cta{
+  position:absolute;bottom:18px;left:14px;right:14px;
+  background:var(--crimson);color:var(--gold);
+  border:2px solid #1a1a1a;
+  padding:12px;text-align:center;
+  font-family:'Bangers',cursive;font-size:18px;letter-spacing:.04em;
+  box-shadow:4px 4px 0 #1a1a1a;
+  position:absolute;
+  animation:s01-cta 2.5s ease-in-out infinite;
+}
+@keyframes s01-cta{
+  0%,100%{transform:translate(0,0);box-shadow:4px 4px 0 #1a1a1a}
+  50%{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #1a1a1a}
+}
+.s01 .free-stamp{
+  position:absolute;bottom:74px;right:10px;
+  width:54px;height:54px;
+  background:radial-gradient(circle, var(--gold) 60%,#a8821e 100%);
+  clip-path:polygon(50% 0%,62% 18%,82% 12%,78% 32%,98% 38%,82% 52%,98% 62%,78% 68%,82% 88%,62% 82%,50% 100%,38% 82%,18% 88%,22% 68%,2% 62%,18% 52%,2% 38%,22% 32%,18% 12%,38% 18%);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--crimson);font-family:'Bangers',cursive;font-size:14px;
+  letter-spacing:.05em;transform:rotate(8deg);
+  box-shadow:0 4px 10px rgba(0,0,0,.5);
+  animation:s01-burst 3s ease-in-out infinite;
+}
+@keyframes s01-burst{
+  0%,100%{transform:rotate(8deg) scale(1)}
+  50%{transform:rotate(12deg) scale(1.06)}
+}
+
+/* =================================================================
+   CONCEPT 02 — VINTAGE PULP
+   ================================================================= */
+.s02 .phone-screen{
+  background:
+    radial-gradient(ellipse at center, #efe4c4 0%, #d8c69a 100%);
+  font-family:'Cormorant Garamond',serif;
+}
+.s02 .phone-screen::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    repeating-radial-gradient(circle at 18% 22%, rgba(80,40,15,.04) 0 1px, transparent 1px 3px),
+    repeating-radial-gradient(circle at 78% 62%, rgba(80,40,15,.03) 0 1px, transparent 1px 4px);
+  mix-blend-mode:multiply;
+}
+.s02 .phone-screen::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(140deg, rgba(120,80,30,.18) 0%, transparent 30%, transparent 70%, rgba(60,30,5,.22) 100%);
+  mix-blend-mode:multiply;
+}
+
+.s02 .hero{
+  position:absolute;top:46px;left:18px;right:18px;height:200px;
+  background:
+    linear-gradient(160deg,#5a3a2a 0%,#2a1810 100%);
+  border:2px solid #3a2410;
+  box-shadow:0 4px 0 #3a2410, 4px 4px 0 #3a2410;
+  overflow:hidden;
+}
+.s02 .hero::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(220,180,120,.6) 0%, transparent 50%),
+    radial-gradient(circle at 35% 65%, rgba(200,80,40,.5) 0%, transparent 45%);
+  filter:sepia(.4) contrast(1.1);
+}
+/* halftone overlay */
+.s02 .hero::after{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(circle at center, #2a1810 0.7px, transparent 0.8px);
+  background-size:4px 4px;
+  opacity:.5;
+  mix-blend-mode:multiply;
+  animation:s02-halftone 8s linear infinite;
+}
+@keyframes s02-halftone{
+  0%{background-position:0 0}
+  100%{background-position:4px 4px}
+}
+
+.s02 .title-block{
+  position:absolute;top:258px;left:18px;right:18px;
+}
+.s02 .title-block h3{
+  font-family:'Permanent Marker',cursive;
+  font-size:24px;line-height:1;color:#3a1810;
+  text-shadow:1px 1px 0 #c8a878;
+  letter-spacing:.01em;
+}
+.s02 .title-block .stripe{
+  display:inline-block;
+  background:var(--crimson);color:#f5e8c8;
+  font-family:'Permanent Marker',cursive;font-size:10px;
+  padding:2px 10px;margin-top:5px;letter-spacing:.12em;
+  transform:rotate(-1.5deg);
+  box-shadow:2px 2px 0 #3a1810;
+}
+
+.s02 .desc{
+  position:absolute;top:312px;left:18px;right:18px;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:12px;line-height:1.5;color:#3a2410;
+}
+
+.s02 .stamps{
+  position:absolute;top:368px;left:18px;right:18px;
+  display:flex;gap:8px;justify-content:space-between;
+}
+.s02 .stamp{
+  border:2px solid var(--crimson-dark);
+  padding:5px 8px;
+  font-family:'Permanent Marker',cursive;
+  font-size:10px;color:var(--crimson-dark);
+  background:rgba(192,28,42,.06);
+  letter-spacing:.06em;
+}
+.s02 .stamp.s-1{transform:rotate(-2deg)}
+.s02 .stamp.s-2{transform:rotate(1.5deg)}
+.s02 .stamp.s-3{transform:rotate(-1deg)}
+
+.s02 .panels{
+  position:absolute;top:418px;left:18px;right:18px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;
+}
+.s02 .panels .p{
+  aspect-ratio:3/4;
+  border:1.5px solid #6a4818;
+  background:linear-gradient(160deg,#5a3a2a 0%,#2a1810 100%);
+  position:relative;
+  box-shadow:inset 0 0 0 1px rgba(202,162,87,.3);
+}
+.s02 .panels .p::before{
+  content:"";position:absolute;top:2px;left:2px;width:6px;height:6px;
+  border-top:1.5px solid var(--brass);border-left:1.5px solid var(--brass);
+}
+.s02 .panels .p::after{
+  content:"";position:absolute;bottom:2px;right:2px;width:6px;height:6px;
+  border-bottom:1.5px solid var(--brass);border-right:1.5px solid var(--brass);
+}
+.s02 .panels .p .lbl{
+  position:absolute;bottom:3px;left:4px;
+  font-family:'JetBrains Mono',monospace;font-size:7px;
+  color:var(--brass);letter-spacing:.1em;
+}
+.s02 .panels .p:nth-child(1){background:linear-gradient(160deg,#6a3a1a 0%,#2a1408 100%)}
+.s02 .panels .p:nth-child(2){background:linear-gradient(160deg,#5a4a1a 0%,#2a2008 100%)}
+.s02 .panels .p:nth-child(3){background:linear-gradient(160deg,#3a3a2a 0%,#181808 100%)}
+.s02 .panels .p:nth-child(4){background:linear-gradient(160deg,#6a4a2a 0%,#2a1808 100%)}
+.s02 .panels .p:nth-child(5){background:linear-gradient(160deg,#4a3a2a 0%,#1a1208 100%)}
+.s02 .panels .p:nth-child(6){background:linear-gradient(160deg,#6a2a1a 0%,#2a0808 100%)}
+
+.s02 .cta-row{
+  position:absolute;bottom:18px;left:18px;right:18px;
+  display:flex;gap:10px;align-items:center;
+}
+.s02 .free-stamp{
+  width:54px;height:54px;border:2px solid var(--crimson-dark);
+  background:rgba(192,28,42,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Permanent Marker',cursive;font-size:11px;
+  color:var(--crimson-dark);letter-spacing:.06em;
+  transform:rotate(-4deg);
+  text-align:center;line-height:1.1;
+  box-shadow:2px 2px 0 rgba(58,24,16,.4);
+}
+.s02 .cta{
+  flex:1;background:var(--crimson-dark);color:#f5e8c8;
+  border:2px solid #3a1810;
+  padding:12px;text-align:center;
+  font-family:'Permanent Marker',cursive;font-size:18px;letter-spacing:.06em;
+  box-shadow:3px 3px 0 #3a1810;
+  animation:s02-stamp 4s ease-in-out infinite;
+}
+@keyframes s02-stamp{
+  0%,100%{transform:rotate(-1deg)}
+  50%{transform:rotate(.5deg)}
+}
+
+/* =================================================================
+   CONCEPT 03 — MANGA TANKŌBON
+   ================================================================= */
+.s03 .phone-screen{
+  background:#0a0a0a;
+  font-family:'Geist',sans-serif;
+}
+
+.s03 .hero{
+  position:absolute;top:0;left:0;right:0;height:42%;
+  background:
+    radial-gradient(ellipse at 35% 50%, rgba(160,160,200,.35), transparent 55%),
+    linear-gradient(180deg,#1a1a22 0%,#000 100%);
+  overflow:hidden;
+  border-bottom:2px solid #fff;
+}
+.s03 .hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(90deg, transparent 0 14px, rgba(255,255,255,.04) 14px 15px);
+  animation:s03-zoom 5s ease-out;
+}
+@keyframes s03-zoom{
+  0%{transform:scale(1.1);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+.s03 .hero-fig{
+  position:absolute;left:38%;top:50%;transform:translate(-50%,-50%);
+  width:55%;height:90%;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.12), transparent 70%),
+    linear-gradient(180deg,transparent 20%,rgba(0,0,0,.7) 100%);
+  clip-path:polygon(40% 0%,60% 0%,72% 18%,78% 45%,72% 70%,62% 95%,38% 95%,28% 70%,22% 45%,28% 18%);
+}
+.s03 .vertical-title{
+  position:absolute;top:18px;right:14px;bottom:14px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  z-index:10;writing-mode:vertical-rl;text-orientation:upright;
+}
+.s03 .vertical-title .jp{
+  font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:24px;color:#fff;letter-spacing:.18em;
+  text-shadow:0 2px 8px rgba(0,0,0,.8);
+}
+.s03 .vertical-title .es{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:#fff;opacity:.7;margin-top:14px;letter-spacing:.15em;
+  writing-mode:horizontal-tb;text-orientation:mixed;
+  position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+}
+.s03 .katakana{
+  position:absolute;top:54px;left:14px;z-index:10;
+  font-family:'Bowlby One',sans-serif;font-size:11px;
+  color:#fff;background:#000;border:1.5px solid #fff;
+  padding:4px 8px;letter-spacing:.22em;
+}
+
+.s03 .below{
+  position:absolute;top:42%;left:0;right:0;bottom:0;
+  background:#000;padding:14px;
+  display:flex;flex-direction:column;
+}
+.s03 .below .title-block{
+  padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.2);
+  margin-bottom:10px;
+}
+.s03 .below h3{
+  font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:18px;color:#fff;letter-spacing:-.01em;line-height:1.1;
+}
+.s03 .below .ch{
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:#888;
+  letter-spacing:.18em;text-transform:uppercase;margin-top:3px;
+}
+.s03 .below .desc{
+  font-family:'Shippori Mincho',serif;font-size:11px;line-height:1.5;
+  color:#cfcfcf;margin-bottom:10px;
+}
+.s03 .strip{
+  flex:1;overflow:hidden;position:relative;
+  border-top:1px solid rgba(255,255,255,.2);padding-top:8px;
+}
+.s03 .strip .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:#888;
+  letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;
+}
+.s03 .strip .frames{
+  display:flex;flex-direction:column;gap:5px;
+}
+.s03 .strip .frames .f{
+  aspect-ratio:16/7;border:1px solid #fff;
+  background:linear-gradient(180deg,#222 0%,#000 100%);
+  position:relative;overflow:hidden;
+}
+.s03 .strip .frames .f:nth-child(1){background:radial-gradient(circle at 30% 40%, rgba(200,200,255,.3),transparent 55%),linear-gradient(180deg,#1a1a2a 0%,#000 100%)}
+.s03 .strip .frames .f:nth-child(2){background:radial-gradient(circle at 70% 60%, rgba(255,200,200,.3),transparent 55%),linear-gradient(180deg,#2a1a1a 0%,#000 100%)}
+.s03 .strip .frames .f:nth-child(3){background:radial-gradient(circle at 50% 50%, rgba(200,255,200,.25),transparent 55%),linear-gradient(180deg,#1a2a1a 0%,#000 100%)}
+.s03 .strip .frames .f .page{
+  position:absolute;top:3px;right:5px;
+  font-family:'JetBrains Mono',monospace;font-size:8px;color:#fff;
+  letter-spacing:.1em;
+}
+.s03 .cta{
+  margin-top:8px;padding:11px;
+  background:#fff;color:#000;text-align:center;
+  font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:17px;letter-spacing:.04em;
+  border:1px solid #fff;
+}
+.s03 .cta .sub{
+  display:block;font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:#666;margin-top:2px;letter-spacing:.18em;font-weight:400;
+}
+
+/* =================================================================
+   CONCEPT 04 — SAGA MODERN PRESS
+   ================================================================= */
+.s04 .phone-screen{
+  background:#f8f3e8;
+  font-family:'Cormorant Garamond',serif;
+}
+.s04 .phone-screen::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(160,120,60,.05), transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(120,80,40,.04), transparent 50%);
+}
+.s04 .paper{
+  position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 2px, rgba(60,40,10,.012) 2px 3px);
+  pointer-events:none;
+}
+
+.s04 .hero{
+  position:absolute;top:54px;left:24px;right:24px;height:220px;
+  padding:6px;background:#1a1310;
+  box-shadow:0 0 0 1px #1a1310, 0 0 0 6px #f8f3e8, 0 0 0 7px #1a1310;
+}
+.s04 .hero-inner{
+  width:100%;height:100%;
+  background:
+    radial-gradient(ellipse at 40% 35%, rgba(220,180,120,.4),transparent 55%),
+    linear-gradient(160deg,#4a2a1a 0%,#1a0a05 100%);
+  position:relative;overflow:hidden;
+  animation:s04-zoom 4s ease-out;
+}
+@keyframes s04-zoom{
+  0%{transform:scale(1.08);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+.s04 .hero-inner::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 45% 45%, rgba(245,201,72,.3) 0%, transparent 40%);
+}
+
+.s04 .title-block{
+  position:absolute;top:290px;left:24px;right:24px;
+}
+.s04 .roman{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:#8c6b32;letter-spacing:.28em;text-transform:uppercase;
+  margin-bottom:6px;
+}
+.s04 .roman .dot{color:#1a1310;margin:0 6px}
+.s04 .title-block h3{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:700;
+  font-size:26px;line-height:1.05;color:#1a1310;letter-spacing:-.02em;
+}
+
+.s04 .desc{
+  position:absolute;top:354px;left:24px;right:24px;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:13px;line-height:1.6;color:#3a2a1a;
+}
+
+.s04 .inline-stats{
+  position:absolute;top:418px;left:24px;right:24px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:#8c6b32;letter-spacing:.18em;text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;
+}
+.s04 .inline-stats .b{color:#1a1310;font-weight:500}
+
+.s04 .panels{
+  position:absolute;top:448px;left:24px;right:24px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;
+}
+.s04 .panels .p{
+  aspect-ratio:3/4;border:1px solid #1a1310;
+  background:linear-gradient(160deg,#4a2a1a 0%,#1a0a05 100%);
+  position:relative;
+}
+.s04 .panels .p:nth-child(1){background:linear-gradient(160deg,#4a3a2a 0%,#1a0a05 100%)}
+.s04 .panels .p:nth-child(2){background:linear-gradient(160deg,#4a2a2a 0%,#1a0505 100%)}
+.s04 .panels .p:nth-child(3){background:linear-gradient(160deg,#2a3a4a 0%,#05050a 100%)}
+.s04 .panels .p:nth-child(4){background:linear-gradient(160deg,#3a4a2a 0%,#0a0a05 100%)}
+.s04 .panels .p:nth-child(5){background:linear-gradient(160deg,#4a2a3a 0%,#0a0510 100%)}
+.s04 .panels .p:nth-child(6){background:linear-gradient(160deg,#3a2a4a 0%,#0a0510 100%)}
+.s04 .panels .p .num{
+  position:absolute;bottom:3px;left:5px;
+  font-family:'JetBrains Mono',monospace;font-size:7px;
+  color:#caa257;letter-spacing:.12em;
+}
+
+.s04 .cta-row{
+  position:absolute;bottom:24px;left:24px;right:24px;
+  display:flex;align-items:center;gap:10px;
+}
+.s04 .free-pill{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:#1a1310;background:transparent;
+  padding:6px 0;border-bottom:1px solid #8c6b32;
+  letter-spacing:.18em;text-transform:uppercase;
+}
+.s04 .heart{
+  font-family:'Material Symbols Outlined';font-size:14px;color:#8c6b32;
+  display:flex;align-items:center;gap:4px;
+}
+.s04 .heart .n{font-family:'JetBrains Mono',monospace;font-size:10px;color:#1a1310}
+.s04 .cta{
+  margin-left:auto;background:#1a1310;color:#f8f3e8;
+  padding:10px 22px;border-radius:30px;
+  font-family:'Fraunces',serif;font-style:italic;font-size:14px;
+  letter-spacing:.01em;position:relative;
+}
+.s04 .cta::after{
+  content:"";position:absolute;left:18px;right:18px;bottom:5px;
+  height:1px;background:linear-gradient(90deg,transparent,#caa257,transparent);
+}
+
+/* =================================================================
+   CONCEPT 05 — POP ART
+   ================================================================= */
+.s05 .phone-screen{
+  background:
+    radial-gradient(circle at 18% 22%, rgba(0,200,255,.18) 0%, transparent 35%),
+    radial-gradient(circle at 82% 78%, rgba(255,80,160,.18) 0%, transparent 35%),
+    #ffd84d;
+  font-family:'Bangers',cursive;
+}
+.s05 .phone-screen::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle at center, rgba(0,0,0,.12) 1px, transparent 1.2px);
+  background-size:7px 7px;
+  animation:s05-dots 6s linear infinite;
+}
+@keyframes s05-dots{
+  0%{background-position:0 0}
+  100%{background-position:7px 7px}
+}
+
+.s05 .hero{
+  position:absolute;top:50px;left:14px;right:14px;height:200px;
+  border:4px solid #000;
+  background:
+    radial-gradient(ellipse at 40% 35%, rgba(255,80,80,.6),transparent 50%),
+    linear-gradient(160deg,#ff5050 0%,#c01c2a 100%);
+  box-shadow:6px 6px 0 #000;
+  overflow:hidden;
+  animation:s05-zoom 4s ease-out;
+}
+@keyframes s05-zoom{
+  0%{transform:scale(1.06) rotate(-1deg);opacity:0}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+.s05 .hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(circle at center, #000 1.2px, transparent 1.5px);
+  background-size:5px 5px;
+  opacity:.5;mix-blend-mode:multiply;
+}
+.s05 .hero-fig{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:55%;height:80%;
+  background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(0,0,0,.4));
+  clip-path:polygon(40% 5%,60% 5%,70% 22%,75% 50%,68% 78%,55% 95%,45% 95%,32% 78%,25% 50%,30% 22%);
+  border:2px solid #000;
+}
+
+.s05 .title-banner{
+  position:absolute;top:218px;left:-8px;right:-8px;z-index:8;
+  background:#000;color:#ff3838;
+  padding:10px 18px;
+  font-family:'Bowlby One',sans-serif;font-size:22px;
+  letter-spacing:.02em;line-height:1;
+  transform:rotate(-2.5deg);
+  box-shadow:0 4px 0 #ffd84d, 0 6px 12px rgba(0,0,0,.4);
+  text-shadow:2px 2px 0 #ffd84d;
+}
+.s05 .title-banner .sub{
+  display:block;font-family:'Bangers',cursive;font-size:11px;
+  color:#fff;margin-top:4px;letter-spacing:.14em;
+  text-shadow:1px 1px 0 #000;
+}
+
+.s05 .chips{
+  position:absolute;top:286px;left:14px;right:14px;
+  display:flex;gap:6px;justify-content:space-between;
+}
+.s05 .chip{
+  width:78px;height:60px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  font-family:'Bangers',cursive;letter-spacing:.04em;
+}
+.s05 .chip.c-1{
+  background:#ffd84d;color:#000;border:2px solid #000;
+  clip-path:polygon(50% 0%, 62% 15%, 80% 8%, 78% 30%, 95% 38%, 80% 50%, 95% 62%, 78% 70%, 80% 92%, 62% 85%, 50% 100%, 38% 85%, 20% 92%, 22% 70%, 5% 62%, 20% 50%, 5% 38%, 22% 30%, 20% 8%, 38% 15%);
+}
+.s05 .chip.c-2{
+  background:#ff3838;color:#fff;border:2px solid #000;
+  clip-path:polygon(15% 5%,40% 0%,70% 5%,90% 20%,98% 50%,90% 75%,72% 95%,40% 100%,12% 90%,2% 60%,5% 30%);
+}
+.s05 .chip.c-3{
+  background:#3aa0ff;color:#fff;border:2px solid #000;
+  clip-path:polygon(50% 0%,68% 12%,90% 18%,82% 38%,100% 55%,82% 70%,90% 90%,65% 85%,50% 100%,35% 85%,10% 90%,18% 70%,0% 55%,18% 38%,10% 18%,32% 12%);
+}
+.s05 .chip .n{font-size:18px;line-height:1}
+.s05 .chip .l{font-size:7px;line-height:1.1;margin-top:2px}
+
+.s05 .panels{
+  position:absolute;top:354px;left:14px;right:14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+}
+.s05 .panels .p{
+  aspect-ratio:1/1;
+  border:3px solid #000;
+  background:linear-gradient(160deg,#fff 0%,#f0f0f0 100%);
+  position:relative;overflow:hidden;
+  box-shadow:3px 3px 0 #000;
+}
+.s05 .panels .p::before{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(circle at center, #000 1px, transparent 1.5px);
+  background-size:4px 4px;opacity:.4;
+}
+.s05 .panels .p:nth-child(1){background:linear-gradient(160deg,#ff3838 0%,#a01010 100%)}
+.s05 .panels .p:nth-child(2){background:linear-gradient(160deg,#3aa0ff 0%,#1050a0 100%)}
+.s05 .panels .p:nth-child(3){background:linear-gradient(160deg,#ffd84d 0%,#c89020 100%)}
+.s05 .panels .p:nth-child(4){background:linear-gradient(160deg,#7a3aff 0%,#3010a0 100%)}
+.s05 .panels .p .stamp{
+  position:absolute;top:2px;right:2px;
+  background:#000;color:#ffd84d;
+  font-family:'Bangers',cursive;font-size:8px;
+  padding:1px 4px;letter-spacing:.06em;z-index:2;
+}
+
+.s05 .free-sticker{
+  position:absolute;bottom:74px;right:8px;
+  width:56px;height:56px;
+  background:radial-gradient(circle, #ffd84d 60%,#c89020 100%);
+  clip-path:polygon(50% 0%,62% 15%,82% 8%,78% 30%,98% 38%,82% 50%,98% 62%,78% 70%,82% 92%,62% 85%,50% 100%,38% 85%,18% 92%,22% 70%,2% 62%,18% 50%,2% 38%,22% 30%,18% 8%,38% 15%);
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid #000;
+  color:#ff3838;font-family:'Bowlby One',sans-serif;font-size:13px;
+  letter-spacing:.05em;
+  transform:rotate(-8deg);
+  box-shadow:3px 3px 0 #000;
+  text-shadow:1px 1px 0 #000;
+  animation:s05-sticker 2.5s ease-in-out infinite;
+}
+@keyframes s05-sticker{
+  0%,100%{transform:rotate(-8deg) scale(1)}
+  50%{transform:rotate(-4deg) scale(1.05)}
+}
+
+.s05 .cta{
+  position:absolute;bottom:18px;left:14px;right:14px;
+  padding:12px;text-align:center;
+  font-family:'Bowlby One',sans-serif;font-size:16px;letter-spacing:.03em;
+  color:#fff;
+  background:linear-gradient(90deg,#ff3838 0%,#ff3838 40%,#3aa0ff 40%,#3aa0ff 70%,#ffd84d 70%,#ffd84d 100%);
+  border:3px solid #000;
+  box-shadow:5px 5px 0 #000;
+  text-shadow:2px 2px 0 #000;
+  animation:s05-cta 2s ease-in-out infinite;
+}
+@keyframes s05-cta{
+  0%,100%{transform:translate(0,0);box-shadow:5px 5px 0 #000}
+  50%{transform:translate(-1px,-1px);box-shadow:6px 6px 0 #000}
+}
+
+/* =================================================================
+   FOOTER
+   ================================================================= */
+footer{
+  margin-top:80px;padding-top:32px;
+  border-top:1px solid rgba(202,162,87,.18);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:#8a7e5e;letter-spacing:.22em;text-transform:uppercase;
+  display:flex;justify-content:space-between;align-items:center;
+}
+
+@media (max-width:980px){
+  .concept{grid-template-columns:1fr;gap:36px}
+  .phone{margin:0 auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="eyebrow">// PIXORA · STORIES DETAIL · DOC-109 · MAY 2026</div>
+  <h1 class="title">Story Detail · 5 <span class="grad">Conceptos</span></h1>
+  <p class="lede">Igualar el espíritu cómic del card de la lista — la misma familia editorial debe vivir en el modal de detalle, genérico para cualquier historia.</p>
+  <div class="meta-row">
+    <span>Author · Eduardo + Orbix Design</span>
+    <span>Surface · Detail Sheet</span>
+    <span>Family · Comic Editorial</span>
+    <span>Stories Tab</span>
+  </div>
+
+  <hr class="div" />
+
+  <!-- =============================================================
+       CONCEPT 01 — MARVEL SPLASH PAGE
+       ============================================================= -->
+  <section class="concept c1 s01">
+    <div class="phone">
+      <div class="phone-screen">
+        <!-- status bar -->
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="right">
+            <span class="ic">signal_cellular_alt</span>
+            <span class="ic">wifi</span>
+            <span class="ic">battery_full</span>
+          </div>
+        </div>
+        <div class="close-btn">close</div>
+
+        <!-- hero -->
+        <div class="hero">
+          <div class="speed-lines"></div>
+          <div class="hero-figure"></div>
+        </div>
+        <div class="ch-stamp">
+          <span class="word">CAP.</span>
+          <span class="num">01</span>
+        </div>
+
+        <!-- title banner -->
+        <div class="title-banner">
+          EL DESPERTAR<br/>DEL DRAGÓN
+          <span class="sub">UNA HISTORIA EN 7 PARTES</span>
+        </div>
+
+        <!-- narrator caption -->
+        <div class="narrator">
+          En las montañas del fin del mundo, un guerrero olvidado escucha un rugido que creía extinto. La leyenda regresa.
+        </div>
+
+        <!-- chips -->
+        <div class="chips">
+          <div class="chip"><span class="n">7</span><span class="l">FRAMES</span></div>
+          <div class="chip"><span class="n">30M</span><span class="l">INTERVALO</span></div>
+          <div class="chip"><span class="n">3.5H</span><span class="l">TOTAL</span></div>
+        </div>
+
+        <!-- panels -->
+        <div class="panels">
+          <div class="p"><span class="stamp">CAP·01</span></div>
+          <div class="p"><span class="stamp">CAP·02</span></div>
+          <div class="p"><span class="stamp">CAP·03</span></div>
+          <div class="p"><span class="stamp">CAP·04</span></div>
+        </div>
+
+        <!-- free + cta -->
+        <div class="free-stamp">FREE!</div>
+        <div class="cta">START STORY →</div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">// NO. 01 · MARVEL SPLASH</div>
+      <h2>Marvel Splash Page</h2>
+      <div class="tag">Acción explosiva, cinematográfica, héroe</div>
+      <p class="body">El detalle se siente como una página doble de Marvel. Hero a sangrado, sello "CAP. 01" en burst rojo top-left, título sobre una banda diagonal negra que corta la portada, captión amarillo de narrador con borde negro, panels en grid 2×2 con borde brass dorado y mini-stamps numerados. CTA roja con tipografía Bangers y la sticker "FREE!" como starburst rotado. Heredero directo del card de la lista, pero con la energía de un splash page de superhéroes.</p>
+      <div class="palette">
+        <span class="swatch" data-hex="#0a0a0a" style="background:#0a0a0a"></span>
+        <span class="swatch" data-hex="#c01c2a" style="background:#c01c2a"></span>
+        <span class="swatch" data-hex="#f5c948" style="background:#f5c948"></span>
+        <span class="swatch" data-hex="#fde477" style="background:#fde477"></span>
+        <span class="swatch" data-hex="#caa257" style="background:#caa257"></span>
+      </div>
+      <div class="verdict">
+        <div class="row pro"><span class="ic">+</span><span class="txt">Energía altísima — comunica acción instantánea, ideal para fantasy/sci-fi/superhéroe</span></div>
+        <div class="row pro"><span class="ic">+</span><span class="txt">Familia visual cercana al card de lista (mismos brass, burst, Bangers)</span></div>
+        <div class="row con"><span class="ic">−</span><span class="txt">Romance/slice-of-life se sienten fuera de tono — chillaría con cuentos íntimos</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       CONCEPT 02 — VINTAGE PULP
+       ============================================================= -->
+  <section class="concept c2 s02">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="status-bar" style="color:#3a2410">
+          <span>9:41</span>
+          <div class="right">
+            <span class="ic">signal_cellular_alt</span>
+            <span class="ic">wifi</span>
+            <span class="ic">battery_full</span>
+          </div>
+        </div>
+        <div class="close-btn" style="background:rgba(58,36,16,.7)">close</div>
+
+        <div class="hero"></div>
+
+        <div class="title-block">
+          <h3>EL DESPERTAR<br/>DEL DRAGÓN</h3>
+          <div class="stripe">CAPÍTULO 01 · UNA HISTORIA EN 7 PARTES</div>
+        </div>
+
+        <div class="desc">
+          En las montañas del fin del mundo, un guerrero olvidado escucha un rugido que creía extinto. La leyenda regresa.
+        </div>
+
+        <div class="stamps">
+          <div class="stamp s-1">7 FRAMES</div>
+          <div class="stamp s-2">30 MIN</div>
+          <div class="stamp s-3">3.5H TOTAL</div>
+        </div>
+
+        <div class="panels">
+          <div class="p"><span class="lbl">01</span></div>
+          <div class="p"><span class="lbl">02</span></div>
+          <div class="p"><span class="lbl">03</span></div>
+          <div class="p"><span class="lbl">04</span></div>
+          <div class="p"><span class="lbl">05</span></div>
+          <div class="p"><span class="lbl">06</span></div>
+        </div>
+
+        <div class="cta-row">
+          <div class="free-stamp">FREE</div>
+          <div class="cta">¡GO!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">// NO. 02 · VINTAGE PULP</div>
+      <h2>Vintage Pulp</h2>
+      <div class="tag">Diario de aventura, EC Comics, Indiana Jones</div>
+      <p class="body">Papel crema envejecido con halftone sutil sobre el hero. Título en Permanent Marker con sombra warm + banda roja "CAPÍTULO 01" rotada. Descripción en Cormorant cursiva (sensación de manuscrito). Las stats son SELLOS rojos rotados -2° / +1.5° / -1° (como tampones sobre un diario). Frames en grid 3-col con esquinas brass ornamentadas y mini-labels mono. CTA sello "¡GO!" en burdeos profundo. Funciona genial con historias de aventura, terror gótico, misterio noir.</p>
+      <div class="palette">
+        <span class="swatch" data-hex="#efe4c4" style="background:#efe4c4"></span>
+        <span class="swatch" data-hex="#c01c2a" style="background:#c01c2a"></span>
+        <span class="swatch" data-hex="#7a0f1b" style="background:#7a0f1b"></span>
+        <span class="swatch" data-hex="#caa257" style="background:#caa257"></span>
+        <span class="swatch" data-hex="#3a1810" style="background:#3a1810"></span>
+      </div>
+      <div class="verdict">
+        <div class="row pro"><span class="ic">+</span><span class="txt">Atmósfera única — se siente artesanal, no genérico digital</span></div>
+        <div class="row pro"><span class="ic">+</span><span class="txt">Los sellos rotados son una firma visual memorable</span></div>
+        <div class="row con"><span class="ic">−</span><span class="txt">El sepia puede sentirse "viejo" para historias modernas/cyberpunk</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       CONCEPT 03 — MANGA TANKŌBON
+       ============================================================= -->
+  <section class="concept c3 s03">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="right">
+            <span class="ic">signal_cellular_alt</span>
+            <span class="ic">wifi</span>
+            <span class="ic">battery_full</span>
+          </div>
+        </div>
+        <div class="close-btn">close</div>
+
+        <div class="hero">
+          <div class="hero-fig"></div>
+        </div>
+        <div class="katakana">ジ・オリジン</div>
+        <div class="vertical-title">
+          <div class="jp">竜の覚醒</div>
+          <div class="es">EL DESPERTAR</div>
+        </div>
+
+        <div class="below">
+          <div class="title-block">
+            <h3>El Despertar del Dragón</h3>
+            <div class="ch">第一巻 · CAPÍTULO 01 · 7 PÁGINAS</div>
+          </div>
+          <div class="desc">En las montañas del fin del mundo, un guerrero olvidado escucha un rugido que creía extinto.</div>
+          <div class="strip">
+            <div class="lbl">ページ · PÁGINAS</div>
+            <div class="frames">
+              <div class="f"><span class="page">ページ 01</span></div>
+              <div class="f"><span class="page">ページ 02</span></div>
+              <div class="f"><span class="page">ページ 03</span></div>
+            </div>
+          </div>
+          <div class="cta">読む<span class="sub">LEER →</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">// NO. 03 · MANGA TANKŌBON</div>
+      <h2>Manga Tankōbon</h2>
+      <div class="tag">Shonen Jump, Akira, lectura vertical</div>
+      <p class="body">Hero superior con título vertical en kanji/japonés-display en la orilla derecha (lectura top-bottom), traducción española en mono pequeño. Etiqueta katakana-style "ジ・オリジン" como acento gráfico. Frames como tira vertical (manga reading) con páginas numeradas "ページ 01" "ページ 02". Stark white-on-black, sin paleta de colores — solo blanco, negro y un acento mínimo. CTA "読む / Leer →" minimalista. Funciona con cualquier historia que quiera sentirse cinematográfica y minimalista.</p>
+      <div class="palette">
+        <span class="swatch" data-hex="#000000" style="background:#000000"></span>
+        <span class="swatch" data-hex="#ffffff" style="background:#ffffff"></span>
+        <span class="swatch" data-hex="#1a1a22" style="background:#1a1a22"></span>
+        <span class="swatch" data-hex="#888888" style="background:#888888"></span>
+        <span class="swatch" data-hex="#cfcfcf" style="background:#cfcfcf"></span>
+      </div>
+      <div class="verdict">
+        <div class="row pro"><span class="ic">+</span><span class="txt">Minimalismo absoluto — no compite con la portada, deja respirar</span></div>
+        <div class="row pro"><span class="ic">+</span><span class="txt">El kanji vertical es exótico y memorable; aporta identidad sin texto pesado</span></div>
+        <div class="row con"><span class="ic">−</span><span class="txt">Se aleja del brass/gold del card de lista — riesgo de inconsistencia familiar</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       CONCEPT 04 — SAGA MODERN PRESS
+       ============================================================= -->
+  <section class="concept c4 s04">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="paper"></div>
+        <div class="status-bar" style="color:#1a1310">
+          <span>9:41</span>
+          <div class="right">
+            <span class="ic">signal_cellular_alt</span>
+            <span class="ic">wifi</span>
+            <span class="ic">battery_full</span>
+          </div>
+        </div>
+        <div class="close-btn" style="background:rgba(26,19,16,.85)">close</div>
+
+        <div class="hero">
+          <div class="hero-inner"></div>
+        </div>
+
+        <div class="title-block">
+          <div class="roman">I<span class="dot">·</span>DRAGÓN<span class="dot">·</span>EL DESPERTAR</div>
+          <h3>El Despertar<br/>del Dragón</h3>
+        </div>
+
+        <div class="desc">En las montañas del fin del mundo, un guerrero olvidado escucha un rugido que creía extinto. La leyenda regresa.</div>
+
+        <div class="inline-stats">
+          <span class="b">7 frames</span><span>·</span><span class="b">cada 30 min</span><span>·</span><span class="b">3.5h total</span>
+        </div>
+
+        <div class="panels">
+          <div class="p"><span class="num">01</span></div>
+          <div class="p"><span class="num">02</span></div>
+          <div class="p"><span class="num">03</span></div>
+          <div class="p"><span class="num">04</span></div>
+          <div class="p"><span class="num">05</span></div>
+          <div class="p"><span class="num">06</span></div>
+        </div>
+
+        <div class="cta-row">
+          <span class="free-pill">GRATIS</span>
+          <div class="heart"><span class="material-symbols-outlined" style="font-family:'Material Symbols Outlined'">favorite</span><span class="n">1.2k</span></div>
+          <div class="cta">Comenzar →</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">// NO. 04 · SAGA MODERN PRESS</div>
+      <h2>Saga Modern Press</h2>
+      <div class="tag">Image Comics SAGA, Fiona Staples, editorial sofisticado</div>
+      <p class="body">Off-white papel sutil texturizado. Hero con doble marco negro elegante (estilo libro de arte). Título Fraunces italic con marcador roman "I·DRAGÓN·EL DESPERTAR". Descripción Cormorant italic con leading generoso. Stats inline sin chips — texto mono pequeño. Frames en grid 3-col limpio con bordes negros finos. CTA pill negra con underline brass sutil. La opción más sofisticada — perfecta para historias literarias, románticas, dramas adultos. Sigue siendo comic editorial pero "grown up".</p>
+      <div class="palette">
+        <span class="swatch" data-hex="#f8f3e8" style="background:#f8f3e8"></span>
+        <span class="swatch" data-hex="#1a1310" style="background:#1a1310"></span>
+        <span class="swatch" data-hex="#caa257" style="background:#caa257"></span>
+        <span class="swatch" data-hex="#8c6b32" style="background:#8c6b32"></span>
+        <span class="swatch" data-hex="#3a2a1a" style="background:#3a2a1a"></span>
+      </div>
+      <div class="verdict">
+        <div class="row pro"><span class="ic">+</span><span class="txt">Más versátil — funciona desde anime hasta drama literario sin chocar</span></div>
+        <div class="row pro"><span class="ic">+</span><span class="txt">Sofisticado, no infantil — atrae usuario adulto que paga</span></div>
+        <div class="row con"><span class="ic">−</span><span class="txt">Pierde la energía explosiva del card de lista — gap de tono notorio</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       CONCEPT 05 — POP ART
+       ============================================================= -->
+  <section class="concept c5 s05">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="status-bar" style="color:#000">
+          <span>9:41</span>
+          <div class="right">
+            <span class="ic">signal_cellular_alt</span>
+            <span class="ic">wifi</span>
+            <span class="ic">battery_full</span>
+          </div>
+        </div>
+        <div class="close-btn" style="background:#000;border:2px solid #000">close</div>
+
+        <div class="hero">
+          <div class="hero-fig"></div>
+        </div>
+
+        <div class="title-banner">
+          ¡EL DESPERTAR!
+          <span class="sub">DRAGÓN · CAPÍTULO 01</span>
+        </div>
+
+        <div class="chips">
+          <div class="chip c-1"><span class="n">7</span><span class="l">FRAMES</span></div>
+          <div class="chip c-2"><span class="n">30M</span><span class="l">INTERVAL</span></div>
+          <div class="chip c-3"><span class="n">3.5H</span><span class="l">TOTAL</span></div>
+        </div>
+
+        <div class="panels">
+          <div class="p"><span class="stamp">N°01</span></div>
+          <div class="p"><span class="stamp">N°02</span></div>
+          <div class="p"><span class="stamp">N°03</span></div>
+          <div class="p"><span class="stamp">N°04</span></div>
+        </div>
+
+        <div class="free-sticker">FREE!</div>
+        <div class="cta">¡START STORY! →</div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="num">// NO. 05 · POP ART COMIC</div>
+      <h2>Pop Art Comic</h2>
+      <div class="tag">Lichtenstein, "Whaam!" 1963, gallery pop</div>
+      <p class="body">Fondo amarillo intenso con Ben-Day dots animados (cyan + pink halo). Hero con tratamiento halftone Lichtenstein. Título rojo con sombra negra sobre banda diagonal negra (Bowlby One). Las 3 chips viven dentro de burst shapes pop art — estrella amarilla zigzag para "7 FRAMES", nube roja para "30M", explosión azul para "3.5H". Frames con bordes negros gordos y halftone interno + sticker "FREE!" amarillo rotado -8°. CTA con bandas rojo/azul/amarillo (chunky Lichtenstein). El más bold y juguetón — perfecto para anime, comedia, historias livianas y la audiencia más joven.</p>
+      <div class="palette">
+        <span class="swatch" data-hex="#ffd84d" style="background:#ffd84d"></span>
+        <span class="swatch" data-hex="#ff3838" style="background:#ff3838"></span>
+        <span class="swatch" data-hex="#3aa0ff" style="background:#3aa0ff"></span>
+        <span class="swatch" data-hex="#000000" style="background:#000000"></span>
+        <span class="swatch" data-hex="#ffffff" style="background:#ffffff"></span>
+      </div>
+      <div class="verdict">
+        <div class="row pro"><span class="ic">+</span><span class="txt">El más memorable — energía, color y movimiento ganan engagement</span></div>
+        <div class="row pro"><span class="ic">+</span><span class="txt">Los burst-shape chips son tu firma visual única en la categoría</span></div>
+        <div class="row con"><span class="ic">−</span><span class="txt">Horror/drama serio chocan fuerte — tendrías que ofrecer 2 temas (claro/oscuro)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div" />
+
+  <footer>
+    <span>PIXORA · STORIES DETAIL · DESIGN ARCHIVE · MAY 2026</span>
+    <span>DOC-109 / 5 CONCEPTS</span>
+  </footer>
+
+</div>
+</body>
+</html>

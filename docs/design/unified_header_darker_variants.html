@@ -1,0 +1,1059 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PIXORA · Header Holographic Ribbon · Variaciones Oscuras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Geist:wght@300..900&family=Geist+Mono:wght@300..700&family=JetBrains+Mono:wght@300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+<style>
+  /* ================= GLOBAL ARCHIVE ================= */
+  :root{
+    --ink:#0a0a0c;
+    --ink2:#13131a;
+    --ink3:#1c1c24;
+    --paper:#f3eee3;
+    --paper-cream:#ede6d6;
+    --ink-text:#ebe7df;
+    --muted:#8c8a85;
+    --brass:#c9a35d;
+    --brass2:#e7c98c;
+    --foil1:#b9a4ff;
+    --foil2:#7fd9ff;
+    --foil3:#e9e2ff;
+    --foil4:#ffb8e1;
+    /* warm dark tones (target for darker headers) */
+    --warm-charcoal:#1F1B17;
+    --graphite-warm:#1A1816;
+    --deep-umber:#1C1818;
+    --warm-cosmic:#13110F;
+    --warm-pinstripe:#26221E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--ink);color:var(--ink-text);font-family:'Geist',sans-serif;overflow-x:hidden}
+  body{
+    background:
+      radial-gradient(1200px 600px at 20% -10%, rgba(120,90,200,.10), transparent 60%),
+      radial-gradient(900px 500px at 90% 10%, rgba(60,180,220,.08), transparent 60%),
+      radial-gradient(1100px 700px at 50% 110%, rgba(201,163,93,.06), transparent 60%),
+      var(--ink);
+    min-height:100vh;
+    position:relative;
+  }
+  /* starfield drift */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.55) 50%, transparent 51%),
+      radial-gradient(1px 1px at 78% 14%, rgba(255,255,255,.4) 50%, transparent 51%),
+      radial-gradient(1px 1px at 33% 67%, rgba(255,255,255,.35) 50%, transparent 51%),
+      radial-gradient(1px 1px at 56% 81%, rgba(255,255,255,.45) 50%, transparent 51%),
+      radial-gradient(1px 1px at 88% 56%, rgba(255,255,255,.3) 50%, transparent 51%),
+      radial-gradient(1px 1px at 41% 33%, rgba(255,255,255,.4) 50%, transparent 51%),
+      radial-gradient(1px 1px at 9% 88%, rgba(255,255,255,.3) 50%, transparent 51%),
+      radial-gradient(1px 1px at 67% 44%, rgba(255,255,255,.4) 50%, transparent 51%);
+    background-size:100% 100%;
+    animation:drift 40s linear infinite;
+    opacity:.5;
+  }
+  @keyframes drift{
+    0%{transform:translate3d(0,0,0)}
+    50%{transform:translate3d(-20px,-12px,0)}
+    100%{transform:translate3d(0,0,0)}
+  }
+  .archive{position:relative;z-index:1;max-width:1480px;margin:0 auto;padding:64px 56px 96px}
+
+  /* ================= ARCHIVE HEADER ================= */
+  .eyebrow{
+    font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;
+    color:var(--brass);text-transform:uppercase;
+    display:flex;align-items:center;gap:14px;margin-bottom:18px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--brass);box-shadow:0 0 12px var(--brass)}
+  .eyebrow .pipe{flex:0 0 60px;height:1px;background:linear-gradient(90deg,var(--brass),transparent)}
+  h1.archive-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(40px,5.2vw,56px);line-height:1.02;letter-spacing:-.02em;
+    color:#f6f1e6;margin-bottom:18px;
+  }
+  h1.archive-title .iri{
+    background:linear-gradient(90deg,#b9a4ff 0%,#7fd9ff 25%,#e9e2ff 50%,#ffb8e1 75%,#b9a4ff 100%);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:iri 7s linear infinite;
+  }
+  @keyframes iri{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  .subtitle{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:20px;color:#bdb8ac;max-width:820px;line-height:1.5;margin-bottom:8px;
+  }
+  .meta-line{
+    margin-top:22px;display:flex;gap:24px;flex-wrap:wrap;
+    font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:1.6px;
+    color:var(--muted);text-transform:uppercase;
+  }
+  .meta-line span b{color:#d8d3c5;font-weight:500}
+  hr.divider{
+    border:none;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(201,163,93,.45),transparent);
+    margin:48px 0 32px;
+  }
+
+  /* ================= VARIANT ROW ================= */
+  .variant{
+    display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:48px;
+    padding:48px 0;border-top:1px solid rgba(255,255,255,.05);
+    opacity:0;transform:translateY(20px);
+    animation:reveal .9s ease forwards;
+  }
+  .variant:nth-of-type(1){animation-delay:.50s}
+  .variant:nth-of-type(2){animation-delay:.65s}
+  .variant:nth-of-type(3){animation-delay:.80s}
+  .variant:nth-of-type(4){animation-delay:.95s}
+  .variant:nth-of-type(5){animation-delay:1.10s}
+  @keyframes reveal{to{opacity:1;transform:none}}
+
+  .v-number{
+    font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;
+    color:var(--brass);text-transform:uppercase;margin-bottom:6px;
+  }
+  .v-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:32px;color:#f6f1e6;line-height:1;letter-spacing:-.01em;margin-bottom:8px;
+  }
+  .v-tagline{
+    font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:18px;color:#cfc8b8;margin-bottom:18px;line-height:1.4;
+  }
+  .v-desc{
+    font-family:'Geist',sans-serif;font-size:13.5px;line-height:1.65;
+    color:#b8b3a5;margin-bottom:22px;
+  }
+  .swatches{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+  .swatch{
+    width:48px;height:48px;border-radius:8px;border:1px solid rgba(255,255,255,.08);
+    position:relative;overflow:hidden;
+  }
+  .swatch::after{
+    content:attr(data-hex);position:absolute;left:0;right:0;bottom:-18px;
+    text-align:center;font-family:'Geist Mono',monospace;font-size:9px;color:var(--muted);
+    letter-spacing:1px;
+  }
+  .verdict{
+    border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 16px;
+    background:rgba(255,255,255,.02);
+  }
+  .verdict-row{display:flex;gap:10px;margin-bottom:8px;font-size:12.5px;line-height:1.5}
+  .verdict-row:last-child{margin-bottom:0}
+  .verdict-row .mark{
+    flex:0 0 18px;height:18px;border-radius:50%;display:grid;place-items:center;
+    font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;
+  }
+  .verdict-row.pro .mark{background:rgba(127,217,255,.15);color:#7fd9ff;border:1px solid rgba(127,217,255,.3)}
+  .verdict-row.con .mark{background:rgba(255,184,225,.12);color:#ffb8e1;border:1px solid rgba(255,184,225,.3)}
+  .verdict-row span{color:#c5bfb0;font-family:'Geist',sans-serif}
+
+  /* ================= MOCKUPS GRID ================= */
+  .mockups{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .mockup{
+    position:relative;
+    width:100%;height:340px;border-radius:28px;overflow:hidden;
+    box-shadow:0 18px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05);
+    background:#000;
+  }
+  .mockup-label{
+    position:absolute;top:10px;left:14px;z-index:30;
+    font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.55);
+    text-transform:uppercase;
+    background:rgba(0,0,0,.4);backdrop-filter:blur(8px);
+    padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.08);
+  }
+  .mockup-body{position:absolute;inset:0;display:flex;flex-direction:column}
+
+  /* phone-frame inner notch */
+  .notch{
+    position:absolute;top:6px;left:50%;transform:translateX(-50%);
+    width:90px;height:18px;border-radius:0 0 12px 12px;background:#000;z-index:25;
+  }
+
+  /* ================= HEADER COMMON (Holographic Ribbon) ================= */
+  .h-bar{
+    position:relative;height:62px;display:flex;align-items:center;
+    padding:0 14px;z-index:10;
+  }
+  .h-bar .h-bg{position:absolute;inset:0;z-index:-1}
+
+  /* top iridescent foil ribbon (2px) */
+  .h-ribbon{
+    position:absolute;top:0;left:0;right:0;height:2px;z-index:15;
+    background:linear-gradient(90deg,#b9a4ff 0%,#7fd9ff 25%,#e9e2ff 50%,#ffb8e1 75%,#b9a4ff 100%);
+    background-size:200% 100%;
+    animation:iri 5s linear infinite;
+  }
+
+  /* avatar with iridescent ring */
+  .h-avatar{
+    position:relative;width:40px;height:40px;border-radius:50%;
+    display:grid;place-items:center;flex:0 0 40px;
+    background:conic-gradient(from 0deg,#b9a4ff,#7fd9ff,#e9e2ff,#ffb8e1,#b9a4ff);
+    animation:spin 9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .h-avatar::after{
+    content:"";position:absolute;inset:1.5px;border-radius:50%;
+    background:#0a0a0c;z-index:1;
+  }
+  .h-avatar .h-avatar-inner{
+    position:relative;z-index:2;width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,#2a2630,#1a1820);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .h-avatar .material-symbols-outlined{
+    font-size:18px;color:#e9e2ff;
+    font-variation-settings:'wght' 300;
+    line-height:1;
+  }
+
+  /* title centered */
+  .h-title{
+    flex:1;text-align:center;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:22px;letter-spacing:-.01em;
+    background:linear-gradient(90deg,#b9a4ff 0%,#7fd9ff 25%,#e9e2ff 50%,#ffb8e1 75%,#b9a4ff 100%);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:iri 6s linear infinite;
+  }
+
+  /* diamond pill */
+  .h-pill{
+    position:relative;flex:0 0 auto;height:30px;padding:1px;border-radius:999px;
+    background:linear-gradient(90deg,#b9a4ff 0%,#7fd9ff 25%,#e9e2ff 50%,#ffb8e1 75%,#b9a4ff 100%);
+    background-size:200% 100%;
+    animation:iri 6s linear infinite;
+  }
+  .h-pill-inner{
+    height:100%;border-radius:999px;padding:0 10px 0 8px;
+    display:flex;align-items:center;gap:5px;background:rgba(10,10,12,.85);
+    font-family:'Geist',sans-serif;font-size:12px;color:#e9e2ff;font-weight:500;
+  }
+  .h-pill-inner .material-symbols-outlined{
+    font-size:14px;color:#7fd9ff;line-height:1;
+  }
+
+  /* hairline below header */
+  .h-hairline{position:absolute;left:0;right:0;height:1px;z-index:14}
+
+  /* ================= CONTENT BODIES (below header) ================= */
+  .body-wp{
+    flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;
+    background:linear-gradient(180deg,#1a1820 0%,#0c0a14 100%);
+  }
+  .body-wp .hero{
+    height:130px;border-radius:14px;overflow:hidden;position:relative;
+    background:
+      radial-gradient(circle at 30% 40%,#5a3fa8 0%,transparent 60%),
+      radial-gradient(circle at 70% 70%,#1d6b9e 0%,transparent 55%),
+      linear-gradient(135deg,#2a1e54,#0a0a18);
+  }
+  .body-wp .hero::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.08),transparent 70%);
+  }
+  .body-wp .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .body-wp .card{
+    height:70px;border-radius:10px;
+    background:linear-gradient(135deg,#231d36,#15101f);
+    border:1px solid rgba(255,255,255,.04);
+  }
+  .body-wp .card.b{background:linear-gradient(135deg,#3a2840,#1a1024)}
+  .body-wp .card.c{background:linear-gradient(135deg,#1d3340,#0c1822)}
+  .body-wp .card.d{background:linear-gradient(135deg,#3a1a2a,#1c0a14)}
+
+  .body-arcano{
+    flex:1;padding:14px;display:flex;flex-direction:column;gap:8px;
+    background:
+      radial-gradient(circle at 50% 30%,rgba(140,90,220,.25),transparent 60%),
+      radial-gradient(circle at 80% 80%,rgba(60,180,220,.15),transparent 55%),
+      linear-gradient(180deg,#0d0820 0%,#03020a 100%);
+    position:relative;
+  }
+  .body-arcano::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:
+      radial-gradient(1px 1px at 18% 28%, rgba(255,255,255,.6) 50%, transparent 51%),
+      radial-gradient(1px 1px at 60% 18%, rgba(255,255,255,.5) 50%, transparent 51%),
+      radial-gradient(1px 1px at 38% 55%, rgba(255,255,255,.45) 50%, transparent 51%),
+      radial-gradient(1px 1px at 78% 62%, rgba(255,255,255,.4) 50%, transparent 51%),
+      radial-gradient(1px 1px at 22% 80%, rgba(255,255,255,.5) 50%, transparent 51%),
+      radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,.45) 50%, transparent 51%);
+  }
+  .body-arcano .zodiac{
+    position:relative;z-index:2;
+    width:108px;height:108px;border-radius:50%;margin:18px auto 0;
+    background:
+      radial-gradient(circle at 50% 50%,rgba(255,200,120,.4),transparent 60%),
+      conic-gradient(from 0deg,#3a2a5a,#1d6b9e,#5a3fa8,#3a2a5a);
+    box-shadow:0 0 30px rgba(140,90,220,.4);
+    display:grid;place-items:center;
+    color:#f4e4b8;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;
+  }
+  .body-arcano .arc-meta{
+    position:relative;z-index:2;text-align:center;margin-top:14px;
+    font-family:'Cormorant Garamond',serif;font-style:italic;color:#bcb4ff;font-size:13px;
+  }
+  .body-arcano .arc-cards{
+    position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+    margin-top:14px;
+  }
+  .body-arcano .arc-cards div{
+    height:46px;border-radius:8px;background:rgba(60,40,100,.4);border:1px solid rgba(180,140,255,.2);
+  }
+
+  .body-cultura{
+    flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;
+    background:linear-gradient(180deg,#ede6d6 0%,#e3d9c2 100%);
+    color:#2a1f12;
+  }
+  .body-cultura .magazine-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:22px;
+    color:#3a2a1a;line-height:1.05;letter-spacing:-.01em;
+  }
+  .body-cultura .magazine-sub{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;
+    color:#7a6a52;margin-top:2px;
+  }
+  .body-cultura .magazine-img{
+    height:110px;border-radius:8px;margin-top:6px;
+    background:
+      radial-gradient(circle at 30% 60%,#c98b3a 0%,transparent 55%),
+      radial-gradient(circle at 70% 30%,#7b5e3c 0%,transparent 55%),
+      linear-gradient(135deg,#7a5230,#42321e);
+    border:1px solid rgba(60,40,20,.12);
+  }
+  .body-cultura .magazine-line{
+    height:1px;background:linear-gradient(90deg,transparent,rgba(80,60,30,.35),transparent);
+    margin-top:6px;
+  }
+  .body-cultura .magazine-meta{
+    font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;
+    color:#8a7a5a;text-transform:uppercase;margin-top:4px;
+  }
+
+  .body-settings{
+    flex:1;padding:0;display:flex;flex-direction:column;
+    background:linear-gradient(180deg,#161318 0%,#0c0a10 100%);
+  }
+  .body-settings .row{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;
+    border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;color:#d8d3c5;
+    font-family:'Geist',sans-serif;
+  }
+  .body-settings .row .ico{
+    width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.06);
+    display:grid;place-items:center;
+  }
+  .body-settings .row .ico .material-symbols-outlined{font-size:14px;color:#bdb8ac;line-height:1}
+  .body-settings .row .lbl{flex:1}
+  .body-settings .row .val{
+    font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;
+  }
+
+  /* ================= V01 — INKWELL DARK SOLID ================= */
+  .v01 .h-bg{background:var(--warm-charcoal)}
+  .v01 .h-hairline{
+    bottom:-1px;
+    background:linear-gradient(90deg,transparent,rgba(212,175,55,.3),transparent);
+  }
+
+  /* ================= V02 — INK GLASS (translucent) ================= */
+  .v02 .h-bg{
+    background:rgba(31,27,23,0.78);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+  }
+  /* show that content bleeds through subtly */
+  .v02 .h-bg::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(120,90,200,.06),transparent 60%);
+  }
+  .v02 .h-hairline{
+    bottom:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.06) 30%,rgba(255,255,255,.06) 70%,transparent);
+  }
+
+  /* ================= V03 — VIGNETTE GLOW ================= */
+  .v03 .h-bg{
+    background:var(--warm-charcoal);
+    overflow:hidden;
+  }
+  .v03 .h-bg::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(120px 60px at 50% 30%,
+        rgba(185,164,255,.10) 0%,
+        rgba(127,217,255,.08) 30%,
+        rgba(255,184,225,.06) 60%,
+        transparent 100%);
+    animation:vignettePulse 6s ease-in-out infinite;
+  }
+  @keyframes vignettePulse{
+    0%,100%{opacity:.7;transform:scale(1)}
+    50%{opacity:1;transform:scale(1.08)}
+  }
+  /* extra glow extending DOWN from the ribbon */
+  .v03 .h-ribbon::after{
+    content:"";position:absolute;left:0;right:0;top:2px;height:16px;
+    background:linear-gradient(180deg,
+      rgba(127,217,255,.25) 0%,
+      rgba(185,164,255,.12) 50%,
+      transparent 100%);
+    filter:blur(4px);
+    pointer-events:none;
+  }
+  .v03 .h-hairline{display:none}
+
+  /* ================= V04 — STAR DUST OVERLAY ================= */
+  .v04 .h-bg{
+    background:var(--warm-cosmic);
+    overflow:hidden;
+  }
+  .v04 .h-bg::before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      radial-gradient(.9px .9px at 8% 35%, rgba(255,255,255,.85) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 22% 18%, rgba(255,255,255,.7) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 36% 70%, rgba(255,255,255,.6) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 48% 28%, rgba(255,200,160,.8) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 58% 80%, rgba(255,255,255,.75) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 66% 22%, rgba(255,255,255,.55) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 74% 65%, rgba(180,200,255,.85) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 82% 40%, rgba(255,255,255,.7) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 88% 75%, rgba(255,255,255,.6) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 14% 82%, rgba(255,255,255,.55) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 30% 50%, rgba(255,255,255,.65) 50%, transparent 51%),
+      radial-gradient(.9px .9px at 92% 18%, rgba(255,255,255,.7) 50%, transparent 51%);
+    animation:starDrift 30s linear infinite;
+    opacity:.85;
+  }
+  @keyframes starDrift{
+    0%{transform:translate3d(0,0,0)}
+    50%{transform:translate3d(-10px,-3px,0)}
+    100%{transform:translate3d(0,0,0)}
+  }
+  .v04 .h-hairline{
+    bottom:0;
+    background:linear-gradient(90deg,transparent,rgba(127,217,255,.18),rgba(185,164,255,.18),transparent);
+  }
+
+  /* ================= V05 — BRASS PINSTRIPE ================= */
+  .v05 .h-bg{
+    background:
+      repeating-linear-gradient(24deg,
+        var(--warm-charcoal) 0px,
+        var(--warm-charcoal) 14px,
+        var(--warm-pinstripe) 14px,
+        var(--warm-pinstripe) 15px);
+  }
+  .v05 .h-hairline{
+    bottom:0;height:.5px;
+    background:linear-gradient(90deg,transparent 5%,#D4AF37 30%,#e7c98c 50%,#D4AF37 70%,transparent 95%);
+    opacity:.85;
+  }
+
+  /* ================= FOOTER ================= */
+  .archive-footer{
+    margin-top:80px;padding-top:32px;border-top:1px solid rgba(255,255,255,.06);
+    font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:2.5px;
+    color:var(--muted);text-transform:uppercase;text-align:center;
+  }
+
+  /* responsiveness */
+  @media (max-width: 1100px){
+    .variant{grid-template-columns:1fr;gap:32px}
+  }
+  @media (max-width: 720px){
+    .mockups{grid-template-columns:1fr}
+    .mockup{height:320px}
+  }
+</style>
+</head>
+<body>
+<main class="archive">
+
+  <!-- ARCHIVE HEADER -->
+  <div class="eyebrow">
+    <span class="dot"></span>
+    <span>// PIXORA · HEADER · DARK VARIANTS · DOC-108 · MAY 2026</span>
+    <span class="pipe"></span>
+  </div>
+  <h1 class="archive-title">Header · Variaciones <span class="iri">Oscuras</span></h1>
+  <p class="subtitle">Mismo Holographic Ribbon, ahora más oscuro — el header debe sentirse premium nocturno, no blanco vacío. Cinco tratamientos del fondo manteniendo la identidad iridiscente: foil ribbon, anillo iridiscente, título foil-gradient y pill con borde foil.</p>
+  <div class="meta-line">
+    <span><b>BASE</b> · Holographic Ribbon (concepto #03 elegido)</span>
+    <span><b>HEIGHT</b> · 64px (62 + 2px ribbon)</span>
+    <span><b>TONE</b> · Warm charcoal · NEVER pure black</span>
+    <span><b>SECTIONS</b> · Wallpapers · Arcano · Cultura · Settings</span>
+  </div>
+  <hr class="divider" />
+
+  <!-- ================= V01 — INKWELL DARK SOLID ================= -->
+  <section class="variant v01">
+    <div class="mockups">
+      <!-- WALLPAPERS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">WALLPAPERS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Pixora</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-wp">
+            <div class="hero"></div>
+            <div class="grid">
+              <div class="card"></div><div class="card b"></div>
+              <div class="card c"></div><div class="card d"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ARCANO -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">ARCANO</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Arcano</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-arcano">
+            <div class="zodiac">Tauro</div>
+            <div class="arc-meta">Luna creciente · Casa V</div>
+            <div class="arc-cards"><div></div><div></div><div></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- CULTURA -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">CULTURA</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Cultura</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-cultura">
+            <div class="magazine-meta">ED. III · MITOLOGÍA AZTECA</div>
+            <div class="magazine-title">Mictlantecuhtli</div>
+            <div class="magazine-sub">El señor del inframundo</div>
+            <div class="magazine-img"></div>
+            <div class="magazine-line"></div>
+            <div class="magazine-meta">7 PIEZAS · 4 MIN</div>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">SETTINGS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Ajustes</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-settings">
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">notifications</span></div><div class="lbl">Notificaciones</div><div class="val">ON</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">language</span></div><div class="lbl">Idioma</div><div class="val">ES-MX</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">palette</span></div><div class="lbl">Tema</div><div class="val">AUTO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">workspace_premium</span></div><div class="lbl">Suscripción</div><div class="val">PRO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">info</span></div><div class="lbl">Acerca de</div><div class="val">v1.7.3</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="v-number">// V01 · INKWELL DARK SOLID</div>
+      <div class="v-title">Inkwell Dark Solid</div>
+      <div class="v-tagline">El foil es la única estrella en escena.</div>
+      <p class="v-desc">Fondo sólido en carbón cálido <b style="color:#d8d3c5">#1F1B17</b>. Sin texturas, sin glow, sin distracciones — el foil ribbon iridiscente y el título con gradiente foil POP con máxima intensidad contra la oscuridad. Una hairline brass-gold al <b style="color:#d8d3c5">30% alpha</b> debajo del bar separa apenas del contenido. Vibe cinematográfico, puro, tipo cabecera de revista nocturna. Es la opción más segura y más restraint — funciona idéntico en cualquier sección.</p>
+      <div class="swatches">
+        <div class="swatch" data-hex="#1F1B17" style="background:#1F1B17"></div>
+        <div class="swatch" data-hex="#D4AF37" style="background:#D4AF37"></div>
+        <div class="swatch" data-hex="#B9A4FF" style="background:linear-gradient(90deg,#b9a4ff,#7fd9ff,#e9e2ff,#ffb8e1)"></div>
+        <div class="swatch" data-hex="#E9E2FF" style="background:#e9e2ff"></div>
+      </div>
+      <div class="verdict">
+        <div class="verdict-row pro"><div class="mark">+</div><span>Máximo contraste para el foil — la identidad se lee crisp en cualquier sección.</span></div>
+        <div class="verdict-row con"><div class="mark">−</div><span>Transición algo stark al pasar a contenido claro (Cultura cream).</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ================= V02 — INK GLASS ================= -->
+  <section class="variant v02">
+    <div class="mockups">
+      <!-- WALLPAPERS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">WALLPAPERS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Pixora</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-wp">
+            <div class="hero"></div>
+            <div class="grid">
+              <div class="card"></div><div class="card b"></div>
+              <div class="card c"></div><div class="card d"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ARCANO -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">ARCANO</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Arcano</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-arcano">
+            <div class="zodiac">Tauro</div>
+            <div class="arc-meta">Luna creciente · Casa V</div>
+            <div class="arc-cards"><div></div><div></div><div></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- CULTURA -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">CULTURA</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Cultura</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-cultura">
+            <div class="magazine-meta">ED. III · MITOLOGÍA AZTECA</div>
+            <div class="magazine-title">Mictlantecuhtli</div>
+            <div class="magazine-sub">El señor del inframundo</div>
+            <div class="magazine-img"></div>
+            <div class="magazine-line"></div>
+            <div class="magazine-meta">7 PIEZAS · 4 MIN</div>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">SETTINGS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Ajustes</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-settings">
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">notifications</span></div><div class="lbl">Notificaciones</div><div class="val">ON</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">language</span></div><div class="lbl">Idioma</div><div class="val">ES-MX</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">palette</span></div><div class="lbl">Tema</div><div class="val">AUTO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">workspace_premium</span></div><div class="lbl">Suscripción</div><div class="val">PRO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">info</span></div><div class="lbl">Acerca de</div><div class="val">v1.7.3</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="v-number">// V02 · INK GLASS</div>
+      <div class="v-title">Ink Glass</div>
+      <div class="v-tagline">Cristal oscuro líquido sobre el contenido.</div>
+      <p class="v-desc">Fondo translúcido <b style="color:#d8d3c5">rgba(31,27,23,0.78)</b> con backdrop-blur 14px + saturate 140%. El contenido scrolleando debajo sangra sutilmente a través del header — vidrio espeso oscuro, idéntico al iOS Material Thick Dark moderno. El foil ribbon brilla aún más a través del cristal. Una hairline muy suave a 6% blanco refuerza la separación. Vibe iOS premium, dimensional, vivo — el header respira con la página.</p>
+      <div class="swatches">
+        <div class="swatch" data-hex="rgba" style="background:rgba(31,27,23,0.78);backdrop-filter:blur(4px)"></div>
+        <div class="swatch" data-hex="#1F1B17" style="background:#1F1B17"></div>
+        <div class="swatch" data-hex="#B9A4FF" style="background:linear-gradient(90deg,#b9a4ff,#7fd9ff,#e9e2ff,#ffb8e1)"></div>
+        <div class="swatch" data-hex="WHITE" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2)"></div>
+      </div>
+      <div class="verdict">
+        <div class="verdict-row pro"><div class="mark">+</div><span>Sensación moderna y viva — el header se siente parte del contenido, no pegado encima.</span></div>
+        <div class="verdict-row con"><div class="mark">−</div><span>Cuando el contenido debajo es muy claro (Cultura cream), el blur puede aclarar el header de más.</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ================= V03 — VIGNETTE GLOW ================= -->
+  <section class="variant v03">
+    <div class="mockups">
+      <!-- WALLPAPERS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">WALLPAPERS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Pixora</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-wp">
+            <div class="hero"></div>
+            <div class="grid">
+              <div class="card"></div><div class="card b"></div>
+              <div class="card c"></div><div class="card d"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ARCANO -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">ARCANO</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Arcano</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-arcano">
+            <div class="zodiac">Tauro</div>
+            <div class="arc-meta">Luna creciente · Casa V</div>
+            <div class="arc-cards"><div></div><div></div><div></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- CULTURA -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">CULTURA</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Cultura</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-cultura">
+            <div class="magazine-meta">ED. III · MITOLOGÍA AZTECA</div>
+            <div class="magazine-title">Mictlantecuhtli</div>
+            <div class="magazine-sub">El señor del inframundo</div>
+            <div class="magazine-img"></div>
+            <div class="magazine-line"></div>
+            <div class="magazine-meta">7 PIEZAS · 4 MIN</div>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">SETTINGS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Ajustes</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-settings">
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">notifications</span></div><div class="lbl">Notificaciones</div><div class="val">ON</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">language</span></div><div class="lbl">Idioma</div><div class="val">ES-MX</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">palette</span></div><div class="lbl">Tema</div><div class="val">AUTO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">workspace_premium</span></div><div class="lbl">Suscripción</div><div class="val">PRO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">info</span></div><div class="lbl">Acerca de</div><div class="val">v1.7.3</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="v-number">// V03 · VIGNETTE GLOW</div>
+      <div class="v-title">Vignette Glow</div>
+      <div class="v-tagline">El título emana luz iridiscente.</div>
+      <p class="v-desc">Base sólida <b style="color:#d8d3c5">#1F1B17</b> con un blob radial holográfico al ~8% opacidad centrado detrás del título — pulso suave de 6s que respira. El foil ribbon mantiene su brillo, más un bloom de 16px que se extiende hacia abajo (cyan/purple). Vibe teatro premium: el título manda y se siente vivo, mágico, casi como un wallpaper Live miniatura. Es la variante más "wow" sin perder restraint.</p>
+      <div class="swatches">
+        <div class="swatch" data-hex="#1F1B17" style="background:#1F1B17"></div>
+        <div class="swatch" data-hex="GLOW" style="background:radial-gradient(circle,#b9a4ff,#7fd9ff 50%,#ffb8e1)"></div>
+        <div class="swatch" data-hex="BLOOM" style="background:linear-gradient(180deg,#7fd9ff,#b9a4ff 60%,transparent)"></div>
+        <div class="swatch" data-hex="#E9E2FF" style="background:#e9e2ff"></div>
+      </div>
+      <div class="verdict">
+        <div class="verdict-row pro"><div class="mark">+</div><span>El header se siente vivo y mágico — coherente con la promesa "wallpapers + IA + premium".</span></div>
+        <div class="verdict-row con"><div class="mark">−</div><span>El pulso continuo puede distraer si el usuario lee mucho tiempo (Cultura artículos largos).</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ================= V04 — STAR DUST OVERLAY ================= -->
+  <section class="variant v04">
+    <div class="mockups">
+      <!-- WALLPAPERS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">WALLPAPERS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Pixora</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-wp">
+            <div class="hero"></div>
+            <div class="grid">
+              <div class="card"></div><div class="card b"></div>
+              <div class="card c"></div><div class="card d"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ARCANO -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">ARCANO</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Arcano</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-arcano">
+            <div class="zodiac">Tauro</div>
+            <div class="arc-meta">Luna creciente · Casa V</div>
+            <div class="arc-cards"><div></div><div></div><div></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- CULTURA -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">CULTURA</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Cultura</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-cultura">
+            <div class="magazine-meta">ED. III · MITOLOGÍA AZTECA</div>
+            <div class="magazine-title">Mictlantecuhtli</div>
+            <div class="magazine-sub">El señor del inframundo</div>
+            <div class="magazine-img"></div>
+            <div class="magazine-line"></div>
+            <div class="magazine-meta">7 PIEZAS · 4 MIN</div>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">SETTINGS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Ajustes</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-settings">
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">notifications</span></div><div class="lbl">Notificaciones</div><div class="val">ON</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">language</span></div><div class="lbl">Idioma</div><div class="val">ES-MX</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">palette</span></div><div class="lbl">Tema</div><div class="val">AUTO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">workspace_premium</span></div><div class="lbl">Suscripción</div><div class="val">PRO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">info</span></div><div class="lbl">Acerca de</div><div class="val">v1.7.3</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="v-number">// V04 · STAR DUST OVERLAY</div>
+      <div class="v-title">Star Dust Overlay</div>
+      <div class="v-tagline">Pequeño observatorio sobre cada pantalla.</div>
+      <p class="v-desc">Fondo casi negro cálido <b style="color:#d8d3c5">#13110F</b> con 12-15 estrellas diminutas dispersas en parallax, drift de 30s. El foil ribbon, el anillo iridiscente y el título foil-gradient se recortan crisp contra el fondo cósmico. Es la firma Pixora más identitaria — ata visualmente con ARCANO y AURA, vibe observatorio. Hairline foil suave abajo (cyan/purple a baja opacidad). Es la variante con más personalidad propia.</p>
+      <div class="swatches">
+        <div class="swatch" data-hex="#13110F" style="background:#13110F"></div>
+        <div class="swatch" data-hex="STARS" style="background:radial-gradient(circle,#fff 30%,#13110F)"></div>
+        <div class="swatch" data-hex="#B9A4FF" style="background:linear-gradient(90deg,#b9a4ff,#7fd9ff,#e9e2ff,#ffb8e1)"></div>
+        <div class="swatch" data-hex="#FFC8A0" style="background:#ffc8a0"></div>
+      </div>
+      <div class="verdict">
+        <div class="verdict-row pro"><div class="mark">+</div><span>Identidad de marca total — ata con ARCANO/AURA y se ve único en la tienda.</span></div>
+        <div class="verdict-row con"><div class="mark">−</div><span>Puede sentirse "demasiado cósmico" en secciones neutras (Settings, Favoritos).</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ================= V05 — BRASS PINSTRIPE ================= -->
+  <section class="variant v05">
+    <div class="mockups">
+      <!-- WALLPAPERS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">WALLPAPERS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Pixora</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-wp">
+            <div class="hero"></div>
+            <div class="grid">
+              <div class="card"></div><div class="card b"></div>
+              <div class="card c"></div><div class="card d"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ARCANO -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">ARCANO</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Arcano</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-arcano">
+            <div class="zodiac">Tauro</div>
+            <div class="arc-meta">Luna creciente · Casa V</div>
+            <div class="arc-cards"><div></div><div></div><div></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- CULTURA -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">CULTURA</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Cultura</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-cultura">
+            <div class="magazine-meta">ED. III · MITOLOGÍA AZTECA</div>
+            <div class="magazine-title">Mictlantecuhtli</div>
+            <div class="magazine-sub">El señor del inframundo</div>
+            <div class="magazine-img"></div>
+            <div class="magazine-line"></div>
+            <div class="magazine-meta">7 PIEZAS · 4 MIN</div>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="mockup">
+        <span class="notch"></span>
+        <span class="mockup-label">SETTINGS</span>
+        <div class="mockup-body">
+          <div class="h-bar">
+            <div class="h-bg"></div>
+            <div class="h-ribbon"></div>
+            <div class="h-hairline"></div>
+            <div class="h-avatar"><div class="h-avatar-inner"><span class="material-symbols-outlined">person</span></div></div>
+            <div class="h-title">Ajustes</div>
+            <div class="h-pill"><div class="h-pill-inner"><span class="material-symbols-outlined">diamond</span>240</div></div>
+          </div>
+          <div class="body-settings">
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">notifications</span></div><div class="lbl">Notificaciones</div><div class="val">ON</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">language</span></div><div class="lbl">Idioma</div><div class="val">ES-MX</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">palette</span></div><div class="lbl">Tema</div><div class="val">AUTO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">workspace_premium</span></div><div class="lbl">Suscripción</div><div class="val">PRO</div></div>
+            <div class="row"><div class="ico"><span class="material-symbols-outlined">info</span></div><div class="lbl">Acerca de</div><div class="val">v1.7.3</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="v-number">// V05 · BRASS PINSTRIPE</div>
+      <div class="v-title">Brass Pinstripe</div>
+      <div class="v-tagline">Editorial de lujo — restraint y oficio.</div>
+      <p class="v-desc">Carbón cálido <b style="color:#d8d3c5">#1F1B17</b> con pinstripes diagonales a 24° cada 14px en <b style="color:#d8d3c5">#26221E</b> (un step más claro, casi imperceptible — tipo wood-paneling). El foil ribbon arriba + una hairline brass <b style="color:#d8d3c5">#D4AF37</b> de 0.5px abajo crean un sandwich tipo cubierta de libro encuadernado. Vibe editorial de lujo, hotel boutique, revista trimestral. Es la opción más sofisticada — sutil, pero con oficio visible.</p>
+      <div class="swatches">
+        <div class="swatch" data-hex="#1F1B17" style="background:#1F1B17"></div>
+        <div class="swatch" data-hex="#26221E" style="background:#26221E"></div>
+        <div class="swatch" data-hex="#D4AF37" style="background:#D4AF37"></div>
+        <div class="swatch" data-hex="#E7C98C" style="background:#e7c98c"></div>
+      </div>
+      <div class="verdict">
+        <div class="verdict-row pro"><div class="mark">+</div><span>Diferenciador único — nadie en la categoría usa pinstripes; lee como editorial premium.</span></div>
+        <div class="verdict-row con"><div class="mark">−</div><span>El pinstripe puede leerse "viejo" si el resto de la app sigue muy futurista.</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="archive-footer">
+    PIXORA · HEADER · DARK VARIANTS · MAY 2026
+  </footer>
+
+</main>
+</body>
+</html>

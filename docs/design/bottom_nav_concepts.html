@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Bottom Nav · 5 Conceptos · DOC-105</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..600,0..1,-25..200" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #050514;
+    --ink-2:       #0a0a1f;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-divider:   rgba(60,60,67,0.12);
+
+    /* B&G theme */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-divider:    rgba(212,175,55,0.18);
+
+    /* 13 tabs brand colors */
+    --tab-wall:  #3B82F6;
+    --tab-live:  #EF4444;
+    --tab-3d:    #8B5CF6;
+    --tab-cult:  #D9B14A;
+    --tab-evnt:  #E85A8C;
+    --tab-aura:  #06B6D4;
+    --tab-arc:   #D4AF37;
+    --tab-stor:  #F59E0B;
+    --tab-day:   #EAB308;
+    --tab-ton:   #EC4899;
+    --tab-ia:    #10B981;
+    --tab-fav:   #F43F5E;
+    --tab-set:   #64748B;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(125,211,252,0.55), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(167,139,250,0.5), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(244,114,182,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(125,211,252,0.35), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1.3px 1.3px at 92% 88%, rgba(125,211,252,0.45), transparent 50%);
+    opacity: 0.6;
+    animation: starDrift 60s linear infinite;
+  }
+  @keyframes starDrift {
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-20px, 10px, 0); }
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(125,211,252,0.12), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.07), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(167,139,250,0.08), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 64px; }
+  header::before {
+    content: '// PIXORA · BOTTOM NAV · DOC-105 · MAY 2026';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent-iridescent {
+    background: linear-gradient(120deg, #7DD3FC 0%, #A78BFA 35%, #F472B6 70%, #6EE7B7 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: iridescent 8s ease-in-out infinite;
+  }
+  @keyframes iridescent {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 920px;
+    line-height: 1.55;
+  }
+  .subtitle em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold-bright);
+  }
+  .subtitle strong { color: var(--text); font-weight: 600; }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid { display: flex; flex-direction: column; gap: 120px; }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
+
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .concept-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .concept-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: 32px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.015em;
+  }
+  .concept-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--gold-bright);
+    margin-bottom: 20px;
+  }
+  .concept-meta {
+    font-family: 'Geist', sans-serif;
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+
+  .swatch-block { margin-bottom: 18px; }
+  .swatch-row-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .swatch-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .swatch {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .swatch::after {
+    content: attr(data-hex);
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    right: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: rgba(255,255,255,0.95);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  .verdict {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 12.5px;
+    font-family: 'Geist', sans-serif;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .verdict .row { display: flex; gap: 8px; margin-bottom: 6px; align-items: flex-start; }
+  .verdict .row:last-child { margin-bottom: 0; }
+  .verdict .pro {
+    color: #6EE7B7;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    flex-shrink: 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .verdict .con {
+    color: #F472B6;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    flex-shrink: 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  /* ─────────── Phone Frames ─────────── */
+  .phones {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .phone-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone {
+    width: 280px;
+    height: 560px;
+    border-radius: 36px;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    box-shadow:
+      0 0 0 6px #0c0c1c,
+      0 30px 60px rgba(0,0,0,0.55),
+      0 0 60px rgba(125,211,252,0.05);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone .notch {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 16px;
+    border-radius: 12px;
+    background: #050505;
+    z-index: 30;
+  }
+  .phone .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 18px 4px;
+    height: 28px;
+    font-family: 'Geist', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 5;
+  }
+  .phone .status-bar .right { display: flex; gap: 4px; align-items: center; }
+  .phone .status-bar .dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+
+  .phone-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .page-stub {
+    flex: 1;
+    padding: 14px 16px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .stub-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.05;
+    margin-bottom: 6px;
+  }
+  .stub-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .stub-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .stub-card {
+    aspect-ratio: 9 / 16;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(125,211,252,0.18), rgba(167,139,250,0.18));
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .stub-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.18), transparent 50%);
+  }
+  .stub-card.b { background: linear-gradient(135deg, rgba(244,114,182,0.18), rgba(251,191,36,0.16)); }
+  .stub-card.c { background: linear-gradient(135deg, rgba(110,231,183,0.18), rgba(125,211,252,0.18)); }
+  .stub-card.d { background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(232,90,140,0.16)); }
+
+  .phone.ios .page-stub .stub-title { color: #1C1C1E; }
+  .phone.ios .page-stub .stub-sub { color: #8E8E93; }
+  .phone.ios .page-stub .stub-card {
+    background: linear-gradient(135deg, rgba(59,130,246,0.10), rgba(139,92,246,0.10));
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .phone.ios .page-stub .stub-card.b { background: linear-gradient(135deg, rgba(236,72,153,0.10), rgba(245,158,11,0.10)); }
+  .phone.ios .page-stub .stub-card.c { background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(6,182,212,0.10)); }
+  .phone.ios .page-stub .stub-card.d { background: linear-gradient(135deg, rgba(212,175,55,0.14), rgba(232,90,140,0.12)); }
+
+  .phone.ios { background: var(--ios-bg); color: var(--ios-text); }
+  .phone.ios .status-bar { color: var(--ios-text); }
+  .phone.bg { background: var(--bg-ink); color: var(--bg-text); }
+  .phone.bg .status-bar { color: var(--bg-gold-bright); }
+
+  /* shared nav-base layout */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 10;
+  }
+  .nav .tab {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .nav .tab .icon {
+    font-family: 'Material Symbols Outlined';
+    font-variation-settings: 'opsz' 24, 'wght' 400, 'GRAD' 0, 'FILL' 0;
+    line-height: 1;
+    user-select: none;
+  }
+  .nav .tab .label {
+    font-family: 'Geist', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 01 — AURORA HALO DOCK
+     ════════════════════════════════════════════════════════════════════ */
+  .c01 .nav-wrap {
+    position: absolute;
+    bottom: 10px;
+    left: 12px;
+    right: 12px;
+    z-index: 10;
+  }
+  .c01 .nav {
+    border-radius: 24px;
+    padding: 10px 8px;
+    gap: 0;
+    overflow: hidden;
+  }
+  .c01 .phone.ios .nav {
+    background: rgba(255,255,255,0.74);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 0.5px solid rgba(0,0,0,0.06);
+    box-shadow:
+      0 12px 32px rgba(0,0,0,0.10),
+      0 0 0 0.5px rgba(255,255,255,0.5) inset;
+  }
+  .c01 .phone.bg .nav {
+    background: rgba(15,15,26,0.72);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    border: 0.5px solid rgba(212,175,55,0.22);
+    box-shadow:
+      0 12px 32px rgba(0,0,0,0.5),
+      0 0 0 0.5px rgba(212,175,55,0.05) inset;
+  }
+  .c01 .nav .tab {
+    width: 28px;
+    height: 38px;
+    padding: 0;
+  }
+  .c01 .nav .tab .icon {
+    font-size: 22px;
+    color: rgba(0,0,0,0.55);
+    transition: color 0.3s;
+  }
+  .c01 .phone.bg .nav .tab .icon { color: rgba(245,244,238,0.5); }
+  .c01 .nav .tab .label { display: none; }
+
+  .c01 .nav .tab.active .icon { color: var(--tab-color); }
+  .c01 .nav .tab.active::before {
+    content: '';
+    position: absolute;
+    width: 56px; height: 56px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--tab-color) 0%, transparent 65%);
+    opacity: 0.35;
+    filter: blur(8px);
+    animation: haloPulse 3s ease-in-out infinite;
+    z-index: -1;
+  }
+  .c01 .nav .tab.active::after {
+    content: attr(data-label);
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Geist', sans-serif;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--tab-color);
+    margin-top: 2px;
+    white-space: nowrap;
+    animation: labelSlideUp 0.4s ease-out;
+  }
+  @keyframes haloPulse {
+    0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(1); }
+    50%      { opacity: 0.55; transform: translate(-50%, -50%) scale(1.15); }
+  }
+  @keyframes labelSlideUp {
+    from { opacity: 0; transform: translate(-50%, 4px); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
+  }
+
+  /* leave bottom padding so dock doesn't overlap content too much */
+  .c01 .phone-content { padding-bottom: 70px; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 02 — HOLOGRAPHIC FOIL STRIP
+     ════════════════════════════════════════════════════════════════════ */
+  .c02 .nav-wrap {
+    position: relative;
+    z-index: 10;
+  }
+  .c02 .nav {
+    padding: 10px 4px 12px;
+    position: relative;
+  }
+  .c02 .phone.ios .nav {
+    background: var(--ios-bg);
+    border-top: 0.5px solid var(--ios-divider);
+  }
+  .c02 .phone.bg .nav {
+    background: var(--bg-ink);
+    border-top: 0.5px solid var(--bg-divider);
+  }
+  .c02 .nav::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+      #8B5CF6 0%, #06B6D4 25%, #ffffff 50%, #06B6D4 75%, #8B5CF6 100%);
+    background-size: 200% 100%;
+    animation: foilSlide 5s linear infinite;
+    box-shadow: 0 2px 8px rgba(139,92,246,0.5);
+  }
+  @keyframes foilSlide {
+    0%   { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .c02 .nav .tab {
+    width: 28px;
+    height: 44px;
+    padding: 4px 0;
+    gap: 2px;
+    border-radius: 10px;
+  }
+  .c02 .nav .tab .icon {
+    font-size: 20px;
+    color: rgba(0,0,0,0.4);
+  }
+  .c02 .phone.bg .nav .tab .icon { color: rgba(245,244,238,0.4); }
+  .c02 .nav .tab .label {
+    font-size: 8px;
+    color: rgba(0,0,0,0.35);
+  }
+  .c02 .phone.bg .nav .tab .label { color: rgba(245,244,238,0.35); }
+
+  .c02 .nav .tab.active {
+    position: relative;
+  }
+  .c02 .nav .tab.active::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 10px;
+    padding: 1.5px;
+    background: linear-gradient(120deg, #8B5CF6, #06B6D4, #ffffff, #06B6D4, #8B5CF6);
+    background-size: 300% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: foilSlide 5s linear infinite;
+  }
+  .c02 .nav .tab.active .icon { color: var(--tab-color); }
+  .c02 .nav .tab.active .label { color: var(--tab-color); opacity: 1; }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 03 — LIQUID GLASS PILL
+     ════════════════════════════════════════════════════════════════════ */
+  .c03 .nav-wrap {
+    position: relative;
+    z-index: 10;
+  }
+  .c03 .nav {
+    padding: 8px 4px;
+    position: relative;
+  }
+  .c03 .phone.ios .nav {
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 0.5px solid var(--ios-divider);
+  }
+  .c03 .phone.bg .nav {
+    background: rgba(20,20,31,0.72);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 0.5px solid var(--bg-divider);
+  }
+
+  /* the moving liquid pill */
+  .c03 .nav .pill {
+    position: absolute;
+    top: 6px;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background: var(--tab-aura);
+    box-shadow:
+      0 4px 14px rgba(6,182,212,0.45),
+      0 0 0 0.5px rgba(255,255,255,0.18) inset,
+      0 -4px 6px rgba(255,255,255,0.18) inset;
+    animation: pillSlide 8s cubic-bezier(.65,.05,.36,1) infinite;
+    z-index: 1;
+  }
+  @keyframes pillSlide {
+    0%   { left: 8px;   background: var(--tab-wall); box-shadow: 0 4px 14px rgba(59,130,246,0.5), 0 0 0 0.5px rgba(255,255,255,0.18) inset, 0 -4px 6px rgba(255,255,255,0.18) inset; }
+    20%  { left: 88px;  background: var(--tab-cult); box-shadow: 0 4px 14px rgba(217,177,74,0.5), 0 0 0 0.5px rgba(255,255,255,0.18) inset, 0 -4px 6px rgba(255,255,255,0.18) inset; }
+    40%  { left: 165px; background: var(--tab-aura); box-shadow: 0 4px 14px rgba(6,182,212,0.5), 0 0 0 0.5px rgba(255,255,255,0.18) inset, 0 -4px 6px rgba(255,255,255,0.18) inset; }
+    60%  { left: 60px;  background: var(--tab-3d);  box-shadow: 0 4px 14px rgba(139,92,246,0.5), 0 0 0 0.5px rgba(255,255,255,0.18) inset, 0 -4px 6px rgba(255,255,255,0.18) inset; }
+    80%  { left: 200px; background: var(--tab-ia);  box-shadow: 0 4px 14px rgba(16,185,129,0.5), 0 0 0 0.5px rgba(255,255,255,0.18) inset, 0 -4px 6px rgba(255,255,255,0.18) inset; }
+    100% { left: 8px;   background: var(--tab-wall); box-shadow: 0 4px 14px rgba(59,130,246,0.5), 0 0 0 0.5px rgba(255,255,255,0.18) inset, 0 -4px 6px rgba(255,255,255,0.18) inset; }
+  }
+
+  .c03 .nav .tab {
+    width: 28px;
+    height: 44px;
+    padding: 4px 0;
+    gap: 2px;
+    position: relative;
+    z-index: 2;
+  }
+  .c03 .nav .tab .icon {
+    font-size: 19px;
+    color: rgba(0,0,0,0.5);
+  }
+  .c03 .phone.bg .nav .tab .icon { color: rgba(245,244,238,0.5); }
+  .c03 .nav .tab .label {
+    font-size: 8px;
+    color: rgba(0,0,0,0.4);
+    opacity: 0;
+  }
+  .c03 .phone.bg .nav .tab .label { color: rgba(245,244,238,0.4); }
+  .c03 .nav .tab.active .icon { color: #ffffff; }
+  .c03 .nav .tab.active .label {
+    color: var(--tab-color);
+    opacity: 1;
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 04 — CELESTIAL CONSTELLATION
+     ════════════════════════════════════════════════════════════════════ */
+  .c04 .nav-wrap {
+    position: relative;
+    z-index: 10;
+  }
+  .c04 .nav {
+    padding: 14px 4px 16px;
+    background: #0A0A14;
+    border-top: 0.5px solid rgba(167,139,250,0.15);
+    position: relative;
+    overflow: hidden;
+  }
+  .c04 .phone.bg .nav { background: #020107; }
+
+  .c04 .nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(1px 1px at 8% 30%,  rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 25% 70%, rgba(125,211,252,0.55), transparent 50%),
+      radial-gradient(1.2px 1.2px at 40% 25%, rgba(167,139,250,0.7), transparent 50%),
+      radial-gradient(1px 1px at 55% 80%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 70% 35%, rgba(244,114,182,0.6), transparent 50%),
+      radial-gradient(1.1px 1.1px at 85% 70%, rgba(110,231,183,0.55), transparent 50%),
+      radial-gradient(1px 1px at 92% 20%, rgba(125,211,252,0.5), transparent 50%),
+      radial-gradient(1px 1px at 18% 50%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 60% 55%, rgba(212,175,55,0.5), transparent 50%),
+      radial-gradient(1px 1px at 35% 90%, rgba(125,211,252,0.4), transparent 50%),
+      radial-gradient(1px 1px at 78% 12%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 48% 60%, rgba(167,139,250,0.4), transparent 50%);
+    animation: starDriftMini 50s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes starDriftMini {
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-12px, 5px, 0); }
+  }
+
+  .c04 .nav .tab {
+    width: 28px;
+    height: 40px;
+    padding: 0;
+    gap: 3px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* inactive: tiny dot star */
+  .c04 .nav .tab .icon {
+    font-size: 20px;
+    color: rgba(255,255,255,0.0);
+    position: relative;
+    transition: all 0.4s;
+  }
+  .c04 .nav .tab:not(.active) .icon::before {
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--tab-color);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 6px var(--tab-color);
+    opacity: 0.7;
+    animation: starTwinkle 3s ease-in-out infinite;
+  }
+  .c04 .nav .tab:nth-child(2n):not(.active) .icon::before { animation-delay: 0.6s; }
+  .c04 .nav .tab:nth-child(3n):not(.active) .icon::before { animation-delay: 1.2s; }
+  .c04 .nav .tab:nth-child(5n):not(.active) .icon::before { animation-delay: 1.8s; }
+  @keyframes starTwinkle {
+    0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.9); }
+    50%      { opacity: 0.85; transform: translate(-50%, -50%) scale(1.1); }
+  }
+
+  .c04 .nav .tab.active .icon {
+    color: var(--tab-color);
+    text-shadow: 0 0 12px var(--tab-color), 0 0 24px var(--tab-color);
+  }
+  .c04 .nav .tab.active::before,
+  .c04 .nav .tab.active::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid var(--tab-color);
+    opacity: 0;
+    animation: supernovaRing 3s ease-out infinite;
+  }
+  .c04 .nav .tab.active::after { animation-delay: 1.5s; }
+  @keyframes supernovaRing {
+    0%   { width: 12px; height: 12px; opacity: 0.9; }
+    100% { width: 48px; height: 48px; opacity: 0; }
+  }
+
+  .c04 .nav .tab .label {
+    font-size: 7.5px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.55);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .c04 .nav .tab.active .label {
+    color: var(--tab-color);
+    text-shadow: 0 0 6px var(--tab-color);
+  }
+
+  /* constellation line between adjacent active and neighbor */
+  .c04 .nav .constellation-line {
+    position: absolute;
+    top: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(167,139,250,0.4), transparent);
+    z-index: 1;
+    pointer-events: none;
+    animation: constLineGlow 4s ease-in-out infinite;
+  }
+  @keyframes constLineGlow {
+    0%, 100% { opacity: 0.25; }
+    50%      { opacity: 0.7; }
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
+     CONCEPT 05 — NEON SYNTHWAVE UNDERLINE
+     ════════════════════════════════════════════════════════════════════ */
+  .c05 .nav-wrap {
+    position: relative;
+    z-index: 10;
+  }
+  .c05 .nav {
+    padding: 10px 4px 12px;
+    background: #0A0A14;
+    position: relative;
+    overflow: hidden;
+  }
+  .c05 .nav::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1.5px;
+    background: linear-gradient(90deg,
+      #EC4899 0%, #06B6D4 33%, #EAB308 66%, #EC4899 100%);
+    background-size: 200% 100%;
+    animation: neonSlide 4s linear infinite;
+    box-shadow:
+      0 0 8px #EC4899,
+      0 0 16px rgba(236,72,153,0.5);
+  }
+  @keyframes neonSlide {
+    0%   { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+  }
+  /* scanlines */
+  .c05 .nav::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(255,255,255,0.04) 2px,
+      rgba(255,255,255,0.04) 3px
+    );
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .c05 .nav .tab {
+    width: 28px;
+    height: 44px;
+    padding: 4px 0;
+    gap: 3px;
+    position: relative;
+    z-index: 2;
+  }
+  .c05 .nav .tab .icon {
+    font-size: 20px;
+    color: rgba(255,255,255,0.55);
+  }
+  .c05 .nav .tab .label {
+    font-size: 8px;
+    color: rgba(255,255,255,0.55);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+  .c05 .nav .tab.active .icon {
+    color: var(--tab-color);
+    text-shadow: 0 0 6px var(--tab-color), 0 0 12px var(--tab-color);
+  }
+  .c05 .nav .tab.active .label {
+    color: var(--tab-color);
+    position: relative;
+    font-weight: 700;
+  }
+  /* chromatic aberration on active label */
+  .c05 .nav .tab.active .label::before,
+  .c05 .nav .tab.active .label::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .c05 .nav .tab.active .label::before {
+    color: #EC4899;
+    transform: translateX(1px);
+    mix-blend-mode: screen;
+    opacity: 0.85;
+  }
+  .c05 .nav .tab.active .label::after {
+    color: #06B6D4;
+    transform: translateX(-1px);
+    mix-blend-mode: screen;
+    opacity: 0.85;
+  }
+  .c05 .nav .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2.5px;
+    background: var(--tab-color);
+    border-radius: 2px;
+    box-shadow:
+      0 0 6px var(--tab-color),
+      0 0 14px var(--tab-color);
+    animation: neonUnderlineGlow 1.5s ease-in-out infinite;
+  }
+  @keyframes neonUnderlineGlow {
+    0%, 100% { opacity: 0.85; }
+    50%      { opacity: 1; }
+  }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    margin-top: 96px;
+    padding-top: 28px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Bottom Navigation <span class="ornament">·</span> 5 <span class="accent-iridescent">Conceptos</span></h1>
+    <p class="subtitle">
+      La barra inferior aparece en <strong>todas las pantallas</strong> de Pixora. Debe ser <em>memorable, no genérica</em>.
+      Cada concepto resuelve el mismo problema con un vocabulario visual y de movimiento distinto —
+      desde dock translúcido tipo Liquid Glass hasta arcade synthwave con scanlines.
+      Mockups en ambos temas (iOS White / B&amp;G Night) con animaciones corriendo en vivo.
+    </p>
+    <div class="header-rule">
+      <span>13 tabs · 13 colores marca</span>
+      <span class="line"></span>
+      <span>v1.8 · Diseño antes de Flutter</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ═══════════════════════════ CONCEPT 01 ═══════════════════════════ -->
+    <section class="concept c01">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="phone-label">iOS White</span>
+            <div class="phone ios">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title">Aurora</div>
+                  <div class="stub-sub">// daily picks</div>
+                  <div class="stub-grid">
+                    <div class="stub-card"></div><div class="stub-card b"></div>
+                    <div class="stub-card c"></div><div class="stub-card d"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span></div>
+                    <div class="tab active" data-label="AURA" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="phone-label">B&amp;G Night</span>
+            <div class="phone bg">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title" style="color:#F5D676;">Arcano</div>
+                  <div class="stub-sub" style="color:#8B7228;">// noche · zodiaco</div>
+                  <div class="stub-grid">
+                    <div class="stub-card"></div><div class="stub-card b"></div>
+                    <div class="stub-card c"></div><div class="stub-card d"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span></div>
+                    <div class="tab active" data-label="ARC" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept-side">
+          <div class="concept-eyebrow">No. 01 / Premium</div>
+          <h2 class="concept-title">Aurora Halo Dock</h2>
+          <p class="concept-tagline">Dock translúcido con halo respirando bajo el icono activo.</p>
+          <p class="concept-meta">
+            Flotante con 12px de margen lateral y radius 24px. Frosted blur intenso (iOS) o glass dorado tenue (B&amp;G).
+            El tab activo proyecta un halo radial de su color marca que pulsa cada 3s. El label solo aparece en el activo,
+            sliding desde abajo. Vibra a Apple Music mini-player + Liquid Glass.
+          </p>
+          <div class="swatch-block">
+            <div class="swatch-row-label">Paleta iOS</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#FFFFFF;" data-hex="#FFFFFF"></div>
+              <div class="swatch" style="background:rgba(255,255,255,0.74);backdrop-filter:blur(8px);" data-hex="frost74"></div>
+              <div class="swatch" style="background:#06B6D4;" data-hex="#06B6D4"></div>
+              <div class="swatch" style="background:rgba(60,60,67,0.12);" data-hex="div12"></div>
+            </div>
+            <div class="swatch-row-label">Paleta B&amp;G</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#0F0F1A;" data-hex="#0F0F1A"></div>
+              <div class="swatch" style="background:#D4AF37;" data-hex="#D4AF37"></div>
+              <div class="swatch" style="background:#F5D676;" data-hex="#F5D676"></div>
+              <div class="swatch" style="background:rgba(212,175,55,0.22);" data-hex="gold22"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <div class="row"><span class="pro">+</span><span>Se siente premium en ambos temas; el dock flotante "respira" sobre el contenido sin invadirlo.</span></div>
+            <div class="row"><span class="pro">+</span><span>El halo es sutil pero memorable — fija identidad sin gritarla.</span></div>
+            <div class="row"><span class="con">−</span><span>El backdrop-filter cuesta GPU en gama media; hay que probar en Samsung A-series.</span></div>
+            <div class="row"><span class="con">−</span><span>Dock flotante reduce ~70px de área útil de cada página.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ CONCEPT 02 ═══════════════════════════ -->
+    <section class="concept c02">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="phone-label">iOS White</span>
+            <div class="phone ios">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title">Live</div>
+                  <div class="stub-sub">// video wallpapers</div>
+                  <div class="stub-grid">
+                    <div class="stub-card"></div><div class="stub-card b"></div>
+                    <div class="stub-card c"></div><div class="stub-card d"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span><span class="label">WALL</span></div>
+                    <div class="tab active" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span><span class="label">LIVE</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span><span class="label">3D</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span><span class="label">CULT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span><span class="label">EVNT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span><span class="label">AURA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span><span class="label">ARC</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span><span class="label">STOR</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span><span class="label">DAY</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span><span class="label">TON</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span><span class="label">IA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span><span class="label">FAV</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span><span class="label">SET</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="phone-label">B&amp;G Night</span>
+            <div class="phone bg">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title" style="color:#F5D676;">Cultura</div>
+                  <div class="stub-sub" style="color:#8B7228;">// mitología viva</div>
+                  <div class="stub-grid">
+                    <div class="stub-card"></div><div class="stub-card b"></div>
+                    <div class="stub-card c"></div><div class="stub-card d"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span><span class="label">WALL</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span><span class="label">LIVE</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span><span class="label">3D</span></div>
+                    <div class="tab active" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span><span class="label">CULT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span><span class="label">EVNT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span><span class="label">AURA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span><span class="label">ARC</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span><span class="label">STOR</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span><span class="label">DAY</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span><span class="label">TON</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span><span class="label">IA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span><span class="label">FAV</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span><span class="label">SET</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept-side">
+          <div class="concept-eyebrow">No. 02 / Cohesión</div>
+          <h2 class="concept-title">Holographic Foil Strip</h2>
+          <p class="concept-tagline">El mismo foil iridescente del hero Home/Live cierra la pantalla por abajo.</p>
+          <p class="concept-meta">
+            Nav flush a los bordes (formato clásico). Una línea de 3px arriba con gradiente holográfico purple→cyan→white
+            que se desliza cada 5s — pareja exacta del hero shippado. El tab activo lleva un frame foil animado y se satura
+            al color marca. Máxima cohesión visual con el resto de la app.
+          </p>
+          <div class="swatch-block">
+            <div class="swatch-row-label">Paleta iOS</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#FFFFFF;" data-hex="#FFFFFF"></div>
+              <div class="swatch" style="background:linear-gradient(90deg,#8B5CF6,#06B6D4,#fff,#8B5CF6);" data-hex="foil"></div>
+              <div class="swatch" style="background:#EF4444;" data-hex="#EF4444"></div>
+              <div class="swatch" style="background:rgba(60,60,67,0.12);" data-hex="div12"></div>
+            </div>
+            <div class="swatch-row-label">Paleta B&amp;G</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#070710;" data-hex="#070710"></div>
+              <div class="swatch" style="background:linear-gradient(90deg,#8B5CF6,#06B6D4,#fff,#8B5CF6);" data-hex="foil"></div>
+              <div class="swatch" style="background:#D9B14A;" data-hex="#D9B14A"></div>
+              <div class="swatch" style="background:rgba(212,175,55,0.18);" data-hex="gold18"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <div class="row"><span class="pro">+</span><span>Identidad Pixora consistente: el hero y la nav comparten lenguaje foil.</span></div>
+            <div class="row"><span class="pro">+</span><span>Formato clásico = cero curva de aprendizaje. Funciona en cualquier pantalla.</span></div>
+            <div class="row"><span class="con">−</span><span>El foil corriendo en loop puede competir visualmente con contenido animado.</span></div>
+            <div class="row"><span class="con">−</span><span>Menos diferenciado: muchas apps usan border-top sutil ya.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ CONCEPT 03 ═══════════════════════════ -->
+    <section class="concept c03">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="phone-label">iOS White</span>
+            <div class="phone ios">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title">AURA</div>
+                  <div class="stub-sub">// frecuencias · naturaleza</div>
+                  <div class="stub-grid">
+                    <div class="stub-card c"></div><div class="stub-card"></div>
+                    <div class="stub-card d"></div><div class="stub-card b"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="pill"></div>
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span><span class="label">WALL</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span><span class="label">LIVE</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span><span class="label">3D</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span><span class="label">CULT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span><span class="label">EVNT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span><span class="label">AURA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span><span class="label">ARC</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span><span class="label">STOR</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span><span class="label">DAY</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span><span class="label">TON</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span><span class="label">IA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span><span class="label">FAV</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span><span class="label">SET</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="phone-label">B&amp;G Night</span>
+            <div class="phone bg">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title" style="color:#F5D676;">Stories</div>
+                  <div class="stub-sub" style="color:#8B7228;">// narrativas vivas</div>
+                  <div class="stub-grid">
+                    <div class="stub-card"></div><div class="stub-card b"></div>
+                    <div class="stub-card c"></div><div class="stub-card d"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="pill"></div>
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span><span class="label">WALL</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span><span class="label">LIVE</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span><span class="label">3D</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span><span class="label">CULT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span><span class="label">EVNT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span><span class="label">AURA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span><span class="label">ARC</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span><span class="label">STOR</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span><span class="label">DAY</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span><span class="label">TON</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span><span class="label">IA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span><span class="label">FAV</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span><span class="label">SET</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept-side">
+          <div class="concept-eyebrow">No. 03 / Magic</div>
+          <h2 class="concept-title">Liquid Glass Pill</h2>
+          <p class="concept-tagline">Una píldora líquida resbala entre tabs cuando cambias de sección.</p>
+          <p class="concept-meta">
+            Nav glassmorphic (blur+saturación). La pill <strong>se desliza físicamente</strong> de tab a tab al cambiar
+            (300ms easeOutQuart con bounce sutil), absorbiendo el color marca del destino. El icono dentro de la pill se vuelve
+            blanco; el label aparece bajo la pill solo en el activo. Vibra a OneUI 6 + Pinterest.
+          </p>
+          <div class="swatch-block">
+            <div class="swatch-row-label">Paleta iOS</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:rgba(255,255,255,0.65);" data-hex="glass65"></div>
+              <div class="swatch" style="background:#3B82F6;" data-hex="#3B82F6"></div>
+              <div class="swatch" style="background:#06B6D4;" data-hex="#06B6D4"></div>
+              <div class="swatch" style="background:#EC4899;" data-hex="#EC4899"></div>
+            </div>
+            <div class="swatch-row-label">Paleta B&amp;G</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:rgba(20,20,31,0.72);" data-hex="glass72"></div>
+              <div class="swatch" style="background:#D4AF37;" data-hex="#D4AF37"></div>
+              <div class="swatch" style="background:#8B5CF6;" data-hex="#8B5CF6"></div>
+              <div class="swatch" style="background:#10B981;" data-hex="#10B981"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <div class="row"><span class="pro">+</span><span>La transición física entre tabs hace la nav <em>juguetona</em> sin perder elegancia.</span></div>
+            <div class="row"><span class="pro">+</span><span>La pill absorbe el color de cada sección — refuerza la identidad por tab.</span></div>
+            <div class="row"><span class="con">−</span><span>La animación de la pill con 13 destinos puede sentirse rápida o atropellada.</span></div>
+            <div class="row"><span class="con">−</span><span>Requiere AnimatedPositioned + AnimatedContainer en Flutter — más complejidad.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ CONCEPT 04 ═══════════════════════════ -->
+    <section class="concept c04">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="phone-label">iOS White</span>
+            <div class="phone ios">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title">Eventos</div>
+                  <div class="stub-sub">// celebraciones</div>
+                  <div class="stub-grid">
+                    <div class="stub-card b"></div><div class="stub-card"></div>
+                    <div class="stub-card d"></div><div class="stub-card c"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="constellation-line" style="left:40px;width:60px;"></div>
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span><span class="label">WALL</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span><span class="label">LIVE</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span><span class="label">3D</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span><span class="label">CULT</span></div>
+                    <div class="tab active" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span><span class="label">EVNT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span><span class="label">AURA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span><span class="label">ARC</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span><span class="label">STOR</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span><span class="label">DAY</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span><span class="label">TON</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span><span class="label">IA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span><span class="label">FAV</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span><span class="label">SET</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="phone-label">B&amp;G Night</span>
+            <div class="phone bg">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title" style="color:#F5D676;">IA Gen</div>
+                  <div class="stub-sub" style="color:#8B7228;">// generador</div>
+                  <div class="stub-grid">
+                    <div class="stub-card c"></div><div class="stub-card"></div>
+                    <div class="stub-card b"></div><div class="stub-card d"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="constellation-line" style="left:160px;width:90px;"></div>
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span><span class="label">WALL</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span><span class="label">LIVE</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span><span class="label">3D</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span><span class="label">CULT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span><span class="label">EVNT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span><span class="label">AURA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span><span class="label">ARC</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span><span class="label">STOR</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span><span class="label">DAY</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span><span class="label">TON</span></div>
+                    <div class="tab active" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span><span class="label">IA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span><span class="label">FAV</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span><span class="label">SET</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept-side">
+          <div class="concept-eyebrow">No. 04 / On-brand</div>
+          <h2 class="concept-title">Celestial Constellation</h2>
+          <p class="concept-tagline">Cada tab es una estrella; al activar, supernova con anillos.</p>
+          <p class="concept-meta">
+            Fondo cósmico oscuro <em>siempre</em> (regardless de theme) — firma Pixora. Starfield con drift sutil.
+            Tabs inactivos son puntos brillantes del color marca con twinkle (3s). El activo "supernova": expande al icono full,
+            con 3 ondas concéntricas (anillos) saliendo cada 3s. Líneas tenues conectan estrellas adyacentes (efecto constelación).
+          </p>
+          <div class="swatch-block">
+            <div class="swatch-row-label">Paleta iOS (sí, oscura)</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#0A0A14;" data-hex="#0A0A14"></div>
+              <div class="swatch" style="background:#A78BFA;" data-hex="#A78BFA"></div>
+              <div class="swatch" style="background:#7DD3FC;" data-hex="#7DD3FC"></div>
+              <div class="swatch" style="background:#F472B6;" data-hex="#F472B6"></div>
+            </div>
+            <div class="swatch-row-label">Paleta B&amp;G</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#020107;" data-hex="#020107"></div>
+              <div class="swatch" style="background:#D4AF37;" data-hex="#D4AF37"></div>
+              <div class="swatch" style="background:#6EE7B7;" data-hex="#6EE7B7"></div>
+              <div class="swatch" style="background:#F5D676;" data-hex="#F5D676"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <div class="row"><span class="pro">+</span><span>100% on-brand con la identidad cósmica/zodiacal de Pixora. <em>Nadie</em> más tiene esto.</span></div>
+            <div class="row"><span class="pro">+</span><span>El supernova activo es un micro-momento de delight cada vez que cambias de tab.</span></div>
+            <div class="row"><span class="con">−</span><span>Romper el theme iOS White con una nav oscura puede chocar para usuarios puristas.</span></div>
+            <div class="row"><span class="con">−</span><span>Starfield + twinkle + anillos = más pintura/redraw constante; vigilar batería.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ CONCEPT 05 ═══════════════════════════ -->
+    <section class="concept c05">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="phone-label">iOS White</span>
+            <div class="phone ios">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title">Daily</div>
+                  <div class="stub-sub">// synthwave dia</div>
+                  <div class="stub-grid">
+                    <div class="stub-card b"></div><div class="stub-card c"></div>
+                    <div class="stub-card"></div><div class="stub-card d"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span><span class="label">WALL</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span><span class="label">LIVE</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span><span class="label">3D</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span><span class="label">CULT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span><span class="label">EVNT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span><span class="label">AURA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span><span class="label">ARC</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span><span class="label">STOR</span></div>
+                    <div class="tab active" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span><span class="label" data-text="DAY">DAY</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span><span class="label">TON</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span><span class="label">IA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span><span class="label">FAV</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span><span class="label">SET</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="phone-label">B&amp;G Night</span>
+            <div class="phone bg">
+              <div class="notch"></div>
+              <div class="status-bar"><span>9:41</span><span class="right"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+              <div class="phone-content">
+                <div class="page-stub">
+                  <div class="stub-title" style="color:#F5D676;">Ringtones</div>
+                  <div class="stub-sub" style="color:#8B7228;">// arcade pack</div>
+                  <div class="stub-grid">
+                    <div class="stub-card"></div><div class="stub-card d"></div>
+                    <div class="stub-card b"></div><div class="stub-card c"></div>
+                  </div>
+                </div>
+                <div class="nav-wrap">
+                  <div class="nav">
+                    <div class="tab" style="--tab-color:var(--tab-wall);"><span class="icon">image</span><span class="label">WALL</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-live);"><span class="icon">play_circle</span><span class="label">LIVE</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-3d);"><span class="icon">3d_rotation</span><span class="label">3D</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-cult);"><span class="icon">menu_book</span><span class="label">CULT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-evnt);"><span class="icon">celebration</span><span class="label">EVNT</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-aura);"><span class="icon">spa</span><span class="label">AURA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-arc);"><span class="icon">nights_stay</span><span class="label">ARC</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-stor);"><span class="icon">auto_stories</span><span class="label">STOR</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-day);"><span class="icon">wb_twilight</span><span class="label">DAY</span></div>
+                    <div class="tab active" style="--tab-color:var(--tab-ton);"><span class="icon">music_note</span><span class="label" data-text="TON">TON</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-ia);"><span class="icon">auto_awesome</span><span class="label">IA</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-fav);"><span class="icon">favorite</span><span class="label">FAV</span></div>
+                    <div class="tab" style="--tab-color:var(--tab-set);"><span class="icon">settings</span><span class="label">SET</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept-side">
+          <div class="concept-eyebrow">No. 05 / Arcade</div>
+          <h2 class="concept-title">Neon Synthwave Underline</h2>
+          <p class="concept-tagline">Pareja directa del Pixora Daily Synthwave — vibe arcade retro.</p>
+          <p class="concept-meta">
+            Fondo negro siempre. Línea neón superior que recorre pink→cyan→yellow en loop (4s). Tab activo: subrayado neón
+            vertical de 2.5px en el color marca + icono saturado + label con aberración cromática (offset pink/cyan). Scanlines
+            CRT sutiles (0.05 opacity) sobre toda la barra. Cohesión con el hero Pixora Daily shippado.
+          </p>
+          <div class="swatch-block">
+            <div class="swatch-row-label">Paleta iOS (sí, oscura)</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#0A0A14;" data-hex="#0A0A14"></div>
+              <div class="swatch" style="background:#EC4899;" data-hex="#EC4899"></div>
+              <div class="swatch" style="background:#06B6D4;" data-hex="#06B6D4"></div>
+              <div class="swatch" style="background:#EAB308;" data-hex="#EAB308"></div>
+            </div>
+            <div class="swatch-row-label">Paleta B&amp;G</div>
+            <div class="swatch-row">
+              <div class="swatch" style="background:#0A0A14;" data-hex="#0A0A14"></div>
+              <div class="swatch" style="background:#F43F5E;" data-hex="#F43F5E"></div>
+              <div class="swatch" style="background:#10B981;" data-hex="#10B981"></div>
+              <div class="swatch" style="background:#F5D676;" data-hex="#F5D676"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <div class="row"><span class="pro">+</span><span>Lenguaje arcade/synthwave fija identidad: <em>"esta es la app de los wallpapers con vibe."</em></span></div>
+            <div class="row"><span class="pro">+</span><span>Aberración cromática + neón = micro-detalles que premium apps rara vez se atreven a usar.</span></div>
+            <div class="row"><span class="con">−</span><span>Fondo siempre negro rompe el iOS White — el comprometido más fuerte de los 5.</span></div>
+            <div class="row"><span class="con">−</span><span>Vibe gamer puede no encajar con secciones contemplativas (AURA, Cultura).</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    PIXORA · BOTTOM NAV · DESIGN ARCHIVE · MAY 2026
+  </footer>
+
+</div>
+
+</body>
+</html>

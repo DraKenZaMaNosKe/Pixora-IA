@@ -1,0 +1,1602 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pixora · Day Cycle · 5 Conceptos · DOC-110</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Geist:wght@300..800&family=Geist+Mono:wght@300..700&family=JetBrains+Mono:wght@300..700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+
+<style>
+/* ============================================================
+   GLOBAL — archive shell
+   ============================================================ */
+:root {
+  --ink-0: #07070b;
+  --ink-1: #0d0d14;
+  --ink-2: #14141c;
+  --ink-3: #1c1c26;
+  --paper: #f3ecdf;
+  --paper-2: #e8dec9;
+  --paper-3: #d6c8a8;
+  --gold: #d6a85a;
+  --gold-2: #b88838;
+  --gold-soft: #e7c98a;
+  --line: rgba(214, 168, 90, 0.22);
+  --text: #f1ece1;
+  --text-dim: rgba(241, 236, 225, 0.62);
+  --text-mute: rgba(241, 236, 225, 0.40);
+
+  --c-morning: linear-gradient(160deg, #ffd1a8 0%, #ffa5a0 45%, #f57ea3 100%);
+  --c-noon:    linear-gradient(180deg, #9ed8ff 0%, #5db4f5 55%, #2b85d4 100%);
+  --c-evening: linear-gradient(170deg, #ffb073 0%, #e36a7a 50%, #6a3c8e 100%);
+  --c-night:   linear-gradient(180deg, #1b2150 0%, #0c0e2c 55%, #04050f 100%);
+
+  --c-alien-morning: linear-gradient(170deg, #ffb98a 0%, #ff7e6b 40%, #b94e8e 100%);
+  --c-alien-noon:    linear-gradient(180deg, #ffe17b 0%, #ff8e5a 45%, #d44d83 100%);
+  --c-alien-evening: linear-gradient(170deg, #ff8a5c 0%, #c14b8d 50%, #4b2a78 100%);
+  --c-alien-night:   linear-gradient(180deg, #2e1b56 0%, #1a0d3a 55%, #060414 100%);
+
+  --c-neon-morning: linear-gradient(170deg, #b8e1ff 0%, #6aa9d4 40%, #4a3c7a 100%);
+  --c-neon-noon:    linear-gradient(180deg, #d2eaff 0%, #6db4d4 50%, #2b5d8e 100%);
+  --c-neon-evening: linear-gradient(170deg, #ff5fbf 0%, #6c2cff 50%, #1a0b4d 100%);
+  --c-neon-night:   linear-gradient(180deg, #0a0a2e 0%, #1b0844 50%, #050010 100%);
+
+  --c-mist-morning: linear-gradient(170deg, #e6d6b5 0%, #b8a987 45%, #6d6849 100%);
+  --c-mist-noon:    linear-gradient(180deg, #c9d8b5 0%, #88a37a 50%, #4b6a4d 100%);
+  --c-mist-evening: linear-gradient(170deg, #c89875 0%, #6a583e 50%, #2a2a26 100%);
+  --c-mist-night:   linear-gradient(180deg, #1b2018 0%, #0a0e0a 55%, #030503 100%);
+
+  --grad-iris: linear-gradient(92deg, #f8d57e 0%, #f59ec2 30%, #b58af5 55%, #6fc7e0 80%, #f8d57e 100%);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--ink-0);
+  color: var(--text);
+  font-family: 'Geist', system-ui, sans-serif;
+  font-weight: 350;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* starfield */
+body::before, body::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  background:
+    radial-gradient(1px 1px at 12% 20%, rgba(255,255,255,.55), transparent 50%),
+    radial-gradient(1px 1px at 78% 12%, rgba(255,255,255,.45), transparent 50%),
+    radial-gradient(1px 1px at 32% 78%, rgba(255,255,255,.5), transparent 50%),
+    radial-gradient(1px 1px at 60% 58%, rgba(255,255,255,.35), transparent 50%),
+    radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,.45), transparent 50%),
+    radial-gradient(1px 1px at 5% 52%, rgba(255,255,255,.4), transparent 50%),
+    radial-gradient(2px 2px at 42% 32%, rgba(231,201,138,.35), transparent 50%),
+    radial-gradient(2px 2px at 70% 80%, rgba(231,201,138,.28), transparent 50%);
+  background-size: 100% 100%;
+  animation: drift 70s linear infinite;
+  opacity: 0.55;
+}
+body::after {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(214,168,90,.10), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 110%, rgba(120,80,200,.06), transparent 70%);
+}
+@keyframes drift {
+  0%   { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-30px,-40px,0); }
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 56px 40px 120px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(214,168,90,0.04);
+}
+.eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px rgba(214,168,90,0.8);
+  animation: pulseDot 2.4s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.78); }
+}
+
+h1.title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 56px;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 28px 0 14px;
+  color: var(--paper);
+  max-width: 880px;
+}
+h1.title .iris {
+  background: var(--grad-iris);
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: irisFlow 12s linear infinite;
+}
+@keyframes irisFlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 240% 50%; }
+}
+
+p.subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  max-width: 760px;
+  margin: 0 0 18px;
+}
+p.subtitle em {
+  color: var(--gold-soft);
+  font-style: italic;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.meta-row span b { color: var(--gold-soft); font-weight: 500; }
+
+/* ============================================================
+   CONCEPT ROW
+   ============================================================ */
+.concept {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 56px;
+  margin-top: 96px;
+  opacity: 0;
+  transform: translateY(28px);
+  animation: rise 0.9s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.concept:nth-of-type(1) { animation-delay: 0.50s; }
+.concept:nth-of-type(2) { animation-delay: 0.65s; }
+.concept:nth-of-type(3) { animation-delay: 0.80s; }
+.concept:nth-of-type(4) { animation-delay: 0.95s; }
+.concept:nth-of-type(5) { animation-delay: 1.10s; }
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.concept .meta {
+  padding-top: 18px;
+}
+.concept .badge {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--gold);
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+.concept h2 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 32px;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin: 0 0 8px;
+  color: var(--paper);
+}
+.concept .tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--gold-soft);
+  margin: 0 0 18px;
+}
+.concept .desc {
+  color: var(--text-dim);
+  font-size: 14.5px;
+  line-height: 1.65;
+  max-width: 480px;
+  margin: 0 0 22px;
+}
+.concept .desc strong {
+  color: var(--paper);
+  font-weight: 500;
+}
+.concept .palette {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 22px;
+}
+.concept .palette i {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.verdict {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: rgba(214,168,90,0.03);
+  max-width: 480px;
+}
+.verdict div { font-size: 12.5px; line-height: 1.5; }
+.verdict .pros { color: #b6e6c4; }
+.verdict .cons { color: #f1b6a1; }
+.verdict .pros::before { content: "+ PROS"; display:block; font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:.18em; color: var(--gold-soft); margin-bottom: 6px; }
+.verdict .cons::before { content: "− CONTRAS"; display:block; font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:.18em; color: var(--gold-soft); margin-bottom: 6px; }
+
+/* ============================================================
+   PHONE FRAME (shared)
+   ============================================================ */
+.phone {
+  width: 340px;
+  height: 720px;
+  border-radius: 44px;
+  background: #000;
+  padding: 12px;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 30px 60px rgba(0,0,0,0.6),
+    0 60px 120px rgba(0,0,0,0.5);
+  margin: 0 auto;
+}
+.phone::before {
+  content: "";
+  position: absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 26px;
+  background: #000;
+  border-radius: 14px;
+  z-index: 50;
+}
+.phone .screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 34px;
+  overflow: hidden;
+  position: relative;
+  background: var(--ink-1);
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+}
+.phone .statusbar {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px 0;
+  z-index: 40;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--paper);
+  letter-spacing: 0.06em;
+}
+.phone .statusbar .right { display: inline-flex; gap: 4px; align-items: center; }
+.phone .statusbar .right i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--paper);
+}
+.phone .navbar {
+  position: absolute;
+  top: 56px; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  z-index: 35;
+}
+.phone .navbar .nav-title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--paper);
+}
+.phone .navbar .nav-icons { display: inline-flex; gap: 10px; color: var(--paper); }
+.phone .navbar .nav-icons span.material-symbols-outlined { font-size: 18px; opacity: 0.85; }
+.phone .tabbar {
+  position: absolute;
+  bottom: 14px;
+  left: 14px; right: 14px;
+  height: 56px;
+  background: rgba(20,20,28,0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 40;
+  padding: 0 8px;
+}
+.phone .tabbar .tab {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+  color: var(--text-mute);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  font-family: 'Geist Mono', monospace;
+  text-transform: uppercase;
+}
+.phone .tabbar .tab.active { color: var(--gold); }
+.phone .tabbar .tab span.material-symbols-outlined { font-size: 20px; }
+
+/* ============================================================
+   CONCEPT 01 — CINEMATIC 4-PHASE CAROUSEL
+   ============================================================ */
+.d01 .screen { background: #0a0a10; }
+.d01 .feed {
+  position: absolute;
+  top: 90px; left: 0; right: 0; bottom: 86px;
+  overflow: hidden;
+  padding: 8px 14px 14px;
+}
+.d01 .card {
+  width: 100%;
+  height: 215px;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+}
+.d01 .hero {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 65%;
+  background: var(--c-alien-evening);
+  background-size: 130% 130%;
+  animation: heroBreathe1 12s ease-in-out infinite;
+}
+.d01 .card.neon .hero { background: var(--c-neon-evening); background-size: 130% 130%; }
+.d01 .card.mist .hero { background: var(--c-mist-evening); background-size: 130% 130%; }
+@keyframes heroBreathe1 {
+  0%, 100% { background-position: 0% 0%; filter: saturate(1); }
+  50%      { background-position: 100% 100%; filter: saturate(1.1); }
+}
+.d01 .hero::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.55) 100%);
+}
+.d01 .hero-title {
+  position: absolute;
+  bottom: 14px; left: 14px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 19px;
+  color: #fff;
+  line-height: 1.05;
+  z-index: 2;
+  text-shadow: 0 2px 12px rgba(0,0,0,.45);
+}
+.d01 .chip {
+  position: absolute;
+  top: 12px; left: 12px;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(8px);
+  color: var(--gold-soft);
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(214,168,90,0.3);
+  text-transform: uppercase;
+  z-index: 2;
+}
+.d01 .strip {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 35%;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+}
+.d01 .strip .phase {
+  flex: 1;
+  height: 56px;
+  border-radius: 9px;
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+  opacity: 0.45;
+  filter: saturate(0.6);
+  transition: all 0.3s;
+}
+.d01 .strip .phase.active {
+  opacity: 1;
+  filter: saturate(1.1);
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(214,168,90,0.55);
+  animation: activeGlow 2s ease-in-out infinite;
+}
+@keyframes activeGlow {
+  0%, 100% { box-shadow: 0 0 14px rgba(214,168,90,.45); }
+  50%      { box-shadow: 0 0 22px rgba(214,168,90,.75); }
+}
+.d01 .strip .phase span {
+  position: absolute;
+  bottom: 2px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px;
+  color: #fff;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+.d01 .strip .phase.active .check {
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 13px; height: 13px;
+  background: var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #000;
+  font-size: 9px;
+  font-weight: bold;
+}
+.d01 .strip .cta {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--gold);
+  color: #1a1209;
+  display: flex; align-items: center; justify-content: center;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+.d01 .strip .cta span.material-symbols-outlined { font-size: 20px; font-weight: 600; }
+
+.d01 .ph-morning { background: var(--c-alien-morning); }
+.d01 .ph-noon { background: var(--c-alien-noon); }
+.d01 .ph-evening { background: var(--c-alien-evening); }
+.d01 .ph-night { background: var(--c-alien-night); }
+.d01 .neon .ph-morning { background: var(--c-neon-morning); }
+.d01 .neon .ph-noon { background: var(--c-neon-noon); }
+.d01 .neon .ph-evening { background: var(--c-neon-evening); }
+.d01 .neon .ph-night { background: var(--c-neon-night); }
+.d01 .mist .ph-morning { background: var(--c-mist-morning); }
+.d01 .mist .ph-noon { background: var(--c-mist-noon); }
+.d01 .mist .ph-evening { background: var(--c-mist-evening); }
+.d01 .mist .ph-night { background: var(--c-mist-night); }
+
+/* ============================================================
+   CONCEPT 02 — LIVING WINDOW
+   ============================================================ */
+.d02 .screen { background: #06060a; }
+.d02 .feed {
+  position: absolute;
+  top: 90px; left: 0; right: 0; bottom: 86px;
+  overflow: hidden;
+  padding: 6px 14px;
+}
+.d02 .window {
+  width: 100%;
+  height: 195px;
+  border-radius: 22px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.55);
+}
+.d02 .window .img {
+  position: absolute; inset: 0;
+  background: var(--c-alien-evening);
+  background-size: 150% 150%;
+  animation: windowDrift 18s ease-in-out infinite;
+}
+.d02 .window.neon .img { background: var(--c-neon-evening); background-size: 150% 150%; }
+.d02 .window.mist .img { background: var(--c-mist-evening); background-size: 150% 150%; }
+@keyframes windowDrift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 60%; }
+}
+.d02 .window .gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.65) 100%);
+}
+.d02 .window .pill {
+  position: absolute;
+  top: 12px; right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(14px);
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.08);
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: #fff;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.d02 .window .pill i {
+  width: 6px; height: 6px;
+  background: #ffaa6b;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ffaa6b;
+  animation: pillLive 2s ease-in-out infinite;
+}
+@keyframes pillLive {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: 0.5; transform: scale(0.7); }
+}
+.d02 .window .label {
+  position: absolute;
+  bottom: 28px; left: 16px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: #fff;
+  line-height: 1.05;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.6);
+}
+.d02 .window .sub {
+  position: absolute;
+  bottom: 14px; left: 16px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(255,255,255,0.65);
+  text-transform: uppercase;
+}
+.d02 .window .dots {
+  position: absolute;
+  bottom: 16px; right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.d02 .window .dots .d {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+}
+.d02 .window .dots .d.active {
+  background: #ffaa6b;
+  box-shadow: 0 0 10px #ffaa6b;
+  width: 8px; height: 8px;
+  animation: dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.25); }
+}
+.d02 .window .dots .t {
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.08em;
+  margin-left: 4px;
+}
+
+/* ============================================================
+   CONCEPT 03 — SUNDIAL DIAL
+   ============================================================ */
+.d03 .screen { background: linear-gradient(180deg, #0a0810 0%, #050308 100%); }
+.d03 .feed {
+  position: absolute;
+  top: 90px; left: 0; right: 0; bottom: 86px;
+  overflow-y: auto;
+  padding: 4px 16px 16px;
+}
+.d03 .dial-card {
+  margin-bottom: 22px;
+  padding: 18px 12px 16px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(214,168,90,0.04), rgba(214,168,90,0.01));
+  border: 1px solid rgba(214,168,90,0.10);
+  position: relative;
+}
+.d03 .dial {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin: 0 auto;
+}
+.d03 .ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1px dashed rgba(214,168,90,0.25);
+}
+.d03 .ring::before, .d03 .ring::after {
+  content: "";
+  position: absolute;
+  width: 4px; height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+}
+.d03 .ring::before { top: -2px; left: 50%; transform: translateX(-50%); }
+.d03 .ring::after { bottom: -2px; left: 50%; transform: translateX(-50%); }
+.d03 .hour-tick {
+  position: absolute;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: var(--gold-soft);
+  letter-spacing: 0.1em;
+}
+.d03 .h06 { top: 50%; left: -16px; transform: translateY(-50%); }
+.d03 .h12 { top: -16px; left: 50%; transform: translateX(-50%); }
+.d03 .h18 { top: 50%; right: -16px; transform: translateY(-50%); }
+.d03 .h24 { bottom: -16px; left: 50%; transform: translateX(-50%); }
+.d03 .phase-tile {
+  position: absolute;
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  filter: saturate(0.55) brightness(0.7);
+  transition: all 0.3s;
+}
+.d03 .phase-tile.active {
+  filter: saturate(1.1) brightness(1);
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(214,168,90,0.6);
+  transform: scale(1.08);
+}
+.d03 .p-morning { top: 6px; left: 50%; margin-left: -24px; background: var(--c-alien-morning); }
+.d03 .p-noon { top: 50%; right: 6px; margin-top: -24px; background: var(--c-alien-noon); }
+.d03 .p-evening { bottom: 6px; left: 50%; margin-left: -24px; background: var(--c-alien-evening); }
+.d03 .p-night { top: 50%; left: 6px; margin-top: -24px; background: var(--c-alien-night); }
+.d03 .neon .p-morning { background: var(--c-neon-morning); }
+.d03 .neon .p-noon { background: var(--c-neon-noon); }
+.d03 .neon .p-evening { background: var(--c-neon-evening); }
+.d03 .neon .p-night { background: var(--c-neon-night); }
+.d03 .mist .p-morning { background: var(--c-mist-morning); }
+.d03 .mist .p-noon { background: var(--c-mist-noon); }
+.d03 .mist .p-evening { background: var(--c-mist-evening); }
+.d03 .mist .p-night { background: var(--c-mist-night); }
+.d03 .center {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 124px; height: 124px;
+  margin: -62px 0 0 -62px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--c-alien-evening);
+  background-size: 140% 140%;
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 24px rgba(214,168,90,0.4), inset 0 0 30px rgba(0,0,0,0.4);
+  animation: centerBreathe 14s ease-in-out infinite;
+}
+.d03 .neon .center { background: var(--c-neon-evening); background-size: 140% 140%; }
+.d03 .mist .center { background: var(--c-mist-evening); background-size: 140% 140%; }
+@keyframes centerBreathe {
+  0%,100% { background-position: 0% 0%; }
+  50%     { background-position: 100% 100%; }
+}
+.d03 .needle {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 2px;
+  height: 92px;
+  background: linear-gradient(180deg, var(--gold) 0%, transparent 100%);
+  transform-origin: bottom center;
+  transform: translate(-50%, -100%) rotate(135deg);
+  z-index: 5;
+  box-shadow: 0 0 12px var(--gold);
+  animation: needleSweep 28s linear infinite;
+}
+@keyframes needleSweep {
+  0%   { transform: translate(-50%, -100%) rotate(120deg); }
+  100% { transform: translate(-50%, -100%) rotate(140deg); }
+}
+.d03 .needle::after {
+  content: "";
+  position: absolute;
+  bottom: -5px; left: 50%;
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 10px var(--gold);
+}
+.d03 .dial-title {
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--paper);
+  margin: 16px 0 4px;
+}
+.d03 .dial-sub {
+  text-align: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--gold-soft);
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   CONCEPT 04 — MOOD TAPE (Spotify Playlist)
+   ============================================================ */
+.d04 .screen { background: #0a0a0e; }
+.d04 .feed {
+  position: absolute;
+  top: 90px; left: 0; right: 0; bottom: 86px;
+  overflow-y: auto;
+  padding: 6px 14px 14px;
+}
+.d04 .tape {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.d04 .cover {
+  width: 138px; height: 138px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.4);
+}
+.d04 .cover .q { position: relative; overflow: hidden; }
+.d04 .cover .q-m { background: var(--c-alien-morning); }
+.d04 .cover .q-n { background: var(--c-alien-noon); }
+.d04 .cover .q-e { background: var(--c-alien-evening); }
+.d04 .cover .q-ni { background: var(--c-alien-night); }
+.d04 .neon .cover .q-m { background: var(--c-neon-morning); }
+.d04 .neon .cover .q-n { background: var(--c-neon-noon); }
+.d04 .neon .cover .q-e { background: var(--c-neon-evening); }
+.d04 .neon .cover .q-ni { background: var(--c-neon-night); }
+.d04 .mist .cover .q-m { background: var(--c-mist-morning); }
+.d04 .mist .cover .q-n { background: var(--c-mist-noon); }
+.d04 .mist .cover .q-e { background: var(--c-mist-evening); }
+.d04 .mist .cover .q-ni { background: var(--c-mist-night); }
+.d04 .info {
+  flex: 1;
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.d04 .info h4 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  margin: 0 0 4px;
+  color: var(--paper);
+  line-height: 1.05;
+}
+.d04 .info .when {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.d04 .now-playing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffaa6b;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.d04 .bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  height: 12px;
+}
+.d04 .bars i {
+  width: 2px;
+  background: #ffaa6b;
+  display: block;
+  animation: bar 0.9s ease-in-out infinite;
+}
+.d04 .bars i:nth-child(1) { height: 40%; animation-delay: 0s; }
+.d04 .bars i:nth-child(2) { height: 90%; animation-delay: 0.18s; }
+.d04 .bars i:nth-child(3) { height: 60%; animation-delay: 0.36s; }
+.d04 .bars i:nth-child(4) { height: 80%; animation-delay: 0.54s; }
+@keyframes bar { 0%,100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+.d04 .now-text { color: var(--paper); font-family:'Geist',sans-serif; font-size: 11px; letter-spacing: 0; text-transform: none; }
+.d04 .now-text b { color: var(--gold-soft); font-weight: 500; }
+.d04 .skip {
+  display: inline-flex; gap: 6px;
+  margin-top: auto;
+}
+.d04 .skip button {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Geist', sans-serif;
+  font-size: 12px;
+  cursor: default;
+}
+.d04 .skip button.play {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1a1209;
+  width: 34px; height: 34px;
+}
+.d04 .progress {
+  margin: 10px 12px 4px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.d04 .progress i {
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: 72%;
+  background: linear-gradient(90deg, #ffaa6b 0%, var(--gold) 100%);
+  border-radius: 2px;
+}
+.d04 .progress i::after {
+  content: "";
+  position: absolute;
+  top: 50%; right: -5px;
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 0 8px var(--gold);
+}
+.d04 .time-row {
+  display: flex; justify-content: space-between;
+  padding: 0 12px 8px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px;
+  color: var(--text-mute);
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   CONCEPT 05 — HOUR SLIDER / TIME SCRUBBER
+   ============================================================ */
+.d05 .screen { background: #0a0a10; }
+.d05 .feed {
+  position: absolute;
+  top: 90px; left: 0; right: 0; bottom: 86px;
+  overflow-y: auto;
+  padding: 6px 14px 14px;
+}
+.d05 .scrub-card {
+  margin-bottom: 16px;
+  padding: 0 0 12px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.d05 .scrub-title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--paper);
+  padding: 10px 14px 4px;
+  line-height: 1.05;
+}
+.d05 .scrub-image {
+  height: 130px;
+  background: var(--c-alien-evening);
+  background-size: 150% 150%;
+  position: relative;
+  margin: 0 14px;
+  border-radius: 10px;
+  animation: scrubBreathe 14s ease-in-out infinite;
+}
+.d05 .scrub-card.neon .scrub-image { background: var(--c-neon-evening); background-size: 150% 150%; }
+.d05 .scrub-card.mist .scrub-image { background: var(--c-mist-evening); background-size: 150% 150%; }
+@keyframes scrubBreathe {
+  0%,100% { background-position: 0% 0%; }
+  50%     { background-position: 100% 100%; }
+}
+.d05 .scrub-image::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.5));
+  border-radius: 10px;
+}
+.d05 .scrub-image .now-time {
+  position: absolute;
+  bottom: 8px; left: 10px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: #fff;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.7);
+  z-index: 2;
+}
+.d05 .scrub-image .now-phase {
+  position: absolute;
+  bottom: 22px; left: 10px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #fff;
+  z-index: 2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+.d05 .timeline {
+  height: 30px;
+  margin: 14px 14px 4px;
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  background: linear-gradient(90deg,
+    #ffd1a8 0%, #ffa5a0 18%,
+    #9ed8ff 25%, #5db4f5 43%,
+    #ffb073 50%, #c14b8d 70%,
+    #1b2150 75%, #04050f 100%);
+  background-size: 200% 100%;
+  animation: gradFlow 22s ease-in-out infinite;
+}
+.d05 .scrub-card.neon .timeline {
+  background: linear-gradient(90deg,
+    #b8e1ff 0%, #6aa9d4 18%,
+    #d2eaff 25%, #2b5d8e 43%,
+    #ff5fbf 50%, #1a0b4d 70%,
+    #0a0a2e 75%, #050010 100%);
+  background-size: 200% 100%;
+}
+.d05 .scrub-card.mist .timeline {
+  background: linear-gradient(90deg,
+    #e6d6b5 0%, #6d6849 18%,
+    #c9d8b5 25%, #4b6a4d 43%,
+    #c89875 50%, #2a2a26 70%,
+    #1b2018 75%, #030503 100%);
+  background-size: 200% 100%;
+}
+@keyframes gradFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 30% 50%; }
+}
+.d05 .scrubber {
+  position: absolute;
+  top: -4px; bottom: -4px;
+  left: 67%;
+  width: 2px;
+  background: var(--gold);
+  z-index: 3;
+  box-shadow: 0 0 10px rgba(214,168,90,0.9);
+  animation: scrubDrift 18s ease-in-out infinite;
+}
+@keyframes scrubDrift {
+  0%, 100% { left: 65%; }
+  50%      { left: 70%; }
+}
+.d05 .scrubber::before {
+  content: "";
+  position: absolute;
+  top: -4px; left: 50%;
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 10px var(--gold);
+}
+.d05 .scrubber::after {
+  content: "";
+  position: absolute;
+  bottom: -4px; left: 50%;
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 10px var(--gold);
+}
+.d05 .hour-ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 14px 6px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: var(--text-mute);
+  letter-spacing: 0.1em;
+}
+.d05 .scrub-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+  margin-top: 4px;
+}
+.d05 .drag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  color: var(--gold-soft);
+  text-transform: uppercase;
+}
+.d05 .drag span { color: var(--text-mute); }
+.d05 .apply {
+  background: var(--gold);
+  color: #1a1209;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  margin-top: 140px;
+  padding: 38px 0 0;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--text-mute);
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 980px) {
+  .concept {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .wrap { padding: 40px 22px 80px; }
+  h1.title { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============== HEADER ============== -->
+  <header>
+    <span class="eyebrow"><span class="dot"></span>// PIXORA · DAY CYCLE · DOC-110 · MAY 2026</span>
+    <h1 class="title">Day Cycle · 5 <span class="iris">Conceptos</span></h1>
+    <p class="subtitle">El wallpaper cambia con el día — las imágenes deben sentirse <em>grandes y vivas</em>, no thumbnails.</p>
+    <div class="meta-row">
+      <span><b>SCOPE</b> · feed completo</span>
+      <span><b>TARGET</b> · sustituir card actual con thumbs de 60×60</span>
+      <span><b>SHARED THEMES</b> · Alien Planet · Neon District · Misty Forest</span>
+      <span><b>FAKE TIME</b> · 17:01 · Evening</span>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       CONCEPT 01 — CINEMATIC 4-PHASE CAROUSEL
+       ============================================================ -->
+  <section class="concept d01">
+    <div class="phone-col">
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>17:01</span>
+            <span class="right"><i></i><i></i><i></i></span>
+          </div>
+          <div class="navbar">
+            <div class="nav-title">Day Cycle</div>
+            <div class="nav-icons">
+              <span class="material-symbols-outlined">search</span>
+              <span class="material-symbols-outlined">tune</span>
+            </div>
+          </div>
+
+          <div class="feed">
+
+            <!-- Theme: Alien Planet (active phase evening) -->
+            <div class="card alien">
+              <div class="hero"></div>
+              <span class="chip">Sci-Fi · Active</span>
+              <span class="hero-title">Alien Planet</span>
+              <div class="strip">
+                <div class="phase ph-morning"><span>06:00</span></div>
+                <div class="phase ph-noon"><span>12:00</span></div>
+                <div class="phase ph-evening active"><span>18:00</span><span class="check">✓</span></div>
+                <div class="phase ph-night"><span>22:00</span></div>
+                <div class="cta"><span class="material-symbols-outlined">arrow_forward</span></div>
+              </div>
+            </div>
+
+            <!-- Theme: Neon District -->
+            <div class="card neon">
+              <div class="hero"></div>
+              <span class="chip">Cyberpunk</span>
+              <span class="hero-title">Neon District</span>
+              <div class="strip">
+                <div class="phase ph-morning"><span>06:00</span></div>
+                <div class="phase ph-noon"><span>12:00</span></div>
+                <div class="phase ph-evening active"><span>18:00</span><span class="check">✓</span></div>
+                <div class="phase ph-night"><span>22:00</span></div>
+                <div class="cta"><span class="material-symbols-outlined">arrow_forward</span></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="tabbar">
+            <div class="tab"><span class="material-symbols-outlined">image</span><span>Walls</span></div>
+            <div class="tab"><span class="material-symbols-outlined">play_circle</span><span>Live</span></div>
+            <div class="tab active"><span class="material-symbols-outlined">wb_twilight</span><span>Cycle</span></div>
+            <div class="tab"><span class="material-symbols-outlined">spa</span><span>Aura</span></div>
+            <div class="tab"><span class="material-symbols-outlined">person</span><span>Me</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="badge">No. 01 · Cinematic</span>
+      <h2>Cinematic 4-Phase Carousel</h2>
+      <p class="tagline">poster de cine Apple TV+, con la fase actual al frente</p>
+      <p class="desc">Cada theme ocupa el ancho completo, ~280px de alto. El <strong>hero ocupa el 70%</strong> mostrando la fase actual en grande (~200px). Debajo, un strip con 4 mini-previews (80×80) marca la fase activa con <strong>borde dorado y check</strong>; las otras quedan desaturadas. CTA "Apply" como ícono dorado a la derecha. La sensación: cada wallpaper es una película con su afiche.</p>
+      <div class="palette">
+        <i style="background:#0a0a10"></i>
+        <i style="background:#d6a85a"></i>
+        <i style="background:#ff7e6b"></i>
+        <i style="background:#c14b8d"></i>
+        <i style="background:#f1ece1"></i>
+      </div>
+      <div class="verdict">
+        <div class="pros">Hero grande genuino · jerarquía clarísima · CTA visible · 4 fases legibles a la vez</div>
+        <div class="cons">El strip ocupa 30% del card — puede sentirse "ocupado" si hay muchos themes</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONCEPT 02 — LIVING WINDOW
+       ============================================================ -->
+  <section class="concept d02">
+    <div class="phone-col">
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>17:01</span>
+            <span class="right"><i></i><i></i><i></i></span>
+          </div>
+          <div class="navbar">
+            <div class="nav-title">Day Cycle</div>
+            <div class="nav-icons">
+              <span class="material-symbols-outlined">search</span>
+              <span class="material-symbols-outlined">tune</span>
+            </div>
+          </div>
+
+          <div class="feed">
+
+            <div class="window alien">
+              <div class="img"></div>
+              <div class="gradient"></div>
+              <div class="pill"><i></i>NOW · EVENING 17:01</div>
+              <div class="label">Alien Planet</div>
+              <div class="sub">Sci-Fi · 4 phases</div>
+              <div class="dots">
+                <span class="d"></span>
+                <span class="d"></span>
+                <span class="d active"></span>
+                <span class="d"></span>
+                <span class="t">3/4</span>
+              </div>
+            </div>
+
+            <div class="window neon">
+              <div class="img"></div>
+              <div class="gradient"></div>
+              <div class="pill"><i></i>NOW · EVENING 17:01</div>
+              <div class="label">Neon District</div>
+              <div class="sub">Cyberpunk · 4 phases</div>
+              <div class="dots">
+                <span class="d"></span>
+                <span class="d"></span>
+                <span class="d active"></span>
+                <span class="d"></span>
+                <span class="t">3/4</span>
+              </div>
+            </div>
+
+            <div class="window mist">
+              <div class="img"></div>
+              <div class="gradient"></div>
+              <div class="pill"><i></i>NOW · EVENING 17:01</div>
+              <div class="label">Misty Forest</div>
+              <div class="sub">Nature · 4 phases</div>
+              <div class="dots">
+                <span class="d"></span>
+                <span class="d"></span>
+                <span class="d active"></span>
+                <span class="d"></span>
+                <span class="t">3/4</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="tabbar">
+            <div class="tab"><span class="material-symbols-outlined">image</span><span>Walls</span></div>
+            <div class="tab"><span class="material-symbols-outlined">play_circle</span><span>Live</span></div>
+            <div class="tab active"><span class="material-symbols-outlined">wb_twilight</span><span>Cycle</span></div>
+            <div class="tab"><span class="material-symbols-outlined">spa</span><span>Aura</span></div>
+            <div class="tab"><span class="material-symbols-outlined">person</span><span>Me</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="badge">No. 02 · Living Window</span>
+      <h2>Living Window</h2>
+      <p class="tagline">una ventana al otro mundo — imagen full-bleed, cero UI encima</p>
+      <p class="desc">Cada card es <strong>una ventana full-bleed</strong> de 320px de alto donde la imagen manda. UI casi invisible: un pill arriba-derecha con "NOW · EVENING 17:01" con un punto naranja pulsante, el título en Fraunces italic abajo-izquierda y <strong>4 puntitos minimalistas</strong> (◌◌●◌) abajo-derecha indicando la fase. Un gradiente suave abajo da legibilidad sin estorbar la imagen. La sensación: estás asomado.</p>
+      <div class="palette">
+        <i style="background:#06060a"></i>
+        <i style="background:#ffaa6b"></i>
+        <i style="background:#1b2150"></i>
+        <i style="background:#c89875"></i>
+        <i style="background:#f1ece1"></i>
+      </div>
+      <div class="verdict">
+        <div class="pros">Imagen 100% protagonista · diseño limpísimo · scrollea como feed de Pinterest · escalable</div>
+        <div class="cons">Las 4 fases se ven como dots — usuario tal vez no entiende sin tocar; menos "instruccional"</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONCEPT 03 — SUNDIAL DIAL
+       ============================================================ -->
+  <section class="concept d03">
+    <div class="phone-col">
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>17:01</span>
+            <span class="right"><i></i><i></i><i></i></span>
+          </div>
+          <div class="navbar">
+            <div class="nav-title">Day Cycle</div>
+            <div class="nav-icons">
+              <span class="material-symbols-outlined">search</span>
+              <span class="material-symbols-outlined">tune</span>
+            </div>
+          </div>
+
+          <div class="feed">
+
+            <div class="dial-card alien">
+              <div class="dial">
+                <div class="ring"></div>
+                <span class="hour-tick h12">12</span>
+                <span class="hour-tick h18">18</span>
+                <span class="hour-tick h24">24</span>
+                <span class="hour-tick h06">06</span>
+                <div class="phase-tile p-morning"></div>
+                <div class="phase-tile p-noon"></div>
+                <div class="phase-tile p-evening active"></div>
+                <div class="phase-tile p-night"></div>
+                <div class="center"></div>
+                <div class="needle"></div>
+              </div>
+              <h3 class="dial-title">Alien Planet</h3>
+              <div class="dial-sub">Now · Evening · 17:01</div>
+            </div>
+
+            <div class="dial-card neon">
+              <div class="dial">
+                <div class="ring"></div>
+                <span class="hour-tick h12">12</span>
+                <span class="hour-tick h18">18</span>
+                <span class="hour-tick h24">24</span>
+                <span class="hour-tick h06">06</span>
+                <div class="phase-tile p-morning"></div>
+                <div class="phase-tile p-noon"></div>
+                <div class="phase-tile p-evening active"></div>
+                <div class="phase-tile p-night"></div>
+                <div class="center"></div>
+                <div class="needle"></div>
+              </div>
+              <h3 class="dial-title">Neon District</h3>
+              <div class="dial-sub">Now · Evening · 17:01</div>
+            </div>
+
+          </div>
+
+          <div class="tabbar">
+            <div class="tab"><span class="material-symbols-outlined">image</span><span>Walls</span></div>
+            <div class="tab"><span class="material-symbols-outlined">play_circle</span><span>Live</span></div>
+            <div class="tab active"><span class="material-symbols-outlined">wb_twilight</span><span>Cycle</span></div>
+            <div class="tab"><span class="material-symbols-outlined">spa</span><span>Aura</span></div>
+            <div class="tab"><span class="material-symbols-outlined">person</span><span>Me</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="badge">No. 03 · Sundial</span>
+      <h2>Sundial Dial</h2>
+      <p class="tagline">instrumento astronómico antiguo, mecánico, dorado</p>
+      <p class="desc">Cada card es un <strong>reloj de sol</strong>. El centro (180px ⌀) muestra la fase actual como círculo dorado con borde brillante. Las 4 fases viven en posiciones de reloj: <strong>12 = morning, 3 = noon, 6 = evening, 9 = night</strong>, como tiles pequeños rotando alrededor. Una <strong>aguja dorada</strong> apunta a la fase activa y se mueve sutilmente. Hours 06/12/18/24 en mono fuera del aro. Título debajo en Fraunces italic.</p>
+      <div class="palette">
+        <i style="background:#0a0810"></i>
+        <i style="background:#d6a85a"></i>
+        <i style="background:#e7c98a"></i>
+        <i style="background:#ff7e6b"></i>
+        <i style="background:#1b2150"></i>
+      </div>
+      <div class="verdict">
+        <div class="pros">Único en su categoría · educacional ("rastrea el sol") · premium artisanal · animación de aguja deliciosa</div>
+        <div class="cons">Cards más altos = menos themes visibles a la vez · curva de aprendizaje (¿qué es la aguja?)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONCEPT 04 — MOOD TAPE (Spotify)
+       ============================================================ -->
+  <section class="concept d04">
+    <div class="phone-col">
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>17:01</span>
+            <span class="right"><i></i><i></i><i></i></span>
+          </div>
+          <div class="navbar">
+            <div class="nav-title">Day Cycle</div>
+            <div class="nav-icons">
+              <span class="material-symbols-outlined">search</span>
+              <span class="material-symbols-outlined">tune</span>
+            </div>
+          </div>
+
+          <div class="feed">
+
+            <div class="tape-wrap alien">
+              <div class="tape alien">
+                <div class="cover">
+                  <div class="q q-m"></div>
+                  <div class="q q-n"></div>
+                  <div class="q q-e"></div>
+                  <div class="q q-ni"></div>
+                </div>
+                <div class="info">
+                  <h4>Alien Planet</h4>
+                  <div class="when">06:00 → 23:00</div>
+                  <div class="now-playing">
+                    <div class="bars"><i></i><i></i><i></i><i></i></div>
+                    <span class="now-text">Now · <b>Evening</b></span>
+                  </div>
+                  <div class="skip">
+                    <button>←</button>
+                    <button class="play">▶</button>
+                    <button>→</button>
+                  </div>
+                </div>
+              </div>
+              <div class="progress"><i></i></div>
+              <div class="time-row"><span>06:00</span><span>17:01</span><span>23:00</span></div>
+            </div>
+
+            <div class="tape-wrap neon">
+              <div class="tape neon">
+                <div class="cover">
+                  <div class="q q-m"></div>
+                  <div class="q q-n"></div>
+                  <div class="q q-e"></div>
+                  <div class="q q-ni"></div>
+                </div>
+                <div class="info">
+                  <h4>Neon District</h4>
+                  <div class="when">06:00 → 23:00</div>
+                  <div class="now-playing">
+                    <div class="bars"><i></i><i></i><i></i><i></i></div>
+                    <span class="now-text">Now · <b>Evening</b></span>
+                  </div>
+                  <div class="skip">
+                    <button>←</button>
+                    <button class="play">▶</button>
+                    <button>→</button>
+                  </div>
+                </div>
+              </div>
+              <div class="progress"><i></i></div>
+              <div class="time-row"><span>06:00</span><span>17:01</span><span>23:00</span></div>
+            </div>
+
+          </div>
+
+          <div class="tabbar">
+            <div class="tab"><span class="material-symbols-outlined">image</span><span>Walls</span></div>
+            <div class="tab"><span class="material-symbols-outlined">play_circle</span><span>Live</span></div>
+            <div class="tab active"><span class="material-symbols-outlined">wb_twilight</span><span>Cycle</span></div>
+            <div class="tab"><span class="material-symbols-outlined">spa</span><span>Aura</span></div>
+            <div class="tab"><span class="material-symbols-outlined">person</span><span>Me</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="badge">No. 04 · Mood Tape</span>
+      <h2>Mood Tape (Spotify Style)</h2>
+      <p class="tagline">una playlist visual del día — familiar como Spotify Liked Songs</p>
+      <p class="desc">Cada card es un <strong>"mood playlist"</strong>: cover cuadrado grande (138×138) a la izquierda mostrando las 4 fases como <strong>collage de cuadrantes</strong> tipo Spotify Liked Songs. A la derecha: título Fraunces italic, "06:00 → 23:00", indicador "▶ Now · Evening" con <strong>barras de equalizer pulsando</strong>, botones skip "← ▶ →" para previsualizar fases. Abajo, <strong>barra de progreso del día</strong> con etiqueta de hora actual.</p>
+      <div class="palette">
+        <i style="background:#0a0a0e"></i>
+        <i style="background:#ffaa6b"></i>
+        <i style="background:#d6a85a"></i>
+        <i style="background:#1b0844"></i>
+        <i style="background:#88a37a"></i>
+      </div>
+      <div class="verdict">
+        <div class="pros">Patrón familiar (todos conocen Spotify) · cuadrantes muestran las 4 fases en una mirada · barra de progreso del día es genial · sugiere "ritmo musical"</div>
+        <div class="cons">Cada fase queda en 1/4 del cover (~69px) — más chico que la versión actual de Eduardo · puede sentirse derivativo</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONCEPT 05 — HOUR SLIDER / TIME SCRUBBER
+       ============================================================ -->
+  <section class="concept d05">
+    <div class="phone-col">
+      <div class="phone">
+        <div class="screen">
+          <div class="statusbar">
+            <span>17:01</span>
+            <span class="right"><i></i><i></i><i></i></span>
+          </div>
+          <div class="navbar">
+            <div class="nav-title">Day Cycle</div>
+            <div class="nav-icons">
+              <span class="material-symbols-outlined">search</span>
+              <span class="material-symbols-outlined">tune</span>
+            </div>
+          </div>
+
+          <div class="feed">
+
+            <div class="scrub-card alien">
+              <div class="scrub-title">Alien Planet</div>
+              <div class="scrub-image">
+                <div class="now-phase">Evening</div>
+                <div class="now-time">17:01 · scrubber</div>
+              </div>
+              <div class="timeline">
+                <div class="scrubber"></div>
+              </div>
+              <div class="hour-ticks">
+                <span>06</span><span>12</span><span>18</span><span>24</span>
+              </div>
+              <div class="scrub-meta">
+                <span class="drag">⇆ DRAG <span>TO PREVIEW</span></span>
+                <span class="apply">Apply</span>
+              </div>
+            </div>
+
+            <div class="scrub-card neon">
+              <div class="scrub-title">Neon District</div>
+              <div class="scrub-image">
+                <div class="now-phase">Evening</div>
+                <div class="now-time">17:01 · scrubber</div>
+              </div>
+              <div class="timeline">
+                <div class="scrubber"></div>
+              </div>
+              <div class="hour-ticks">
+                <span>06</span><span>12</span><span>18</span><span>24</span>
+              </div>
+              <div class="scrub-meta">
+                <span class="drag">⇆ DRAG <span>TO PREVIEW</span></span>
+                <span class="apply">Apply</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="tabbar">
+            <div class="tab"><span class="material-symbols-outlined">image</span><span>Walls</span></div>
+            <div class="tab"><span class="material-symbols-outlined">play_circle</span><span>Live</span></div>
+            <div class="tab active"><span class="material-symbols-outlined">wb_twilight</span><span>Cycle</span></div>
+            <div class="tab"><span class="material-symbols-outlined">spa</span><span>Aura</span></div>
+            <div class="tab"><span class="material-symbols-outlined">person</span><span>Me</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="badge">No. 05 · Time Scrubber</span>
+      <h2>Hour Slider / Time Scrubber</h2>
+      <p class="tagline">timeline de Premiere — preciso, profesional, interactivo</p>
+      <p class="desc">Cada card tiene un <strong>slider horizontal</strong> con las 4 fases como segmentos de gradiente que fluyen entre sí (morning → noon → evening → night). Un <strong>scrubber dorado</strong> marca la hora actual sobre la barra. Arriba: la imagen de la fase en esa posición (~130px) con el nombre "Evening" en Fraunces italic. Hour ticks abajo (06-12-18-24) + micro-label "⇆ DRAG TO PREVIEW" (sugiere interacción aunque la lista no scrollee). CTA "Apply" dorado.</p>
+      <div class="palette">
+        <i style="background:#0a0a10"></i>
+        <i style="background:#d6a85a"></i>
+        <i style="background:#ffd1a8"></i>
+        <i style="background:#9ed8ff"></i>
+        <i style="background:#04050f"></i>
+      </div>
+      <div class="verdict">
+        <div class="pros">Lenguaje pro (Premiere/Final Cut) que premia precisión · gradiente fluido sugiere transición real · scrubber dorado es marca · interactivo</div>
+        <div class="cons">Si el usuario no arrastra, el feature interactivo se "esconde" · puede ser "demasiado tech" para usuario casual</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer>
+    PIXORA · DAY CYCLE · DESIGN ARCHIVE · MAY 2026
+  </footer>
+
+</div>
+
+</body>
+</html>

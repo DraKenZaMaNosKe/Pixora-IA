@@ -1,0 +1,2158 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Daily Page · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-text-soft: #3C3C43;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+    --ios-blue-soft: rgba(10,132,255,0.10);
+    --ios-indigo:    #5E5CE6;
+    --ios-purple:    #BF5AF2;
+    --ios-pink:      #FF375F;
+    --ios-green:     #30D158;
+    --ios-orange:    #FF9F0A;
+    --ios-red:       #FF453A;
+    --ios-teal:      #5AC8FA;
+    --ios-yellow:    #FFD60A;
+
+    /* B&G theme */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-surface-3:  #25253A;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-text-faint: #5a5752;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* Wallpaper sample palette */
+    --wp-violet:  #7c3aed;
+    --wp-pink:    #ec4899;
+    --wp-cyan:    #06b6d4;
+    --wp-indigo:  #4f46e5;
+    --wp-magenta: #d946ef;
+    --wp-amber:   #f59e0b;
+    --wp-red:     #dc2626;
+    --wp-rose:    #f43f5e;
+    --wp-orange:  #ea580c;
+    --wp-black:   #0a0118;
+    --wp-emerald: #10b981;
+    --wp-sky:     #38bdf8;
+
+    /* Synthwave palette */
+    --sw-bg-1: #1a0033;
+    --sw-bg-2: #3d0066;
+    --sw-bg-3: #7a0099;
+    --sw-pink: #ff2bd6;
+    --sw-cyan: #00f0ff;
+    --sw-purple: #a855f7;
+    --sw-yellow: #ffe44d;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(124,58,237,0.4), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(236,72,153,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(6,182,212,0.35), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 92% 88%, rgba(10,132,255,0.30), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(124,58,237,0.12), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.07), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(10,132,255,0.05), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · DAILY PAGE · CONFIGURATOR / DOC-074';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: #5AC8FA; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 880px;
+    line-height: 1.55;
+  }
+  .subtitle em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold-bright);
+  }
+  .subtitle strong { color: var(--text); font-weight: 600; }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid { display: flex; flex-direction: column; gap: 120px; }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
+
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    justify-items: center;
+  }
+  @media (max-width: 1100px) {
+    .phones { grid-template-columns: repeat(2, 1fr); gap: 24px 28px; }
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 250px;
+    aspect-ratio: 250 / 540;
+    background: #fff;
+    border-radius: 34px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 6px #1a1a22,
+      0 18px 42px rgba(0,0,0,0.65),
+      0 0 50px rgba(10,132,255,0.10);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 6px #0a0a14,
+      0 18px 42px rgba(0,0,0,0.7),
+      0 0 60px rgba(212,175,55,0.16);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60px; height: 14px;
+    background: #000;
+    border-radius: 0 0 10px 10px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 18px;
+    font: 600 8.5px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 13px; height: 6.5px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─────────── Shared atoms ─────────── */
+  .top-bar {
+    padding: 28px 14px 6px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 4; position: relative;
+  }
+  .back-arrow {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font: 600 14px 'Inter';
+  }
+  .phone.light .back-arrow { color: var(--ios-text); }
+  .phone.dark  .back-arrow { color: var(--bg-gold-bright); }
+  .top-spacer { width: 26px; }
+
+  .page-head { padding: 4px 18px 10px; }
+  .eyebrow {
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .phone.light .eyebrow { color: var(--ios-blue); }
+  .phone.dark  .eyebrow { color: var(--bg-gold-bright); }
+  .page-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 4px;
+  }
+  .phone.light .page-title { color: var(--ios-text); }
+  .phone.dark  .page-title { color: var(--bg-text); }
+  .page-sub {
+    font: 400 10px 'Geist', sans-serif;
+    line-height: 1.4;
+  }
+  .phone.light .page-sub { color: var(--ios-text-dim); }
+  .phone.dark  .page-sub { color: var(--bg-text-dim); }
+
+  /* Wallpaper mini-thumb backgrounds */
+  .wp-aurora { background: linear-gradient(160deg, #4f46e5 0%, #7c3aed 45%, #ec4899 100%); }
+  .wp-ocean  { background: linear-gradient(180deg, #0a3a5a 0%, #38bdf8 70%, #f0f9ff 100%); }
+  .wp-fire   { background: linear-gradient(170deg, #2a0a1a 0%, #dc2626 45%, #f59e0b 100%); }
+  .wp-mystic { background: linear-gradient(150deg, #0a0118 0%, #4f46e5 50%, #06b6d4 100%); }
+  .wp-jungle { background: linear-gradient(180deg, #064e3b 0%, #10b981 60%, #fde047 100%); }
+
+  /* ─────────── Sheet overlay ─────────── */
+  .sheet-dim {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.40);
+    z-index: 8;
+  }
+  .sheet {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 9;
+    border-radius: 20px 20px 0 0;
+    padding: 12px 14px 18px;
+    display: flex; flex-direction: column;
+    max-height: 78%;
+  }
+  .sheet .grabber {
+    width: 32px; height: 4px;
+    border-radius: 2px;
+    margin: 0 auto 10px;
+    background: rgba(255,255,255,0.22);
+  }
+  .phone.light .sheet .grabber { background: rgba(60,60,67,0.30); }
+  .sheet-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .phone.light .sheet-title { color: var(--ios-text); }
+  .phone.dark  .sheet-title { color: var(--bg-text); }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    padding: 18px 22px;
+    border-left: 1px solid var(--gold-dark);
+    background: linear-gradient(180deg, rgba(212,175,55,0.04), transparent 80%);
+  }
+  .meta-eyebrow {
+    font: 700 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .meta h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--gold-bright);
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .meta .tagline {
+    font: 400 13px 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.45;
+    margin-bottom: 18px;
+  }
+  .meta .swatches-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .meta .swatches-row .lbl {
+    font: 600 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .meta .swatches {
+    display: flex; gap: 5px;
+  }
+  .meta .swatch {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05) inset;
+  }
+  .meta .verdict {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hairline);
+    font: 400 11px 'Geist Mono', monospace;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .meta .verdict .pro,
+  .meta .verdict .con {
+    display: block;
+    margin-top: 4px;
+  }
+  .meta .verdict .pro::before { content: '+ '; color: #5fb380; font-weight: 700; }
+  .meta .verdict .con::before { content: '− '; color: #c9805e; font-weight: 700; }
+
+  /* ─────────── CONCEPT 01 — HOLOGRAPHIC FOIL ─────────── */
+  @keyframes foilShift {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+  .c01 .screen { padding-bottom: 6px; }
+  .c01-carousel {
+    display: flex; gap: 6px;
+    padding: 12px 14px 0;
+    height: 100px;
+  }
+  .c01-carousel .thumb {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .c01-carousel .thumb::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(120deg,
+      #ff2bd6 0%, #00f0ff 25%, #ffe44d 50%, #ff2bd6 75%, #00f0ff 100%);
+    background-size: 200% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: foilShift 4s linear infinite;
+    z-index: 2;
+  }
+  .c01-carousel .thumb-inner {
+    position: absolute; inset: 2px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .c01-rows {
+    padding: 12px 14px 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .c01-row {
+    position: relative;
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 34px 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .phone.light .c01-row {
+    background: rgba(255,255,255,0.96);
+    box-shadow: 0 1px 0 rgba(60,60,67,0.06), 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .phone.dark .c01-row {
+    background: linear-gradient(180deg, rgba(20,20,31,0.92), rgba(10,10,18,0.96));
+  }
+  .c01-row::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 14px;
+    padding: 1.5px;
+    background: linear-gradient(120deg,
+      rgba(255,43,214,0.65) 0%,
+      rgba(0,240,255,0.65) 30%,
+      rgba(255,228,77,0.55) 60%,
+      rgba(255,43,214,0.65) 100%);
+    background-size: 200% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: foilShift 5s linear infinite;
+  }
+  .c01-row .ic {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    background: linear-gradient(135deg, #ff2bd6, #7c3aed, #00f0ff);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(124,58,237,0.30);
+  }
+  .c01-row .lbl {
+    font: 600 11px 'Geist', sans-serif;
+  }
+  .phone.light .c01-row .lbl { color: var(--ios-text); }
+  .phone.dark  .c01-row .lbl { color: var(--bg-text); }
+  .c01-row .val {
+    font: 600 10px 'JetBrains Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255,43,214,0.10), rgba(0,240,255,0.10));
+  }
+  .phone.light .c01-row .val { color: var(--ios-blue-d); border: 1px solid rgba(10,132,255,0.18); }
+  .phone.dark  .c01-row .val { color: var(--bg-gold-bright); border: 1px solid var(--gold-dark); }
+  .c01-row .chev { font-size: 10px; opacity: 0.4; }
+  .c01-cta {
+    margin: 14px 14px 12px;
+    position: relative;
+    height: 46px;
+    border-radius: 23px;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 12px 'Geist', sans-serif;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background:
+      linear-gradient(120deg,
+        #ff2bd6 0%, #7c3aed 25%, #00f0ff 50%, #ffe44d 75%, #ff2bd6 100%);
+    background-size: 200% 100%;
+    animation: foilShift 3.5s linear infinite;
+    box-shadow:
+      0 8px 22px rgba(124,58,237,0.45),
+      0 0 0 1px rgba(255,255,255,0.15) inset;
+  }
+  .c01-cta::after {
+    content: '';
+    position: absolute; top: 0; bottom: 0;
+    left: -40%;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+    animation: shineSweep 3s ease-in-out infinite;
+  }
+  @keyframes shineSweep {
+    0%   { left: -40%; }
+    100% { left: 130%; }
+  }
+  /* C01 sheet */
+  .c01-sheet {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,245,250,0.98));
+    backdrop-filter: blur(12px);
+  }
+  .phone.dark .c01-sheet {
+    background: linear-gradient(180deg, rgba(20,20,31,0.97), rgba(7,7,16,0.99));
+  }
+  .c01-sheet .cat-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    font: 500 10px 'Geist', sans-serif;
+  }
+  .phone.light .c01-sheet .cat-row { color: var(--ios-text); }
+  .phone.dark  .c01-sheet .cat-row { color: var(--bg-text); }
+  .c01-sheet .cat-row.active::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 10px;
+    padding: 1.5px;
+    background: linear-gradient(120deg, #ff2bd6, #00f0ff, #ffe44d, #ff2bd6);
+    background-size: 200% 100%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: foilShift 3s linear infinite;
+  }
+  .c01-sheet .cat-row .mini {
+    width: 22px; height: 22px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #ff2bd6, #7c3aed, #00f0ff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #fff;
+  }
+  .c01-sheet .cat-row .check { font-size: 11px; color: #ff2bd6; font-weight: 700; }
+  .phone.dark .c01-sheet .cat-row .check { color: var(--bg-gold-bright); }
+
+  /* ─────────── CONCEPT 02 — APPLE PREMIUM SETTINGS ─────────── */
+  .c02-carousel {
+    display: flex; gap: 8px;
+    padding: 12px 16px 0;
+    height: 100px;
+    perspective: 600px;
+  }
+  .c02-carousel .thumb {
+    flex: 1;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    transform-style: preserve-3d;
+  }
+  .c02-carousel .thumb:nth-child(1) { transform: rotateY(8deg) translateX(2px); }
+  .c02-carousel .thumb:nth-child(2) { transform: translateY(-4px); }
+  .c02-carousel .thumb:nth-child(3) { transform: rotateY(-8deg) translateX(-2px); }
+  .c02-rows {
+    padding: 12px 16px 0;
+    display: flex; flex-direction: column;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .c02-rows-card {
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .phone.light .c02-rows-card { background: var(--ios-surface); }
+  .phone.dark  .c02-rows-card { background: var(--bg-surface); }
+  .c02-row {
+    display: grid;
+    grid-template-columns: 30px 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 11px 12px;
+  }
+  .c02-row + .c02-row {
+    border-top: 0.5px solid rgba(60,60,67,0.18);
+  }
+  .phone.dark .c02-row + .c02-row { border-top-color: rgba(255,255,255,0.06); }
+  .c02-row .ic {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 13px;
+  }
+  .c02-row.r1 .ic { background: var(--ios-blue); }
+  .c02-row.r2 .ic { background: var(--ios-purple); }
+  .c02-row.r3 .ic { background: var(--ios-orange); }
+  .c02-row .lbl { font: 500 11px 'Inter', sans-serif; }
+  .phone.light .c02-row .lbl { color: var(--ios-text); }
+  .phone.dark  .c02-row .lbl { color: var(--bg-text); }
+  .c02-row .val { font: 400 10px 'Inter', sans-serif; }
+  .phone.light .c02-row .val { color: var(--ios-text-dim); }
+  .phone.dark  .c02-row .val { color: var(--bg-text-dim); }
+  .c02-row .chev { font-size: 11px; opacity: 0.35; }
+  .c02-cta {
+    margin: 14px 16px 12px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font: 600 12px 'Inter', sans-serif;
+    color: #fff;
+    background: var(--ios-blue);
+    box-shadow: 0 6px 14px rgba(10,132,255,0.35);
+    animation: iosBounce 2.4s ease-in-out infinite;
+  }
+  .phone.dark .c02-cta {
+    background: linear-gradient(135deg, var(--bg-gold-bright), var(--bg-gold));
+    color: var(--bg-ink);
+    box-shadow: 0 6px 14px rgba(212,175,55,0.40);
+  }
+  @keyframes iosBounce {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.015); }
+  }
+  /* C02 sheet */
+  .c02-sheet {
+    background: var(--ios-bg);
+  }
+  .phone.dark .c02-sheet { background: var(--bg-surface); }
+  .c02-sheet .cat-row {
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 9px 10px;
+    font: 500 11px 'Inter', sans-serif;
+    border-bottom: 0.5px solid rgba(60,60,67,0.12);
+  }
+  .phone.dark .c02-sheet .cat-row { border-bottom-color: rgba(255,255,255,0.06); color: var(--bg-text); }
+  .phone.light .c02-sheet .cat-row { color: var(--ios-text); }
+  .c02-sheet .cat-row .ic {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 11px;
+  }
+  .c02-sheet .cat-row .check {
+    color: var(--ios-blue);
+    font-size: 12px; font-weight: 700;
+  }
+  .phone.dark .c02-sheet .cat-row .check { color: var(--bg-gold-bright); }
+
+  /* ─────────── CONCEPT 03 — SYNTHWAVE ─────────── */
+  .c03 .screen { background: linear-gradient(180deg, #1a0033 0%, #3d0066 40%, #7a0099 80%, #ff2bd6 100%); }
+  .c03 .phone.light .screen { background: linear-gradient(180deg, #fce7f3 0%, #f0abfc 40%, #c4b5fd 80%, #67e8f9 100%); }
+  @keyframes scanlineDrift {
+    0%   { background-position: 0 0; }
+    100% { background-position: 0 8px; }
+  }
+  .c03 .screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.18) 0px,
+      rgba(0,0,0,0.18) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    pointer-events: none;
+    z-index: 5;
+    animation: scanlineDrift 0.6s linear infinite;
+  }
+  .c03 .phone.light .screen::before {
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.30) 0px,
+      rgba(255,255,255,0.30) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  }
+  .c03 .screen::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 50%;
+    background:
+      linear-gradient(180deg, transparent 0%, rgba(0,240,255,0.10) 30%, rgba(0,240,255,0.20) 100%),
+      repeating-linear-gradient(
+        90deg,
+        rgba(0,240,255,0.45) 0px,
+        rgba(0,240,255,0.45) 1px,
+        transparent 1px,
+        transparent 20px
+      ),
+      repeating-linear-gradient(
+        180deg,
+        rgba(0,240,255,0.0) 0%,
+        rgba(0,240,255,0.45) 100%
+      );
+    transform: perspective(220px) rotateX(60deg);
+    transform-origin: bottom center;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .c03-header { padding: 4px 14px 8px; position: relative; z-index: 6; }
+  .c03-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+    color: #ffe44d;
+    text-shadow:
+      2px 0 #ff2bd6,
+      -2px 0 #00f0ff,
+      0 0 12px rgba(255,228,77,0.65);
+    line-height: 1.0;
+    margin-bottom: 4px;
+  }
+  .c03 .eyebrow {
+    color: #00f0ff;
+    text-shadow: 0 0 6px rgba(0,240,255,0.7);
+  }
+  .c03 .page-sub { color: rgba(255,255,255,0.85); }
+  .c03 .phone.light .c03-title { color: #db2777; text-shadow: 2px 0 #06b6d4, -2px 0 #f97316, 0 0 6px rgba(219,39,119,0.40); }
+  .c03 .phone.light .eyebrow { color: #db2777; text-shadow: none; }
+  .c03 .phone.light .page-sub { color: #6d28d9; }
+  .c03-carousel {
+    display: flex; gap: 7px;
+    padding: 10px 14px 0;
+    height: 100px;
+    position: relative; z-index: 6;
+  }
+  .c03-carousel .thumb {
+    flex: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 2px rgba(255,43,214,0.85),
+      0 0 18px rgba(255,43,214,0.55);
+  }
+  .c03-carousel .thumb:nth-child(2) {
+    box-shadow:
+      0 0 0 2px rgba(0,240,255,0.85),
+      0 0 18px rgba(0,240,255,0.55);
+  }
+  .c03-carousel .thumb:nth-child(3) {
+    box-shadow:
+      0 0 0 2px rgba(255,228,77,0.85),
+      0 0 18px rgba(255,228,77,0.55);
+  }
+  .c03-rows {
+    padding: 12px 14px 0;
+    display: flex; flex-direction: column; gap: 8px;
+    position: relative; z-index: 6;
+  }
+  .c03-row {
+    background: rgba(10,0,30,0.62);
+    border-radius: 10px;
+    padding: 9px 11px;
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto;
+    gap: 9px;
+    align-items: center;
+    backdrop-filter: blur(6px);
+  }
+  .c03 .phone.light .c03-row {
+    background: rgba(255,255,255,0.50);
+  }
+  .c03-row.r1 { box-shadow: 0 0 0 1.5px rgba(255,43,214,0.85), 0 0 14px rgba(255,43,214,0.40); }
+  .c03-row.r2 { box-shadow: 0 0 0 1.5px rgba(0,240,255,0.85), 0 0 14px rgba(0,240,255,0.40); }
+  .c03-row.r3 { box-shadow: 0 0 0 1.5px rgba(255,228,77,0.85), 0 0 14px rgba(255,228,77,0.40); }
+  .c03-row .ic {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 12px;
+  }
+  .c03-row.r1 .ic { background: rgba(255,43,214,0.18); color: #ff2bd6; text-shadow: 0 0 5px rgba(255,43,214,0.7); }
+  .c03-row.r2 .ic { background: rgba(0,240,255,0.18); color: #00f0ff; text-shadow: 0 0 5px rgba(0,240,255,0.7); }
+  .c03-row.r3 .ic { background: rgba(255,228,77,0.18); color: #ffe44d; text-shadow: 0 0 5px rgba(255,228,77,0.7); }
+  .c03-row .lbl {
+    font: 700 10px 'Orbitron', sans-serif;
+    letter-spacing: 0.05em;
+    color: #fff;
+  }
+  .c03 .phone.light .c03-row .lbl { color: #4c1d95; }
+  .c03-row .val {
+    font: 600 9px 'JetBrains Mono', monospace;
+    color: rgba(255,255,255,0.85);
+  }
+  .c03 .phone.light .c03-row .val { color: #6d28d9; }
+  .c03-row .chev { color: rgba(255,255,255,0.6); font-size: 10px; }
+  .c03-cta {
+    margin: 14px 14px 12px;
+    position: relative; z-index: 6;
+    height: 46px;
+    border-radius: 6px;
+    border: 2px solid #ffe44d;
+    background: linear-gradient(135deg, rgba(255,43,214,0.45), rgba(0,240,255,0.45));
+    color: #ffe44d;
+    font: 800 13px 'Orbitron', sans-serif;
+    letter-spacing: 0.12em;
+    display: flex; align-items: center; justify-content: center;
+    text-shadow: 0 0 10px rgba(255,228,77,0.9), 0 0 4px rgba(0,0,0,0.6);
+    box-shadow:
+      0 0 0 2px rgba(255,228,77,0.30),
+      0 0 24px rgba(255,228,77,0.45),
+      inset 0 0 12px rgba(255,43,214,0.30);
+  }
+  .c03 .phone.light .c03-cta {
+    background: linear-gradient(135deg, rgba(219,39,119,0.50), rgba(6,182,212,0.50));
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(219,39,119,0.7);
+    border-color: #db2777;
+    box-shadow: 0 0 0 2px rgba(219,39,119,0.30), 0 0 20px rgba(219,39,119,0.35);
+  }
+  /* C03 sheet */
+  .c03-sheet {
+    background: linear-gradient(180deg, rgba(10,0,30,0.96), rgba(60,0,90,0.96));
+    border-top: 2px solid #ff2bd6;
+    box-shadow: 0 -8px 30px rgba(255,43,214,0.40);
+  }
+  .c03 .phone.light .c03-sheet {
+    background: linear-gradient(180deg, rgba(252,231,243,0.97), rgba(196,181,253,0.97));
+    border-top: 2px solid #db2777;
+  }
+  .c03-sheet .sheet-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    color: #00f0ff;
+    text-shadow: 0 0 8px rgba(0,240,255,0.6);
+    letter-spacing: 0.08em;
+    font-size: 14px;
+  }
+  .c03 .phone.light .c03-sheet .sheet-title { color: #db2777; text-shadow: none; }
+  .c03-sheet .cat-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    font: 700 10px 'Orbitron', sans-serif;
+    color: #fff;
+    margin-bottom: 4px;
+    border-left: 2px solid transparent;
+  }
+  .c03 .phone.light .c03-sheet .cat-row { color: #4c1d95; }
+  .c03-sheet .cat-row.active {
+    background: rgba(255,228,77,0.12);
+    border-left-color: #ffe44d;
+  }
+  .c03 .phone.light .c03-sheet .cat-row.active { background: rgba(219,39,119,0.10); border-left-color: #db2777; }
+  .c03-sheet .cat-row .ic {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .c03-sheet .cat-row .check { font-size: 11px; color: #ffe44d; }
+  .c03 .phone.light .c03-sheet .cat-row .check { color: #db2777; }
+
+  /* ─────────── CONCEPT 04 — EDITORIAL MAGAZINE ─────────── */
+  .c04 .screen { padding-bottom: 4px; }
+  .c04 .page-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 28px;
+    letter-spacing: -0.025em;
+  }
+  .c04 .eyebrow {
+    font: 400 9px 'Cormorant Garamond', serif;
+    font-style: italic;
+    letter-spacing: 0.30em;
+  }
+  .phone.light .c04 .eyebrow { color: var(--ios-text); }
+  .phone.dark  .c04 .eyebrow { color: var(--bg-gold-bright); }
+  .c04 .page-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+  }
+  .c04-carousel {
+    position: relative;
+    height: 110px;
+    margin: 14px 18px 0;
+  }
+  .c04-carousel .thumb {
+    position: absolute;
+    width: 56%;
+    height: 100px;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+  }
+  .c04-carousel .thumb:nth-child(1) {
+    top: 0; left: 0; transform: rotate(-3deg);
+    width: 52%;
+  }
+  .c04-carousel .thumb:nth-child(2) {
+    top: 8px; left: 28%; transform: rotate(1deg);
+    width: 54%; z-index: 2;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.30);
+  }
+  .c04-carousel .thumb:nth-child(3) {
+    top: 4px; right: 0; transform: rotate(4deg);
+    width: 50%;
+  }
+  .c04-carousel .thumb .caption {
+    position: absolute; left: 4px; bottom: 4px;
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+  .c04-rows {
+    padding: 14px 22px 0;
+    display: flex; flex-direction: column;
+  }
+  .c04-row {
+    display: grid;
+    grid-template-columns: 22px 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 0.5px solid rgba(0,0,0,0.18);
+  }
+  .phone.dark .c04-row { border-top-color: rgba(245,244,238,0.12); }
+  .c04-row:last-child { border-bottom: 0.5px solid rgba(0,0,0,0.18); }
+  .phone.dark .c04-row:last-child { border-bottom-color: rgba(245,244,238,0.12); }
+  .c04-row .num {
+    font: 400 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.15em;
+  }
+  .phone.light .c04-row .num { color: var(--ios-text-dim); }
+  .phone.dark  .c04-row .num { color: var(--bg-gold-deep); }
+  .c04-row .lbl {
+    font: 400 13px 'Fraunces', serif;
+    font-style: italic;
+    letter-spacing: -0.01em;
+  }
+  .phone.light .c04-row .lbl { color: var(--ios-text); }
+  .phone.dark  .c04-row .lbl { color: var(--bg-text); }
+  .c04-row .val {
+    font: 400 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .phone.light .c04-row .val { color: var(--ios-text-soft); }
+  .phone.dark  .c04-row .val { color: var(--bg-gold-bright); }
+  .c04-row .chev {
+    font: 200 12px 'Fraunces', serif;
+    font-style: italic;
+    opacity: 0.5;
+  }
+  .c04-cta {
+    margin: 18px 22px 14px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(0,0,0,0.5);
+    border-bottom: 1px solid rgba(0,0,0,0.5);
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    position: relative;
+  }
+  .phone.dark .c04-cta {
+    border-color: var(--bg-gold-bright);
+    color: var(--bg-gold-bright);
+  }
+  .phone.light .c04-cta { color: var(--ios-text); }
+  .c04-cta::after {
+    content: ' →';
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 200;
+  }
+  /* C04 sheet */
+  .c04-sheet {
+    background: #f7f5f0;
+    color: var(--ios-text);
+  }
+  .phone.dark .c04-sheet {
+    background: #1a1a25;
+  }
+  .c04-sheet .sheet-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+  }
+  .c04-sheet .sheet-eyebrow {
+    text-align: center;
+    font: 400 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.28em;
+    opacity: 0.5;
+    margin-bottom: 4px;
+  }
+  .phone.dark .c04-sheet .sheet-eyebrow { color: var(--bg-gold-deep); }
+  .c04-sheet .cat-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 11px 4px;
+    border-top: 0.5px solid rgba(0,0,0,0.15);
+    font: 400 12px 'Fraunces', serif;
+    font-style: italic;
+    position: relative;
+  }
+  .phone.dark .c04-sheet .cat-row {
+    border-top-color: rgba(245,244,238,0.10);
+    color: var(--bg-text);
+  }
+  .c04-sheet .cat-row .num {
+    font: 500 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.12em;
+    opacity: 0.5;
+  }
+  .phone.dark .c04-sheet .cat-row .num { color: var(--bg-gold-deep); }
+  .c04-sheet .cat-row.active::after {
+    content: '';
+    position: absolute;
+    left: 32px; right: 30px; bottom: 6px;
+    height: 1px;
+    background: var(--ios-text);
+  }
+  .phone.dark .c04-sheet .cat-row.active::after { background: var(--bg-gold-bright); }
+  .c04-sheet .cat-row .check {
+    font: 400 11px 'Fraunces', serif;
+    font-style: italic;
+  }
+  .phone.dark .c04-sheet .cat-row .check { color: var(--bg-gold-bright); }
+
+  /* ─────────── CONCEPT 05 — CONTROL CENTER (glass widgets) ─────────── */
+  .c05 .screen {
+    position: relative;
+  }
+  .c05 .phone.light .screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(10,132,255,0.18), transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255,159,10,0.12), transparent 55%);
+    z-index: 0;
+  }
+  .c05 .phone.dark .screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 25% 12%, rgba(245,214,118,0.10), transparent 55%),
+      radial-gradient(circle at 78% 78%, rgba(212,175,55,0.08), transparent 60%),
+      radial-gradient(circle at 50% 50%, rgba(10,132,255,0.05), transparent 60%);
+    z-index: 0;
+  }
+  .c05-carousel {
+    display: flex; gap: 8px;
+    padding: 12px 14px 0;
+    height: 110px;
+    position: relative; z-index: 2;
+    perspective: 800px;
+  }
+  .c05-carousel .thumb {
+    flex: 1;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    backdrop-filter: blur(8px);
+  }
+  .c05-carousel .thumb:nth-child(1) { transform: translateY(0px); }
+  .c05-carousel .thumb:nth-child(2) { transform: translateY(-6px); }
+  .c05-carousel .thumb:nth-child(3) { transform: translateY(0px); }
+  .c05-carousel .thumb::after {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 16px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.4),
+      0 8px 18px rgba(0,0,0,0.18);
+    pointer-events: none;
+  }
+  .c05-rows {
+    padding: 14px 14px 0;
+    display: flex; flex-direction: column; gap: 8px;
+    position: relative; z-index: 2;
+  }
+  .c05-row {
+    border-radius: 16px;
+    padding: 11px 12px;
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    backdrop-filter: blur(14px);
+    position: relative;
+  }
+  .phone.light .c05-row {
+    background: rgba(255,255,255,0.65);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.9),
+      0 6px 16px rgba(60,60,67,0.10);
+  }
+  .phone.dark .c05-row {
+    background: rgba(30,30,44,0.62);
+    box-shadow:
+      inset 0 1px 0 rgba(212,175,55,0.18),
+      0 6px 16px rgba(0,0,0,0.30);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+  .c05-row .ic-tile {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #fff;
+    position: relative; overflow: hidden;
+  }
+  .c05-row .ic-tile::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.30), transparent 50%);
+  }
+  .c05-row.r1 .ic-tile { background: linear-gradient(135deg, #0A84FF, #5E5CE6); }
+  .c05-row.r2 .ic-tile { background: linear-gradient(135deg, #BF5AF2, #FF375F); }
+  .c05-row.r3 .ic-tile { background: linear-gradient(135deg, #FF9F0A, #FFD60A); }
+  .phone.dark .c05-row.r1 .ic-tile { background: linear-gradient(135deg, #5AC8FA, #0A84FF); box-shadow: 0 0 0 1px rgba(212,175,55,0.30); }
+  .phone.dark .c05-row.r2 .ic-tile { background: linear-gradient(135deg, #F5D676, #D4AF37); color: #14141F; box-shadow: 0 0 0 1px rgba(212,175,55,0.30); }
+  .phone.dark .c05-row.r3 .ic-tile { background: linear-gradient(135deg, #BF5AF2, #5E5CE6); box-shadow: 0 0 0 1px rgba(212,175,55,0.30); }
+  .c05-row .lbl { font: 600 11px 'Inter', sans-serif; }
+  .phone.light .c05-row .lbl { color: var(--ios-text); }
+  .phone.dark  .c05-row .lbl { color: var(--bg-text); }
+  .c05-row .val {
+    font: 600 9.5px 'JetBrains Mono', monospace;
+    padding: 3px 7px;
+    border-radius: 7px;
+  }
+  .phone.light .c05-row .val {
+    color: var(--ios-blue);
+    background: var(--ios-blue-soft);
+  }
+  .phone.dark .c05-row .val {
+    color: var(--bg-gold-bright);
+    background: rgba(212,175,55,0.10);
+    border: 1px solid rgba(212,175,55,0.25);
+  }
+  .c05-row .chev { font-size: 10px; opacity: 0.4; }
+  .c05-cta {
+    margin: 14px 14px 12px;
+    position: relative; z-index: 2;
+    height: 50px;
+    border-radius: 25px;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 13px 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+    backdrop-filter: blur(18px);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.10));
+    color: var(--ios-blue);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.9),
+      0 10px 24px rgba(10,132,255,0.25);
+    border: 1px solid rgba(10,132,255,0.40);
+  }
+  .phone.dark .c05-cta {
+    background:
+      linear-gradient(180deg, rgba(245,214,118,0.18), rgba(212,175,55,0.08));
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.45);
+    box-shadow:
+      inset 0 1px 0 rgba(245,214,118,0.30),
+      0 10px 24px rgba(212,175,55,0.25);
+  }
+  .c05-cta::before {
+    content: '▶';
+    margin-right: 7px;
+    font-size: 10px;
+  }
+  /* C05 sheet */
+  .c05-sheet {
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.85);
+  }
+  .phone.dark .c05-sheet {
+    background: rgba(20,20,31,0.85);
+    border-top: 1px solid rgba(212,175,55,0.20);
+  }
+  .c05-sheet .cat-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 9px 10px;
+    margin-bottom: 4px;
+    border-radius: 10px;
+    font: 500 11px 'Inter', sans-serif;
+  }
+  .phone.light .c05-sheet .cat-row {
+    background: rgba(255,255,255,0.55);
+    color: var(--ios-text);
+  }
+  .phone.dark .c05-sheet .cat-row {
+    background: rgba(30,30,44,0.50);
+    color: var(--bg-text);
+    border: 1px solid rgba(212,175,55,0.12);
+  }
+  .c05-sheet .cat-row .ic-tile {
+    width: 24px; height: 24px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px;
+    position: relative; overflow: hidden;
+  }
+  .c05-sheet .cat-row .ic-tile::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.30), transparent 50%);
+  }
+  .c05-sheet .cat-row .check {
+    font-size: 11px;
+    color: var(--ios-blue);
+    font-weight: 700;
+  }
+  .phone.dark .c05-sheet .cat-row .check { color: var(--bg-gold-bright); }
+  .c05-sheet .cat-row .chev { font-size: 10px; opacity: 0.4; }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--hairline);
+    display: flex; justify-content: space-between; align-items: center;
+    font: 600 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer .right { color: var(--text-faint); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Pixora <span class="ornament">·</span> <em>Daily Page</em> <span class="ornament">·</span> <span class="accent">5 Conceptos</span></h1>
+    <p class="subtitle">
+      <strong>Pixora Daily configurator</strong> — más estilizado, mejor fondo, mejor iconografía, <em>more epic</em>.
+      Cada concepto entrega <strong>4 mockups</strong>: página principal en iOS White + B&amp;G, y la <em>category sheet</em> en ambos.
+      El reto es elevar la página de <em>"letras blancas planas"</em> a algo que se sienta como el clímax de la app.
+    </p>
+    <div class="header-rule">
+      <span>Concepts · 01—05</span>
+      <span class="line"></span>
+      <span>Both themes · Both screens · 20 phones total</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+  <!-- ═══════════ CONCEPT 01 — HOLOGRAPHIC FOIL SYSTEM ═══════════ -->
+  <section class="concept c01">
+    <div class="concept-row">
+      <div class="phones">
+
+        <!-- iOS — main page -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Main</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">Pixora · Daily</div>
+                <div class="page-title">Pixora Daily</div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c01-carousel">
+                <div class="thumb"><div class="thumb-inner wp-aurora"></div></div>
+                <div class="thumb"><div class="thumb-inner wp-ocean"></div></div>
+                <div class="thumb"><div class="thumb-inner wp-fire"></div></div>
+              </div>
+              <div class="c01-rows">
+                <div class="c01-row"><div class="ic">⏱</div><div class="lbl">Frecuencia</div><div class="val">5 min</div><div class="chev">›</div></div>
+                <div class="c01-row"><div class="ic">▦</div><div class="lbl">Aplicar a</div><div class="val">Ambas</div><div class="chev">›</div></div>
+                <div class="c01-row"><div class="ic">◈</div><div class="lbl">Categoría</div><div class="val">Todas</div><div class="chev">›</div></div>
+              </div>
+              <div class="c01-cta">▶ ACTIVAR DAILY</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- iOS — sheet -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Sheet</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">Pixora · Daily</div>
+                <div class="page-title">Pixora Daily</div>
+              </div>
+              <div class="c01-carousel">
+                <div class="thumb"><div class="thumb-inner wp-aurora"></div></div>
+                <div class="thumb"><div class="thumb-inner wp-ocean"></div></div>
+                <div class="thumb"><div class="thumb-inner wp-fire"></div></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c01-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-title">Categoría</div>
+                <div class="cat-row active"><div class="mini">★</div><span>Todas las categorías</span><span class="check">✓</span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#0A84FF,#5E5CE6)">◆</div><span>Pixora Daily (curado)</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#BF5AF2,#FF375F)">▭</div><span>Solo panorámicos</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#30D158,#5AC8FA)">❀</div><span>Naturaleza</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#FF375F,#FF9F0A)">✦</div><span>Anime</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#5E5CE6,#0A84FF)">▶</div><span>Gaming</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#5AC8FA,#BF5AF2)">◉</div><span>Sci-Fi</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#FF9F0A,#FF375F)">♛</div><span>Fantasía</span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G — main page -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Main</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">Pixora · Daily</div>
+                <div class="page-title">Pixora Daily</div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c01-carousel">
+                <div class="thumb"><div class="thumb-inner wp-fire"></div></div>
+                <div class="thumb"><div class="thumb-inner wp-mystic"></div></div>
+                <div class="thumb"><div class="thumb-inner wp-aurora"></div></div>
+              </div>
+              <div class="c01-rows">
+                <div class="c01-row"><div class="ic">⏱</div><div class="lbl">Frecuencia</div><div class="val">5 min</div><div class="chev">›</div></div>
+                <div class="c01-row"><div class="ic">▦</div><div class="lbl">Aplicar a</div><div class="val">Ambas</div><div class="chev">›</div></div>
+                <div class="c01-row"><div class="ic">◈</div><div class="lbl">Categoría</div><div class="val">Todas</div><div class="chev">›</div></div>
+              </div>
+              <div class="c01-cta">▶ ACTIVAR DAILY</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G — sheet -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Sheet</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">Pixora · Daily</div>
+                <div class="page-title">Pixora Daily</div>
+              </div>
+              <div class="c01-carousel">
+                <div class="thumb"><div class="thumb-inner wp-fire"></div></div>
+                <div class="thumb"><div class="thumb-inner wp-mystic"></div></div>
+                <div class="thumb"><div class="thumb-inner wp-aurora"></div></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c01-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-title">Categoría</div>
+                <div class="cat-row active"><div class="mini">★</div><span>Todas las categorías</span><span class="check">✓</span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#F5D676,#D4AF37)">◆</div><span>Pixora Daily (curado)</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#BF5AF2,#5E5CE6)">▭</div><span>Solo panorámicos</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#30D158,#5AC8FA)">❀</div><span>Naturaleza</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#FF375F,#FF9F0A)">✦</div><span>Anime</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#5AC8FA,#5E5CE6)">▶</div><span>Gaming</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#F5D676,#BF5AF2)">◉</div><span>Sci-Fi</span><span></span></div>
+                <div class="cat-row"><div class="mini" style="background:linear-gradient(135deg,#FF9F0A,#D4AF37)">♛</div><span>Fantasía</span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <aside class="meta">
+        <div class="meta-eyebrow">NO. 01</div>
+        <h2>Holographic Foil System</h2>
+        <p class="tagline">Consistencia total con el lenguaje de la app. Foil animado en thumbs, en rows y en el CTA. Cada categoría tiene su mini-tile holográfico.</p>
+        <div class="swatches-row">
+          <span class="lbl">iOS</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#FFFFFF"></div>
+            <div class="swatch" style="background:#0A84FF"></div>
+            <div class="swatch" style="background:#FF2BD6"></div>
+            <div class="swatch" style="background:#00F0FF"></div>
+          </div>
+        </div>
+        <div class="swatches-row">
+          <span class="lbl">B&amp;G</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#070710"></div>
+            <div class="swatch" style="background:#14141F"></div>
+            <div class="swatch" style="background:#D4AF37"></div>
+            <div class="swatch" style="background:#F5D676"></div>
+          </div>
+        </div>
+        <div class="verdict">
+          <span class="pro">Habla el mismo idioma que HOME / LIVE / 3D / Static — foil consistency.</span>
+          <span class="pro">CTA "ACTIVAR DAILY" se siente como un trading-card final.</span>
+          <span class="con">Puede ser demasiado foil para la app si todo lo usa.</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═══════════ CONCEPT 02 — APPLE PREMIUM SETTINGS ═══════════ -->
+  <section class="concept c02">
+    <div class="concept-row">
+      <div class="phones">
+
+        <!-- iOS main -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Main</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="page-title">Pixora Daily</div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c02-carousel">
+                <div class="thumb wp-aurora"></div>
+                <div class="thumb wp-ocean"></div>
+                <div class="thumb wp-fire"></div>
+              </div>
+              <div class="c02-rows">
+                <div class="c02-rows-card">
+                  <div class="c02-row r1"><div class="ic">⏱</div><div class="lbl">Frecuencia</div><div class="val">cada 5 min</div><div class="chev">›</div></div>
+                  <div class="c02-row r2"><div class="ic">▦</div><div class="lbl">Aplicar a</div><div class="val">Ambas</div><div class="chev">›</div></div>
+                  <div class="c02-row r3"><div class="ic">◈</div><div class="lbl">Categoría</div><div class="val">Todas</div><div class="chev">›</div></div>
+                </div>
+              </div>
+              <div class="c02-cta">Activar Daily</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- iOS sheet -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Sheet</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="page-title">Pixora Daily</div>
+              </div>
+              <div class="c02-carousel">
+                <div class="thumb wp-aurora"></div>
+                <div class="thumb wp-ocean"></div>
+                <div class="thumb wp-fire"></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c02-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-title">Categoría</div>
+                <div class="cat-row"><div class="ic" style="background:#FF9F0A">★</div><span>Todas las categorías</span><span class="check">✓</span></div>
+                <div class="cat-row"><div class="ic" style="background:#0A84FF">◆</div><span>Pixora Daily (curado)</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#BF5AF2">▭</div><span>Solo panorámicos</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#30D158">❀</div><span>Naturaleza</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#FF375F">✦</div><span>Anime</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#5E5CE6">▶</div><span>Gaming</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#5AC8FA">◉</div><span>Sci-Fi</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#FFD60A;color:#1C1C1E">♛</div><span>Fantasía</span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G main -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Main</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="page-title">Pixora Daily</div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c02-carousel">
+                <div class="thumb wp-fire"></div>
+                <div class="thumb wp-mystic"></div>
+                <div class="thumb wp-aurora"></div>
+              </div>
+              <div class="c02-rows">
+                <div class="c02-rows-card">
+                  <div class="c02-row r1"><div class="ic">⏱</div><div class="lbl">Frecuencia</div><div class="val">cada 5 min</div><div class="chev">›</div></div>
+                  <div class="c02-row r2"><div class="ic">▦</div><div class="lbl">Aplicar a</div><div class="val">Ambas</div><div class="chev">›</div></div>
+                  <div class="c02-row r3"><div class="ic">◈</div><div class="lbl">Categoría</div><div class="val">Todas</div><div class="chev">›</div></div>
+                </div>
+              </div>
+              <div class="c02-cta">Activar Daily</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G sheet -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Sheet</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="page-title">Pixora Daily</div>
+              </div>
+              <div class="c02-carousel">
+                <div class="thumb wp-fire"></div>
+                <div class="thumb wp-mystic"></div>
+                <div class="thumb wp-aurora"></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c02-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-title">Categoría</div>
+                <div class="cat-row"><div class="ic" style="background:#F5D676;color:#14141F">★</div><span>Todas las categorías</span><span class="check">✓</span></div>
+                <div class="cat-row"><div class="ic" style="background:#D4AF37;color:#14141F">◆</div><span>Pixora Daily (curado)</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#BF5AF2">▭</div><span>Solo panorámicos</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#30D158">❀</div><span>Naturaleza</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#FF375F">✦</div><span>Anime</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#5E5CE6">▶</div><span>Gaming</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#5AC8FA">◉</div><span>Sci-Fi</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:#FFD60A;color:#1C1C1E">♛</div><span>Fantasía</span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <aside class="meta">
+        <div class="meta-eyebrow">NO. 02</div>
+        <h2>Apple Premium Settings</h2>
+        <p class="tagline">iOS-nativo puro: rounded surface cards, iconos cuadrados con color por fila, sheet con grabber y check icónico. Cero curva de aprendizaje.</p>
+        <div class="swatches-row">
+          <span class="lbl">iOS</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#FFFFFF"></div>
+            <div class="swatch" style="background:#F2F2F7"></div>
+            <div class="swatch" style="background:#0A84FF"></div>
+            <div class="swatch" style="background:#FF9F0A"></div>
+          </div>
+        </div>
+        <div class="swatches-row">
+          <span class="lbl">B&amp;G</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#070710"></div>
+            <div class="swatch" style="background:#1E1E2C"></div>
+            <div class="swatch" style="background:#D4AF37"></div>
+            <div class="swatch" style="background:#F5D676"></div>
+          </div>
+        </div>
+        <div class="verdict">
+          <span class="pro">Ultra-recognizable iOS Settings / Health / Screen Time aesthetic.</span>
+          <span class="pro">Cada fila tiene su propio acento de color (azul, púrpura, naranja) — bueno para escaneo.</span>
+          <span class="con">Menos distintivo de Pixora — pasa más como Apple que como nosotros.</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═══════════ CONCEPT 03 — SYNTHWAVE DAILY ═══════════ -->
+  <section class="concept c03">
+    <div class="concept-row">
+      <div class="phones">
+
+        <!-- iOS main -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Main</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="c03-header">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="c03-title">PIXORA DAILY</div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c03-carousel">
+                <div class="thumb wp-aurora"></div>
+                <div class="thumb wp-ocean"></div>
+                <div class="thumb wp-fire"></div>
+              </div>
+              <div class="c03-rows">
+                <div class="c03-row r1"><div class="ic">⏱</div><div class="lbl">FRECUENCIA</div><div class="val">5 MIN</div><div class="chev">›</div></div>
+                <div class="c03-row r2"><div class="ic">▦</div><div class="lbl">APLICAR A</div><div class="val">AMBAS</div><div class="chev">›</div></div>
+                <div class="c03-row r3"><div class="ic">◈</div><div class="lbl">CATEGORÍA</div><div class="val">TODAS</div><div class="chev">›</div></div>
+              </div>
+              <div class="c03-cta">▶ ACTIVAR DAILY</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- iOS sheet -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Sheet</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="c03-header">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="c03-title">PIXORA DAILY</div>
+              </div>
+              <div class="c03-carousel">
+                <div class="thumb wp-aurora"></div>
+                <div class="thumb wp-ocean"></div>
+                <div class="thumb wp-fire"></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c03-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-title">CATEGORÍA</div>
+                <div class="cat-row active"><div class="ic" style="background:rgba(255,228,77,0.30);color:#db2777">★</div><span>TODAS</span><span class="check">✓</span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(255,43,214,0.20);color:#db2777">◆</div><span>PIXORA DAILY (CURADO)</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(0,240,255,0.25);color:#06b6d4">▭</div><span>SOLO PANORÁMICOS</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(74,222,128,0.30);color:#15803d">❀</div><span>NATURALEZA</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(255,43,214,0.20);color:#db2777">✦</div><span>ANIME</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(124,58,237,0.25);color:#7c3aed">▶</div><span>GAMING</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(0,240,255,0.25);color:#06b6d4">◉</div><span>SCI-FI</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(255,159,10,0.30);color:#ea580c">♛</div><span>FANTASÍA</span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G main -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Main</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="c03-header">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="c03-title">PIXORA DAILY</div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c03-carousel">
+                <div class="thumb wp-fire"></div>
+                <div class="thumb wp-mystic"></div>
+                <div class="thumb wp-aurora"></div>
+              </div>
+              <div class="c03-rows">
+                <div class="c03-row r1"><div class="ic">⏱</div><div class="lbl">FRECUENCIA</div><div class="val">5 MIN</div><div class="chev">›</div></div>
+                <div class="c03-row r2"><div class="ic">▦</div><div class="lbl">APLICAR A</div><div class="val">AMBAS</div><div class="chev">›</div></div>
+                <div class="c03-row r3"><div class="ic">◈</div><div class="lbl">CATEGORÍA</div><div class="val">TODAS</div><div class="chev">›</div></div>
+              </div>
+              <div class="c03-cta">▶ ACTIVAR DAILY</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G sheet -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Sheet</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="c03-header">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="c03-title">PIXORA DAILY</div>
+              </div>
+              <div class="c03-carousel">
+                <div class="thumb wp-fire"></div>
+                <div class="thumb wp-mystic"></div>
+                <div class="thumb wp-aurora"></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c03-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-title">CATEGORÍA</div>
+                <div class="cat-row active"><div class="ic" style="background:rgba(245,214,118,0.18);color:#F5D676">★</div><span>TODAS</span><span class="check">✓</span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(245,214,118,0.18);color:#F5D676">◆</div><span>PIXORA DAILY (CURADO)</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(0,240,255,0.20);color:#00f0ff">▭</div><span>SOLO PANORÁMICOS</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(74,222,128,0.20);color:#4ade80">❀</div><span>NATURALEZA</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(255,43,214,0.20);color:#ff2bd6">✦</div><span>ANIME</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(124,58,237,0.20);color:#a855f7">▶</div><span>GAMING</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(0,240,255,0.20);color:#00f0ff">◉</div><span>SCI-FI</span><span></span></div>
+                <div class="cat-row"><div class="ic" style="background:rgba(255,159,10,0.20);color:#ff9f0a">♛</div><span>FANTASÍA</span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <aside class="meta">
+        <div class="meta-eyebrow">NO. 03</div>
+        <h2>Synthwave Daily</h2>
+        <p class="tagline">Tron / arcade / Sunset 80s. Horizon-grid de fondo, scanlines en CRT, neón outline por fila con su propio color, CTA tipo botón de arcade.</p>
+        <div class="swatches-row">
+          <span class="lbl">iOS</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#fce7f3"></div>
+            <div class="swatch" style="background:#c4b5fd"></div>
+            <div class="swatch" style="background:#db2777"></div>
+            <div class="swatch" style="background:#06b6d4"></div>
+          </div>
+        </div>
+        <div class="swatches-row">
+          <span class="lbl">B&amp;G</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#1a0033"></div>
+            <div class="swatch" style="background:#ff2bd6"></div>
+            <div class="swatch" style="background:#00f0ff"></div>
+            <div class="swatch" style="background:#ffe44d"></div>
+          </div>
+        </div>
+        <div class="verdict">
+          <span class="pro">Hace que "Daily" se sienta como abrir un arcade — energía pura.</span>
+          <span class="pro">Distintivo de cualquier otra app de wallpapers — memorable.</span>
+          <span class="con">Aesthetic muy nichoso, choca con géneros tranquilos (naturaleza, AURA).</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═══════════ CONCEPT 04 — EDITORIAL MAGAZINE ═══════════ -->
+  <section class="concept c04">
+    <div class="concept-row">
+      <div class="phones">
+
+        <!-- iOS main -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Main</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">— pixora · daily issue 074</div>
+                <div class="page-title c04-title">Pixora <em>Daily</em></div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c04-carousel">
+                <div class="thumb wp-aurora"><span class="caption">01 · AURORA</span></div>
+                <div class="thumb wp-ocean"><span class="caption">02 · OCEAN</span></div>
+                <div class="thumb wp-fire"><span class="caption">03 · EMBER</span></div>
+              </div>
+              <div class="c04-rows">
+                <div class="c04-row"><span class="num">01.</span><span class="lbl">Frecuencia</span><span class="val">5 MIN</span><span class="chev">→</span></div>
+                <div class="c04-row"><span class="num">02.</span><span class="lbl">Aplicar a</span><span class="val">AMBAS</span><span class="chev">→</span></div>
+                <div class="c04-row"><span class="num">03.</span><span class="lbl">Categoría</span><span class="val">TODAS</span><span class="chev">→</span></div>
+              </div>
+              <div class="c04-cta">Activar Daily</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- iOS sheet -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Sheet</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">— pixora · daily issue 074</div>
+                <div class="page-title c04-title">Pixora <em>Daily</em></div>
+              </div>
+              <div class="c04-carousel">
+                <div class="thumb wp-aurora"><span class="caption">01 · AURORA</span></div>
+                <div class="thumb wp-ocean"><span class="caption">02 · OCEAN</span></div>
+                <div class="thumb wp-fire"><span class="caption">03 · EMBER</span></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c04-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-eyebrow">— TABLE OF CONTENTS</div>
+                <div class="sheet-title"><em>Categoría</em></div>
+                <div class="cat-row active"><span class="num">00</span><span>Todas las categorías</span><span class="check">✓</span></div>
+                <div class="cat-row"><span class="num">01</span><span>Pixora Daily (curado)</span><span></span></div>
+                <div class="cat-row"><span class="num">02</span><span>Solo panorámicos</span><span></span></div>
+                <div class="cat-row"><span class="num">03</span><span>Naturaleza</span><span></span></div>
+                <div class="cat-row"><span class="num">04</span><span>Anime</span><span></span></div>
+                <div class="cat-row"><span class="num">05</span><span>Gaming</span><span></span></div>
+                <div class="cat-row"><span class="num">06</span><span>Sci-Fi</span><span></span></div>
+                <div class="cat-row"><span class="num">07</span><span>Fantasía</span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G main -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Main</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">— pixora · daily issue 074</div>
+                <div class="page-title c04-title">Pixora <em>Daily</em></div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c04-carousel">
+                <div class="thumb wp-fire"><span class="caption">01 · EMBER</span></div>
+                <div class="thumb wp-mystic"><span class="caption">02 · ARCANE</span></div>
+                <div class="thumb wp-aurora"><span class="caption">03 · AURORA</span></div>
+              </div>
+              <div class="c04-rows">
+                <div class="c04-row"><span class="num">01.</span><span class="lbl">Frecuencia</span><span class="val">5 MIN</span><span class="chev">→</span></div>
+                <div class="c04-row"><span class="num">02.</span><span class="lbl">Aplicar a</span><span class="val">AMBAS</span><span class="chev">→</span></div>
+                <div class="c04-row"><span class="num">03.</span><span class="lbl">Categoría</span><span class="val">TODAS</span><span class="chev">→</span></div>
+              </div>
+              <div class="c04-cta">Activar Daily</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G sheet -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Sheet</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">— pixora · daily issue 074</div>
+                <div class="page-title c04-title">Pixora <em>Daily</em></div>
+              </div>
+              <div class="c04-carousel">
+                <div class="thumb wp-fire"><span class="caption">01 · EMBER</span></div>
+                <div class="thumb wp-mystic"><span class="caption">02 · ARCANE</span></div>
+                <div class="thumb wp-aurora"><span class="caption">03 · AURORA</span></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c04-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-eyebrow">— TABLE OF CONTENTS</div>
+                <div class="sheet-title"><em>Categoría</em></div>
+                <div class="cat-row active"><span class="num">00</span><span>Todas las categorías</span><span class="check">✓</span></div>
+                <div class="cat-row"><span class="num">01</span><span>Pixora Daily (curado)</span><span></span></div>
+                <div class="cat-row"><span class="num">02</span><span>Solo panorámicos</span><span></span></div>
+                <div class="cat-row"><span class="num">03</span><span>Naturaleza</span><span></span></div>
+                <div class="cat-row"><span class="num">04</span><span>Anime</span><span></span></div>
+                <div class="cat-row"><span class="num">05</span><span>Gaming</span><span></span></div>
+                <div class="cat-row"><span class="num">06</span><span>Sci-Fi</span><span></span></div>
+                <div class="cat-row"><span class="num">07</span><span>Fantasía</span><span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <aside class="meta">
+        <div class="meta-eyebrow">NO. 04</div>
+        <h2>Editorial Magazine</h2>
+        <p class="tagline">T Magazine / Apartamento / The Gentlewoman. Carousel como spread de revista, rows con número de serie + Fraunces italic, sheet como Table of Contents.</p>
+        <div class="swatches-row">
+          <span class="lbl">iOS</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#FFFFFF"></div>
+            <div class="swatch" style="background:#f7f5f0"></div>
+            <div class="swatch" style="background:#1C1C1E"></div>
+            <div class="swatch" style="background:#8E8E93"></div>
+          </div>
+        </div>
+        <div class="swatches-row">
+          <span class="lbl">B&amp;G</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#070710"></div>
+            <div class="swatch" style="background:#1a1a25"></div>
+            <div class="swatch" style="background:#D4AF37"></div>
+            <div class="swatch" style="background:#F5D676"></div>
+          </div>
+        </div>
+        <div class="verdict">
+          <span class="pro">Refined, premium, envejece bien — no se siente "trendy" pasajero.</span>
+          <span class="pro">El system de numeración (01—07) ordena visualmente la sheet.</span>
+          <span class="con">Menos lúdico — puede sentirse austero si el usuario espera más juego.</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═══════════ CONCEPT 05 — CONTROL CENTER (glass widgets) ═══════════ -->
+  <section class="concept c05">
+    <div class="concept-row">
+      <div class="phones">
+
+        <!-- iOS main -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Main</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="page-title">Pixora Daily</div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c05-carousel">
+                <div class="thumb wp-aurora"></div>
+                <div class="thumb wp-ocean"></div>
+                <div class="thumb wp-fire"></div>
+              </div>
+              <div class="c05-rows">
+                <div class="c05-row r1"><div class="ic-tile">⏱</div><div class="lbl">Frecuencia</div><div class="val">5 min</div><div class="chev">›</div></div>
+                <div class="c05-row r2"><div class="ic-tile">▦</div><div class="lbl">Aplicar a</div><div class="val">Ambas</div><div class="chev">›</div></div>
+                <div class="c05-row r3"><div class="ic-tile">◈</div><div class="lbl">Categoría</div><div class="val">Todas</div><div class="chev">›</div></div>
+              </div>
+              <div class="c05-cta">Activar Daily</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- iOS sheet -->
+        <div class="phone-wrap">
+          <span class="label ios">iOS · Sheet</span>
+          <div class="phone light">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="page-title">Pixora Daily</div>
+              </div>
+              <div class="c05-carousel">
+                <div class="thumb wp-aurora"></div>
+                <div class="thumb wp-ocean"></div>
+                <div class="thumb wp-fire"></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c05-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-title">Categoría</div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#FF9F0A,#FFD60A)">★</div><span>Todas las categorías</span><span class="check">✓</span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#0A84FF,#5E5CE6)">◆</div><span>Pixora Daily (curado)</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#BF5AF2,#FF375F)">▭</div><span>Solo panorámicos</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#30D158,#5AC8FA)">❀</div><span>Naturaleza</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#FF375F,#FF9F0A)">✦</div><span>Anime</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#5E5CE6,#0A84FF)">▶</div><span>Gaming</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#5AC8FA,#BF5AF2)">◉</div><span>Sci-Fi</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#FFD60A,#FF9F0A);color:#1C1C1E">♛</div><span>Fantasía</span><span></span><span class="chev">›</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G main -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Main</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="page-title">Pixora Daily</div>
+                <div class="page-sub">Tu pantalla, viva todo el día.</div>
+              </div>
+              <div class="c05-carousel">
+                <div class="thumb wp-fire"></div>
+                <div class="thumb wp-mystic"></div>
+                <div class="thumb wp-aurora"></div>
+              </div>
+              <div class="c05-rows">
+                <div class="c05-row r1"><div class="ic-tile">⏱</div><div class="lbl">Frecuencia</div><div class="val">5 min</div><div class="chev">›</div></div>
+                <div class="c05-row r2"><div class="ic-tile">▦</div><div class="lbl">Aplicar a</div><div class="val">Ambas</div><div class="chev">›</div></div>
+                <div class="c05-row r3"><div class="ic-tile">◈</div><div class="lbl">Categoría</div><div class="val">Todas</div><div class="chev">›</div></div>
+              </div>
+              <div class="c05-cta">Activar Daily</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B&G sheet -->
+        <div class="phone-wrap">
+          <span class="label bg">B&amp;G · Sheet</span>
+          <div class="phone dark">
+            <div class="notch"></div>
+            <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+            <div class="screen">
+              <div class="top-bar"><span class="back-arrow">‹</span><span class="top-spacer"></span></div>
+              <div class="page-head">
+                <div class="eyebrow">PIXORA · DAILY</div>
+                <div class="page-title">Pixora Daily</div>
+              </div>
+              <div class="c05-carousel">
+                <div class="thumb wp-fire"></div>
+                <div class="thumb wp-mystic"></div>
+                <div class="thumb wp-aurora"></div>
+              </div>
+              <div class="sheet-dim"></div>
+              <div class="sheet c05-sheet">
+                <div class="grabber"></div>
+                <div class="sheet-title">Categoría</div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#F5D676,#D4AF37);color:#14141F">★</div><span>Todas las categorías</span><span class="check">✓</span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#F5D676,#D4AF37);color:#14141F">◆</div><span>Pixora Daily (curado)</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#BF5AF2,#5E5CE6)">▭</div><span>Solo panorámicos</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#30D158,#5AC8FA)">❀</div><span>Naturaleza</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#FF375F,#FF9F0A)">✦</div><span>Anime</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#5E5CE6,#0A84FF)">▶</div><span>Gaming</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#5AC8FA,#BF5AF2)">◉</div><span>Sci-Fi</span><span></span><span class="chev">›</span></div>
+                <div class="cat-row"><div class="ic-tile" style="background:linear-gradient(135deg,#FFD60A,#D4AF37);color:#14141F">♛</div><span>Fantasía</span><span></span><span class="chev">›</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <aside class="meta">
+        <div class="meta-eyebrow">NO. 05</div>
+        <h2>Control Center · Glass Widgets</h2>
+        <p class="tagline">iOS 18 widgets / Apple Watch complications / Control Center. Glass widgets con blur, iconos en gradient tiles tipo SF Symbols, CTA capsula con bounce.</p>
+        <div class="swatches-row">
+          <span class="lbl">iOS</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#FFFFFF"></div>
+            <div class="swatch" style="background:rgba(255,255,255,0.65)"></div>
+            <div class="swatch" style="background:#0A84FF"></div>
+            <div class="swatch" style="background:#BF5AF2"></div>
+          </div>
+        </div>
+        <div class="swatches-row">
+          <span class="lbl">B&amp;G</span>
+          <div class="swatches">
+            <div class="swatch" style="background:#070710"></div>
+            <div class="swatch" style="background:#1E1E2C"></div>
+            <div class="swatch" style="background:#D4AF37"></div>
+            <div class="swatch" style="background:#F5D676"></div>
+          </div>
+        </div>
+        <div class="verdict">
+          <span class="pro">Se siente moderno, premium, "iOS 18-ready" — funcional y bonito.</span>
+          <span class="pro">Los gradient-tile icons funcionan idénticos a SF Symbols en capsula.</span>
+          <span class="con">Mucho glass = perf cost en Android low-end (blur 14-20px en 3 rows + sheet).</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  </div>
+
+  <footer>
+    <span>PIXORA · DAILY PAGE · DESIGN ARCHIVE · MAY 2026</span>
+    <span class="right">doc-074 · 5 conceptos · 20 mockups</span>
+  </footer>
+</div>
+</body>
+</html>

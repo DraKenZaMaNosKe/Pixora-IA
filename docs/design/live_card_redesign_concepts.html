@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · LIVE Cards · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(184,168,232,0.3), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(80,40,120,0.08), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.06), transparent 55%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · LIVE-CARDS / DOC-025';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: #B8A8E8; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 96px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row layout: phones left, meta right */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(580px, 0.95fr) 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) {
+    .concept-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 260px;
+    aspect-ratio: 260 / 540;
+    background: #fff;
+    border-radius: 36px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 8px #1a1a22,
+      0 22px 50px rgba(0,0,0,0.65),
+      0 0 70px var(--gold-haze);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 8px #0a0a14,
+      0 22px 50px rgba(0,0,0,0.7),
+      0 0 80px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 72px; height: 16px;
+    background: #000;
+    border-radius: 0 0 12px 12px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 21px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 22px;
+    font: 600 9px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 14px; height: 7px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* App top header */
+  .app-top {
+    position: absolute;
+    top: 26px; left: 14px; right: 14px;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 8;
+  }
+  .app-top .ava {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    color: white;
+    font: 700 10px 'Inter', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .phone.light .app-top .ava { background: linear-gradient(135deg, #0A84FF, #0066CC); }
+  .phone.dark  .app-top .ava { background: linear-gradient(135deg, var(--bg-gold), var(--bg-gold-deep)); color: #1a1300; }
+
+  .app-top .brand {
+    font: 800 11px 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+  }
+  .phone.light .app-top .brand { color: var(--ios-text); }
+  .phone.dark  .app-top .brand { color: var(--bg-text); }
+
+  .app-top .live-pill {
+    margin-left: auto;
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    padding: 3px 7px;
+    border-radius: 999px;
+  }
+  .phone.light .app-top .live-pill { background: rgba(10,132,255,0.10); color: var(--ios-blue); border: 1px solid rgba(10,132,255,0.20); }
+  .phone.dark  .app-top .live-pill { background: rgba(212,175,55,0.10); color: var(--bg-gold-bright); border: 1px solid rgba(212,175,55,0.25); }
+
+  /* Section row (Popular Now / Anime / etc.) */
+  .live-stage {
+    position: absolute;
+    inset: 56px 12px auto 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 5;
+  }
+  .section-title {
+    font: 700 10px 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+    padding-left: 2px;
+    margin-bottom: -4px;
+  }
+  .phone.light .section-title { color: var(--ios-text); }
+  .phone.dark  .section-title { color: var(--bg-text); }
+  .section-title .sub {
+    font: 500 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+    margin-left: 6px;
+    text-transform: uppercase;
+  }
+  .phone.light .section-title .sub { color: var(--ios-text-dim); }
+  .phone.dark  .section-title .sub { color: var(--bg-text-dim); }
+
+  /* Card carousel — 2.5 cards (third peeking) */
+  .carousel {
+    display: grid;
+    grid-template-columns: 1fr 1fr 0.45fr;
+    gap: 9px;
+    overflow: hidden;
+  }
+  .carousel.full3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* Base card — shared shell, each concept overrides shape/decor */
+  .lcard {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    border-radius: 12px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .lcard .wp { position: absolute; inset: 0; z-index: 1; }
+  .lcard .wp::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1.4px 1.4px at 25% 25%, rgba(255,255,255,0.75), transparent),
+      radial-gradient(1.6px 1.6px at 70% 55%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(1.2px 1.2px at 45% 80%, rgba(255,255,255,0.5), transparent);
+    mix-blend-mode: screen;
+    z-index: 2;
+  }
+
+  /* Wallpaper variants — simulate different content */
+  .wp.cyberpunk {
+    background:
+      radial-gradient(ellipse at 30% 25%, rgba(255,42,153,0.75), transparent 55%),
+      radial-gradient(ellipse at 70% 80%, rgba(0,225,255,0.55), transparent 55%),
+      linear-gradient(160deg, #1f0640 0%, #4b0a72 50%, #07021a 100%);
+  }
+  .wp.anime {
+    background:
+      radial-gradient(ellipse at 35% 30%, rgba(255,176,72,0.75), transparent 55%),
+      radial-gradient(ellipse at 75% 75%, rgba(255,70,90,0.55), transparent 55%),
+      linear-gradient(155deg, #3a1208 0%, #b54b1b 45%, #2a0710 100%);
+  }
+  .wp.horror {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(160,40,40,0.55), transparent 55%),
+      radial-gradient(ellipse at 60% 80%, rgba(40,15,15,0.65), transparent 55%),
+      linear-gradient(160deg, #0a0508 0%, #1d090c 45%, #050203 100%);
+  }
+  .wp.light {
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.55), transparent 55%),
+      radial-gradient(ellipse at 70% 70%, rgba(200,220,255,0.5), transparent 55%),
+      linear-gradient(155deg, #fff7e2 0%, #ffd3b0 50%, #ffb088 100%);
+  }
+  .wp.neon-green {
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(60,255,160,0.55), transparent 55%),
+      radial-gradient(ellipse at 75% 70%, rgba(20,80,140,0.55), transparent 55%),
+      linear-gradient(160deg, #042018 0%, #084a3b 50%, #02100c 100%);
+  }
+  .wp.dark-noir {
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(50,50,75,0.4), transparent 55%),
+      linear-gradient(160deg, #050610 0%, #10131e 50%, #020308 100%);
+  }
+
+  /* Shared overlays inside card */
+  .lcard .play-icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    display: grid; place-items: center;
+    font-size: 11px;
+    color: #1c1c1e;
+    z-index: 4;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.45);
+  }
+  .phone.dark .lcard .play-icon {
+    background: var(--bg-gold-bright);
+    color: #1a1300;
+  }
+
+  /* Shared stats bar (bottom-centered) — common to all concepts */
+  .stats-bar {
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font: 600 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+    z-index: 6;
+    padding: 3px 7px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .stats-bar .sicon { font-family: 'Inter', sans-serif; font-size: 7px; }
+  .stats-bar .dot { opacity: 0.4; font-weight: 400; }
+
+  /* iOS default stats */
+  .phone.light .stats-bar {
+    background: rgba(255,255,255,0.85);
+    color: var(--ios-text);
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  /* B&G default stats */
+  .phone.dark .stats-bar {
+    background: rgba(7,7,16,0.78);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(245,214,118,0.18);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 01 — CINEMATIC STRIP (Netflix episode)
+     ═════════════════════════════════════════════════════════ */
+  .c01-card .wp { bottom: 30%; }
+  .c01-card .strip {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 30%;
+    z-index: 3;
+    padding: 5px 6px 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .phone.light .c01-card .strip {
+    background: linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.86) 25%, rgba(0,0,0,0.95) 100%);
+  }
+  .phone.dark .c01-card .strip {
+    background: linear-gradient(180deg, rgba(7,7,16,0.0) 0%, rgba(7,7,16,0.86) 25%, rgba(7,7,16,0.97) 100%);
+    border-top: 1px solid rgba(245,214,118,0.18);
+  }
+  .c01-card .row1 {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .c01-card .new {
+    font: 800 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    padding: 2.5px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .phone.light .c01-card .new {
+    background: var(--ios-blue);
+    color: #fff;
+    box-shadow: 0 0 6px rgba(10,132,255,0.45);
+  }
+  .phone.dark .c01-card .new {
+    background: var(--bg-gold-bright);
+    color: #1a1300;
+    box-shadow: 0 0 6px rgba(245,214,118,0.45);
+  }
+  .c01-card .dur {
+    margin-left: auto;
+    font: 600 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.10em;
+    color: rgba(255,255,255,0.85);
+  }
+  .c01-card .cat {
+    font: 700 8px 'Inter', sans-serif;
+    color: #fff;
+    letter-spacing: -0.01em;
+    margin-top: 2px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+  .c01-card .stats-strip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: 0.05em;
+  }
+  .c01-card .stats-strip .dot { opacity: 0.4; }
+  .c01-card .play-icon {
+    top: 18%;
+    bottom: auto;
+    inset: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px; height: 26px;
+  }
+  /* small LIVE marker on image */
+  .c01-card .live-mini {
+    position: absolute;
+    top: 6px; right: 6px;
+    z-index: 4;
+    font: 700 6px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #fff;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.22);
+    text-transform: uppercase;
+  }
+  .phone.dark .c01-card .live-mini {
+    color: var(--bg-gold-bright);
+    background: rgba(7,7,16,0.6);
+    border-color: rgba(245,214,118,0.30);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 02 — POLAROID FRAME (instax)
+     ═════════════════════════════════════════════════════════ */
+  .c02-card {
+    border-radius: 8px;
+    padding: 5px 5px 18px;
+    overflow: visible;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.04);
+  }
+  .phone.light .c02-card {
+    background: #FFFFFF;
+  }
+  .phone.dark .c02-card {
+    background: #1E1E2C;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.55), 0 0 0 1px rgba(245,214,118,0.16);
+  }
+  .c02-card .photo {
+    position: relative;
+    aspect-ratio: 1 / 1.4;
+    border-radius: 4px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .c02-card .photo .wp { position: absolute; inset: 0; z-index: 1; }
+  .c02-card .photo .wp::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1.4px 1.4px at 25% 25%, rgba(255,255,255,0.75), transparent),
+      radial-gradient(1.2px 1.2px at 60% 65%, rgba(255,255,255,0.5), transparent);
+    mix-blend-mode: screen;
+    z-index: 2;
+  }
+  .c02-card .photo .play-icon {
+    width: 24px; height: 24px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+  }
+  .c02-card .photo .live-mini {
+    position: absolute;
+    top: 4px; right: 4px;
+    z-index: 4;
+    font: 700 6px 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.20);
+    text-transform: uppercase;
+  }
+  .phone.dark .c02-card .photo .live-mini {
+    background: rgba(7,7,16,0.7);
+    color: var(--bg-gold-bright);
+    border-color: rgba(245,214,118,0.28);
+  }
+  .c02-card .frame-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 2px 0;
+    gap: 4px;
+  }
+  .c02-card .new {
+    font: 800 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .phone.light .c02-card .new {
+    background: var(--ios-blue);
+    color: #fff;
+  }
+  .phone.dark .c02-card .new {
+    background: var(--bg-gold-bright);
+    color: #1a1300;
+  }
+  .c02-card .meta-stats {
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .phone.light .c02-card .meta-stats { color: var(--ios-text); }
+  .phone.dark .c02-card .meta-stats { color: var(--bg-gold-bright); }
+  .c02-card .meta-stats .dot { opacity: 0.35; }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 03 — HOLO BORDER + FLOATING GLASS BADGES
+     ═════════════════════════════════════════════════════════ */
+  .c03-card {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    border-radius: 12px;
+    padding: 1.5px;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .phone.light .c03-card {
+    background: linear-gradient(125deg,
+      #FFFFFF 0%, #FFD9F2 18%, #C9F0FF 36%,
+      #E1D6FF 54%, #FFE6BD 72%, #FFFFFF 90%, #FFD9F2 100%);
+    background-size: 300% 300%;
+    animation: holoShift 6s linear infinite;
+  }
+  .phone.dark .c03-card {
+    background: linear-gradient(125deg,
+      #F5D676 0%, #C49245 18%, #8B6020 36%,
+      #D4AF37 54%, #F5D676 72%, #B47A2A 90%, #F5D676 100%);
+    background-size: 300% 300%;
+    animation: holoShift 6s linear infinite;
+    box-shadow: 0 4px 12px rgba(245,180,80,0.25);
+  }
+  @keyframes holoShift {
+    0%   { background-position: 0% 50%; filter: hue-rotate(0deg); }
+    50%  { background-position: 100% 50%; filter: hue-rotate(35deg); }
+    100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+  }
+  .c03-card .inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 10.5px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .c03-card .inner .wp { position: absolute; inset: 0; z-index: 1; }
+  .c03-card .inner .wp::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1.4px 1.4px at 25% 25%, rgba(255,255,255,0.75), transparent),
+      radial-gradient(1.2px 1.2px at 60% 65%, rgba(255,255,255,0.5), transparent);
+    mix-blend-mode: screen;
+    z-index: 2;
+  }
+  .c03-card .new {
+    position: absolute;
+    top: 6px; left: 6px;
+    z-index: 6;
+    font: 800 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    padding: 3px 6px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .phone.light .c03-card .new {
+    background: rgba(255,255,255,0.32);
+    color: var(--ios-blue);
+    border: 1.5px solid rgba(10,132,255,0.75);
+    box-shadow: 0 2px 8px rgba(10,132,255,0.35), inset 0 0 4px rgba(10,132,255,0.18);
+    text-shadow: 0 1px 1px rgba(255,255,255,0.8);
+  }
+  .phone.dark .c03-card .new {
+    background: rgba(20,20,31,0.55);
+    color: var(--bg-gold-bright);
+    border: 1.5px solid rgba(245,214,118,0.65);
+    box-shadow: 0 2px 8px rgba(245,214,118,0.35), inset 0 0 4px rgba(245,214,118,0.20);
+    text-shadow: 0 0 4px rgba(245,214,118,0.5);
+  }
+  .c03-card .live-mini {
+    position: absolute;
+    top: 6px; right: 6px;
+    z-index: 6;
+    font: 700 6px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    padding: 2px 5px;
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-transform: uppercase;
+  }
+  .phone.light .c03-card .live-mini {
+    background: rgba(255,255,255,0.28);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.45);
+  }
+  .phone.dark .c03-card .live-mini {
+    background: rgba(7,7,16,0.55);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(245,214,118,0.30);
+  }
+  .c03-card .frost-bar {
+    position: absolute;
+    left: 4px; right: 4px;
+    bottom: 4px;
+    z-index: 6;
+    padding: 3.5px 6px;
+    border-radius: 8px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .phone.light .c03-card .frost-bar {
+    background: rgba(255,255,255,0.78);
+    color: var(--ios-text);
+    border: 1px solid rgba(255,255,255,0.65);
+  }
+  .phone.dark .c03-card .frost-bar {
+    background: rgba(7,7,16,0.65);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(245,214,118,0.22);
+  }
+  .c03-card .frost-bar .dot { opacity: 0.4; }
+  .c03-card .play-icon {
+    top: 36%;
+    bottom: auto;
+    inset: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px; height: 26px;
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 04 — DARK BEZEL OVERLAY
+     ═════════════════════════════════════════════════════════ */
+  .c04-card .vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      transparent 60%,
+      rgba(0,0,0,0.55) 80%,
+      rgba(0,0,0,0.88) 100%);
+  }
+  .phone.dark .c04-card .vignette {
+    background: linear-gradient(180deg,
+      transparent 0%,
+      transparent 60%,
+      rgba(7,7,16,0.6) 80%,
+      rgba(7,7,16,0.92) 100%);
+  }
+  .c04-card .new {
+    position: absolute;
+    top: 6px; left: 6px;
+    z-index: 6;
+    font: 800 7.5px 'Inter', sans-serif;
+    letter-spacing: 0.14em;
+    padding: 3px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .phone.light .c04-card .new {
+    background: var(--ios-blue);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(10,132,255,0.55), 0 0 12px rgba(10,132,255,0.30);
+  }
+  .phone.dark .c04-card .new {
+    background: var(--bg-gold-bright);
+    color: #1a1300;
+    box-shadow: 0 2px 8px rgba(245,214,118,0.55), 0 0 14px rgba(245,180,80,0.40);
+  }
+  .c04-card .live-mini {
+    position: absolute;
+    right: 6px; bottom: 6px;
+    z-index: 6;
+    font: 700 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85);
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .c04-card .live-mini::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #ff3b30;
+    box-shadow: 0 0 5px #ff3b30;
+    animation: livePulse 1.6s ease-in-out infinite;
+  }
+  .phone.dark .c04-card .live-mini {
+    color: var(--bg-gold-bright);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 4px rgba(245,214,118,0.30);
+  }
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(1.25); }
+  }
+  .c04-card .stats-strip {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 6px;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85);
+  }
+  .c04-card .stats-strip .dot { opacity: 0.45; }
+  .c04-card .play-icon {
+    top: 38%;
+    bottom: auto;
+    inset: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 05 — TICKET STUB EVOLVED
+     ═════════════════════════════════════════════════════════ */
+  .c05-card {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    overflow: visible;
+    isolation: isolate;
+  }
+  .c05-card .ticket {
+    position: relative;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    /* corner-cut ticket-stub silhouette */
+    clip-path: polygon(
+      6% 0%, 94% 0%,
+      100% 6%, 100% 70%,
+      96% 72%, 100% 74%,
+      100% 94%, 94% 100%,
+      6% 100%, 0% 94%,
+      0% 74%, 4% 72%, 0% 70%,
+      0% 6%
+    );
+  }
+  .phone.light .c05-card .ticket {
+    background: #FFFFFF;
+  }
+  .phone.dark .c05-card .ticket {
+    background: #14141F;
+  }
+  .c05-card .ticket .wp {
+    position: absolute;
+    top: 4px; left: 4px; right: 4px;
+    height: 64%;
+    border-radius: 6px;
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12), inset 0 0 16px rgba(0,0,0,0.20);
+  }
+  .phone.dark .c05-card .ticket .wp {
+    box-shadow: inset 0 0 0 1px rgba(245,214,118,0.18), inset 0 0 16px rgba(0,0,0,0.45);
+  }
+  .c05-card .ticket .wp::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1.4px 1.4px at 25% 25%, rgba(255,255,255,0.75), transparent),
+      radial-gradient(1.2px 1.2px at 60% 65%, rgba(255,255,255,0.5), transparent);
+    mix-blend-mode: screen;
+  }
+  .c05-card .new {
+    position: absolute;
+    top: 8px; left: 8px;
+    z-index: 5;
+    font: 800 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    padding: 2.5px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .phone.light .c05-card .new {
+    background: var(--ios-blue);
+    color: #fff;
+    box-shadow: 0 0 6px rgba(10,132,255,0.45);
+  }
+  .phone.dark .c05-card .new {
+    background: var(--bg-gold-bright);
+    color: #1a1300;
+    box-shadow: 0 0 6px rgba(245,214,118,0.45);
+  }
+  .c05-card .dur {
+    position: absolute;
+    top: 8px; right: 8px;
+    z-index: 5;
+    font: 700 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.10em;
+    padding: 2.5px 4px;
+    border-radius: 3px;
+  }
+  .phone.light .c05-card .dur {
+    background: rgba(0,0,0,0.62);
+    color: #fff;
+  }
+  .phone.dark .c05-card .dur {
+    background: rgba(7,7,16,0.75);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(245,214,118,0.22);
+  }
+  .c05-card .play-icon {
+    top: 24%;
+    bottom: auto;
+    inset: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px; height: 26px;
+  }
+  /* perforated divider — visual dashed line where corner-cut sits */
+  .c05-card .perf {
+    position: absolute;
+    left: 8px; right: 8px;
+    top: 71%;
+    height: 1px;
+    z-index: 4;
+    background-image: linear-gradient(90deg,
+      currentColor 0 3px, transparent 3px 6px);
+    opacity: 0.45;
+  }
+  .phone.light .c05-card .perf { color: rgba(0,0,0,0.5); }
+  .phone.dark .c05-card .perf { color: var(--bg-gold); }
+
+  .c05-card .stub {
+    position: absolute;
+    left: 0; right: 0;
+    top: 72%; bottom: 0;
+    padding: 4px 6px 4px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c05-card .stats-strip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font: 600 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .phone.light .c05-card .stats-strip { color: var(--ios-text); }
+  .phone.dark .c05-card .stats-strip { color: var(--bg-gold-bright); }
+  .c05-card .stats-strip .dot { opacity: 0.4; }
+  .c05-card .serial {
+    font: 500 5.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .phone.light .c05-card .serial { color: var(--ios-text-dim); }
+  .phone.dark .c05-card .serial { color: var(--bg-gold-deep); }
+  .c05-card .ornament {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 9px;
+    line-height: 1;
+  }
+  .phone.light .c05-card .ornament { color: var(--ios-blue); }
+  .phone.dark .c05-card .ornament { color: var(--bg-gold); }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    padding: 8px 0 0 8px;
+  }
+  .meta .num {
+    font: 600 11px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .meta .name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .meta .name .accent { color: var(--gold-bright); }
+  .meta .name .accent2 { color: #B8A8E8; }
+  .meta .tag {
+    font: 400 13.5px/1.55 'Geist', sans-serif;
+    color: var(--text-dim);
+    margin-bottom: 22px;
+    max-width: 480px;
+  }
+
+  .palettes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .pal-block .pal-label {
+    font: 600 9.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+  .pal-block.ios .pal-label { color: #5e8eb8; }
+  .pal-block.bg  .pal-label { color: var(--gold-deep); }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .palette .sw {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    border: 1px solid var(--hairline);
+    cursor: help;
+  }
+
+  .verdict {
+    font: 400 12.5px/1.55 'Geist', sans-serif;
+    color: var(--text-dim);
+    padding: 12px 14px;
+    border-radius: 10px;
+    border-left: 3px solid var(--gold-deep);
+    background: rgba(212,175,55,0.04);
+    max-width: 480px;
+  }
+  .verdict strong {
+    color: var(--gold-bright);
+    font-weight: 600;
+  }
+  .verdict.great { border-left-color: var(--gold-bright); }
+  .verdict.warn  { border-left-color: #B8A8E8; }
+
+  /* Hover micro-interaction (subtle lift) */
+  .lcard, .c02-card, .c03-card, .c04-card, .c05-card {
+    transition: transform 0.4s cubic-bezier(.22,.61,.36,1), box-shadow 0.4s ease;
+  }
+  .lcard:hover, .c02-card:hover, .c03-card:hover, .c04-card:hover, .c05-card:hover {
+    transform: translateY(-3px) scale(1.015);
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 96px;
+    padding-top: 36px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-align: center;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- ─────────── Header ─────────── -->
+    <header>
+      <h1>
+        Pixora <span class="ornament">·</span> <span class="accent">LIVE Cards</span> <span class="ornament">·</span> <em>5 Conceptos</em>
+      </h1>
+      <p class="subtitle">
+        Items de LIVE rediseñados — badges que <em>SÍ</em> contrasten + stats bottom-centered. Cada concepto resuelve el dolor del NEW azul translúcido que se pierde sobre wallpapers saturados (cyberpunk pink, anime warm, dark horror) y eleva la sensación premium del carrusel.
+      </p>
+      <div class="header-rule">
+        <span>Doc-025</span>
+        <span class="line"></span>
+        <span>Mayo 2026 · Orbix Studio</span>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- ═════════ CONCEPT 01 — CINEMATIC STRIP ═════════ -->
+      <div class="concept c01">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Popular Now <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <!-- card cyberpunk -->
+                      <div class="lcard c01-card">
+                        <div class="wp cyberpunk"></div>
+                        <div class="play-icon">&#9654;</div>
+                        <div class="live-mini">LIVE</div>
+                        <div class="strip">
+                          <div class="row1">
+                            <span class="new">NEW</span>
+                            <span class="dur">0:08</span>
+                          </div>
+                          <div class="cat">Neon Samurai</div>
+                          <div class="stats-strip"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                        </div>
+                      </div>
+                      <!-- card anime -->
+                      <div class="lcard c01-card">
+                        <div class="wp anime"></div>
+                        <div class="play-icon">&#9654;</div>
+                        <div class="live-mini">LIVE</div>
+                        <div class="strip">
+                          <div class="row1">
+                            <span class="new">NEW</span>
+                            <span class="dur">0:06</span>
+                          </div>
+                          <div class="cat">Sunset Goku</div>
+                          <div class="stats-strip"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                        </div>
+                      </div>
+                      <!-- card horror peek -->
+                      <div class="lcard c01-card">
+                        <div class="wp horror"></div>
+                        <div class="play-icon">&#9654;</div>
+                        <div class="live-mini">LIVE</div>
+                        <div class="strip">
+                          <div class="row1">
+                            <span class="new">NEW</span>
+                            <span class="dur">0:07</span>
+                          </div>
+                          <div class="cat">Dark Mist</div>
+                          <div class="stats-strip"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7.4k</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Popular Now <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="lcard c01-card">
+                        <div class="wp cyberpunk"></div>
+                        <div class="play-icon">&#9654;</div>
+                        <div class="live-mini">LIVE</div>
+                        <div class="strip">
+                          <div class="row1">
+                            <span class="new">NEW</span>
+                            <span class="dur">0:08</span>
+                          </div>
+                          <div class="cat">Neon Samurai</div>
+                          <div class="stats-strip"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                        </div>
+                      </div>
+                      <div class="lcard c01-card">
+                        <div class="wp anime"></div>
+                        <div class="play-icon">&#9654;</div>
+                        <div class="live-mini">LIVE</div>
+                        <div class="strip">
+                          <div class="row1">
+                            <span class="new">NEW</span>
+                            <span class="dur">0:06</span>
+                          </div>
+                          <div class="cat">Sunset Goku</div>
+                          <div class="stats-strip"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                        </div>
+                      </div>
+                      <div class="lcard c01-card">
+                        <div class="wp horror"></div>
+                        <div class="play-icon">&#9654;</div>
+                        <div class="live-mini">LIVE</div>
+                        <div class="strip">
+                          <div class="row1">
+                            <span class="new">NEW</span>
+                            <span class="dur">0:07</span>
+                          </div>
+                          <div class="cat">Dark Mist</div>
+                          <div class="stats-strip"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7.4k</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 01 · Cinematic Strip</div>
+            <div class="name">Strip <span class="accent">Cinemática</span> Netflix</div>
+            <div class="tag">Wallpaper 75% del card, franja oscura sólida 25% inferior con NEW pill, título, duración mono y stats centrados. La franja vence al sangrado del wallpaper: el badge es legible sobre <em>cualquier</em> fondo porque vive sobre un negro casi opaco, no sobre la imagen.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:rgba(0,0,0,0.86)" title="Strip black 86%"></span>
+                  <span class="sw" style="background:#0A84FF" title="Apple Blue NEW"></span>
+                  <span class="sw" style="background:#FFFFFF" title="NEW text white"></span>
+                  <span class="sw" style="background:rgba(255,255,255,0.85)" title="Stats bg"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:rgba(7,7,16,0.92)" title="Strip ink 92%"></span>
+                  <span class="sw" style="background:#F5D676" title="Gold bright NEW"></span>
+                  <span class="sw" style="background:#1a1300" title="NEW text ink"></span>
+                  <span class="sw" style="background:rgba(245,214,118,0.18)" title="Gold hairline"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict great">
+              <strong>Veredicto:</strong> Ultra legible. Cero ambigüedad. Sacrifica ~25% del área de imagen pero gana jerarquía perfecta. Vibes Crunchyroll / Apple TV+. Probablemente la opción más segura para producción.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 02 — POLAROID FRAME ═════════ -->
+      <div class="concept c02">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Anime <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="c02-card">
+                        <div class="photo">
+                          <div class="wp cyberpunk"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="live-mini">LIVE</div>
+                        </div>
+                        <div class="frame-bar">
+                          <span class="new">NEW</span>
+                          <div class="meta-stats"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                        </div>
+                      </div>
+                      <div class="c02-card">
+                        <div class="photo">
+                          <div class="wp anime"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="live-mini">LIVE</div>
+                        </div>
+                        <div class="frame-bar">
+                          <span class="new">NEW</span>
+                          <div class="meta-stats"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                        </div>
+                      </div>
+                      <div class="c02-card">
+                        <div class="photo">
+                          <div class="wp horror"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="live-mini">LIVE</div>
+                        </div>
+                        <div class="frame-bar">
+                          <span class="new">NEW</span>
+                          <div class="meta-stats"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7k</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Anime <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="c02-card">
+                        <div class="photo">
+                          <div class="wp cyberpunk"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="live-mini">LIVE</div>
+                        </div>
+                        <div class="frame-bar">
+                          <span class="new">NEW</span>
+                          <div class="meta-stats"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                        </div>
+                      </div>
+                      <div class="c02-card">
+                        <div class="photo">
+                          <div class="wp anime"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="live-mini">LIVE</div>
+                        </div>
+                        <div class="frame-bar">
+                          <span class="new">NEW</span>
+                          <div class="meta-stats"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                        </div>
+                      </div>
+                      <div class="c02-card">
+                        <div class="photo">
+                          <div class="wp horror"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="live-mini">LIVE</div>
+                        </div>
+                        <div class="frame-bar">
+                          <span class="new">NEW</span>
+                          <div class="meta-stats"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7k</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 02 · Polaroid Frame</div>
+            <div class="name">Polaroid <span class="accent2">Coleccionable</span> Instax</div>
+            <div class="tag">Marco grueso tipo instax: blanco en iOS, dark surface en B&amp;G. Los badges viven en la barra inferior del marco (no sobre el wallpaper), garantizando contraste perfecto. La imagen se siente <em>coleccionable</em>, como un cromo o recuerdo físico.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#FFFFFF" title="Frame white"></span>
+                  <span class="sw" style="background:#0A84FF" title="Apple Blue NEW"></span>
+                  <span class="sw" style="background:#1C1C1E" title="Stats text"></span>
+                  <span class="sw" style="background:rgba(0,0,0,0.55)" title="LIVE mini bg"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#1E1E2C" title="Frame surface"></span>
+                  <span class="sw" style="background:#F5D676" title="Gold NEW"></span>
+                  <span class="sw" style="background:#1a1300" title="NEW text ink"></span>
+                  <span class="sw" style="background:rgba(245,214,118,0.18)" title="Gold hairline"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict">
+              <strong>Veredicto:</strong> Único en su categoría. Se siente premium y coleccionable. El costo es área de imagen (frame quita ~15%) y que rompe con la estética <em>edge-to-edge</em> que tiene WALLPAPERS. Considerar si LIVE quiere diferenciarse visualmente.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 03 — HOLO BORDER + FLOATING GLASS ═════════ -->
+      <div class="concept c03">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Cyberpunk <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="c03-card">
+                        <div class="inner">
+                          <div class="wp cyberpunk"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <span class="new">NEW</span>
+                          <span class="live-mini">LIVE</span>
+                          <div class="frost-bar"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                        </div>
+                      </div>
+                      <div class="c03-card">
+                        <div class="inner">
+                          <div class="wp anime"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <span class="new">NEW</span>
+                          <span class="live-mini">LIVE</span>
+                          <div class="frost-bar"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                        </div>
+                      </div>
+                      <div class="c03-card">
+                        <div class="inner">
+                          <div class="wp horror"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <span class="new">NEW</span>
+                          <span class="live-mini">LIVE</span>
+                          <div class="frost-bar"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7k</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Cyberpunk <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="c03-card">
+                        <div class="inner">
+                          <div class="wp cyberpunk"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <span class="new">NEW</span>
+                          <span class="live-mini">LIVE</span>
+                          <div class="frost-bar"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                        </div>
+                      </div>
+                      <div class="c03-card">
+                        <div class="inner">
+                          <div class="wp anime"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <span class="new">NEW</span>
+                          <span class="live-mini">LIVE</span>
+                          <div class="frost-bar"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                        </div>
+                      </div>
+                      <div class="c03-card">
+                        <div class="inner">
+                          <div class="wp horror"></div>
+                          <div class="play-icon">&#9654;</div>
+                          <span class="new">NEW</span>
+                          <span class="live-mini">LIVE</span>
+                          <div class="frost-bar"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7k</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 03 · Holo Border + Floating Glass</div>
+            <div class="name">Borde <span class="accent">Iridiscente</span> TCG</div>
+            <div class="tag">Borde iridiscente animado (hue-rotate 6s) + glassmorph NEW con stroke fuerte y glow. Sensación de carta rara TCG / Vision Pro. La barra inferior frosted condensa los stats centrados. Cards <em>raras</em>, <em>distintivas</em>, casi de colección digital.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:linear-gradient(125deg,#FFD9F2,#C9F0FF,#E1D6FF,#FFE6BD)" title="Iridescent border"></span>
+                  <span class="sw" style="background:rgba(255,255,255,0.32)" title="Glass NEW bg"></span>
+                  <span class="sw" style="background:#0A84FF" title="Apple Blue stroke"></span>
+                  <span class="sw" style="background:rgba(255,255,255,0.78)" title="Frost bar bg"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:linear-gradient(125deg,#F5D676,#C49245,#8B6020,#D4AF37)" title="Gold-copper iridescent"></span>
+                  <span class="sw" style="background:rgba(20,20,31,0.55)" title="Glass NEW bg dark"></span>
+                  <span class="sw" style="background:#F5D676" title="Gold bright stroke"></span>
+                  <span class="sw" style="background:rgba(7,7,16,0.65)" title="Frost bar bg dark"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict warn">
+              <strong>Veredicto:</strong> El más distintivo. Eleva LIVE a sensación premium / colección. Riesgo: animación de hue-rotate puede sentirse "loud" si todas las cards la corren simultáneamente — considerar pausar en scroll o limitar a las primeras 4 cards del viewport.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 04 — DARK BEZEL OVERLAY ═════════ -->
+      <div class="concept c04">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Dark Horror <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="lcard c04-card">
+                        <div class="wp cyberpunk"></div>
+                        <div class="vignette"></div>
+                        <span class="new">NEW</span>
+                        <div class="play-icon">&#9654;</div>
+                        <span class="live-mini">LIVE</span>
+                        <div class="stats-strip"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                      </div>
+                      <div class="lcard c04-card">
+                        <div class="wp anime"></div>
+                        <div class="vignette"></div>
+                        <span class="new">NEW</span>
+                        <div class="play-icon">&#9654;</div>
+                        <span class="live-mini">LIVE</span>
+                        <div class="stats-strip"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                      </div>
+                      <div class="lcard c04-card">
+                        <div class="wp horror"></div>
+                        <div class="vignette"></div>
+                        <span class="new">NEW</span>
+                        <div class="play-icon">&#9654;</div>
+                        <span class="live-mini">LIVE</span>
+                        <div class="stats-strip"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7k</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Dark Horror <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="lcard c04-card">
+                        <div class="wp cyberpunk"></div>
+                        <div class="vignette"></div>
+                        <span class="new">NEW</span>
+                        <div class="play-icon">&#9654;</div>
+                        <span class="live-mini">LIVE</span>
+                        <div class="stats-strip"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                      </div>
+                      <div class="lcard c04-card">
+                        <div class="wp anime"></div>
+                        <div class="vignette"></div>
+                        <span class="new">NEW</span>
+                        <div class="play-icon">&#9654;</div>
+                        <span class="live-mini">LIVE</span>
+                        <div class="stats-strip"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                      </div>
+                      <div class="lcard c04-card">
+                        <div class="wp horror"></div>
+                        <div class="vignette"></div>
+                        <span class="new">NEW</span>
+                        <div class="play-icon">&#9654;</div>
+                        <span class="live-mini">LIVE</span>
+                        <div class="stats-strip"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7k</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 04 · Dark Bezel Overlay</div>
+            <div class="name">Bezel <span class="accent">Profesional</span> PSN</div>
+            <div class="tag">Wallpaper full-bleed con viñeta suave en el 30% inferior como <em>safe zone</em>. NEW badge sólido (no glass) con drop-shadow + glow sutil top-left. LIVE con dot rojo pulsante bottom-right. Stats centrados. Vibes PlayStation Store / Apple TV+ — profesional, simple, máxima imagen.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#0A84FF" title="Apple Blue solid NEW"></span>
+                  <span class="sw" style="background:rgba(10,132,255,0.30)" title="Blue glow"></span>
+                  <span class="sw" style="background:rgba(0,0,0,0.88)" title="Vignette dark"></span>
+                  <span class="sw" style="background:#ff3b30" title="LIVE dot red"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#F5D676" title="Gold bright solid NEW"></span>
+                  <span class="sw" style="background:rgba(245,180,80,0.40)" title="Gold glow"></span>
+                  <span class="sw" style="background:rgba(7,7,16,0.92)" title="Vignette ink"></span>
+                  <span class="sw" style="background:#ff3b30" title="LIVE dot red"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict great">
+              <strong>Veredicto:</strong> El más <em>seguro</em> y profesional. Máxima área de wallpaper, badges siempre legibles gracias al combo viñeta + sólido + glow. Menos "único" que polaroid o holo, pero es exactamente lo que hacen PSN y Apple TV+ — y funciona. Recomendado para producción si se busca <em>safe + premium</em>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 05 — TICKET STUB EVOLVED ═════════ -->
+      <div class="concept c05">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Featured <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="c05-card">
+                        <div class="ticket">
+                          <div class="wp cyberpunk"></div>
+                          <span class="new">NEW</span>
+                          <span class="dur">0:08</span>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="perf"></div>
+                          <div class="stub">
+                            <div class="stats-strip"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                            <div class="serial">N&deg; 0124</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="c05-card">
+                        <div class="ticket">
+                          <div class="wp anime"></div>
+                          <span class="new">NEW</span>
+                          <span class="dur">0:06</span>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="perf"></div>
+                          <div class="stub">
+                            <div class="stats-strip"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                            <div class="serial">N&deg; 0089</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="c05-card">
+                        <div class="ticket">
+                          <div class="wp horror"></div>
+                          <span class="new">NEW</span>
+                          <span class="dur">0:07</span>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="perf"></div>
+                          <div class="stub">
+                            <div class="stats-strip"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7k</div>
+                            <div class="serial">N&deg; 0057</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="section-title">Featured <span class="sub">// LIVE</span></div>
+                    <div class="carousel">
+                      <div class="c05-card">
+                        <div class="ticket">
+                          <div class="wp cyberpunk"></div>
+                          <span class="new">NEW</span>
+                          <span class="dur">0:08</span>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="perf"></div>
+                          <div class="stub">
+                            <div class="stats-strip"><span>&#9829;</span> 2.4k <span class="dot">·</span> <span>&#9728;</span> 18k</div>
+                            <div class="serial">N&deg; 0124</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="c05-card">
+                        <div class="ticket">
+                          <div class="wp anime"></div>
+                          <span class="new">NEW</span>
+                          <span class="dur">0:06</span>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="perf"></div>
+                          <div class="stub">
+                            <div class="stats-strip"><span>&#9829;</span> 1.8k <span class="dot">·</span> <span>&#9728;</span> 12k</div>
+                            <div class="serial">N&deg; 0089</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="c05-card">
+                        <div class="ticket">
+                          <div class="wp horror"></div>
+                          <span class="new">NEW</span>
+                          <span class="dur">0:07</span>
+                          <div class="play-icon">&#9654;</div>
+                          <div class="perf"></div>
+                          <div class="stub">
+                            <div class="stats-strip"><span>&#9829;</span> 980 <span class="dot">·</span> <span>&#9728;</span> 7k</div>
+                            <div class="serial">N&deg; 0057</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 05 · Ticket Stub Evolved</div>
+            <div class="name">Ticket <span class="accent">Stub</span> Refinado</div>
+            <div class="tag">Conserva la silueta firma de Pixora (corner-cut + perforación) pero rediseña: NEW sólido + duración mono en esquinas, área de wallpaper con inner-shadow para profundidad, stub inferior con stats centrados y N&deg; serial mono que evoca ticket de museo / evento premium.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#FFFFFF" title="Ticket white"></span>
+                  <span class="sw" style="background:#0A84FF" title="Apple Blue NEW"></span>
+                  <span class="sw" style="background:rgba(0,0,0,0.5)" title="Perf dashed"></span>
+                  <span class="sw" style="background:#8E8E93" title="Serial mono dim"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#14141F" title="Ticket dark"></span>
+                  <span class="sw" style="background:#F5D676" title="Gold NEW"></span>
+                  <span class="sw" style="background:#D4AF37" title="Perf gold"></span>
+                  <span class="sw" style="background:#8B7228" title="Serial gold deep"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict">
+              <strong>Veredicto:</strong> Mantiene la identidad signature Pixora (forma única). Soluciona el dolor del NEW haciéndolo sólido. El serial mono y la perforación dashed dan un toque <em>museum exhibit</em> que ningún competidor tiene. Riesgo: el aesthetic ticket puede sentirse nicho si LIVE quiere universalidad.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      Pixora &middot; LIVE Cards &middot; Design Archive &middot; May 2026
+    </footer>
+
+  </div>
+</body>
+</html>

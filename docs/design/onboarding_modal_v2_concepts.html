@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Onboarding v2 · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-text-soft: #3C3C43;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+    --ios-purple:    #BF5AF2;
+    --ios-pink:      #FF375F;
+
+    /* B&G theme */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-text-faint: #5a5752;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* Concept palettes */
+    --pink:     #EC4899;
+    --magenta:  #D946EF;
+    --purple:   #8B5CF6;
+    --indigo:   #6366F1;
+    --coral:    #FF5A4D;
+    --elec:     #1E6BFF;
+    --mustard:  #E5B53A;
+    --babypink: #FFE4F1;
+    --lavender: #E9D8FD;
+    --mauve:    #2A1530;
+    --rose:     #C77B9C;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(236,72,153,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(139,92,246,0.4), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(217,70,239,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(99,102,241,0.35), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 92% 88%, rgba(10,132,255,0.30), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(139,92,246,0.12), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.07), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(236,72,153,0.07), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 64px; }
+  header::before {
+    content: '// PIXORA · ONBOARDING v2 · 5 CONCEPTOS / DOC-091';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { background: linear-gradient(120deg, #EC4899, #8B5CF6, #6366F1); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 920px;
+    line-height: 1.55;
+  }
+  .subtitle em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold-bright);
+  }
+  .subtitle strong { color: var(--text); font-weight: 600; }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid { display: flex; flex-direction: column; gap: 120px; }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
+
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 290px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 600;
+    background: #fff;
+    border-radius: 36px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 6px #1a1a22,
+      0 18px 42px rgba(0,0,0,0.65),
+      0 0 50px rgba(10,132,255,0.10);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 6px #0a0a14,
+      0 18px 42px rgba(0,0,0,0.7),
+      0 0 60px rgba(212,175,55,0.16);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60px; height: 14px;
+    background: #000;
+    border-radius: 0 0 10px 10px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 18px;
+    font: 600 8.5px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 13px; height: 6.5px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─────────── Dimmed app behind modal ─────────── */
+  .app-bg {
+    position: absolute; inset: 0; z-index: 1;
+    padding: 28px 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    filter: blur(6px) saturate(0.85);
+    opacity: 0.55;
+  }
+  .app-bg .ab-bar {
+    height: 14px; border-radius: 4px;
+    background: linear-gradient(90deg, rgba(127,127,127,0.25), rgba(127,127,127,0.1));
+  }
+  .app-bg .ab-grid {
+    margin-top: 8px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .app-bg .ab-card {
+    height: 70px; border-radius: 12px;
+  }
+  .phone.light .app-bg .ab-card { background: linear-gradient(160deg,#dcdce3,#bcbcc7); }
+  .phone.dark  .app-bg .ab-card { background: linear-gradient(160deg,#1e1e2c,#0a0a14); }
+  .modal-dim {
+    position: absolute; inset: 0; z-index: 2;
+  }
+  .phone.light .modal-dim { background: rgba(0,0,0,0.30); }
+  .phone.dark  .modal-dim { background: rgba(0,0,0,0.65); }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    padding: 18px 22px;
+    border-left: 1px solid var(--gold-dark);
+    background: linear-gradient(180deg, rgba(212,175,55,0.04), transparent 80%);
+  }
+  .meta-eyebrow {
+    font: 700 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .meta h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--gold-bright);
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .meta .tagline {
+    font: 400 13px 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.45;
+    margin-bottom: 18px;
+  }
+  .meta .swatches-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .meta .swatches-row .lbl {
+    font: 600 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .meta .swatches {
+    display: flex; gap: 5px;
+  }
+  .meta .swatch {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05) inset;
+  }
+  .meta .verdict {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hairline);
+    font: 400 11px 'Geist Mono', monospace;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .meta .verdict .pro,
+  .meta .verdict .con {
+    display: block;
+    margin-top: 4px;
+  }
+  .meta .verdict .pro::before { content: '+ '; color: #5fb380; font-weight: 700; }
+  .meta .verdict .con::before { content: '− '; color: #c9805e; font-weight: 700; }
+
+  /* ─────────── Base modal shell (per-concept overrides) ─────────── */
+  .modal {
+    position: absolute;
+    left: 16px; right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    border-radius: 22px;
+    padding: 22px 18px 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .m-eyebrow {
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .m-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .m-desc {
+    font: 400 10.5px 'Geist', sans-serif;
+    line-height: 1.45;
+  }
+  .m-field {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .m-flabel {
+    font: 600 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .m-fvalue {
+    font: 500 12px 'Geist', sans-serif;
+  }
+  .m-cta {
+    margin-top: 4px;
+    height: 42px;
+    border-radius: 21px;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 11px 'Geist', sans-serif;
+    letter-spacing: 0.06em;
+  }
+  .m-footer {
+    margin-top: 4px;
+    font: 400 8px 'Inter', sans-serif;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     CONCEPT 01 — LIQUID GLASS MINIMALIST (Vision Pro / Dieter Rams)
+     ═══════════════════════════════════════════════════════════════ */
+  .c01 .modal {
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    padding: 30px 22px 24px;
+    border-radius: 26px;
+    gap: 18px;
+  }
+  .phone.light .c01 .modal {
+    background: rgba(255,255,255,0.55);
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.7) inset,
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 20px 60px rgba(0,0,0,0.12),
+      0 0 0 0.5px rgba(0,0,0,0.04);
+  }
+  .phone.dark .c01 .modal {
+    background: rgba(20,20,31,0.45);
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.07) inset,
+      0 1px 0 rgba(255,255,255,0.06) inset,
+      0 20px 60px rgba(0,0,0,0.5);
+  }
+  .c01 .m-eyebrow {
+    font-size: 8.5px;
+    letter-spacing: 0.32em;
+  }
+  .phone.light .c01 .m-eyebrow { color: rgba(60,60,67,0.55); }
+  .phone.dark  .c01 .m-eyebrow { color: rgba(245,244,238,0.45); }
+  .c01 .m-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 200;
+    font-size: 26px;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+  .phone.light .c01 .m-title { color: #1C1C1E; }
+  .phone.dark  .c01 .m-title { color: #F5F4EE; }
+  .c01 .m-desc {
+    font-weight: 300;
+    font-size: 11px;
+    line-height: 1.55;
+    max-width: 92%;
+  }
+  .phone.light .c01 .m-desc { color: rgba(60,60,67,0.7); }
+  .phone.dark  .c01 .m-desc { color: rgba(245,244,238,0.55); }
+  .c01 .m-field {
+    margin-top: 8px;
+    gap: 2px;
+    padding-bottom: 6px;
+    border-bottom: 0.5px solid rgba(60,60,67,0.18);
+    position: relative;
+  }
+  .phone.dark .c01 .m-field { border-bottom-color: rgba(245,244,238,0.12); }
+  .c01 .m-field::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -0.5px;
+    height: 1px;
+    background: var(--ios-blue);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: underlineDraw 6s ease-in-out infinite;
+  }
+  .phone.dark .c01 .m-field::after { background: var(--gold-bright); }
+  .c01 .m-field:nth-of-type(2)::after { animation-delay: 3s; }
+  @keyframes underlineDraw {
+    0%, 30% { transform: scaleX(0); }
+    45%, 70% { transform: scaleX(1); }
+    85%, 100% { transform: scaleX(0); transform-origin: right; }
+  }
+  .c01 .m-flabel {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .phone.light .c01 .m-flabel { color: rgba(60,60,67,0.5); }
+  .phone.dark  .c01 .m-flabel { color: rgba(245,244,238,0.4); }
+  .c01 .m-fvalue {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    padding: 4px 0 2px;
+    letter-spacing: -0.01em;
+  }
+  .phone.light .c01 .m-fvalue { color: #1C1C1E; }
+  .phone.dark  .c01 .m-fvalue { color: #F5F4EE; }
+  .c01 .m-cta {
+    background: transparent;
+    border: none;
+    height: auto;
+    margin-top: 10px;
+    justify-content: flex-end;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    position: relative;
+    padding-right: 4px;
+  }
+  .phone.light .c01 .m-cta { color: var(--ios-blue); }
+  .phone.dark  .c01 .m-cta { color: var(--gold-bright); }
+  .c01 .m-cta::after {
+    content: '';
+    position: absolute;
+    right: 4px; bottom: -2px;
+    width: 96px; height: 1px;
+    background: currentColor;
+    transform: scaleX(0.3);
+    transform-origin: left;
+    animation: ctaUnderline 3.5s ease-in-out infinite;
+  }
+  @keyframes ctaUnderline {
+    0%, 50%   { transform: scaleX(0.25); opacity: 0.5; }
+    60%, 90%  { transform: scaleX(1); opacity: 1; }
+    100%      { transform: scaleX(0.25); opacity: 0.5; }
+  }
+  .c01 .m-footer {
+    margin-top: 10px;
+    font-weight: 300;
+    font-size: 8.5px;
+  }
+  .phone.light .c01 .m-footer { color: rgba(60,60,67,0.45); }
+  .phone.dark  .c01 .m-footer { color: rgba(245,244,238,0.35); }
+
+  /* ═══════════════════════════════════════════════════════════════
+     CONCEPT 02 — GRADIENT TEXT DRAMA (Pink → Magenta → Purple)
+     ═══════════════════════════════════════════════════════════════ */
+  @keyframes hueShift {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50%      { filter: hue-rotate(40deg); }
+  }
+  @keyframes gradientFlow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 8px 28px rgba(236,72,153,0.35), 0 0 0 0 rgba(236,72,153,0.4); }
+    50%      { box-shadow: 0 14px 38px rgba(139,92,246,0.45), 0 0 0 6px rgba(236,72,153,0.0); }
+  }
+  .phone.light.c02 .screen { background: #FAF5F0; }
+  .phone.dark.c02 .screen  { background: #15071F; }
+  .c02 .app-bg .ab-card { filter: hue-rotate(310deg); }
+  .c02 .modal {
+    background: transparent;
+    padding: 28px 22px 22px;
+    gap: 14px;
+  }
+  .c02 .m-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.36em;
+    background: linear-gradient(90deg, #EC4899, #D946EF, #8B5CF6, #6366F1);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientFlow 6s ease-in-out infinite;
+    font-weight: 700;
+  }
+  .c02 .m-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    background: linear-gradient(110deg, #EC4899 0%, #D946EF 30%, #8B5CF6 60%, #6366F1 100%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientFlow 12s ease-in-out infinite;
+  }
+  .c02 .m-desc {
+    font-size: 11px;
+    line-height: 1.5;
+    max-width: 95%;
+  }
+  .phone.light .c02 .m-desc { color: #4A2545; }
+  .phone.dark  .c02 .m-desc { color: rgba(245,235,255,0.65); }
+  .c02 .m-field {
+    margin-top: 6px;
+    gap: 4px;
+    padding: 4px 0 8px;
+    position: relative;
+  }
+  .c02 .m-field::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1.5px;
+    background: linear-gradient(90deg, #EC4899, #D946EF, #8B5CF6, #6366F1);
+    background-size: 200% 100%;
+    animation: gradientFlow 8s ease-in-out infinite;
+    border-radius: 1px;
+    opacity: 0.85;
+  }
+  .c02 .m-flabel {
+    font-size: 8px;
+    letter-spacing: 0.24em;
+    color: #D946EF;
+    font-weight: 700;
+  }
+  .phone.dark .c02 .m-flabel { color: #F0ABFC; }
+  .c02 .m-fvalue {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+  .phone.light .c02 .m-fvalue { color: #2A0F30; }
+  .phone.dark  .c02 .m-fvalue { color: #F5EAFF; }
+  .c02 .m-cta {
+    margin-top: 12px;
+    height: 46px;
+    border-radius: 23px;
+    color: #fff;
+    background: linear-gradient(110deg, #EC4899 0%, #D946EF 30%, #8B5CF6 65%, #6366F1 100%);
+    background-size: 220% 100%;
+    animation: gradientFlow 8s ease-in-out infinite, pulseGlow 3.2s ease-in-out infinite;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+  .c02 .m-footer {
+    margin-top: 8px;
+    font-size: 8px;
+  }
+  .phone.light .c02 .m-footer { color: rgba(74,37,69,0.55); }
+  .phone.dark  .c02 .m-footer { color: rgba(245,235,255,0.4); }
+
+  /* ═══════════════════════════════════════════════════════════════
+     CONCEPT 03 — BAUHAUS GEOMETRIC (Coral / Electric Blue / Mustard)
+     ═══════════════════════════════════════════════════════════════ */
+  .phone.light.c03 .screen { background: #F1ECDD; }
+  .phone.dark.c03 .screen  { background: #1A1814; }
+  .c03 .geo {
+    position: absolute; z-index: 2; pointer-events: none;
+  }
+  .c03 .geo.circle {
+    border-radius: 50%;
+  }
+  .c03 .geo.half-l {
+    border-radius: 0 999px 999px 0;
+  }
+  .c03 .geo.half-r {
+    border-radius: 999px 0 0 999px;
+  }
+  .c03 .geo.rect {
+    border-radius: 0;
+  }
+  /* iOS variant geo */
+  .phone.light.c03 .geo-coral   { background: #FF5A4D; }
+  .phone.light.c03 .geo-blue    { background: #1E6BFF; }
+  .phone.light.c03 .geo-mustard { background: #E5B53A; }
+  .phone.light.c03 .geo-ink     { background: #1C1C1E; }
+  /* B&G variant geo */
+  .phone.dark.c03 .geo-coral   { background: #E0742B; }
+  .phone.dark.c03 .geo-blue    { background: #1E6BFF; }
+  .phone.dark.c03 .geo-mustard { background: #F5D676; }
+  .phone.dark.c03 .geo-ink     { background: #0A0A14; }
+
+  .c03 .geo-1 { top: 36px; left: -18px; width: 56px; height: 56px; }
+  .c03 .geo-2 { top: 72px; right: 18px; width: 30px; height: 30px; }
+  .c03 .geo-3 { bottom: 96px; left: 20px; width: 38px; height: 76px; }
+  .c03 .geo-4 { bottom: 30px; right: -22px; width: 80px; height: 80px; }
+  .c03 .geo-5 { top: 50%; left: 10px; transform: translateY(-50%); width: 6px; height: 110px; }
+
+  .c03 .modal {
+    background: transparent;
+    padding: 26px 22px 20px;
+    gap: 10px;
+  }
+  .c03 .m-eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    font-weight: 700;
+  }
+  .phone.light .c03 .m-eyebrow { color: #FF5A4D; }
+  .phone.dark  .c03 .m-eyebrow { color: #F5D676; }
+  .c03 .m-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: 38px;
+    line-height: 0.92;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+  }
+  .phone.light .c03 .m-title { color: #1C1C1E; }
+  .phone.dark  .c03 .m-title { color: #F5F4EE; }
+  .c03 .m-title .swatch-word {
+    display: inline-block;
+    padding: 0 6px;
+    color: #fff;
+  }
+  .phone.light .c03 .m-title .swatch-word { background: #1E6BFF; }
+  .phone.dark  .c03 .m-title .swatch-word { background: #1E6BFF; color: #fff; }
+  .c03 .m-desc {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 10.5px;
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+  .phone.light .c03 .m-desc { color: #3C3C43; }
+  .phone.dark  .c03 .m-desc { color: rgba(245,244,238,0.6); }
+  .c03 .m-field {
+    margin-top: 8px;
+    gap: 0;
+    padding: 0;
+    border: 2px solid currentColor;
+    border-radius: 0;
+    overflow: hidden;
+  }
+  .phone.light .c03 .m-field { color: #1C1C1E; }
+  .phone.dark  .c03 .m-field { color: #F5D676; }
+  .c03 .m-flabel {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: 0.26em;
+    padding: 4px 8px 2px;
+    background: currentColor;
+  }
+  .phone.light .c03 .m-flabel,
+  .phone.light .c03 .m-flabel * { color: #F1ECDD !important; }
+  .phone.dark .c03 .m-flabel,
+  .phone.dark .c03 .m-flabel *  { color: #1A1814 !important; }
+  .c03 .m-flabel { color: transparent; }
+  .c03 .m-flabel-text {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: 0.26em;
+    font-weight: 700;
+  }
+  .c03 .m-fvalue {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 6px 10px 8px;
+    background: transparent;
+  }
+  .phone.light .c03 .m-fvalue { color: #1C1C1E; }
+  .phone.dark  .c03 .m-fvalue { color: #F5F4EE; }
+  .c03 .m-cta {
+    margin-top: 10px;
+    height: 46px;
+    border-radius: 0;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 2px solid;
+    color: #fff;
+    box-shadow: 5px 5px 0 0 #1C1C1E;
+  }
+  .phone.light .c03 .m-cta {
+    background: #FF5A4D;
+    border-color: #1C1C1E;
+  }
+  .phone.dark .c03 .m-cta {
+    background: #F5D676;
+    color: #1A1814;
+    border-color: #F5D676;
+    box-shadow: 5px 5px 0 0 #E0742B;
+  }
+  .c03 .m-footer {
+    margin-top: 12px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .phone.light .c03 .m-footer { color: rgba(28,28,30,0.45); }
+  .phone.dark  .c03 .m-footer { color: rgba(245,244,238,0.35); }
+
+  /* ═══════════════════════════════════════════════════════════════
+     CONCEPT 04 — SOFT CLAYMORPHISM (Pastel Pink + Lavender)
+     ═══════════════════════════════════════════════════════════════ */
+  @keyframes claySoftPulse {
+    0%, 100% {
+      box-shadow:
+        14px 14px 30px rgba(218,162,196,0.35),
+        -8px -8px 24px rgba(255,255,255,0.85),
+        inset 0 -2px 6px rgba(0,0,0,0.04);
+    }
+    50% {
+      box-shadow:
+        18px 18px 36px rgba(218,162,196,0.45),
+        -10px -10px 28px rgba(255,255,255,0.95),
+        inset 0 -2px 6px rgba(0,0,0,0.05);
+    }
+  }
+  @keyframes claySoftPulseDark {
+    0%, 100% {
+      box-shadow:
+        14px 14px 30px rgba(15,5,20,0.65),
+        -8px -8px 24px rgba(80,40,90,0.4),
+        inset 0 -2px 6px rgba(0,0,0,0.25);
+    }
+    50% {
+      box-shadow:
+        18px 18px 36px rgba(15,5,20,0.75),
+        -10px -10px 28px rgba(100,55,115,0.5),
+        inset 0 -2px 6px rgba(0,0,0,0.3);
+    }
+  }
+  @keyframes buttonSquish {
+    0%, 88%, 100% { transform: scale(1); }
+    92%           { transform: scale(0.94); }
+    96%           { transform: scale(1.02); }
+  }
+  .phone.light.c04 .screen { background: #FFE4F1; }
+  .phone.dark.c04 .screen  { background: #1A0820; }
+  .c04 .app-bg { opacity: 0.4; }
+  .phone.light.c04 .app-bg .ab-card { background: linear-gradient(160deg,#FFD2E5,#FFB8D9); }
+  .phone.dark.c04 .app-bg .ab-card  { background: linear-gradient(160deg,#2A1530,#3A1F40); }
+  .c04 .modal {
+    padding: 26px 22px 22px;
+    border-radius: 32px;
+    gap: 14px;
+  }
+  .phone.light .c04 .modal {
+    background: linear-gradient(160deg, #FFF0F8, #FFE0EC);
+    animation: claySoftPulse 4s ease-in-out infinite;
+  }
+  .phone.dark .c04 .modal {
+    background: linear-gradient(160deg, #2A1530, #1F0E25);
+    animation: claySoftPulseDark 4s ease-in-out infinite;
+  }
+  .c04 .m-eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.28em;
+    font-weight: 700;
+  }
+  .phone.light .c04 .m-eyebrow { color: #C95AA1; }
+  .phone.dark  .c04 .m-eyebrow { color: #E8A8D0; }
+  .c04 .m-title {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 24px;
+    letter-spacing: -0.022em;
+    line-height: 1.08;
+  }
+  .phone.light .c04 .m-title { color: #5C2349; }
+  .phone.dark  .c04 .m-title { color: #FCE0EE; }
+  .c04 .m-desc {
+    font-family: 'Geist', sans-serif;
+    font-weight: 400;
+    font-size: 10.5px;
+    line-height: 1.5;
+    max-width: 94%;
+  }
+  .phone.light .c04 .m-desc { color: rgba(92,35,73,0.7); }
+  .phone.dark  .c04 .m-desc { color: rgba(252,224,238,0.55); }
+  .c04 .m-field {
+    margin-top: 4px;
+    gap: 2px;
+    padding: 8px 16px 10px;
+    border-radius: 18px;
+  }
+  .phone.light .c04 .m-field {
+    background: #FFFAFD;
+    box-shadow:
+      inset 4px 4px 8px rgba(218,162,196,0.22),
+      inset -2px -2px 6px rgba(255,255,255,0.9);
+  }
+  .phone.dark .c04 .m-field {
+    background: #20102B;
+    box-shadow:
+      inset 4px 4px 10px rgba(0,0,0,0.45),
+      inset -2px -2px 6px rgba(80,40,90,0.3);
+  }
+  .c04 .m-flabel {
+    font-family: 'Geist Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: 0.22em;
+    font-weight: 600;
+  }
+  .phone.light .c04 .m-flabel { color: #C95AA1; }
+  .phone.dark  .c04 .m-flabel { color: #E8A8D0; }
+  .c04 .m-fvalue {
+    font-family: 'Geist', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+  }
+  .phone.light .c04 .m-fvalue { color: #5C2349; }
+  .phone.dark  .c04 .m-fvalue { color: #FCE0EE; }
+  .c04 .m-cta {
+    margin-top: 10px;
+    height: 50px;
+    border-radius: 28px;
+    color: #fff;
+    font-family: 'Geist', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    animation: buttonSquish 5s ease-in-out infinite;
+  }
+  .phone.light .c04 .m-cta {
+    background: linear-gradient(160deg, #FF8FBE, #EC5B9D);
+    box-shadow:
+      6px 8px 18px rgba(236,91,157,0.4),
+      -3px -3px 8px rgba(255,255,255,0.6),
+      inset 0 -3px 6px rgba(190,40,110,0.3),
+      inset 0 2px 4px rgba(255,255,255,0.5);
+  }
+  .phone.dark .c04 .m-cta {
+    background: linear-gradient(160deg, #D67BA4, #B0537F);
+    box-shadow:
+      6px 8px 18px rgba(0,0,0,0.55),
+      -3px -3px 8px rgba(80,40,90,0.4),
+      inset 0 -3px 6px rgba(120,30,80,0.5),
+      inset 0 2px 4px rgba(255,255,255,0.15);
+    color: #2A0820;
+  }
+  .c04 .m-footer {
+    margin-top: 6px;
+    font-family: 'Geist', sans-serif;
+    font-size: 8px;
+    font-weight: 400;
+  }
+  .phone.light .c04 .m-footer { color: rgba(92,35,73,0.45); }
+  .phone.dark  .c04 .m-footer { color: rgba(252,224,238,0.4); }
+
+  /* ═══════════════════════════════════════════════════════════════
+     CONCEPT 05 — IRIDESCENT LIQUID METAL (Vision Pro Launch)
+     ═══════════════════════════════════════════════════════════════ */
+  @keyframes iridescentShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes liquidSheen {
+    0%   { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateX(200%) skewX(-20deg); opacity: 0; }
+  }
+  @keyframes iridGlow {
+    0%, 100% { box-shadow: 0 8px 24px rgba(167,139,250,0.30), 0 0 0 0 rgba(244,114,182,0.0); }
+    50%      { box-shadow: 0 12px 32px rgba(244,114,182,0.40), 0 0 0 4px rgba(167,139,250,0.0); }
+  }
+  .phone.light.c05 .screen { background: #F5F1ED; }
+  .phone.dark.c05 .screen  { background: #060610; }
+  .c05 .modal {
+    padding: 30px 22px 22px;
+    border-radius: 26px;
+    gap: 14px;
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+  }
+  .phone.light .c05 .modal {
+    background: rgba(255,255,255,0.7);
+    box-shadow:
+      0 0 0 0.5px rgba(0,0,0,0.06),
+      0 20px 60px rgba(167,139,250,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+  .phone.dark .c05 .modal {
+    background: rgba(15,15,28,0.65);
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.08),
+      0 20px 60px rgba(167,139,250,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .c05 .m-eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    font-weight: 600;
+    background: linear-gradient(90deg, #F472B6, #C4B5FD, #67E8F9, #6EE7B7, #F472B6);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: iridescentShift 9s ease-in-out infinite;
+  }
+  .c05 .m-title {
+    position: relative;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    background: linear-gradient(110deg, #F472B6 0%, #C4B5FD 25%, #67E8F9 50%, #6EE7B7 75%, #F472B6 100%);
+    background-size: 280% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: iridescentShift 7s ease-in-out infinite;
+    overflow: hidden;
+  }
+  .phone.dark .c05 .m-title {
+    background: linear-gradient(110deg, #FCA5D1 0%, #D6BCFA 25%, #BEE9F5 50%, #F5D676 75%, #FCA5D1 100%);
+    background-size: 280% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: iridescentShift 7s ease-in-out infinite;
+  }
+  .c05 .m-title-sheen-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+  .c05 .m-title-sheen-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0; width: 40%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+    animation: liquidSheen 4.5s ease-in-out infinite;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+  .c05 .m-desc {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 10.5px;
+    line-height: 1.5;
+    max-width: 94%;
+  }
+  .phone.light .c05 .m-desc { color: rgba(60,60,67,0.7); }
+  .phone.dark  .c05 .m-desc { color: rgba(245,244,238,0.55); }
+  .c05 .m-field {
+    margin-top: 6px;
+    gap: 2px;
+    padding-bottom: 8px;
+    position: relative;
+  }
+  .c05 .m-field::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: rgba(60,60,67,0.18);
+  }
+  .phone.dark .c05 .m-field::before { background: rgba(255,255,255,0.10); }
+  .c05 .m-field::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 0;
+    height: 1.5px;
+    width: 50%;
+    border-radius: 1px;
+    background: linear-gradient(90deg, #F472B6, #C4B5FD, #67E8F9, #6EE7B7);
+    background-size: 200% 100%;
+    animation: iridescentShift 5s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(196,181,253,0.5);
+  }
+  .c05 .m-field:nth-of-type(2)::after { width: 70%; }
+  .c05 .m-flabel {
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.24em;
+    font-weight: 600;
+  }
+  .phone.light .c05 .m-flabel { color: rgba(60,60,67,0.55); }
+  .phone.dark  .c05 .m-flabel { color: rgba(245,244,238,0.5); }
+  .c05 .m-fvalue {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 4px 0 2px;
+    letter-spacing: -0.005em;
+  }
+  .phone.light .c05 .m-fvalue { color: #1C1C1E; }
+  .phone.dark  .c05 .m-fvalue { color: #F5F4EE; }
+  .c05 .m-cta {
+    margin-top: 12px;
+    height: 46px;
+    border-radius: 23px;
+    color: #2D1B3E;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(110deg, #FCE7F3 0%, #E9D5FF 25%, #CFFAFE 50%, #D1FAE5 75%, #FCE7F3 100%);
+    background-size: 280% 100%;
+    animation: iridescentShift 6s ease-in-out infinite, iridGlow 3.6s ease-in-out infinite;
+  }
+  .phone.dark .c05 .m-cta {
+    color: #15071E;
+    background: linear-gradient(110deg, #FBCFE8 0%, #DDD6FE 25%, #BAE6FD 50%, #FDE68A 75%, #FBCFE8 100%);
+    background-size: 280% 100%;
+    animation: iridescentShift 6s ease-in-out infinite, iridGlow 3.6s ease-in-out infinite;
+  }
+  .c05 .m-cta::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0; width: 35%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    animation: liquidSheen 3.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .c05 .m-footer {
+    margin-top: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 8.5px;
+  }
+  .phone.light .c05 .m-footer { color: rgba(60,60,67,0.45); }
+  .phone.dark  .c05 .m-footer { color: rgba(245,244,238,0.35); }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--hairline);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer .right { color: var(--text-faint); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      Pixora <span class="ornament">·</span> Onboarding
+      <span class="accent">v2</span><span class="ornament">/</span><span class="accent2">5 conceptos</span>
+    </h1>
+    <p class="subtitle">
+      Modal de captura — <em>nombre</em> y <em>fecha de nacimiento</em>. Cinco direcciones distintas: del <strong>minimalismo Vision Pro</strong> al <strong>drama tipográfico con gradientes animados</strong>, pasando por <strong>Bauhaus</strong>, <strong>claymorphism</strong> e <strong>iridiscencia líquida</strong>. Cada concepto en sus dos variantes oficiales: iOS White y Black &amp; Gold.
+    </p>
+    <div class="header-rule">
+      <span>archive · doc-091</span>
+      <span class="line"></span>
+      <span>5 conceptos · 10 mockups</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ═══════════════════════════════════ CONCEPT 01 ═══════════════════════════════════ -->
+    <section class="concept c01">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <div class="phone light c01">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="app-bg">
+                  <div class="ab-bar"></div>
+                  <div class="ab-grid">
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                  </div>
+                </div>
+                <div class="modal-dim"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">BIENVENIDA</div>
+                  <div class="m-title">Empecemos.</div>
+                  <div class="m-desc">Personaliza tu experiencia con tu nombre y fecha de nacimiento.</div>
+                  <div class="m-field">
+                    <div class="m-flabel">Nombre</div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel">Fecha de nacimiento</div>
+                    <div class="m-fvalue">07 / Octubre / 1992</div>
+                  </div>
+                  <div class="m-cta">Continuar →</div>
+                  <div class="m-footer">Tus datos quedan en tu dispositivo. Privacidad por diseño.</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone dark c01">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="app-bg">
+                  <div class="ab-bar"></div>
+                  <div class="ab-grid">
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                  </div>
+                </div>
+                <div class="modal-dim"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">BIENVENIDA</div>
+                  <div class="m-title">Empecemos.</div>
+                  <div class="m-desc">Personaliza tu experiencia con tu nombre y fecha de nacimiento.</div>
+                  <div class="m-field">
+                    <div class="m-flabel">Nombre</div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel">Fecha de nacimiento</div>
+                    <div class="m-fvalue">07 / Octubre / 1992</div>
+                  </div>
+                  <div class="m-cta">Continuar →</div>
+                  <div class="m-footer">Tus datos quedan en tu dispositivo. Privacidad por diseño.</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="meta-eyebrow">NO. 01</div>
+          <h2>Liquid Glass · Minimalist</h2>
+          <p class="tagline">Vision Pro / Dieter Rams. Una sola tarjeta frosted, mucho aire, tipografía Inter delgada, campos solo con underline. Anim sutilísima: la línea inferior se dibuja en focus. Cero ornamentos.</p>
+          <div class="swatches-row">
+            <span class="lbl">iOS</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#FFFFFF"></div>
+              <div class="swatch" style="background:rgba(255,255,255,0.55)"></div>
+              <div class="swatch" style="background:#1C1C1E"></div>
+              <div class="swatch" style="background:#0A84FF"></div>
+            </div>
+          </div>
+          <div class="swatches-row">
+            <span class="lbl">B&amp;G</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#070710"></div>
+              <div class="swatch" style="background:rgba(20,20,31,0.45)"></div>
+              <div class="swatch" style="background:#F5F4EE"></div>
+              <div class="swatch" style="background:#F5D676"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <span class="pro">Envejece muy bien — no compite con el contenido posterior.</span>
+            <span class="pro">Sensación de producto premium tipo Apple sin esfuerzo visible.</span>
+            <span class="con">Menos "wow" inmediato; depende del prompt para no sentirse vacío.</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ CONCEPT 02 ═══════════════════════════════════ -->
+    <section class="concept c02">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <div class="phone light c02">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="app-bg">
+                  <div class="ab-bar"></div>
+                  <div class="ab-grid">
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                  </div>
+                </div>
+                <div class="modal-dim"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">ANTES DE EMPEZAR</div>
+                  <div class="m-title">Cuéntame quién eres.</div>
+                  <div class="m-desc">Dos datos para personalizar tu galería y desbloquear el horóscopo diario.</div>
+                  <div class="m-field">
+                    <div class="m-flabel">Nombre</div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel">Fecha de nacimiento</div>
+                    <div class="m-fvalue">07 oct 1992</div>
+                  </div>
+                  <div class="m-cta">CONTINUAR</div>
+                  <div class="m-footer">Los datos viven en tu teléfono. Puedes editarlos cuando quieras.</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone dark c02">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="app-bg">
+                  <div class="ab-bar"></div>
+                  <div class="ab-grid">
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                  </div>
+                </div>
+                <div class="modal-dim"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">ANTES DE EMPEZAR</div>
+                  <div class="m-title">Cuéntame quién eres.</div>
+                  <div class="m-desc">Dos datos para personalizar tu galería y desbloquear el horóscopo diario.</div>
+                  <div class="m-field">
+                    <div class="m-flabel">Nombre</div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel">Fecha de nacimiento</div>
+                    <div class="m-fvalue">07 oct 1992</div>
+                  </div>
+                  <div class="m-cta">CONTINUAR</div>
+                  <div class="m-footer">Los datos viven en tu teléfono. Puedes editarlos cuando quieras.</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="meta-eyebrow">NO. 02</div>
+          <h2>Gradient Text Drama</h2>
+          <p class="tagline">Editorial / fashion magazine. Título Fraunces italic enorme con fill gradient pink → magenta → purple → indigo en hue-rotate continuo (12s). Border-bottom de inputs con el mismo gradient. CTA pulse + glow.</p>
+          <div class="swatches-row">
+            <span class="lbl">iOS</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#FAF5F0"></div>
+              <div class="swatch" style="background:#EC4899"></div>
+              <div class="swatch" style="background:#8B5CF6"></div>
+              <div class="swatch" style="background:#6366F1"></div>
+            </div>
+          </div>
+          <div class="swatches-row">
+            <span class="lbl">B&amp;G</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#15071F"></div>
+              <div class="swatch" style="background:#F0ABFC"></div>
+              <div class="swatch" style="background:#D946EF"></div>
+              <div class="swatch" style="background:#8B5CF6"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <span class="pro">Texto-como-héroe — memorable, dinámico, premium sin perfilar marca.</span>
+            <span class="pro">Gradient en movimiento es lo más cercano a "wow" sin saturar.</span>
+            <span class="con">Riesgo de feel "Web3"; mantener tipografía editorial para no caer ahí.</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ CONCEPT 03 ═══════════════════════════════════ -->
+    <section class="concept c03">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <div class="phone light c03">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="geo circle geo-coral geo-1"></div>
+                <div class="geo circle geo-blue geo-2"></div>
+                <div class="geo half-r geo-mustard geo-3"></div>
+                <div class="geo circle geo-ink geo-4"></div>
+                <div class="geo rect geo-blue geo-5"></div>
+                <div class="modal-dim" style="background:rgba(241,236,221,0.55)"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">PIXORA · 01</div>
+                  <div class="m-title">DIME tu <span class="swatch-word">NOMBRE</span></div>
+                  <div class="m-desc">Forma · color · función. Dos campos, sin decoración. Empecemos por lo básico.</div>
+                  <div class="m-field">
+                    <div class="m-flabel"><span class="m-flabel-text">NOMBRE</span></div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel"><span class="m-flabel-text">FECHA NAC.</span></div>
+                    <div class="m-fvalue">07.10.1992</div>
+                  </div>
+                  <div class="m-cta">CONTINUAR →</div>
+                  <div class="m-footer">001 · DATOS LOCALES · NO SE COMPARTEN</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone dark c03">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="geo circle geo-coral geo-1"></div>
+                <div class="geo circle geo-mustard geo-2"></div>
+                <div class="geo half-r geo-blue geo-3"></div>
+                <div class="geo circle geo-mustard geo-4"></div>
+                <div class="geo rect geo-coral geo-5"></div>
+                <div class="modal-dim" style="background:rgba(26,24,20,0.55)"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">PIXORA · 01</div>
+                  <div class="m-title">DIME tu <span class="swatch-word">NOMBRE</span></div>
+                  <div class="m-desc">Forma · color · función. Dos campos, sin decoración. Empecemos por lo básico.</div>
+                  <div class="m-field">
+                    <div class="m-flabel"><span class="m-flabel-text">NOMBRE</span></div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel"><span class="m-flabel-text">FECHA NAC.</span></div>
+                    <div class="m-fvalue">07.10.1992</div>
+                  </div>
+                  <div class="m-cta">CONTINUAR →</div>
+                  <div class="m-footer">001 · DATOS LOCALES · NO SE COMPARTEN</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="meta-eyebrow">NO. 03</div>
+          <h2>Bauhaus Geometric</h2>
+          <p class="tagline">Bauhaus poster / IBM Plex. Círculos, medio-círculos y rectángulos en coral, eléctrico y mostaza. Bebas Neue chunky, inputs con borde grueso, botón con sombra dura desplazada. Cero gradients, todo plano.</p>
+          <div class="swatches-row">
+            <span class="lbl">iOS</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#F1ECDD"></div>
+              <div class="swatch" style="background:#FF5A4D"></div>
+              <div class="swatch" style="background:#1E6BFF"></div>
+              <div class="swatch" style="background:#E5B53A"></div>
+            </div>
+          </div>
+          <div class="swatches-row">
+            <span class="lbl">B&amp;G</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#1A1814"></div>
+              <div class="swatch" style="background:#E0742B"></div>
+              <div class="swatch" style="background:#F5D676"></div>
+              <div class="swatch" style="background:#1E6BFF"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <span class="pro">Bold + estructurado + memorable — imposible confundirlo con otra app.</span>
+            <span class="pro">No depende de animaciones (perf garantizada en cualquier Android).</span>
+            <span class="con">Estética divisiva; debe ejecutarse pixel-perfect o se rompe.</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ CONCEPT 04 ═══════════════════════════════════ -->
+    <section class="concept c04">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <div class="phone light c04">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="app-bg">
+                  <div class="ab-bar"></div>
+                  <div class="ab-grid">
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                  </div>
+                </div>
+                <div class="modal-dim" style="background:rgba(255,180,210,0.25)"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">BIENVENIDA</div>
+                  <div class="m-title">¡Qué gusto verte!</div>
+                  <div class="m-desc">Para personalizar tu galería necesitamos solo dos datitos.</div>
+                  <div class="m-field">
+                    <div class="m-flabel">TU NOMBRE</div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel">CUMPLEAÑOS</div>
+                    <div class="m-fvalue">07 oct 1992</div>
+                  </div>
+                  <div class="m-cta">CONTINUAR</div>
+                  <div class="m-footer">Privadito y a salvo. Solo en tu teléfono.</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone dark c04">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="app-bg">
+                  <div class="ab-bar"></div>
+                  <div class="ab-grid">
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                  </div>
+                </div>
+                <div class="modal-dim" style="background:rgba(40,15,50,0.6)"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">BIENVENIDA</div>
+                  <div class="m-title">¡Qué gusto verte!</div>
+                  <div class="m-desc">Para personalizar tu galería necesitamos solo dos datitos.</div>
+                  <div class="m-field">
+                    <div class="m-flabel">TU NOMBRE</div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel">CUMPLEAÑOS</div>
+                    <div class="m-fvalue">07 oct 1992</div>
+                  </div>
+                  <div class="m-cta">CONTINUAR</div>
+                  <div class="m-footer">Privadito y a salvo. Solo en tu teléfono.</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="meta-eyebrow">NO. 04</div>
+          <h2>Soft Claymorphism · Pastel</h2>
+          <p class="tagline">Apple Health rings / Duolingo lite. Todo redondito y "puffy" con sombras suaves. Baby pink + lavender (iOS), deep mauve + dusty rose (B&amp;G). Inputs con inset shadow, botón con squish micro-animation.</p>
+          <div class="swatches-row">
+            <span class="lbl">iOS</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#FFE4F1"></div>
+              <div class="swatch" style="background:#FFF0F8"></div>
+              <div class="swatch" style="background:#EC5B9D"></div>
+              <div class="swatch" style="background:#E9D8FD"></div>
+            </div>
+          </div>
+          <div class="swatches-row">
+            <span class="lbl">B&amp;G</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#1A0820"></div>
+              <div class="swatch" style="background:#2A1530"></div>
+              <div class="swatch" style="background:#D67BA4"></div>
+              <div class="swatch" style="background:#F5D676"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <span class="pro">Cálido, amigable, no intimida — perfecto para audiencia femenina y casual.</span>
+            <span class="pro">Las sombras suaves se ven igual de bien en cualquier display.</span>
+            <span class="con">Puede sentirse demasiado "cute" si el copy del onboarding es solemne.</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ CONCEPT 05 ═══════════════════════════════════ -->
+    <section class="concept c05">
+      <div class="concept-row">
+        <div class="phones">
+
+          <div class="phone-wrap">
+            <div class="phone light c05">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="app-bg">
+                  <div class="ab-bar"></div>
+                  <div class="ab-grid">
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                  </div>
+                </div>
+                <div class="modal-dim"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">PIXORA · ONBOARDING</div>
+                  <div class="m-title m-title-sheen-wrap">Bienvenido.</div>
+                  <div class="m-desc">Dos datos para abrir tu mundo: galería personalizada, calendario zodiacal y horóscopo diario.</div>
+                  <div class="m-field">
+                    <div class="m-flabel">Nombre</div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel">Fecha de nacimiento</div>
+                    <div class="m-fvalue">07 / Octubre / 1992</div>
+                  </div>
+                  <div class="m-cta">Continuar</div>
+                  <div class="m-footer">Datos locales · cifrados en tu dispositivo</div>
+                </div>
+              </div>
+            </div>
+            <div class="label ios">iOS WHITE</div>
+          </div>
+
+          <div class="phone-wrap">
+            <div class="phone dark c05">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><span class="battery"></span></div>
+              <div class="screen">
+                <div class="app-bg">
+                  <div class="ab-bar"></div>
+                  <div class="ab-grid">
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                    <div class="ab-card"></div><div class="ab-card"></div>
+                  </div>
+                </div>
+                <div class="modal-dim"></div>
+                <div class="modal">
+                  <div class="m-eyebrow">PIXORA · ONBOARDING</div>
+                  <div class="m-title m-title-sheen-wrap">Bienvenido.</div>
+                  <div class="m-desc">Dos datos para abrir tu mundo: galería personalizada, calendario zodiacal y horóscopo diario.</div>
+                  <div class="m-field">
+                    <div class="m-flabel">Nombre</div>
+                    <div class="m-fvalue">Eduardo</div>
+                  </div>
+                  <div class="m-field">
+                    <div class="m-flabel">Fecha de nacimiento</div>
+                    <div class="m-fvalue">07 / Octubre / 1992</div>
+                  </div>
+                  <div class="m-cta">Continuar</div>
+                  <div class="m-footer">Datos locales · cifrados en tu dispositivo</div>
+                </div>
+              </div>
+            </div>
+            <div class="label bg">BLACK &amp; GOLD</div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="meta-eyebrow">NO. 05</div>
+          <h2>Iridescent Liquid Metal</h2>
+          <p class="tagline">Apple Vision Pro launch / Apple Film. Título con fill iridiscente (pink → lavender → cyan → mint) animado + liquid sheen barriendo encima. CTA con shimmer + glow pulse. Premium 2026 puro.</p>
+          <div class="swatches-row">
+            <span class="lbl">iOS</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#F5F1ED"></div>
+              <div class="swatch" style="background:#F472B6"></div>
+              <div class="swatch" style="background:#C4B5FD"></div>
+              <div class="swatch" style="background:#67E8F9"></div>
+            </div>
+          </div>
+          <div class="swatches-row">
+            <span class="lbl">B&amp;G</span>
+            <div class="swatches">
+              <div class="swatch" style="background:#060610"></div>
+              <div class="swatch" style="background:#FCA5D1"></div>
+              <div class="swatch" style="background:#D6BCFA"></div>
+              <div class="swatch" style="background:#F5D676"></div>
+            </div>
+          </div>
+          <div class="verdict">
+            <span class="pro">ULTRA moderno — feel "Apple Keynote 2026" auténtico.</span>
+            <span class="pro">El efecto sheen + iridiscencia funcionan en CSS sin shaders.</span>
+            <span class="con">Animación continua puede cansar batería en Android mid-range.</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <span>PIXORA · ONBOARDING v2 · DESIGN ARCHIVE · MAY 2026</span>
+    <span class="right">doc-091 · 5 conceptos · 10 mockups</span>
+  </footer>
+</div>
+</body>
+</html>

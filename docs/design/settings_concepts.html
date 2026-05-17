@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PIXORA · SETTINGS · 5 CONCEPTOS · DOC-115</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500;1,9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+<style>
+/* ============== GLOBAL ============== */
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --ink: #07060A;
+  --ink-2: #0E0C14;
+  --bone: #F4EFE6;
+  --mist: rgba(244,239,230,0.6);
+  --iridescent: linear-gradient(120deg, #f0a8c0 0%, #c39de0 25%, #88b5e0 50%, #a8d8c0 75%, #f0c890 100%);
+}
+html, body { background: var(--ink); color: var(--bone); font-family: 'Geist', sans-serif; overflow-x: hidden; }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(120,90,170,0.10), transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(60,90,160,0.08), transparent 60%),
+    radial-gradient(ellipse at 30% 90%, rgba(180,100,140,0.06), transparent 60%),
+    var(--ink);
+  position: relative;
+}
+body::before {
+  content:''; position: fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 250px 220px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 400px 60px, rgba(255,255,255,0.3), transparent),
+    radial-gradient(2px 2px at 550px 180px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 700px 350px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 850px 120px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 1000px 280px, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 1150px 80px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(2px 2px at 1300px 220px, rgba(255,255,255,0.6), transparent);
+  background-repeat: repeat;
+  background-size: 1400px 400px;
+  opacity: 0.6;
+  animation: drift 180s linear infinite;
+}
+@keyframes drift {
+  from { background-position: 0 0; }
+  to { background-position: -1400px 800px; }
+}
+
+.page { max-width: 1360px; margin: 0 auto; padding: 80px 56px 120px; position: relative; z-index: 1; }
+
+/* ============== HEADER ============== */
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--mist);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 1.2s ease 0.1s forwards;
+}
+h1.title {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 56px;
+  line-height: 1.05;
+  color: var(--bone);
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+  opacity: 0;
+  animation: fadeUp 1.2s ease 0.25s forwards;
+}
+h1.title .grad {
+  background: var(--iridescent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 8s linear infinite;
+}
+@keyframes shimmer { to { background-position: 200% center; } }
+.subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--mist);
+  max-width: 760px;
+  line-height: 1.55;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 1.2s ease 0.40s forwards;
+}
+.subtitle em { color: #f0c890; font-style: italic; }
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244,239,230,0.25), transparent);
+  margin: 56px 0 80px;
+  opacity: 0;
+  animation: fadeUp 1.2s ease 0.55s forwards;
+}
+
+@keyframes fadeUp { from { opacity:0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
+
+/* ============== CONCEPT ROW LAYOUT ============== */
+.concept-row {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 64px;
+  margin-bottom: 140px;
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeUp 1.2s ease forwards;
+}
+.concept-row.r1 { animation-delay: 0.50s; }
+.concept-row.r2 { animation-delay: 0.65s; }
+.concept-row.r3 { animation-delay: 0.80s; }
+.concept-row.r4 { animation-delay: 0.95s; }
+.concept-row.r5 { animation-delay: 1.10s; }
+
+/* phone frame — tall to show dense settings */
+.phone {
+  width: 340px;
+  height: 780px;
+  background: #000;
+  border-radius: 46px;
+  padding: 10px;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 30px 80px -30px rgba(0,0,0,0.9),
+    0 0 60px rgba(255,255,255,0.04);
+}
+.phone::before {
+  content:'';
+  position:absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 26px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 50;
+}
+.screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 38px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* meta column */
+.meta { padding-top: 12px; max-width: 520px; }
+.meta .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--mist);
+  letter-spacing: 0.2em;
+  margin-bottom: 14px;
+}
+.meta h2 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.meta .tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #c39de0;
+  margin-bottom: 22px;
+  line-height: 1.4;
+}
+.meta .desc {
+  font-family: 'Geist', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(244,239,230,0.78);
+  margin-bottom: 28px;
+}
+.palette { display: flex; gap: 10px; margin-bottom: 26px; }
+.swatch {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);
+}
+.swatch::after {
+  content: attr(data-hex);
+  position: absolute;
+  bottom: -18px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  color: rgba(244,239,230,0.4);
+  white-space: nowrap;
+}
+.verdict {
+  border: 1px solid rgba(244,239,230,0.12);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-top: 36px;
+  background: rgba(244,239,230,0.02);
+}
+.verdict .v-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 10px;
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(244,239,230,0.75);
+}
+.verdict .v-row:last-child { margin-bottom: 0; }
+.verdict .v-sign {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.verdict .plus { color: #88c8a0; }
+.verdict .minus { color: #e0a890; }
+
+/* ============== SHARED SCREEN BASE ============== */
+.statusbar {
+  height: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 22px 4px;
+  font-size: 11px;
+  font-family: 'Geist', sans-serif;
+  font-weight: 500;
+  position: relative;
+  z-index: 5;
+}
+.bottomnav {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 54px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 12px 10px;
+  z-index: 5;
+}
+.navitem {
+  display: flex; flex-direction: column; align-items: center;
+  font-size: 9px; font-family: 'Geist', sans-serif;
+  opacity: 0.5; gap: 2px;
+}
+.navitem.active { opacity: 1; }
+.navitem .material-symbols-outlined { font-size: 20px; }
+.content-scroll {
+  position: absolute;
+  top: 28px; left: 0; right: 0; bottom: 54px;
+  overflow: hidden;
+  z-index: 4;
+}
+
+/* =====================================================
+   CONCEPT 01 — HOLOGRAPHIC MANIFEST
+===================================================== */
+.set01 .screen {
+  background: #1F1B17;
+  color: #F4EFE6;
+}
+.set01 .ribbon {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--iridescent);
+  background-size: 200% 100%;
+  animation: shimmer 6s linear infinite;
+  z-index: 6;
+}
+.set01 .statusbar { color: #F4EFE6; }
+.set01 .top-head {
+  padding: 6px 22px 14px;
+  border-bottom: 1px solid rgba(244,239,230,0.06);
+}
+.set01 .top-head .eyeb {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.3em;
+  color: rgba(244,239,230,0.45);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.set01 .top-head .ttl {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+.set01 .top-head .ttl .g {
+  background: var(--iridescent);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 8s linear infinite;
+}
+.set01 .scroll {
+  padding: 12px 16px 12px;
+  height: 100%;
+  overflow: hidden;
+}
+.set01 .card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  margin-bottom: 12px;
+}
+.set01 .card::before {
+  content:'';
+  position: absolute; inset: 0;
+  border-radius: 14px;
+  padding: 1.5px;
+  background: var(--iridescent);
+  background-size: 200% 200%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  animation: shimmer 10s linear infinite;
+  opacity: 0.55;
+}
+.set01 .sec-head {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+  background: var(--iridescent);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 12s linear infinite;
+}
+.set01 .row {
+  display: flex; align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(244,239,230,0.04);
+  gap: 10px;
+}
+.set01 .row:last-child { border-bottom: none; }
+.set01 .row .lbl {
+  flex: 1;
+  font-family: 'Geist', sans-serif;
+  font-size: 12.5px;
+  color: rgba(244,239,230,0.92);
+  font-weight: 400;
+}
+.set01 .row .ico {
+  width: 22px; height: 22px;
+  font-size: 16px;
+  color: rgba(244,239,230,0.7);
+  display: flex; align-items: center; justify-content: center;
+}
+.set01 .row .sub {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: rgba(244,239,230,0.5);
+  margin-top: 1px;
+}
+.set01 .row .lbl-wrap { flex: 1; }
+/* foil toggle */
+.set01 .tog {
+  width: 38px; height: 22px;
+  border-radius: 12px;
+  position: relative;
+  border: 1px solid rgba(244,239,230,0.15);
+  background: transparent;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+.set01 .tog.on {
+  background: var(--iridescent);
+  background-size: 200% 200%;
+  border-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+.set01 .tog::after {
+  content:'';
+  position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #1F1B17;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.set01 .tog.on::after { left: 18px; background: #F4EFE6; }
+
+/* theme picker */
+.set01 .themes { display: flex; gap: 8px; margin-top: 4px; }
+.set01 .thm {
+  flex: 1;
+  height: 64px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.set01 .thm::before {
+  content:'';
+  position: absolute; inset: 0;
+  border-radius: 10px;
+  padding: 1.5px;
+  background: var(--iridescent);
+  background-size: 200% 200%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.set01 .thm.bg {
+  background: linear-gradient(135deg, #07060A 0%, #1A1410 60%, #3a2a1a 100%);
+}
+.set01 .thm.io {
+  background: linear-gradient(135deg, #F8F4EC 0%, #E8DCC8 100%);
+}
+.set01 .thm.au {
+  background: linear-gradient(135deg, #07060A 0%, #F8F4EC 100%);
+}
+.set01 .thm .lab {
+  position: absolute; bottom: 4px; left: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  color: rgba(244,239,230,0.9);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.set01 .thm.io .lab { color: #2A2520; text-shadow: none; }
+.set01 .thm.bg::after, .set01 .thm.au::after, .set01 .thm.io::after {
+  content:''; position: absolute; top: 5px; right: 5px;
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid rgba(244,239,230,0.35);
+}
+.set01 .thm.bg::after { background: var(--iridescent); border-color: transparent; }
+
+/* account row */
+.set01 .acc {
+  display: flex; align-items: center; gap: 12px;
+  padding: 4px 0 8px;
+}
+.set01 .acc .avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, #3a2a4a, #1f1b17);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-style: italic;
+  font-size: 18px; color: #F4EFE6;
+}
+.set01 .acc .avatar::before {
+  content:''; position: absolute; inset: -2px;
+  border-radius: 50%;
+  background: var(--iridescent);
+  background-size: 200% 200%;
+  z-index: -1;
+  animation: shimmer 6s linear infinite;
+}
+.set01 .acc .name {
+  font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 500;
+}
+.set01 .acc .mail {
+  font-family: 'Geist Mono', monospace; font-size: 9px;
+  color: rgba(244,239,230,0.55); margin-top: 1px;
+}
+.set01 .acc .chip {
+  margin-left: auto;
+  padding: 5px 10px;
+  border-radius: 99px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px; letter-spacing: 0.1em;
+  color: #F4EFE6;
+  position: relative;
+}
+.set01 .acc .chip::before {
+  content:''; position: absolute; inset: 0; border-radius: 99px;
+  padding: 1.2px; background: var(--iridescent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+
+/* subscription card */
+.set01 .sub-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(243,168,192,0.15), transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(195,157,224,0.12), transparent 60%),
+    rgba(31,27,23,0.6);
+}
+.set01 .sub-card::before {
+  content:''; position: absolute; inset: 0; border-radius: 14px;
+  padding: 2px; background: var(--iridescent);
+  background-size: 200% 200%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: shimmer 6s linear infinite;
+}
+.set01 .sub-card .crown {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 18px;
+  background: var(--iridescent);
+  background-size: 200% 200%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+.set01 .sub-card .lbl-pre {
+  font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+  letter-spacing: 0.25em; color: rgba(244,239,230,0.55);
+  margin-bottom: 4px;
+}
+.set01 .sub-card .ttl-pro {
+  font-family: 'Fraunces', serif; font-style: italic;
+  font-size: 20px; font-weight: 400;
+  background: var(--iridescent);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 8s linear infinite;
+}
+.set01 .sub-card .body {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 12.5px; color: rgba(244,239,230,0.75);
+  margin-top: 4px; line-height: 1.45;
+}
+.set01 .sub-card .cta {
+  margin-top: 8px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 99px;
+  background: var(--iridescent);
+  background-size: 200% 200%;
+  font-family: 'Geist', sans-serif; font-size: 10px; font-weight: 600;
+  color: #1F1B17;
+  animation: shimmer 5s linear infinite;
+}
+.set01 .bottomnav { background: rgba(31,27,23,0.85); backdrop-filter: blur(8px); }
+.set01 .navitem { color: #F4EFE6; }
+.set01 .navitem.active { color: #f0c890; }
+
+/* =====================================================
+   CONCEPT 02 — CONTROL DECK HUD
+===================================================== */
+.set02 .screen {
+  background: #000;
+  color: #6dffb0;
+  font-family: 'Geist Mono', monospace;
+  position: relative;
+  overflow: hidden;
+}
+.set02 .screen::before {
+  content:''; position: absolute; inset:0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0px, rgba(109,255,176,0.04) 1px, transparent 2px, transparent 4px);
+  pointer-events: none;
+  z-index: 2;
+  animation: scan02 8s linear infinite;
+}
+.set02 .screen::after {
+  content:''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(109,255,176,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(85,200,255,0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes scan02 { from { background-position: 0 0;} to { background-position: 0 4px;} }
+.set02 .statusbar { color: #6dffb0; font-family: 'Geist Mono', monospace; z-index: 6; }
+.set02 .term-head {
+  padding: 6px 16px 10px;
+  position: relative; z-index: 5;
+  border-bottom: 1px solid rgba(109,255,176,0.25);
+}
+.set02 .term-head .ln {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: rgba(109,255,176,0.6);
+  letter-spacing: 0.05em;
+}
+.set02 .term-head .ttl {
+  font-family: 'Geist Mono', monospace;
+  font-size: 16px;
+  font-weight: 500;
+  color: #6dffb0;
+  text-shadow: 0 0 8px rgba(109,255,176,0.4);
+  margin-top: 3px;
+  letter-spacing: 0.08em;
+}
+.set02 .term-head .ttl .cr { color: #55c8ff; }
+.set02 .term-head .cur {
+  display: inline-block; width: 8px; height: 12px;
+  background: #6dffb0;
+  margin-left: 4px;
+  animation: blink02 1s steps(2) infinite;
+  vertical-align: -1px;
+}
+@keyframes blink02 { 50% { opacity: 0;} }
+
+.set02 .scroll {
+  padding: 10px 14px 12px;
+  position: relative; z-index: 5;
+  height: 100%;
+  overflow: hidden;
+}
+.set02 .sec {
+  margin-bottom: 12px;
+  border: 1px solid rgba(109,255,176,0.2);
+  border-radius: 4px;
+  background: rgba(0,20,10,0.4);
+  padding: 8px 10px;
+  position: relative;
+}
+.set02 .sec::before {
+  content: attr(data-id);
+  position: absolute; top: -7px; left: 10px;
+  background: #000; padding: 0 5px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px; color: rgba(85,200,255,0.85);
+  letter-spacing: 0.15em;
+}
+.set02 .sec-h {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: #55c8ff;
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+.set02 .sec-h::before { content: '> '; color: #6dffb0; }
+.set02 .ln-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 0;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+}
+.set02 .ln-row .lbl { flex: 1; color: rgba(109,255,176,0.85); letter-spacing: 0.04em; }
+.set02 .ln-row .lbl::before { content:''; display: inline-block; width: 4px; height: 4px; background: rgba(109,255,176,0.5); margin-right: 6px; vertical-align: middle; }
+/* hardware toggle */
+.set02 .hw {
+  width: 36px; height: 18px;
+  border: 1px solid rgba(109,255,176,0.4);
+  border-radius: 2px;
+  position: relative;
+  background: rgba(0,0,0,0.6);
+  flex-shrink: 0;
+}
+.set02 .hw::before {
+  content:'';
+  position: absolute; top: 1px; left: 1px;
+  width: 14px; height: 14px;
+  background: linear-gradient(180deg, #1a4030, #082018);
+  border: 1px solid rgba(109,255,176,0.3);
+  transition: all 0.3s;
+}
+.set02 .hw::after {
+  content:''; position: absolute;
+  top: 6px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  right: 4px;
+  background: #2a1010;
+  box-shadow: 0 0 3px rgba(255,80,80,0.4);
+  transition: all 0.3s;
+}
+.set02 .hw.on::before { left: 19px; background: linear-gradient(180deg, #2a6045, #102818); }
+.set02 .hw.on::after {
+  right: 24px;
+  background: #6dffb0;
+  box-shadow: 0 0 8px #6dffb0, 0 0 14px rgba(109,255,176,0.6);
+  animation: ledpulse 2s ease-in-out infinite;
+}
+@keyframes ledpulse { 50% { box-shadow: 0 0 4px #6dffb0; } }
+
+/* mode selector */
+.set02 .mode {
+  display: flex; gap: 6px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 8.5px;
+}
+.set02 .mode .btn {
+  flex: 1;
+  padding: 6px 4px;
+  border: 1px solid rgba(109,255,176,0.3);
+  text-align: center;
+  color: rgba(109,255,176,0.7);
+  letter-spacing: 0.08em;
+  background: rgba(0,20,10,0.3);
+}
+.set02 .mode .btn.sel {
+  background: rgba(109,255,176,0.18);
+  border-color: #6dffb0;
+  color: #6dffb0;
+  text-shadow: 0 0 4px rgba(109,255,176,0.5);
+}
+.set02 .mode .btn::before { content: '[ '; }
+.set02 .mode .btn::after { content: ' ]'; }
+
+/* status panel for sub */
+.set02 .stat-panel {
+  border: 1px solid rgba(255,200,80,0.5);
+  background: rgba(40,30,0,0.4);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.set02 .stat-panel::before {
+  content: '// STATUS_REPORT';
+  position: absolute; top: -7px; left: 10px;
+  background: #000; padding: 0 5px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px; color: #ffd070;
+  letter-spacing: 0.15em;
+}
+.set02 .stat-panel .head {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: #ffd070;
+  margin-bottom: 6px;
+  letter-spacing: 0.1em;
+}
+.set02 .stat-panel .head::before { content: '* '; }
+.set02 .stat-panel .data {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: rgba(255,210,140,0.75);
+  line-height: 1.7;
+}
+.set02 .stat-panel .data .k { color: rgba(255,210,140,0.5); }
+.set02 .stat-panel .data .v { color: #ffd070; }
+.set02 .stat-panel .data .v.warn { color: #ff7050; }
+.set02 .stat-panel .cta {
+  margin-top: 8px;
+  font-family: 'Geist Mono', monospace; font-size: 9px;
+  color: #000; background: #ffd070;
+  padding: 5px 10px; display: inline-block;
+  letter-spacing: 0.1em;
+}
+.set02 .stat-panel .cta::before { content: '> '; }
+.set02 .bottomnav {
+  background: rgba(0,8,4,0.92);
+  border-top: 1px solid rgba(109,255,176,0.25);
+}
+.set02 .navitem { color: rgba(109,255,176,0.5); font-family: 'Geist Mono', monospace; }
+.set02 .navitem.active { color: #6dffb0; }
+
+/* =====================================================
+   CONCEPT 03 — APPLE PREMIUM CARDS
+===================================================== */
+.set03 .screen {
+  background: #F1ECE3;
+  color: #1A1614;
+}
+.set03 .statusbar { color: #1A1614; }
+.set03 .top {
+  padding: 6px 22px 14px;
+  background: rgba(241,236,227,0.95);
+  backdrop-filter: blur(8px);
+  position: relative; z-index: 6;
+}
+.set03 .top .pre {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: rgba(60,55,50,0.55);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.set03 .top h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1A1614;
+  letter-spacing: -0.02em;
+}
+.set03 .scroll {
+  padding: 8px 14px 12px;
+  height: 100%;
+  overflow: hidden;
+}
+.set03 .sec-lbl {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(70,60,55,0.55);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 12px 6px 6px;
+}
+.set03 .card {
+  background: #FFFFFF;
+  border-radius: 13px;
+  margin-bottom: 4px;
+  box-shadow:
+    0 1px 0 rgba(180,170,160,0.18),
+    0 4px 12px -8px rgba(60,40,20,0.08);
+  overflow: hidden;
+}
+.set03 .row {
+  display: flex; align-items: center;
+  padding: 9px 12px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.06);
+  gap: 11px;
+  min-height: 38px;
+}
+.set03 .row:last-child { border-bottom: none; }
+.set03 .ic {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+.set03 .ic .material-symbols-outlined { font-size: 16px; }
+.set03 .ic.purple { background: linear-gradient(135deg, #a575e8, #7a4dd0); }
+.set03 .ic.blue { background: linear-gradient(135deg, #5db0ff, #2a85ff); }
+.set03 .ic.green { background: linear-gradient(135deg, #5cd87a, #34c759); }
+.set03 .ic.orange { background: linear-gradient(135deg, #ffb05c, #ff9500); }
+.set03 .ic.red { background: linear-gradient(135deg, #ff7670, #ff3b30); }
+.set03 .ic.gold { background: linear-gradient(135deg, #f0c890, #c9a060); }
+.set03 .ic.gray { background: linear-gradient(135deg, #b8b3ab, #8a857f); }
+.set03 .row .l {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #1A1614;
+  font-weight: 500;
+}
+.set03 .row .l .sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(70,60,55,0.55);
+  margin-top: 1px;
+}
+.set03 .row .val {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: rgba(70,60,55,0.55);
+  font-weight: 400;
+}
+.set03 .row .chev {
+  font-size: 14px;
+  color: rgba(70,60,55,0.35);
+}
+/* iOS toggle */
+.set03 .ios-tog {
+  width: 38px; height: 23px;
+  border-radius: 99px;
+  background: rgba(140,130,120,0.22);
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+.set03 .ios-tog.on {
+  background: #34c759;
+}
+.set03 .ios-tog::after {
+  content:''; position: absolute;
+  top: 2px; left: 2px;
+  width: 19px; height: 19px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+.set03 .ios-tog.on::after { left: 17px; }
+
+/* theme picker */
+.set03 .themes {
+  display: flex; gap: 8px;
+  padding: 10px 12px;
+}
+.set03 .thm {
+  flex: 1;
+  text-align: center;
+}
+.set03 .thm .prev {
+  width: 100%;
+  height: 70px;
+  border-radius: 10px;
+  position: relative;
+  margin-bottom: 4px;
+  border: 1.5px solid transparent;
+}
+.set03 .thm.sel .prev {
+  border-color: #2a85ff;
+  box-shadow: 0 0 0 1px #2a85ff;
+}
+.set03 .thm.sel .check {
+  position: absolute; top: 4px; right: 4px;
+  width: 14px; height: 14px;
+  background: #2a85ff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 10px;
+}
+.set03 .thm .prev.dark {
+  background: linear-gradient(160deg, #07060A 0%, #1A1410 60%, #3a2a1a 100%);
+}
+.set03 .thm .prev.light {
+  background: linear-gradient(160deg, #F8F4EC 0%, #E8DCC8 100%);
+}
+.set03 .thm .prev.auto {
+  background: linear-gradient(160deg, #07060A 0%, #07060A 50%, #F8F4EC 50%, #F8F4EC 100%);
+}
+.set03 .thm .nm {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px; font-weight: 500;
+  color: #1A1614;
+}
+.set03 .thm.sel .nm { color: #2a85ff; }
+
+/* subscription card */
+.set03 .pro-card {
+  background: linear-gradient(135deg, #FFF8E8 0%, #FFE8C0 60%, #F0C890 100%);
+  border-radius: 13px;
+  padding: 14px;
+  margin: 6px 0 4px;
+  position: relative;
+  overflow: hidden;
+}
+.set03 .pro-card::before {
+  content:'';
+  position: absolute; top: -20px; right: -20px;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 70%);
+  pointer-events: none;
+}
+.set03 .pro-card .row-pro {
+  display: flex; align-items: center; gap: 11px;
+}
+.set03 .pro-card .ic-gold {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f0c890, #b8843a);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; flex-shrink: 0;
+  box-shadow: 0 4px 10px -2px rgba(184,132,58,0.4);
+}
+.set03 .pro-card .ic-gold .material-symbols-outlined { font-size: 22px; }
+.set03 .pro-card .ttl {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: #4a3010;
+}
+.set03 .pro-card .sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 400;
+  color: rgba(74,48,16,0.7);
+  margin-top: 1px;
+}
+.set03 .pro-card .cta {
+  margin-top: 10px;
+  background: #4a3010;
+  color: #FFF8E8;
+  padding: 8px 14px;
+  border-radius: 99px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+.set03 .bottomnav { background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-top: 0.5px solid rgba(0,0,0,0.08); }
+.set03 .navitem { color: rgba(70,60,55,0.55); }
+.set03 .navitem.active { color: #2a85ff; }
+
+/* =====================================================
+   CONCEPT 04 — CABINET DRAWERS (wunderkammer)
+===================================================== */
+.set04 .screen {
+  background: #2A1A12;
+  color: #f0e4d0;
+  position: relative;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(180deg, rgba(120,80,40,0.04) 0 1px, transparent 1px 80px),
+    radial-gradient(ellipse at 30% 20%, rgba(240,200,144,0.10), transparent 70%),
+    radial-gradient(ellipse at 70% 80%, rgba(184,132,58,0.08), transparent 70%);
+}
+.set04 .statusbar { color: #f0e4d0; }
+.set04 .header-w {
+  padding: 6px 22px 12px;
+  position: relative;
+  border-bottom: 1px solid rgba(184,132,58,0.3);
+}
+.set04 .header-w .pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.25em;
+  color: rgba(184,132,58,0.85);
+  margin-bottom: 2px;
+}
+.set04 .header-w .ttl {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #f0c890;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+}
+.set04 .scroll {
+  padding: 12px 14px 12px;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* drawer = section */
+.set04 .drawer {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(60,38,22,0.85) 0%, rgba(42,26,18,0.95) 100%);
+  border: 1px solid rgba(184,132,58,0.35);
+  border-radius: 6px;
+  margin-bottom: 14px;
+  padding: 8px 12px 10px;
+  box-shadow:
+    inset 0 1px 0 rgba(240,200,144,0.18),
+    inset 0 -2px 6px rgba(0,0,0,0.4),
+    0 3px 8px rgba(0,0,0,0.3);
+}
+.set04 .plate {
+  position: absolute;
+  top: -10px; left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 14px;
+  background: linear-gradient(180deg, #d4a560 0%, #a87830 100%);
+  border-radius: 3px;
+  border: 1px solid #6a4818;
+  font-family: 'Cinzel', serif;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: #2A1A12;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.set04 .plate::before, .set04 .plate::after {
+  content:''; position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 4px; height: 4px;
+  background: radial-gradient(circle, #6a4818 30%, #d4a560 70%);
+  border-radius: 50%;
+}
+.set04 .plate::before { left: 3px; }
+.set04 .plate::after { right: 3px; }
+
+.set04 .item {
+  display: flex; align-items: center;
+  padding: 5px 0;
+  gap: 10px;
+  border-bottom: 1px dashed rgba(184,132,58,0.18);
+}
+.set04 .item:first-child { padding-top: 6px; }
+.set04 .item:last-child { border-bottom: none; }
+.set04 .item .brass-ic {
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: #d4a560;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.set04 .item .lab {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: #f0e4d0;
+  font-weight: 500;
+}
+.set04 .item .val {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  color: rgba(212,165,96,0.85);
+  letter-spacing: 0.12em;
+}
+/* brass key toggle */
+.set04 .key {
+  width: 26px; height: 22px;
+  position: relative;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.set04 .key::before {
+  content:'';
+  width: 18px; height: 18px;
+  background: radial-gradient(circle at 30% 30%, #f0c890 10%, #a87830 60%, #6a4818 100%);
+  border: 1px solid #4a3010;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 1px 0 rgba(255,235,180,0.5),
+    0 1px 2px rgba(0,0,0,0.5);
+  position: absolute;
+  left: 0;
+}
+.set04 .key::after {
+  content:'';
+  width: 14px; height: 4px;
+  background: linear-gradient(90deg, #6a4818, #a87830, #d4a560);
+  border-radius: 1px;
+  position: absolute;
+  left: 12px;
+  transition: transform 0.35s ease;
+  transform-origin: left center;
+  transform: rotate(0deg);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3);
+}
+.set04 .key.on::after { transform: rotate(-90deg); }
+
+/* theme picker */
+.set04 .themes {
+  display: flex; gap: 8px;
+  padding: 4px 0 2px;
+}
+.set04 .thm {
+  flex: 1;
+  height: 56px;
+  position: relative;
+  border: 2px solid #a87830;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #2A1A12, #1a0e08);
+  box-shadow: inset 0 0 0 1px #6a4818, 0 2px 4px rgba(0,0,0,0.4);
+  cursor: pointer;
+  overflow: hidden;
+}
+.set04 .thm.bg { background: linear-gradient(160deg, #07060A 0%, #2A1A12 60%, #6a4818 100%); }
+.set04 .thm.io { background: linear-gradient(160deg, #f0e4d0 0%, #d4b08c 100%); }
+.set04 .thm.au { background: linear-gradient(160deg, #07060A 0%, #2A1A12 45%, #d4b08c 55%, #f0e4d0 100%); }
+.set04 .thm .lab {
+  position: absolute; bottom: 3px; left: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 6.5px; letter-spacing: 0.1em;
+  color: #f0e4d0;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+}
+.set04 .thm.io .lab { color: #2A1A12; text-shadow: none; }
+.set04 .thm.sel {
+  border-color: #f0c890;
+  box-shadow: inset 0 0 0 1px #6a4818, 0 0 0 1px #f0c890, 0 0 8px rgba(240,200,144,0.4);
+}
+
+/* account */
+.set04 .acc {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 0;
+}
+.set04 .acc .ava {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #f0c890, #6a4818);
+  border: 2px solid #d4a560;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 12px;
+  color: #2A1A12;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+.set04 .acc .info { flex: 1; }
+.set04 .acc .nm { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: #f0e4d0; }
+.set04 .acc .em { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: rgba(212,165,96,0.7); margin-top: 1px; }
+
+/* subscription — master key */
+.set04 .master {
+  position: relative;
+  background:
+    radial-gradient(ellipse at 30% 30%, rgba(240,200,144,0.18), transparent 60%),
+    linear-gradient(180deg, rgba(74,48,16,0.85), rgba(42,26,18,0.95));
+  border: 2px solid #d4a560;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(240,200,144,0.3),
+    0 4px 10px rgba(0,0,0,0.4);
+}
+.set04 .master::before {
+  content: '';
+  position: absolute;
+  top: -8px; right: 12px;
+  width: 14px; height: 14px;
+  background: radial-gradient(circle at 30% 30%, #f0c890, #a87830);
+  border: 1px solid #4a3010;
+  border-radius: 50%;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+}
+.set04 .master .ttl {
+  font-family: 'Cinzel', serif;
+  font-size: 13px; font-weight: 700;
+  color: #f0c890;
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+}
+.set04 .master .body {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: rgba(240,228,208,0.85);
+  line-height: 1.4;
+}
+.set04 .master .cta {
+  margin-top: 8px;
+  display: inline-block;
+  padding: 5px 14px;
+  background: linear-gradient(180deg, #d4a560, #a87830);
+  border: 1px solid #6a4818;
+  border-radius: 3px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  color: #2A1A12;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  text-shadow: 0 1px 0 rgba(255,235,180,0.4);
+}
+.set04 .bottomnav {
+  background: linear-gradient(180deg, rgba(42,26,18,0.95), rgba(26,14,8,1));
+  border-top: 1px solid rgba(184,132,58,0.4);
+}
+.set04 .navitem { color: rgba(240,228,208,0.5); }
+.set04 .navitem.active { color: #f0c890; }
+
+/* =====================================================
+   CONCEPT 05 — EDITORIAL MASTHEAD
+===================================================== */
+.set05 .screen {
+  background: #F5EFE5;
+  color: #2A2520;
+  position: relative;
+}
+.set05 .screen::before {
+  content:''; position: absolute; inset:0;
+  background-image:
+    radial-gradient(circle at 25% 30%, rgba(180,160,130,0.10) 0%, transparent 50%),
+    radial-gradient(circle at 75% 70%, rgba(160,140,110,0.08) 0%, transparent 50%),
+    repeating-linear-gradient(45deg, rgba(120,100,80,0.02) 0 1px, transparent 1px 4px);
+  pointer-events: none;
+  z-index: 1;
+}
+.set05 .statusbar { color: #2A2520; }
+.set05 .mast {
+  padding: 8px 22px 14px;
+  position: relative; z-index: 5;
+  border-bottom: 2px solid #2A2520;
+}
+.set05 .mast .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.3em;
+  color: rgba(80,60,40,0.7);
+  margin-bottom: 4px;
+  display: flex; justify-content: space-between;
+}
+.set05 .mast .tag .right { color: rgba(80,60,40,0.5); }
+.set05 .mast h1 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 42px;
+  line-height: 0.95;
+  color: #2A2520;
+  letter-spacing: -0.03em;
+  margin-bottom: 2px;
+}
+.set05 .mast .ed {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: rgba(80,60,40,0.65);
+  margin-top: 4px;
+  display: flex; justify-content: space-between;
+  border-top: 0.5px solid rgba(80,60,40,0.3);
+  padding-top: 4px;
+}
+
+.set05 .scroll {
+  padding: 12px 22px 12px;
+  height: 100%;
+  overflow: hidden;
+  position: relative; z-index: 5;
+}
+.set05 .col-h {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  color: #2A2520;
+  text-transform: uppercase;
+  margin: 14px 0 4px;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.set05 .col-h::after {
+  content:''; flex: 1; height: 1px;
+  background: rgba(80,60,40,0.3);
+}
+.set05 .col-h .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: rgba(80,60,40,0.5);
+}
+.set05 .col-intro {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: rgba(80,60,40,0.85);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.set05 .line {
+  display: flex; align-items: baseline;
+  padding: 5px 0;
+  border-bottom: 0.5px solid rgba(80,60,40,0.15);
+  gap: 8px;
+}
+.set05 .line:last-child { border-bottom: none; }
+.set05 .line .ser {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  color: rgba(80,60,40,0.5);
+  flex-shrink: 0;
+  width: 24px;
+}
+.set05 .line .nm {
+  flex: 1;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 400;
+  color: #2A2520;
+}
+.set05 .line .meta-d {
+  font-family: 'Cinzel', serif;
+  font-size: 7.5px;
+  letter-spacing: 0.15em;
+  color: rgba(80,60,40,0.55);
+  margin-left: 4px;
+  text-transform: uppercase;
+}
+.set05 .line .right {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: #2A2520;
+  flex-shrink: 0;
+}
+/* minimal toggle */
+.set05 .min-tog {
+  width: 28px; height: 14px;
+  border: 1px solid #2A2520;
+  border-radius: 99px;
+  position: relative;
+  background: transparent;
+  flex-shrink: 0;
+}
+.set05 .min-tog.on { background: #2A2520; }
+.set05 .min-tog::after {
+  content:''; position: absolute;
+  top: 1px; left: 1px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #2A2520;
+  transition: all 0.3s ease;
+}
+.set05 .min-tog.on::after { left: 15px; background: #F5EFE5; }
+
+/* pull quote subscription */
+.set05 .feature {
+  margin: 14px 0 8px;
+  padding: 14px 16px;
+  background: #2A2520;
+  color: #F5EFE5;
+  position: relative;
+}
+.set05 .feature::before {
+  content:'"';
+  position: absolute;
+  top: 4px; left: 8px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 48px;
+  color: rgba(245,239,229,0.3);
+  line-height: 1;
+}
+.set05 .feature .lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  color: rgba(245,239,229,0.6);
+  margin-bottom: 4px;
+}
+.set05 .feature .quote {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.2;
+  color: #F5EFE5;
+  margin-bottom: 8px;
+  padding-left: 14px;
+}
+.set05 .feature .byline {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: rgba(245,239,229,0.6);
+  padding-left: 14px;
+  display: flex; justify-content: space-between;
+  align-items: center;
+}
+.set05 .feature .cta {
+  background: #F5EFE5;
+  color: #2A2520;
+  padding: 4px 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 7.5px;
+  letter-spacing: 0.18em;
+}
+.set05 .bottomnav { background: rgba(245,239,229,0.95); border-top: 0.5px solid rgba(80,60,40,0.25); }
+.set05 .navitem { color: rgba(80,60,40,0.5); font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 0.15em; }
+.set05 .navitem.active { color: #2A2520; }
+.set05 .navitem .material-symbols-outlined { font-size: 18px; }
+
+/* ============== FOOTER ============== */
+.footer {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(244,239,230,0.1);
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: rgba(244,239,230,0.4);
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="eyebrow">// PIXORA · SETTINGS · DOC-115 · MAY 2026</div>
+  <h1 class="title">Settings &middot; 5 <span class="grad">Conceptos</span></h1>
+  <p class="subtitle">Settings personalizado &mdash; debe sentirse premium, no como una lista <em>genérica de Material</em>.</p>
+
+  <div class="divider"></div>
+
+  <!-- ============ CONCEPT 01 ============ -->
+  <div class="concept-row r1">
+    <div class="phone set01">
+      <div class="screen">
+        <div class="ribbon"></div>
+        <div class="statusbar">
+          <span>21:42</span>
+          <span>5G &nbsp; 78%</span>
+        </div>
+        <div class="content-scroll">
+          <div class="top-head">
+            <div class="eyeb">PIXORA · CONFIGURACIÓN</div>
+            <div class="ttl">Tus <span class="g">ajustes.</span></div>
+          </div>
+          <div class="scroll">
+
+            <!-- overlays card -->
+            <div class="card">
+              <div class="sec-head">Overlays del wallpaper.</div>
+              <div class="row">
+                <span class="material-symbols-outlined ico">schedule</span>
+                <div class="lbl-wrap"><div class="lbl">Reloj</div></div>
+                <div class="tog on"></div>
+              </div>
+              <div class="row">
+                <span class="material-symbols-outlined ico">battery_5_bar</span>
+                <div class="lbl-wrap"><div class="lbl">Batería</div></div>
+                <div class="tog on"></div>
+              </div>
+              <div class="row">
+                <span class="material-symbols-outlined ico">memory</span>
+                <div class="lbl-wrap"><div class="lbl">RAM</div></div>
+                <div class="tog"></div>
+              </div>
+              <div class="row">
+                <span class="material-symbols-outlined ico">storage</span>
+                <div class="lbl-wrap"><div class="lbl">Disco</div></div>
+                <div class="tog"></div>
+              </div>
+              <div class="row">
+                <span class="material-symbols-outlined ico">graphic_eq</span>
+                <div class="lbl-wrap"><div class="lbl">Ecualizador</div></div>
+                <div class="tog on"></div>
+              </div>
+            </div>
+
+            <!-- apariencia -->
+            <div class="card">
+              <div class="sec-head">Apariencia.</div>
+              <div class="themes">
+                <div class="thm bg"><span class="lab">BLACK + GOLD</span></div>
+                <div class="thm io"><span class="lab">iOS WHITE</span></div>
+                <div class="thm au"><span class="lab">AUTO</span></div>
+              </div>
+            </div>
+
+            <!-- cuenta -->
+            <div class="card">
+              <div class="sec-head">Cuenta.</div>
+              <div class="acc">
+                <div class="avatar">E</div>
+                <div>
+                  <div class="name">Eduardo</div>
+                  <div class="mail">eduardojcr@gmail.com</div>
+                </div>
+                <div class="chip">GOOGLE</div>
+              </div>
+            </div>
+
+            <!-- suscripción -->
+            <div class="sub-card">
+              <span class="material-symbols-outlined crown">workspace_premium</span>
+              <div class="lbl-pre">PIXORA PLUS · INACTIVO</div>
+              <div class="ttl-pro">Desbloquea todo.</div>
+              <div class="body">Sin anuncios, créditos infinitos, wallpapers exclusivos.</div>
+              <div class="cta">ACTIVAR <span class="material-symbols-outlined" style="font-size:13px;">arrow_forward</span></div>
+            </div>
+
+          </div>
+        </div>
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span><span>Inicio</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">favorite</span><span>Favoritos</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">graphic_eq</span><span>Aura</span></div>
+          <div class="navitem active"><span class="material-symbols-outlined">settings</span><span>Ajustes</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 01 / V&middot;100</div>
+      <h2>Holographic Manifest</h2>
+      <div class="tagline">El mismo papel foil de Pixora &mdash; ajustes que parecen carta de presentación.</div>
+      <p class="desc">Charcoal cálido idéntico al header. Cada sección es una tarjeta con borde foil iridiscente animado, títulos en Fraunces italic con gradiente. Los toggles encendidos se vuelven pastillas foil, los apagados quedan huecos. El picker de tema es tres mini-wallpaper bordeados en foil. La suscripción Pro vive en una tarjeta luminosa con corona iridiscente. Cohesión total con el resto de la app.</p>
+      <div class="palette">
+        <div class="swatch" style="background:#1F1B17" data-hex="#1F1B17"></div>
+        <div class="swatch" style="background:linear-gradient(120deg,#f0a8c0,#c39de0,#88b5e0,#a8d8c0,#f0c890)" data-hex="FOIL"></div>
+        <div class="swatch" style="background:#F4EFE6" data-hex="#F4EFE6"></div>
+        <div class="swatch" style="background:#f0c890" data-hex="#f0c890"></div>
+        <div class="swatch" style="background:#c39de0" data-hex="#c39de0"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Cohesión absoluta con la identidad Pixora (mismo foil de header, nav, suscripción).</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>Toggles foil sienten premium. La suscripción brilla sin ser invasiva.</span></div>
+        <div class="v-row"><span class="v-sign minus">&minus;</span><span>Muchos gradientes animados en paralelo &mdash; vigilar GPU en gamas bajas.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONCEPT 02 ============ -->
+  <div class="concept-row r2">
+    <div class="phone set02">
+      <div class="screen">
+        <div class="statusbar">
+          <span>21:42</span>
+          <span>5G &nbsp; 78%</span>
+        </div>
+        <div class="content-scroll">
+          <div class="term-head">
+            <div class="ln">PIXORA_OS v1.7.3 // ROOT</div>
+            <div class="ttl">&gt; <span class="cr">CONTROL_DECK</span><span class="cur"></span></div>
+          </div>
+          <div class="scroll">
+
+            <div class="sec" data-id="SEC_01">
+              <div class="sec-h">SYSTEM // WALLPAPER_OVERLAYS</div>
+              <div class="ln-row"><span class="lbl">CLOCK</span><div class="hw on"></div></div>
+              <div class="ln-row"><span class="lbl">BATTERY</span><div class="hw on"></div></div>
+              <div class="ln-row"><span class="lbl">RAM</span><div class="hw"></div></div>
+              <div class="ln-row"><span class="lbl">DISK</span><div class="hw"></div></div>
+              <div class="ln-row"><span class="lbl">EQ_VIZ</span><div class="hw on"></div></div>
+            </div>
+
+            <div class="sec" data-id="SEC_02">
+              <div class="sec-h">MODE_SELECTOR // THEME</div>
+              <div class="mode">
+                <div class="btn sel">BLACK_GOLD</div>
+                <div class="btn">iOS_WHITE</div>
+                <div class="btn">AUTO</div>
+              </div>
+              <div class="ln-row" style="margin-top:8px;"><span class="lbl">LANG</span><span style="color:#55c8ff; letter-spacing:0.1em;">ES &gt; EN</span></div>
+            </div>
+
+            <div class="sec" data-id="SEC_03">
+              <div class="sec-h">USER // CREDENTIALS</div>
+              <div class="ln-row"><span class="lbl">UID</span><span style="color:#55c8ff;">eduardo@gmail</span></div>
+              <div class="ln-row"><span class="lbl">AUTH</span><span style="color:#6dffb0;">GOOGLE_OK</span></div>
+            </div>
+
+            <div class="stat-panel">
+              <div class="head">SUBSCRIPTION_REPORT</div>
+              <div class="data">
+                <div><span class="k">tier .....</span> <span class="v">PIXORA_PLUS</span></div>
+                <div><span class="k">status ...</span> <span class="v warn">INACTIVE</span></div>
+                <div><span class="k">unlocks ..</span> <span class="v">128 items</span></div>
+              </div>
+              <div class="cta">UPGRADE.EXE</div>
+            </div>
+
+          </div>
+        </div>
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span><span>HOME</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">favorite</span><span>FAV</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">graphic_eq</span><span>AURA</span></div>
+          <div class="navitem active"><span class="material-symbols-outlined">settings</span><span>CFG</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 02 / V&middot;200</div>
+      <h2>Control Deck HUD</h2>
+      <div class="tagline">NASA mission control. Terminal hacker. CRT scanlines y switches con LED.</div>
+      <p class="desc">Negro puro con grid cyan y scanlines verdes. Headers tipo terminal (&gt; SYSTEM // SECTOR). Cada toggle es un switch de hardware con LED verde fosforescente cuando está ON. El selector de tema es chunky con corchetes [ BLACK_GOLD ]. La suscripción se presenta como un STATUS_REPORT panel ámbar con UPGRADE.EXE como botón. Todo monospaced, todo en mayúsculas, vibe Cyberpunk 2077.</p>
+      <div class="palette">
+        <div class="swatch" style="background:#000" data-hex="#000000"></div>
+        <div class="swatch" style="background:#6dffb0" data-hex="#6dffb0"></div>
+        <div class="swatch" style="background:#55c8ff" data-hex="#55c8ff"></div>
+        <div class="swatch" style="background:#ffd070" data-hex="#ffd070"></div>
+        <div class="swatch" style="background:#ff7050" data-hex="#ff7050"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Personalidad fortísima &mdash; settings se vuelve protagonista, no fondo.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>LEDs y switches dan feedback claro de estado ON/OFF.</span></div>
+        <div class="v-row"><span class="v-sign minus">&minus;</span><span>Disonancia total con el resto de Pixora (foil cálido vs CRT verde). Solo viable como tema opcional.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONCEPT 03 ============ -->
+  <div class="concept-row r3">
+    <div class="phone set03">
+      <div class="screen">
+        <div class="statusbar">
+          <span>21:42</span>
+          <span>5G &nbsp; 78%</span>
+        </div>
+        <div class="content-scroll">
+          <div class="top">
+            <div class="pre">PIXORA</div>
+            <h3>Ajustes</h3>
+          </div>
+          <div class="scroll">
+
+            <div class="sec-lbl">Overlays del wallpaper</div>
+            <div class="card">
+              <div class="row">
+                <div class="ic purple"><span class="material-symbols-outlined">schedule</span></div>
+                <div class="l">Reloj</div>
+                <div class="ios-tog on"></div>
+              </div>
+              <div class="row">
+                <div class="ic green"><span class="material-symbols-outlined">battery_5_bar</span></div>
+                <div class="l">Batería</div>
+                <div class="ios-tog on"></div>
+              </div>
+              <div class="row">
+                <div class="ic orange"><span class="material-symbols-outlined">memory</span></div>
+                <div class="l">RAM</div>
+                <div class="ios-tog"></div>
+              </div>
+              <div class="row">
+                <div class="ic red"><span class="material-symbols-outlined">storage</span></div>
+                <div class="l">Disco</div>
+                <div class="ios-tog"></div>
+              </div>
+              <div class="row">
+                <div class="ic blue"><span class="material-symbols-outlined">graphic_eq</span></div>
+                <div class="l">Ecualizador</div>
+                <div class="ios-tog on"></div>
+              </div>
+            </div>
+
+            <div class="sec-lbl">Apariencia</div>
+            <div class="card">
+              <div class="themes">
+                <div class="thm sel">
+                  <div class="prev dark"><span class="check">&check;</span></div>
+                  <div class="nm">Black &middot; Gold</div>
+                </div>
+                <div class="thm">
+                  <div class="prev light"></div>
+                  <div class="nm">iOS White</div>
+                </div>
+                <div class="thm">
+                  <div class="prev auto"></div>
+                  <div class="nm">Auto</div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="ic gray"><span class="material-symbols-outlined">language</span></div>
+                <div class="l">Idioma</div>
+                <div class="val">Español</div>
+                <span class="material-symbols-outlined chev">chevron_right</span>
+              </div>
+            </div>
+
+            <div class="sec-lbl">Cuenta</div>
+            <div class="card">
+              <div class="row">
+                <div class="ic blue"><span class="material-symbols-outlined">person</span></div>
+                <div class="l">Eduardo<div class="sub">eduardojcr@gmail.com</div></div>
+                <span class="material-symbols-outlined chev">chevron_right</span>
+              </div>
+            </div>
+
+            <div class="sec-lbl">Suscripción</div>
+            <div class="pro-card">
+              <div class="row-pro">
+                <div class="ic-gold"><span class="material-symbols-outlined">workspace_premium</span></div>
+                <div>
+                  <div class="ttl">Pixora Plus</div>
+                  <div class="sub">Sin anuncios &middot; créditos infinitos &middot; exclusivos</div>
+                </div>
+              </div>
+              <div class="cta">Activar &mdash; desde $49 / mes</div>
+            </div>
+
+          </div>
+        </div>
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span><span>Inicio</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">favorite</span><span>Favoritos</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">graphic_eq</span><span>Aura</span></div>
+          <div class="navitem active"><span class="material-symbols-outlined">settings</span><span>Ajustes</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 03 / V&middot;300</div>
+      <h2>Apple Premium Cards</h2>
+      <div class="tagline">iOS 18 Settings refinado para Pixora &mdash; familiar y restrained.</div>
+      <p class="desc">Fondo crema tibia (más cálido que blanco puro). Cada sección en tarjeta blanca con sombra sutil y hairlines de 0.5px. Iconos de 26px con tintes por categoría (azul cuenta, púrpura overlays, dorado Pro). Toggles iOS-style nativos con thumb blanco y track verde. El picker de tema son 3 previews con check azul en el activo. La suscripción Pro se distingue con gradiente dorado cálido. Restrained, refinado, familiar.</p>
+      <div class="palette">
+        <div class="swatch" style="background:#F1ECE3" data-hex="#F1ECE3"></div>
+        <div class="swatch" style="background:#FFFFFF" data-hex="#FFFFFF"></div>
+        <div class="swatch" style="background:#2a85ff" data-hex="#2a85ff"></div>
+        <div class="swatch" style="background:#34c759" data-hex="#34c759"></div>
+        <div class="swatch" style="background:linear-gradient(135deg,#FFF8E8,#F0C890)" data-hex="GOLD"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Patrón familiar y legible &mdash; cualquier usuario lo entiende en 2 segundos.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>Encaja perfecto con el tema iOS White (lo refuerza en vez de competir).</span></div>
+        <div class="v-row"><span class="v-sign minus">&minus;</span><span>En el tema Black + Gold pierde personalidad &mdash; se siente como app prestada de Apple.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONCEPT 04 ============ -->
+  <div class="concept-row r4">
+    <div class="phone set04">
+      <div class="screen">
+        <div class="statusbar">
+          <span>21:42</span>
+          <span>5G &nbsp; 78%</span>
+        </div>
+        <div class="content-scroll">
+          <div class="header-w">
+            <div class="pre">PIXORA &middot; GABINETE PRIVADO</div>
+            <div class="ttl">AJUSTES</div>
+          </div>
+          <div class="scroll">
+
+            <div class="drawer">
+              <div class="plate">OVERLAYS &middot; CAJÓN I</div>
+              <div class="item" style="margin-top:6px;">
+                <span class="material-symbols-outlined brass-ic">schedule</span>
+                <div class="lab">Reloj</div>
+                <div class="key on"></div>
+              </div>
+              <div class="item">
+                <span class="material-symbols-outlined brass-ic">battery_5_bar</span>
+                <div class="lab">Batería</div>
+                <div class="key on"></div>
+              </div>
+              <div class="item">
+                <span class="material-symbols-outlined brass-ic">memory</span>
+                <div class="lab">RAM</div>
+                <div class="key"></div>
+              </div>
+              <div class="item">
+                <span class="material-symbols-outlined brass-ic">storage</span>
+                <div class="lab">Disco</div>
+                <div class="key"></div>
+              </div>
+              <div class="item">
+                <span class="material-symbols-outlined brass-ic">graphic_eq</span>
+                <div class="lab">Ecualizador</div>
+                <div class="key on"></div>
+              </div>
+            </div>
+
+            <div class="drawer">
+              <div class="plate">APARIENCIA &middot; CAJÓN II</div>
+              <div class="themes" style="margin-top:6px;">
+                <div class="thm bg sel"><span class="lab">BLACK GOLD</span></div>
+                <div class="thm io"><span class="lab">iOS WHITE</span></div>
+                <div class="thm au"><span class="lab">AUTO</span></div>
+              </div>
+              <div class="item" style="margin-top:6px;">
+                <span class="material-symbols-outlined brass-ic">language</span>
+                <div class="lab">Idioma</div>
+                <div class="val">ES</div>
+              </div>
+            </div>
+
+            <div class="drawer">
+              <div class="plate">CUENTA &middot; CAJÓN III</div>
+              <div class="acc" style="margin-top:6px;">
+                <div class="ava">E</div>
+                <div class="info">
+                  <div class="nm">Eduardo</div>
+                  <div class="em">eduardojcr@gmail.com</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="master">
+              <div class="ttl">LLAVE MAESTRA</div>
+              <div class="body">Pixora Plus abre todos los cajones &mdash; sin anuncios, sin límites.</div>
+              <div class="cta">ACTIVAR</div>
+            </div>
+
+          </div>
+        </div>
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span><span>Inicio</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">favorite</span><span>Favoritos</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">graphic_eq</span><span>Aura</span></div>
+          <div class="navitem active"><span class="material-symbols-outlined">settings</span><span>Ajustes</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 04 / V&middot;400</div>
+      <h2>Cabinet Drawers</h2>
+      <div class="tagline">Wunderkammer Victorian &mdash; cada sección es un cajón con placa de latón.</div>
+      <p class="desc">Madera cálida con grano sutil y manchas ámbar. Cada sección es un cajón de gabinete con su placa de latón ("APARIENCIA &middot; CAJÓN II" en Cinzel). Dentro, items en pergamino con labels en Cormorant italic y iconos en latón. El toggle es una llave de latón que rota 90&deg; cuando "abre" la opción. La suscripción es la "LLAVE MAESTRA" que abre todos los cajones. Hermana directa del concepto Cabinet de Favoritos &mdash; cohesión total si el usuario eligió wunderkammer ahí.</p>
+      <div class="palette">
+        <div class="swatch" style="background:#2A1A12" data-hex="#2A1A12"></div>
+        <div class="swatch" style="background:#d4a560" data-hex="#d4a560"></div>
+        <div class="swatch" style="background:#a87830" data-hex="#a87830"></div>
+        <div class="swatch" style="background:#f0e4d0" data-hex="#f0e4d0"></div>
+        <div class="swatch" style="background:#6a4818" data-hex="#6a4818"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Narrativa única &mdash; cajones, llaves, placas. Settings se vuelve mueble.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>Cohesión perfecta con Favoritos Cabinet (si elegimos ese para favoritos).</span></div>
+        <div class="v-row"><span class="v-sign minus">&minus;</span><span>Estética muy específica &mdash; difícil de extender a secciones técnicas (logs, debug).</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONCEPT 05 ============ -->
+  <div class="concept-row r5">
+    <div class="phone set05">
+      <div class="screen">
+        <div class="statusbar">
+          <span>21:42</span>
+          <span>5G &nbsp; 78%</span>
+        </div>
+        <div class="content-scroll">
+          <div class="mast">
+            <div class="tag"><span>VOL. I &middot; NO. 115</span><span class="right">MAY MMXXVI</span></div>
+            <h1>Ajustes</h1>
+            <div class="ed"><span>EDICIÓN PERSONAL</span><span>ED. EDUARDO</span></div>
+          </div>
+          <div class="scroll">
+
+            <div class="col-h">Overlays <span class="num">&sect; I</span></div>
+            <div class="col-intro">Cinco insignias sobre el lienzo. Mantén solo las que cuenten algo.</div>
+            <div class="line">
+              <span class="ser">01.</span>
+              <span class="nm">Reloj<span class="meta-d">hora</span></span>
+              <div class="min-tog on"></div>
+            </div>
+            <div class="line">
+              <span class="ser">02.</span>
+              <span class="nm">Batería<span class="meta-d">%</span></span>
+              <div class="min-tog on"></div>
+            </div>
+            <div class="line">
+              <span class="ser">03.</span>
+              <span class="nm">RAM<span class="meta-d">mb</span></span>
+              <div class="min-tog"></div>
+            </div>
+            <div class="line">
+              <span class="ser">04.</span>
+              <span class="nm">Disco<span class="meta-d">gb</span></span>
+              <div class="min-tog"></div>
+            </div>
+            <div class="line">
+              <span class="ser">05.</span>
+              <span class="nm">Ecualizador<span class="meta-d">viz</span></span>
+              <div class="min-tog on"></div>
+            </div>
+
+            <div class="col-h">Apariencia <span class="num">&sect; II</span></div>
+            <div class="line"><span class="ser">06.</span><span class="nm">Tema</span><span class="right">BLACK + GOLD</span></div>
+            <div class="line"><span class="ser">07.</span><span class="nm">Idioma</span><span class="right">ES</span></div>
+
+            <div class="col-h">Cuenta <span class="num">&sect; III</span></div>
+            <div class="line"><span class="ser">08.</span><span class="nm">Eduardo<span class="meta-d">eduardojcr@gmail</span></span></div>
+
+            <div class="feature">
+              <div class="lbl">FEATURE</div>
+              <div class="quote">Pixora Plus &mdash; el lienzo sin interrupciones.</div>
+              <div class="byline"><span>SUSCRIPCIÓN &middot; INACTIVA</span><span class="cta">ACTIVAR</span></div>
+            </div>
+
+          </div>
+        </div>
+        <div class="bottomnav">
+          <div class="navitem"><span class="material-symbols-outlined">wallpaper</span><span>I</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">favorite</span><span>II</span></div>
+          <div class="navitem"><span class="material-symbols-outlined">graphic_eq</span><span>III</span></div>
+          <div class="navitem active"><span class="material-symbols-outlined">settings</span><span>IV</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="num">NO. 05 / V&middot;500</div>
+      <h2>Editorial Masthead</h2>
+      <div class="tagline">Magazine spread Kinfolk / Monocle &mdash; refinado, se toma en serio.</div>
+      <p class="desc">Papel crema con grano sutil. Cabezal editorial con "AJUSTES" en Fraunces italic 42px y línea "VOL. I &middot; NO. 115 &middot; MAY MMXXVI". Cada sección es un column head Cinzel con introducción tipo artículo en Cormorant italic. Los rows son líneas editoriales: número de serie + label + descripción Cinzel + toggle minimalista o valor a la derecha. Espaciado generoso, dividers tenues. La suscripción se presenta como un "FEATURE" pull-quote box negro. Refinado y editorial.</p>
+      <div class="palette">
+        <div class="swatch" style="background:#F5EFE5" data-hex="#F5EFE5"></div>
+        <div class="swatch" style="background:#2A2520" data-hex="#2A2520"></div>
+        <div class="swatch" style="background:#998060" data-hex="#998060"></div>
+        <div class="swatch" style="background:#d4b08c" data-hex="#d4b08c"></div>
+        <div class="swatch" style="background:#FFFFFF" data-hex="#FFFFFF"></div>
+      </div>
+      <div class="verdict">
+        <div class="v-row"><span class="v-sign plus">+</span><span>Settings se siente como leer una revista de diseño &mdash; lujo intelectual.</span></div>
+        <div class="v-row"><span class="v-sign plus">+</span><span>Las series numeradas (01., 02.) hacen escaneo rápido sin perder elegancia.</span></div>
+        <div class="v-row"><span class="v-sign minus">&minus;</span><span>Densidad alta &mdash; usuario apurado puede tardar más en encontrar un toggle vs el Apple Cards.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">PIXORA &middot; SETTINGS &middot; DESIGN ARCHIVE &middot; MAY 2026</div>
+
+</div>
+
+</body>
+</html>

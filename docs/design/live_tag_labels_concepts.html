@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · LIVE Tags · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    /* Page (archive) palette — deep ink starfield */
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS White theme tokens (inside iOS phone) */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+
+    /* B&G theme tokens (inside dark phone) */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(184,168,232,0.3), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(80,40,120,0.08), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.06), transparent 55%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · LIVE-TAGS / DOC-024';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: #B8A8E8; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 88px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row layout: phones left, meta right */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(560px, 0.9fr) 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) {
+    .concept-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 240px;
+    aspect-ratio: 240 / 500;
+    background: #fff;
+    border-radius: 34px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 8px #1a1a22,
+      0 22px 50px rgba(0,0,0,0.65),
+      0 0 70px var(--gold-haze);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 8px #0a0a14,
+      0 22px 50px rgba(0,0,0,0.7),
+      0 0 80px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 70px; height: 16px;
+    background: #000;
+    border-radius: 0 0 12px 12px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 21px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 22px;
+    font: 600 9px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 14px; height: 7px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* App top header */
+  .app-top {
+    position: absolute;
+    top: 26px; left: 14px; right: 14px;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 8;
+  }
+  .app-top .ava {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    color: white;
+    font: 700 10px 'Inter', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .phone.light .app-top .ava { background: linear-gradient(135deg, #0A84FF, #0066CC); }
+  .phone.dark  .app-top .ava { background: linear-gradient(135deg, var(--bg-gold), var(--bg-gold-deep)); color: #1a1300; }
+
+  .app-top .brand {
+    font: 800 11px 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+  }
+  .phone.light .app-top .brand { color: var(--ios-text); }
+  .phone.dark  .app-top .brand { color: var(--bg-text); }
+
+  .app-top .live-pill {
+    margin-left: auto;
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    padding: 3px 7px;
+    border-radius: 999px;
+  }
+  .phone.light .app-top .live-pill { background: rgba(10,132,255,0.10); color: var(--ios-blue); border: 1px solid rgba(10,132,255,0.20); }
+  .phone.dark  .app-top .live-pill { background: rgba(212,175,55,0.10); color: var(--bg-gold-bright); border: 1px solid rgba(212,175,55,0.25); }
+
+  /* ─────────── LIVE Hero (frosted card on cyberpunk wallpaper) ─────────── */
+  .live-stage {
+    position: absolute;
+    inset: 56px 14px auto 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 5;
+  }
+
+  .live-hero {
+    position: relative;
+    width: 100%;
+    height: 232px;
+    border-radius: 22px;
+    overflow: hidden;
+    isolation: isolate;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+  }
+  /* Cyberpunk wallpaper background */
+  .live-hero .wp {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(255,42,153,0.65), transparent 55%),
+      radial-gradient(ellipse at 75% 70%, rgba(0,225,255,0.55), transparent 55%),
+      radial-gradient(ellipse at 50% 90%, rgba(132,30,220,0.55), transparent 55%),
+      linear-gradient(155deg, #19052e 0%, #2a0a3e 35%, #0a0420 65%, #03000d 100%);
+    z-index: 1;
+  }
+  .live-hero .wp::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 4px),
+      radial-gradient(2px 2px at 18% 22%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1.5px 1.5px at 60% 35%, rgba(0,225,255,0.8), transparent),
+      radial-gradient(2px 2px at 80% 58%, rgba(255,42,153,0.85), transparent),
+      radial-gradient(1.4px 1.4px at 35% 75%, rgba(255,255,255,0.6), transparent);
+    mix-blend-mode: screen;
+  }
+
+  /* Frosted bottom card on hero */
+  .live-hero .frost {
+    position: absolute;
+    left: 8px; right: 8px; bottom: 8px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    z-index: 4;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .phone.dark .live-hero .frost {
+    background: rgba(20,20,31,0.45);
+    border: 1px solid rgba(212,175,55,0.20);
+  }
+  .live-hero .frost .title {
+    font: 700 11px 'Inter', sans-serif;
+    color: #fff;
+    flex: 1;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .live-hero .frost .play {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    display: grid; place-items: center;
+    font-size: 9px;
+    color: #1c1c1e;
+  }
+  .phone.dark .live-hero .frost .play {
+    background: var(--bg-gold-bright);
+    color: #1a1300;
+  }
+
+  /* "Popular Now" cards row */
+  .pop-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .pop-row .pop-title {
+    grid-column: 1 / -1;
+    font: 700 10px 'Inter', sans-serif;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .phone.light .pop-row .pop-title { color: var(--ios-text); }
+  .phone.dark  .pop-row .pop-title { color: var(--bg-text); }
+  .pop-card {
+    position: relative;
+    height: 110px;
+    border-radius: 12px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .pop-card .pwp { position: absolute; inset: 0; z-index: 1; }
+  .pop-card.k1 .pwp {
+    background: linear-gradient(160deg, #ff2a99 0%, #5b1fa0 60%, #0a0420 100%);
+  }
+  .pop-card.k2 .pwp {
+    background: linear-gradient(155deg, #00e1ff 0%, #1f37a0 55%, #050b25 100%);
+  }
+  .pop-card.k3 .pwp {
+    background: linear-gradient(140deg, #ffb000 0%, #c4006e 50%, #190333 100%);
+  }
+  .pop-card .pwp::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1.4px 1.4px at 25% 30%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1.6px 1.6px at 70% 60%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(1.2px 1.2px at 40% 80%, rgba(255,255,255,0.5), transparent);
+    mix-blend-mode: screen;
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 01 — GLASSMORPH MINI PILL
+     ═════════════════════════════════════════════════════════ */
+  .c01-tag {
+    position: absolute;
+    top: 8px; left: 8px;
+    z-index: 6;
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    padding: 4px 9px;
+    border-radius: 999px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    text-transform: uppercase;
+  }
+  .phone.light .c01-tag {
+    background: rgba(255,255,255,0.32);
+    color: var(--ios-blue);
+    border: 1px solid rgba(10,132,255,0.55);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+  }
+  .phone.dark .c01-tag {
+    background: rgba(20,20,31,0.45);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(245,214,118,0.45);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+  .c01-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    z-index: 5;
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    padding: 3px 6px;
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .phone.light .c01-badge {
+    background: rgba(255,255,255,0.32);
+    color: var(--ios-blue);
+    border: 1px solid rgba(10,132,255,0.5);
+  }
+  .phone.dark .c01-badge {
+    background: rgba(20,20,31,0.50);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(245,214,118,0.45);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 02 — NEON WIREFRAME OUTLINE
+     ═════════════════════════════════════════════════════════ */
+  .c02-tag {
+    position: absolute;
+    top: 8px; left: 8px;
+    z-index: 6;
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.20em;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: transparent;
+    text-transform: uppercase;
+    animation: neonPulse 2.4s ease-in-out infinite;
+  }
+  .phone.light .c02-tag {
+    color: var(--ios-blue);
+    border: 1.5px solid var(--ios-blue);
+    box-shadow: 0 0 6px rgba(10,132,255,0.55), inset 0 0 4px rgba(10,132,255,0.20);
+    text-shadow: 0 0 4px rgba(10,132,255,0.5);
+  }
+  .phone.dark .c02-tag {
+    color: var(--bg-gold-bright);
+    border: 1.5px solid var(--bg-gold);
+    box-shadow: 0 0 8px rgba(245,214,118,0.55), inset 0 0 4px rgba(245,214,118,0.18);
+    text-shadow: 0 0 4px rgba(245,214,118,0.55);
+  }
+  @keyframes neonPulse {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.25); }
+  }
+  .c02-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    z-index: 5;
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+    padding: 3px 6px;
+    border-radius: 999px;
+    background: transparent;
+    animation: neonPulse 2.4s ease-in-out infinite;
+  }
+  .phone.light .c02-badge {
+    color: var(--ios-blue);
+    border: 1.2px solid var(--ios-blue);
+    box-shadow: 0 0 5px rgba(10,132,255,0.55);
+  }
+  .phone.dark .c02-badge {
+    color: var(--bg-gold-bright);
+    border: 1.2px solid var(--bg-gold);
+    box-shadow: 0 0 6px rgba(245,214,118,0.55);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 03 — MINI STAMPED FOIL
+     ═════════════════════════════════════════════════════════ */
+  .c03-tag {
+    position: absolute;
+    top: 8px; left: 8px;
+    z-index: 6;
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    padding: 4px 9px 4px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .c03-tag .glyph { font-size: 9px; }
+  .c03-tag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%);
+    z-index: -1;
+    animation: foilShimmer 3.5s ease-in-out infinite;
+  }
+  @keyframes foilShimmer {
+    0%   { transform: translateX(-120%); }
+    60%  { transform: translateX(120%); }
+    100% { transform: translateX(120%); }
+  }
+  .phone.light .c03-tag {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F2F2F7 50%, #E5E5EA 100%);
+    color: var(--ios-text);
+    border: 1px solid rgba(10,132,255,0.55);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.20), inset 0 0 4px rgba(10,132,255,0.10);
+  }
+  .phone.light .c03-tag .glyph { color: var(--ios-blue); }
+  .phone.dark .c03-tag {
+    background: linear-gradient(135deg, #2c2410 0%, #5e4d20 50%, #2c2410 100%);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--bg-gold);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6), inset 0 0 5px rgba(245,214,118,0.18);
+  }
+  .phone.dark .c03-tag .glyph { color: var(--bg-gold-bright); }
+  .c03-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    z-index: 5;
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    padding: 3px 6px 3px 5px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .c03-badge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+    z-index: -1;
+    animation: foilShimmer 3.5s ease-in-out infinite;
+    animation-delay: 0.6s;
+  }
+  .phone.light .c03-badge {
+    background: linear-gradient(135deg, #FFFFFF, #E5E5EA);
+    color: var(--ios-text);
+    border: 1px solid rgba(10,132,255,0.5);
+  }
+  .phone.dark .c03-badge {
+    background: linear-gradient(135deg, #2c2410, #5e4d20);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--bg-gold);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 04 — CINEMATIC BAR TAG
+     ═════════════════════════════════════════════════════════ */
+  .c04-tag {
+    position: absolute;
+    top: 10px; left: 10px;
+    z-index: 6;
+    font: 800 11px 'Inter', sans-serif;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fff;
+    padding-left: 7px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 10px rgba(0,0,0,0.55);
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+  }
+  .c04-tag::before {
+    content: '';
+    display: inline-block;
+    width: 3px; height: 13px;
+    margin-right: 7px;
+    border-radius: 1px;
+  }
+  .phone.light .c04-tag::before {
+    background: var(--ios-blue);
+    box-shadow: 0 0 6px rgba(10,132,255,0.55);
+  }
+  .phone.light .c04-tag { color: #fff; }
+  .phone.dark .c04-tag::before {
+    background: var(--bg-gold-bright);
+    box-shadow: 0 0 6px rgba(245,214,118,0.6);
+  }
+  .phone.dark .c04-tag { color: #f5f4ee; }
+  .c04-badge {
+    position: absolute;
+    top: 7px; left: 7px;
+    z-index: 5;
+    font: 800 9px 'Inter', sans-serif;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.55);
+    display: inline-flex;
+    align-items: center;
+  }
+  .c04-badge::before {
+    content: '';
+    display: inline-block;
+    width: 2.5px; height: 10px;
+    margin-right: 5px;
+    border-radius: 1px;
+  }
+  .phone.light .c04-badge::before {
+    background: var(--ios-blue);
+    box-shadow: 0 0 5px rgba(10,132,255,0.55);
+  }
+  .phone.dark .c04-badge::before {
+    background: var(--bg-gold-bright);
+    box-shadow: 0 0 5px rgba(245,214,118,0.6);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     CONCEPT 05 — HOLOGRAPHIC IRIDESCENT
+     ═════════════════════════════════════════════════════════ */
+  .c05-tag {
+    position: absolute;
+    top: 8px; left: 8px;
+    z-index: 6;
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    padding: 4px 9px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    background-size: 300% 300%;
+    animation: holoShift 6s linear infinite;
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 0 12px rgba(255,160,255,0.45), 0 2px 6px rgba(0,0,0,0.30);
+    color: #2a1244;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+  }
+  .phone.light .c05-tag {
+    background-image: linear-gradient(125deg,
+      #FFFFFF 0%,
+      #FFD9F2 18%,
+      #C9F0FF 36%,
+      #E1D6FF 54%,
+      #FFE6BD 72%,
+      #FFFFFF 90%,
+      #FFD9F2 100%);
+  }
+  .phone.dark .c05-tag {
+    background-image: linear-gradient(125deg,
+      #F5D676 0%,
+      #C49245 18%,
+      #8B6020 36%,
+      #D4AF37 54%,
+      #F5D676 72%,
+      #B47A2A 90%,
+      #F5D676 100%);
+    border: 1px solid rgba(245,214,118,0.65);
+    box-shadow: 0 0 14px rgba(245,180,80,0.55), 0 2px 6px rgba(0,0,0,0.6);
+    color: #1a1300;
+    text-shadow: 0 1px 2px rgba(255,210,140,0.4);
+  }
+  @keyframes holoShift {
+    0%   { background-position: 0% 50%; filter: hue-rotate(0deg); }
+    50%  { background-position: 100% 50%; filter: hue-rotate(35deg); }
+    100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+  }
+
+  .c05-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    z-index: 5;
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    padding: 3px 6px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    background-size: 300% 300%;
+    animation: holoShift 6s linear infinite;
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 0 10px rgba(255,160,255,0.45);
+    color: #2a1244;
+    animation-delay: 0.5s;
+  }
+  .phone.light .c05-badge {
+    background-image: linear-gradient(125deg,
+      #FFFFFF, #FFD9F2, #C9F0FF, #E1D6FF, #FFE6BD, #FFFFFF);
+  }
+  .phone.dark .c05-badge {
+    background-image: linear-gradient(125deg,
+      #F5D676, #C49245, #8B6020, #D4AF37, #F5D676);
+    border: 1px solid rgba(245,214,118,0.55);
+    box-shadow: 0 0 10px rgba(245,180,80,0.5);
+    color: #1a1300;
+  }
+
+  /* ─────────── Meta block ─────────── */
+  .meta {
+    padding: 8px 0 0 8px;
+  }
+  .meta .num {
+    font: 600 11px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .meta .name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .meta .name .accent { color: var(--gold-bright); }
+  .meta .name .accent2 { color: #B8A8E8; }
+  .meta .tag {
+    font: 400 13.5px/1.55 'Geist', sans-serif;
+    color: var(--text-dim);
+    margin-bottom: 22px;
+    max-width: 480px;
+  }
+
+  .palettes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .pal-block .pal-label {
+    font: 600 9.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+  .pal-block.ios .pal-label { color: #5e8eb8; }
+  .pal-block.bg  .pal-label { color: var(--gold-deep); }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .palette .sw {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    border: 1px solid var(--hairline);
+    cursor: help;
+  }
+
+  .verdict {
+    font: 400 12.5px/1.55 'Geist', sans-serif;
+    color: var(--text-dim);
+    padding: 12px 14px;
+    border-radius: 10px;
+    border-left: 3px solid var(--gold-deep);
+    background: rgba(212,175,55,0.04);
+    max-width: 480px;
+  }
+  .verdict strong {
+    color: var(--gold-bright);
+    font-weight: 600;
+  }
+  .verdict.great { border-left-color: var(--gold-bright); }
+  .verdict.warn  { border-left-color: #B8A8E8; }
+
+  /* Footer */
+  footer {
+    margin-top: 96px;
+    padding-top: 36px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-align: center;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- ─────────── Header ─────────── -->
+    <header>
+      <h1>
+        Pixora <span class="ornament">·</span> <span class="accent">LIVE Tags</span> <span class="ornament">·</span> <em>5 Conceptos</em>
+      </h1>
+      <p class="subtitle">
+        Etiquetas pequeñas para LIVE — pills de categoría sobre el hero (Frosted Glass) y badges "NEW" sobre las cards. Romper con el verde mint actual y proyectar premium / colección sin dominar el wallpaper.
+      </p>
+      <div class="header-rule">
+        <span>Doc-024</span>
+        <span class="line"></span>
+        <span>Mayo 2026 · Orbix Studio</span>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- ═════════ CONCEPT 01 — GLASSMORPH MINI PILL ═════════ -->
+      <div class="concept c01">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c01-tag">ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c01-badge">NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c01-badge">NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c01-badge">NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c01-tag">ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c01-badge">NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c01-badge">NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c01-badge">NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 01 · Glassmorph Mini Pill</div>
+            <div class="name">Pill <span class="accent">Frosted</span> Mini</div>
+            <div class="tag">Pill esmerilada que hereda directamente la receta del hero LIVE: backdrop-filter blur(14px), tinte translúcido y borde hairline. iOS usa tinte blanco + Apple Blue; B&amp;G usa tinte oscuro + texto dorado brillante. Sensación de cohesión total con el card frosted que ya está en producción.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:rgba(255,255,255,0.32)" title="Glass tint white 32%"></span>
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Text + border"></span>
+                  <span class="sw" style="background:rgba(10,132,255,0.55)" title="Border alpha"></span>
+                  <span class="sw" style="background:#FFFFFF" title="#FFFFFF · BG ref"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:rgba(20,20,31,0.45)" title="Glass tint dark 45%"></span>
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Text gold-bright"></span>
+                  <span class="sw" style="background:#D4AF37" title="#D4AF37 · Border gold"></span>
+                  <span class="sw" style="background:#070710" title="#070710 · Ink"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict great">
+              <strong>Veredicto:</strong> Cohesión TOTAL con el LIVE hero. Lectura limpia incluso sobre wallpapers saturados. Único costo: backdrop-filter pesa en gama baja — fallback opaco resuelve sin perder la firma.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 02 — NEON WIREFRAME OUTLINE ═════════ -->
+      <div class="concept c02">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c02-tag">ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c02-badge">NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c02-badge">NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c02-badge">NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c02-tag">ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c02-badge">NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c02-badge">NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c02-badge">NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 02 · Neon Wireframe Outline</div>
+            <div class="name">Outline <span class="accent">Neón</span> Vacío</div>
+            <div class="tag">Solo contorno: borde 1.5px + glow suave + texto de color. Interior totalmente transparente — el wallpaper respira detrás. Pulsación lenta de brillo (filter brightness) que insinúa que es "live". Estética mínima estilo letrero de neón de casino o arcade cyberpunk.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:transparent;border:1.5px solid #0A84FF" title="Transparent inside"></span>
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Outline + text"></span>
+                  <span class="sw" style="background:rgba(10,132,255,0.55)" title="Glow shadow"></span>
+                  <span class="sw" style="background:#FFFFFF" title="#FFFFFF · BG ref"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:transparent;border:1.5px solid #D4AF37" title="Transparent inside"></span>
+                  <span class="sw" style="background:#D4AF37" title="#D4AF37 · Outline"></span>
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Text bright"></span>
+                  <span class="sw" style="background:rgba(245,214,118,0.55)" title="Gold glow"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict warn">
+              <strong>Veredicto:</strong> Súper liviano y deja respirar la imagen — perfecto cuando el wallpaper es la estrella. Riesgo real: sobre wallpapers MUY ocupados o con brillos similares al gold/blue, el contorno se pierde. Necesitaría un drop-shadow oscuro de respaldo.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 03 — MINI STAMPED FOIL ═════════ -->
+      <div class="concept c03">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c03-tag"><span class="glyph">★</span>ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c03-badge"><span class="glyph">★</span>NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c03-badge"><span class="glyph">★</span>NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c03-badge"><span class="glyph">★</span>NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c03-tag"><span class="glyph">★</span>ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c03-badge"><span class="glyph">★</span>NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c03-badge"><span class="glyph">★</span>NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c03-badge"><span class="glyph">★</span>NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 03 · Mini Stamped Foil</div>
+            <div class="name">Foil <span class="accent">Estampado</span> Mini</div>
+            <div class="tag">La misma receta del Stamped Foil de los section-headers, encogida a versión mini: borde foil + glyph estrella + barrido de shimmer. iOS usa foil claro con glyph azul; B&amp;G usa foil dorado profundo con texto cream. Vocabulario ya aprobado — costo conceptual cero.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:linear-gradient(135deg,#FFFFFF,#E5E5EA)" title="Foil light gradient"></span>
+                  <span class="sw" style="background:#1C1C1E" title="#1C1C1E · Text"></span>
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Glyph"></span>
+                  <span class="sw" style="background:#F2F2F7" title="#F2F2F7 · Surface"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:linear-gradient(135deg,#2c2410,#5e4d20)" title="Foil dark gold gradient"></span>
+                  <span class="sw" style="background:#D4AF37" title="#D4AF37 · Border"></span>
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Text + glyph"></span>
+                  <span class="sw" style="background:#070710" title="#070710 · Ink"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict great">
+              <strong>Veredicto:</strong> Si los section-headers van con Stamped Foil, esto es la decisión obvia: misma familia visual de arriba a abajo. El glyph de estrella suma "premium / coleccionable" sin texto extra. Ligeramente más ocupado que las otras opciones — pero coherente.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 04 — CINEMATIC BAR TAG ═════════ -->
+      <div class="concept c04">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c04-tag">ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c04-badge">NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c04-badge">NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c04-badge">NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c04-tag">ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c04-badge">NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c04-badge">NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c04-badge">NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 04 · Cinematic Bar Tag</div>
+            <div class="name">Marquee <span class="accent">Editorial</span></div>
+            <div class="tag">Sin pill ni fondo: texto bold caps directo sobre el wallpaper, precedido por una barra vertical sólida del color de acento. Drop-shadow negro fuerte garantiza legibilidad. Vibe Mubi / Letterboxd / poster de cine — minimal pero ruidoso. Ahorra espacio (no come superficie del wallpaper).</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:#0A84FF" title="#0A84FF · Bar"></span>
+                  <span class="sw" style="background:#FFFFFF" title="#FFFFFF · Text"></span>
+                  <span class="sw" style="background:rgba(0,0,0,0.85)" title="Drop shadow"></span>
+                  <span class="sw" style="background:rgba(10,132,255,0.55)" title="Bar glow"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:#F5D676" title="#F5D676 · Bar bright"></span>
+                  <span class="sw" style="background:#F5F4EE" title="#F5F4EE · Cream text"></span>
+                  <span class="sw" style="background:rgba(0,0,0,0.85)" title="Drop shadow"></span>
+                  <span class="sw" style="background:rgba(245,214,118,0.6)" title="Gold glow"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict warn">
+              <strong>Veredicto:</strong> ULTRA legible sobre cualquier fondo gracias al shadow negro. Cuesta cero superficie. Pero sacrifica la sensación de "chip premium" — se siente más editorial / título de película que "etiqueta coleccionable". Mejor si LIVE quiere proyectar cine y no joyería.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════ CONCEPT 05 — HOLOGRAPHIC IRIDESCENT ═════════ -->
+      <div class="concept c05">
+        <div class="concept-row">
+          <div class="phones">
+
+            <!-- iOS variant -->
+            <div class="phone-wrap">
+              <div class="phone light">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c05-tag">ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c05-badge">NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c05-badge">NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c05-badge">NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label ios">iOS White</div>
+            </div>
+
+            <!-- B&G variant -->
+            <div class="phone-wrap">
+              <div class="phone dark">
+                <div class="notch"></div>
+                <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+                <div class="screen">
+                  <div class="app-top">
+                    <div class="ava">e</div>
+                    <div class="brand">PIXORA</div>
+                    <div class="live-pill">LIVE</div>
+                  </div>
+                  <div class="live-stage">
+                    <div class="live-hero">
+                      <div class="wp"></div>
+                      <span class="c05-tag">ANIME</span>
+                      <div class="frost">
+                        <div class="title">Neon Samurai</div>
+                        <div class="play">▶</div>
+                      </div>
+                    </div>
+                    <div class="pop-row">
+                      <div class="pop-title">Popular Now</div>
+                      <div class="pop-card k1"><div class="pwp"></div><span class="c05-badge">NEW</span></div>
+                      <div class="pop-card k2"><div class="pwp"></div><span class="c05-badge">NEW</span></div>
+                      <div class="pop-card k3"><div class="pwp"></div><span class="c05-badge">NEW</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label bg">Black &amp; Gold</div>
+            </div>
+
+          </div>
+          <div class="meta">
+            <div class="num">No. 05 · Holographic Iridescent</div>
+            <div class="name">Holo <span class="accent2">Iridiscente</span> Coleccionable</div>
+            <div class="tag">Pill sólida con gradiente que se desplaza lento + hue-rotate sutil — efecto carta TCG holográfica rara. iOS usa pearl blanco/rosa/cian/violeta; B&amp;G usa dorado/bronce/cobre. Halo de glow tenue. Cada wallpaper se siente como una "carta rara" coleccionable. Convierte cada NEW en una recompensa visual.</div>
+            <div class="palettes">
+              <div class="pal-block ios">
+                <div class="pal-label">iOS White</div>
+                <div class="palette">
+                  <span class="sw" style="background:linear-gradient(125deg,#FFFFFF,#FFD9F2,#C9F0FF)" title="Pearl shift"></span>
+                  <span class="sw" style="background:linear-gradient(125deg,#E1D6FF,#FFE6BD)" title="Iridescent warm"></span>
+                  <span class="sw" style="background:#2a1244" title="#2A1244 · Text contrast"></span>
+                  <span class="sw" style="background:rgba(255,160,255,0.45)" title="Halo glow"></span>
+                </div>
+              </div>
+              <div class="pal-block bg">
+                <div class="pal-label">Black &amp; Gold</div>
+                <div class="palette">
+                  <span class="sw" style="background:linear-gradient(125deg,#F5D676,#C49245)" title="Gold shift"></span>
+                  <span class="sw" style="background:linear-gradient(125deg,#8B6020,#D4AF37)" title="Bronze copper"></span>
+                  <span class="sw" style="background:#1a1300" title="#1A1300 · Dark text"></span>
+                  <span class="sw" style="background:rgba(245,180,80,0.55)" title="Gold halo"></span>
+                </div>
+              </div>
+            </div>
+            <div class="verdict great">
+              <strong>Veredicto:</strong> Distintivo absoluto — convierte etiquetas en pequeñas recompensas. Único riesgo: si TODAS las cards llevan NEW iridiscente se vuelve ruido. Reservar el holo SOLO para badges genuinamente premium (NEW recién subido, ediciones limitadas) y dejar el resto en una pill normal.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─────────── Footer ─────────── -->
+    <footer>
+      Pixora · LIVE Tag Labels · Design Archive · May 2026
+    </footer>
+
+  </div>
+</body>
+</html>

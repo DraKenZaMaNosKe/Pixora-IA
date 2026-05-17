@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · AURA Section · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-text-soft: #3C3C43;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+    --ios-blue-soft: rgba(10,132,255,0.10);
+    --ios-indigo:    #5E5CE6;
+    --ios-purple:    #BF5AF2;
+    --ios-pink:      #FF375F;
+    --ios-silver:    #C0C5CC;
+
+    /* B&G theme */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* AURA aurora palette (no green mint) */
+    --aurora-lavender: #B8A8E8;
+    --aurora-peach:    #FFC7B5;
+    --aurora-ocean:    #87C5E8;
+    --aurora-violet:   #6A4FB5;
+    --aurora-magenta:  #C75FA8;
+    --aurora-cyan:     #4FC3D9;
+    --aurora-amber:    #E8B86E;
+    --aurora-rose:     #E8A5C5;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(184,168,232,0.55), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(199,95,168,0.45), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(135,197,232,0.45), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(106,79,181,0.12), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(135,197,232,0.06), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(199,95,168,0.07), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · AURA SECTION · REDESIGN / DOC-041';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: var(--aurora-lavender); }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.55;
+  }
+  .subtitle em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--aurora-lavender);
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row: phones grid + meta */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 36px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 290px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 620;
+    background: #fff;
+    border-radius: 38px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 7px #1a1a22,
+      0 20px 46px rgba(0,0,0,0.65),
+      0 0 60px rgba(184,168,232,0.16);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 7px #0a0a14,
+      0 20px 46px rgba(0,0,0,0.7),
+      0 0 70px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 66px; height: 15px;
+    background: #000;
+    border-radius: 0 0 11px 11px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    font: 600 8.5px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 13px; height: 6.5px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─────────── AURA Header (avatar + title + credits) ─────────── */
+  .aura-header {
+    position: relative;
+    padding: 30px 14px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 4;
+  }
+  .aura-header .left {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .aura-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--aurora-lavender), var(--aurora-ocean));
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 0 8px rgba(184,168,232,0.5);
+  }
+  .aura-title {
+    font: 700 13px 'Inter', sans-serif;
+    letter-spacing: 0.04em;
+  }
+  .aura-credits-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font: 600 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .aura-credits-pill::before { content: '◆'; font-size: 7px; }
+
+  /* Tagline below title */
+  .aura-tagline {
+    padding: 0 14px 8px;
+    font: italic 400 10.5px 'Cormorant Garamond', serif;
+    line-height: 1.35;
+    z-index: 4;
+    position: relative;
+  }
+
+  /* Tab toggle */
+  .aura-tabs {
+    margin: 4px 14px 10px;
+    display: flex;
+    padding: 3px;
+    border-radius: 999px;
+    z-index: 4;
+    position: relative;
+  }
+  .aura-tab {
+    flex: 1;
+    text-align: center;
+    padding: 5px 0;
+    font: 600 8.5px 'Inter', sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    cursor: default;
+  }
+
+  /* AURA Grid (2 cols, 4 cards) */
+  .aura-grid {
+    padding: 4px 12px 4px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    z-index: 4;
+    position: relative;
+  }
+  .aura-card {
+    position: relative;
+    aspect-ratio: 9 / 13;
+    overflow: hidden;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 6px;
+    text-align: center;
+  }
+  .aura-card .freq-name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    z-index: 3;
+  }
+  .aura-card .freq-sub {
+    font: italic 400 8px 'Cormorant Garamond', serif;
+    margin-top: 3px;
+    line-height: 1.1;
+    z-index: 3;
+  }
+  .aura-card .freq-hz {
+    font: 600 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    margin-top: 6px;
+    z-index: 3;
+  }
+
+  /* Stats bar at BOTTOM centered (consistency) */
+  .aura-stats {
+    margin-top: auto;
+    padding: 8px 14px 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    z-index: 4;
+    position: relative;
+  }
+  .aura-stat {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.12em;
+  }
+  .aura-stat .ring {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+  }
+  .aura-stat .heart {
+    width: 9px; height: 9px;
+    background: currentColor;
+    clip-path: path('M4.5 8 C 1 5.5, 0 3.5, 1.5 1.8 C 2.8 0.5, 4 1.2, 4.5 2.3 C 5 1.2, 6.2 0.5, 7.5 1.8 C 9 3.5, 8 5.5, 4.5 8 Z');
+  }
+
+  /* ─────────── META block (right column) ─────────── */
+  .meta {
+    padding: 12px 0 0;
+  }
+  .meta .num {
+    font: 500 11px 'JetBrains Mono', monospace;
+    letter-spacing: 0.28em;
+    color: var(--gold-deep);
+    margin-bottom: 12px;
+  }
+  .meta h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .meta h2 .acc { color: var(--gold-bright); }
+  .meta .tagline {
+    font: italic 400 13px 'Cormorant Garamond', serif;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    border-left: 1.5px solid var(--gold-dark);
+    padding-left: 12px;
+  }
+  .meta .description {
+    font: 400 12.5px 'Geist', sans-serif;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .meta .meta-section-title {
+    font: 500 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin: 16px 0 8px;
+  }
+  .palette-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .palette-pair .label {
+    font: 500 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .palette-pair .label.ios { color: #5e8eb8; }
+  .palette-pair .label.bg  { color: var(--gold-deep); }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .sw {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .sw:hover::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: 105%; left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--text);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font: 500 9px 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    pointer-events: none;
+    border: 1px solid var(--gold-dark);
+  }
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .pros, .cons {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font: 400 11px 'Geist', sans-serif;
+    line-height: 1.45;
+  }
+  .pros {
+    background: rgba(135,197,232,0.06);
+    color: var(--text);
+    border-left: 2px solid var(--aurora-ocean);
+  }
+  .cons {
+    background: rgba(199,95,168,0.06);
+    color: var(--text);
+    border-left: 2px solid var(--aurora-magenta);
+  }
+  .pros .h, .cons .h {
+    font: 600 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.2em;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  .pros .h { color: var(--aurora-ocean); }
+  .cons .h { color: var(--aurora-magenta); }
+  .verdict {
+    margin-top: 12px;
+    padding: 14px 14px;
+    background: rgba(212,175,55,0.05);
+    border: 1px solid var(--gold-dark);
+    border-radius: 10px;
+    font: italic 400 12px 'Cormorant Garamond', serif;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 01 — AURORA BOREALIS WAVES
+     ═══════════════════════════════════════════════════════ */
+  .c1 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(184,168,232,0.18), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(135,197,232,0.16), transparent 60%),
+      var(--ios-bg);
+  }
+  .c1 .light .aura-avatar {
+    background: linear-gradient(135deg, var(--aurora-lavender), var(--aurora-peach));
+  }
+  .c1 .light .aura-title {
+    color: var(--ios-text);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .c1 .light .aura-credits-pill {
+    background: rgba(10,132,255,0.08);
+    color: var(--ios-blue);
+    border: 1px solid rgba(10,132,255,0.2);
+  }
+  .c1 .light .aura-tagline { color: var(--ios-text-soft); }
+  .c1 .light .aura-tabs {
+    background: var(--ios-surface);
+    border: 1px solid rgba(60,60,67,0.08);
+  }
+  .c1 .light .aura-tab { color: var(--ios-text-dim); }
+  .c1 .light .aura-tab.active {
+    background: #fff;
+    color: var(--ios-blue);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .c1 .light .aura-card {
+    background:
+      linear-gradient(135deg, rgba(184,168,232,0.55), rgba(135,197,232,0.45), rgba(232,165,197,0.4));
+    background-size: 200% 200%;
+    animation: auroraFlow 12s ease infinite;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 4px 14px rgba(184,168,232,0.18);
+  }
+  .c1 .light .aura-card .freq-name { color: #2C2150; }
+  .c1 .light .aura-card .freq-sub { color: #4A3B70; }
+  .c1 .light .aura-card .freq-hz { color: var(--ios-blue); }
+  .c1 .light .aura-stat { color: var(--ios-text-dim); }
+  .c1 .light .aura-stat.heart-c { color: var(--aurora-magenta); }
+
+  .c1 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(106,79,181,0.20), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(79,195,217,0.14), transparent 60%),
+      var(--bg-ink);
+  }
+  .c1 .dark .aura-avatar {
+    background: linear-gradient(135deg, var(--gold-bright), var(--aurora-violet));
+  }
+  .c1 .dark .aura-title {
+    color: var(--bg-text);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .c1 .dark .aura-credits-pill {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.35);
+  }
+  .c1 .dark .aura-tagline { color: var(--bg-text-dim); }
+  .c1 .dark .aura-tabs {
+    background: rgba(30,30,44,0.6);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+  .c1 .dark .aura-tab { color: var(--bg-text-dim); }
+  .c1 .dark .aura-tab.active {
+    background: rgba(212,175,55,0.18);
+    color: var(--bg-gold-bright);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .c1 .dark .aura-card {
+    background:
+      linear-gradient(135deg, rgba(106,79,181,0.55), rgba(79,195,217,0.35), rgba(199,95,168,0.45));
+    background-size: 200% 200%;
+    animation: auroraFlow 12s ease infinite;
+    border: 1px solid rgba(212,175,55,0.20);
+    box-shadow: 0 4px 14px rgba(106,79,181,0.30);
+  }
+  .c1 .dark .aura-card .freq-name { color: var(--bg-text); text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+  .c1 .dark .aura-card .freq-sub { color: rgba(245,244,238,0.85); }
+  .c1 .dark .aura-card .freq-hz { color: var(--bg-gold-bright); }
+  .c1 .dark .aura-stat { color: var(--bg-text-dim); }
+  .c1 .dark .aura-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Sine wave glyph */
+  .sine-wave {
+    width: 70%;
+    height: 22px;
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 3;
+  }
+  .sine-wave svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .sine-wave path {
+    fill: none;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    animation: sinePulse 3s ease-in-out infinite;
+  }
+  .c1 .light .sine-wave path { stroke: var(--ios-blue); filter: drop-shadow(0 0 4px rgba(10,132,255,0.5)); }
+  .c1 .dark  .sine-wave path { stroke: var(--bg-gold-bright); filter: drop-shadow(0 0 4px rgba(245,214,118,0.6)); }
+  .c1 .aura-card.gamma  .sine-wave path { animation-duration: 1.2s; }
+  .c1 .aura-card.alpha  .sine-wave path { animation-duration: 2.8s; }
+  .c1 .aura-card.theta  .sine-wave path { animation-duration: 3.6s; }
+  .c1 .aura-card.delta  .sine-wave path { animation-duration: 5s; }
+  @keyframes sinePulse {
+    0%, 100% { opacity: 0.55; transform: scaleY(0.95); }
+    50%      { opacity: 1; transform: scaleY(1.15); }
+  }
+  @keyframes auroraFlow {
+    0%, 100% { background-position: 0% 0%; }
+    50%      { background-position: 100% 100%; }
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 02 — SACRED GEOMETRY MANDALA
+     ═══════════════════════════════════════════════════════ */
+  .c2 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(10,132,255,0.04), transparent 70%),
+      var(--ios-bg);
+  }
+  .c2 .light .aura-avatar {
+    background: radial-gradient(circle, var(--ios-blue) 0%, transparent 70%);
+    border: 1px solid var(--ios-blue);
+  }
+  .c2 .light .aura-title {
+    color: var(--ios-text);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+  }
+  .c2 .light .aura-credits-pill {
+    background: transparent;
+    color: var(--ios-blue);
+    border: 1px solid var(--ios-blue);
+  }
+  .c2 .light .aura-tagline { color: var(--ios-text-soft); }
+  .c2 .light .aura-tabs {
+    background: transparent;
+    border: 1px solid var(--ios-divider);
+  }
+  .c2 .light .aura-tab { color: var(--ios-text-dim); }
+  .c2 .light .aura-tab.active {
+    background: var(--ios-blue);
+    color: #fff;
+  }
+  .c2 .light .aura-card {
+    background: #fff;
+    border: 1px solid rgba(10,132,255,0.18);
+    box-shadow: 0 4px 12px rgba(10,30,60,0.05);
+  }
+  .c2 .light .aura-card .freq-name {
+    color: var(--ios-text);
+    font-family: 'Cinzel', serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+  }
+  .c2 .light .aura-card .freq-sub { color: var(--ios-text-soft); }
+  .c2 .light .aura-card .freq-hz { color: var(--ios-blue); }
+  .c2 .light .aura-stat { color: var(--ios-text-dim); }
+  .c2 .light .aura-stat.heart-c { color: var(--ios-pink); }
+
+  .c2 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.05), transparent 70%),
+      var(--bg-ink);
+  }
+  .c2 .dark .aura-avatar {
+    background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+    border: 1px solid var(--gold);
+  }
+  .c2 .dark .aura-title {
+    color: var(--bg-gold-bright);
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+  }
+  .c2 .dark .aura-credits-pill {
+    background: transparent;
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold);
+  }
+  .c2 .dark .aura-tagline { color: var(--bg-text-dim); }
+  .c2 .dark .aura-tabs {
+    background: transparent;
+    border: 1px solid rgba(212,175,55,0.20);
+  }
+  .c2 .dark .aura-tab { color: var(--bg-text-dim); }
+  .c2 .dark .aura-tab.active {
+    background: var(--gold);
+    color: var(--bg-ink);
+  }
+  .c2 .dark .aura-card {
+    background: var(--bg-surface);
+    border: 1px solid rgba(212,175,55,0.20);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .c2 .dark .aura-card .freq-name {
+    color: var(--bg-gold-bright);
+    font-family: 'Cinzel', serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+  }
+  .c2 .dark .aura-card .freq-sub { color: var(--bg-text-dim); }
+  .c2 .dark .aura-card .freq-hz { color: var(--bg-gold-bright); }
+  .c2 .dark .aura-stat { color: var(--bg-text-dim); }
+  .c2 .dark .aura-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Mandala SVG behind name */
+  .mandala {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    opacity: 0.45;
+  }
+  .mandala svg {
+    width: 95%; height: 95%;
+    animation: mandalaRotate 30s linear infinite;
+  }
+  .c2 .light .mandala svg { stroke: var(--ios-blue); opacity: 0.55; }
+  .c2 .dark  .mandala svg { stroke: var(--gold); opacity: 0.7; }
+  @keyframes mandalaRotate {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 03 — BIO-AURA GLOW (breathing card)
+     ═══════════════════════════════════════════════════════ */
+  .c3 .light .screen {
+    background:
+      linear-gradient(180deg, #FFFFFF 0%, #F8F5FB 100%);
+  }
+  .c3 .light .aura-avatar {
+    background: radial-gradient(circle, var(--aurora-lavender), var(--aurora-peach));
+    animation: breathPulse 9s ease-in-out infinite;
+  }
+  .c3 .light .aura-title { color: var(--ios-text); font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
+  .c3 .light .aura-credits-pill {
+    background: rgba(184,168,232,0.12);
+    color: #6A4FB5;
+    border: 1px solid rgba(184,168,232,0.4);
+  }
+  .c3 .light .aura-tagline { color: var(--ios-text-soft); }
+  .c3 .light .aura-tabs {
+    background: var(--ios-surface);
+    border: 1px solid rgba(60,60,67,0.06);
+  }
+  .c3 .light .aura-tab { color: var(--ios-text-dim); }
+  .c3 .light .aura-tab.active {
+    background: #fff;
+    color: #6A4FB5;
+    box-shadow: 0 1px 3px rgba(106,79,181,0.18);
+  }
+  .c3 .light .aura-card {
+    background: #fff;
+    border: 1px solid rgba(60,60,67,0.06);
+    box-shadow: 0 4px 12px rgba(10,30,60,0.05);
+    position: relative;
+  }
+  .c3 .light .aura-card .freq-name {
+    color: var(--ios-text);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 17px;
+  }
+  .c3 .light .aura-card .freq-sub { color: var(--ios-text-soft); }
+  .c3 .light .aura-card .freq-hz { color: #6A4FB5; }
+  .c3 .light .aura-stat { color: var(--ios-text-dim); }
+  .c3 .light .aura-stat.heart-c { color: var(--aurora-magenta); }
+
+  .c3 .dark .screen {
+    background:
+      linear-gradient(180deg, var(--bg-ink) 0%, #100C18 100%);
+  }
+  .c3 .dark .aura-avatar {
+    background: radial-gradient(circle, var(--gold-bright), var(--aurora-violet));
+    animation: breathPulse 9s ease-in-out infinite;
+  }
+  .c3 .dark .aura-title { color: var(--bg-text); font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
+  .c3 .dark .aura-credits-pill {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.3);
+  }
+  .c3 .dark .aura-tagline { color: var(--bg-text-dim); }
+  .c3 .dark .aura-tabs {
+    background: rgba(30,30,44,0.5);
+    border: 1px solid rgba(212,175,55,0.10);
+  }
+  .c3 .dark .aura-tab { color: var(--bg-text-dim); }
+  .c3 .dark .aura-tab.active {
+    background: rgba(212,175,55,0.18);
+    color: var(--bg-gold-bright);
+  }
+  .c3 .dark .aura-card {
+    background: var(--bg-surface);
+    border: 1px solid rgba(212,175,55,0.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .c3 .dark .aura-card .freq-name {
+    color: var(--bg-text);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 17px;
+  }
+  .c3 .dark .aura-card .freq-sub { color: var(--bg-text-dim); }
+  .c3 .dark .aura-card .freq-hz { color: var(--bg-gold-bright); }
+  .c3 .dark .aura-stat { color: var(--bg-text-dim); }
+  .c3 .dark .aura-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Breath halo behind text */
+  .breath-halo {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .breath-halo::before {
+    content: '';
+    width: 70%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    animation: breathPulse 9s ease-in-out infinite;
+    filter: blur(14px);
+  }
+  /* per-frequency halo colors — iOS */
+  .c3 .light .aura-card.gamma .breath-halo::before { background: radial-gradient(circle, var(--aurora-peach) 0%, transparent 70%); }
+  .c3 .light .aura-card.alpha .breath-halo::before { background: radial-gradient(circle, var(--aurora-lavender) 0%, transparent 70%); }
+  .c3 .light .aura-card.theta .breath-halo::before { background: radial-gradient(circle, var(--aurora-ocean) 0%, transparent 70%); }
+  .c3 .light .aura-card.delta .breath-halo::before { background: radial-gradient(circle, #B5C7E8 0%, transparent 70%); }
+  /* B&G — all cosmic gold variations */
+  .c3 .dark  .aura-card.gamma .breath-halo::before { background: radial-gradient(circle, var(--gold-bright) 0%, transparent 70%); }
+  .c3 .dark  .aura-card.alpha .breath-halo::before { background: radial-gradient(circle, var(--aurora-violet) 0%, transparent 70%); }
+  .c3 .dark  .aura-card.theta .breath-halo::before { background: radial-gradient(circle, var(--aurora-magenta) 0%, transparent 70%); }
+  .c3 .dark  .aura-card.delta .breath-halo::before { background: radial-gradient(circle, var(--aurora-cyan) 0%, transparent 70%); }
+  @keyframes breathPulse {
+    0%, 100% { transform: scale(0.85); opacity: 0.5; }
+    44%      { transform: scale(1.15); opacity: 0.95; }
+    55%      { transform: scale(1.15); opacity: 0.95; }
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 04 — CRYSTAL SOUND BOWL
+     ═══════════════════════════════════════════════════════ */
+  .c4 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(135,197,232,0.10), transparent 60%),
+      linear-gradient(180deg, #FFFFFF 0%, #F4F8FC 100%);
+  }
+  .c4 .light .aura-avatar {
+    background: linear-gradient(135deg, #DCEEFA, var(--ios-blue));
+    border: 1px solid rgba(10,132,255,0.4);
+  }
+  .c4 .light .aura-title { color: var(--ios-text); font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
+  .c4 .light .aura-credits-pill {
+    background: rgba(10,132,255,0.08);
+    color: var(--ios-blue);
+    border: 1px solid rgba(10,132,255,0.25);
+    backdrop-filter: blur(6px);
+  }
+  .c4 .light .aura-tagline { color: var(--ios-text-soft); }
+  .c4 .light .aura-tabs {
+    background: rgba(10,132,255,0.06);
+    border: 1px solid rgba(10,132,255,0.15);
+    backdrop-filter: blur(8px);
+  }
+  .c4 .light .aura-tab { color: var(--ios-text-dim); }
+  .c4 .light .aura-tab.active {
+    background: rgba(255,255,255,0.9);
+    color: var(--ios-blue);
+    box-shadow: 0 1px 3px rgba(10,132,255,0.18);
+  }
+  .c4 .light .aura-card {
+    background:
+      radial-gradient(circle at 50% 50%, rgba(220,238,250,0.7), rgba(255,255,255,0.85));
+    border: 1px solid rgba(10,132,255,0.20);
+    box-shadow:
+      inset 0 0 18px rgba(10,132,255,0.10),
+      0 4px 14px rgba(10,30,60,0.10);
+    backdrop-filter: blur(8px);
+  }
+  .c4 .light .aura-card .freq-name { color: var(--ios-text); text-shadow: 0 1px 0 #fff; }
+  .c4 .light .aura-card .freq-sub { color: var(--ios-text-soft); }
+  .c4 .light .aura-card .freq-hz { color: var(--ios-blue); }
+  .c4 .light .ripple { border-color: var(--ios-blue); }
+  .c4 .light .aura-stat { color: var(--ios-text-dim); }
+  .c4 .light .aura-stat.heart-c { color: var(--ios-blue); }
+
+  .c4 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(212,175,55,0.08), transparent 60%),
+      linear-gradient(180deg, var(--bg-ink) 0%, #14101E 100%);
+  }
+  .c4 .dark .aura-avatar {
+    background: linear-gradient(135deg, rgba(20,20,30,0.8), var(--gold));
+    border: 1px solid var(--gold);
+  }
+  .c4 .dark .aura-title { color: var(--bg-text); font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
+  .c4 .dark .aura-credits-pill {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.3);
+    backdrop-filter: blur(6px);
+  }
+  .c4 .dark .aura-tagline { color: var(--bg-text-dim); }
+  .c4 .dark .aura-tabs {
+    background: rgba(20,20,30,0.5);
+    border: 1px solid rgba(212,175,55,0.20);
+    backdrop-filter: blur(8px);
+  }
+  .c4 .dark .aura-tab { color: var(--bg-text-dim); }
+  .c4 .dark .aura-tab.active {
+    background: rgba(212,175,55,0.22);
+    color: var(--bg-gold-bright);
+  }
+  .c4 .dark .aura-card {
+    background:
+      radial-gradient(circle at 50% 50%, rgba(40,30,50,0.7), rgba(20,16,30,0.85));
+    border: 1px solid rgba(212,175,55,0.25);
+    box-shadow:
+      inset 0 0 18px rgba(212,175,55,0.10),
+      0 4px 14px rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+  }
+  .c4 .dark .aura-card .freq-name { color: var(--bg-text); text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+  .c4 .dark .aura-card .freq-sub { color: var(--bg-text-dim); }
+  .c4 .dark .aura-card .freq-hz { color: var(--bg-gold-bright); }
+  .c4 .dark .ripple { border-color: var(--bg-gold-bright); }
+  .c4 .dark .aura-stat { color: var(--bg-text-dim); }
+  .c4 .dark .aura-stat.heart-c { color: var(--bg-gold-bright); }
+
+  /* Concentric ripples animation */
+  .ripples {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ripple {
+    position: absolute;
+    width: 14%;
+    aspect-ratio: 1;
+    border: 1.2px solid;
+    border-radius: 50%;
+    opacity: 0;
+    animation: rippleOut 4s ease-out infinite;
+  }
+  .ripple:nth-child(1) { animation-delay: 0s; }
+  .ripple:nth-child(2) { animation-delay: 1.3s; }
+  .ripple:nth-child(3) { animation-delay: 2.6s; }
+  @keyframes rippleOut {
+    0%   { transform: scale(0.5); opacity: 0; }
+    20%  { opacity: 0.9; }
+    100% { transform: scale(6); opacity: 0; }
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     NO. 05 — COSMIC BRAINWAVE VISUALIZER
+     ═══════════════════════════════════════════════════════ */
+  .c5 .light .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(10,30,60,0.04), transparent 70%),
+      var(--ios-bg);
+  }
+  .c5 .light .aura-avatar {
+    background: radial-gradient(circle at 30% 30%, #2a2a4a, var(--ios-blue));
+    box-shadow: 0 0 8px rgba(10,132,255,0.5);
+  }
+  .c5 .light .aura-title {
+    color: var(--ios-text);
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+  .c5 .light .aura-credits-pill {
+    background: #1C1C1E;
+    color: #6FB1FF;
+    border: 1px solid #6FB1FF;
+  }
+  .c5 .light .aura-tagline { color: var(--ios-text-soft); }
+  .c5 .light .aura-tabs {
+    background: #1C1C1E;
+    border: 1px solid rgba(111,177,255,0.2);
+  }
+  .c5 .light .aura-tab { color: #8E8E93; }
+  .c5 .light .aura-tab.active {
+    background: var(--ios-blue);
+    color: #fff;
+  }
+  .c5 .light .aura-card {
+    /* dark cosmic card on white bg — distinctive */
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(94,92,230,0.30), transparent 60%),
+      linear-gradient(180deg, #14141F 0%, #1A1A2A 100%);
+    border: 1px solid rgba(111,177,255,0.20);
+    box-shadow: 0 6px 18px rgba(10,30,60,0.20);
+    overflow: hidden;
+  }
+  .c5 .light .aura-card .freq-name {
+    color: #fff;
+    font-family: 'DM Serif Display', serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+  }
+  .c5 .light .aura-card .freq-sub { color: #C0C5CC; }
+  .c5 .light .aura-card .freq-hz { color: #6FB1FF; text-shadow: 0 0 6px rgba(10,132,255,0.6); }
+  .c5 .light .aura-stat { color: var(--ios-text-dim); }
+  .c5 .light .aura-stat.heart-c { color: var(--ios-blue); }
+  .c5 .light .eq-bars rect { fill: #6FB1FF; }
+
+  /* starfield inside dark card */
+  .c5 .aura-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(0.6px 0.6px at 18% 22%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(0.6px 0.6px at 72% 12%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(0.6px 0.6px at 44% 64%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(0.6px 0.6px at 86% 78%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(0.6px 0.6px at 24% 88%, rgba(255,255,255,0.35), transparent 50%);
+    opacity: 0.6;
+    z-index: 1;
+  }
+
+  .c5 .dark .screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(106,79,181,0.18), transparent 60%),
+      var(--bg-ink);
+  }
+  .c5 .dark .aura-avatar {
+    background: radial-gradient(circle at 30% 30%, #1a1320, var(--gold));
+    box-shadow: 0 0 8px rgba(212,175,55,0.5);
+  }
+  .c5 .dark .aura-title {
+    color: var(--bg-gold-bright);
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+  .c5 .dark .aura-credits-pill {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold);
+  }
+  .c5 .dark .aura-tagline { color: var(--bg-text-dim); }
+  .c5 .dark .aura-tabs {
+    background: rgba(20,20,30,0.6);
+    border: 1px solid rgba(212,175,55,0.25);
+  }
+  .c5 .dark .aura-tab { color: var(--bg-text-dim); }
+  .c5 .dark .aura-tab.active {
+    background: var(--gold);
+    color: var(--bg-ink);
+  }
+  .c5 .dark .aura-card {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(106,79,181,0.28), transparent 60%),
+      linear-gradient(180deg, var(--bg-surface) 0%, #100A1A 100%);
+    border: 1px solid rgba(212,175,55,0.25);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    overflow: hidden;
+  }
+  .c5 .dark .aura-card .freq-name {
+    color: var(--bg-gold-bright);
+    font-family: 'DM Serif Display', serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+  }
+  .c5 .dark .aura-card .freq-sub { color: var(--bg-text-dim); }
+  .c5 .dark .aura-card .freq-hz { color: var(--bg-gold-bright); text-shadow: 0 0 6px rgba(245,214,118,0.55); }
+  .c5 .dark .aura-stat { color: var(--bg-text-dim); }
+  .c5 .dark .aura-stat.heart-c { color: var(--bg-gold-bright); }
+  .c5 .dark .eq-bars rect { fill: var(--gold-bright); }
+
+  /* EQ visualizer */
+  .eq-bars {
+    position: absolute;
+    left: 0; right: 0; bottom: 8%;
+    height: 26%;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 6px;
+  }
+  .eq-bars svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .eq-bars rect {
+    animation: eqBounce 1.4s ease-in-out infinite;
+  }
+  .c5 .aura-card.gamma .eq-bars rect { animation-duration: 0.6s; }
+  .c5 .aura-card.alpha .eq-bars rect { animation-duration: 1.6s; }
+  .c5 .aura-card.theta .eq-bars rect { animation-duration: 2.4s; }
+  .c5 .aura-card.delta .eq-bars rect { animation-duration: 3.4s; }
+  .eq-bars rect:nth-child(1)  { animation-delay: 0.0s; }
+  .eq-bars rect:nth-child(2)  { animation-delay: 0.1s; }
+  .eq-bars rect:nth-child(3)  { animation-delay: 0.2s; }
+  .eq-bars rect:nth-child(4)  { animation-delay: 0.3s; }
+  .eq-bars rect:nth-child(5)  { animation-delay: 0.4s; }
+  .eq-bars rect:nth-child(6)  { animation-delay: 0.5s; }
+  .eq-bars rect:nth-child(7)  { animation-delay: 0.6s; }
+  .eq-bars rect:nth-child(8)  { animation-delay: 0.5s; }
+  .eq-bars rect:nth-child(9)  { animation-delay: 0.4s; }
+  .eq-bars rect:nth-child(10) { animation-delay: 0.3s; }
+  .eq-bars rect:nth-child(11) { animation-delay: 0.2s; }
+  .eq-bars rect:nth-child(12) { animation-delay: 0.1s; }
+  @keyframes eqBounce {
+    0%, 100% { transform: scaleY(0.35); transform-origin: bottom; }
+    50%      { transform: scaleY(1); transform-origin: bottom; }
+  }
+
+  /* ─────────── footer ─────────── */
+  footer {
+    margin-top: 96px;
+    padding-top: 28px;
+    border-top: 1px solid var(--gold-dark);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>
+      Pixora <span class="ornament">·</span> <em>AURA</em> Section <span class="ornament">·</span> <span class="accent2">5</span> <span class="accent">Conceptos</span>
+    </h1>
+    <p class="subtitle">
+      Sección de meditación, frecuencias binaurales y sonidos de la naturaleza. Hay que sacar el verde mint y construir algo <em>especial</em> — porque AURA es mente, cerebro, corazón, relajación y espíritu, no un grid genérico de cards. Cinco direcciones para ambos temas: iOS blanco (calm/Apple wellness) y Black &amp; Gold (místico/cósmico). Stats bar movida al fondo, centrada, consistente con WALLPAPERS / LIVE.
+    </p>
+    <div class="header-rule">
+      <span>// DOC-041</span>
+      <span class="line"></span>
+      <span>05 CONCEPTOS · 10 VARIANTES · MAY 2026</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ═══════════ NO. 01 — AURORA BOREALIS WAVES ═══════════ -->
+    <section class="concept c1">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS variant -->
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">AURA</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Frecuencias binaurales para la mente y el alma.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">Frecuencias</div>
+                  <div class="aura-tab">Naturaleza</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="sine-wave"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 Q12.5,2 25,12 T50,12 T75,12 T100,12"/></svg></div>
+                    <div class="freq-name">Gamma</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="sine-wave"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 Q12.5,2 25,12 T50,12 T75,12 T100,12"/></svg></div>
+                    <div class="freq-name">Alpha</div>
+                    <div class="freq-sub">Relajación Consciente</div>
+                    <div class="freq-hz">10 HZ</div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="sine-wave"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 Q12.5,2 25,12 T50,12 T75,12 T100,12"/></svg></div>
+                    <div class="freq-name">Theta</div>
+                    <div class="freq-sub">Meditación Profunda</div>
+                    <div class="freq-hz">6 HZ</div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="sine-wave"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 Q12.5,2 25,12 T50,12 T75,12 T100,12"/></svg></div>
+                    <div class="freq-name">Delta</div>
+                    <div class="freq-sub">Sueño Reparador</div>
+                    <div class="freq-hz">2 HZ</div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="ring"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128 reproducciones</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G variant -->
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">AURA</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Frecuencias binaurales para la mente y el alma.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">Frecuencias</div>
+                  <div class="aura-tab">Naturaleza</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="sine-wave"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 Q12.5,2 25,12 T50,12 T75,12 T100,12"/></svg></div>
+                    <div class="freq-name">Gamma</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="sine-wave"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 Q12.5,2 25,12 T50,12 T75,12 T100,12"/></svg></div>
+                    <div class="freq-name">Alpha</div>
+                    <div class="freq-sub">Relajación Consciente</div>
+                    <div class="freq-hz">10 HZ</div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="sine-wave"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 Q12.5,2 25,12 T50,12 T75,12 T100,12"/></svg></div>
+                    <div class="freq-name">Theta</div>
+                    <div class="freq-sub">Meditación Profunda</div>
+                    <div class="freq-hz">6 HZ</div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="sine-wave"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,12 Q12.5,2 25,12 T50,12 T75,12 T100,12"/></svg></div>
+                    <div class="freq-name">Delta</div>
+                    <div class="freq-sub">Sueño Reparador</div>
+                    <div class="freq-hz">2 HZ</div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="ring"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128 reproducciones</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 01</div>
+          <h2>Aurora Borealis <span class="acc">Waves</span></h2>
+          <div class="tagline">"Cada card es un fragmento de aurora boreal — color cósmico que fluye, onda sinusoidal que late al ritmo de la frecuencia."</div>
+          <div class="description">
+            Gradiente de aurora suave (lavanda → ocean → rose) animado a 12s detrás del nombre. Onda sinusoidal central que late a la BPM de cada frecuencia (Gamma rápido 1.2s, Delta lento 5s). Título en Fraunces italic con resplandor sutil. Subtítulo en Cormorant. Hz en mono. <em>Es literalmente "aura" hecha visual.</em>
+          </div>
+
+          <div class="meta-section-title">// Aurora palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#B8A8E8" data-name="#B8A8E8"></div>
+                <div class="sw" style="background:#87C5E8" data-name="#87C5E8"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#6A4FB5" data-name="#6A4FB5"></div>
+                <div class="sw" style="background:#C75FA8" data-name="#C75FA8"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Literalmente embodies "aura" · color magico que pulsa con la frecuencia · zero verde mint · ambos temas se sienten místicos</div>
+            <div class="cons"><div class="h">CONS</div>4 gradientes animados simultaneos = costo GPU en Samsung mid-range · puede competir con el wallpaper de fondo</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más "wow" inmediato. La onda animada a BPM hace que la frecuencia se sienta real, no decorativa. Si AURA es la sección espiritual de Pixora, esto la pone donde debe estar.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════ NO. 02 — SACRED GEOMETRY MANDALA ═══════════ -->
+    <section class="concept c2">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS variant -->
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">AURA</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Geometría sagrada · resonancia interior.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">FREQUENCIES</div>
+                  <div class="aura-tab">NATURE</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="mandala">
+                      <svg viewBox="0 0 100 100" fill="none" stroke-width="0.6">
+                        <circle cx="50" cy="50" r="34"/>
+                        <circle cx="50" cy="50" r="22"/>
+                        <circle cx="50" cy="50" r="12"/>
+                        <path d="M50 16 L60 50 L50 84 L40 50 Z"/>
+                        <path d="M16 50 L50 60 L84 50 L50 40 Z"/>
+                        <path d="M26 26 L74 74 M74 26 L26 74"/>
+                      </svg>
+                    </div>
+                    <div class="freq-name">GAMMA</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="mandala">
+                      <svg viewBox="0 0 100 100" fill="none" stroke-width="0.6">
+                        <circle cx="50" cy="50" r="34"/>
+                        <circle cx="50" cy="30" r="14"/>
+                        <circle cx="50" cy="70" r="14"/>
+                        <circle cx="30" cy="50" r="14"/>
+                        <circle cx="70" cy="50" r="14"/>
+                        <circle cx="36" cy="36" r="14"/>
+                        <circle cx="64" cy="36" r="14"/>
+                        <circle cx="36" cy="64" r="14"/>
+                        <circle cx="64" cy="64" r="14"/>
+                      </svg>
+                    </div>
+                    <div class="freq-name">ALPHA</div>
+                    <div class="freq-sub">Relajación Consciente</div>
+                    <div class="freq-hz">10 HZ</div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="mandala">
+                      <svg viewBox="0 0 100 100" fill="none" stroke-width="0.6">
+                        <polygon points="50,14 86,72 14,72"/>
+                        <polygon points="50,86 14,28 86,28"/>
+                        <circle cx="50" cy="50" r="20"/>
+                        <circle cx="50" cy="50" r="32"/>
+                      </svg>
+                    </div>
+                    <div class="freq-name">THETA</div>
+                    <div class="freq-sub">Meditación Profunda</div>
+                    <div class="freq-hz">6 HZ</div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="mandala">
+                      <svg viewBox="0 0 100 100" fill="none" stroke-width="0.6">
+                        <circle cx="50" cy="50" r="34"/>
+                        <path d="M50 16 A 34 34 0 0 1 50 84 A 17 17 0 0 0 50 50 A 17 17 0 0 1 50 16"/>
+                        <circle cx="50" cy="33" r="3"/>
+                        <circle cx="50" cy="67" r="3"/>
+                      </svg>
+                    </div>
+                    <div class="freq-name">DELTA</div>
+                    <div class="freq-sub">Sueño Reparador</div>
+                    <div class="freq-hz">2 HZ</div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G variant -->
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">AURA</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Geometría sagrada · resonancia interior.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">FREQUENCIES</div>
+                  <div class="aura-tab">NATURE</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="mandala">
+                      <svg viewBox="0 0 100 100" fill="none" stroke-width="0.6">
+                        <circle cx="50" cy="50" r="34"/>
+                        <circle cx="50" cy="50" r="22"/>
+                        <circle cx="50" cy="50" r="12"/>
+                        <path d="M50 16 L60 50 L50 84 L40 50 Z"/>
+                        <path d="M16 50 L50 60 L84 50 L50 40 Z"/>
+                        <path d="M26 26 L74 74 M74 26 L26 74"/>
+                      </svg>
+                    </div>
+                    <div class="freq-name">GAMMA</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="mandala">
+                      <svg viewBox="0 0 100 100" fill="none" stroke-width="0.6">
+                        <circle cx="50" cy="50" r="34"/>
+                        <circle cx="50" cy="30" r="14"/>
+                        <circle cx="50" cy="70" r="14"/>
+                        <circle cx="30" cy="50" r="14"/>
+                        <circle cx="70" cy="50" r="14"/>
+                        <circle cx="36" cy="36" r="14"/>
+                        <circle cx="64" cy="36" r="14"/>
+                        <circle cx="36" cy="64" r="14"/>
+                        <circle cx="64" cy="64" r="14"/>
+                      </svg>
+                    </div>
+                    <div class="freq-name">ALPHA</div>
+                    <div class="freq-sub">Relajación Consciente</div>
+                    <div class="freq-hz">10 HZ</div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="mandala">
+                      <svg viewBox="0 0 100 100" fill="none" stroke-width="0.6">
+                        <polygon points="50,14 86,72 14,72"/>
+                        <polygon points="50,86 14,28 86,28"/>
+                        <circle cx="50" cy="50" r="20"/>
+                        <circle cx="50" cy="50" r="32"/>
+                      </svg>
+                    </div>
+                    <div class="freq-name">THETA</div>
+                    <div class="freq-sub">Meditación Profunda</div>
+                    <div class="freq-hz">6 HZ</div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="mandala">
+                      <svg viewBox="0 0 100 100" fill="none" stroke-width="0.6">
+                        <circle cx="50" cy="50" r="34"/>
+                        <path d="M50 16 A 34 34 0 0 1 50 84 A 17 17 0 0 0 50 50 A 17 17 0 0 1 50 16"/>
+                        <circle cx="50" cy="33" r="3"/>
+                        <circle cx="50" cy="67" r="3"/>
+                      </svg>
+                    </div>
+                    <div class="freq-name">DELTA</div>
+                    <div class="freq-sub">Sueño Reparador</div>
+                    <div class="freq-hz">2 HZ</div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 02</div>
+          <h2>Sacred <span class="acc">Geometry</span> Mandala</h2>
+          <div class="tagline">"Geometría sagrada — mandala, flor de la vida, Sri Yantra. La frecuencia se inscribe en línea fina como un mantra esculpido."</div>
+          <div class="description">
+            Cada card tiene un patrón geométrico sagrado distinto rotando lento (30s). Nombre en Cinzel mayúsculas — feeling de inscripción antigua. Tabs en mayúsculas tipo manuscrito ritual. iOS usa líneas azules finas sobre blanco (yoga studio premium); B&amp;G usa filigrana dorada sobre tinta. <em>Es el concepto más espiritual / templo / ritual.</em>
+          </div>
+
+          <div class="meta-section-title">// Sacred palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#F2F2F7" data-name="#F2F2F7"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+                <div class="sw" style="background:#1C1C1E" data-name="#1C1C1E"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#14141F" data-name="#14141F"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Deeply spiritual · on-brand para "aura" / wellness · super distintivo · Cinzel + mandala = vitrina de templo</div>
+            <div class="cons"><div class="h">CONS</div>Requiere mandalas como assets reales (estos son SVG simples) · animación de rotación puede marear si se mira 30s</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más solemne y premium. Si AURA aspira a yoga studio + sound bath chamber, esto le da gravitas. Riesgo: si el resto de Pixora no se asoma a este lenguaje, AURA queda como isla — pero quizás eso es lo que necesita.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════ NO. 03 — BIO-AURA GLOW ═══════════ -->
+    <section class="concept c3">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS variant -->
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">Aura</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Respira con la frecuencia. Inhala. Exhala.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">Frecuencias</div>
+                  <div class="aura-tab">Naturaleza</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="breath-halo"></div>
+                    <div class="freq-name">Gamma</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="breath-halo"></div>
+                    <div class="freq-name">Alpha</div>
+                    <div class="freq-sub">Relajación</div>
+                    <div class="freq-hz">10 HZ</div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="breath-halo"></div>
+                    <div class="freq-name">Theta</div>
+                    <div class="freq-sub">Meditación</div>
+                    <div class="freq-hz">6 HZ</div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="breath-halo"></div>
+                    <div class="freq-name">Delta</div>
+                    <div class="freq-sub">Sueño</div>
+                    <div class="freq-hz">2 HZ</div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G variant -->
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">Aura</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Respira con la frecuencia. Inhala. Exhala.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">Frecuencias</div>
+                  <div class="aura-tab">Naturaleza</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="breath-halo"></div>
+                    <div class="freq-name">Gamma</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="breath-halo"></div>
+                    <div class="freq-name">Alpha</div>
+                    <div class="freq-sub">Relajación</div>
+                    <div class="freq-hz">10 HZ</div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="breath-halo"></div>
+                    <div class="freq-name">Theta</div>
+                    <div class="freq-sub">Meditación</div>
+                    <div class="freq-hz">6 HZ</div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="breath-halo"></div>
+                    <div class="freq-name">Delta</div>
+                    <div class="freq-sub">Sueño</div>
+                    <div class="freq-hz">2 HZ</div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 03</div>
+          <h2>Bio-Aura <span class="acc">Glow</span></h2>
+          <div class="tagline">"Cada card respira. Halo de color que se expande y contrae al ritmo de una respiración meditativa real — 4s inhala, 1s sostiene, 4s exhala."</div>
+          <div class="description">
+            La cosa más calmante. El halo detrás del nombre <em>respira</em> a 9s — el mismo ritmo de una meditación box-breathing. Cada frecuencia tiene su color de aura: Gamma peach (foco cálido), Alpha lavanda (calma), Theta ocean (introspección), Delta azul pálido (sueño). En B&amp;G todos son tonos cósmicos de oro/violeta/magenta/cyan. Mirar la pantalla te induce la respiración correcta.
+          </div>
+
+          <div class="meta-section-title">// Bio-Aura palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#B8A8E8" data-name="#B8A8E8"></div>
+                <div class="sw" style="background:#FFC7B5" data-name="#FFC7B5"></div>
+                <div class="sw" style="background:#87C5E8" data-name="#87C5E8"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+                <div class="sw" style="background:#C75FA8" data-name="#C75FA8"></div>
+                <div class="sw" style="background:#4FC3D9" data-name="#4FC3D9"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Realmente induce calma al mirarla · spa wellness vibes · cada frecuencia tiene identidad de color · sin verde mint</div>
+            <div class="cons"><div class="h">CONS</div>4 halos pulsando simultaneo puede ser visualmente busy · costo de blur en GPU mid-range</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más útil emocionalmente. No solo se ve bonito — actualmente te baja las pulsaciones. Si la promesa de AURA es "esta sección te calma antes de meditar", este concepto lo cumple en el grid mismo.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════ NO. 04 — CRYSTAL SOUND BOWL ═══════════ -->
+    <section class="concept c4">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS variant -->
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">Aura</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Cuencos de cristal · baño de sonido.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">Frecuencias</div>
+                  <div class="aura-tab">Naturaleza</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="ripples">
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                    </div>
+                    <div class="freq-name">Gamma</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="ripples">
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                    </div>
+                    <div class="freq-name">Alpha</div>
+                    <div class="freq-sub">Relajación</div>
+                    <div class="freq-hz">10 HZ</div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="ripples">
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                    </div>
+                    <div class="freq-name">Theta</div>
+                    <div class="freq-sub">Meditación</div>
+                    <div class="freq-hz">6 HZ</div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="ripples">
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                    </div>
+                    <div class="freq-name">Delta</div>
+                    <div class="freq-sub">Sueño</div>
+                    <div class="freq-hz">2 HZ</div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G variant -->
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">Aura</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Cuencos de cristal · baño de sonido.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">Frecuencias</div>
+                  <div class="aura-tab">Naturaleza</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="ripples">
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                    </div>
+                    <div class="freq-name">Gamma</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="ripples">
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                    </div>
+                    <div class="freq-name">Alpha</div>
+                    <div class="freq-sub">Relajación</div>
+                    <div class="freq-hz">10 HZ</div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="ripples">
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                    </div>
+                    <div class="freq-name">Theta</div>
+                    <div class="freq-sub">Meditación</div>
+                    <div class="freq-hz">6 HZ</div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="ripples">
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                      <span class="ripple"></span>
+                    </div>
+                    <div class="freq-name">Delta</div>
+                    <div class="freq-sub">Sueño</div>
+                    <div class="freq-hz">2 HZ</div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 04</div>
+          <h2>Crystal <span class="acc">Sound</span> Bowl</h2>
+          <div class="tagline">"Vista cenital de un cuenco de cuarzo — gotas que caen al centro y propagan ondas concéntricas hacia el borde."</div>
+          <div class="description">
+            Cada card es la mirada hacia abajo a un cuenco singing-bowl. Tres ondas concéntricas salen desde el centro cada 1.3s — feel de baño de sonido / vibrational therapy. Texto de la frecuencia en cristal esmerilado al centro. iOS = cuenco translúcido azul Apple; B&amp;G = cuenco de obsidiana ahumada con ondas de oro. <em>El más distintivo de los 5.</em>
+          </div>
+
+          <div class="meta-section-title">// Crystal palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#DCEEFA" data-name="#DCEEFA"></div>
+                <div class="sw" style="background:#0A84FF" data-name="#0A84FF"></div>
+                <div class="sw" style="background:rgba(10,132,255,0.15);border:1px solid #0A84FF" data-name="ripple"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#1E1E2C" data-name="#1E1E2C"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>ULTRA distintivo · nadie más tiene esto · meta-perfect para "sound therapy" · animación de ondas hipnotiza · texto frosted bonito</div>
+            <div class="cons"><div class="h">CONS</div>3 ripples × 4 cards = 12 animaciones simultaneas · backdrop-filter cost · puede saturar visualmente con tantas ondas</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más original conceptualmente — nadie en App Store / Play Store usa el cuenco-cenital para audio wellness. Si Pixora quiere que AURA sea referencia de categoría, esto es la jugada. Cuidar perf en mid-range.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ═══════════ NO. 05 — COSMIC BRAINWAVE VISUALIZER ═══════════ -->
+    <section class="concept c5">
+      <div class="concept-row">
+        <div class="phones">
+
+          <!-- iOS variant -->
+          <div class="phone-wrap">
+            <span class="label ios">// iOS · White Theme</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">AURA</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Brainwave lab · frecuencias visibles.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">FREQUENCIES</div>
+                  <div class="aura-tab">NATURE</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="freq-name">GAMMA</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                    <div class="eq-bars">
+                      <svg viewBox="0 0 80 24" preserveAspectRatio="none">
+                        <rect x="0"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="7"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="14" y="0" width="4" height="24" rx="1"/>
+                        <rect x="21" y="0" width="4" height="24" rx="1"/>
+                        <rect x="28" y="0" width="4" height="24" rx="1"/>
+                        <rect x="35" y="0" width="4" height="24" rx="1"/>
+                        <rect x="42" y="0" width="4" height="24" rx="1"/>
+                        <rect x="49" y="0" width="4" height="24" rx="1"/>
+                        <rect x="56" y="0" width="4" height="24" rx="1"/>
+                        <rect x="63" y="0" width="4" height="24" rx="1"/>
+                        <rect x="70" y="0" width="4" height="24" rx="1"/>
+                        <rect x="77" y="0" width="3" height="24" rx="1"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="freq-name">ALPHA</div>
+                    <div class="freq-sub">Relajación</div>
+                    <div class="freq-hz">10 HZ</div>
+                    <div class="eq-bars">
+                      <svg viewBox="0 0 80 24" preserveAspectRatio="none">
+                        <rect x="0"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="7"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="14" y="0" width="4" height="24" rx="1"/>
+                        <rect x="21" y="0" width="4" height="24" rx="1"/>
+                        <rect x="28" y="0" width="4" height="24" rx="1"/>
+                        <rect x="35" y="0" width="4" height="24" rx="1"/>
+                        <rect x="42" y="0" width="4" height="24" rx="1"/>
+                        <rect x="49" y="0" width="4" height="24" rx="1"/>
+                        <rect x="56" y="0" width="4" height="24" rx="1"/>
+                        <rect x="63" y="0" width="4" height="24" rx="1"/>
+                        <rect x="70" y="0" width="4" height="24" rx="1"/>
+                        <rect x="77" y="0" width="3" height="24" rx="1"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="freq-name">THETA</div>
+                    <div class="freq-sub">Meditación</div>
+                    <div class="freq-hz">6 HZ</div>
+                    <div class="eq-bars">
+                      <svg viewBox="0 0 80 24" preserveAspectRatio="none">
+                        <rect x="0"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="7"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="14" y="0" width="4" height="24" rx="1"/>
+                        <rect x="21" y="0" width="4" height="24" rx="1"/>
+                        <rect x="28" y="0" width="4" height="24" rx="1"/>
+                        <rect x="35" y="0" width="4" height="24" rx="1"/>
+                        <rect x="42" y="0" width="4" height="24" rx="1"/>
+                        <rect x="49" y="0" width="4" height="24" rx="1"/>
+                        <rect x="56" y="0" width="4" height="24" rx="1"/>
+                        <rect x="63" y="0" width="4" height="24" rx="1"/>
+                        <rect x="70" y="0" width="4" height="24" rx="1"/>
+                        <rect x="77" y="0" width="3" height="24" rx="1"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="freq-name">DELTA</div>
+                    <div class="freq-sub">Sueño</div>
+                    <div class="freq-hz">2 HZ</div>
+                    <div class="eq-bars">
+                      <svg viewBox="0 0 80 24" preserveAspectRatio="none">
+                        <rect x="0"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="7"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="14" y="0" width="4" height="24" rx="1"/>
+                        <rect x="21" y="0" width="4" height="24" rx="1"/>
+                        <rect x="28" y="0" width="4" height="24" rx="1"/>
+                        <rect x="35" y="0" width="4" height="24" rx="1"/>
+                        <rect x="42" y="0" width="4" height="24" rx="1"/>
+                        <rect x="49" y="0" width="4" height="24" rx="1"/>
+                        <rect x="56" y="0" width="4" height="24" rx="1"/>
+                        <rect x="63" y="0" width="4" height="24" rx="1"/>
+                        <rect x="70" y="0" width="4" height="24" rx="1"/>
+                        <rect x="77" y="0" width="3" height="24" rx="1"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G variant -->
+          <div class="phone-wrap">
+            <span class="label bg">// Black &amp; Gold Theme</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="aura-header">
+                  <div class="left">
+                    <div class="aura-avatar"></div>
+                    <span class="aura-title">AURA</span>
+                  </div>
+                  <span class="aura-credits-pill">128</span>
+                </div>
+                <div class="aura-tagline">Brainwave lab · frecuencias visibles.</div>
+                <div class="aura-tabs">
+                  <div class="aura-tab active">FREQUENCIES</div>
+                  <div class="aura-tab">NATURE</div>
+                </div>
+                <div class="aura-grid">
+                  <div class="aura-card gamma">
+                    <div class="freq-name">GAMMA</div>
+                    <div class="freq-sub">Foco Máximo</div>
+                    <div class="freq-hz">40 HZ</div>
+                    <div class="eq-bars">
+                      <svg viewBox="0 0 80 24" preserveAspectRatio="none">
+                        <rect x="0"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="7"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="14" y="0" width="4" height="24" rx="1"/>
+                        <rect x="21" y="0" width="4" height="24" rx="1"/>
+                        <rect x="28" y="0" width="4" height="24" rx="1"/>
+                        <rect x="35" y="0" width="4" height="24" rx="1"/>
+                        <rect x="42" y="0" width="4" height="24" rx="1"/>
+                        <rect x="49" y="0" width="4" height="24" rx="1"/>
+                        <rect x="56" y="0" width="4" height="24" rx="1"/>
+                        <rect x="63" y="0" width="4" height="24" rx="1"/>
+                        <rect x="70" y="0" width="4" height="24" rx="1"/>
+                        <rect x="77" y="0" width="3" height="24" rx="1"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="aura-card alpha">
+                    <div class="freq-name">ALPHA</div>
+                    <div class="freq-sub">Relajación</div>
+                    <div class="freq-hz">10 HZ</div>
+                    <div class="eq-bars">
+                      <svg viewBox="0 0 80 24" preserveAspectRatio="none">
+                        <rect x="0"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="7"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="14" y="0" width="4" height="24" rx="1"/>
+                        <rect x="21" y="0" width="4" height="24" rx="1"/>
+                        <rect x="28" y="0" width="4" height="24" rx="1"/>
+                        <rect x="35" y="0" width="4" height="24" rx="1"/>
+                        <rect x="42" y="0" width="4" height="24" rx="1"/>
+                        <rect x="49" y="0" width="4" height="24" rx="1"/>
+                        <rect x="56" y="0" width="4" height="24" rx="1"/>
+                        <rect x="63" y="0" width="4" height="24" rx="1"/>
+                        <rect x="70" y="0" width="4" height="24" rx="1"/>
+                        <rect x="77" y="0" width="3" height="24" rx="1"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="aura-card theta">
+                    <div class="freq-name">THETA</div>
+                    <div class="freq-sub">Meditación</div>
+                    <div class="freq-hz">6 HZ</div>
+                    <div class="eq-bars">
+                      <svg viewBox="0 0 80 24" preserveAspectRatio="none">
+                        <rect x="0"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="7"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="14" y="0" width="4" height="24" rx="1"/>
+                        <rect x="21" y="0" width="4" height="24" rx="1"/>
+                        <rect x="28" y="0" width="4" height="24" rx="1"/>
+                        <rect x="35" y="0" width="4" height="24" rx="1"/>
+                        <rect x="42" y="0" width="4" height="24" rx="1"/>
+                        <rect x="49" y="0" width="4" height="24" rx="1"/>
+                        <rect x="56" y="0" width="4" height="24" rx="1"/>
+                        <rect x="63" y="0" width="4" height="24" rx="1"/>
+                        <rect x="70" y="0" width="4" height="24" rx="1"/>
+                        <rect x="77" y="0" width="3" height="24" rx="1"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="aura-card delta">
+                    <div class="freq-name">DELTA</div>
+                    <div class="freq-sub">Sueño</div>
+                    <div class="freq-hz">2 HZ</div>
+                    <div class="eq-bars">
+                      <svg viewBox="0 0 80 24" preserveAspectRatio="none">
+                        <rect x="0"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="7"  y="0" width="4" height="24" rx="1"/>
+                        <rect x="14" y="0" width="4" height="24" rx="1"/>
+                        <rect x="21" y="0" width="4" height="24" rx="1"/>
+                        <rect x="28" y="0" width="4" height="24" rx="1"/>
+                        <rect x="35" y="0" width="4" height="24" rx="1"/>
+                        <rect x="42" y="0" width="4" height="24" rx="1"/>
+                        <rect x="49" y="0" width="4" height="24" rx="1"/>
+                        <rect x="56" y="0" width="4" height="24" rx="1"/>
+                        <rect x="63" y="0" width="4" height="24" rx="1"/>
+                        <rect x="70" y="0" width="4" height="24" rx="1"/>
+                        <rect x="77" y="0" width="3" height="24" rx="1"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="aura-stats">
+                  <div class="aura-stat heart-c"><div class="heart"></div>2.4K</div>
+                  <div class="aura-stat"><div class="ring"></div>128</div>
+                  <div class="aura-stat"><div class="ring"></div>05</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 05</div>
+          <h2>Cosmic <span class="acc">Brainwave</span> Visualizer</h2>
+          <div class="tagline">"NASA meets brain lab — cards de fondo cósmico oscuro con waveform animado a la frecuencia. La ciencia hecha estética."</div>
+          <div class="description">
+            Cada card es un cosmos en miniatura con starfield y EQ visualizer abajo. La velocidad del waveform cambia por frecuencia: Gamma 0.6s (frenético), Alpha 1.6s, Theta 2.4s, Delta 3.4s (lento profundo). DM Serif Display en el título — feel de revista científica. En iOS las cards son oscuras dentro del fondo blanco (contraste fuerte tipo "modo nocturno dentro del día"). En B&amp;G la app entera respira cosmos.
+          </div>
+
+          <div class="meta-section-title">// Cosmic palette</div>
+          <div class="palette-pair">
+            <div>
+              <div class="label ios">light</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="#FFFFFF"></div>
+                <div class="sw" style="background:#14141F" data-name="#14141F"></div>
+                <div class="sw" style="background:#6FB1FF" data-name="#6FB1FF"></div>
+                <div class="sw" style="background:#5E5CE6" data-name="#5E5CE6"></div>
+              </div>
+            </div>
+            <div>
+              <div class="label bg">dark</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="#070710"></div>
+                <div class="sw" style="background:#6A4FB5" data-name="#6A4FB5"></div>
+                <div class="sw" style="background:#D4AF37" data-name="#D4AF37"></div>
+                <div class="sw" style="background:#F5D676" data-name="#F5D676"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros"><div class="h">PROS</div>Cientificamente creíble · waveform real comunica "esto SI es una frecuencia activa" · NASA / brain lab vibes</div>
+            <div class="cons"><div class="h">CONS</div>Cards oscuras dentro de iOS blanco pueden romper la consistencia visual del resto de la app · más "tech" que "wellness"</div>
+          </div>
+          <div class="verdict">
+            Veredicto: el más credible. Si el problema es que la sección actual se siente "decorativa", esta la hace sentir <em>operativa</em> — una sala de control de brainwaves. Riesgo en iOS: cards oscuras sobre fondo blanco se ven raras vs la consistencia de los otros tabs.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <span>PIXORA · AURA SECTION · DESIGN ARCHIVE · MAY 2026</span>
+    <span class="line"></span>
+    <span>05 / 05</span>
+  </footer>
+
+</div>
+</body>
+</html>

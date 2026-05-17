@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · LIVE Preview · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* Cyberpunk wallpaper palette */
+    --cy-pink:    #ff2e93;
+    --cy-cyan:    #00e6ff;
+    --cy-violet:  #7b2cff;
+    --cy-magenta: #d524ff;
+    --cy-orange:  #ff8a3d;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(212,175,55,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(184,168,232,0.3), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%);
+    opacity: 0.55;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(80,40,120,0.10), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.06), transparent 55%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · LIVE-PREVIEW / DOC-026';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: #B8A8E8; }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.55;
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 96px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row: phones left, meta right */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(620px, 1fr) 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 290px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame (taller for detail page) ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 600;
+    background: #fff;
+    border-radius: 38px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 8px #1a1a22,
+      0 22px 50px rgba(0,0,0,0.65),
+      0 0 70px var(--gold-haze);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 8px #0a0a14,
+      0 22px 50px rgba(0,0,0,0.7),
+      0 0 80px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 72px; height: 16px;
+    background: #000;
+    border-radius: 0 0 12px 12px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 22px;
+    font: 600 9px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 14px; height: 7px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─────────── Cyberpunk wallpaper simulation ─────────── */
+  .wp-cy {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 18%, rgba(255,46,147,0.85), transparent 55%),
+      radial-gradient(ellipse at 75% 35%, rgba(0,230,255,0.7), transparent 55%),
+      radial-gradient(ellipse at 50% 75%, rgba(123,44,255,0.85), transparent 60%),
+      linear-gradient(160deg, #1a0030 0%, #2a0040 35%, #0a1a3a 100%);
+    overflow: hidden;
+  }
+  .wp-cy::before {
+    /* horizontal motion lines */
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(180deg, transparent 0 12px, rgba(255,255,255,0.04) 12px 13px),
+      repeating-linear-gradient(95deg, transparent 0 28px, rgba(0,230,255,0.05) 28px 29px);
+    mix-blend-mode: screen;
+    animation: wpScroll 8s linear infinite;
+  }
+  .wp-cy::after {
+    /* glow particles */
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1.6px 1.6px at 18% 22%, rgba(255,255,255,0.9), transparent 50%),
+      radial-gradient(1.4px 1.4px at 62% 68%, rgba(0,230,255,0.85), transparent 50%),
+      radial-gradient(1.8px 1.8px at 85% 18%, rgba(255,46,147,0.8), transparent 50%),
+      radial-gradient(1.2px 1.2px at 38% 78%, rgba(245,214,118,0.7), transparent 50%),
+      radial-gradient(1.4px 1.4px at 12% 56%, rgba(255,255,255,0.75), transparent 50%),
+      radial-gradient(1.6px 1.6px at 92% 88%, rgba(123,44,255,0.7), transparent 50%);
+    mix-blend-mode: screen;
+    animation: wpPulse 4s ease-in-out infinite alternate;
+  }
+  @keyframes wpScroll {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-13px); }
+  }
+  @keyframes wpPulse {
+    from { opacity: 0.75; }
+    to   { opacity: 1; }
+  }
+
+  /* Live tiny pulse dot */
+  .pulse-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #ff3b30;
+    box-shadow: 0 0 0 0 rgba(255,59,48,0.55);
+    animation: pulseRing 1.4s ease-out infinite;
+  }
+  @keyframes pulseRing {
+    0%   { box-shadow: 0 0 0 0 rgba(255,59,48,0.55); }
+    100% { box-shadow: 0 0 0 9px rgba(255,59,48,0); }
+  }
+
+  /* ════════════════════════════════════════════
+     #01 CINEMATIC THEATER
+  ════════════════════════════════════════════ */
+  .c1 .video-zone {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 55%;
+    overflow: hidden;
+  }
+  .c1 .video-zone .wp-cy { inset: 0; }
+  .c1 .video-zone::after {
+    /* vignette + gradient fade to metadata */
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%),
+      linear-gradient(180deg, transparent 55%, var(--screen-bg) 100%);
+    z-index: 6;
+  }
+  .phone.light .c1 .video-zone { --screen-bg: var(--ios-bg); }
+  .phone.dark  .c1 .video-zone { --screen-bg: var(--bg-ink); }
+
+  .c1 .play-glow {
+    position: absolute;
+    top: 26%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,0.35);
+    z-index: 7;
+  }
+  .c1 .play-glow::before {
+    content: '';
+    border-style: solid;
+    border-width: 5px 0 5px 8px;
+    border-color: transparent transparent transparent white;
+    margin-left: 2px;
+  }
+
+  .c1 .meta {
+    position: absolute;
+    top: 56%; left: 0; right: 0;
+    padding: 14px 18px 0;
+    z-index: 8;
+  }
+  .c1 .eyebrow {
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .phone.light .c1 .eyebrow { color: var(--ios-blue); }
+  .phone.dark  .c1 .eyebrow { color: var(--bg-gold); }
+  .c1 .title {
+    font: 800 17px 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .phone.light .c1 .title { color: var(--ios-text); }
+  .phone.dark  .c1 .title { color: var(--bg-text); font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; font-size: 19px; }
+  .c1 .stats-row {
+    display: flex; gap: 12px;
+    font: 500 9.5px 'Inter', sans-serif;
+    margin-bottom: 14px;
+  }
+  .phone.light .c1 .stats-row { color: var(--ios-text-dim); }
+  .phone.dark  .c1 .stats-row { color: var(--bg-text-dim); }
+  .c1 .stats-row .s { display: flex; align-items: center; gap: 4px; }
+  .c1 .stats-row .s svg { width: 10px; height: 10px; }
+
+  .c1 .cta {
+    display: block;
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 14px;
+    font: 700 11px 'Inter', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    animation: ctaBreathe 3s ease-in-out infinite;
+  }
+  .phone.light .c1 .cta {
+    background: linear-gradient(135deg, #0A84FF, #5E5CE6);
+    color: white;
+    box-shadow: 0 6px 18px rgba(10,132,255,0.32);
+  }
+  .phone.dark  .c1 .cta {
+    background: linear-gradient(135deg, var(--bg-gold), var(--bg-gold-bright));
+    color: #1a1300;
+    box-shadow: 0 6px 18px rgba(212,175,55,0.32);
+  }
+  @keyframes ctaBreathe {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50%      { transform: scale(1.012); filter: brightness(1.08); }
+  }
+
+  .c1 .actions-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .c1 .actions-row .a {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .phone.light .c1 .actions-row .a {
+    background: var(--ios-surface);
+    color: var(--ios-text);
+  }
+  .phone.dark  .c1 .actions-row .a {
+    background: var(--bg-surface);
+    color: var(--bg-gold-bright);
+    border: 1px solid rgba(212,175,55,0.18);
+  }
+
+  .c1 .related {
+    position: absolute;
+    bottom: 10px; left: 14px; right: 14px;
+  }
+  .c1 .related .rt {
+    font: 700 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .phone.light .c1 .related .rt { color: var(--ios-text-dim); }
+  .phone.dark  .c1 .related .rt { color: var(--bg-text-dim); }
+  .c1 .related .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 0.4fr;
+    gap: 6px;
+  }
+  .c1 .related .row .r {
+    aspect-ratio: 9 / 16;
+    border-radius: 7px;
+    background:
+      linear-gradient(135deg, var(--cy-cyan), var(--cy-violet));
+    position: relative;
+    overflow: hidden;
+  }
+  .c1 .related .row .r:nth-child(2) {
+    background: linear-gradient(135deg, var(--cy-pink), var(--cy-orange));
+  }
+  .c1 .related .row .r:nth-child(3) {
+    background: linear-gradient(135deg, var(--cy-violet), var(--cy-pink));
+  }
+
+  /* ════════════════════════════════════════════
+     #02 APPLE PRO WINDOW
+  ════════════════════════════════════════════ */
+  .c2 { padding: 32px 14px 14px; height: 100%; position: relative; }
+
+  .c2 .crumb {
+    display: flex; align-items: center; gap: 5px;
+    font: 500 9.5px 'Inter', sans-serif;
+    margin-bottom: 10px;
+  }
+  .phone.light .c2 .crumb { color: var(--ios-blue); }
+  .phone.dark  .c2 .crumb { color: var(--bg-gold-bright); }
+  .c2 .crumb::before {
+    content: '‹';
+    font: 700 16px 'Inter', sans-serif;
+    margin-right: 1px;
+  }
+
+  .c2 .video-card {
+    position: relative;
+    aspect-ratio: 9 / 12;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 0.5px solid;
+  }
+  .phone.light .c2 .video-card { border-color: var(--ios-divider); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .phone.dark  .c2 .video-card { border-color: rgba(212,175,55,0.18); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  .c2 .video-card .wp-cy { inset: 0; }
+  .c2 .video-card .badge {
+    position: absolute;
+    top: 8px; left: 8px;
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 3px 7px;
+    border-radius: 999px;
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+    color: white;
+    z-index: 6;
+  }
+
+  .c2 .header-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .c2 .title {
+    font: 700 15px 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .phone.light .c2 .title { color: var(--ios-text); }
+  .phone.dark  .c2 .title { color: var(--bg-text); }
+  .c2 .sub {
+    font: 500 10px 'Inter', sans-serif;
+    margin-top: 2px;
+  }
+  .phone.light .c2 .sub { color: var(--ios-text-dim); }
+  .phone.dark  .c2 .sub { color: var(--bg-text-dim); }
+
+  .c2 .get {
+    padding: 6px 18px;
+    border-radius: 999px;
+    font: 700 11px 'Inter', sans-serif;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-align: center;
+    align-self: center;
+  }
+  .phone.light .c2 .get {
+    background: var(--ios-blue);
+    color: white;
+  }
+  .phone.dark  .c2 .get {
+    background: linear-gradient(180deg, var(--bg-gold-bright), var(--bg-gold));
+    color: #1a1300;
+  }
+
+  .c2 .stat-chips {
+    display: flex; gap: 8px; align-items: center;
+    margin-bottom: 10px;
+    padding: 6px 0;
+    font: 500 10px 'Inter', sans-serif;
+  }
+  .phone.light .c2 .stat-chips { color: var(--ios-text-dim); border-top: 0.5px solid var(--ios-divider); border-bottom: 0.5px solid var(--ios-divider); }
+  .phone.dark  .c2 .stat-chips { color: var(--bg-text-dim); border-top: 0.5px solid rgba(212,175,55,0.15); border-bottom: 0.5px solid rgba(212,175,55,0.15); }
+  .c2 .stat-chips .chip { display: flex; align-items: center; gap: 3px; }
+  .c2 .stat-chips .chip .num { font-weight: 700; }
+  .phone.light .c2 .stat-chips .chip .num { color: var(--ios-text); }
+  .phone.dark  .c2 .stat-chips .chip .num { color: var(--bg-text); }
+  .c2 .stat-chips .sep { opacity: 0.4; }
+  .c2 .star { color: #FFC107; }
+
+  .c2 .desc {
+    font: 400 10px 'Inter', sans-serif;
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .phone.light .c2 .desc { color: var(--ios-text); }
+  .phone.dark  .c2 .desc { color: var(--bg-text); }
+
+  .c2 .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    position: absolute;
+    bottom: 14px; left: 14px; right: 14px;
+  }
+  .c2 .quick-actions .qa {
+    padding: 9px 0;
+    border-radius: 10px;
+    text-align: center;
+    font: 600 9px 'Inter', sans-serif;
+    letter-spacing: 0.04em;
+    display: flex; flex-direction: column; gap: 3px; align-items: center;
+  }
+  .phone.light .c2 .quick-actions .qa { background: var(--ios-surface); color: var(--ios-blue); }
+  .phone.dark  .c2 .quick-actions .qa { background: var(--bg-surface); color: var(--bg-gold-bright); border: 0.5px solid rgba(212,175,55,0.15); }
+
+  /* ════════════════════════════════════════════
+     #03 COSMIC VAULT
+  ════════════════════════════════════════════ */
+  .c3 {
+    height: 100%;
+    padding: 30px 14px 14px;
+    position: relative;
+  }
+  .phone.dark .c3 {
+    background:
+      radial-gradient(ellipse at top, rgba(80,40,120,0.22), transparent 60%),
+      radial-gradient(ellipse at bottom, rgba(212,175,55,0.10), transparent 60%),
+      radial-gradient(1.4px 1.4px at 22% 18%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1.2px 1.2px at 78% 32%, rgba(245,214,118,0.7), transparent 50%),
+      radial-gradient(1.4px 1.4px at 38% 78%, rgba(255,255,255,0.5), transparent 50%),
+      radial-gradient(1.2px 1.2px at 88% 84%, rgba(212,175,55,0.6), transparent 50%);
+  }
+  .phone.light .c3 {
+    background:
+      radial-gradient(ellipse at top, rgba(10,132,255,0.06), transparent 60%),
+      var(--ios-bg);
+  }
+
+  .c3 .ornament-top {
+    text-align: center;
+    font: 400 14px 'Fraunces', serif;
+    font-style: italic;
+    letter-spacing: 0.3em;
+    margin-bottom: 10px;
+  }
+  .phone.light .c3 .ornament-top { color: var(--ios-blue-d); }
+  .phone.dark  .c3 .ornament-top { color: var(--bg-gold); }
+
+  .c3 .frame {
+    position: relative;
+    aspect-ratio: 9 / 12;
+    margin-bottom: 14px;
+    padding: 5px;
+  }
+  .phone.light .c3 .frame {
+    background:
+      linear-gradient(135deg, rgba(10,132,255,0.5), rgba(94,92,230,0.3), rgba(10,132,255,0.5));
+    border-radius: 8px;
+  }
+  .phone.dark .c3 .frame {
+    background:
+      linear-gradient(135deg, var(--bg-gold-deep), var(--bg-gold-bright), var(--bg-gold-deep));
+    border-radius: 8px;
+    box-shadow:
+      0 0 30px rgba(212,175,55,0.25),
+      inset 0 0 0 1px rgba(245,214,118,0.5);
+  }
+  .c3 .frame .inner {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .c3 .frame .inner .wp-cy { inset: 0; }
+
+  /* corner flourishes */
+  .c3 .corner {
+    position: absolute;
+    width: 22px; height: 22px;
+    pointer-events: none;
+  }
+  .c3 .corner.tl { top: -7px; left: -7px; }
+  .c3 .corner.tr { top: -7px; right: -7px; transform: scaleX(-1); }
+  .c3 .corner.bl { bottom: -7px; left: -7px; transform: scaleY(-1); }
+  .c3 .corner.br { bottom: -7px; right: -7px; transform: scale(-1); }
+  .phone.dark .c3 .corner::before,
+  .phone.dark .c3 .corner::after {
+    content: '';
+    position: absolute;
+    background: var(--bg-gold-bright);
+  }
+  .phone.dark .c3 .corner::before {
+    top: 0; left: 0; width: 18px; height: 1.5px;
+  }
+  .phone.dark .c3 .corner::after {
+    top: 0; left: 0; width: 1.5px; height: 18px;
+  }
+  .phone.light .c3 .corner::before,
+  .phone.light .c3 .corner::after {
+    content: '';
+    position: absolute;
+    background: var(--ios-blue-d);
+  }
+  .phone.light .c3 .corner::before {
+    top: 0; left: 0; width: 16px; height: 1px;
+  }
+  .phone.light .c3 .corner::after {
+    top: 0; left: 0; width: 1px; height: 16px;
+  }
+
+  .c3 .glyph-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 4px;
+    margin-bottom: 10px;
+    font: 400 11px 'Fraunces', serif;
+    font-style: italic;
+  }
+  .phone.light .c3 .glyph-row { color: var(--ios-text); }
+  .phone.dark  .c3 .glyph-row { color: var(--bg-text); }
+  .c3 .glyph-row .glyph {
+    font-size: 14px;
+  }
+  .phone.dark .c3 .glyph-row .glyph { color: var(--bg-gold); }
+  .phone.light .c3 .glyph-row .glyph { color: var(--ios-blue-d); }
+
+  .c3 .title {
+    text-align: center;
+    font: 350 18px 'Fraunces', serif;
+    font-style: italic;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .phone.light .c3 .title { color: var(--ios-text); }
+  .phone.dark  .c3 .title { color: var(--bg-text); }
+  .c3 .sub {
+    text-align: center;
+    font: 600 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .phone.light .c3 .sub { color: var(--ios-text-dim); }
+  .phone.dark  .c3 .sub { color: var(--bg-gold-deep); }
+
+  .c3 .panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .c3 .panel {
+    padding: 7px 4px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  .phone.light .c3 .panel { background: var(--ios-surface); }
+  .phone.dark  .c3 .panel {
+    background: var(--bg-surface);
+    border: 0.5px solid rgba(212,175,55,0.18);
+  }
+  .c3 .panel .v {
+    font: 700 11px 'Inter', sans-serif;
+    display: block;
+  }
+  .phone.light .c3 .panel .v { color: var(--ios-text); }
+  .phone.dark  .c3 .panel .v { color: var(--bg-gold-bright); }
+  .c3 .panel .k {
+    font: 500 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .phone.light .c3 .panel .k { color: var(--ios-text-dim); }
+  .phone.dark  .c3 .panel .k { color: var(--bg-text-dim); }
+
+  .c3 .cta {
+    display: block;
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 6px;
+    font: 600 10px 'Fraunces', serif;
+    font-style: italic;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .phone.light .c3 .cta {
+    background: linear-gradient(135deg, var(--ios-blue-d), var(--ios-blue));
+    color: white;
+    border: 0.5px solid rgba(255,255,255,0.4);
+    box-shadow: 0 6px 16px rgba(10,132,255,0.32), inset 0 0 0 1px rgba(255,255,255,0.18);
+  }
+  .phone.dark .c3 .cta {
+    background:
+      linear-gradient(180deg, var(--bg-gold-bright), var(--bg-gold) 50%, var(--bg-gold-deep));
+    color: #1a1300;
+    border: 0.5px solid var(--bg-gold-bright);
+    box-shadow:
+      0 6px 18px rgba(212,175,55,0.32),
+      inset 0 1px 0 rgba(255,255,255,0.4),
+      inset 0 -1px 0 rgba(0,0,0,0.2);
+  }
+  .c3 .cta::before, .c3 .cta::after {
+    content: '✦';
+    margin: 0 6px;
+    font-style: normal;
+    font-size: 8px;
+    vertical-align: middle;
+    opacity: 0.7;
+  }
+
+  .c3 .small-actions {
+    display: flex; justify-content: center; gap: 14px;
+    position: absolute; bottom: 14px; left: 0; right: 0;
+  }
+  .c3 .small-actions .sa {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .phone.light .c3 .small-actions .sa { background: var(--ios-surface); color: var(--ios-blue-d); }
+  .phone.dark  .c3 .small-actions .sa {
+    background: transparent;
+    color: var(--bg-gold-bright);
+    border: 0.5px solid var(--bg-gold-deep);
+  }
+
+  /* ════════════════════════════════════════════
+     #04 VINYL PLAYER
+  ════════════════════════════════════════════ */
+  .c4 {
+    height: 100%;
+    position: relative;
+    padding: 30px 14px 14px;
+  }
+  .phone.light .c4 { background: var(--ios-bg); }
+  .phone.dark  .c4 {
+    background:
+      radial-gradient(circle at center, rgba(20,20,31,0.6), var(--bg-ink) 70%);
+  }
+
+  .c4 .top-text {
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .c4 .top-text .cat {
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .phone.light .c4 .top-text .cat { color: var(--ios-blue); }
+  .phone.dark  .c4 .top-text .cat { color: var(--bg-gold); }
+  .c4 .top-text .title {
+    font: 400 16px 'Fraunces', serif;
+    font-style: italic;
+    letter-spacing: -0.01em;
+    margin-top: 3px;
+    line-height: 1.1;
+  }
+  .phone.light .c4 .top-text .title { color: var(--ios-text); }
+  .phone.dark  .c4 .top-text .title { color: var(--bg-text); }
+
+  .c4 .vinyl-stage {
+    position: relative;
+    aspect-ratio: 1;
+    margin: 14px 0 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .c4 .vinyl {
+    width: 92%; aspect-ratio: 1;
+    border-radius: 50%;
+    position: relative;
+    animation: vinylSpin 18s linear infinite;
+  }
+  .phone.light .c4 .vinyl {
+    background:
+      repeating-radial-gradient(circle, rgba(0,0,0,0.06) 0 1px, transparent 1px 4px),
+      radial-gradient(circle, #fafafa, #ececec);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .phone.dark .c4 .vinyl {
+    background:
+      repeating-radial-gradient(circle, rgba(212,175,55,0.08) 0 1px, transparent 1px 4px),
+      radial-gradient(circle, #14141F, #050510);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(212,175,55,0.18);
+  }
+  @keyframes vinylSpin {
+    to { transform: rotate(360deg); }
+  }
+  .c4 .vinyl .center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 58%; aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  .c4 .vinyl .center .wp-cy { inset: 0; }
+  .c4 .vinyl .center::after {
+    /* center hole */
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 14%; aspect-ratio: 1;
+    border-radius: 50%;
+    background: #000;
+    border: 1px solid;
+    z-index: 4;
+  }
+  .phone.light .c4 .vinyl .center::after { border-color: rgba(0,0,0,0.3); }
+  .phone.dark  .c4 .vinyl .center::after { border-color: rgba(212,175,55,0.3); }
+
+  /* tonearm */
+  .c4 .tonearm {
+    position: absolute;
+    top: 8%; right: 4%;
+    width: 38%; height: 2px;
+    transform-origin: right top;
+    transform: rotate(28deg);
+    z-index: 5;
+  }
+  .phone.light .c4 .tonearm { background: linear-gradient(90deg, transparent, #888); }
+  .phone.dark  .c4 .tonearm { background: linear-gradient(90deg, transparent, var(--bg-gold)); }
+  .c4 .tonearm::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: 0;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .phone.light .c4 .tonearm::before { background: #444; }
+  .phone.dark  .c4 .tonearm::before { background: var(--bg-gold-bright); }
+  .c4 .tonearm::after {
+    content: '';
+    position: absolute;
+    top: -2.5px; right: -4px;
+    width: 12px; height: 7px;
+    border-radius: 2px;
+  }
+  .phone.light .c4 .tonearm::after { background: #555; }
+  .phone.dark  .c4 .tonearm::after { background: var(--bg-gold-deep); }
+
+  .c4 .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    margin-bottom: 10px;
+    font: 500 9.5px 'Inter', sans-serif;
+  }
+  .phone.light .c4 .meta-row { color: var(--ios-text-dim); }
+  .phone.dark  .c4 .meta-row { color: var(--bg-text-dim); }
+  .c4 .meta-row .live {
+    display: flex; align-items: center; gap: 4px;
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .phone.light .c4 .meta-row .live { color: #ff3b30; }
+  .phone.dark  .c4 .meta-row .live { color: var(--bg-gold-bright); }
+
+  .c4 .cta {
+    display: block;
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 999px;
+    font: 700 11px 'Inter', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0 8px 12px;
+  }
+  .phone.light .c4 .cta {
+    background: var(--ios-blue);
+    color: white;
+    box-shadow: 0 4px 14px rgba(10,132,255,0.32);
+  }
+  .phone.dark .c4 .cta {
+    background: linear-gradient(135deg, var(--bg-gold-bright), var(--bg-gold));
+    color: #1a1300;
+    box-shadow: 0 4px 14px rgba(212,175,55,0.32);
+  }
+
+  .c4 .controls {
+    display: flex; justify-content: space-around; align-items: center;
+    position: absolute;
+    bottom: 16px; left: 14px; right: 14px;
+  }
+  .c4 .controls .knob {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .phone.light .c4 .controls .knob {
+    background: var(--ios-surface-2);
+    color: var(--ios-text);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .phone.dark .c4 .controls .knob {
+    background: linear-gradient(180deg, #1f1f2a, #14141F);
+    color: var(--bg-gold-bright);
+    border: 0.5px solid rgba(212,175,55,0.25);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  /* ════════════════════════════════════════════
+     #05 FROSTED STAGE
+  ════════════════════════════════════════════ */
+  .c5 .wp-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .c5 .wp-bg .wp-cy { inset: 0; }
+
+  .c5 .vignette {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.18) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.55) 100%);
+    z-index: 2;
+  }
+
+  .c5 .glass-top {
+    position: absolute;
+    top: 32px; left: 12px; right: 12px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    z-index: 8;
+    display: flex; align-items: center; gap: 8px;
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    animation: floatA 5s ease-in-out infinite;
+  }
+  .phone.light .c5 .glass-top {
+    background: rgba(255,255,255,0.5);
+    border: 0.5px solid rgba(255,255,255,0.8);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .phone.dark .c5 .glass-top {
+    background: rgba(20,20,31,0.45);
+    border: 0.5px solid rgba(212,175,55,0.3);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4), inset 0 0 0 0.5px rgba(255,255,255,0.05);
+  }
+  .c5 .glass-top .back {
+    font: 700 13px 'Inter', sans-serif;
+  }
+  .phone.light .c5 .glass-top .back { color: var(--ios-text); }
+  .phone.dark  .c5 .glass-top .back { color: var(--bg-text); }
+  .c5 .glass-top .cat {
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .phone.light .c5 .glass-top .cat { color: var(--ios-blue); }
+  .phone.dark  .c5 .glass-top .cat { color: var(--bg-gold); }
+  .c5 .glass-top .live-badge {
+    margin-left: auto;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    background: rgba(255,59,48,0.25);
+    color: #fff;
+    border: 0.5px solid rgba(255,59,48,0.5);
+  }
+
+  .c5 .title-block {
+    position: absolute;
+    bottom: 168px; left: 16px; right: 16px;
+    z-index: 8;
+    animation: floatB 6s ease-in-out infinite;
+  }
+  .c5 .title-block .title {
+    font: 800 22px 'Inter', sans-serif;
+    letter-spacing: -0.025em;
+    color: white;
+    line-height: 1;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.55);
+  }
+  .phone.dark .c5 .title-block .title {
+    font: 400 24px 'Fraunces', serif;
+    font-style: italic;
+  }
+  .c5 .title-block .sub {
+    font: 600 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.78);
+    margin-top: 5px;
+  }
+
+  .c5 .stats-glass {
+    position: absolute;
+    bottom: 124px; left: 16px; right: 16px;
+    z-index: 8;
+    display: flex; gap: 6px;
+    animation: floatA 5s ease-in-out 0.5s infinite;
+  }
+  .c5 .stats-glass .chip {
+    flex: 1;
+    padding: 6px 8px;
+    border-radius: 10px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    text-align: center;
+    font: 600 9px 'Inter', sans-serif;
+    color: white;
+  }
+  .phone.light .c5 .stats-glass .chip {
+    background: rgba(255,255,255,0.42);
+    border: 0.5px solid rgba(255,255,255,0.75);
+    color: var(--ios-text);
+  }
+  .phone.dark .c5 .stats-glass .chip {
+    background: rgba(20,20,31,0.45);
+    border: 0.5px solid rgba(212,175,55,0.25);
+    color: var(--bg-text);
+  }
+  .c5 .stats-glass .chip .v {
+    display: block;
+    font-weight: 800;
+    font-size: 11px;
+  }
+  .c5 .stats-glass .chip .k {
+    font: 500 7px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+
+  .c5 .apply-glass {
+    position: absolute;
+    bottom: 60px; left: 16px; right: 16px;
+    z-index: 8;
+    padding: 14px 0;
+    border-radius: 16px;
+    text-align: center;
+    font: 800 12px 'Inter', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    color: white;
+    animation: ctaBreathe 3s ease-in-out infinite;
+  }
+  .phone.light .c5 .apply-glass {
+    background: linear-gradient(135deg, rgba(10,132,255,0.85), rgba(94,92,230,0.85));
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 8px 28px rgba(10,132,255,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .phone.dark .c5 .apply-glass {
+    background: linear-gradient(135deg, rgba(212,175,55,0.42), rgba(245,214,118,0.32));
+    border: 1px solid rgba(245,214,118,0.6);
+    color: #fff;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+    box-shadow:
+      0 8px 28px rgba(212,175,55,0.32),
+      inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+
+  .c5 .floats {
+    position: absolute;
+    bottom: 16px; left: 16px; right: 16px;
+    z-index: 8;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .c5 .floats .f {
+    aspect-ratio: 2.2;
+    border-radius: 12px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: white;
+  }
+  .phone.light .c5 .floats .f {
+    background: rgba(255,255,255,0.45);
+    border: 0.5px solid rgba(255,255,255,0.75);
+    color: var(--ios-blue);
+  }
+  .phone.dark .c5 .floats .f {
+    background: rgba(20,20,31,0.42);
+    border: 0.5px solid rgba(212,175,55,0.25);
+    color: var(--bg-gold-bright);
+  }
+
+  @keyframes floatA {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+  }
+  @keyframes floatB {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+  }
+
+  /* ─────────── Meta block (right side) ─────────── */
+  .meta-block {
+    position: sticky;
+    top: 32px;
+    padding-top: 8px;
+  }
+  .meta-block .id {
+    font: 600 11px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .meta-block .id .num { color: var(--gold-bright); }
+  .meta-block h2 {
+    font: 350 36px 'Fraunces', serif;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+  .meta-block .h2-accent { color: var(--gold-bright); }
+  .meta-block .tagline {
+    font: 400 13px 'Geist', sans-serif;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin-bottom: 18px;
+    max-width: 460px;
+  }
+  .meta-block .row-line {
+    margin: 18px 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dark) 0%, transparent 80%);
+  }
+  .meta-block .palette {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 12px 8px;
+    margin-bottom: 18px;
+  }
+  .meta-block .palette-section {
+    margin-bottom: 14px;
+  }
+  .meta-block .palette-section .ptitle {
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .meta-block .palette-section .swatches {
+    display: flex; gap: 8px;
+  }
+  .meta-block .sw {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 0 0 1px var(--hairline), inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .meta-block .sw .hex {
+    position: absolute;
+    bottom: -16px; left: 0; right: 0;
+    text-align: center;
+    font: 500 8px 'JetBrains Mono', monospace;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .meta-block .verdict {
+    margin-top: 22px;
+    padding: 14px 16px;
+    border-left: 2px solid var(--gold);
+    background: linear-gradient(90deg, rgba(212,175,55,0.06), transparent 60%);
+    border-radius: 0 8px 8px 0;
+  }
+  .meta-block .verdict .vt {
+    font: 700 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.24em;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .meta-block .verdict .vp {
+    font: 400 12px 'Geist', sans-serif;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .meta-block .verdict .vp .pro { color: var(--gold-bright); font-weight: 500; }
+  .meta-block .verdict .vp .con { color: #B8A8E8; font-weight: 500; }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    margin-top: 96px;
+    padding-top: 28px;
+    border-top: 1px solid var(--hairline);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    font: 600 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer .center { color: var(--gold-bright); text-align: center; }
+  footer .right { text-align: right; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ─────────── Header ─────────── -->
+  <header>
+    <h1>
+      <em>Pixora</em>
+      <span class="ornament">·</span>
+      <span class="accent">LIVE Preview</span>
+      <span class="ornament">·</span>
+      <span class="accent2">5 Conceptos</span>
+    </h1>
+    <p class="subtitle">
+      Pantalla de preview del wallpaper LIVE — el momento donde el usuario decide.
+      Premium + dinámico, con el botón <strong style="color: var(--gold-bright)">APPLY</strong> como héroe visual.
+      Cada concepto en sus dos temas: iOS White (clean Apple) y Black &amp; Gold (cosmos premium).
+    </p>
+    <div class="header-rule">
+      <span>5 CONCEPTS</span>
+      <span class="line"></span>
+      <span>2 THEMES · IOS WHITE / BLACK &amp; GOLD</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       GRID — 5 CONCEPTS
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="grid">
+
+    <!-- ═══════════ #01 CINEMATIC THEATER ═══════════ -->
+    <article class="concept">
+      <div class="concept-row">
+
+        <div class="phones">
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <span class="label ios">iOS · WHITE THEATER</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c1">
+                  <div class="video-zone">
+                    <div class="wp-cy"></div>
+                    <div class="play-glow"></div>
+                  </div>
+                  <div class="meta">
+                    <div class="eyebrow">▸ CYBERPUNK · LIVE</div>
+                    <div class="title">Neon Drift 4K</div>
+                    <div class="stats-row">
+                      <span class="s">❤ 12.4K</span>
+                      <span class="s">👁 84K</span>
+                      <span class="s">↓ 6.2K</span>
+                    </div>
+                    <div class="cta">▸ APPLY WALLPAPER</div>
+                    <div class="actions-row">
+                      <div class="a">↓</div>
+                      <div class="a">♡</div>
+                      <div class="a">↗</div>
+                    </div>
+                  </div>
+                  <div class="related">
+                    <div class="rt">▸ MORE LIKE THIS</div>
+                    <div class="row">
+                      <div class="r"></div>
+                      <div class="r"></div>
+                      <div class="r"></div>
+                      <div class="r" style="background: linear-gradient(135deg,#444,#222); display:flex;align-items:center;justify-content:center;color:#888;font-size:9px;">›</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD · THEATER</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c1">
+                  <div class="video-zone">
+                    <div class="wp-cy"></div>
+                    <div class="play-glow"></div>
+                  </div>
+                  <div class="meta">
+                    <div class="eyebrow">✦ CYBERPUNK · LIVE</div>
+                    <div class="title">Neon Drift 4K</div>
+                    <div class="stats-row">
+                      <span class="s">❤ 12.4K</span>
+                      <span class="s">👁 84K</span>
+                      <span class="s">↓ 6.2K</span>
+                    </div>
+                    <div class="cta">✦ APPLY WALLPAPER</div>
+                    <div class="actions-row">
+                      <div class="a">↓</div>
+                      <div class="a">♡</div>
+                      <div class="a">↗</div>
+                    </div>
+                  </div>
+                  <div class="related">
+                    <div class="rt">✦ MORE LIKE THIS</div>
+                    <div class="row">
+                      <div class="r"></div>
+                      <div class="r"></div>
+                      <div class="r"></div>
+                      <div class="r" style="background: linear-gradient(135deg,#1a1a22,#0a0a14); display:flex;align-items:center;justify-content:center;color:var(--bg-gold);font-size:10px;">›</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta-block">
+          <div class="id">CONCEPT <span class="num">No. 01</span></div>
+          <h2>Cinematic <span class="h2-accent">Theater</span></h2>
+          <p class="tagline">
+            Full-bleed video con vignette + fade hacia la zona de metadatos.
+            CTA gigante con gradient breathe — pura conversión estilo Netflix /
+            Crunchyroll. Familiar, eficaz, directo al APPLY.
+          </p>
+
+          <div class="palette-section">
+            <div class="ptitle">▸ iOS WHITE</div>
+            <div class="swatches">
+              <div class="sw" style="background:#FFFFFF;"><span class="hex">#FFFFFF</span></div>
+              <div class="sw" style="background:#F2F2F7;"><span class="hex">#F2F2F7</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+              <div class="sw" style="background:#1C1C1E;"><span class="hex">#1C1C1E</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">✦ BLACK &amp; GOLD</div>
+            <div class="swatches">
+              <div class="sw" style="background:#070710;"><span class="hex">#070710</span></div>
+              <div class="sw" style="background:#14141F;"><span class="hex">#14141F</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">VERDICT · NETFLIX-STYLE</div>
+            <div class="vp">
+              <span class="pro">+ Conversión máxima, UX familiar, CTA imposible de perder.</span><br>
+              <span class="con">− Aesthetic genérica si no se le agrega algo de carácter Pixora.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </article>
+
+    <!-- ═══════════ #02 APPLE PRO WINDOW ═══════════ -->
+    <article class="concept">
+      <div class="concept-row">
+
+        <div class="phones">
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <span class="label ios">iOS · APP STORE STYLE</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c2">
+                  <div class="crumb">Cyberpunk</div>
+                  <div class="video-card">
+                    <div class="wp-cy"></div>
+                    <div class="badge"><span style="width:5px;height:5px;border-radius:50%;background:#ff3b30;display:inline-block"></span> LIVE</div>
+                  </div>
+                  <div class="header-row">
+                    <div>
+                      <div class="title">Neon Drift 4K</div>
+                      <div class="sub">Cyberpunk · Live Video</div>
+                    </div>
+                    <div class="get">GET</div>
+                  </div>
+                  <div class="stat-chips">
+                    <div class="chip"><span class="num">4.8</span><span class="star">★</span></div>
+                    <div class="sep">·</div>
+                    <div class="chip"><span class="num">84K</span> views</div>
+                    <div class="sep">·</div>
+                    <div class="chip"><span class="num">6.2K</span> ↓</div>
+                  </div>
+                  <p class="desc">A neon-soaked drift through endless rain-slick streets. Pure cyberpunk energy at 60fps, optimized for battery.</p>
+                  <div class="quick-actions">
+                    <div class="qa">↓<span>Download</span></div>
+                    <div class="qa">♡<span>Favorite</span></div>
+                    <div class="qa">↗<span>Share</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD · PRO WINDOW</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c2">
+                  <div class="crumb">Cyberpunk</div>
+                  <div class="video-card">
+                    <div class="wp-cy"></div>
+                    <div class="badge"><span style="width:5px;height:5px;border-radius:50%;background:var(--bg-gold-bright);display:inline-block"></span> LIVE</div>
+                  </div>
+                  <div class="header-row">
+                    <div>
+                      <div class="title">Neon Drift 4K</div>
+                      <div class="sub">Cyberpunk · Live Video</div>
+                    </div>
+                    <div class="get">GET</div>
+                  </div>
+                  <div class="stat-chips">
+                    <div class="chip"><span class="num">4.8</span><span class="star">★</span></div>
+                    <div class="sep">·</div>
+                    <div class="chip"><span class="num">84K</span> views</div>
+                    <div class="sep">·</div>
+                    <div class="chip"><span class="num">6.2K</span> ↓</div>
+                  </div>
+                  <p class="desc">A neon-soaked drift through endless rain-slick streets. Pure cyberpunk energy at 60fps, optimized for battery.</p>
+                  <div class="quick-actions">
+                    <div class="qa">↓<span>Download</span></div>
+                    <div class="qa">♡<span>Favorite</span></div>
+                    <div class="qa">↗<span>Share</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta-block">
+          <div class="id">CONCEPT <span class="num">No. 02</span></div>
+          <h2>Apple Pro <span class="h2-accent">Window</span></h2>
+          <p class="tagline">
+            App Store puro: video en tarjeta con hairline, botón GET pill arriba a la derecha,
+            chips de stats con estrella ★, descripción tipo metadata. Polish Apple 100% reconocible —
+            el usuario sabe exactamente qué hacer.
+          </p>
+
+          <div class="palette-section">
+            <div class="ptitle">▸ iOS WHITE</div>
+            <div class="swatches">
+              <div class="sw" style="background:#FFFFFF;"><span class="hex">#FFFFFF</span></div>
+              <div class="sw" style="background:#F2F2F7;"><span class="hex">#F2F2F7</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+              <div class="sw" style="background:#FFC107;"><span class="hex">#FFC107</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">✦ BLACK &amp; GOLD</div>
+            <div class="swatches">
+              <div class="sw" style="background:#070710;"><span class="hex">#070710</span></div>
+              <div class="sw" style="background:#14141F;"><span class="hex">#14141F</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">VERDICT · APP STORE POLISH</div>
+            <div class="vp">
+              <span class="pro">+ Confianza instantánea, premium-by-association con Apple.</span><br>
+              <span class="con">− Pierde personalidad Pixora; muy clon del App Store si no se cuida.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </article>
+
+    <!-- ═══════════ #03 COSMIC VAULT ═══════════ -->
+    <article class="concept">
+      <div class="concept-row">
+
+        <div class="phones">
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <span class="label ios">iOS · LIGHT VAULT</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c3">
+                  <div class="ornament-top">✦ &nbsp; ◆ &nbsp; ✦</div>
+                  <div class="frame">
+                    <span class="corner tl"></span>
+                    <span class="corner tr"></span>
+                    <span class="corner bl"></span>
+                    <span class="corner br"></span>
+                    <div class="inner"><div class="wp-cy"></div></div>
+                  </div>
+                  <div class="glyph-row">
+                    <span class="glyph">♉</span>
+                    <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;font-weight:600;">live video</span>
+                    <span class="glyph">⌘</span>
+                  </div>
+                  <div class="title">Neon Drift</div>
+                  <div class="sub">▸ CYBERPUNK COLLECTION</div>
+                  <div class="panels">
+                    <div class="panel"><span class="v">12.4K</span><span class="k">Likes</span></div>
+                    <div class="panel"><span class="v">84K</span><span class="k">Views</span></div>
+                    <div class="panel"><span class="v">6.2K</span><span class="k">DL</span></div>
+                  </div>
+                  <div class="cta">apply wallpaper</div>
+                  <div class="small-actions">
+                    <div class="sa">↓</div>
+                    <div class="sa">♡</div>
+                    <div class="sa">↗</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD · COSMIC VAULT</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c3">
+                  <div class="ornament-top">✦ &nbsp; ◆ &nbsp; ✦</div>
+                  <div class="frame">
+                    <span class="corner tl"></span>
+                    <span class="corner tr"></span>
+                    <span class="corner bl"></span>
+                    <span class="corner br"></span>
+                    <div class="inner"><div class="wp-cy"></div></div>
+                  </div>
+                  <div class="glyph-row">
+                    <span class="glyph">♉</span>
+                    <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--bg-gold-deep);">live video</span>
+                    <span class="glyph">⌘</span>
+                  </div>
+                  <div class="title">Neon Drift</div>
+                  <div class="sub">✦ CYBERPUNK COLLECTION</div>
+                  <div class="panels">
+                    <div class="panel"><span class="v">12.4K</span><span class="k">Likes</span></div>
+                    <div class="panel"><span class="v">84K</span><span class="k">Views</span></div>
+                    <div class="panel"><span class="v">6.2K</span><span class="k">DL</span></div>
+                  </div>
+                  <div class="cta">apply wallpaper</div>
+                  <div class="small-actions">
+                    <div class="sa">↓</div>
+                    <div class="sa">♡</div>
+                    <div class="sa">↗</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta-block">
+          <div class="id">CONCEPT <span class="num">No. 03</span></div>
+          <h2>Cosmic <span class="h2-accent">Vault</span></h2>
+          <p class="tagline">
+            Marco ornamental dorado con corner flourishes, glifos del zodiaco, paneles flotantes
+            de stats y un CTA con efecto embossed. Cada wallpaper se siente como una pieza de museo /
+            armadura de Saint Seiya. Ultra on-brand Pixora.
+          </p>
+
+          <div class="palette-section">
+            <div class="ptitle">▸ iOS WHITE</div>
+            <div class="swatches">
+              <div class="sw" style="background:#FFFFFF;"><span class="hex">#FFFFFF</span></div>
+              <div class="sw" style="background:#F2F2F7;"><span class="hex">#F2F2F7</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+              <div class="sw" style="background:#0066CC;"><span class="hex">#0066CC</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">✦ BLACK &amp; GOLD</div>
+            <div class="swatches">
+              <div class="sw" style="background:#070710;"><span class="hex">#070710</span></div>
+              <div class="sw" style="background:#8B7228;"><span class="hex">#8B7228</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">VERDICT · COLLECTOR VIBE</div>
+            <div class="vp">
+              <span class="pro">+ ULTRA on-brand, hace que cada wallpaper se sienta valioso (coleccionable).</span><br>
+              <span class="con">− Denso visualmente; puede sentirse barroco si la categoría es minimalista.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </article>
+
+    <!-- ═══════════ #04 VINYL PLAYER ═══════════ -->
+    <article class="concept">
+      <div class="concept-row">
+
+        <div class="phones">
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <span class="label ios">iOS · WHITE VINYL</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c4">
+                  <div class="top-text">
+                    <div class="cat">▸ CYBERPUNK</div>
+                    <div class="title">Neon Drift</div>
+                  </div>
+                  <div class="vinyl-stage">
+                    <div class="vinyl">
+                      <div class="center"><div class="wp-cy"></div></div>
+                    </div>
+                    <div class="tonearm"></div>
+                  </div>
+                  <div class="meta-row">
+                    <span>12.4K ❤</span>
+                    <span class="live"><span class="pulse-dot"></span> LIVE</span>
+                    <span>84K 👁</span>
+                  </div>
+                  <div class="cta">▸ APPLY</div>
+                  <div class="controls">
+                    <div class="knob">↓</div>
+                    <div class="knob">♡</div>
+                    <div class="knob">⏵</div>
+                    <div class="knob">↗</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD · DARK VINYL</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c4">
+                  <div class="top-text">
+                    <div class="cat">✦ CYBERPUNK</div>
+                    <div class="title">Neon Drift</div>
+                  </div>
+                  <div class="vinyl-stage">
+                    <div class="vinyl">
+                      <div class="center"><div class="wp-cy"></div></div>
+                    </div>
+                    <div class="tonearm"></div>
+                  </div>
+                  <div class="meta-row">
+                    <span>12.4K ❤</span>
+                    <span class="live"><span class="pulse-dot"></span> LIVE</span>
+                    <span>84K 👁</span>
+                  </div>
+                  <div class="cta">✦ APPLY</div>
+                  <div class="controls">
+                    <div class="knob">↓</div>
+                    <div class="knob">♡</div>
+                    <div class="knob">⏵</div>
+                    <div class="knob">↗</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta-block">
+          <div class="id">CONCEPT <span class="num">No. 04</span></div>
+          <h2>Vinyl <span class="h2-accent">Player</span></h2>
+          <p class="tagline">
+            Video preview dentro de un disco de vinil con rotación lenta, tonearm dorado,
+            controles tipo turntable. Consistente con la sección TONES que ya usa esta estética.
+            ULTRA distinctive — el usuario lo recuerda al primer vistazo.
+          </p>
+
+          <div class="palette-section">
+            <div class="ptitle">▸ iOS WHITE</div>
+            <div class="swatches">
+              <div class="sw" style="background:#FFFFFF;"><span class="hex">#FFFFFF</span></div>
+              <div class="sw" style="background:#ECECEC;"><span class="hex">#ECECEC</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+              <div class="sw" style="background:#1C1C1E;"><span class="hex">#1C1C1E</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">✦ BLACK &amp; GOLD</div>
+            <div class="swatches">
+              <div class="sw" style="background:#050510;"><span class="hex">#050510</span></div>
+              <div class="sw" style="background:#14141F;"><span class="hex">#14141F</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">VERDICT · MEMORABLE METAPHOR</div>
+            <div class="vp">
+              <span class="pro">+ Memorable, distinto, consistente con TONES, sensación táctil/mecánica.</span><br>
+              <span class="con">− Corte circular recorta el wallpaper; menos preview real visible.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </article>
+
+    <!-- ═══════════ #05 FROSTED STAGE ═══════════ -->
+    <article class="concept">
+      <div class="concept-row">
+
+        <div class="phones">
+          <!-- iOS -->
+          <div class="phone-wrap">
+            <span class="label ios">iOS · FROSTED SPATIAL</span>
+            <div class="phone light">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c5">
+                  <div class="wp-bg"><div class="wp-cy"></div></div>
+                  <div class="vignette"></div>
+                  <div class="glass-top">
+                    <span class="back">‹</span>
+                    <span class="cat">CYBERPUNK</span>
+                    <span class="live-badge"><span class="pulse-dot" style="width:4px;height:4px;display:inline-block;vertical-align:middle"></span> LIVE</span>
+                  </div>
+                  <div class="title-block">
+                    <div class="title">Neon Drift</div>
+                    <div class="sub">▸ 4K · LIVE WALLPAPER</div>
+                  </div>
+                  <div class="stats-glass">
+                    <div class="chip"><span class="v">12.4K</span><span class="k">Likes</span></div>
+                    <div class="chip"><span class="v">84K</span><span class="k">Views</span></div>
+                    <div class="chip"><span class="v">6.2K</span><span class="k">DL</span></div>
+                  </div>
+                  <div class="apply-glass">▸ APPLY WALLPAPER</div>
+                  <div class="floats">
+                    <div class="f">↓</div>
+                    <div class="f">♡</div>
+                    <div class="f">↗</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B&G -->
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD · INK GLASS</span>
+            <div class="phone dark">
+              <div class="notch"></div>
+              <div class="statusbar">
+                <span>9:41</span>
+                <span><span class="battery"></span></span>
+              </div>
+              <div class="screen">
+                <div class="c5">
+                  <div class="wp-bg"><div class="wp-cy"></div></div>
+                  <div class="vignette"></div>
+                  <div class="glass-top">
+                    <span class="back">‹</span>
+                    <span class="cat">CYBERPUNK</span>
+                    <span class="live-badge"><span class="pulse-dot" style="width:4px;height:4px;display:inline-block;vertical-align:middle"></span> LIVE</span>
+                  </div>
+                  <div class="title-block">
+                    <div class="title">Neon Drift</div>
+                    <div class="sub">✦ 4K · LIVE WALLPAPER</div>
+                  </div>
+                  <div class="stats-glass">
+                    <div class="chip"><span class="v">12.4K</span><span class="k">Likes</span></div>
+                    <div class="chip"><span class="v">84K</span><span class="k">Views</span></div>
+                    <div class="chip"><span class="v">6.2K</span><span class="k">DL</span></div>
+                  </div>
+                  <div class="apply-glass">✦ APPLY WALLPAPER</div>
+                  <div class="floats">
+                    <div class="f">↓</div>
+                    <div class="f">♡</div>
+                    <div class="f">↗</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta-block">
+          <div class="id">CONCEPT <span class="num">No. 05</span></div>
+          <h2>Frosted <span class="h2-accent">Stage</span></h2>
+          <p class="tagline">
+            Video full-bleed con paneles de cristal esmerilado flotando encima — el wallpaper canta,
+            la UI flota. Estética spatial / Vision Pro / iOS 18. Premium 2025 puro, cada elemento
+            con animación sutil de flotación.
+          </p>
+
+          <div class="palette-section">
+            <div class="ptitle">▸ iOS WHITE</div>
+            <div class="swatches">
+              <div class="sw" style="background:rgba(255,255,255,0.6);box-shadow:0 0 0 1px rgba(0,0,0,0.1);"><span class="hex">GLASS 60%</span></div>
+              <div class="sw" style="background:#0A84FF;"><span class="hex">#0A84FF</span></div>
+              <div class="sw" style="background:#5E5CE6;"><span class="hex">#5E5CE6</span></div>
+              <div class="sw" style="background:#FFFFFF;"><span class="hex">#FFFFFF</span></div>
+            </div>
+          </div>
+          <div class="palette-section">
+            <div class="ptitle">✦ BLACK &amp; GOLD</div>
+            <div class="swatches">
+              <div class="sw" style="background:rgba(20,20,31,0.5);box-shadow:0 0 0 1px rgba(212,175,55,0.25);"><span class="hex">INK 50%</span></div>
+              <div class="sw" style="background:#070710;"><span class="hex">#070710</span></div>
+              <div class="sw" style="background:#D4AF37;"><span class="hex">#D4AF37</span></div>
+              <div class="sw" style="background:#F5D676;"><span class="hex">#F5D676</span></div>
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="vt">VERDICT · SPATIAL FUTURE</div>
+            <div class="vp">
+              <span class="pro">+ Deja al wallpaper ser el protagonista, sensación premium 2025+.</span><br>
+              <span class="con">− Coste de blur en gama media; degradar a tint sólido en devices viejos.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ─────────── Footer ─────────── -->
+  <footer>
+    <span>PIXORA · DESIGN ARCHIVE</span>
+    <span class="center">✦ LIVE PREVIEW · DOC-026 ✦</span>
+    <span class="right">MAY 2026</span>
+  </footer>
+
+</div>
+</body>
+</html>

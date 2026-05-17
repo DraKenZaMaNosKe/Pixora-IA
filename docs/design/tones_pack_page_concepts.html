@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Tones Pack Page · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet" />
+<style>
+  :root {
+    /* synthwave palette */
+    --ink:           #050018;
+    --ink-2:         #0b0420;
+    --ink-3:         #150830;
+    --hairline:      rgba(255,255,255,0.08);
+
+    --neon-pink:     #ff2bd6;
+    --neon-pink-2:   #ff7adf;
+    --neon-cyan:     #19f0ff;
+    --neon-cyan-2:   #5bf6ff;
+    --neon-magenta:  #c016ff;
+    --neon-violet:   #7c3aff;
+    --neon-orange:   #ff7a45;
+    --neon-yellow:   #f8d44a;
+    --neon-lime:     #aaff2b;
+
+    --sun-1:         #ff2e93;
+    --sun-2:         #ff7a45;
+    --sun-3:         #ffd34d;
+
+    --text:          #f5f1ff;
+    --text-dim:      #a397c9;
+    --text-faint:    #6b5fa0;
+
+    --pink-glow:     0 0 18px rgba(255,43,214,0.55), 0 0 36px rgba(255,43,214,0.28);
+    --cyan-glow:     0 0 14px rgba(25,240,255,0.55), 0 0 32px rgba(25,240,255,0.22);
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* starfield + violet haze */
+  body::before {
+    content:''; position: fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(1px 1px at 8% 12%, rgba(255,255,255,.6), transparent 50%),
+      radial-gradient(1px 1px at 17% 64%, rgba(91,246,255,.45), transparent 50%),
+      radial-gradient(1.4px 1.4px at 39% 28%, rgba(255,122,223,.5), transparent 50%),
+      radial-gradient(1px 1px at 53% 71%, rgba(255,255,255,.5), transparent 50%),
+      radial-gradient(1.2px 1.2px at 71% 13%, rgba(255,255,255,.55), transparent 50%),
+      radial-gradient(1px 1px at 84% 49%, rgba(192,22,255,.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 92% 78%, rgba(255,255,255,.4), transparent 50%);
+    opacity: .65;
+    animation: drift 90s linear infinite;
+  }
+  body::after {
+    content:''; position: fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse at top, rgba(124,58,255,0.18), transparent 60%),
+      radial-gradient(ellipse at bottom, rgba(255,43,214,0.10), transparent 60%);
+  }
+  @keyframes drift {
+    0% { transform: translate3d(0,0,0); }
+    100% { transform: translate3d(-40px,-30px,0); }
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ───────── Header ───────── */
+  header { margin-bottom: 64px; }
+  header::before {
+    content: '// PIXORA · TONES PACK PAGE · DOC-112 · MAY 2026';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--neon-pink);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(255,43,214,0.55);
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(38px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  h1 .iri {
+    background: linear-gradient(110deg, #ff2bd6 0%, #c016ff 30%, #5bf6ff 55%, #19f0ff 75%, #ff2bd6 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: iri 6s linear infinite;
+  }
+  @keyframes iri {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 220% 50%; }
+  }
+  h1 .ornament { color: var(--text-faint); font-style: normal; font-weight: 200; margin: 0 10px; }
+  .subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--text-dim);
+    max-width: 760px;
+    line-height: 1.5;
+  }
+  .header-rule {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(25,240,255,0.4), transparent);
+  }
+
+  /* ───────── Concept row ───────── */
+  .concepts {
+    display: flex; flex-direction: column;
+    gap: 72px;
+  }
+  .concept {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 48px;
+    opacity: 0;
+    transform: translateY(28px);
+    animation: revealUp 1s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 500ms; }
+  .concept:nth-child(2) { animation-delay: 650ms; }
+  .concept:nth-child(3) { animation-delay: 800ms; }
+  .concept:nth-child(4) { animation-delay: 950ms; }
+  .concept:nth-child(5) { animation-delay: 1100ms; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (max-width: 980px) {
+    .concept { grid-template-columns: 1fr; }
+  }
+
+  /* ───────── Phone frame ───────── */
+  .phone {
+    position: relative;
+    width: 340px;
+    height: 780px;
+    margin: 0 auto;
+    background: #000;
+    border-radius: 44px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 10px #181030,
+      0 24px 80px rgba(255,43,214,0.12),
+      0 0 100px rgba(124,58,255,0.18);
+  }
+  .phone .notch {
+    position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 96px; height: 22px;
+    background: #000;
+    border-radius: 0 0 16px 16px;
+    z-index: 30;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 4px; left: 0; right: 0;
+    height: 22px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 26px;
+    font-family: 'Geist', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
+    z-index: 25;
+  }
+  .phone .statusbar .battery {
+    width: 16px; height: 8px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content:''; position:absolute;
+    top:2px; left:2px; right:5px; bottom:2px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute; inset: 0; overflow: hidden;
+  }
+
+  /* universal back arrow */
+  .nav-back {
+    position: absolute;
+    top: 36px; left: 14px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(15,5,40,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    color: var(--text);
+    z-index: 20;
+  }
+  .nav-back .material-symbols-outlined { font-size: 18px; }
+
+  /* ───────── Meta column ───────── */
+  .meta {
+    padding-top: 12px;
+    align-self: center;
+  }
+  .meta .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: var(--neon-pink);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-shadow: 0 0 12px rgba(255,43,214,0.4);
+  }
+  .meta .name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: 32px;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.06;
+  }
+  .meta .tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--neon-cyan-2);
+    margin-bottom: 14px;
+  }
+  .meta .desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+    max-width: 460px;
+  }
+  .meta .palette {
+    display: flex; gap: 7px; margin-bottom: 18px;
+  }
+  .meta .palette .sw {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+  }
+  .verdict {
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: rgba(124,58,255,0.08);
+    border-left: 2px solid var(--neon-violet);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    max-width: 460px;
+  }
+  .verdict .row { display: flex; gap: 10px; align-items: flex-start; }
+  .verdict .row + .row { margin-top: 6px; }
+  .verdict .sym { font-family: 'JetBrains Mono', monospace; font-weight: 700; flex: 0 0 14px; }
+  .verdict .pro .sym { color: var(--neon-cyan); }
+  .verdict .con .sym { color: var(--neon-pink); }
+
+  /* ═══════════════════════════════════════════════════════════
+     CONCEPT 01 — CASSETTE A/B SIDES
+     ═══════════════════════════════════════════════════════════ */
+  .tp01 .screen {
+    background:
+      linear-gradient(180deg, #1a0a3a 0%, #0c0420 70%, #050018 100%);
+  }
+  .tp01 .screen::before {
+    content:''; position:absolute; inset:0;
+    background:
+      linear-gradient(rgba(255,43,214,.08) 1px, transparent 1px) 0 0/100% 24px,
+      linear-gradient(90deg, rgba(25,240,255,.08) 1px, transparent 1px) 0 0/24px 100%;
+    mask-image: linear-gradient(180deg, transparent 0%, black 60%, transparent 100%);
+    opacity: .5;
+  }
+
+  .tp01 .hero-cassette {
+    position: absolute;
+    top: 78px; left: 16px; right: 16px;
+    height: 200px;
+    background: linear-gradient(180deg, #2a0d4a 0%, #16062e 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(255,43,214,0.35);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.1),
+      0 0 24px rgba(255,43,214,0.3),
+      0 8px 24px rgba(0,0,0,0.5);
+    overflow: hidden;
+    z-index: 5;
+  }
+  .tp01 .hero-cassette .label {
+    position: absolute; top: 12px; left: 14px; right: 14px;
+    background: linear-gradient(135deg, #ff2bd6 0%, #c016ff 100%);
+    border-radius: 6px;
+    padding: 10px 12px 8px;
+    box-shadow: 0 0 12px rgba(255,43,214,0.6);
+  }
+  .tp01 .hero-cassette .label .meta1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 2px;
+  }
+  .tp01 .hero-cassette .label .pname {
+    font-family: 'Bangers', cursive;
+    font-size: 22px; letter-spacing: 0.05em;
+    color: white;
+    line-height: 1;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.3);
+  }
+  .tp01 .hero-cassette .label .meta2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.85);
+    margin-top: 4px;
+  }
+  .tp01 .hero-cassette .reels {
+    position: absolute; bottom: 18px; left: 0; right: 0;
+    display: flex; justify-content: space-around; align-items: center;
+  }
+  .tp01 .reel {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #0a0420 30%, #1a0a3a 60%, #16062e 100%);
+    border: 2px solid rgba(255,43,214,0.5);
+    box-shadow: 0 0 16px rgba(255,43,214,0.4), inset 0 0 12px rgba(0,0,0,0.6);
+    position: relative;
+    animation: spin 3s linear infinite;
+  }
+  .tp01 .reel::before {
+    content:''; position:absolute; inset:18px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%);
+    opacity: .35;
+  }
+  .tp01 .reel::after {
+    content:''; position:absolute; inset:26px;
+    border-radius: 50%;
+    background: #000;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.1),
+      inset 0 0 4px rgba(0,0,0,0.8);
+  }
+  .tp01 .reel .spoke { position: absolute; top: 50%; left: 50%; width: 60px; height: 1px; background: rgba(255,255,255,0.15); transform-origin: center; }
+  .tp01 .reel .spoke:nth-child(1) { transform: translate(-50%,-50%) rotate(0deg); }
+  .tp01 .reel .spoke:nth-child(2) { transform: translate(-50%,-50%) rotate(60deg); }
+  .tp01 .reel .spoke:nth-child(3) { transform: translate(-50%,-50%) rotate(120deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .tp01 .tape-bridge {
+    position: absolute;
+    bottom: 50px; left: 50%; transform: translateX(-50%);
+    width: 100px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
+    opacity: .6;
+  }
+
+  /* side label */
+  .tp01 .side-label {
+    position: absolute;
+    top: 296px; left: 16px; right: 16px;
+    display: flex; align-items: center; gap: 10px;
+    z-index: 6;
+  }
+  .tp01 .side-label .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.24em;
+    color: var(--neon-cyan);
+    padding: 4px 10px;
+    border: 1px solid var(--neon-cyan);
+    border-radius: 4px;
+    text-shadow: var(--cyan-glow);
+    box-shadow: var(--cyan-glow);
+  }
+  .tp01 .side-label .dur {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-faint); letter-spacing: 0.14em;
+  }
+  .tp01 .side-label .rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--neon-cyan), transparent);
+  }
+
+  .tp01 .strip-list {
+    position: absolute;
+    top: 326px; left: 12px; right: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    z-index: 5;
+  }
+  .tp01 .strip {
+    display: grid;
+    grid-template-columns: 22px 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(20,8,42,0.6);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+  }
+  .tp01 .strip .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+  .tp01 .strip .ttl {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tp01 .strip .stats {
+    display: flex; gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: var(--text-faint);
+  }
+  .tp01 .strip .stats span { display: flex; align-items: center; gap: 2px; }
+  .tp01 .strip .stats .material-symbols-outlined { font-size: 9px; }
+  .tp01 .strip .dur {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .tp01 .strip .play-btn {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--neon-cyan);
+  }
+  .tp01 .strip .play-btn .material-symbols-outlined { font-size: 12px; }
+
+  .tp01 .strip.active {
+    background: linear-gradient(90deg, rgba(255,43,214,0.18), rgba(124,58,255,0.08));
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 16px rgba(255,43,214,0.45);
+    animation: pinkPulse 2s ease-in-out infinite;
+  }
+  .tp01 .strip.active .n { color: var(--neon-pink); text-shadow: 0 0 8px rgba(255,43,214,0.6); }
+  .tp01 .strip.active .ttl { color: white; }
+  .tp01 .strip.active .play-btn { background: var(--neon-pink); color: white; box-shadow: 0 0 12px rgba(255,43,214,0.7); }
+
+  @keyframes pinkPulse {
+    0%,100% { box-shadow: 0 0 16px rgba(255,43,214,0.45); }
+    50%     { box-shadow: 0 0 28px rgba(255,43,214,0.75); }
+  }
+
+  /* bottom CTA segmented */
+  .tp01 .cta-bar {
+    position: absolute;
+    bottom: 12px; left: 12px; right: 12px;
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 5px;
+    padding: 6px;
+    background: rgba(8,2,24,0.85);
+    border: 1px solid rgba(255,43,214,0.35);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 -6px 24px rgba(255,43,214,0.18), inset 0 1px 0 rgba(255,255,255,0.05);
+    z-index: 7;
+  }
+  .tp01 .cta-bar .pill {
+    padding: 8px 4px;
+    border-radius: 8px;
+    font-family: 'Geist', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .tp01 .cta-bar .pill.sel {
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-magenta));
+    color: white;
+    box-shadow: 0 0 16px rgba(255,43,214,0.55);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CONCEPT 02 — VHS RENTAL CATALOG
+     ═══════════════════════════════════════════════════════════ */
+  .tp02 .screen {
+    background:
+      linear-gradient(180deg, #20062a 0%, #0b021a 100%);
+  }
+  .tp02 .screen::before {
+    content:''; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px,
+        transparent 1px, transparent 3px);
+    pointer-events: none;
+  }
+  .tp02 .screen::after {
+    content:'TRACKING ▮▮▮'; position:absolute;
+    top: 60px; right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px; letter-spacing: 0.2em;
+    color: rgba(25,240,255,0.7);
+    animation: blinkText 1.8s steps(2) infinite;
+    z-index: 8;
+  }
+  @keyframes blinkText { 50% { opacity: 0.2; } }
+
+  .tp02 .vhs-hero {
+    position: absolute;
+    top: 78px; left: 16px; right: 16px;
+    height: 200px;
+    background: linear-gradient(180deg, #1a0530 0%, #0a0220 100%);
+    border: 2px solid #2a1050;
+    border-radius: 10px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.08),
+      0 8px 28px rgba(0,0,0,0.55),
+      0 0 28px rgba(192,22,255,0.2);
+    padding: 14px;
+    overflow: hidden;
+    z-index: 5;
+  }
+  .tp02 .vhs-hero::after {
+    content:''; position:absolute; top:0; left:0; bottom:0;
+    width: 5px;
+    background: linear-gradient(180deg, var(--neon-pink), var(--neon-magenta), var(--neon-cyan));
+  }
+  .tp02 .vhs-hero .sticker-title {
+    background: #fffbe6;
+    color: #1a0530;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+    transform: rotate(-1.5deg);
+    display: inline-block;
+  }
+  .tp02 .vhs-hero .sticker-title .pname {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 18px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .tp02 .vhs-hero .stickers {
+    display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .tp02 .vhs-hero .sk {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 9px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    transform: rotate(-2deg);
+  }
+  .tp02 .vhs-hero .sk.r { background: var(--neon-pink); color: white; }
+  .tp02 .vhs-hero .sk.b { background: var(--neon-cyan); color: #042328; transform: rotate(2deg); }
+  .tp02 .vhs-hero .sk.y { background: var(--neon-yellow); color: #2a1a00; }
+  .tp02 .vhs-hero .blurb {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    color: var(--text-dim);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .tp02 .vhs-hero .counter {
+    position: absolute;
+    right: 16px; bottom: 14px;
+    background: #050010;
+    border: 1px solid rgba(255,43,214,0.6);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--neon-pink);
+    text-shadow: 0 0 8px rgba(255,43,214,0.7);
+  }
+
+  /* filter row */
+  .tp02 .filter-row {
+    position: absolute;
+    top: 296px; left: 16px; right: 16px;
+    display: flex; gap: 6px;
+    z-index: 5;
+  }
+  .tp02 .filter-row .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    padding: 4px 9px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-dim);
+  }
+  .tp02 .filter-row .chip.on {
+    background: var(--neon-pink); color: white; border-color: var(--neon-pink);
+    box-shadow: 0 0 10px rgba(255,43,214,0.6);
+  }
+
+  /* VHS grid */
+  .tp02 .vhs-grid {
+    position: absolute;
+    top: 324px; left: 12px; right: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    z-index: 5;
+  }
+  .tp02 .vhs-card {
+    height: 88px;
+    background: #100428;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  }
+  .tp02 .vhs-card .spine {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, var(--neon-cyan), var(--neon-magenta));
+  }
+  .tp02 .vhs-card .spine-label {
+    position: absolute;
+    left: 12px; top: 8px; right: 28px;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.05;
+    transform: rotate(-1deg);
+  }
+  .tp02 .vhs-card .eject {
+    position: absolute;
+    right: 6px; top: 6px;
+    width: 20px; height: 20px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--neon-cyan);
+  }
+  .tp02 .vhs-card .eject .material-symbols-outlined { font-size: 12px; }
+  .tp02 .vhs-card .duration-tag {
+    position: absolute;
+    left: 12px; bottom: 8px;
+    background: var(--neon-yellow);
+    color: #2a1a00;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 8px;
+    padding: 2px 6px;
+    transform: rotate(-3deg);
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  }
+  .tp02 .vhs-card .cat {
+    position: absolute;
+    right: 8px; bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.16em;
+    color: var(--text-faint);
+  }
+  /* ejected active */
+  .tp02 .vhs-card.active {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 16px rgba(255,43,214,0.5);
+    background: linear-gradient(135deg, #2a0a4a, #100428);
+  }
+  .tp02 .vhs-card.active .spine { background: linear-gradient(180deg, var(--neon-pink), #fff); }
+  .tp02 .vhs-card.active .spine-label { color: white; text-shadow: 0 0 6px rgba(255,43,214,0.7); }
+  .tp02 .vhs-card.active .eject { background: var(--neon-pink); color: white; }
+  /* tape "pulled out" */
+  .tp02 .vhs-card.active::after {
+    content:'';
+    position: absolute;
+    left: 6px; right: 6px; top: 32px;
+    height: 18px;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px,
+        transparent 1px, transparent 4px),
+      linear-gradient(90deg, transparent, rgba(255,43,214,0.5), transparent);
+    border-radius: 2px;
+    animation: tapeWave 1.4s ease-in-out infinite;
+  }
+  @keyframes tapeWave {
+    0%,100% { transform: scaleY(1); }
+    50%     { transform: scaleY(1.6); }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CONCEPT 03 — SYNTHWAVE MIXTAPE MAP
+     ═══════════════════════════════════════════════════════════ */
+  .tp03 .screen {
+    background:
+      linear-gradient(180deg,
+        #1a0540 0%,
+        #2a0a5a 30%,
+        #ff2bd6 55%,
+        #ff7a45 70%,
+        #1a0540 88%,
+        #050018 100%);
+  }
+  /* perspective grid horizon */
+  .tp03 .screen::before {
+    content:'';
+    position: absolute;
+    left: 0; right: 0;
+    top: 270px; height: 200px;
+    background:
+      linear-gradient(rgba(25,240,255,0.6) 1px, transparent 1px) 0 0/100% 18px,
+      linear-gradient(90deg, transparent 0%, rgba(25,240,255,0.5) 50%, transparent 100%);
+    transform: perspective(220px) rotateX(58deg);
+    transform-origin: top;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .tp03 .screen::after {
+    content:''; position: absolute; left: 0; right: 0;
+    top: 260px; height: 60px;
+    background: linear-gradient(180deg, transparent, var(--ink) 90%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .tp03 .hero {
+    position: absolute;
+    top: 78px; left: 16px; right: 16px;
+    height: 180px;
+    z-index: 4;
+    text-align: center;
+  }
+  .tp03 .hero .mini {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--neon-cyan-2);
+    text-shadow: 0 0 6px rgba(91,246,255,0.7);
+    margin-bottom: 6px;
+  }
+  .tp03 .hero .ttl {
+    font-family: 'Bangers', cursive;
+    font-size: 38px;
+    letter-spacing: 0.08em;
+    color: white;
+    line-height: 0.95;
+    text-shadow:
+      0 0 12px rgba(255,43,214,0.9),
+      0 4px 0 #c016ff,
+      0 8px 24px rgba(0,0,0,0.6);
+    margin-bottom: 4px;
+  }
+  .tp03 .hero .sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 8px;
+  }
+  /* horizon sun */
+  .tp03 .hero .sun {
+    margin: 10px auto 0;
+    width: 120px; height: 60px;
+    border-radius: 120px 120px 0 0;
+    background: linear-gradient(180deg, var(--sun-3) 0%, var(--sun-1) 100%);
+    position: relative;
+    box-shadow: 0 0 32px rgba(255,46,147,0.6);
+    overflow: hidden;
+  }
+  .tp03 .hero .sun::before {
+    content:''; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(0deg,
+        transparent 0px, transparent 8px,
+        rgba(0,0,0,0.4) 8px, rgba(0,0,0,0.4) 11px);
+  }
+
+  /* tracklist */
+  .tp03 .tracklist {
+    position: absolute;
+    top: 286px; left: 12px; right: 12px;
+    display: flex; flex-direction: column; gap: 5px;
+    z-index: 6;
+  }
+  .tp03 .trk {
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(10,4,30,0.75);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    backdrop-filter: blur(4px);
+  }
+  .tp03 .trk .num {
+    font-family: 'Bangers', cursive;
+    font-size: 22px;
+    color: var(--neon-cyan);
+    line-height: 1;
+    text-shadow: 0 0 8px rgba(25,240,255,0.6);
+  }
+  .tp03 .trk .col {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .tp03 .trk .ttl {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 600;
+    color: var(--text);
+    line-height: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tp03 .trk .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+  }
+  .tp03 .trk .wave {
+    width: 44px; height: 18px;
+    display: flex; align-items: center; gap: 1.5px;
+  }
+  .tp03 .trk .wave .b {
+    flex: 1; background: var(--text-faint);
+    border-radius: 1px;
+  }
+  .tp03 .trk .wave .b:nth-child(1) { height: 30%; }
+  .tp03 .trk .wave .b:nth-child(2) { height: 60%; }
+  .tp03 .trk .wave .b:nth-child(3) { height: 90%; }
+  .tp03 .trk .wave .b:nth-child(4) { height: 50%; }
+  .tp03 .trk .wave .b:nth-child(5) { height: 75%; }
+  .tp03 .trk .wave .b:nth-child(6) { height: 40%; }
+  .tp03 .trk .wave .b:nth-child(7) { height: 65%; }
+  .tp03 .trk .wave .b:nth-child(8) { height: 35%; }
+  .tp03 .trk .pbtn {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text);
+  }
+  .tp03 .trk .pbtn .material-symbols-outlined { font-size: 12px; }
+
+  .tp03 .trk.active {
+    background: rgba(255,43,214,0.18);
+    border: 1px solid var(--neon-pink);
+    box-shadow: 0 0 18px rgba(255,43,214,0.5);
+  }
+  .tp03 .trk.active .num { color: var(--neon-pink); text-shadow: 0 0 12px rgba(255,43,214,0.7); }
+  .tp03 .trk.active .wave .b {
+    background: linear-gradient(180deg, var(--neon-pink), var(--neon-cyan));
+    animation: waveAnim 0.8s ease-in-out infinite alternate;
+  }
+  .tp03 .trk.active .wave .b:nth-child(2n) { animation-delay: 0.2s; }
+  .tp03 .trk.active .wave .b:nth-child(3n) { animation-delay: 0.4s; }
+  @keyframes waveAnim {
+    0%   { transform: scaleY(0.4); }
+    100% { transform: scaleY(1.2); }
+  }
+  .tp03 .trk.active .pbtn {
+    background: var(--neon-pink); border-color: var(--neon-pink); color: white;
+    box-shadow: 0 0 12px rgba(255,43,214,0.7);
+  }
+
+  /* tape progress */
+  .tp03 .tape-progress {
+    position: absolute;
+    bottom: 12px; left: 12px; right: 12px;
+    background: linear-gradient(180deg, #2a1505, #1a0805);
+    border: 1px solid rgba(212,175,55,0.45);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex; align-items: center; gap: 10px;
+    z-index: 7;
+    box-shadow: 0 0 14px rgba(212,175,55,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .tp03 .tape-progress .counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    color: #f5d676;
+    text-shadow: 0 0 6px rgba(245,214,118,0.7);
+    letter-spacing: 0.1em;
+  }
+  .tp03 .tape-progress .bar {
+    flex: 1; height: 4px;
+    background: rgba(245,214,118,0.18);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .tp03 .tape-progress .bar::after {
+    content:''; display: block;
+    width: 42%; height: 100%;
+    background: linear-gradient(90deg, #f5d676, #ff2bd6);
+    box-shadow: 0 0 8px rgba(245,214,118,0.6);
+  }
+  .tp03 .tape-progress .total {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CONCEPT 04 — BOOMBOX SHELF
+     ═══════════════════════════════════════════════════════════ */
+  .tp04 .screen {
+    background:
+      radial-gradient(ellipse at top, #2a0a5a 0%, #0a0220 60%),
+      linear-gradient(180deg, #1a0530, #050015);
+  }
+
+  .tp04 .boombox {
+    position: absolute;
+    top: 76px; left: 12px; right: 12px;
+    height: 210px;
+    background:
+      linear-gradient(180deg, #2a1a3a 0%, #1a0a25 100%);
+    border-radius: 16px 16px 6px 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.1),
+      0 8px 24px rgba(0,0,0,0.55),
+      0 0 32px rgba(124,58,255,0.3);
+    padding: 10px;
+    z-index: 5;
+  }
+  /* speakers */
+  .tp04 .boombox .speaker {
+    position: absolute;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #0a0420 30%, #1a0a3a 70%);
+    border: 2px solid #3a1a5a;
+    top: 18px;
+    box-shadow:
+      inset 0 0 12px rgba(0,0,0,0.7),
+      inset 0 0 0 8px rgba(255,255,255,0.02);
+  }
+  .tp04 .boombox .speaker.l { left: 14px; }
+  .tp04 .boombox .speaker.r { right: 14px; }
+  .tp04 .boombox .speaker::after {
+    content:''; position:absolute; inset:18px;
+    background: radial-gradient(circle, var(--neon-cyan) 0%, transparent 75%);
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: pulseSpkr 1.6s ease-in-out infinite;
+  }
+  @keyframes pulseSpkr {
+    0%,100% { transform: scale(0.92); opacity: 0.3; }
+    50%     { transform: scale(1.1); opacity: 0.55; }
+  }
+  /* LCD */
+  .tp04 .boombox .lcd {
+    position: absolute;
+    top: 14px; left: 80px; right: 80px;
+    height: 50px;
+    background:
+      linear-gradient(180deg, #062810, #032008);
+    border: 1px solid #1a4a25;
+    border-radius: 4px;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.7);
+    padding: 6px 8px;
+    overflow: hidden;
+  }
+  .tp04 .boombox .lcd .pname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: rgba(122,255,160,0.95);
+    text-shadow: 0 0 6px rgba(40,255,90,0.5);
+    letter-spacing: 0.14em;
+    margin-bottom: 2px;
+  }
+  .tp04 .boombox .lcd .now {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(122,255,160,0.95);
+    text-shadow: 0 0 6px rgba(40,255,90,0.6);
+    letter-spacing: 0.05em;
+    animation: lcdBlink 1.5s steps(2) infinite;
+  }
+  @keyframes lcdBlink { 0%, 80% { opacity: 1; } 90% { opacity: 0.4; } }
+  .tp04 .boombox .lcd .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    color: rgba(122,255,160,0.7);
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+  /* dual cassette deck */
+  .tp04 .boombox .decks {
+    position: absolute;
+    top: 78px; left: 80px; right: 80px;
+    height: 48px;
+    background: #0a0420;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.06);
+    display: flex; gap: 6px;
+    padding: 6px;
+  }
+  .tp04 .boombox .deck {
+    flex: 1;
+    background: linear-gradient(180deg, #1a0a3a, #0a0420);
+    border-radius: 3px;
+    display: flex; justify-content: space-around; align-items: center;
+  }
+  .tp04 .boombox .deck .mini-reel {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--neon-cyan);
+    background: radial-gradient(circle, transparent 40%, rgba(25,240,255,0.35) 41%, transparent 70%);
+    animation: spin 2.4s linear infinite;
+  }
+  /* EQ sliders */
+  .tp04 .boombox .eq {
+    position: absolute;
+    bottom: 12px; left: 14px; right: 14px;
+    height: 40px;
+    display: flex; align-items: flex-end; gap: 3px;
+  }
+  .tp04 .boombox .eq .bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--neon-pink), var(--neon-cyan));
+    border-radius: 1px;
+    animation: eqBounce 1.1s ease-in-out infinite alternate;
+  }
+  .tp04 .boombox .eq .bar:nth-child(1) { height: 30%; animation-delay: 0.05s; }
+  .tp04 .boombox .eq .bar:nth-child(2) { height: 60%; animation-delay: 0.15s; }
+  .tp04 .boombox .eq .bar:nth-child(3) { height: 90%; animation-delay: 0.0s; }
+  .tp04 .boombox .eq .bar:nth-child(4) { height: 45%; animation-delay: 0.2s; }
+  .tp04 .boombox .eq .bar:nth-child(5) { height: 75%; animation-delay: 0.1s; }
+  .tp04 .boombox .eq .bar:nth-child(6) { height: 35%; animation-delay: 0.25s; }
+  .tp04 .boombox .eq .bar:nth-child(7) { height: 80%; animation-delay: 0.05s; }
+  .tp04 .boombox .eq .bar:nth-child(8) { height: 50%; animation-delay: 0.18s; }
+  .tp04 .boombox .eq .bar:nth-child(9) { height: 65%; animation-delay: 0.12s; }
+  .tp04 .boombox .eq .bar:nth-child(10) { height: 90%; animation-delay: 0.0s; }
+  .tp04 .boombox .eq .bar:nth-child(11) { height: 40%; animation-delay: 0.22s; }
+  .tp04 .boombox .eq .bar:nth-child(12) { height: 70%; animation-delay: 0.08s; }
+  @keyframes eqBounce {
+    0%   { transform: scaleY(0.4); }
+    100% { transform: scaleY(1.15); }
+  }
+
+  /* shelves of cassettes */
+  .tp04 .shelves {
+    position: absolute;
+    top: 304px; left: 12px; right: 12px; bottom: 60px;
+    display: flex; flex-direction: column; gap: 10px;
+    z-index: 5;
+  }
+  .tp04 .shelf {
+    position: relative;
+    flex: 1;
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 90%, rgba(255,43,214,0.18) 100%);
+    border-bottom: 2px solid rgba(255,43,214,0.4);
+    box-shadow: 0 4px 12px rgba(255,43,214,0.18);
+    padding: 4px 4px 8px;
+    display: flex; gap: 4px; align-items: flex-end;
+  }
+  .tp04 .spine-tape {
+    flex: 1;
+    height: 60px;
+    background: linear-gradient(180deg, #2a0d4a, #16062e);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 3px;
+    position: relative;
+    transform: rotate(-1.5deg);
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.55);
+  }
+  .tp04 .spine-tape:nth-child(2) { transform: rotate(1deg); }
+  .tp04 .spine-tape:nth-child(3) { transform: rotate(-0.5deg); }
+  .tp04 .spine-tape:nth-child(4) { transform: rotate(2deg); }
+  .tp04 .spine-tape .label {
+    position: absolute;
+    top: 6px; left: 3px; right: 3px;
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-magenta));
+    padding: 3px 2px;
+    border-radius: 2px;
+    text-align: center;
+  }
+  .tp04 .spine-tape .label .t {
+    font-family: 'Inter', sans-serif;
+    font-size: 6.5px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+  }
+  .tp04 .spine-tape .bottom {
+    position: absolute;
+    bottom: 4px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6px;
+    color: var(--neon-cyan-2);
+  }
+  /* active = pulled out */
+  .tp04 .spine-tape.active {
+    transform: translateY(-12px) rotate(-3deg) scale(1.08);
+    border-color: var(--neon-pink);
+    box-shadow: 4px 6px 12px rgba(255,43,214,0.55), 0 0 16px rgba(255,43,214,0.5);
+    z-index: 4;
+  }
+  .tp04 .spine-tape.active .label {
+    background: linear-gradient(135deg, var(--neon-yellow), var(--neon-pink));
+  }
+  .tp04 .spine-tape.active .label .t { color: #050018; }
+  .tp04 .spine-tape.active::after {
+    content:'NOW';
+    position:absolute; top: -10px; right: -4px;
+    font-family: 'Bangers', cursive; font-size: 9px;
+    color: var(--neon-pink);
+    background: var(--ink);
+    padding: 1px 4px;
+    border: 1px solid var(--neon-pink);
+    border-radius: 3px;
+    text-shadow: 0 0 6px rgba(255,43,214,0.8);
+  }
+
+  /* bottom SET AS card */
+  .tp04 .set-as {
+    position: absolute;
+    bottom: 12px; left: 12px; right: 12px;
+    display: flex; gap: 6px;
+    z-index: 7;
+  }
+  .tp04 .set-as .btn {
+    flex: 1;
+    padding: 8px 4px;
+    border-radius: 8px;
+    text-align: center;
+    background: rgba(15,5,40,0.8);
+    border: 1px solid rgba(255,43,214,0.4);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.18em;
+    color: var(--text);
+    backdrop-filter: blur(8px);
+  }
+  .tp04 .set-as .btn .ico { display: block; margin-bottom: 3px; color: var(--neon-cyan); }
+  .tp04 .set-as .btn .ico .material-symbols-outlined { font-size: 14px; }
+  .tp04 .set-as .btn.sel {
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-magenta));
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 14px rgba(255,43,214,0.55);
+  }
+  .tp04 .set-as .btn.sel .ico { color: white; }
+
+  /* ═══════════════════════════════════════════════════════════
+     CONCEPT 05 — RADIO STATION GRID
+     ═══════════════════════════════════════════════════════════ */
+  .tp05 .screen {
+    background:
+      linear-gradient(180deg, #200a40 0%, #0c041c 80%);
+  }
+  .tp05 .screen::before {
+    content:''; position: absolute; inset:0;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px,
+        transparent 1px, transparent 6px);
+    pointer-events: none;
+  }
+
+  /* radio dial hero */
+  .tp05 .dial-hero {
+    position: absolute;
+    top: 76px; left: 12px; right: 12px;
+    height: 200px;
+    background: linear-gradient(180deg, #14081e 0%, #0a040f 100%);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.08),
+      0 8px 24px rgba(0,0,0,0.55),
+      0 0 28px rgba(124,58,255,0.25);
+    padding: 14px;
+    z-index: 5;
+    overflow: hidden;
+  }
+  .tp05 .dial-hero .brand-row {
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.2em;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 6px rgba(25,240,255,0.6);
+    margin-bottom: 6px;
+  }
+  .tp05 .dial-hero .stationid {
+    font-family: 'Bangers', cursive;
+    font-size: 22px;
+    color: white;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 12px rgba(255,43,214,0.7);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .tp05 .dial-hero .freq-display {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .tp05 .dial-hero .freq-display .big {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--neon-pink);
+    text-shadow: 0 0 14px rgba(255,43,214,0.7);
+    letter-spacing: 0.04em;
+  }
+  .tp05 .dial-hero .freq-display .mhz {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.16em;
+  }
+  /* horizontal dial */
+  .tp05 .dial-hero .dial-strip {
+    position: relative;
+    height: 32px;
+    margin: 0 4px 4px;
+    background: linear-gradient(180deg, #0a040f, #050010);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .tp05 .dial-hero .dial-strip::before {
+    content:'';
+    position: absolute; top: 12px; left: 4px; right: 4px;
+    height: 8px;
+    background:
+      repeating-linear-gradient(90deg,
+        var(--text-faint) 0px, var(--text-faint) 1px,
+        transparent 1px, transparent 8px);
+  }
+  .tp05 .dial-hero .dial-strip .tick {
+    position: absolute;
+    top: 6px;
+    width: 1.5px; height: 20px;
+    background: var(--neon-pink);
+    box-shadow: 0 0 6px rgba(255,43,214,0.85);
+    animation: dialSweep 3.5s ease-in-out infinite alternate;
+  }
+  @keyframes dialSweep {
+    0%   { left: 18%; }
+    100% { left: 78%; }
+  }
+  .tp05 .dial-hero .dial-strip .freq-labels {
+    position: absolute;
+    bottom: 2px; left: 4px; right: 4px;
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6.5px;
+    color: var(--text-faint);
+  }
+
+  /* filter band pills */
+  .tp05 .band-row {
+    position: absolute;
+    top: 292px; left: 12px; right: 12px;
+    display: flex; gap: 6px;
+    z-index: 6;
+  }
+  .tp05 .band-row .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: var(--text-faint);
+    letter-spacing: 0.18em;
+    align-self: center;
+    margin-right: 4px;
+  }
+  .tp05 .band-row .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    padding: 4px 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 999px;
+    color: var(--text-dim);
+  }
+  .tp05 .band-row .pill.on {
+    background: var(--neon-pink); color: white; border-color: var(--neon-pink);
+    box-shadow: 0 0 12px rgba(255,43,214,0.6);
+  }
+
+  /* preset grid */
+  .tp05 .preset-grid {
+    position: absolute;
+    top: 320px; left: 12px; right: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    z-index: 5;
+  }
+  .tp05 .preset {
+    height: 96px;
+    background: linear-gradient(180deg, #1a0a2e 0%, #100525 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    position: relative;
+    padding: 8px 6px 6px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.08),
+      0 4px 0 rgba(0,0,0,0.5),
+      0 6px 12px rgba(0,0,0,0.4);
+    transition: all 0.3s;
+  }
+  .tp05 .preset .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 6px rgba(25,240,255,0.55);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .tp05 .preset .name {
+    font-family: 'Inter', sans-serif;
+    font-size: 8.5px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 4px;
+    height: 22px;
+    overflow: hidden;
+  }
+  .tp05 .preset .freq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+  }
+  .tp05 .preset .led {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-faint);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.6) inset;
+  }
+  /* pressed-in active */
+  .tp05 .preset.active {
+    background: linear-gradient(180deg, #380a55 0%, #1f0535 100%);
+    border-color: var(--neon-pink);
+    box-shadow:
+      inset 0 2px 4px rgba(0,0,0,0.55),
+      inset 0 0 12px rgba(255,43,214,0.25),
+      0 0 14px rgba(255,43,214,0.5);
+    transform: translateY(3px);
+  }
+  .tp05 .preset.active .num { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255,43,214,0.7); }
+  .tp05 .preset.active .name { color: white; }
+  .tp05 .preset.active .led {
+    background: var(--neon-pink);
+    box-shadow:
+      0 0 10px rgba(255,43,214,0.85),
+      0 0 0 1px rgba(255,43,214,0.4);
+    animation: ledBlink 1s steps(2) infinite;
+  }
+  @keyframes ledBlink { 50% { opacity: 0.35; } }
+
+  /* bottom SET AS */
+  .tp05 .set-bar {
+    position: absolute;
+    bottom: 12px; left: 12px; right: 12px;
+    display: flex; gap: 5px;
+    background: rgba(8,2,20,0.85);
+    border: 1px solid rgba(255,43,214,0.35);
+    border-radius: 10px;
+    padding: 6px;
+    backdrop-filter: blur(10px);
+    z-index: 7;
+  }
+  .tp05 .set-bar .btn {
+    flex: 1;
+    padding: 7px 4px;
+    border-radius: 6px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.16em;
+    color: var(--text-dim);
+  }
+  .tp05 .set-bar .btn.sel {
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-magenta));
+    color: white;
+    box-shadow: 0 0 12px rgba(255,43,214,0.55);
+  }
+
+  /* ───────── Footer ───────── */
+  footer {
+    text-align: center;
+    margin-top: 96px;
+    padding-top: 30px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  footer span { color: var(--neon-pink); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Tones Pack <span class="ornament">·</span> 5 <span class="iri">Conceptos</span></h1>
+    <div class="subtitle">Misma identidad cassette synthwave que la tab — cada tono debe sentirse como un track del cassette, no una card genérica.</div>
+    <div class="header-rule">
+      <span>PIXORA-IA</span>
+      <span class="line"></span>
+      <span>v1.7.4 · NEON CASSETTE EXPLORATION</span>
+    </div>
+  </header>
+
+  <div class="concepts">
+
+    <!-- ════════════════════════════════════════════════
+         CONCEPT 01 — CASSETTE A/B SIDES
+         ════════════════════════════════════════════════ -->
+    <div class="concept tp01">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+        <div class="screen">
+
+          <div class="nav-back"><span class="material-symbols-outlined">arrow_back_ios_new</span></div>
+
+          <!-- HERO cassette -->
+          <div class="hero-cassette">
+            <div class="label">
+              <div class="meta1">PIXORA TAPES · VOL 04</div>
+              <div class="pname">RETRO &amp; CLASSIC</div>
+              <div class="meta2">16 TONES · 7 MIN · LO-FI MASTER</div>
+            </div>
+            <div class="reels">
+              <div class="reel"><span class="spoke"></span><span class="spoke"></span><span class="spoke"></span></div>
+              <div class="reel" style="animation-duration:2.4s"><span class="spoke"></span><span class="spoke"></span><span class="spoke"></span></div>
+            </div>
+            <div class="tape-bridge"></div>
+          </div>
+
+          <!-- SIDE A -->
+          <div class="side-label">
+            <span class="badge">SIDE A</span>
+            <span class="dur">03:42</span>
+            <span class="rule"></span>
+          </div>
+
+          <!-- track strips -->
+          <div class="strip-list">
+            <div class="strip">
+              <span class="n">01</span>
+              <span class="ttl">UK Classic</span>
+              <span class="dur">0:28</span>
+              <span class="play-btn"><span class="material-symbols-outlined">play_arrow</span></span>
+            </div>
+            <div class="strip active">
+              <span class="n">02</span>
+              <span class="ttl">90s Mobile</span>
+              <span class="dur">0:24</span>
+              <span class="play-btn"><span class="material-symbols-outlined">pause</span></span>
+            </div>
+            <div class="strip">
+              <span class="n">03</span>
+              <span class="ttl">90s Home Phone</span>
+              <span class="dur">0:32</span>
+              <span class="play-btn"><span class="material-symbols-outlined">play_arrow</span></span>
+            </div>
+            <div class="strip">
+              <span class="n">04</span>
+              <span class="ttl">90s Digital</span>
+              <span class="dur">0:18</span>
+              <span class="play-btn"><span class="material-symbols-outlined">play_arrow</span></span>
+            </div>
+            <div class="strip">
+              <span class="n">05</span>
+              <span class="ttl">Classic Digital</span>
+              <span class="dur">0:22</span>
+              <span class="play-btn"><span class="material-symbols-outlined">play_arrow</span></span>
+            </div>
+            <div class="strip">
+              <span class="n">06</span>
+              <span class="ttl">Classic Retro</span>
+              <span class="dur">0:26</span>
+              <span class="play-btn"><span class="material-symbols-outlined">play_arrow</span></span>
+            </div>
+            <div class="strip">
+              <span class="n">07</span>
+              <span class="ttl">iPhone Pro</span>
+              <span class="dur">0:30</span>
+              <span class="play-btn"><span class="material-symbols-outlined">play_arrow</span></span>
+            </div>
+            <div class="strip">
+              <span class="n">08</span>
+              <span class="ttl">Kill Bill Whistle</span>
+              <span class="dur">0:42</span>
+              <span class="play-btn"><span class="material-symbols-outlined">play_arrow</span></span>
+            </div>
+          </div>
+
+          <!-- bottom CTA -->
+          <div class="cta-bar">
+            <div class="pill sel">Ringtone</div>
+            <div class="pill">Notification</div>
+            <div class="pill">Alarm</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="num">No. 01 · CASSETTE A/B SIDES</div>
+        <div class="name">Cinta de Dos Caras</div>
+        <div class="tag">cassette físico · vinyl bootleg · neon worship</div>
+        <div class="desc">El hero es una cassette gigante con etiqueta neón rosa y reels girando en vivo. Los tonos se dividen en <strong>SIDE A / SIDE B</strong> como en una cinta real, cada uno una "track strip" horizontal con número mono, título, duración y stats inline. El activo pulsa rosa neón con play→pause. El CTA inferior es un segmented control sintético que define la acción final.</div>
+        <div class="palette">
+          <div class="sw" style="background:#ff2bd6"></div>
+          <div class="sw" style="background:#19f0ff"></div>
+          <div class="sw" style="background:#c016ff"></div>
+          <div class="sw" style="background:#16062e"></div>
+          <div class="sw" style="background:#f5d676"></div>
+        </div>
+        <div class="verdict">
+          <div class="row pro"><span class="sym">+</span><span><strong>Metáfora pura.</strong> SIDE A/B es instantáneamente reconocible — el usuario "siente" el objeto físico antes de leer texto.</span></div>
+          <div class="row con"><span class="sym">−</span><span>Lista densa puede saturar si el pack tiene 30+ tonos. Requiere scroll fluido con sticky hero recortable.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         CONCEPT 02 — VHS RENTAL CATALOG
+         ════════════════════════════════════════════════ -->
+    <div class="concept tp02">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+        <div class="screen">
+
+          <div class="nav-back"><span class="material-symbols-outlined">arrow_back_ios_new</span></div>
+
+          <!-- VHS case hero -->
+          <div class="vhs-hero">
+            <div class="sticker-title">
+              <div class="pname">RETRO &amp; CLASSIC</div>
+            </div>
+            <div class="stickers">
+              <span class="sk r">★★★★ HITS</span>
+              <span class="sk b">DRAMA</span>
+              <span class="sk y">+12 PLAYS</span>
+            </div>
+            <div class="blurb">16 mini-clásicos directos del videoclub. Cinta rebobinada y lista para sonar.</div>
+            <div class="counter">07:42</div>
+          </div>
+
+          <!-- filters -->
+          <div class="filter-row">
+            <span class="chip on">RING</span>
+            <span class="chip">MSG</span>
+            <span class="chip">ALARM</span>
+          </div>
+
+          <!-- VHS GRID -->
+          <div class="vhs-grid">
+            <div class="vhs-card">
+              <div class="spine"></div>
+              <div class="spine-label">UK Classic</div>
+              <div class="eject"><span class="material-symbols-outlined">eject</span></div>
+              <div class="duration-tag">0:28</div>
+              <div class="cat">RING</div>
+            </div>
+            <div class="vhs-card active">
+              <div class="spine"></div>
+              <div class="spine-label">90s Mobile</div>
+              <div class="eject"><span class="material-symbols-outlined">graphic_eq</span></div>
+              <div class="duration-tag">0:24</div>
+              <div class="cat">NOW</div>
+            </div>
+            <div class="vhs-card">
+              <div class="spine"></div>
+              <div class="spine-label">90s Home Phone</div>
+              <div class="eject"><span class="material-symbols-outlined">eject</span></div>
+              <div class="duration-tag">0:32</div>
+              <div class="cat">RING</div>
+            </div>
+            <div class="vhs-card">
+              <div class="spine"></div>
+              <div class="spine-label">90s Digital</div>
+              <div class="eject"><span class="material-symbols-outlined">eject</span></div>
+              <div class="duration-tag">0:18</div>
+              <div class="cat">MSG</div>
+            </div>
+            <div class="vhs-card">
+              <div class="spine"></div>
+              <div class="spine-label">Classic Digital</div>
+              <div class="eject"><span class="material-symbols-outlined">eject</span></div>
+              <div class="duration-tag">0:22</div>
+              <div class="cat">MSG</div>
+            </div>
+            <div class="vhs-card">
+              <div class="spine"></div>
+              <div class="spine-label">Classic Retro</div>
+              <div class="eject"><span class="material-symbols-outlined">eject</span></div>
+              <div class="duration-tag">0:26</div>
+              <div class="cat">RING</div>
+            </div>
+            <div class="vhs-card">
+              <div class="spine"></div>
+              <div class="spine-label">iPhone Pro</div>
+              <div class="eject"><span class="material-symbols-outlined">eject</span></div>
+              <div class="duration-tag">0:30</div>
+              <div class="cat">MSG</div>
+            </div>
+            <div class="vhs-card">
+              <div class="spine"></div>
+              <div class="spine-label">Kill Bill</div>
+              <div class="eject"><span class="material-symbols-outlined">eject</span></div>
+              <div class="duration-tag">0:42</div>
+              <div class="cat">ALARM</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="num">No. 02 · VHS RENTAL CATALOG</div>
+        <div class="name">El Videoclub</div>
+        <div class="tag">Blockbuster nostalgia · stickers handwritten · kitsch ochentero</div>
+        <div class="desc">El hero es un case de VHS con sticker pintado a mano "RETRO &amp; CLASSIC", subetiquetas (★★★★, DRAMA, +PLAYS) y contador rojo retro. Los tonos son mini cintas VHS verticales en grid 2-col, cada una con spine de color neón y label en marker. El activo se "expulsa" con cinta saliendo y ondas animadas. Filtros se vuelven sección del videoclub.</div>
+        <div class="palette">
+          <div class="sw" style="background:#fffbe6"></div>
+          <div class="sw" style="background:#ff2bd6"></div>
+          <div class="sw" style="background:#19f0ff"></div>
+          <div class="sw" style="background:#f8d44a"></div>
+          <div class="sw" style="background:#1a0530"></div>
+        </div>
+        <div class="verdict">
+          <div class="row pro"><span class="sym">+</span><span><strong>Diferenciación brutal.</strong> Nadie tiene un store con look de Blockbuster — memoria instantánea, perfecto para social sharing.</span></div>
+          <div class="row con"><span class="sym">−</span><span>Marker handwritten + amarillo crema rompe puristas synthwave; balancear con el spine neón. Sticker font puede pelear con i18n largo.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         CONCEPT 03 — SYNTHWAVE MIXTAPE MAP
+         ════════════════════════════════════════════════ -->
+    <div class="concept tp03">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+        <div class="screen">
+
+          <div class="nav-back"><span class="material-symbols-outlined">arrow_back_ios_new</span></div>
+
+          <!-- HERO -->
+          <div class="hero">
+            <div class="mini">// MIXTAPE TRACKLIST · DRIVE OST</div>
+            <div class="ttl">RETRO &amp; CLASSIC</div>
+            <div class="sub">16 tracks · 07:42 total · Side A/B</div>
+            <div class="sun"></div>
+          </div>
+
+          <!-- tracklist -->
+          <div class="tracklist">
+            <div class="trk">
+              <div class="num">01</div>
+              <div class="col"><div class="ttl">UK Classic</div><div class="meta">0:28 · RINGTONE</div></div>
+              <div class="wave"><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+              <div class="pbtn"><span class="material-symbols-outlined">play_arrow</span></div>
+            </div>
+            <div class="trk active">
+              <div class="num">02</div>
+              <div class="col"><div class="ttl">90s Mobile</div><div class="meta">0:24 · RINGTONE · NOW PLAYING</div></div>
+              <div class="wave"><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+              <div class="pbtn"><span class="material-symbols-outlined">pause</span></div>
+            </div>
+            <div class="trk">
+              <div class="num">03</div>
+              <div class="col"><div class="ttl">90s Home Phone</div><div class="meta">0:32 · RINGTONE</div></div>
+              <div class="wave"><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+              <div class="pbtn"><span class="material-symbols-outlined">play_arrow</span></div>
+            </div>
+            <div class="trk">
+              <div class="num">04</div>
+              <div class="col"><div class="ttl">90s Digital</div><div class="meta">0:18 · NOTIFICATION</div></div>
+              <div class="wave"><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+              <div class="pbtn"><span class="material-symbols-outlined">play_arrow</span></div>
+            </div>
+            <div class="trk">
+              <div class="num">05</div>
+              <div class="col"><div class="ttl">Classic Digital</div><div class="meta">0:22 · NOTIFICATION</div></div>
+              <div class="wave"><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+              <div class="pbtn"><span class="material-symbols-outlined">play_arrow</span></div>
+            </div>
+            <div class="trk">
+              <div class="num">06</div>
+              <div class="col"><div class="ttl">Classic Retro</div><div class="meta">0:26 · RINGTONE</div></div>
+              <div class="wave"><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+              <div class="pbtn"><span class="material-symbols-outlined">play_arrow</span></div>
+            </div>
+            <div class="trk">
+              <div class="num">07</div>
+              <div class="col"><div class="ttl">iPhone Pro</div><div class="meta">0:30 · NOTIFICATION</div></div>
+              <div class="wave"><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+              <div class="pbtn"><span class="material-symbols-outlined">play_arrow</span></div>
+            </div>
+          </div>
+
+          <!-- tape progress -->
+          <div class="tape-progress">
+            <span class="counter">02:48</span>
+            <div class="bar"></div>
+            <span class="total">07:42</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="num">No. 03 · SYNTHWAVE MIXTAPE MAP</div>
+        <div class="name">Drive OST</div>
+        <div class="tag">sunset gradient · perspective grid · cyberpunk lounge</div>
+        <div class="desc">Hero con gradiente de atardecer Miami → media luna estilo Drive con scanlines, grid de horizonte perspectivado abajo. Tracklist <strong>columna única</strong> con número Bangers neón, título, waveform animado (8 barras) y play en círculo. El track activo enmarca con underline rosa y animación de waveform en pink↔cyan. Abajo, contador estilo tape gold con barra metálica.</div>
+        <div class="palette">
+          <div class="sw" style="background:#ff2e93"></div>
+          <div class="sw" style="background:#ff7a45"></div>
+          <div class="sw" style="background:#ffd34d"></div>
+          <div class="sw" style="background:#19f0ff"></div>
+          <div class="sw" style="background:#1a0540"></div>
+        </div>
+        <div class="verdict great">
+          <div class="row pro"><span class="sym">+</span><span><strong>Más limpio para escalar.</strong> Single column = mejor para 30+ tonos y zoom. Waveform da preview visual gratis.</span></div>
+          <div class="row con"><span class="sym">−</span><span>Pierde un poco la metáfora cassette frente al 01 y 04; gana en "music player premium".</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         CONCEPT 04 — BOOMBOX SHELF
+         ════════════════════════════════════════════════ -->
+    <div class="concept tp04">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+        <div class="screen">
+
+          <div class="nav-back"><span class="material-symbols-outlined">arrow_back_ios_new</span></div>
+
+          <!-- BOOMBOX -->
+          <div class="boombox">
+            <div class="speaker l"></div>
+            <div class="speaker r"></div>
+            <div class="lcd">
+              <div class="pname">▶ RETRO &amp; CLASSIC</div>
+              <div class="now">90s MOBILE</div>
+              <div class="meta">02:48 / 07:42 · LO-FI</div>
+            </div>
+            <div class="decks">
+              <div class="deck">
+                <span class="mini-reel"></span>
+                <span class="mini-reel"></span>
+              </div>
+              <div class="deck">
+                <span class="mini-reel" style="animation-duration:3s"></span>
+                <span class="mini-reel" style="animation-duration:3s"></span>
+              </div>
+            </div>
+            <div class="eq">
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
+          </div>
+
+          <!-- SHELVES -->
+          <div class="shelves">
+            <div class="shelf">
+              <div class="spine-tape">
+                <div class="label"><div class="t">UK CLASSIC</div></div>
+                <div class="bottom">0:28</div>
+              </div>
+              <div class="spine-tape active">
+                <div class="label"><div class="t">90s MOBILE</div></div>
+                <div class="bottom">0:24</div>
+              </div>
+              <div class="spine-tape">
+                <div class="label"><div class="t">HOME PHONE</div></div>
+                <div class="bottom">0:32</div>
+              </div>
+              <div class="spine-tape">
+                <div class="label"><div class="t">90s DIGITAL</div></div>
+                <div class="bottom">0:18</div>
+              </div>
+            </div>
+            <div class="shelf">
+              <div class="spine-tape">
+                <div class="label"><div class="t">CLASSIC DIG</div></div>
+                <div class="bottom">0:22</div>
+              </div>
+              <div class="spine-tape">
+                <div class="label"><div class="t">CLASSIC RETRO</div></div>
+                <div class="bottom">0:26</div>
+              </div>
+              <div class="spine-tape">
+                <div class="label"><div class="t">iPHONE PRO</div></div>
+                <div class="bottom">0:30</div>
+              </div>
+              <div class="spine-tape">
+                <div class="label"><div class="t">KILL BILL</div></div>
+                <div class="bottom">0:42</div>
+              </div>
+            </div>
+            <div class="shelf">
+              <div class="spine-tape">
+                <div class="label"><div class="t">TRIM TONE</div></div>
+                <div class="bottom">0:14</div>
+              </div>
+              <div class="spine-tape">
+                <div class="label"><div class="t">CLOCK BELL</div></div>
+                <div class="bottom">0:20</div>
+              </div>
+              <div class="spine-tape">
+                <div class="label"><div class="t">FAX MODEM</div></div>
+                <div class="bottom">0:36</div>
+              </div>
+              <div class="spine-tape">
+                <div class="label"><div class="t">PAGER</div></div>
+                <div class="bottom">0:12</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SET AS -->
+          <div class="set-as">
+            <div class="btn sel">
+              <div class="ico"><span class="material-symbols-outlined">call</span></div>
+              RING
+            </div>
+            <div class="btn">
+              <div class="ico"><span class="material-symbols-outlined">notifications</span></div>
+              MSG
+            </div>
+            <div class="btn">
+              <div class="ico"><span class="material-symbols-outlined">alarm</span></div>
+              ALARM
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="num">No. 04 · BOOMBOX SHELF</div>
+        <div class="name">Boombox Callejera</div>
+        <div class="tag">street vibe · LCD verde · EQ vivo · cintas en fila</div>
+        <div class="desc">Hero es un boombox 80s con doble cassette deck girando, speakers pulsando con cyan y LCD verde mostrando el tono actual <em>"90s MOBILE 02:48 / 07:42"</em>. EQ inferior con 12 barras bouncing en tiempo real. Los tonos van como cassettes de canto en 3 shelves (filas físicas con sombra de repisa), el activo se "sale" rotada con badge "NOW". CTA inferior con 3 botones grandes (Ring/MSG/Alarm).</div>
+        <div class="palette">
+          <div class="sw" style="background:#ff2bd6"></div>
+          <div class="sw" style="background:#19f0ff"></div>
+          <div class="sw" style="background:#7afaa0"></div>
+          <div class="sw" style="background:#7c3aff"></div>
+          <div class="sw" style="background:#1a0530"></div>
+        </div>
+        <div class="verdict">
+          <div class="row pro"><span class="sym">+</span><span><strong>El más juguetón.</strong> EQ + LCD + reels + speakers = pantalla viva, no static. Excelente para showcase en Play Store.</span></div>
+          <div class="row con"><span class="sym">−</span><span>4 cintas por shelf = solo 12 tonos visibles antes de scroll. Para packs grandes hay que paginar o usar shelves verticales scrolleables.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         CONCEPT 05 — RADIO STATION GRID
+         ════════════════════════════════════════════════ -->
+    <div class="concept tp05">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+        <div class="screen">
+
+          <div class="nav-back"><span class="material-symbols-outlined">arrow_back_ios_new</span></div>
+
+          <!-- DIAL HERO -->
+          <div class="dial-hero">
+            <div class="brand-row">
+              <span>◀ ON AIR</span>
+              <span>STEREO · ◉</span>
+            </div>
+            <div class="stationid">RETRO &amp; CLASSIC</div>
+            <div class="freq-display">
+              <span class="big">88.3</span>
+              <span class="mhz">MHz · FM</span>
+            </div>
+            <div class="dial-strip">
+              <span class="tick"></span>
+              <div class="freq-labels">
+                <span>87</span><span>89</span><span>91</span><span>93</span><span>95</span><span>97</span><span>99</span><span>101</span><span>103</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAND filter row -->
+          <div class="band-row">
+            <span class="lbl">BAND</span>
+            <span class="pill on">FM</span>
+            <span class="pill">AM</span>
+            <span class="pill">SW</span>
+          </div>
+
+          <!-- PRESET GRID -->
+          <div class="preset-grid">
+            <div class="preset">
+              <div class="led"></div>
+              <div class="num">01</div>
+              <div class="name">UK Classic</div>
+              <div class="freq">88.1 FM</div>
+            </div>
+            <div class="preset active">
+              <div class="led"></div>
+              <div class="num">02</div>
+              <div class="name">90s Mobile</div>
+              <div class="freq">88.3 FM</div>
+            </div>
+            <div class="preset">
+              <div class="led"></div>
+              <div class="num">03</div>
+              <div class="name">Home Phone</div>
+              <div class="freq">88.5 FM</div>
+            </div>
+            <div class="preset">
+              <div class="led"></div>
+              <div class="num">04</div>
+              <div class="name">90s Digital</div>
+              <div class="freq">88.7 FM</div>
+            </div>
+            <div class="preset">
+              <div class="led"></div>
+              <div class="num">05</div>
+              <div class="name">Classic Dig</div>
+              <div class="freq">88.9 FM</div>
+            </div>
+            <div class="preset">
+              <div class="led"></div>
+              <div class="num">06</div>
+              <div class="name">Classic Retro</div>
+              <div class="freq">89.1 FM</div>
+            </div>
+            <div class="preset">
+              <div class="led"></div>
+              <div class="num">07</div>
+              <div class="name">iPhone Pro</div>
+              <div class="freq">89.3 FM</div>
+            </div>
+            <div class="preset">
+              <div class="led"></div>
+              <div class="num">08</div>
+              <div class="name">Kill Bill</div>
+              <div class="freq">89.5 FM</div>
+            </div>
+            <div class="preset">
+              <div class="led"></div>
+              <div class="num">09</div>
+              <div class="name">+ VER TODO</div>
+              <div class="freq">16 TOTAL</div>
+            </div>
+          </div>
+
+          <!-- SET AS -->
+          <div class="set-bar">
+            <div class="btn sel">RING</div>
+            <div class="btn">MSG</div>
+            <div class="btn">ALARM</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="num">No. 05 · RADIO STATION GRID</div>
+        <div class="name">Estación 88.3 FM</div>
+        <div class="tag">car stereo · presets mecánicos · LED rosa parpadeando</div>
+        <div class="desc">Hero = dial de radio con station ID en Bangers, frecuencia gigante 88.3 MHz pulsando rosa, dial strip horizontal con aguja barriendo. Los tonos son <strong>presets cuadrados</strong> en grid 3-col (como botones de auto-radio), cada uno con número mono, nombre, frecuencia falsa (88.1, 88.3...) y LED arriba a la derecha. El activo se "presiona" (translateY + inset shadow) con LED rosa parpadeando. Filtros se vuelven BAND: FM/AM/SW.</div>
+        <div class="palette">
+          <div class="sw" style="background:#ff2bd6"></div>
+          <div class="sw" style="background:#19f0ff"></div>
+          <div class="sw" style="background:#7c3aff"></div>
+          <div class="sw" style="background:#200a40"></div>
+          <div class="sw" style="background:#050018"></div>
+        </div>
+        <div class="verdict warn">
+          <div class="row pro"><span class="sym">+</span><span><strong>El más escaneable.</strong> Grid 3-col es UX universal — usuarios entienden a primera vista. Ideal para packs de 9-30 tonos.</span></div>
+          <div class="row con"><span class="sym">−</span><span>Frecuencias falsas (88.1, 88.3) pueden confundir si el usuario las toma literal. Mejor mantener como decoración mono pequeña, no protagonista.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    PIXORA <span>·</span> TONES PACK PAGE <span>·</span> DESIGN ARCHIVE <span>·</span> MAY 2026
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Liquid Pill · iOS BG Variants (Dark) · DOC-106</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..600,0..1,-25..200" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #050514;
+    --ink-2:       #0a0a1f;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-glow:   rgba(212,175,55,0.35);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme — DARK warm graphite (cream-stone dark) */
+    --ios-bg:        #1F1B17;            /* warm charcoal base */
+    --ios-surface:   #2A2520;            /* slightly lifted surface */
+    --ios-text:      #E8E6E0;            /* warm off-white paper */
+    --ios-text-dim:  rgba(232,230,224,0.55);
+    --ios-divider:   rgba(232,230,224,0.10);
+    --ios-glass:     rgba(28,24,20,0.78); /* warm translucent dark */
+
+    /* 13 tabs brand colors */
+    --tab-wall:  #3B82F6;
+    --tab-live:  #EF4444;
+    --tab-3d:    #8B5CF6;
+    --tab-cult:  #D9B14A;
+    --tab-evnt:  #E85A8C;
+    --tab-aura:  #06B6D4;
+    --tab-arc:   #D4AF37;
+    --tab-stor:  #F59E0B;
+    --tab-day:   #EAB308;
+    --tab-ton:   #EC4899;
+    --tab-ia:    #10B981;
+    --tab-fav:   #F43F5E;
+    --tab-set:   #64748B;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(125,211,252,0.55), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(167,139,250,0.5), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(244,114,182,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(125,211,252,0.35), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1.3px 1.3px at 92% 88%, rgba(125,211,252,0.45), transparent 50%);
+    opacity: 0.55;
+    animation: starDrift 60s linear infinite;
+  }
+  @keyframes starDrift {
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-20px, 10px, 0); }
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(125,211,252,0.10), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.06), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(167,139,250,0.07), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 80px 48px 120px;
+  }
+
+  /* Header */
+  .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out 0.1s forwards;
+  }
+  .eyebrow::before {
+    content: '◆  ';
+    color: var(--gold-bright);
+    margin-right: 4px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 56px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 22px;
+    max-width: 920px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out 0.25s forwards;
+  }
+  h1 .iridescent {
+    background: linear-gradient(110deg,
+      #F5D676 0%, #C9A8FF 28%, #7DD3FC 52%,
+      #F472B6 76%, #F5D676 100%);
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: iridShift 9s ease-in-out infinite;
+  }
+  @keyframes iridShift {
+    0%, 100% { background-position: 0% center; }
+    50%      { background-position: 100% center; }
+  }
+
+  .lede {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--text-dim);
+    max-width: 720px;
+    margin-bottom: 90px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out 0.4s forwards;
+  }
+  .lede em {
+    color: var(--gold-bright);
+    font-style: italic;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------------- ROW ---------------- */
+  .row {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 64px;
+    align-items: start;
+    padding: 56px 0;
+    border-top: 1px solid var(--hairline);
+    opacity: 0;
+    transform: translateY(28px);
+    animation: rowIn 1s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .row:nth-of-type(1) { animation-delay: 0.50s; }
+  .row:nth-of-type(2) { animation-delay: 0.68s; }
+  .row:nth-of-type(3) { animation-delay: 0.86s; }
+  .row:nth-of-type(4) { animation-delay: 0.98s; }
+  .row:nth-of-type(5) { animation-delay: 1.10s; }
+  @keyframes rowIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .row-index {
+    position: absolute;
+    margin-top: -28px;
+    margin-left: -8px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-faint);
+  }
+
+  /* ---------------- PHONE ---------------- */
+  .phone-wrap {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+  .phone {
+    width: 320px;
+    height: 640px;
+    border-radius: 46px;
+    background: #000;
+    padding: 9px;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.55),
+      0 8px 18px rgba(0,0,0,0.35),
+      inset 0 0 0 1.5px rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 14px; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 26px;
+    background: #000;
+    border-radius: 18px;
+    z-index: 30;
+  }
+  .screen {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 38px;
+    overflow: hidden;
+    background: var(--ios-bg);
+  }
+
+  /* Status bar */
+  .status {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 24px 8px;
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ios-text);
+    z-index: 25;
+  }
+  .status .right { display: flex; gap: 5px; align-items: center; }
+  .status .right .ico { font-family: 'Material Symbols Outlined'; font-size: 14px; font-variation-settings: 'opsz' 20, 'wght' 500; }
+
+  /* Page header inside phone */
+  .page-head {
+    position: absolute;
+    top: 52px; left: 0; right: 0;
+    padding: 8px 22px 14px;
+    z-index: 5;
+  }
+  .page-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    color: var(--ios-text);
+    line-height: 1;
+  }
+  .page-sub {
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ios-text-dim);
+    margin-top: 6px;
+  }
+
+  /* Content grid (wallpaper cards) */
+  .content {
+    position: absolute;
+    top: 124px; bottom: 110px; left: 0; right: 0;
+    padding: 0 18px;
+    overflow: hidden;
+    z-index: 4;
+  }
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .card {
+    aspect-ratio: 9/14;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    background: #2a2520;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  }
+  .card .meta {
+    position: absolute;
+    bottom: 8px; left: 8px; right: 8px;
+    color: #fff;
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+  .card .price {
+    position: absolute;
+    top: 7px; right: 7px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    backdrop-filter: blur(6px);
+  }
+
+  /* Sample card bgs */
+  .c-aurora  { background: linear-gradient(160deg,#0c4a6e 0%,#7c3aed 50%,#ec4899 100%); }
+  .c-desert  { background: linear-gradient(160deg,#fde68a 0%,#f59e0b 55%,#92400e 100%); }
+  .c-forest  { background: linear-gradient(160deg,#022c22 0%,#065f46 60%,#a7f3d0 100%); }
+  .c-ocean   { background: linear-gradient(160deg,#0c4a6e 0%,#0ea5e9 60%,#bae6fd 100%); }
+  .c-azuki   { background: linear-gradient(160deg,#1e1b4b 0%,#3730a3 50%,#a78bfa 100%); }
+  .c-roja    { background: linear-gradient(160deg,#7f1d1d 0%,#dc2626 50%,#fde68a 100%); }
+
+  /* ---------------- LIQUID GLASS PILL NAV ---------------- */
+  .nav-area {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 20;
+  }
+  .nav {
+    position: relative;
+    height: 86px;
+    padding: 12px 10px 22px;
+    background: var(--ios-glass);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    border-top: 1px solid var(--ios-divider);
+  }
+  .tabs {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    overflow-x: hidden;
+    padding: 0 6px;
+  }
+  .tab {
+    flex: 1 0 22px;
+    min-width: 22px;
+    height: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--ios-text-dim);
+    position: relative;
+    z-index: 2;
+  }
+  .tab .ico {
+    font-family: 'Material Symbols Outlined';
+    font-size: 19px;
+    font-variation-settings: 'opsz' 20, 'wght' 400, 'FILL' 0, 'GRAD' 0;
+    line-height: 1;
+    color: inherit;
+  }
+  .tab .label {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 8px;
+    letter-spacing: 0.05em;
+    color: var(--ios-text);
+    opacity: 0;
+    margin-top: 4px;
+    transform: translateY(-2px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    white-space: nowrap;
+  }
+
+  /* Liquid Pill */
+  .pill {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    z-index: 1;
+    pointer-events: none;
+    box-shadow:
+      0 4px 12px rgba(0,0,0,0.35),
+      0 2px 4px rgba(0,0,0,0.25),
+      inset 0 1px 0 rgba(255,255,255,0.28);
+    animation: pillSlide 12s cubic-bezier(.22,.95,.36,1) infinite;
+  }
+
+  @keyframes pillSlide {
+    0%, 18% {
+      left: 13px;
+      background: var(--tab-wall);
+    }
+    25%, 43% {
+      left: 130px;
+      background: var(--tab-aura);
+    }
+    50%, 68% {
+      left: 176px;
+      background: var(--tab-stor);
+    }
+    75%, 93% {
+      left: 270px;
+      background: var(--tab-fav);
+    }
+    100% {
+      left: 13px;
+      background: var(--tab-wall);
+    }
+  }
+
+  /* Active icon goes white when pill is under it */
+  .tab-wall  { animation: iconLit 12s ease infinite -0.1s; }
+  .tab-aura  { animation: iconLit2 12s ease infinite -0.1s; }
+  .tab-stor  { animation: iconLit3 12s ease infinite -0.1s; }
+  .tab-fav   { animation: iconLit4 12s ease infinite -0.1s; }
+
+  @keyframes iconLit {
+    0%, 18% { color: #fff; }
+    20%, 100% { color: var(--ios-text-dim); }
+  }
+  @keyframes iconLit2 {
+    0%, 22% { color: var(--ios-text-dim); }
+    25%, 43% { color: #fff; }
+    45%, 100% { color: var(--ios-text-dim); }
+  }
+  @keyframes iconLit3 {
+    0%, 47% { color: var(--ios-text-dim); }
+    50%, 68% { color: #fff; }
+    70%, 100% { color: var(--ios-text-dim); }
+  }
+  @keyframes iconLit4 {
+    0%, 72% { color: var(--ios-text-dim); }
+    75%, 93% { color: #fff; }
+    95%, 100% { color: var(--ios-text-dim); }
+  }
+
+  /* Pill label */
+  .pill-label {
+    position: absolute;
+    bottom: 4px;
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    color: var(--ios-text);
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translateX(-50%);
+    animation: labelMove 12s cubic-bezier(.22,.95,.36,1) infinite;
+    z-index: 3;
+  }
+  @keyframes labelMove {
+    0%, 18% {
+      left: 31px; opacity: 1;
+      content: '';
+    }
+    19%, 24% { opacity: 0; }
+    25%, 43% {
+      left: 148px; opacity: 1;
+    }
+    44%, 49% { opacity: 0; }
+    50%, 68% {
+      left: 194px; opacity: 1;
+    }
+    69%, 74% { opacity: 0; }
+    75%, 93% {
+      left: 288px; opacity: 1;
+    }
+    94%, 99% { opacity: 0; }
+    100% {
+      left: 31px; opacity: 1;
+    }
+  }
+  .pill-label::before {
+    content: 'WALL';
+    animation: labelText 12s steps(1) infinite;
+  }
+  @keyframes labelText {
+    0%, 24%   { content: 'WALL'; }
+    25%, 49%  { content: 'AURA'; }
+    50%, 74%  { content: 'STORIES'; }
+    75%, 99%  { content: 'FAV'; }
+  }
+
+  /* ================ VARIANT 01 — DARK AURORA WASH (jewel tones) ================ */
+  .v01 .screen { background: #1F1B17; }
+  .v01 .aurora-bed {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 260px;
+    z-index: 1;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to top, #000 55%, transparent 100%);
+            mask-image: linear-gradient(to top, #000 55%, transparent 100%);
+  }
+  .v01 .aurora-blob {
+    position: absolute;
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.42;
+    mix-blend-mode: screen;
+  }
+  .v01 .b1 {
+    /* deep teal */
+    background: radial-gradient(circle, #0E7490, transparent 65%);
+    top: 20%; left: -20%;
+    animation: auroraDrift1 18s ease-in-out infinite;
+  }
+  .v01 .b2 {
+    /* plum / oxblood violet */
+    background: radial-gradient(circle, #6B21A8, transparent 65%);
+    top: -10%; left: 30%;
+    animation: auroraDrift2 22s ease-in-out infinite;
+  }
+  .v01 .b3 {
+    /* ember orange */
+    background: radial-gradient(circle, #B45309, transparent 65%);
+    top: 30%; left: 55%;
+    animation: auroraDrift3 20s ease-in-out infinite;
+  }
+  .v01 .b4 {
+    /* warm gold */
+    background: radial-gradient(circle, #B8860B, transparent 65%);
+    top: 5%; left: 70%;
+    animation: auroraDrift4 24s ease-in-out infinite;
+  }
+  @keyframes auroraDrift1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(60px,-20px) scale(1.15); }
+  }
+  @keyframes auroraDrift2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(-50px,30px) scale(0.9); }
+  }
+  @keyframes auroraDrift3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(-40px,-25px) scale(1.1); }
+  }
+  @keyframes auroraDrift4 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(40px,20px) scale(0.95); }
+  }
+  .v01 .nav {
+    background: rgba(20,17,14,0.72);
+    backdrop-filter: blur(26px) saturate(160%);
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    border-top: 1px solid rgba(232,230,224,0.08);
+  }
+
+  /* ================ VARIANT 02 — EMBER REACTIVE (color bleed on charcoal) ================ */
+  .v02 .screen { background: #1F1B17; }
+  .v02 .bleed {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 420px;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 85% 100% at 50% 100%, var(--bleed-color, var(--tab-wall)) 0%, transparent 70%);
+    opacity: 0.28;
+    mix-blend-mode: screen;
+    animation: bleedShift 12s steps(1) infinite;
+  }
+  @keyframes bleedShift {
+    0%, 18%  { --bleed-color: #3B82F6; }
+    25%, 43% { --bleed-color: #06B6D4; }
+    50%, 68% { --bleed-color: #F59E0B; }
+    75%, 93% { --bleed-color: #F43F5E; }
+  }
+  .v02 .bleed-soft {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 420px;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 100% at 50% 100%, var(--tab-wall) 0%, transparent 70%);
+    opacity: 0;
+    animation: bleedSoft 12s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes bleedSoft {
+    0%,100% { opacity: 0.08; }
+    50%     { opacity: 0.16; }
+  }
+  /* Gold dust particles */
+  .v02 .dust {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 18% 62%, rgba(212,175,55,0.55), transparent 50%),
+      radial-gradient(1px 1px at 42% 78%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 67% 55%, rgba(212,175,55,0.5), transparent 50%),
+      radial-gradient(1px 1px at 81% 71%, rgba(245,214,118,0.4), transparent 50%),
+      radial-gradient(1.2px 1.2px at 32% 88%, rgba(212,175,55,0.5), transparent 50%),
+      radial-gradient(1px 1px at 58% 92%, rgba(245,214,118,0.5), transparent 50%),
+      radial-gradient(1px 1px at 88% 84%, rgba(212,175,55,0.4), transparent 50%);
+    opacity: 0.7;
+    animation: dustDrift 22s linear infinite;
+  }
+  @keyframes dustDrift {
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-12px, -18px, 0); }
+  }
+  .v02 .hairline {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 86px;
+    height: 1px;
+    background: var(--tab-wall);
+    opacity: 0.85;
+    box-shadow: 0 0 8px var(--tab-wall);
+    z-index: 19;
+    animation: hairlineColor 12s steps(1) infinite;
+  }
+  @keyframes hairlineColor {
+    0%, 18%  { background: #3B82F6; box-shadow: 0 0 8px rgba(59,130,246,0.6); }
+    25%, 43% { background: #06B6D4; box-shadow: 0 0 8px rgba(6,182,212,0.6); }
+    50%, 68% { background: #F59E0B; box-shadow: 0 0 8px rgba(245,158,11,0.6); }
+    75%, 93% { background: #F43F5E; box-shadow: 0 0 8px rgba(244,63,94,0.6); }
+  }
+  .v02 .nav {
+    background: rgba(20,17,14,0.78);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-top: 1px solid rgba(232,230,224,0.10);
+  }
+
+  /* ================ VARIANT 03 — AGED FILM (muted jewel mesh + heavy grain) ================ */
+  .v03 .screen { background: #1A1816; }
+  .v03 .mesh {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(circle at var(--m1x,15%) var(--m1y,18%), rgba(132,32,41,0.55) 0%, transparent 48%),
+      radial-gradient(circle at var(--m2x,85%) var(--m2y,22%), rgba(30,41,82,0.55) 0%, transparent 48%),
+      radial-gradient(circle at var(--m3x,18%) var(--m3y,85%), rgba(133,99,42,0.55) 0%, transparent 48%),
+      radial-gradient(circle at var(--m4x,82%) var(--m4y,82%), rgba(60,86,71,0.55) 0%, transparent 48%),
+      #1A1816;
+    animation: meshDrift 30s ease-in-out infinite;
+    opacity: 0.95;
+  }
+  @keyframes meshDrift {
+    0%,100% {
+      background-position: 0 0, 0 0, 0 0, 0 0;
+    }
+    25%  {
+      background-position: 8% -4%, -6% 4%, 4% -4%, -4% 6%;
+    }
+    50%  {
+      background-position: 12% -8%, -10% 8%, 8% -6%, -6% 10%;
+    }
+    75%  {
+      background-position: 6% -4%, -4% 4%, 4% -2%, -2% 5%;
+    }
+  }
+  .v03 .grain {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.28;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.85 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  .v03 .nav {
+    background: rgba(22,20,18,0.78);
+    backdrop-filter: blur(24px) saturate(135%);
+    -webkit-backdrop-filter: blur(24px) saturate(135%);
+    border-top: 1px solid rgba(232,230,224,0.08);
+  }
+
+  /* ================ VARIANT 04 — SMOKING ROOM (charcoal pinstripes + brass) ================ */
+  .v04 .screen { background: #1F1B17; }
+  .v04 .pinstripes {
+    position: absolute;
+    inset: 0 0 110px 0;
+    z-index: 1;
+    background-image: repeating-linear-gradient(
+      24deg,
+      transparent 0,
+      transparent 13px,
+      #26221E 13px,
+      #26221E 14px
+    );
+    opacity: 0.85;
+  }
+  .v04 .brass-rail {
+    position: absolute;
+    bottom: 87px;
+    left: 18px; right: 18px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #D4AF37 12%, #F5D676 50%, #D4AF37 88%, transparent 100%);
+    box-shadow: 0 0 6px rgba(212,175,55,0.45);
+    z-index: 19;
+  }
+  .v04 .nav-eyebrow {
+    position: absolute;
+    bottom: 92px;
+    left: 22px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.25em;
+    color: #8B7228;
+    text-transform: uppercase;
+    z-index: 19;
+  }
+  .v04 .nav {
+    background: rgba(22,19,16,0.85);
+    backdrop-filter: blur(20px) saturate(125%);
+    -webkit-backdrop-filter: blur(20px) saturate(125%);
+    border-top: 1px solid rgba(212,175,55,0.10);
+    box-shadow: inset 0 1px 0 rgba(212,175,55,0.06);
+  }
+
+  /* ================ VARIANT 05 — MIDNIGHT GLASS (frosted depth layers) ================ */
+  .v05 .screen { background: #1C1C1E; }
+  /* Muted neon top color-band fading out */
+  .v05 .top-band {
+    position: absolute;
+    top: 44px; left: 0; right: 0;
+    height: 2px;
+    z-index: 2;
+    background: linear-gradient(90deg,
+      rgba(125,211,252,0.7) 0%,
+      rgba(244,114,182,0.6) 50%,
+      rgba(245,158,11,0.6) 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+            mask-image: linear-gradient(to bottom, #000, transparent);
+    opacity: 0.6;
+  }
+  .v05 .depth-strip {
+    position: absolute;
+    bottom: 86px; left: 0; right: 0;
+    height: 120px;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(to top,
+      rgba(14,116,144,0.18) 0%,
+      rgba(180,83,9,0.12) 35%,
+      rgba(107,33,168,0.10) 70%,
+      transparent 100%);
+    mix-blend-mode: screen;
+  }
+  .v05 .layer {
+    position: absolute;
+    left: 12px; right: 12px;
+    border-radius: 22px;
+    border: 1px solid rgba(232,230,224,0.12);
+    backdrop-filter: blur(12px) saturate(130%);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+    z-index: 3;
+  }
+  .v05 .L1 {
+    /* deep cyan */
+    bottom: 132px; height: 30px;
+    background: rgba(14,116,144,0.18);
+    box-shadow: 0 6px 16px rgba(14,116,144,0.25);
+    animation: floatA 6s ease-in-out infinite;
+  }
+  .v05 .L2 {
+    /* warm amber */
+    bottom: 170px; height: 26px;
+    left: 26px; right: 26px;
+    background: rgba(180,83,9,0.18);
+    box-shadow: 0 5px 14px rgba(180,83,9,0.25);
+    animation: floatB 7s ease-in-out infinite;
+  }
+  .v05 .L3 {
+    /* cool violet */
+    bottom: 204px; height: 22px;
+    left: 40px; right: 40px;
+    background: rgba(107,33,168,0.18);
+    box-shadow: 0 4px 12px rgba(107,33,168,0.25);
+    animation: floatC 8s ease-in-out infinite;
+  }
+  @keyframes floatA {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-3px); }
+  }
+  @keyframes floatB {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-4px); }
+  }
+  @keyframes floatC {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-5px); }
+  }
+  .v05 .pill-shadow {
+    position: absolute;
+    bottom: 78px;
+    width: 60px; height: 10px;
+    border-radius: 50%;
+    filter: blur(8px);
+    opacity: 0.55;
+    z-index: 19;
+    pointer-events: none;
+    animation: pillShadow 12s cubic-bezier(.22,.95,.36,1) infinite;
+  }
+  @keyframes pillShadow {
+    0%, 18% {
+      left: 1px;
+      background: var(--tab-wall);
+    }
+    25%, 43% {
+      left: 118px;
+      background: var(--tab-aura);
+    }
+    50%, 68% {
+      left: 164px;
+      background: var(--tab-stor);
+    }
+    75%, 93% {
+      left: 258px;
+      background: var(--tab-fav);
+    }
+    100% {
+      left: 1px;
+      background: var(--tab-wall);
+    }
+  }
+  .v05 .nav {
+    background: rgba(28,28,30,0.72);
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    border-top: 1px solid rgba(232,230,224,0.10);
+  }
+
+  /* ---------------- META / RIGHT COLUMN ---------------- */
+  .meta-col {
+    padding-top: 8px;
+  }
+  .num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .concept-name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 36px;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin-bottom: 22px;
+  }
+  .desc {
+    font-family: 'Geist', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text);
+    opacity: 0.85;
+    margin-bottom: 24px;
+    max-width: 540px;
+  }
+
+  .swatches {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 26px;
+  }
+  .sw {
+    flex: 1;
+    height: 56px;
+    border-radius: 8px;
+    position: relative;
+    border: 1px solid var(--hairline);
+    overflow: hidden;
+  }
+  .sw .swl {
+    position: absolute;
+    left: 6px; bottom: 4px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.85);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+  .sw.dark .swl { color: rgba(232,230,224,0.85); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+  .verdict {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--hairline);
+    background: rgba(255,255,255,0.02);
+    max-width: 540px;
+  }
+  .verdict .col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .verdict .h {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 4px;
+  }
+  .verdict .pro { color: #86efac; }
+  .verdict .con { color: #fda4af; }
+  .verdict li {
+    list-style: none;
+    font-family: 'Geist', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--text);
+    opacity: 0.85;
+    padding-left: 14px;
+    position: relative;
+  }
+  .verdict .col.pros li::before { content: '+'; position: absolute; left: 0; color: #86efac; font-weight: 700; }
+  .verdict .col.cons li::before { content: '−'; position: absolute; left: 0; color: #fda4af; font-weight: 700; }
+
+  /* Footer */
+  .footer {
+    margin-top: 120px;
+    padding-top: 28px;
+    border-top: 1px solid var(--hairline);
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="eyebrow">// PIXORA · LIQUID PILL · iOS BG VARIANTS · DARK PASS · DOC-106 · MAY 2026</div>
+  <h1>Liquid Pill · <span class="iridescent">Variaciones</span> iOS (oscuro).</h1>
+  <p class="lede">
+    Mantenemos la pill líquida — variamos solo el tratamiento de fondo en iOS, ahora <em>más oscuro</em>
+    para sentirse premium nocturno sin ser full Black &amp; Gold.
+  </p>
+
+  <!-- ==================== ROW 01 — DARK AURORA WASH ==================== -->
+  <div class="row">
+    <div class="phone-wrap v01">
+      <div class="row-index">// V.01</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="aurora-bed">
+            <div class="aurora-blob b1"></div>
+            <div class="aurora-blob b2"></div>
+            <div class="aurora-blob b3"></div>
+            <div class="aurora-blob b4"></div>
+          </div>
+
+          <div class="status">
+            <span>9:41</span>
+            <div class="right">
+              <span class="ico">signal_cellular_alt</span>
+              <span class="ico">wifi</span>
+              <span class="ico">battery_6_bar</span>
+            </div>
+          </div>
+
+          <div class="page-head">
+            <div class="page-title">Wallpapers</div>
+            <div class="page-sub">// curado · 312</div>
+          </div>
+
+          <div class="content">
+            <div class="grid2">
+              <div class="card c-aurora"><span class="price">FREE</span><span class="meta">Aurora Drift</span></div>
+              <div class="card c-desert"><span class="price">PRO</span><span class="meta">Desert Glow</span></div>
+              <div class="card c-forest"><span class="price">FREE</span><span class="meta">Bosque</span></div>
+              <div class="card c-ocean"><span class="price">FREE</span><span class="meta">Marea</span></div>
+            </div>
+          </div>
+
+          <div class="nav-area">
+            <div class="nav">
+              <div class="tabs">
+                <div class="tab tab-wall"><span class="ico">wallpaper</span></div>
+                <div class="tab"><span class="ico">play_circle</span></div>
+                <div class="tab"><span class="ico">view_in_ar</span></div>
+                <div class="tab"><span class="ico">temple_hindu</span></div>
+                <div class="tab"><span class="ico">calendar_month</span></div>
+                <div class="tab tab-aura"><span class="ico">graphic_eq</span></div>
+                <div class="tab"><span class="ico">auto_awesome</span></div>
+                <div class="tab tab-stor"><span class="ico">menu_book</span></div>
+                <div class="tab"><span class="ico">light_mode</span></div>
+                <div class="tab"><span class="ico">music_note</span></div>
+                <div class="tab"><span class="ico">smart_toy</span></div>
+                <div class="tab tab-fav"><span class="ico">favorite</span></div>
+                <div class="tab"><span class="ico">settings</span></div>
+              </div>
+              <div class="pill"></div>
+              <div class="pill-label"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-col">
+      <div class="num">No. 01 / 05 · Dark Aurora Wash</div>
+      <div class="concept-name">Aurora bajo cristal nocturno.</div>
+      <div class="tagline">Cuatro joyas saturadas — ámbar, plomo, teal profundo, oro tibio — flotan bajo la barra contra carbón cálido.</div>
+      <p class="desc">
+        Los blobs ahora son tonos joya saturados (ember, plum, deep teal, warm gold) al ~42% mezclados
+        en <code>screen</code>: brillan contra el carbón en lugar de teñirlo de pastel. La deriva sigue siendo
+        de 18–24s, el cristal absorbe esa luz cálida y la pill toma matices al detenerse. Energía de
+        Vision Pro tarde-noche, no de iOS daylight.
+      </p>
+      <div class="swatches">
+        <div class="sw" style="background:#B45309"><span class="swl">EMBER</span></div>
+        <div class="sw" style="background:#6B21A8"><span class="swl">PLUM</span></div>
+        <div class="sw" style="background:#0E7490"><span class="swl">TEAL</span></div>
+        <div class="sw" style="background:#B8860B"><span class="swl">GOLD</span></div>
+        <div class="sw" style="background:#1F1B17"><span class="swl">CHARC</span></div>
+      </div>
+      <div class="verdict">
+        <div class="col pros">
+          <div class="h pro">Pros</div>
+          <li>Atmósfera de "tarde-noche premium"</li>
+          <li>Los blobs brillan, no manchan</li>
+          <li>Cohesión total con wallpapers oscuros</li>
+        </div>
+        <div class="col cons">
+          <div class="h con">Cons</div>
+          <li>Costo GPU (blur + screen blend)</li>
+          <li>Cards muy oscuras pueden fundirse con bg</li>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ROW 02 — EMBER REACTIVE ==================== -->
+  <div class="row">
+    <div class="phone-wrap v02">
+      <div class="row-index">// V.02</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="bleed"></div>
+          <div class="bleed-soft"></div>
+          <div class="dust"></div>
+
+          <div class="status">
+            <span>9:41</span>
+            <div class="right">
+              <span class="ico">signal_cellular_alt</span>
+              <span class="ico">wifi</span>
+              <span class="ico">battery_6_bar</span>
+            </div>
+          </div>
+
+          <div class="page-head">
+            <div class="page-title">Wallpapers</div>
+            <div class="page-sub">// curado · 312</div>
+          </div>
+
+          <div class="content">
+            <div class="grid2">
+              <div class="card c-azuki"><span class="price">FREE</span><span class="meta">Cosmos</span></div>
+              <div class="card c-roja"><span class="price">PRO</span><span class="meta">Sangre</span></div>
+              <div class="card c-ocean"><span class="price">FREE</span><span class="meta">Marea</span></div>
+              <div class="card c-aurora"><span class="price">FREE</span><span class="meta">Aurora</span></div>
+            </div>
+          </div>
+
+          <div class="hairline"></div>
+          <div class="nav-area">
+            <div class="nav">
+              <div class="tabs">
+                <div class="tab tab-wall"><span class="ico">wallpaper</span></div>
+                <div class="tab"><span class="ico">play_circle</span></div>
+                <div class="tab"><span class="ico">view_in_ar</span></div>
+                <div class="tab"><span class="ico">temple_hindu</span></div>
+                <div class="tab"><span class="ico">calendar_month</span></div>
+                <div class="tab tab-aura"><span class="ico">graphic_eq</span></div>
+                <div class="tab"><span class="ico">auto_awesome</span></div>
+                <div class="tab tab-stor"><span class="ico">menu_book</span></div>
+                <div class="tab"><span class="ico">light_mode</span></div>
+                <div class="tab"><span class="ico">music_note</span></div>
+                <div class="tab"><span class="ico">smart_toy</span></div>
+                <div class="tab tab-fav"><span class="ico">favorite</span></div>
+                <div class="tab"><span class="ico">settings</span></div>
+              </div>
+              <div class="pill"></div>
+              <div class="pill-label"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-col">
+      <div class="num">No. 02 / 05 · Ember Reactive</div>
+      <div class="concept-name">El color de la sección sangra como brasa.</div>
+      <div class="tagline">Sobre carbón cálido, el color de la pestaña activa florece desde abajo como una brasa. Polvo de oro flota encima, apenas perceptible.</div>
+      <p class="desc">
+        El gradiente radial inferior ahora canta al 25% de opacidad — el fondo oscuro deja que el color
+        de marca brille de verdad. Crossfade entre secciones sigue en 600ms. La hairline sobre el cristal
+        ya no es discreta: con glow de 8px se siente como neón. Encima de todo, 5–8 partículas de polvo
+        de oro derivan lento (22s) — casi imperceptibles, pero le dan vida al vacío.
+      </p>
+      <div class="swatches">
+        <div class="sw" style="background:#3B82F6"><span class="swl">WALL</span></div>
+        <div class="sw" style="background:#06B6D4"><span class="swl">AURA</span></div>
+        <div class="sw" style="background:#F59E0B"><span class="swl">STOR</span></div>
+        <div class="sw" style="background:#F43F5E"><span class="swl">FAV</span></div>
+        <div class="sw" style="background:#1F1B17"><span class="swl">CHARC</span></div>
+      </div>
+      <div class="verdict">
+        <div class="col pros">
+          <div class="h pro">Pros</div>
+          <li>Brand color se ve x3 contra carbón</li>
+          <li>Polvo de oro = vida sin ruido</li>
+          <li>Sigue siendo barato (CSS vars)</li>
+        </div>
+        <div class="col cons">
+          <div class="h con">Cons</div>
+          <li>El glow puede dominar cards oscuras</li>
+          <li>Tab azul + bleed azul se pierde</li>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ROW 03 — AGED FILM ==================== -->
+  <div class="row">
+    <div class="phone-wrap v03">
+      <div class="row-index">// V.03</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="mesh"></div>
+          <div class="grain"></div>
+
+          <div class="status">
+            <span>9:41</span>
+            <div class="right">
+              <span class="ico">signal_cellular_alt</span>
+              <span class="ico">wifi</span>
+              <span class="ico">battery_6_bar</span>
+            </div>
+          </div>
+
+          <div class="page-head">
+            <div class="page-title">Wallpapers</div>
+            <div class="page-sub">// curado · 312</div>
+          </div>
+
+          <div class="content">
+            <div class="grid2">
+              <div class="card c-desert"><span class="price">FREE</span><span class="meta">Desert</span></div>
+              <div class="card c-forest"><span class="price">PRO</span><span class="meta">Bosque</span></div>
+              <div class="card c-aurora"><span class="price">FREE</span><span class="meta">Aurora</span></div>
+              <div class="card c-roja"><span class="price">FREE</span><span class="meta">Sangre</span></div>
+            </div>
+          </div>
+
+          <div class="nav-area">
+            <div class="nav">
+              <div class="tabs">
+                <div class="tab tab-wall"><span class="ico">wallpaper</span></div>
+                <div class="tab"><span class="ico">play_circle</span></div>
+                <div class="tab"><span class="ico">view_in_ar</span></div>
+                <div class="tab"><span class="ico">temple_hindu</span></div>
+                <div class="tab"><span class="ico">calendar_month</span></div>
+                <div class="tab tab-aura"><span class="ico">graphic_eq</span></div>
+                <div class="tab"><span class="ico">auto_awesome</span></div>
+                <div class="tab tab-stor"><span class="ico">menu_book</span></div>
+                <div class="tab"><span class="ico">light_mode</span></div>
+                <div class="tab"><span class="ico">music_note</span></div>
+                <div class="tab"><span class="ico">smart_toy</span></div>
+                <div class="tab tab-fav"><span class="ico">favorite</span></div>
+                <div class="tab"><span class="ico">settings</span></div>
+              </div>
+              <div class="pill"></div>
+              <div class="pill-label"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-col">
+      <div class="num">No. 03 / 05 · Aged Film</div>
+      <div class="concept-name">Papel editorial de los 70s.</div>
+      <div class="tagline">Mesh de cuatro joyas desaturadas — oxblood, midnight, brass, sage — bajo grano fílmico denso.</div>
+      <p class="desc">
+        Cuatro puntos cromáticos desaturados al ~35% (oxblood arriba-izq, midnight blue arriba-der,
+        brass abajo-izq, sage abajo-der) respiran cada 30s contra graphite cinemático. El grano SVG
+        sube a ~5% en blend <code>overlay</code> para textura de película. Ya no es papel blanco moderno —
+        es Vogue 1973 reimpreso en papel matte.
+      </p>
+      <div class="swatches">
+        <div class="sw" style="background:#842029"><span class="swl">OXBL</span></div>
+        <div class="sw" style="background:#1E2952"><span class="swl">MIDN</span></div>
+        <div class="sw" style="background:#85632A"><span class="swl">BRASS</span></div>
+        <div class="sw" style="background:#3C5647"><span class="swl">SAGE</span></div>
+        <div class="sw" style="background:#1A1816"><span class="swl">FILM</span></div>
+      </div>
+      <div class="verdict">
+        <div class="col pros">
+          <div class="h pro">Pros</div>
+          <li>Textura analógica, no AI slop</li>
+          <li>Único contra cualquier iOS dark</li>
+          <li>Personalidad editorial fuerte</li>
+        </div>
+        <div class="col cons">
+          <div class="h con">Cons</div>
+          <li>El grano puede leer "sucio" en OLED</li>
+          <li>Mesh oscuro requiere wallpapers brillantes para contraste</li>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ROW 04 — SMOKING ROOM ==================== -->
+  <div class="row">
+    <div class="phone-wrap v04">
+      <div class="row-index">// V.04</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="pinstripes"></div>
+
+          <div class="status">
+            <span>9:41</span>
+            <div class="right">
+              <span class="ico">signal_cellular_alt</span>
+              <span class="ico">wifi</span>
+              <span class="ico">battery_6_bar</span>
+            </div>
+          </div>
+
+          <div class="page-head">
+            <div class="page-title">Wallpapers</div>
+            <div class="page-sub">// curado · 312</div>
+          </div>
+
+          <div class="content">
+            <div class="grid2">
+              <div class="card c-aurora"><span class="price">FREE</span><span class="meta">Aurora</span></div>
+              <div class="card c-azuki"><span class="price">PRO</span><span class="meta">Cosmos</span></div>
+              <div class="card c-desert"><span class="price">FREE</span><span class="meta">Desert</span></div>
+              <div class="card c-ocean"><span class="price">FREE</span><span class="meta">Marea</span></div>
+            </div>
+          </div>
+
+          <div class="nav-eyebrow">// NAV</div>
+          <div class="brass-rail"></div>
+          <div class="nav-area">
+            <div class="nav">
+              <div class="tabs">
+                <div class="tab tab-wall"><span class="ico">wallpaper</span></div>
+                <div class="tab"><span class="ico">play_circle</span></div>
+                <div class="tab"><span class="ico">view_in_ar</span></div>
+                <div class="tab"><span class="ico">temple_hindu</span></div>
+                <div class="tab"><span class="ico">calendar_month</span></div>
+                <div class="tab tab-aura"><span class="ico">graphic_eq</span></div>
+                <div class="tab"><span class="ico">auto_awesome</span></div>
+                <div class="tab tab-stor"><span class="ico">menu_book</span></div>
+                <div class="tab"><span class="ico">light_mode</span></div>
+                <div class="tab"><span class="ico">music_note</span></div>
+                <div class="tab"><span class="ico">smart_toy</span></div>
+                <div class="tab tab-fav"><span class="ico">favorite</span></div>
+                <div class="tab"><span class="ico">settings</span></div>
+              </div>
+              <div class="pill"></div>
+              <div class="pill-label"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-col">
+      <div class="num">No. 04 / 05 · Smoking Room</div>
+      <div class="concept-name">Cuero italiano, panel de madera, hilo de oro.</div>
+      <div class="tagline">Carbón cálido con pinstripes apenas más claros — wood paneling de club privado. El hilo de latón ahora pega.</div>
+      <p class="desc">
+        Bg <code>#1F1B17</code> con pinstripes en <code>#26221E</code> (apenas un step más claro,
+        24°, 14px). Sigue la misma restricción editorial pero ahora se siente como panel de nogal en
+        un smoking room, no como hoja blanca. La hairline de latón #D4AF37 destaca x5 contra carbón,
+        con glow sutil. Eyebrow mono <code>// NAV</code> en latón apagado. Cero costo GPU.
+      </p>
+      <div class="swatches">
+        <div class="sw" style="background:#1F1B17"><span class="swl">CHARC</span></div>
+        <div class="sw" style="background:#26221E"><span class="swl">STRIPE</span></div>
+        <div class="sw" style="background:#D4AF37"><span class="swl">BRASS</span></div>
+        <div class="sw" style="background:#F5D676"><span class="swl">BRIGHT</span></div>
+        <div class="sw" style="background:#8B7228"><span class="swl">DEEP</span></div>
+      </div>
+      <div class="verdict">
+        <div class="col pros">
+          <div class="h pro">Pros</div>
+          <li>Latón POP — ya no es discreto</li>
+          <li>Hereda sistema B&amp;G sin clonarlo</li>
+          <li>Cero costo GPU, batería amigable</li>
+        </div>
+        <div class="col cons">
+          <div class="h con">Cons</div>
+          <li>Muy moody — puede pesar en phones brillantes</li>
+          <li>Pinstripes diagonales pueden chocar con cards cálidas</li>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ROW 05 — MIDNIGHT GLASS ==================== -->
+  <div class="row">
+    <div class="phone-wrap v05">
+      <div class="row-index">// V.05</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="top-band"></div>
+
+          <div class="status">
+            <span>9:41</span>
+            <div class="right">
+              <span class="ico">signal_cellular_alt</span>
+              <span class="ico">wifi</span>
+              <span class="ico">battery_6_bar</span>
+            </div>
+          </div>
+
+          <div class="page-head">
+            <div class="page-title">Wallpapers</div>
+            <div class="page-sub">// curado · 312</div>
+          </div>
+
+          <div class="content">
+            <div class="grid2">
+              <div class="card c-forest"><span class="price">FREE</span><span class="meta">Bosque</span></div>
+              <div class="card c-aurora"><span class="price">PRO</span><span class="meta">Aurora</span></div>
+              <div class="card c-azuki"><span class="price">FREE</span><span class="meta">Cosmos</span></div>
+              <div class="card c-desert"><span class="price">FREE</span><span class="meta">Desert</span></div>
+            </div>
+          </div>
+
+          <div class="depth-strip"></div>
+          <div class="layer L3"></div>
+          <div class="layer L2"></div>
+          <div class="layer L1"></div>
+
+          <div class="pill-shadow"></div>
+          <div class="nav-area">
+            <div class="nav">
+              <div class="tabs">
+                <div class="tab tab-wall"><span class="ico">wallpaper</span></div>
+                <div class="tab"><span class="ico">play_circle</span></div>
+                <div class="tab"><span class="ico">view_in_ar</span></div>
+                <div class="tab"><span class="ico">temple_hindu</span></div>
+                <div class="tab"><span class="ico">calendar_month</span></div>
+                <div class="tab tab-aura"><span class="ico">graphic_eq</span></div>
+                <div class="tab"><span class="ico">auto_awesome</span></div>
+                <div class="tab tab-stor"><span class="ico">menu_book</span></div>
+                <div class="tab"><span class="ico">light_mode</span></div>
+                <div class="tab"><span class="ico">music_note</span></div>
+                <div class="tab"><span class="ico">smart_toy</span></div>
+                <div class="tab tab-fav"><span class="ico">favorite</span></div>
+                <div class="tab"><span class="ico">settings</span></div>
+              </div>
+              <div class="pill"></div>
+              <div class="pill-label"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-col">
+      <div class="num">No. 05 / 05 · Midnight Glass</div>
+      <div class="concept-name">Cristal de medianoche, neón en lo alto.</div>
+      <div class="tagline">Tres láminas glassmórficas tintadas — cyan profundo, amber cálido, violeta frío — flotan sobre iOS systemGray6.</div>
+      <p class="desc">
+        Bg <code>#1C1C1E</code> (iOS dark systemGray6 puro). Tres capas glass cada una con tinta visible
+        contra el oscuro: deep cyan 18%, warm amber 18%, cool violet 18%. La pill proyecta sombra de
+        color brand con 55% opacidad — se ve. Arriba, una franja de 2px con neones apagados (cyan →
+        magenta → amber) firma la cabecera y se desvanece. Vision Pro en modo cinema.
+      </p>
+      <div class="swatches">
+        <div class="sw" style="background:#0E7490"><span class="swl">CYAN</span></div>
+        <div class="sw" style="background:#B45309"><span class="swl">AMBER</span></div>
+        <div class="sw" style="background:#6B21A8"><span class="swl">VIOL</span></div>
+        <div class="sw" style="background:#1C1C1E"><span class="swl">GREY6</span></div>
+        <div class="sw" style="background:#F472B6"><span class="swl">NEON</span></div>
+      </div>
+      <div class="verdict">
+        <div class="col pros">
+          <div class="h pro">Pros</div>
+          <li>Tridimensional, las capas SE VEN</li>
+          <li>Compatible visionOS tarde-noche</li>
+          <li>La pill brilla con sombra de color</li>
+        </div>
+        <div class="col cons">
+          <div class="h con">Cons</div>
+          <li>Más blur = más GPU (igual que antes)</li>
+          <li>3 capas tintadas pueden competir por atención visual</li>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    PIXORA · LIQUID PILL · iOS BG VARIANTS · DARK PASS · MAY 2026
+  </div>
+
+</div>
+</body>
+</html>

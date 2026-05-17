@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · LIVE Hero · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --ink:         #070710;
+    --ink-2:       #0d0d18;
+    --hairline:    rgba(255,255,255,0.06);
+    --gold:        #D4AF37;
+    --gold-bright: #F5D676;
+    --gold-deep:   #8B7228;
+    --gold-dark:   rgba(212,175,55,0.35);
+    --gold-glow:   rgba(212,175,55,0.35);
+    --gold-haze:   rgba(212,175,55,0.10);
+    --text:        #f5f4ee;
+    --text-dim:    #9a988e;
+    --text-faint:  #5a5752;
+
+    /* iOS theme */
+    --ios-bg:        #FFFFFF;
+    --ios-surface:   #F2F2F7;
+    --ios-surface-2: #E5E5EA;
+    --ios-text:      #1C1C1E;
+    --ios-text-dim:  #8E8E93;
+    --ios-text-soft: #3C3C43;
+    --ios-divider:   rgba(60,60,67,0.12);
+    --ios-blue:      #0A84FF;
+    --ios-blue-d:    #0066CC;
+    --ios-blue-soft: rgba(10,132,255,0.10);
+    --ios-indigo:    #5E5CE6;
+    --ios-purple:    #BF5AF2;
+    --ios-pink:      #FF375F;
+    --ios-green:     #30D158;
+    --ios-orange:    #FF9F0A;
+    --ios-red:       #FF453A;
+
+    /* B&G theme */
+    --bg-ink:        #070710;
+    --bg-surface:    #14141F;
+    --bg-surface-2:  #1E1E2C;
+    --bg-surface-3:  #25253A;
+    --bg-text:       #F5F4EE;
+    --bg-text-dim:   #8B8A85;
+    --bg-text-faint: #5a5752;
+    --bg-gold:       #D4AF37;
+    --bg-gold-bright:#F5D676;
+    --bg-gold-deep:  #8B7228;
+
+    /* Wallpaper sample palette — anime cyberpunk Claire Redfield style */
+    --wp-violet:  #7c3aed;
+    --wp-pink:    #ec4899;
+    --wp-cyan:    #06b6d4;
+    --wp-indigo:  #4f46e5;
+    --wp-magenta: #d946ef;
+    --wp-amber:   #f59e0b;
+    --wp-red:     #dc2626;
+    --wp-rose:    #f43f5e;
+    --wp-orange:  #ea580c;
+    --wp-black:   #0a0118;
+
+    /* Broadcast red — for LIVE indicator across concepts */
+    --live-red:        #FF1744;
+    --live-red-bright: #FF5252;
+    --live-red-glow:   rgba(255,23,68,0.55);
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.55), transparent 50%),
+      radial-gradient(1px 1px at 22% 73%, rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1.4px 1.4px at 47% 32%, rgba(245,214,118,0.45), transparent 50%),
+      radial-gradient(1px 1px at 64% 81%, rgba(255,255,255,0.35), transparent 50%),
+      radial-gradient(1.2px 1.2px at 81% 12%, rgba(124,58,237,0.4), transparent 50%),
+      radial-gradient(1px 1px at 89% 56%, rgba(236,72,153,0.3), transparent 50%),
+      radial-gradient(1px 1px at 34% 88%, rgba(6,182,212,0.35), transparent 50%),
+      radial-gradient(1px 1px at 56% 6%,  rgba(255,255,255,0.4), transparent 50%),
+      radial-gradient(1px 1px at 70% 45%, rgba(212,175,55,0.4), transparent 50%),
+      radial-gradient(1px 1px at 5% 40%, rgba(255,255,255,0.45), transparent 50%),
+      radial-gradient(1px 1px at 92% 88%, rgba(255,23,68,0.30), transparent 50%);
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(124,58,237,0.12), transparent 65%),
+      radial-gradient(ellipse at 80% 30%, rgba(212,175,55,0.07), transparent 55%),
+      radial-gradient(ellipse at 20% 70%, rgba(255,23,68,0.05), transparent 60%);
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 56px 36px 96px;
+  }
+
+  /* ─────────── Header ─────────── */
+  header { margin-bottom: 56px; }
+  header::before {
+    content: '// PIXORA · LIVE HERO · EPIC SHOWCASE / DOC-061';
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(36px, 5.4vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 .accent  { color: var(--gold-bright); }
+  h1 .accent2 { color: var(--live-red-bright); }
+  h1 .ornament { color: var(--gold-deep); font-style: normal; font-weight: 200; margin: 0 8px; }
+  .subtitle {
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 840px;
+    line-height: 1.55;
+  }
+  .subtitle em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold-bright);
+  }
+  .subtitle strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .subtitle .live-mark {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 700 11px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--live-red-bright);
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(255,23,68,0.10);
+    border: 1px solid rgba(255,23,68,0.30);
+  }
+  .subtitle .live-mark::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--live-red);
+    box-shadow: 0 0 6px var(--live-red-glow);
+    animation: pulseRed 1.2s ease-in-out infinite;
+  }
+  @keyframes pulseRed {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.45; transform: scale(0.7); }
+  }
+  .header-rule {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .header-rule .line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  /* ─────────── Grid ─────────── */
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+  }
+
+  .concept {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 0.9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .concept:nth-child(1) { animation-delay: 0.50s; }
+  .concept:nth-child(2) { animation-delay: 0.65s; }
+  .concept:nth-child(3) { animation-delay: 0.80s; }
+  .concept:nth-child(4) { animation-delay: 0.95s; }
+  .concept:nth-child(5) { animation-delay: 1.10s; }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Concept row */
+  .concept-row {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .concept-row { grid-template-columns: 1fr; }
+  }
+
+  .phones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 36px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    width: 100%;
+    max-width: 290px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-wrap .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  .phone-wrap .label.ios { color: #5e8eb8; }
+  .phone-wrap .label.bg  { color: var(--gold-deep); }
+
+  /* ─────────── Phone frame ─────────── */
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 280 / 600;
+    background: #fff;
+    border-radius: 38px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.06),
+      0 0 0 7px #1a1a22,
+      0 20px 46px rgba(0,0,0,0.65),
+      0 0 60px rgba(255,23,68,0.14);
+  }
+  .phone.dark {
+    background: var(--bg-ink);
+    box-shadow:
+      0 0 0 2px rgba(212,175,55,0.10),
+      0 0 0 7px #0a0a14,
+      0 20px 46px rgba(0,0,0,0.7),
+      0 0 70px rgba(212,175,55,0.18);
+  }
+  .phone .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 66px; height: 15px;
+    background: #000;
+    border-radius: 0 0 11px 11px;
+    z-index: 12;
+  }
+  .phone .statusbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    font: 600 8.5px 'Inter', sans-serif;
+    z-index: 11;
+  }
+  .phone.light .statusbar { color: var(--ios-text); }
+  .phone.dark  .statusbar { color: var(--bg-text); }
+  .phone .statusbar .battery {
+    width: 13px; height: 6.5px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .phone .statusbar .battery::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 1.5px; right: 4px; bottom: 1.5px;
+    background: currentColor;
+  }
+  .phone .screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone.light .screen { background: var(--ios-bg); }
+  .phone.dark  .screen { background: var(--bg-ink); }
+
+  /* ─────────── App header — LIVE tab ─────────── */
+  .app-header {
+    padding: 30px 14px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 4;
+    position: relative;
+  }
+  .app-header .left {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tab-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .tab-title .live-mini {
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 8.5px;
+    letter-spacing: 0.22em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: 2px;
+    background: var(--live-red);
+    color: #fff;
+    font-weight: 700;
+  }
+  .phone.light .tab-title { color: var(--ios-text); }
+  .phone.dark  .tab-title { color: var(--bg-gold-bright); }
+  .credits {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 9px 'JetBrains Mono', monospace;
+    padding: 3px 7px;
+    border-radius: 10px;
+  }
+  .phone.light .credits {
+    background: var(--ios-surface);
+    color: var(--ios-text);
+  }
+  .phone.dark .credits {
+    background: rgba(212,175,55,0.10);
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold-dark);
+  }
+  .credits::before {
+    content: '◆';
+    color: var(--wp-cyan);
+    font-size: 9px;
+  }
+  .phone.dark .credits::before { color: var(--bg-gold-bright); }
+
+  /* ─────────── BASE LIVE HERO (anime cyberpunk Claire Redfield-style) ─────────── */
+  .hero {
+    position: relative;
+    margin: 8px 14px 0;
+    height: 47%;
+    border-radius: 18px;
+    overflow: hidden;
+    z-index: 3;
+  }
+  .hero-img {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 25% 25%, rgba(220,38,38,0.55), transparent 50%),
+      radial-gradient(ellipse at 75% 70%, rgba(124,58,237,0.50), transparent 55%),
+      radial-gradient(ellipse at 50% 90%, rgba(6,182,212,0.35), transparent 60%),
+      linear-gradient(170deg, #2a0a1a 0%, #1a0033 45%, #0a0118 100%);
+  }
+  /* anime warrior silhouette (Claire-ish) */
+  .hero-img::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 65%; height: 78%;
+    background:
+      radial-gradient(ellipse at 50% 22%, rgba(0,0,0,0.70), transparent 55%),
+      radial-gradient(ellipse at 45% 65%, rgba(0,0,0,0.82), transparent 65%);
+  }
+  /* hair / red accent */
+  .hero-img::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 18%, rgba(244,63,94,0.40), transparent 35%),
+      linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+
+  /* ─────────── Popular Now header (Stamped Foil style) ─────────── */
+  .popular-now {
+    margin: 12px 14px 0;
+    z-index: 4;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .popular-now .stamp {
+    flex: 1;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font: 800 10px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.28em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .phone.light .popular-now .stamp {
+    background: linear-gradient(90deg, rgba(28,28,30,0.95), rgba(28,28,30,0.85));
+    color: #FFFFFF;
+    border: 1px solid rgba(28,28,30,0.6);
+  }
+  .phone.dark .popular-now .stamp {
+    background: linear-gradient(90deg, rgba(212,175,55,0.18), rgba(212,175,55,0.04));
+    color: var(--bg-gold-bright);
+    border: 1px solid var(--gold-dark);
+  }
+  .popular-now .count {
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    opacity: 0.7;
+  }
+
+  /* ─────────── Cinematic Strip LIVE card grid ─────────── */
+  .live-grid {
+    margin: 8px 14px 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    z-index: 4;
+    position: relative;
+  }
+  .live-card {
+    aspect-ratio: 9/16;
+    border-radius: 9px;
+    overflow: hidden;
+    position: relative;
+    background: #000;
+  }
+  .live-card .lc-img {
+    position: absolute; inset: 0;
+  }
+  .live-card.lc1 .lc-img {
+    background: linear-gradient(155deg, #4f46e5 0%, #06b6d4 60%, #0a0118 100%);
+  }
+  .live-card.lc2 .lc-img {
+    background: linear-gradient(155deg, #ec4899 0%, #f59e0b 55%, #2a0a1a 100%);
+  }
+  .live-card.lc3 .lc-img {
+    background: linear-gradient(155deg, #10b981 0%, #06b6d4 55%, #14141F 100%);
+  }
+  .live-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.55) 100%);
+  }
+  .live-card .lc-title {
+    position: absolute;
+    bottom: 5px; left: 6px; right: 6px;
+    font: 600 7px 'Geist', sans-serif;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    z-index: 4;
+  }
+  /* Default LIVE tag — overridden per concept */
+  .live-tag {
+    position: absolute;
+    top: 5px; right: 5px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font: 700 6.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.15em;
+    color: #000;
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 5;
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* CONCEPT 01 — CINEMATIC TRAILER (Now Playing)                 */
+  /* ════════════════════════════════════════════════════════════ */
+  .hero.trailer {
+    border-radius: 14px;
+  }
+  .hero.trailer .hero-img {
+    transform-origin: 40% 35%;
+    animation: kenBurns 14s ease-in-out infinite alternate;
+  }
+  @keyframes kenBurns {
+    0%   { transform: scale(1.04) translate(-2%, -1%); }
+    100% { transform: scale(1.14) translate(3%, 2%); }
+  }
+  .hero.trailer .now-playing {
+    position: absolute;
+    top: 10px; left: 12px; right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 6;
+  }
+  .hero.trailer .np-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.30em;
+    color: #fff;
+    text-transform: uppercase;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.85);
+  }
+  .hero.trailer .np-eyebrow::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--live-red);
+    box-shadow: 0 0 8px var(--live-red-glow), 0 0 14px var(--live-red-glow);
+    animation: pulseRed 1.2s ease-in-out infinite;
+  }
+  .hero.trailer .clapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    transform: skewX(-10deg);
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.20);
+    font: 700 7.5px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.18em;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  }
+  .hero.trailer.bg .clapper {
+    background: rgba(0,0,0,0.7);
+    border-color: var(--gold-dark);
+    color: var(--bg-gold-bright);
+  }
+  .hero.trailer .clapper > span { display: inline-block; transform: skewX(10deg); }
+  .hero.trailer .clapper::before {
+    content: '';
+    width: 8px; height: 8px;
+    background:
+      repeating-linear-gradient(45deg, #fff 0 2px, #000 2px 4px);
+    transform: skewX(10deg);
+  }
+  .hero.trailer .trailer-grain {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.10), transparent 60%),
+      radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,0.07), transparent 60%),
+      radial-gradient(1px 1px at 80% 40%, rgba(255,255,255,0.08), transparent 60%),
+      radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,0.06), transparent 60%);
+    z-index: 5;
+    pointer-events: none;
+    animation: grainShift 1.2s steps(4) infinite;
+  }
+  @keyframes grainShift {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(-1px, 1px); }
+    50%  { transform: translate(1px, -1px); }
+    75%  { transform: translate(-1px, -1px); }
+    100% { transform: translate(0, 0); }
+  }
+  .hero.trailer .trailer-title {
+    position: absolute;
+    left: 14px; right: 14px; bottom: 52px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.05;
+    color: #fff;
+    z-index: 6;
+    text-shadow: 0 3px 14px rgba(0,0,0,0.85), 0 1px 4px rgba(0,0,0,0.8);
+  }
+  .hero.trailer .trailer-title small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.78);
+    text-transform: uppercase;
+    margin-top: 4px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  }
+  .hero.trailer .explore-trailer {
+    position: absolute;
+    bottom: 12px; left: 14px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font: 700 8.5px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.25em;
+    color: #fff;
+    background: transparent;
+    border: 1.2px solid rgba(255,255,255,0.65);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    z-index: 6;
+    text-transform: uppercase;
+  }
+  .hero.trailer.bg .explore-trailer {
+    color: var(--bg-gold-bright);
+    border-color: var(--bg-gold);
+  }
+  .hero.trailer .explore-trailer::before { content: '▶'; font-size: 6px; }
+  .hero.trailer .runtime {
+    position: absolute;
+    bottom: 14px; right: 14px;
+    font: 600 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.85);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    z-index: 6;
+  }
+  /* LIVE tag on cards — broadcast dot + mono */
+  .hero.trailer ~ .popular-now ~ .live-grid .live-tag,
+  .trailer-layout .live-tag {
+    background: rgba(0,0,0,0.62);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 2px 5px 2px 4px;
+    display: inline-flex; align-items: center; gap: 3px;
+    backdrop-filter: blur(4px);
+  }
+  .trailer-layout .live-tag::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--live-red);
+    box-shadow: 0 0 4px var(--live-red-glow);
+    animation: pulseRed 1.2s ease-in-out infinite;
+  }
+  .phone.dark .trailer-layout .live-tag {
+    background: rgba(0,0,0,0.75);
+    border-color: var(--gold-dark);
+    color: var(--bg-gold-bright);
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* CONCEPT 02 — HOLOGRAPHIC FOIL FRAME (consistency)            */
+  /* ════════════════════════════════════════════════════════════ */
+  .hero.holo {
+    padding: 4px;
+    background: linear-gradient(
+      125deg,
+      #c0c0d8 0%,
+      #5e8eb8 18%,
+      #a855f7 36%,
+      #d8d8e8 54%,
+      #06b6d4 72%,
+      #c084fc 90%,
+      #b8b8c8 100%);
+    background-size: 200% 200%;
+    animation: holoShift 7s ease-in-out infinite;
+    box-shadow:
+      0 0 22px rgba(168,85,247,0.35),
+      0 0 40px rgba(6,182,212,0.18);
+  }
+  .hero.holo.bg {
+    background: linear-gradient(
+      125deg,
+      var(--bg-gold) 0%,
+      #ff8c42 20%,
+      var(--bg-gold-bright) 40%,
+      #b87333 60%,
+      var(--bg-gold) 80%,
+      #ff6b35 100%);
+    background-size: 200% 200%;
+    box-shadow:
+      0 0 22px rgba(212,175,55,0.40),
+      0 0 40px rgba(255,107,53,0.25);
+  }
+  @keyframes holoShift {
+    0%, 100% { background-position: 0% 0%; }
+    50%      { background-position: 100% 100%; }
+  }
+  .hero.holo .holo-inner {
+    position: absolute;
+    inset: 4px;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  /* Category pill — small holographic */
+  .hero.holo .cat-holo {
+    position: absolute;
+    top: 10px; left: 10px;
+    padding: 4px 9px;
+    border-radius: 10px;
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.20em;
+    color: #fff;
+    background: linear-gradient(90deg, #5e8eb8, #c084fc, #06b6d4, #5e8eb8);
+    background-size: 200% 100%;
+    animation: holoShift 5s ease-in-out infinite;
+    z-index: 6;
+    box-shadow: 0 2px 8px rgba(168,85,247,0.35);
+  }
+  .hero.holo.bg .cat-holo {
+    background: linear-gradient(90deg, var(--bg-gold), #ff8c42, var(--bg-gold-bright), var(--bg-gold));
+    background-size: 200% 100%;
+    color: var(--bg-ink);
+    box-shadow: 0 2px 8px rgba(212,175,55,0.45);
+  }
+  .hero.holo .holo-title {
+    position: absolute;
+    left: 12px; bottom: 46px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 21px;
+    line-height: 1.02;
+    color: #fff;
+    z-index: 6;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.75);
+  }
+  .hero.holo .holo-title small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.75);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .hero.holo .explore-holo {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    padding: 6px 13px;
+    border-radius: 16px;
+    font: 700 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.30);
+    z-index: 6;
+    overflow: hidden;
+  }
+  .hero.holo .explore-holo::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -120%;
+    width: 60%; height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,0.5), transparent);
+    animation: shineSweep 3.5s ease-in-out infinite;
+  }
+  @keyframes shineSweep {
+    0%   { left: -120%; }
+    100% { left: 200%; }
+  }
+  /* LIVE tag — holographic small pill */
+  .holo-layout .live-tag {
+    background: linear-gradient(90deg, #5e8eb8, #c084fc, #06b6d4, #5e8eb8);
+    background-size: 200% 100%;
+    animation: holoShift 4.5s ease-in-out infinite;
+    color: #fff;
+    border: none;
+    padding: 2px 5px;
+    box-shadow: 0 1px 5px rgba(168,85,247,0.4);
+  }
+  .phone.dark .holo-layout .live-tag {
+    background: linear-gradient(90deg, var(--bg-gold), #ff8c42, var(--bg-gold-bright), var(--bg-gold));
+    background-size: 200% 100%;
+    color: var(--bg-ink);
+    box-shadow: 0 1px 5px rgba(212,175,55,0.5);
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* CONCEPT 03 — AURORA SPECTRAL HALO                            */
+  /* ════════════════════════════════════════════════════════════ */
+  .hero.aurora {
+    overflow: visible;
+    position: relative;
+  }
+  .hero.aurora::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 26px;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(167,139,250,0.45), transparent 55%),
+      radial-gradient(ellipse at 80% 30%, rgba(6,182,212,0.40), transparent 55%),
+      radial-gradient(ellipse at 50% 80%, rgba(244,63,94,0.32), transparent 60%);
+    filter: blur(12px);
+    z-index: 1;
+    animation: auroraBreathe 4s ease-in-out infinite;
+  }
+  .hero.aurora.bg::before {
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(245,214,118,0.55), transparent 55%),
+      radial-gradient(ellipse at 80% 30%, rgba(168,85,247,0.45), transparent 55%),
+      radial-gradient(ellipse at 50% 80%, rgba(212,175,55,0.38), transparent 60%);
+  }
+  @keyframes auroraBreathe {
+    0%, 100% { opacity: 0.65; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.05); }
+  }
+  .hero.aurora .aurora-inner {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    z-index: 3;
+  }
+  .hero.aurora.ios .aurora-inner {
+    border: 1px solid rgba(167,139,250,0.45);
+  }
+  .hero.aurora.bg .aurora-inner {
+    border: 1px solid var(--gold-dark);
+  }
+  /* Category pill — hairline frosted with SECTION color */
+  .hero.aurora .cat-aurora {
+    position: absolute;
+    top: 10px; left: 10px;
+    padding: 4px 9px;
+    border-radius: 11px;
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.20em;
+    background: rgba(255,255,255,0.10);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.35);
+    z-index: 6;
+  }
+  .hero.aurora.ios .cat-aurora {
+    color: #c4b5fd;
+    border-color: rgba(167,139,250,0.55);
+    text-shadow: 0 0 6px rgba(167,139,250,0.45);
+  }
+  .hero.aurora.bg .cat-aurora {
+    color: var(--bg-gold-bright);
+    border-color: var(--gold-dark);
+    text-shadow: 0 0 6px rgba(212,175,55,0.45);
+  }
+  .hero.aurora .aurora-title {
+    position: absolute;
+    left: 12px; right: 12px; bottom: 50px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.04;
+    color: #fff;
+    z-index: 6;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.75);
+  }
+  .hero.aurora .aurora-title small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.78);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .hero.aurora .explore-aurora {
+    position: absolute;
+    bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 16px;
+    border-radius: 18px;
+    font: 600 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: #fff;
+    background: rgba(255,255,255,0.14);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.32);
+    z-index: 6;
+  }
+  /* LIVE tag — pulsing dot + small text frosted */
+  .aurora-layout .live-tag {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.30);
+    color: #fff;
+    backdrop-filter: blur(8px);
+    padding: 2px 5px 2px 4px;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .aurora-layout .live-tag::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #c4b5fd;
+    box-shadow: 0 0 5px rgba(196,181,253,0.85);
+    animation: pulseRed 1.6s ease-in-out infinite;
+  }
+  .phone.dark .aurora-layout .live-tag {
+    background: rgba(0,0,0,0.6);
+    border-color: var(--gold-dark);
+    color: var(--bg-gold-bright);
+  }
+  .phone.dark .aurora-layout .live-tag::before {
+    background: var(--bg-gold-bright);
+    box-shadow: 0 0 5px rgba(245,214,118,0.85);
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* CONCEPT 04 — NEON CINEMA MARQUEE                             */
+  /* ════════════════════════════════════════════════════════════ */
+  .hero.neon {
+    border-radius: 14px;
+    border: 1.4px solid var(--ios-blue);
+    box-shadow:
+      0 0 12px rgba(10,132,255,0.55),
+      0 0 26px rgba(10,132,255,0.30),
+      inset 0 0 8px rgba(10,132,255,0.20);
+    animation: neonPulse 2.6s ease-in-out infinite;
+  }
+  .hero.neon.bg {
+    border-color: var(--bg-gold);
+    box-shadow:
+      0 0 12px rgba(212,175,55,0.55),
+      0 0 26px rgba(212,175,55,0.30),
+      inset 0 0 8px rgba(212,175,55,0.20);
+  }
+  @keyframes neonPulse {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.15); }
+  }
+  /* Top "PIXORA LIVE" marquee */
+  .hero.neon .marquee {
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 14px;
+    border: 1px solid var(--ios-blue);
+    border-radius: 3px;
+    font: 700 8.5px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.32em;
+    color: var(--ios-blue);
+    text-shadow: 0 0 6px rgba(10,132,255,0.85);
+    background: rgba(0,0,0,0.4);
+    z-index: 6;
+    animation: marqueeFlicker 4s steps(20) infinite;
+  }
+  .hero.neon.bg .marquee {
+    border-color: var(--bg-gold);
+    color: var(--bg-gold-bright);
+    text-shadow: 0 0 6px rgba(212,175,55,0.85);
+  }
+  @keyframes marqueeFlicker {
+    0%, 3%, 6%, 100% { opacity: 1; }
+    4%               { opacity: 0.55; }
+    5%               { opacity: 0.85; }
+    30%              { opacity: 0.9; }
+    31%              { opacity: 0.6; }
+    32%              { opacity: 1; }
+  }
+  /* Category pill — neon outline only */
+  .hero.neon .cat-neon {
+    position: absolute;
+    top: 32px; left: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font: 700 7.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--ios-blue);
+    border: 1px solid var(--ios-blue);
+    background: rgba(0,0,0,0.4);
+    text-shadow: 0 0 5px rgba(10,132,255,0.7);
+    z-index: 6;
+  }
+  .hero.neon.bg .cat-neon {
+    color: var(--bg-gold-bright);
+    border-color: var(--bg-gold);
+    text-shadow: 0 0 5px rgba(212,175,55,0.7);
+  }
+  .hero.neon .neon-title {
+    position: absolute;
+    left: 12px; right: 12px; bottom: 50px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255,255,255,0.55), 0 2px 6px rgba(0,0,0,0.7);
+    z-index: 6;
+  }
+  .hero.neon .neon-title small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.75);
+    margin-top: 4px;
+    text-transform: uppercase;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+  }
+  .hero.neon .explore-neon {
+    position: absolute;
+    bottom: 10px; left: 12px;
+    padding: 5px 13px;
+    border-radius: 3px;
+    font: 700 8.5px 'Bebas Neue', sans-serif;
+    letter-spacing: 0.28em;
+    color: var(--ios-blue);
+    border: 1.2px solid var(--ios-blue);
+    background: rgba(0,0,0,0.42);
+    text-shadow: 0 0 5px rgba(10,132,255,0.7);
+    z-index: 6;
+  }
+  .hero.neon.bg .explore-neon {
+    color: var(--bg-gold-bright);
+    border-color: var(--bg-gold);
+    text-shadow: 0 0 5px rgba(212,175,55,0.7);
+  }
+  .hero.neon .broadcast-dot {
+    position: absolute;
+    bottom: 14px; right: 14px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font: 700 8px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--live-red-bright);
+    text-shadow: 0 0 5px var(--live-red-glow);
+    z-index: 6;
+  }
+  .hero.neon .broadcast-dot::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--live-red);
+    box-shadow: 0 0 6px var(--live-red-glow);
+    animation: pulseRed 1.2s ease-in-out infinite;
+  }
+  /* LIVE tag — neon outline pill with red dot */
+  .neon-layout .live-tag {
+    background: rgba(0,0,0,0.55);
+    border: 1px solid var(--live-red);
+    color: var(--live-red-bright);
+    text-shadow: 0 0 4px var(--live-red-glow);
+    padding: 2px 5px 2px 4px;
+    display: inline-flex; align-items: center; gap: 3px;
+    box-shadow: 0 0 5px rgba(255,23,68,0.45);
+  }
+  .neon-layout .live-tag::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--live-red);
+    box-shadow: 0 0 4px var(--live-red-glow);
+    animation: pulseRed 1.2s ease-in-out infinite;
+  }
+  .phone.dark .neon-layout .live-tag {
+    border-color: var(--live-red);
+    color: var(--live-red-bright);
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* CONCEPT 05 — SPECTRAL LIGHT BEAMS (Premiere)                 */
+  /* ════════════════════════════════════════════════════════════ */
+  .hero.spectral {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .hero.spectral .beams {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .hero.spectral .beams::before,
+  .hero.spectral .beams::after {
+    content: '';
+    position: absolute;
+    top: -40%; left: -40%;
+    width: 180%; height: 180%;
+    background:
+      conic-gradient(from 0deg at 18% 12%,
+        rgba(255,255,255,0.30) 0deg,
+        transparent 8deg,
+        transparent 20deg,
+        rgba(255,255,255,0.20) 28deg,
+        transparent 36deg,
+        transparent 360deg);
+    mix-blend-mode: screen;
+    filter: blur(2px);
+    animation: beamRotate 22s linear infinite;
+  }
+  .hero.spectral .beams::after {
+    background:
+      conic-gradient(from 180deg at 82% 88%,
+        rgba(255,255,255,0.22) 0deg,
+        transparent 10deg,
+        transparent 22deg,
+        rgba(255,255,255,0.16) 30deg,
+        transparent 40deg,
+        transparent 360deg);
+    animation-duration: 28s;
+    animation-direction: reverse;
+  }
+  .hero.spectral.bg .beams::before {
+    background:
+      conic-gradient(from 0deg at 18% 12%,
+        rgba(245,214,118,0.45) 0deg,
+        transparent 8deg,
+        transparent 20deg,
+        rgba(212,175,55,0.32) 28deg,
+        transparent 36deg,
+        transparent 360deg);
+  }
+  .hero.spectral.bg .beams::after {
+    background:
+      conic-gradient(from 180deg at 82% 88%,
+        rgba(245,214,118,0.35) 0deg,
+        transparent 10deg,
+        transparent 22deg,
+        rgba(212,175,55,0.22) 30deg,
+        transparent 40deg,
+        transparent 360deg);
+  }
+  @keyframes beamRotate {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  /* Feature stamp — foil top-left */
+  .hero.spectral .feature-stamp {
+    position: absolute;
+    top: 10px; left: 10px;
+    padding: 4px 9px 4px 8px;
+    border-radius: 2px;
+    font: 700 7.5px 'Cinzel', serif;
+    letter-spacing: 0.30em;
+    color: #fff;
+    background:
+      linear-gradient(135deg, #c0c0d8 0%, #8e9bb8 40%, #d8d8e8 70%, #5e8eb8 100%);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+    z-index: 7;
+    text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .hero.spectral .feature-stamp::before {
+    content: '★';
+    font-size: 7px;
+    color: #fff;
+  }
+  .hero.spectral.bg .feature-stamp {
+    background:
+      linear-gradient(135deg, var(--bg-gold) 0%, var(--bg-gold-bright) 40%, var(--bg-gold) 70%, var(--bg-gold-deep) 100%);
+    color: var(--bg-ink);
+    text-shadow: 0 1px 1px rgba(255,255,255,0.25);
+    box-shadow: 0 2px 6px rgba(212,175,55,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .hero.spectral.bg .feature-stamp::before { color: var(--bg-ink); }
+  .hero.spectral .spectral-title {
+    position: absolute;
+    left: 12px; right: 12px; bottom: 50px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.04;
+    color: #fff;
+    z-index: 7;
+    text-shadow: 0 3px 12px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.8);
+  }
+  .hero.spectral .spectral-title small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.78);
+    margin-top: 4px;
+    text-transform: uppercase;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  }
+  .hero.spectral .explore-spectral {
+    position: absolute;
+    bottom: 10px; left: 12px;
+    padding: 6px 14px;
+    border-radius: 18px;
+    font: 700 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.20em;
+    color: #fff;
+    background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+    border: 1px solid rgba(255,255,255,0.35);
+    backdrop-filter: blur(8px);
+    z-index: 7;
+  }
+  .hero.spectral.bg .explore-spectral {
+    background: linear-gradient(135deg, rgba(212,175,55,0.30), rgba(212,175,55,0.10));
+    border-color: var(--gold-dark);
+    color: var(--bg-gold-bright);
+  }
+  .hero.spectral .premiere-dot {
+    position: absolute;
+    bottom: 14px; right: 14px;
+    display: inline-flex; align-items: center; gap: 5px;
+    font: 700 8px 'Cinzel', serif;
+    letter-spacing: 0.25em;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    z-index: 7;
+  }
+  .hero.spectral.bg .premiere-dot { color: var(--bg-gold-bright); }
+  .hero.spectral .premiere-dot::before {
+    content: '✦';
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255,255,255,0.8);
+    animation: pulseRed 2s ease-in-out infinite;
+  }
+  .hero.spectral.bg .premiere-dot::before {
+    color: var(--bg-gold-bright);
+    text-shadow: 0 0 8px rgba(245,214,118,0.85);
+  }
+  /* LIVE tag — foil texture breathing */
+  .spectral-layout .live-tag {
+    background:
+      linear-gradient(135deg, #c0c0d8 0%, #8e9bb8 40%, #d8d8e8 70%, #5e8eb8 100%);
+    color: #fff;
+    border: none;
+    padding: 2px 5px;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.4);
+    box-shadow: 0 1px 4px rgba(94,142,184,0.45), inset 0 1px 0 rgba(255,255,255,0.30);
+    animation: spectralBreathe 3s ease-in-out infinite;
+  }
+  @keyframes spectralBreathe {
+    0%, 100% { filter: brightness(1); box-shadow: 0 1px 4px rgba(94,142,184,0.45), inset 0 1px 0 rgba(255,255,255,0.30); }
+    50%      { filter: brightness(1.15); box-shadow: 0 1px 8px rgba(94,142,184,0.65), inset 0 1px 0 rgba(255,255,255,0.40); }
+  }
+  .phone.dark .spectral-layout .live-tag {
+    background:
+      linear-gradient(135deg, var(--bg-gold) 0%, var(--bg-gold-bright) 40%, var(--bg-gold) 70%, var(--bg-gold-deep) 100%);
+    color: var(--bg-ink);
+    box-shadow: 0 1px 4px rgba(212,175,55,0.55), inset 0 1px 0 rgba(255,255,255,0.30);
+  }
+  .phone.dark .spectral-layout .live-tag {
+    animation: spectralBreatheBg 3s ease-in-out infinite;
+  }
+  @keyframes spectralBreatheBg {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.18); box-shadow: 0 1px 8px rgba(245,214,118,0.65), inset 0 1px 0 rgba(255,255,255,0.40); }
+  }
+
+  /* ─────────── META block ─────────── */
+  .meta { padding: 12px 0 0; }
+  .meta .num {
+    font: 500 11px 'JetBrains Mono', monospace;
+    letter-spacing: 0.28em;
+    color: var(--gold-deep);
+    margin-bottom: 12px;
+  }
+  .meta h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 350;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .meta h2 .acc { color: var(--gold-bright); }
+  .meta h2 .red { color: var(--live-red-bright); }
+  .meta .tagline {
+    font: italic 400 13px 'Cormorant Garamond', serif;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    border-left: 1.5px solid var(--gold-dark);
+    padding-left: 12px;
+  }
+  .meta .description {
+    font: 400 12.5px 'Geist', sans-serif;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .meta .meta-section-title {
+    font: 500 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    margin: 16px 0 8px;
+  }
+  .palette-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .palette-pair .palette-block .label {
+    font: 500 8.5px 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .palette-pair .palette-block .label.ios { color: #5e8eb8; }
+  .palette-pair .palette-block .label.bg  { color: var(--gold-deep); }
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .sw {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .sw:hover::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: 105%; left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--text);
+    padding: 3px 7px;
+    border-radius: 4px;
+    font: 500 9px 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    pointer-events: none;
+    border: 1px solid var(--gold-dark);
+    z-index: 10;
+  }
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .pros, .cons {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font: 400 11px 'Geist', sans-serif;
+    line-height: 1.45;
+  }
+  .pros {
+    background: rgba(16,185,129,0.06);
+    color: var(--text);
+    border-left: 2px solid #10b981;
+  }
+  .cons {
+    background: rgba(239,68,68,0.06);
+    color: var(--text);
+    border-left: 2px solid #ef4444;
+  }
+  .pros .h, .cons .h {
+    font: 600 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.2em;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  .pros .h { color: #10b981; }
+  .cons .h { color: #ef4444; }
+  .verdict {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: var(--gold-haze);
+    border: 1px solid var(--gold-dark);
+    font: 400 12px 'Geist', sans-serif;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .verdict .v-h {
+    font: 600 9px 'JetBrains Mono', monospace;
+    letter-spacing: 0.22em;
+    color: var(--gold-bright);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  /* ─────────── Footer ─────────── */
+  footer {
+    margin-top: 110px;
+    padding-top: 36px;
+    border-top: 1px solid var(--hairline);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  footer .orn {
+    color: var(--gold);
+    margin: 0 10px;
+    font-style: normal;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      LIVE Hero <span class="ornament">·</span>
+      <span class="accent">5 Conceptos</span>
+      <span class="ornament">·</span>
+      <span class="accent2">Épicos</span>
+    </h1>
+    <p class="subtitle">
+      Hero <em>épico</em> para el tab <span class="live-mark">LIVE</span> de Pixora.
+      Reemplaza el gris-con-azul-feo del category pill, redime la etiqueta "LIVE" de las tarjetas
+      y le pone <strong>animaciones sutiles, de buen gusto</strong> al banner principal.
+      Cada concepto en sus 2 variantes: <strong>iOS White</strong> y <strong>Black &amp; Gold</strong>.
+    </p>
+    <div class="header-rule">
+      <span>// LIVE · HERO · BROADCAST</span>
+      <div class="line"></div>
+      <span>05 / 05</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- CONCEPT 01 — CINEMATIC TRAILER (Now Playing)             -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <article class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="label ios">iOS · WHITE</span>
+            <div class="phone light trailer-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero trailer ios">
+                  <div class="hero-img"></div>
+                  <div class="trailer-grain"></div>
+                  <div class="now-playing">
+                    <span class="np-eyebrow">Now Playing</span>
+                    <span class="clapper"><span>Ch · VII</span></span>
+                  </div>
+                  <div class="trailer-title">
+                    Crimson<br/>Hunter
+                    <small>Anime · Episode 042</small>
+                  </div>
+                  <div class="explore-trailer">Explore</div>
+                  <div class="runtime">00:08</div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD</span>
+            <div class="phone dark trailer-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero trailer bg">
+                  <div class="hero-img"></div>
+                  <div class="trailer-grain"></div>
+                  <div class="now-playing">
+                    <span class="np-eyebrow">Now Playing</span>
+                    <span class="clapper"><span>Ch · VII</span></span>
+                  </div>
+                  <div class="trailer-title">
+                    Crimson<br/>Hunter
+                    <small>Anime · Episode 042</small>
+                  </div>
+                  <div class="explore-trailer">Explore</div>
+                  <div class="runtime">00:08</div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 01</div>
+          <h2><span class="acc">Cinematic</span> Trailer <span class="red">· Now Playing</span></h2>
+          <p class="tagline">Netflix episode card + Apple TV+ trailer + broadcasting overlay. El wallpaper es una película en vivo.</p>
+          <p class="description">
+            Ken Burns sutil sobre la imagen (14s loop), eyebrow "NOW PLAYING" con punto rojo broadcast
+            pulsante, claqueta de director angulada "CH · VII", título Fraunces italic con doble drop shadow,
+            CTA "EXPLORE" tipo trailer rectángulo con borde. La etiqueta LIVE en las tarjetas usa el mismo
+            punto rojo pulsante — coherencia total broadcast.
+          </p>
+
+          <div class="meta-section-title">Paleta</div>
+          <div class="palette-pair">
+            <div class="palette-block">
+              <div class="label ios">iOS</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="White"></div>
+                <div class="sw" style="background:#1C1C1E" data-name="Ink"></div>
+                <div class="sw" style="background:#FF1744" data-name="Live Red"></div>
+                <div class="sw" style="background:#0A84FF" data-name="Apple Blue"></div>
+              </div>
+            </div>
+            <div class="palette-block">
+              <div class="label bg">B&amp;G</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="Ink"></div>
+                <div class="sw" style="background:#D4AF37" data-name="Gold"></div>
+                <div class="sw" style="background:#F5D676" data-name="Gold Br."></div>
+                <div class="sw" style="background:#FF1744" data-name="Live Red"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros">
+              <div class="h">Pros</div>
+              Se siente como contenido vivo, no solo un wallpaper. El punto rojo unifica hero + tarjetas.
+            </div>
+            <div class="cons">
+              <div class="h">Cons</div>
+              Ken Burns suma un poco de CPU/GPU sobre el video que ya está corriendo.
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="v-h">Veredicto</div>
+            La opción más honesta con lo que es LIVE: contenido en transmisión. Si quieres que el usuario
+            sienta que está a punto de "sintonizar" algo, este es el ganador.
+          </div>
+        </aside>
+      </div>
+    </article>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- CONCEPT 02 — HOLOGRAPHIC FOIL FRAME (consistency)        -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <article class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="label ios">iOS · WHITE</span>
+            <div class="phone light holo-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero holo ios">
+                  <div class="holo-inner">
+                    <div class="hero-img"></div>
+                    <span class="cat-holo">ANIME</span>
+                    <div class="holo-title">
+                      Crimson Hunter
+                      <small>Cyberpunk · Vol XII</small>
+                    </div>
+                    <div class="explore-holo">Explore →</div>
+                  </div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD</span>
+            <div class="phone dark holo-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero holo bg">
+                  <div class="holo-inner">
+                    <div class="hero-img"></div>
+                    <span class="cat-holo">ANIME</span>
+                    <div class="holo-title">
+                      Crimson Hunter
+                      <small>Cyberpunk · Vol XII</small>
+                    </div>
+                    <div class="explore-holo">Explore →</div>
+                  </div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 02</div>
+          <h2><span class="acc">Holographic</span> Foil Frame</h2>
+          <p class="tagline">El mismo idioma que el HOME hero, el 3D y el preview de wallpaper estático. App = una sola voz.</p>
+          <p class="description">
+            Borde foil animado 4px que cicla colores (plata/violeta/cyan en iOS, oro/cobre/ámbar en B&amp;G).
+            Pill "ANIME" como pastilla holográfica pequeña, título Fraunces abajo-izquierda con drop shadow,
+            CTA "Explore →" frosted con barrido de brillo cada 3.5s. La etiqueta LIVE en tarjetas es una
+            mini pastilla holográfica con el mismo shimmer.
+          </p>
+
+          <div class="meta-section-title">Paleta</div>
+          <div class="palette-pair">
+            <div class="palette-block">
+              <div class="label ios">iOS</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="White"></div>
+                <div class="sw" style="background:#5e8eb8" data-name="Silver Blue"></div>
+                <div class="sw" style="background:#c084fc" data-name="Violet"></div>
+                <div class="sw" style="background:#06b6d4" data-name="Cyan"></div>
+              </div>
+            </div>
+            <div class="palette-block">
+              <div class="label bg">B&amp;G</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="Ink"></div>
+                <div class="sw" style="background:#D4AF37" data-name="Gold"></div>
+                <div class="sw" style="background:#ff8c42" data-name="Copper"></div>
+                <div class="sw" style="background:#F5D676" data-name="Gold Br."></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros">
+              <div class="h">Pros</div>
+              Consistencia total con HOME / 3D / static preview. Pixora habla un solo idioma visual.
+            </div>
+            <div class="cons">
+              <div class="h">Cons</div>
+              Menos único — LIVE deja de tener "su propia cara". Funciona si la prioridad es brand cohesion.
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="v-h">Veredicto</div>
+            Es el voto seguro y profesional. Si decides que Pixora debe sentirse como una sola marca
+            unificada (no como 6 apps en una), este concepto cierra el círculo.
+          </div>
+        </aside>
+      </div>
+    </article>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- CONCEPT 03 — AURORA SPECTRAL HALO                        -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <article class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="label ios">iOS · WHITE</span>
+            <div class="phone light aurora-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero aurora ios">
+                  <div class="aurora-inner">
+                    <div class="hero-img"></div>
+                    <span class="cat-aurora">ANIME</span>
+                    <div class="aurora-title">
+                      Crimson Hunter
+                      <small>Pixora Live · Featured</small>
+                    </div>
+                    <div class="explore-aurora">Explore</div>
+                  </div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD</span>
+            <div class="phone dark aurora-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero aurora bg">
+                  <div class="aurora-inner">
+                    <div class="hero-img"></div>
+                    <span class="cat-aurora">ANIME</span>
+                    <div class="aurora-title">
+                      Crimson Hunter
+                      <small>Pixora Live · Featured</small>
+                    </div>
+                    <div class="explore-aurora">Explore</div>
+                  </div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 03</div>
+          <h2><span class="acc">Aurora</span> Spectral Halo</h2>
+          <p class="tagline">Halo etéreo respirando alrededor del hero. Cinema ambiente, premium, contemplativo.</p>
+          <p class="description">
+            Glow aurora-style emana desde los bordes del hero, pulsa cada 4s (breathing).
+            Colores shift entre lavanda / cyan / rosa en iOS, oro profundo / violeta / cobre en B&amp;G.
+            Pill "ANIME" hairline frosted con texto del color de la sección — adiós al gris-azul feo.
+            LIVE tag en tarjetas: dot pulsante violeta/oro + texto frosted.
+          </p>
+
+          <div class="meta-section-title">Paleta</div>
+          <div class="palette-pair">
+            <div class="palette-block">
+              <div class="label ios">iOS</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="White"></div>
+                <div class="sw" style="background:#a78bfa" data-name="Lavanda"></div>
+                <div class="sw" style="background:#06b6d4" data-name="Cyan"></div>
+                <div class="sw" style="background:#f43f5e" data-name="Rose"></div>
+              </div>
+            </div>
+            <div class="palette-block">
+              <div class="label bg">B&amp;G</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="Ink"></div>
+                <div class="sw" style="background:#D4AF37" data-name="Gold"></div>
+                <div class="sw" style="background:#a855f7" data-name="Violeta"></div>
+                <div class="sw" style="background:#b87333" data-name="Cobre"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros">
+              <div class="h">Pros</div>
+              El pulse literalmente guía la mirada al hero. Animación sutil, de muy buen gusto.
+            </div>
+            <div class="cons">
+              <div class="h">Cons</div>
+              Puede sentirse "demasiado meditación" para anime/acción heavy.
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="v-h">Veredicto</div>
+            El más refinado del set. Si Pixora quiere posicionarse como premium curado (no como
+            otra app de wallpapers ruidosa), este transmite ese mensaje sin gritar.
+          </div>
+        </aside>
+      </div>
+    </article>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- CONCEPT 04 — NEON CINEMA MARQUEE                         -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <article class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="label ios">iOS · WHITE</span>
+            <div class="phone light neon-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero neon ios">
+                  <div class="hero-img"></div>
+                  <span class="marquee">PIXORA LIVE</span>
+                  <span class="cat-neon">ANIME</span>
+                  <div class="neon-title">
+                    CRIMSON<br/>HUNTER
+                    <small>Cyberpunk · Ch VII</small>
+                  </div>
+                  <div class="explore-neon">Explore</div>
+                  <div class="broadcast-dot">LIVE</div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD</span>
+            <div class="phone dark neon-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero neon bg">
+                  <div class="hero-img"></div>
+                  <span class="marquee">PIXORA LIVE</span>
+                  <span class="cat-neon">ANIME</span>
+                  <div class="neon-title">
+                    CRIMSON<br/>HUNTER
+                    <small>Cyberpunk · Ch VII</small>
+                  </div>
+                  <div class="explore-neon">Explore</div>
+                  <div class="broadcast-dot">LIVE</div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 04</div>
+          <h2><span class="acc">Neon</span> Cinema <span class="red">Marquee</span></h2>
+          <p class="tagline">Letrero de cine vintage en Times Square. Tubo de neón outline + flicker sutil.</p>
+          <p class="description">
+            Borde de neón (azul Apple en iOS, oro en B&amp;G) pulsa cada 2.6s con halo glow.
+            Marquee "PIXORA LIVE" arriba con flicker estilo letrero viejo, pill "ANIME" outline-only,
+            tipografía Bebas Neue mayúsculas con text-shadow glow. Punto rojo broadcast abajo-derecha
+            cierra la metáfora de "transmisión". LIVE tag en tarjetas: outline neón rojo + dot pulsante.
+          </p>
+
+          <div class="meta-section-title">Paleta</div>
+          <div class="palette-pair">
+            <div class="palette-block">
+              <div class="label ios">iOS</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="White"></div>
+                <div class="sw" style="background:#0A84FF" data-name="Apple Blue"></div>
+                <div class="sw" style="background:#FF1744" data-name="Live Red"></div>
+                <div class="sw" style="background:#1C1C1E" data-name="Ink"></div>
+              </div>
+            </div>
+            <div class="palette-block">
+              <div class="label bg">B&amp;G</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="Ink"></div>
+                <div class="sw" style="background:#D4AF37" data-name="Gold"></div>
+                <div class="sw" style="background:#F5D676" data-name="Gold Br."></div>
+                <div class="sw" style="background:#FF1744" data-name="Live Red"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros">
+              <div class="h">Pros</div>
+              Distintivo, identidad propia, refuerza "broadcasting / transmisión / signal".
+            </div>
+            <div class="cons">
+              <div class="h">Cons</div>
+              Si el flicker está mal calibrado puede sentirse cheesy / arcade. Hay que restringir.
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="v-h">Veredicto</div>
+            El más con-personalidad. Funciona si Pixora LIVE quiere venderse como "el canal de wallpapers
+            que está al aire 24/7". Punto rojo + marquee = lenguaje universal de broadcast.
+          </div>
+        </aside>
+      </div>
+    </article>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- CONCEPT 05 — SPECTRAL LIGHT BEAMS (Premiere)             -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <article class="concept">
+      <div class="concept-row">
+        <div class="phones">
+          <div class="phone-wrap">
+            <span class="label ios">iOS · WHITE</span>
+            <div class="phone light spectral-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero spectral ios">
+                  <div class="hero-img"></div>
+                  <div class="beams"></div>
+                  <span class="feature-stamp">Feature</span>
+                  <div class="spectral-title">
+                    Crimson<br/>Hunter
+                    <small>Premiere · Anime Vol XII</small>
+                  </div>
+                  <div class="explore-spectral">Explore</div>
+                  <div class="premiere-dot">Premiere</div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-wrap">
+            <span class="label bg">BLACK &amp; GOLD</span>
+            <div class="phone dark spectral-layout">
+              <div class="notch"></div>
+              <div class="statusbar"><span>9:41</span><div class="battery"></div></div>
+              <div class="screen">
+                <div class="app-header">
+                  <div class="left">
+                    <span class="tab-title">Live<span class="live-mini">LIVE</span></span>
+                  </div>
+                  <span class="credits">147</span>
+                </div>
+                <div class="hero spectral bg">
+                  <div class="hero-img"></div>
+                  <div class="beams"></div>
+                  <span class="feature-stamp">Feature</span>
+                  <div class="spectral-title">
+                    Crimson<br/>Hunter
+                    <small>Premiere · Anime Vol XII</small>
+                  </div>
+                  <div class="explore-spectral">Explore</div>
+                  <div class="premiere-dot">Premiere</div>
+                </div>
+                <div class="popular-now">
+                  <div class="stamp"><span>Popular Now</span><span class="count">24</span></div>
+                </div>
+                <div class="live-grid">
+                  <div class="live-card lc1">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Cyber Edge</div>
+                  </div>
+                  <div class="live-card lc2">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Sunset Run</div>
+                  </div>
+                  <div class="live-card lc3">
+                    <div class="lc-img"></div>
+                    <span class="live-tag">LIVE</span>
+                    <div class="lc-title">Aurora Tide</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="meta">
+          <div class="num">NO. 05</div>
+          <h2><span class="acc">Spectral</span> Light Beams</h2>
+          <p class="tagline">Reflectores de premiere Hollywood barriendo lento. Cada hero es una pieza estrenándose.</p>
+          <p class="description">
+            Beams de luz cónicos rotan lento (22s y 28s, sentidos opuestos) generando profundidad
+            cinematográfica. Stamp "FEATURE" en foil plateado iOS / oro B&amp;G con estrella ★ —
+            la pill ya no es un rectángulo gris. Título Fraunces italic, "Premiere" con estrella ✦
+            pulsante. LIVE tag en tarjetas: foil texture con breathing glow.
+          </p>
+
+          <div class="meta-section-title">Paleta</div>
+          <div class="palette-pair">
+            <div class="palette-block">
+              <div class="label ios">iOS</div>
+              <div class="palette">
+                <div class="sw" style="background:#FFFFFF" data-name="White"></div>
+                <div class="sw" style="background:#c0c0d8" data-name="Silver"></div>
+                <div class="sw" style="background:#5e8eb8" data-name="Silver Blue"></div>
+                <div class="sw" style="background:#0A84FF" data-name="Apple Blue"></div>
+              </div>
+            </div>
+            <div class="palette-block">
+              <div class="label bg">B&amp;G</div>
+              <div class="palette">
+                <div class="sw" style="background:#070710" data-name="Ink"></div>
+                <div class="sw" style="background:#D4AF37" data-name="Gold"></div>
+                <div class="sw" style="background:#F5D676" data-name="Gold Br."></div>
+                <div class="sw" style="background:#8B7228" data-name="Gold Deep"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros">
+              <div class="h">Pros</div>
+              Sensación de prestigio / Oscar / alfombra roja. El contenido featured se siente "estrenado".
+            </div>
+            <div class="cons">
+              <div class="h">Cons</div>
+              Beams rotando pueden distraer si la velocidad no está bien calibrada.
+            </div>
+          </div>
+
+          <div class="verdict">
+            <div class="v-h">Veredicto</div>
+            El más prestige / curatorial. Si vas a destacar drops semanales o lanzamientos (anime nuevo,
+            episode-of-the-week), este los hace sentir como un estreno de gala — no como un thumbnail más.
+          </div>
+        </aside>
+      </div>
+    </article>
+
+  </div>
+
+  <footer>
+    PIXORA <span class="orn">·</span> LIVE HERO <span class="orn">·</span> DESIGN ARCHIVE <span class="orn">·</span> MAY 2026
+  </footer>
+
+</div>
+</body>
+</html>
