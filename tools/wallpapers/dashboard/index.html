@@ -2819,7 +2819,7 @@ function switchPage(page) {
   // Lazy-load engagement data only when the user opens the tab.
   if (page === 'engagement') loadEngagement();
   // Lazy-load TEXTOS data only when the user opens the tab.
-  if (page === 'textos' && !TextosCMS.tree) TextosCMS.load();
+  if (page === 'textos' && typeof TextosCMS !== 'undefined' && !TextosCMS.tree) TextosCMS.load();
 }
 
 // ────────────────────────────────────────────────────────────────────────
@@ -3164,6 +3164,12 @@ function guardarTextosModal() { TextosCMS.saveModal(); }
       TextosCMS.closeModal();
     }
   });
+  // If the page was loaded with TEXTOS as the active tab (from localStorage),
+  // bindEvents() called switchPage('textos') before this IIFE ran, so the
+  // typeof guard skipped TextosCMS.load(). Trigger it now that TextosCMS exists.
+  if (localStorage.getItem('pixora_admin_page') === 'textos') {
+    TextosCMS.load();
+  }
 })();
 </script>
 </body>
