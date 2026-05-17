@@ -67,6 +67,11 @@ CATALOGS = {
     "ringtones": ("wallpaper-images", "ringtones_catalog.json",      "ringtones"),
 }
 
+# Text CMS — Phase 1 endpoints (2026-05-18)
+# Reads/writes go through this server (which holds service_role).
+# Plan: docs/superpowers/plans/2026-05-17-text-cms-phase1.md
+TEXT_CMS_FCM_TOPIC = 'text_cms_update'  # used by Task 11 (FCM push)
+
 
 # ─── Get service key once at startup ──────────────────────────────────────────
 def get_service_key() -> str:
@@ -78,6 +83,32 @@ def get_service_key() -> str:
 
 
 SERVICE_KEY = get_service_key()
+
+
+def _supabase_rest(method: str, table_path: str, body=None, query: str = "") -> tuple:
+    """Generic Supabase REST helper using service_role.
+    Returns (status_code, parsed_body)."""
+    url = f"{SUPABASE_REST}/{table_path}"
+    if query:
+        url += f"?{query}"
+    req = urllib.request.Request(
+        url,
+        method=method,
+        headers={
+            "apikey": SERVICE_KEY,
+            "Authorization": f"Bearer {SERVICE_KEY}",
+            "Content-Type": "application/json",
+            "Prefer": "return=representation,resolution=merge-duplicates",
+        },
+        data=json.dumps(body).encode("utf-8") if body is not None else None,
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = resp.read().decode("utf-8") if resp.length != 0 else "null"
+            parsed = json.loads(data) if data and data != "null" else None
+            return resp.status, parsed
+    except urllib.error.HTTPError as e:
+        return e.code, {"error": e.read().decode("utf-8", errors="replace")}
 
 
 # ─── HTTP handler ─────────────────────────────────────────────────────────────
@@ -99,6 +130,134 @@ class Handler(BaseHTTPRequestHandler):
     def _send_json(self, obj, status: int = 200):
         body = json.dumps(obj).encode("utf-8")
         self._send(status, "application/json; charset=utf-8", body)
+
+    def _read_json_body(self):
+        length = int(self.headers.get('Content-Length', 0))
+        if length == 0:
+            return None
+        raw = self.rfile.read(length).decode('utf-8')
+        return json.loads(raw) if raw else None
+
+    # ─── Text CMS handlers ────────────────────────────────────────
+    def _handle_strings_tree(self):
+        """GET /api/strings/tree — returns nested [{section, components: [...]}, ...] for admin UI."""
+        # 1. sections
+        s_status, sections = _supabase_rest("GET", "app_sections", query="select=id,name,order_index&order=order_index.asc,name.asc")
+        if s_status != 200:
+            return self._send_json(sections, s_status)
+        # 2. components
+        c_status, components = _supabase_rest("GET", "app_components", query="select=id,section_id,name,file_path,description&order=name.asc")
+        if c_status != 200:
+            return self._send_json(components, c_status)
+        # 3. strings
+        st_status, strings = _supabase_rest("GET", "app_strings", query="select=id,component_id,key,es,en,updated_at&order=key.asc")
+        if st_status != 200:
+            return self._send_json(strings, st_status)
+        # Build tree
+        comp_by_section = {}
+        for c in components or []:
+            comp_by_section.setdefault(c["section_id"], []).append({**c, "strings": []})
+        strings_by_component = {}
+        for s in strings or []:
+            strings_by_component.setdefault(s["component_id"], []).append(s)
+        for sid, comps in comp_by_section.items():
+            for c in comps:
+                c["strings"] = strings_by_component.get(c["id"], [])
+        tree = []
+        for sec in sections or []:
+            tree.append({
+                "id": sec["id"],
+                "name": sec["name"],
+                "order_index": sec["order_index"],
+                "components": comp_by_section.get(sec["id"], []),
+            })
+        self._send_json(tree)
+
+    def _handle_strings_upsert(self, body: dict):
+        """POST /api/strings/upsert — body: {key, es, en, component_id}."""
+        required = {"key", "es", "en", "component_id"}
+        if not required.issubset(body.keys()):
+            return self._send_json({"error": f"missing fields: {required - body.keys()}"}, 400)
+        status, resp = _supabase_rest(
+            "POST", "app_strings",
+            body={"key": body["key"], "es": body["es"], "en": body["en"], "component_id": body["component_id"]},
+            query="on_conflict=key",
+        )
+        if status not in (200, 201):
+            return self._send_json(resp, status)
+        # Phase 1: no FCM push yet (deferred to Task 11). Just return updated row.
+        self._send_json({"ok": True, "row": resp[0] if isinstance(resp, list) else resp})
+
+    def _handle_strings_bulk_upsert(self, body: list):
+        """POST /api/strings/bulk-upsert — body: [{key, es, en, component_id}, ...]."""
+        if not isinstance(body, list) or not body:
+            return self._send_json({"error": "body must be a non-empty array"}, 400)
+        status, resp = _supabase_rest("POST", "app_strings", body=body, query="on_conflict=key")
+        if status not in (200, 201):
+            return self._send_json(resp, status)
+        self._send_json({"ok": True, "count": len(body), "rows": resp})
+
+    def _handle_strings_seed(self, body: list):
+        """POST /api/strings/seed — body: [{section, component, file_path, key, es, en}, ...].
+        Creates sections/components on demand. Used for mass migration in Phase 2+."""
+        if not isinstance(body, list) or not body:
+            return self._send_json({"error": "body must be a non-empty array"}, 400)
+        section_ids = {}
+        component_ids = {}
+        sections_created = 0
+        components_created = 0
+        strings_upserted = 0
+        for row in body:
+            # section
+            sec_name = row.get("section")
+            if not sec_name:
+                return self._send_json({"error": f"missing 'section' in {row}"}, 400)
+            if sec_name not in section_ids:
+                st, r = _supabase_rest("POST", "app_sections",
+                    body={"name": sec_name, "order_index": 0}, query="on_conflict=name")
+                if st not in (200, 201):
+                    return self._send_json(r, st)
+                section_ids[sec_name] = r[0]["id"] if isinstance(r, list) else r["id"]
+                sections_created += 1
+            # component
+            comp_name = row.get("component")
+            comp_key = f"{sec_name}/{comp_name}"
+            if not comp_name:
+                return self._send_json({"error": f"missing 'component' in {row}"}, 400)
+            if comp_key not in component_ids:
+                st, r = _supabase_rest("POST", "app_components",
+                    body={
+                        "section_id": section_ids[sec_name],
+                        "name": comp_name,
+                        "file_path": row.get("file_path"),
+                        "description": row.get("description"),
+                    },
+                    query="on_conflict=section_id,name")
+                if st not in (200, 201):
+                    return self._send_json(r, st)
+                component_ids[comp_key] = r[0]["id"] if isinstance(r, list) else r["id"]
+                components_created += 1
+            # string
+            st, r = _supabase_rest("POST", "app_strings",
+                body={"component_id": component_ids[comp_key], "key": row["key"], "es": row["es"], "en": row["en"]},
+                query="on_conflict=key")
+            if st not in (200, 201):
+                return self._send_json(r, st)
+            strings_upserted += 1
+        self._send_json({
+            "ok": True,
+            "sections_seen": len(section_ids),
+            "components_seen": len(component_ids),
+            "strings_upserted": strings_upserted,
+        })
+
+    def _handle_strings_public(self):
+        """GET /api/strings/public — flat [{key, es, en}, ...] for Flutter client.
+        No metadata, ready to cache."""
+        status, rows = _supabase_rest("GET", "app_strings", query="select=key,es,en")
+        if status != 200:
+            return self._send_json(rows, status)
+        self._send_json(rows)
 
     # ─────────────────────────────────────────────────────────────
     # Catalog search — unified across all CATALOGS (Storage source).
@@ -511,6 +670,12 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:
                 return self._send_json({"error": str(e)}, 500)
 
+        # ─── Text CMS (Postgres-backed) ───────────────────────────
+        if path == '/api/strings/tree':
+            return self._handle_strings_tree()
+        if path == '/api/strings/public':
+            return self._handle_strings_public()
+
         return self._send(404, "text/plain", b"not found")
 
     # ─── Editable field map (catalog JSON key → Postgres column) ─
@@ -614,6 +779,17 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_json(result, e.code)
 
             return self._send_json(result)
+
+        # ─── Text CMS (Postgres-backed) ───────────────────────────
+        if path == '/api/strings/upsert':
+            body = self._read_json_body()
+            return self._handle_strings_upsert(body)
+        if path == '/api/strings/bulk-upsert':
+            body = self._read_json_body()
+            return self._handle_strings_bulk_upsert(body)
+        if path == '/api/strings/seed':
+            body = self._read_json_body()
+            return self._handle_strings_seed(body)
 
         return self._send(404, "text/plain", b"not found")
 
