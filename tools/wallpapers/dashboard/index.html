@@ -973,6 +973,29 @@ footer .ornament {
 .kpi .value { word-break: break-word; line-height: 1.1; }
 .kpi .label { word-break: break-word; }
 button { white-space: nowrap; }
+
+/* === TEXTOS tab === */
+.textos-header { padding: 12px 20px; border-bottom: 1px solid #2a2a3a; display:flex; flex-direction:column; gap:8px; }
+.textos-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.textos-controls label { display:flex; gap:6px; align-items:center; font-size:13px; }
+.textos-controls select { padding:6px 10px; background:#1a1a28; color:#eee; border:1px solid #444; border-radius:6px; }
+.textos-pending { font-size:12px; color:#888; }
+.textos-pending.has-changes { color:#F5D676; font-weight:bold; }
+#textos-save-all { padding:8px 14px; background:#444; border:none; color:#888; border-radius:6px; cursor:not-allowed; }
+#textos-save-all:not([disabled]) { background:linear-gradient(90deg,#E0B47A,#6EE7B7); color:#000; cursor:pointer; }
+.textos-wysiwyg { padding: 24px; min-height: 60vh; background: #0a0a14; }
+.textos-wysiwyg .preview-card { background: #14141F; border-radius: 12px; padding: 24px; max-width: 420px; margin: 0 auto; }
+.editable-text { display:inline-block; padding:2px 4px; border:1px dashed transparent; cursor:pointer; border-radius:4px; transition:all .15s; }
+.editable-text:hover { border-color:#E0B47A; background:rgba(224,180,122,0.08); }
+.editable-text.modified { border-color:#6EE7B7; background:rgba(110,231,183,0.12); }
+/* Textos modal (scoped to avoid collision with the existing .modal-overlay/.modal wallpaper detail) */
+.textos-modal { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:1000; }
+.textos-modal-content { background:#14141F; padding:24px; border-radius:12px; min-width:400px; max-width:600px; display:flex; flex-direction:column; gap:12px; }
+.textos-modal-content label { display:flex; flex-direction:column; gap:4px; font-size:13px; color:#aaa; }
+.textos-modal-content textarea { padding:8px; background:#0a0a14; color:#eee; border:1px solid #333; border-radius:6px; font-family:inherit; font-size:14px; resize:vertical; }
+.textos-modal-content footer { display:flex; gap:8px; justify-content:flex-end; }
+.textos-modal-content button { padding:8px 14px; border:none; border-radius:6px; cursor:pointer; }
+.textos-modal-content button.primary { background:linear-gradient(90deg,#E0B47A,#6EE7B7); color:#000; font-weight:bold; }
 </style>
 </head>
 <body>
@@ -1022,6 +1045,10 @@ button { white-space: nowrap; }
   <button class="nav-btn" data-page="engagement">
     <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">insights</span>
     Engagement
+  </button>
+  <button class="nav-btn" data-page="textos">
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">edit_note</span>
+    Textos
   </button>
 </nav>
 
@@ -1436,7 +1463,43 @@ button { white-space: nowrap; }
   </section>
   <!-- ════ /PAGE: ENGAGEMENT ═════════════════════════════════════════════════ -->
 
+  <!-- ════ PAGE: TEXTOS (Text CMS WYSIWYG editor) ═══════════════════════════ -->
+  <section class="page" data-page="textos">
+    <header class="textos-header">
+      <h2>✏️ Editor de Textos · WYSIWYG</h2>
+      <div class="textos-controls">
+        <label>Sección:
+          <select id="textos-section-select"></select>
+        </label>
+        <label>Componente:
+          <select id="textos-component-select"></select>
+        </label>
+        <span class="textos-pending" id="textos-pending-count">0 cambios</span>
+        <button id="textos-save-all" class="primary" disabled>💾 Guardar todos</button>
+      </div>
+    </header>
+    <div id="textos-wysiwyg" class="textos-wysiwyg"></div>
+  </section>
+  <!-- ════ /PAGE: TEXTOS ══════════════════════════════════════════════════════ -->
+
 </main>
+
+<!-- TEXTOS EDIT MODAL -->
+<div id="textos-edit-modal" class="textos-modal" style="display:none;">
+  <div class="textos-modal-content">
+    <header><strong id="textos-modal-key">key.path</strong></header>
+    <label>Español (MX)
+      <textarea id="textos-modal-es" rows="3"></textarea>
+    </label>
+    <label>English
+      <textarea id="textos-modal-en" rows="3"></textarea>
+    </label>
+    <footer>
+      <button onclick="cerrarTextosModal()">Cancelar</button>
+      <button class="primary" onclick="guardarTextosModal()">Guardar (Ctrl+Enter)</button>
+    </footer>
+  </div>
+</div>
 
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="modal">
@@ -2755,6 +2818,8 @@ function switchPage(page) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   // Lazy-load engagement data only when the user opens the tab.
   if (page === 'engagement') loadEngagement();
+  // Lazy-load TEXTOS data only when the user opens the tab.
+  if (page === 'textos' && !TextosCMS.tree) TextosCMS.load();
 }
 
 // ────────────────────────────────────────────────────────────────────────
@@ -2915,6 +2980,191 @@ bindEvents();
 wireEditPanel();
 refreshAll().then(doSearch);
 startAutoRefresh();
+
+// === TEXTOS tab — Text CMS editor ===
+const TextosCMS = {
+  tree: null,
+  pendingChanges: new Map(),  // key -> {es, en, component_id}
+  currentSection: null,
+  currentComponent: null,
+  modalKey: null,
+
+  async load() {
+    const res = await fetch('/api/strings/tree');
+    if (!res.ok) {
+      alert('Error cargando strings: ' + res.status);
+      return;
+    }
+    this.tree = await res.json();
+    this.renderSelectors();
+  },
+
+  renderSelectors() {
+    const secSel = document.getElementById('textos-section-select');
+    secSel.innerHTML = this.tree.map(s =>
+      `<option value="${s.id}">${s.name} (${s.components.length})</option>`
+    ).join('');
+    secSel.onchange = () => this.selectSection(parseInt(secSel.value, 10));
+    if (this.tree.length) this.selectSection(this.tree[0].id);
+  },
+
+  selectSection(sectionId) {
+    this.currentSection = this.tree.find(s => s.id === sectionId);
+    const compSel = document.getElementById('textos-component-select');
+    compSel.innerHTML = this.currentSection.components.map(c =>
+      `<option value="${c.id}">${c.name} (${c.strings.length})</option>`
+    ).join('');
+    compSel.onchange = () => this.selectComponent(parseInt(compSel.value, 10));
+    if (this.currentSection.components.length) {
+      this.selectComponent(this.currentSection.components[0].id);
+    }
+  },
+
+  selectComponent(componentId) {
+    this.currentComponent = this.currentSection.components.find(c => c.id === componentId);
+    this.renderWysiwyg();
+  },
+
+  // Look up a string by key in the current component, with pending changes applied.
+  stringFor(key, fallback) {
+    const pending = this.pendingChanges.get(key);
+    if (pending) return pending.es;
+    const s = this.currentComponent.strings.find(x => x.key === key);
+    return s ? s.es : fallback;
+  },
+
+  renderWysiwyg() {
+    const el = document.getElementById('textos-wysiwyg');
+    if (this.currentComponent.name === 'ParallaxWallpapersPage') {
+      el.innerHTML = this.renderParallaxWallpapersPagePreview();
+    } else {
+      el.innerHTML = `<p style="color:#888;text-align:center;padding:40px;">WYSIWYG preview no implementado para "${this.currentComponent.name}" todavía. Strings sin preview visual:</p>` +
+        '<ul style="max-width:600px;margin:0 auto;color:#ccc;">' +
+        this.currentComponent.strings.map(s =>
+          `<li><code>${s.key}</code>: <span class="editable-text${this.pendingChanges.has(s.key)?' modified':''}" onclick="TextosCMS.openModal('${s.key}')">${this.stringFor(s.key, s.es)}</span></li>`
+        ).join('') + '</ul>';
+    }
+    this.refreshPendingBadge();
+  },
+
+  // Hardcoded WYSIWYG for the ParallaxWallpapersPage (3D · TILT).
+  // Approximates real Pixora fonts + foil color. Renders the editorial header.
+  renderParallaxWallpapersPagePreview() {
+    const badge = this.stringFor('wallpapers.tilt_3d.badge_count_label', 'piezas curadas');
+    const t1 = this.stringFor('wallpapers.tilt_3d.title_part1', 'Profundidad');
+    const t2 = this.stringFor('wallpapers.tilt_3d.title_part2', 'curada.');
+    const sub = this.stringFor('wallpapers.tilt_3d.subtitle', 'el equipo de Pixora elige · semanal');
+    const cls = k => 'editable-text' + (this.pendingChanges.has(k) ? ' modified' : '');
+    return `
+      <div class="preview-card" style="font-family: 'Inter', sans-serif; color:#eee;">
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+          <span style="padding:3px 10px; border:1px solid #E0B47A; border-radius:14px; font-size:10px; letter-spacing:1.6px; color:#E0B47A;">3D · TILT</span>
+          <span class="${cls('wallpapers.tilt_3d.badge_count_label')}"
+            onclick="TextosCMS.openModal('wallpapers.tilt_3d.badge_count_label')"
+            style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.6px; color:#888;">06 ${badge}</span>
+        </div>
+        <div style="font-family:'Fraunces',serif; font-style:italic; font-weight:300; font-size:42px; line-height:0.96; letter-spacing:-1.2px; color:#fff;">
+          <span class="${cls('wallpapers.tilt_3d.title_part1')}"
+            onclick="TextosCMS.openModal('wallpapers.tilt_3d.title_part1')">${t1}</span><br/>
+          <span class="${cls('wallpapers.tilt_3d.title_part2')}"
+            onclick="TextosCMS.openModal('wallpapers.tilt_3d.title_part2')"
+            style="background:linear-gradient(90deg,#E0B47A,#F4D6B8,#FFFFFF,#6EE7B7); -webkit-background-clip:text; background-clip:text; color:transparent;">${t2}</span>
+        </div>
+        <div style="margin-top:8px;">
+          <span class="${cls('wallpapers.tilt_3d.subtitle')}"
+            onclick="TextosCMS.openModal('wallpapers.tilt_3d.subtitle')"
+            style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.4px; color:#888;">${sub}</span>
+        </div>
+      </div>
+    `;
+  },
+
+  openModal(key) {
+    const s = this.currentComponent.strings.find(x => x.key === key);
+    if (!s) return;
+    const pending = this.pendingChanges.get(key);
+    this.modalKey = key;
+    document.getElementById('textos-modal-key').textContent = key;
+    document.getElementById('textos-modal-es').value = pending ? pending.es : s.es;
+    document.getElementById('textos-modal-en').value = pending ? pending.en : s.en;
+    document.getElementById('textos-edit-modal').style.display = 'flex';
+    document.getElementById('textos-modal-es').focus();
+  },
+
+  closeModal() {
+    document.getElementById('textos-edit-modal').style.display = 'none';
+    this.modalKey = null;
+  },
+
+  saveModal() {
+    if (!this.modalKey) return;
+    const es = document.getElementById('textos-modal-es').value;
+    const en = document.getElementById('textos-modal-en').value;
+    const s = this.currentComponent.strings.find(x => x.key === this.modalKey);
+    if (s.es === es && s.en === en) {
+      this.pendingChanges.delete(this.modalKey);
+    } else {
+      this.pendingChanges.set(this.modalKey, { es, en, component_id: this.currentComponent.id });
+    }
+    this.closeModal();
+    this.renderWysiwyg();
+  },
+
+  refreshPendingBadge() {
+    const span = document.getElementById('textos-pending-count');
+    const btn = document.getElementById('textos-save-all');
+    const n = this.pendingChanges.size;
+    span.textContent = n === 1 ? '1 cambio' : `${n} cambios`;
+    span.classList.toggle('has-changes', n > 0);
+    if (n > 0) btn.removeAttribute('disabled'); else btn.setAttribute('disabled', '');
+  },
+
+  async saveAll() {
+    if (this.pendingChanges.size === 0) return;
+    const body = Array.from(this.pendingChanges.entries()).map(([key, val]) => ({
+      key, es: val.es, en: val.en, component_id: val.component_id,
+    }));
+    const btn = document.getElementById('textos-save-all');
+    btn.textContent = 'Guardando…';
+    btn.setAttribute('disabled', '');
+    try {
+      const res = await fetch('/api/strings/bulk-upsert', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      this.pendingChanges.clear();
+      await this.load();  // re-fetch tree
+      btn.textContent = '✅ Guardado';
+      setTimeout(() => { btn.textContent = '💾 Guardar todos'; }, 1500);
+    } catch (e) {
+      btn.textContent = '❌ Error';
+      alert('Error guardando: ' + e.message);
+      setTimeout(() => { btn.textContent = '💾 Guardar todos'; btn.removeAttribute('disabled'); }, 2000);
+    }
+  },
+};
+
+// Global handlers wired to onclick attributes in the HTML
+function cerrarTextosModal() { TextosCMS.closeModal(); }
+function guardarTextosModal() { TextosCMS.saveModal(); }
+
+// Wire bulk-save button (script runs end-of-body, DOM is ready)
+(function wireTextosCMS() {
+  const btn = document.getElementById('textos-save-all');
+  if (btn) btn.onclick = () => TextosCMS.saveAll();
+  // Ctrl+Enter in modal saves; Escape closes
+  document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('textos-edit-modal');
+    if (modal && modal.style.display === 'flex' && e.ctrlKey && e.key === 'Enter') {
+      TextosCMS.saveModal();
+    }
+    if (modal && modal.style.display === 'flex' && e.key === 'Escape') {
+      TextosCMS.closeModal();
+    }
+  });
+})();
 </script>
 </body>
 </html>
