@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/utils/locale_helper.dart';
 import '../../../wallpapers/data/models/wallpaper.dart';
 import '../../../wallpapers/presentation/pages/wallpaper_preview_page.dart';
 import '../../providers/parallax_wallpaper_providers.dart';
@@ -75,7 +76,11 @@ class _MagazineLayout extends StatelessWidget {
                   const _HoloChip(label: '3D · TILT'),
                   const SizedBox(width: 8),
                   Text(
-                    '${(rest.length + 1).toString().padLeft(2, '0')} piezas curadas',
+                    '${(rest.length + 1).toString().padLeft(2, '0')} ${LocaleHelper.fromCms(
+                      'wallpapers.tilt_3d.badge_count_label',
+                      fallbackEs: 'piezas curadas',
+                      fallbackEn: 'curated pieces',
+                    )}',
                     style: TextStyle(
                       fontFamily: 'JetBrainsMono',
                       fontSize: 10,
@@ -88,7 +93,11 @@ class _MagazineLayout extends StatelessWidget {
                 Text.rich(
                   TextSpan(children: [
                     TextSpan(
-                      text: 'Profundidad\n',
+                      text: '${LocaleHelper.fromCms(
+                        'wallpapers.tilt_3d.title_part1',
+                        fallbackEs: 'Profundidad',
+                        fallbackEn: 'Curated',
+                      )}\n',
                       style: TextStyle(
                         fontFamily: 'Fraunces',
                         fontStyle: FontStyle.italic,
@@ -103,7 +112,11 @@ class _MagazineLayout extends StatelessWidget {
                       alignment: PlaceholderAlignment.baseline,
                       baseline: TextBaseline.alphabetic,
                       child: _HoloShimmerText(
-                        text: 'curada.',
+                        text: LocaleHelper.fromCms(
+                          'wallpapers.tilt_3d.title_part2',
+                          fallbackEs: 'curada.',
+                          fallbackEn: 'depth.',
+                        ),
                         style: TextStyle(
                           fontFamily: 'Fraunces',
                           fontStyle: FontStyle.italic,
@@ -119,7 +132,11 @@ class _MagazineLayout extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'el equipo de Pixora elige · semanal',
+                  LocaleHelper.fromCms(
+                    'wallpapers.tilt_3d.subtitle',
+                    fallbackEs: 'el equipo de Pixora elige · semanal',
+                    fallbackEn: "Pixora's team picks · weekly",
+                  ),
                   style: TextStyle(
                     fontFamily: 'JetBrainsMono',
                     fontSize: 10,
