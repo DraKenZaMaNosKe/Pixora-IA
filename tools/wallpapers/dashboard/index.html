@@ -2819,7 +2819,7 @@ function switchPage(page) {
   // Lazy-load engagement data only when the user opens the tab.
   if (page === 'engagement') loadEngagement();
   // Lazy-load TEXTOS data only when the user opens the tab.
-  if (page === 'textos' && typeof TextosCMS !== 'undefined' && !TextosCMS.tree) TextosCMS.load();
+  if (page === 'textos' && TextosCMS && !TextosCMS.tree) TextosCMS.load();
 }
 
 // ────────────────────────────────────────────────────────────────────────
@@ -2982,7 +2982,10 @@ refreshAll().then(doSearch);
 startAutoRefresh();
 
 // === TEXTOS tab — Text CMS editor ===
-const TextosCMS = {
+// var (not const) so it gets hoisted as `undefined` instead of sitting in TDZ —
+// bindEvents() can call switchPage('textos') at page load before this script
+// block runs, and we need the guard `TextosCMS && ...` in switchPage to not throw.
+var TextosCMS = {
   tree: null,
   pendingChanges: new Map(),  // key -> {es, en, component_id}
   currentSection: null,
