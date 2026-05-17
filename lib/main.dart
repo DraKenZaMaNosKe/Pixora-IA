@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/analytics_service.dart';
+import 'core/services/app_strings_service.dart';
 import 'core/services/catalog_service.dart';
 import 'core/services/credit_service.dart';
 import 'core/services/grace_pass_service.dart';
@@ -109,6 +110,10 @@ Future<void> main() async {
     // startup if Firebase/network is slow. Topic subscription happens
     // in the background; failures only log debug, never crash UI.
     unawaited(PushNotificationService.instance.init());
+    // Text CMS — fetch admin-editable strings from Supabase, cache in Hive.
+    // Non-blocking: if it fails, LocaleHelper.fromCms() falls back to
+    // hardcoded strings in each widget.
+    unawaited(AppStringsService.instance.initialize());
     AdService.instance.initialize();
     // Cold-start optimization — precarga los catálogos desde disco antes
     // de runApp() para que las pantallas Wallpapers/LIVE arranquen con
