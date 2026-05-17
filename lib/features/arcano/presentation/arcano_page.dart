@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-import '../../../core/design/hud_tokens.dart';
+import '../../../core/constants/supabase_config.dart';
 import '../../../core/services/wallpaper_service.dart';
 import '../../../core/services/wallpaper_stats_service.dart';
 import '../../wallpapers/data/models/wallpaper.dart';
@@ -31,20 +31,55 @@ class ArcanoPage extends ConsumerStatefulWidget {
   ConsumerState<ArcanoPage> createState() => _ArcanoPageState();
 }
 
-class _ArcanoPageState extends ConsumerState<ArcanoPage> {
+/// Cosmic palette — used for BOTH iOS and B&G themes, just like the
+/// onboarding modal. The section needs a unified dark cosmic identity.
+class _ArcanoPalette {
+  static const ink = Color(0xFF020617);
+  static const inkMid = Color(0xFF060B1A);
+  static const inkTop = Color(0xFF0F172A);
+  static const cyan = Color(0xFF7DD3FC);
+  static const silver = Color(0xFFE2E8F0);
+  static const textDim = Color(0x99E2E8F0);
+  static const textFaint = Color(0x66E2E8F0);
+  static const cyan25 = Color(0x407DD3FC);
+  static const cyan10 = Color(0x1A7DD3FC);
+  static const cyan05 = Color(0x0D7DD3FC);
+}
+
+class _ArcanoPageState extends ConsumerState<ArcanoPage>
+    with TickerProviderStateMixin {
   bool _installing = false;
   String? _installingId;
   bool _onboardingShown = false;
 
+  late final AnimationController _glowCtrl;
+  late final AnimationController _irisCtrl;
+  late final AnimationController _starCtrl;
+
   @override
   void initState() {
     super.initState();
+    _glowCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat(reverse: true);
+    _irisCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..repeat();
+    _starCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 40),
+    )..repeat();
     UserProfileService.instance.addListener(_onProfileChange);
     _bootstrap();
   }
 
   @override
   void dispose() {
+    _glowCtrl.dispose();
+    _irisCtrl.dispose();
+    _starCtrl.dispose();
     UserProfileService.instance.removeListener(_onProfileChange);
     super.dispose();
   }
@@ -73,57 +108,84 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final hud = context.hud;
     final phase = _MoonPhase.today();
     final dateLabel = _formatDate(DateTime.now());
     final profile = UserProfileService.instance;
-    // Generic fallbacks when the user dismissed onboarding without saving.
-    // Page still renders something useful (no personalisation, no name).
     final userName = profile.hasProfile ? profile.name : 'Viajero';
-    final userZodiac = profile.zodiacSign; // null = not personalised
+    final userZodiac = profile.zodiacSign;
     final userFreq = profile.personalFrequency ?? 528;
 
     return Container(
-      decoration: BoxDecoration(
-        gradient: hud.isDark
-            ? const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF050308),
-                  Color(0xFF0A0512),
-                  Color(0xFF050308)
-                ],
-              )
-            : null,
-        color: hud.isDark ? null : hud.bg,
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _topRow(hud, dateLabel, profile.hasProfile),
-              const SizedBox(height: 14),
-              _moonHero(hud, phase),
-              const SizedBox(height: 14),
-              _statRow(hud, phase, userZodiac),
-              const SizedBox(height: 14),
-              _readingCard(hud, phase, userName, userFreq),
-              const SizedBox(height: 26),
-              _calendarsSection(hud, phase),
-              const SizedBox(height: 14),
-              _footerNote(hud),
-            ],
-          ),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            _ArcanoPalette.inkTop,
+            _ArcanoPalette.inkMid,
+            _ArcanoPalette.ink,
+          ],
+          stops: [0.0, 0.5, 1.0],
         ),
+      ),
+      child: Stack(
+        children: [
+          // Cyan halo top — observatory dome glow
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0, -0.85),
+                    radius: 1.1,
+                    colors: [
+                      _ArcanoPalette.cyan.withValues(alpha: 0.14),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Parallax starfield
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _starCtrl,
+                builder: (_, __) => CustomPaint(
+                  painter: _StarfieldPainter(progress: _starCtrl.value),
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _topRow(dateLabel, profile.hasProfile),
+                  const SizedBox(height: 14),
+                  _moonHero(phase),
+                  const SizedBox(height: 14),
+                  _statRow(phase, userZodiac),
+                  const SizedBox(height: 14),
+                  _readingCard(phase, userName, userFreq),
+                  const SizedBox(height: 26),
+                  _calendarsSection(phase),
+                  const SizedBox(height: 14),
+                  _footerNote(),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ── Header row: date + edit-profile icon ─────────────────────────────
-  Widget _topRow(HudTheme hud, String dateLabel, bool hasProfile) {
+  Widget _topRow(String dateLabel, bool hasProfile) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -132,12 +194,22 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
           style: GoogleFonts.jetBrainsMono(
             fontSize: 11,
             letterSpacing: 2.4,
-            color: hud.accent,
+            color: _ArcanoPalette.cyan.withValues(alpha: 0.75),
             fontWeight: FontWeight.w600,
+            shadows: [
+              Shadow(
+                color: _ArcanoPalette.cyan.withValues(alpha: 0.4),
+                blurRadius: 6,
+              ),
+            ],
           ),
         ),
         InkWell(
-          onTap: hasProfile ? _openOnboarding : null,
+          // The "+" icon (no profile yet) opens the same onboarding sheet
+          // as the "tune" icon (has profile). Both must be tappable —
+          // previously `null` when no profile, which made the entry-point
+          // dead for first-time users. 2026-05-16 fix.
+          onTap: _openOnboarding,
           borderRadius: BorderRadius.circular(20),
           child: Container(
             width: 30,
@@ -145,12 +217,13 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: hud.accent.withValues(alpha: 0.4)),
+              color: _ArcanoPalette.cyan10,
+              border: Border.all(color: _ArcanoPalette.cyan25),
             ),
             child: Icon(
               hasProfile ? Icons.tune_rounded : Icons.add,
               size: 16,
-              color: hud.accent,
+              color: _ArcanoPalette.cyan,
             ),
           ),
         ),
@@ -162,54 +235,83 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
     await ArcanoOnboardingSheet.show(context);
   }
 
-  // ── Hero moon card (real-ish Meeus-approximated phase) ───────────────
-  Widget _moonHero(HudTheme hud, _MoonPhase phase) {
+  // ── Hero moon card — Deep Cosmos Observatory orb with pulsing halo ──
+  Widget _moonHero(_MoonPhase phase) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 22, 18, 26),
+      padding: const EdgeInsets.fromLTRB(18, 28, 18, 26),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: hud.isDark
-            ? const RadialGradient(
-                center: Alignment.topCenter,
-                radius: 1.6,
-                colors: [Color(0xFF1A0F3A), Color(0xFF0A0512)],
-              )
-            : null,
-        color: hud.isDark ? null : hud.surface,
-        border: Border.all(
-          color: hud.accent.withValues(alpha: hud.isDark ? 0.18 : 0.0),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0x990F172A),
+            Color(0xD9020617),
+          ],
         ),
-        boxShadow: hud.isDark
-            ? null
-            : [
-                BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 14,
-                    offset: const Offset(0, 4))
-              ],
+        border: Border.all(color: _ArcanoPalette.cyan.withValues(alpha: 0.18)),
+        boxShadow: [
+          BoxShadow(
+            color: _ArcanoPalette.cyan.withValues(alpha: 0.12),
+            blurRadius: 60,
+            spreadRadius: -10,
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 40,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          _MoonGraphic(
+          AnimatedBuilder(
+            animation: _glowCtrl,
+            builder: (_, __) => _DeepCosmosMoonOrb(
               illuminationFraction: phase.illumination,
-              isWaxing: phase.isWaxing),
-          const SizedBox(height: 14),
-          Text(
-            phase.spanishName,
-            style: GoogleFonts.fraunces(
-              fontSize: 22,
-              fontStyle: FontStyle.italic,
-              color: hud.text,
-              fontWeight: FontWeight.w400,
+              isWaxing: phase.isWaxing,
+              glowPulse: _glowCtrl.value,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 22),
+          AnimatedBuilder(
+            animation: _irisCtrl,
+            builder: (_, __) {
+              final shift = _irisCtrl.value;
+              return ShaderMask(
+                shaderCallback: (rect) {
+                  return LinearGradient(
+                    begin: Alignment(-1 + 2 * shift, 0),
+                    end: Alignment(1 + 2 * shift, 0),
+                    colors: const [
+                      _ArcanoPalette.silver,
+                      _ArcanoPalette.cyan,
+                      _ArcanoPalette.silver,
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ).createShader(rect);
+                },
+                blendMode: BlendMode.srcIn,
+                child: Text(
+                  phase.spanishName,
+                  style: GoogleFonts.fraunces(
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 6),
           Text(
-            '${(phase.illumination * 100).toStringAsFixed(0)}% iluminada',
+            '${(phase.illumination * 100).toStringAsFixed(0)}% · ILUMINADA',
             style: GoogleFonts.jetBrainsMono(
               fontSize: 10,
-              letterSpacing: 2,
-              color: hud.textDim,
+              letterSpacing: 2.4,
+              color: _ArcanoPalette.cyan.withValues(alpha: 0.65),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -219,29 +321,27 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
   }
 
   // ── 2 stat pills: next phase + zodiac sign ───────────────────────────
-  Widget _statRow(HudTheme hud, _MoonPhase phase, ZodiacSign? zodiac) {
+  Widget _statRow(_MoonPhase phase, ZodiacSign? zodiac) {
     final zodiacLabel =
         zodiac == null ? '— · ?' : '${zodiac.label} ${zodiac.glyph}';
     return Row(
       children: [
         Expanded(
-            child: _statPill(hud, 'Próximo',
+            child: _statPill('Próximo',
                 '${phase.nextMajorPhaseName} · ${phase.daysToNextMajor}d')),
         const SizedBox(width: 8),
-        Expanded(child: _statPill(hud, 'Tu signo', zodiacLabel)),
+        Expanded(child: _statPill('Tu signo', zodiacLabel)),
       ],
     );
   }
 
-  Widget _statPill(HudTheme hud, String label, String value) {
+  Widget _statPill(String label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: hud.isDark ? hud.text.withValues(alpha: 0.04) : hud.surface,
-        border: Border.all(
-          color: hud.accent.withValues(alpha: hud.isDark ? 0.15 : 0.0),
-        ),
+        color: _ArcanoPalette.cyan05,
+        border: Border.all(color: _ArcanoPalette.cyan.withValues(alpha: 0.18)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,7 +351,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
             style: GoogleFonts.jetBrainsMono(
               fontSize: 9,
               letterSpacing: 2,
-              color: hud.accent,
+              color: _ArcanoPalette.cyan.withValues(alpha: 0.55),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -260,7 +360,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
             value,
             style: GoogleFonts.fraunces(
               fontSize: 16,
-              color: hud.text,
+              color: _ArcanoPalette.silver,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -270,19 +370,21 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
   }
 
   // ── Personalised reading card (Cormorant italic body) ────────────────
-  Widget _readingCard(
-      HudTheme hud, _MoonPhase phase, String userName, int freq) {
+  Widget _readingCard(_MoonPhase phase, String userName, int freq) {
     final reading = _composeReading(phase, freq);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: hud.isDark
-            ? hud.accent.withValues(alpha: 0.06)
-            : Color.lerp(hud.bg, hud.accent, 0.05),
-        border: Border.all(
-          color: hud.accent.withValues(alpha: 0.25),
-        ),
+        color: const Color(0x8C0F172A),
+        border: Border.all(color: _ArcanoPalette.cyan.withValues(alpha: 0.16)),
+        boxShadow: [
+          BoxShadow(
+            color: _ArcanoPalette.cyan.withValues(alpha: 0.08),
+            blurRadius: 24,
+            spreadRadius: -4,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +394,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
             style: GoogleFonts.jetBrainsMono(
               fontSize: 9,
               letterSpacing: 2.4,
-              color: hud.accent,
+              color: _ArcanoPalette.cyan.withValues(alpha: 0.7),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -302,7 +404,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
               style: GoogleFonts.cormorantGaramond(
                 fontSize: 16,
                 fontStyle: FontStyle.italic,
-                color: hud.text,
+                color: _ArcanoPalette.silver.withValues(alpha: 0.85),
                 height: 1.45,
               ),
               children: reading.spans
@@ -311,10 +413,17 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
                         style: s.emphasis
                             ? GoogleFonts.cormorantGaramond(
                                 fontStyle: FontStyle.italic,
-                                color: hud.accent,
+                                color: _ArcanoPalette.cyan,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                                 height: 1.45,
+                                shadows: [
+                                  Shadow(
+                                    color: _ArcanoPalette.cyan
+                                        .withValues(alpha: 0.4),
+                                    blurRadius: 8,
+                                  ),
+                                ],
                               )
                             : null,
                       ))
@@ -336,7 +445,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
   /// Adding a new calendar requires ZERO app rebuild — just upload its
   /// 96 phase×sign variants to Supabase and INSERT a row in the wallpapers
   /// table with category='ARCANO'. The carousel picks it up automatically.
-  Widget _calendarsSection(HudTheme hud, _MoonPhase phase) {
+  Widget _calendarsSection(_MoonPhase phase) {
     final calendarsAsync = ref.watch(arcanoCatalogProvider);
 
     return Column(
@@ -344,68 +453,75 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
       children: [
         Row(
           children: [
-            Container(
-              width: 4,
-              height: 22,
-              decoration: BoxDecoration(
-                color: hud.accent,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 12),
             Text(
-              'Calendarios Lunares',
-              style: GoogleFonts.fraunces(
-                fontSize: 22,
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w500,
-                color: hud.text,
-                letterSpacing: -0.3,
+              'EXPLORA',
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 9,
+                letterSpacing: 2.4,
+                color: _ArcanoPalette.cyan.withValues(alpha: 0.55),
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Container(
                 height: 1,
-                color: hud.accent.withValues(alpha: 0.25),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      _ArcanoPalette.cyan.withValues(alpha: 0.25),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 6),
-        Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: Text(
-            'Tap para aplicar — la luna y tu signo se ajustan a hoy automáticamente.',
-            style: GoogleFonts.cormorantGaramond(
-              fontSize: 13,
-              fontStyle: FontStyle.italic,
-              color: hud.textDim,
-            ),
+        Text(
+          'Calendarios Lunares',
+          style: GoogleFonts.fraunces(
+            fontSize: 22,
+            fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w500,
+            color: _ArcanoPalette.silver,
+            letterSpacing: -0.3,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Tu mes completo — fases, eclipses y tu carta astral diaria.',
+          style: GoogleFonts.cormorantGaramond(
+            fontSize: 13,
+            fontStyle: FontStyle.italic,
+            color: _ArcanoPalette.silver.withValues(alpha: 0.55),
           ),
         ),
         const SizedBox(height: 14),
         SizedBox(
           height: 244,
           child: calendarsAsync.when(
-            loading: () => Center(
-              child: CircularProgressIndicator(color: hud.accent),
+            loading: () => const Center(
+              child: CircularProgressIndicator(color: _ArcanoPalette.cyan),
             ),
             error: (e, _) => Center(
               child: Text('Error: $e',
-                  style: TextStyle(color: hud.textDim, fontSize: 12)),
+                  style: const TextStyle(
+                      color: _ArcanoPalette.textDim, fontSize: 12)),
             ),
             data: (list) {
               if (list.isEmpty) {
-                return Center(
+                return const Center(
                   child: Text('No hay calendarios disponibles',
-                      style: TextStyle(color: hud.textDim, fontSize: 13)),
+                      style: TextStyle(
+                          color: _ArcanoPalette.textDim, fontSize: 13)),
                 );
               }
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: list.length,
-                itemBuilder: (ctx, i) => _calendarCard(hud, list[i], phase),
+                itemBuilder: (ctx, i) => _calendarCard(list[i], phase),
               );
             },
           ),
@@ -414,7 +530,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
     );
   }
 
-  Widget _calendarCard(HudTheme hud, Wallpaper w, _MoonPhase phase) {
+  Widget _calendarCard(Wallpaper w, _MoonPhase phase) {
     final canInstall = Platform.isAndroid && w.id.isNotEmpty;
     final isInstallingThis = _installing && _installingId == w.id;
 
@@ -437,22 +553,45 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
                     child: AspectRatio(
                       aspectRatio: 9 / 12,
                       child: Container(
-                        color: hud.surface,
+                        decoration: BoxDecoration(
+                          color: _ArcanoPalette.inkTop,
+                          border: Border.all(
+                            color: _ArcanoPalette.cyan.withValues(alpha: 0.2),
+                            width: 0.5,
+                          ),
+                        ),
                         child: w.previewUrl.isNotEmpty
                             ? Image.network(
                                 w.previewUrl,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
-                                  color: hud.surface,
+                                errorBuilder: (_, __, ___) => const Center(
                                   child: Icon(Icons.image_not_supported,
-                                      color: hud.textDim),
+                                      color: _ArcanoPalette.textDim),
                                 ),
                               )
-                            : Container(color: hud.surface),
+                            : const SizedBox.shrink(),
                       ),
                     ),
                   ),
-                  // Phase chip top-right
+                  // Cyan glow ring around card
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  _ArcanoPalette.cyan.withValues(alpha: 0.15),
+                              blurRadius: 18,
+                              spreadRadius: -4,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Phase chip top-right — cyan tinted
                   Positioned(
                     top: 6,
                     right: 6,
@@ -460,8 +599,9 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: hud.accent,
+                        color: const Color(0xCC020617),
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: _ArcanoPalette.cyan25),
                       ),
                       child: Text(
                         phase.spanishName,
@@ -469,7 +609,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
                           fontSize: 8,
                           letterSpacing: 1.2,
                           fontWeight: FontWeight.w700,
-                          color: Colors.black,
+                          color: _ArcanoPalette.cyan,
                         ),
                       ),
                     ),
@@ -477,10 +617,13 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
                   if (isInstallingThis)
                     Positioned.fill(
                       child: Container(
-                        color: Colors.black54,
-                        child: Center(
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Center(
                           child: CircularProgressIndicator(
-                            color: hud.accent,
+                            color: _ArcanoPalette.cyan,
                             strokeWidth: 2,
                           ),
                         ),
@@ -497,7 +640,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w500,
-                  color: hud.text,
+                  color: _ArcanoPalette.silver,
                 ),
               ),
               const SizedBox(height: 2),
@@ -506,7 +649,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
                 style: GoogleFonts.jetBrainsMono(
                   fontSize: 8,
                   letterSpacing: 1.4,
-                  color: hud.accent,
+                  color: _ArcanoPalette.cyan.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -517,14 +660,14 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
     );
   }
 
-  Widget _footerNote(HudTheme hud) {
+  Widget _footerNote() {
     return Center(
       child: Text(
         '🔒 PERFIL SOLO EN ESTE DISPOSITIVO',
         style: GoogleFonts.jetBrainsMono(
           fontSize: 9,
           letterSpacing: 2.4,
-          color: hud.textDim,
+          color: _ArcanoPalette.textFaint,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -612,8 +755,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
     if (localFile.existsSync()) {
       return localFile.path;
     }
-    final url = 'https://vzuwvsmlyigjtsearxym.supabase.co'
-        '/storage/v1/object/public/wallpaper-images/$fileName';
+    final url = SupabaseConfig.imageUrl(fileName);
     final res = await http.get(Uri.parse(url));
     if (res.statusCode != 200) {
       throw Exception('Download failed: HTTP ${res.statusCode}');
@@ -659,113 +801,201 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage> {
 }
 
 // ═════════════════════════════════════════════════════════════════════
-//  Moon graphic — pure CustomPainter, no asset
+//  Deep Cosmos Moon Orb — observatory-style 3D moon with cyan halo
 // ═════════════════════════════════════════════════════════════════════
-class _MoonGraphic extends StatelessWidget {
-  final double illuminationFraction; // 0..1
+class _DeepCosmosMoonOrb extends StatelessWidget {
+  final double illuminationFraction;
   final bool isWaxing;
-  const _MoonGraphic({
+  final double glowPulse; // 0..1 from AnimationController
+
+  const _DeepCosmosMoonOrb({
     required this.illuminationFraction,
     required this.isWaxing,
+    required this.glowPulse,
   });
 
   @override
   Widget build(BuildContext context) {
+    final pulse = (math.sin(glowPulse * math.pi * 2) + 1) / 2;
+    final ringAlpha = 0.5 + pulse * 0.2;
+    final outerAlpha = 0.25 + pulse * 0.1;
     return SizedBox(
-      width: 86,
-      height: 86,
-      child: CustomPaint(
-        painter: _MoonPainter(
-          illumination: illuminationFraction,
-          isWaxing: isWaxing,
-        ),
+      width: 132,
+      height: 132,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 132,
+            height: 132,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      _ArcanoPalette.cyan.withValues(alpha: outerAlpha * 0.5),
+                  blurRadius: 60,
+                  spreadRadius: 4,
+                ),
+                BoxShadow(
+                  color: _ArcanoPalette.cyan.withValues(alpha: ringAlpha * 0.6),
+                  blurRadius: 28,
+                  spreadRadius: -2,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 116,
+            height: 116,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const RadialGradient(
+                center: Alignment(-0.36, -0.4),
+                radius: 0.95,
+                colors: [
+                  Color(0xFFF8FAFC),
+                  Color(0xFFCBD5E1),
+                  Color(0xFF64748B),
+                  Color(0xFF1E293B),
+                ],
+                stops: [0.0, 0.35, 0.75, 1.0],
+              ),
+              border: Border.all(
+                color: _ArcanoPalette.cyan.withValues(alpha: ringAlpha),
+                width: 1,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0xD9020617),
+                  blurRadius: 18,
+                  spreadRadius: -8,
+                  offset: Offset(8, 8),
+                ),
+              ],
+            ),
+            child: CustomPaint(
+              painter: _MoonCratersPainter(
+                illumination: illuminationFraction,
+                isWaxing: isWaxing,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _MoonPainter extends CustomPainter {
+class _MoonCratersPainter extends CustomPainter {
   final double illumination;
   final bool isWaxing;
-  _MoonPainter({required this.illumination, required this.isWaxing});
+  _MoonCratersPainter({required this.illumination, required this.isWaxing});
 
   @override
   void paint(Canvas canvas, Size size) {
     final c = Offset(size.width / 2, size.height / 2);
     final r = size.width / 2;
-    // Lit moon disc (warm gold)
-    final lit = Paint()
-      ..shader = RadialGradient(
-        colors: const [Color(0xFFF5E9C2), Color(0xFFD4AF37), Color(0xFF6E5418)],
-        stops: const [0.0, 0.55, 1.0],
-        center: const Alignment(-0.3, -0.3),
-      ).createShader(Rect.fromCircle(center: c, radius: r));
-    canvas.drawCircle(c, r, lit);
-    // Glow
-    final glow = Paint()
-      ..color = const Color(0xFFD4AF37).withValues(alpha: 0.25)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
-    canvas.drawCircle(c, r * 1.05, glow);
-    // Shadow (the un-illuminated portion)
-    final shadow = Paint()..color = const Color(0xCC000000);
-    if (illumination < 0.99) {
-      // Render the shadow as a partial cover. Simple model: for waxing phases
-      // shadow is on the LEFT, for waning on the RIGHT.
-      final isNewish = illumination < 0.05;
-      if (isNewish) {
-        canvas.drawCircle(c, r, Paint()..color = const Color(0xFF12090B));
-      } else {
-        // Build a clipping ellipse intersected with the disc.
-        final shadowSide = isWaxing ? -1.0 : 1.0;
-        final terminator =
-            c.dx + shadowSide * (r * 2 * (1 - 2 * illumination)) / 2;
-        final path = Path()..addOval(Rect.fromCircle(center: c, radius: r));
-        canvas.save();
-        canvas.clipPath(path);
-        if (illumination < 0.5) {
-          // Less than half: shadow is the bigger piece — draw a half-disc plus an inner ellipse.
-          canvas.drawRect(
-            Rect.fromLTRB(
-              shadowSide < 0 ? c.dx - r : c.dx,
-              c.dy - r,
-              shadowSide < 0 ? c.dx : c.dx + r,
-              c.dy + r,
-            ),
-            shadow,
-          );
-          final inner = Rect.fromCenter(
-            center: c,
-            width: 2 * (r - (terminator - c.dx).abs() * shadowSide),
-            height: 2 * r,
-          );
-          canvas.drawOval(inner, Paint()..color = const Color(0xFF12090B));
-          // Just draw a clean shadow by terminator instead — simpler:
-        } else {
-          canvas.drawRect(
-            Rect.fromLTRB(
-              shadowSide < 0 ? c.dx - r : c.dx,
-              c.dy - r,
-              shadowSide < 0 ? c.dx : c.dx + r,
-              c.dy + r,
-            ),
-            shadow.copyWith()..color = const Color(0x66000000),
-          );
-        }
-        canvas.restore();
-      }
+    // Crater dimples — subtle inner shadows to give 3D feel
+    final craterPaint = Paint()
+      ..color = const Color(0xFF1E293B).withValues(alpha: 0.35);
+    canvas.drawCircle(
+        Offset(c.dx + r * 0.18, c.dy - r * 0.22), r * 0.10, craterPaint);
+    canvas.drawCircle(
+        Offset(c.dx - r * 0.28, c.dy + r * 0.05), r * 0.07, craterPaint);
+    canvas.drawCircle(
+        Offset(c.dx + r * 0.05, c.dy + r * 0.30), r * 0.09, craterPaint);
+    canvas.drawCircle(
+        Offset(c.dx - r * 0.05, c.dy - r * 0.42), r * 0.05, craterPaint);
+    canvas.drawCircle(
+        Offset(c.dx + r * 0.40, c.dy + r * 0.18), r * 0.06, craterPaint);
+
+    // Terminator shadow — partial cover for phases other than full
+    if (illumination < 0.95) {
+      final shadowSide = isWaxing ? -1.0 : 1.0;
+      final shadowAlpha = (1 - illumination).clamp(0.35, 0.85);
+      final shadow = Paint()
+        ..color = const Color(0xFF020617).withValues(alpha: shadowAlpha);
+      final path = Path()..addOval(Rect.fromCircle(center: c, radius: r));
+      canvas.save();
+      canvas.clipPath(path);
+      final coverWidth = r * (1.6 - illumination * 1.3).clamp(0.3, 1.6);
+      canvas.drawRect(
+        Rect.fromLTRB(
+          shadowSide < 0 ? c.dx - r : c.dx + r - coverWidth,
+          c.dy - r,
+          shadowSide < 0 ? c.dx - r + coverWidth : c.dx + r,
+          c.dy + r,
+        ),
+        shadow,
+      );
+      canvas.restore();
     }
   }
 
   @override
-  bool shouldRepaint(covariant _MoonPainter old) =>
+  bool shouldRepaint(covariant _MoonCratersPainter old) =>
       old.illumination != illumination || old.isWaxing != isWaxing;
 }
 
-extension _PaintCopy on Paint {
-  Paint copyWith() => Paint()
-    ..color = color
-    ..style = style
-    ..strokeWidth = strokeWidth;
+// ═════════════════════════════════════════════════════════════════════
+//  Starfield — animated cosmic dust across the whole page
+// ═════════════════════════════════════════════════════════════════════
+class _StarfieldPainter extends CustomPainter {
+  final double progress; // 0..1
+  _StarfieldPainter({required this.progress});
+
+  // 60 stars at fixed pseudo-random positions — deterministic per session
+  static final _stars = List.generate(60, (i) {
+    final r = math.Random(i * 7919 + 13);
+    return _Star(
+      x: r.nextDouble(),
+      y: r.nextDouble(),
+      radius: 0.6 + r.nextDouble() * 1.4,
+      hue: r.nextDouble(),
+      twinkleOffset: r.nextDouble(),
+    );
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Slow parallax drift — wraps around
+    final driftX = -progress * 24 % size.width;
+    final driftY = progress * 12 % size.height;
+    for (final s in _stars) {
+      final x = (s.x * size.width + driftX) % size.width;
+      final y = (s.y * size.height + driftY) % size.height;
+      // Twinkle: per-star phase, oscillates between 0.35 and 1.0 alpha
+      final twinkle = (math.sin(
+                    (progress + s.twinkleOffset) * math.pi * 2,
+                  ) +
+                  1) /
+              2 *
+              0.55 +
+          0.35;
+      final color = s.hue < 0.6
+          ? Colors.white.withValues(alpha: twinkle * 0.8)
+          : (s.hue < 0.85
+              ? _ArcanoPalette.cyan.withValues(alpha: twinkle * 0.75)
+              : const Color(0xFFA78BFA).withValues(alpha: twinkle * 0.7));
+      canvas.drawCircle(Offset(x, y), s.radius, Paint()..color = color);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _StarfieldPainter old) =>
+      old.progress != progress;
+}
+
+class _Star {
+  final double x, y, radius, hue, twinkleOffset;
+  _Star({
+    required this.x,
+    required this.y,
+    required this.radius,
+    required this.hue,
+    required this.twinkleOffset,
+  });
 }
 
 // ═════════════════════════════════════════════════════════════════════

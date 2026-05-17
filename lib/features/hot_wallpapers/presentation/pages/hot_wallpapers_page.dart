@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
-import '../../../../core/widgets/ticket_stub_card.dart';
+import '../../../../core/widgets/stamped_foil_header.dart';
 import '../../../../core/services/live_wallpaper_catalog_service.dart';
 import '../../../../core/widgets/aurora_waves_loading.dart';
-import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
+import '../../../../core/widgets/watch_card_pieces.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../providers/live_wallpaper_providers.dart';
 import 'live_wallpaper_preview_page.dart';
@@ -142,37 +143,28 @@ class _HotContent extends ConsumerWidget {
   }
 
   Widget _buildSectionTitle(String title, VoidCallback? onSeeAll) {
-    // NOTE: this is a stateless helper; we need a BuildContext to read the
-    // theme. Wrap in Builder so context.hud resolves correctly without
-    // having to thread context through the whole call chain.
+    // Stamped Foil header (concept #01, Eduardo 2026-05-16) — same metal
+    // stamp used in WALLPAPERS so the entire app speaks one section-header
+    // language. iOS: dark text + Apple Blue glyph. B&G: gold foil + star.
     return Builder(builder: (context) {
       final hud = context.hud;
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: hud.text, // adapts: white on B&G, dark on iOS White
-              ),
-            ),
-            if (onSeeAll != null)
-              GestureDetector(
-                onTap: onSeeAll,
-                child: Text(
-                  'See All >',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: hud.accent, // gold (B&G) or system blue (iOS)
-                    fontWeight: FontWeight.w600,
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
+        child: StampedFoilHeader(
+          label: title,
+          trailing: onSeeAll == null
+              ? null
+              : GestureDetector(
+                  onTap: onSeeAll,
+                  child: Text(
+                    'See All >',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: hud.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-          ],
         ),
       );
     });
@@ -219,7 +211,12 @@ class _HotContent extends ConsumerWidget {
   }
 }
 
-// ── Live Wallpaper Card (Ticket Stub) ───────────────────────────────
+// ── Live Wallpaper Card — Cinematic Strip (concept #01, 2026-05-16) ──
+// Wallpaper 70% top + dark solid strip 30% bottom. Inside the strip live
+// the NEW badge (solid Apple Blue / gold), the category title and the
+// stats bar centered. LIVE/SHADER/3D mini tag sits top-right of the image,
+// play icon top-center. Solves the contrast problem: Eduardo no quería el
+// NEW translúcido sobre wallpapers saturados.
 class _LiveWallpaperCard extends StatelessWidget {
   final LiveWallpaper item;
   final double width;
@@ -233,72 +230,192 @@ class _LiveWallpaperCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = context.hud;
+    final isIos = h.isIosStyle;
+
+    final stripColors = isIos
+        ? [
+            Colors.black.withValues(alpha: 0.0),
+            Colors.black.withValues(alpha: 0.86),
+            Colors.black.withValues(alpha: 0.95),
+          ]
+        : [
+            const Color(0xFF070710).withValues(alpha: 0.0),
+            const Color(0xFF070710).withValues(alpha: 0.86),
+            const Color(0xFF070710).withValues(alpha: 0.97),
+          ];
+
     return SizedBox(
       width: width.isFinite ? width : null,
       height: height.isFinite ? height : null,
-      child: TicketStubCard(
-        admitLabel: 'LIVE',
-        // Title + category hidden — distraction-free browsing.
-        title: null,
-        category: null,
-        // Override the auto-derived lot number: title is null so the default
-        // '().hashCode % 1000' would be 0 for every card. Derive from id so
-        // each LIVE card gets its own unique N°.
-        lotNumber: (item.id.hashCode.abs() % 1000).toString().padLeft(3, '0'),
+      child: GestureDetector(
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => LiveWallpaperPreviewPage(wallpaper: item),
           ),
         ),
-        overlayTopLeft: item.effectiveBadge != null
-            ? Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                color: context.hud.accent,
-                child: Text(
-                  item.effectiveBadge!.toUpperCase(),
-                  style: HudTokens.mono(
-                    size: 8,
-                    weight: FontWeight.w700,
-                    color: Colors.black,
-                    letterSpacing: 0.15,
-                  ),
-                ),
-              )
-            : null,
-        overlayTopRight: WallpaperStatsBar(
-          wallpaperId: 'live_${item.id}',
-          glowColor: context.hud.accent,
-        ),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: item.previewUrl,
-              fit: BoxFit.cover,
-              memCacheWidth: 400,
-              placeholder: (_, __) => const AuroraWavesLoading(),
-              errorWidget: (_, __, ___) => Container(
-                color: context.hud.surface,
-                child: Icon(Icons.play_circle,
-                    color: context.hud.accent, size: 40),
-              ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: h.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isIos
+                  ? Colors.black.withValues(alpha: 0.06)
+                  : HudTokens.gold.withValues(alpha: 0.20),
+              width: 1,
             ),
-            // Play flourish in the center — thin gold circle, not a solid pill.
-            Center(
-              child: Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: context.hud.bg.withValues(alpha: 0.45),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: context.hud.accent, width: 1),
-                ),
-                child: Icon(Icons.play_arrow_rounded,
-                    color: context.hud.accent, size: 22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.20),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            ),
-          ],
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // ── Wallpaper (full bleed) ───────────────────────────
+              CachedNetworkImage(
+                imageUrl: item.previewUrl,
+                fit: BoxFit.cover,
+                memCacheWidth: 400,
+                placeholder: (_, __) => const AuroraWavesLoading(),
+                errorWidget: (_, __, ___) => Container(
+                  color: h.surface,
+                  child: Icon(Icons.play_circle, color: h.accent, size: 40),
+                ),
+              ),
+
+              // ── LIVE / SHADER / 3D — holographic mini pill (consistency
+              //    con el hero foil + Trading Card Holo). 2026-05-16.
+              Positioned(
+                top: 6,
+                right: 6,
+                child: HoloFoilPill(
+                  label: item.typeBadge,
+                  size: HoloFoilPillSize.mini,
+                ),
+              ),
+
+              // ── Play icon + cinematic strip (positioned with real
+              //    constraints, NOT widget.height which can be infinity in
+              //    SliverGrid — that was causing the LIVE freeze bug
+              //    2026-05-16). LayoutBuilder resolves to actual cell height.
+              Positioned.fill(
+                child: LayoutBuilder(
+                  builder: (ctx, constraints) {
+                    final ch = constraints.maxHeight;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        // Play icon at ~18% from top
+                        Positioned(
+                          top: ch * 0.18,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.45),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.60),
+                                  width: 1,
+                                ),
+                              ),
+                              child: const Icon(Icons.play_arrow_rounded,
+                                  color: Colors.white, size: 18),
+                            ),
+                          ),
+                        ),
+                        // Cinematic dark strip pinned to bottom 30%
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: ch * 0.30,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(6, 5, 6, 4),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: stripColors,
+                                stops: const [0.0, 0.25, 1.0],
+                              ),
+                              border: isIos
+                                  ? null
+                                  : Border(
+                                      top: BorderSide(
+                                        color: HudTokens.goldBright
+                                            .withValues(alpha: 0.18),
+                                        width: 1,
+                                      ),
+                                    ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Row 1: Watch Cartouche pill (concept #04)
+                                Row(
+                                  children: [
+                                    if (item.effectiveBadge != null)
+                                      WatchCartouchePill(
+                                        label: item.effectiveBadge!,
+                                      ),
+                                  ],
+                                ),
+                                // Row 2: category/title
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    item.name.isEmpty
+                                        ? item.category
+                                        : item.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      letterSpacing: -0.01,
+                                      height: 1.1,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.6),
+                                          offset: const Offset(0, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Row 3: Activity Rings (concept #04) — likes/
+                                // views/downloads como 3 anillos conic-gradient
+                                // que fill-up al aparecer (social proof épico).
+                                Center(
+                                  child: ActivityRings(
+                                    wallpaperId: 'live_${item.id}',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

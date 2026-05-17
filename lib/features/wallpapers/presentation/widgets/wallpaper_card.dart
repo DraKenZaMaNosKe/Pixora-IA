@@ -6,7 +6,7 @@ import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
-import 'wallpaper_stats_bar.dart';
+import '../../../../core/widgets/watch_card_pieces.dart';
 
 /// Wallpaper card — switches layout per active theme:
 ///   - Black & Gold / Cream Day → "Ticket Stub" (admit-one ticket metaphor)
@@ -116,6 +116,8 @@ class _IosCard extends StatelessWidget {
                   // PANO/NEW/CÓDICE pill row (rounded iOS style).
                   // The CÓDICE pill flags wallpapers with editorial cultural
                   // content — encourages users to tap and discover the lore.
+                  // Watch Cartouche pills (concept #04, Eduardo 2026-05-16)
+                  // — para PANO/NEW/CÓDICE. Mismo recipe que LIVE cards.
                   if (wallpaper.badge != null ||
                       wallpaper.category == 'PANORAMIC' ||
                       wallpaper.cultural != null)
@@ -128,26 +130,23 @@ class _IosCard extends StatelessWidget {
                         runSpacing: 4,
                         children: [
                           if (wallpaper.category == 'PANORAMIC')
-                            _IosPill(label: 'PANO', color: h.accent),
+                            const WatchCartouchePill(label: 'PANO'),
                           if (wallpaper.badge != null)
-                            _IosPill(
-                                label: wallpaper.badge!.toUpperCase(),
-                                color: h.accent),
+                            WatchCartouchePill(
+                                label: wallpaper.badge!.toUpperCase()),
                           if (wallpaper.cultural != null)
-                            _IosPill(label: '📜 CÓDICE', color: h.accent),
+                            const WatchCartouchePill(label: '📜 CÓDICE'),
                         ],
                       ),
                     ),
-                  // Stats bar bottom-centered (likes/views/downloads)
+                  // Activity Rings bottom-centered (likes/views/downloads
+                  // como anillos Apple Watch — épico + social proof)
                   Positioned(
                     left: 0,
                     right: 0,
                     bottom: 8,
                     child: Center(
-                      child: WallpaperStatsBar(
-                        wallpaperId: wallpaper.id,
-                        glowColor: h.accent,
-                      ),
+                      child: ActivityRings(wallpaperId: wallpaper.id),
                     ),
                   ),
                 ],
@@ -157,32 +156,6 @@ class _IosCard extends StatelessWidget {
           // Title + meta intentionally hidden — user wants to explore by
           // image alone, no labels imposing a thought before they see it.
         ],
-      ),
-    );
-  }
-}
-
-class _IosPill extends StatelessWidget {
-  const _IosPill({required this.label, required this.color});
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-          letterSpacing: 0.4,
-        ),
       ),
     );
   }

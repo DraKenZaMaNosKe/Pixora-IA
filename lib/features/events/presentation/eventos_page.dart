@@ -1,30 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/analytics_service.dart';
 import '../data/models/event.dart';
 import '../providers/events_provider.dart';
 import 'event_detail_page.dart';
 
-/// Handwritten Caveat style helper used across polaroids. Fetched from
-/// Google Fonts on first use, then cached locally — no asset declaration
-/// needed. Falls back to system cursive if the font fails to load.
-TextStyle _caveat({required double size, FontWeight? weight, Color? color}) {
-  return GoogleFonts.caveat(
-    fontSize: size,
-    fontWeight: weight ?? FontWeight.w500,
-    color: color,
-    height: 1,
-  );
-}
-
-/// "Eventos" section — Polaroid Album layout (design #09 from
-/// pixora_events_concepts.html, picked by user 2026-05-04).
+/// "Eventos" section — Streetwear Lookbook layout (concept v2 #03, Eduardo
+/// 2026-05-16). Each event is a "drop": huge Bebas Neue date is the visual
+/// hero, edition serial number ("EDITION 003 / FW26"), per-event accent
+/// color (Halloween orange, Muertos magenta, Independencia emerald, Madre
+/// rose). Past drops get a "SOLD OUT" stripe — creates collection FOMO.
 ///
-/// Header: handwritten "mi álbum" + serif title.
-/// Active event(s): big polaroid with rotation + EN VIVO red pin.
-/// Upcoming/past: smaller polaroids in a horizontal scrolling row.
+/// Vibe: Supreme / A24 / Off-White drop schedule. Drops drive subscription.
 class EventosPage extends ConsumerWidget {
   const EventosPage({super.key});
 
@@ -44,23 +34,21 @@ class EventosPage extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                'No se pudo cargar el álbum de eventos.\nIntenta de nuevo en un momento.',
+                'No se pudo cargar el lineup de drops.\nIntenta de nuevo en un momento.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: h.textDim, fontSize: 14, height: 1.5),
               ),
             ),
           ),
           data: (events) {
-            if (events.isEmpty) {
-              return _Empty(h: h);
-            }
+            if (events.isEmpty) return _Empty(h: h);
             return RefreshIndicator(
               color: h.accent,
               onRefresh: () async {
                 ref.invalidate(eventsProvider);
                 await ref.read(eventsProvider.future);
               },
-              child: _PolaroidAlbum(events: events, h: h),
+              child: _LookbookLayout(events: events, h: h),
             );
           },
         ),
@@ -80,27 +68,31 @@ class _Empty extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.event_note_outlined, size: 56, color: h.textDim),
+          Icon(Icons.calendar_today_outlined, size: 56, color: h.textDim),
           const SizedBox(height: 18),
           Text(
-            'mi álbum',
+            '// LINEUP',
             textAlign: TextAlign.center,
-            style: _caveat(size: 28, color: h.accent),
+            style: GoogleFonts.bebasNeue(
+              fontSize: 14,
+              color: h.accent,
+              letterSpacing: 3,
+            ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
-            'Eventos Pixora',
+            'Pixora Drops',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'Fraunces',
-              fontStyle: FontStyle.italic,
-              fontSize: 26,
+            style: GoogleFonts.bebasNeue(
+              fontSize: 38,
               color: h.text,
+              letterSpacing: 1,
+              height: 1,
             ),
           ),
           const SizedBox(height: 14),
           Text(
-            'Próximamente — celebraciones de temporada con wallpapers exclusivos.',
+            'Próximamente — drops limitados de wallpapers exclusivos.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 13, color: h.textDim, height: 1.5),
           ),
@@ -110,8 +102,8 @@ class _Empty extends StatelessWidget {
   }
 }
 
-class _PolaroidAlbum extends StatelessWidget {
-  const _PolaroidAlbum({required this.events, required this.h});
+class _LookbookLayout extends StatelessWidget {
+  const _LookbookLayout({required this.events, required this.h});
   final List<PixoraEvent> events;
   final HudTheme h;
 
@@ -123,41 +115,38 @@ class _PolaroidAlbum extends StatelessWidget {
     final past = events.where((e) => e.isPast).toList()
       ..sort((a, b) => b.endsAt.compareTo(a.endsAt));
 
+    final lineup = [...active, ...upcoming];
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(0, 32, 0, 40),
+      padding: const EdgeInsets.fromLTRB(0, 24, 0, 40),
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        _Header(h: h),
-        const SizedBox(height: 22),
-
-        // Active polaroid(s) — featured big with EN VIVO pin
-        if (active.isNotEmpty) ...[
-          for (final e in active)
-            _ActivePolaroid(event: e, h: h, onTap: () => _open(context, e)),
-          const SizedBox(height: 26),
-        ],
-
-        // Upcoming row — horizontal scrollable polaroids
-        if (upcoming.isNotEmpty) ...[
-          _SectionHeading(text: 'Próximamente', h: h),
-          const SizedBox(height: 12),
-          _PolaroidRow(
-              events: upcoming,
+        _LineupHeading(count: lineup.length, h: h),
+        const SizedBox(height: 14),
+        if (lineup.isNotEmpty)
+          for (int i = 0; i < lineup.length; i++) ...[
+            _DropCard(
+              event: lineup[i],
               h: h,
-              isPast: false,
-              onTap: (e) => _open(context, e)),
-          const SizedBox(height: 24),
-        ],
-
-        // Past row — same row, slight desaturation/opacity
+              edition: i + 1,
+              isLive: lineup[i].isActive,
+              onTap: () => _open(context, lineup[i]),
+            ),
+            if (i < lineup.length - 1) const SizedBox(height: 10),
+          ],
         if (past.isNotEmpty) ...[
-          _SectionHeading(text: 'Recuerdos', h: h),
-          const SizedBox(height: 12),
-          _PolaroidRow(
-              events: past,
+          const SizedBox(height: 28),
+          _PastLineupHeading(count: past.length, h: h),
+          const SizedBox(height: 10),
+          for (int i = 0; i < past.length; i++) ...[
+            _PastDropCard(
+              event: past[i],
               h: h,
-              isPast: true,
-              onTap: (e) => _open(context, e)),
+              edition: i + 1,
+              onTap: () => _open(context, past[i]),
+            ),
+            if (i < past.length - 1) const SizedBox(height: 6),
+          ],
         ],
       ],
     );
@@ -171,31 +160,35 @@ class _PolaroidAlbum extends StatelessWidget {
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header({required this.h});
+class _LineupHeading extends StatelessWidget {
+  const _LineupHeading({required this.count, required this.h});
+  final int count;
   final HudTheme h;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            '— mi álbum —',
-            style: _caveat(size: 24, color: h.accent),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Eventos Pixora',
-            style: TextStyle(
-              fontFamily: 'Fraunces',
-              fontStyle: FontStyle.italic,
-              fontSize: 32,
-              fontWeight: FontWeight.w500,
+            '// LINEUP · PRÓXIMAMENTE',
+            style: GoogleFonts.bebasNeue(
+              fontSize: 14,
               color: h.text,
-              height: 1.1,
+              letterSpacing: 2.4,
+              height: 1,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            '${count.toString().padLeft(2, '0')} DROPS',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: h.textDim,
+              letterSpacing: 1.8,
             ),
           ),
         ],
@@ -204,281 +197,417 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _SectionHeading extends StatelessWidget {
-  const _SectionHeading({required this.text, required this.h});
-  final String text;
+class _PastLineupHeading extends StatelessWidget {
+  const _PastLineupHeading({required this.count, required this.h});
+  final int count;
   final HudTheme h;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontFamily: 'Fraunces',
-          fontStyle: FontStyle.italic,
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: h.textDim,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '// PAST LINEUP',
+            style: GoogleFonts.bebasNeue(
+              fontSize: 12,
+              color: h.textDim,
+              letterSpacing: 2.4,
+              height: 1,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            '${count.toString().padLeft(2, '0')} SOLD OUT',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 8,
+              fontWeight: FontWeight.w600,
+              color: h.textDim,
+              letterSpacing: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Main drop card — date-side (left) + pic-side (right). Per-event accent
+/// color drives the date typography and gradient.
+class _DropCard extends StatelessWidget {
+  const _DropCard({
+    required this.event,
+    required this.h,
+    required this.edition,
+    required this.isLive,
+    required this.onTap,
+  });
+  final PixoraEvent event;
+  final HudTheme h;
+  final int edition;
+  final bool isLive;
+  final VoidCallback onTap;
+
+  String get _bigDate {
+    final m = event.startsAt.month.toString().padLeft(2, '0');
+    final d = event.startsAt.day.toString().padLeft(2, '0');
+    return '$m.$d';
+  }
+
+  String get _monthLabel {
+    const months = [
+      'ENE',
+      'FEB',
+      'MAR',
+      'ABR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AGO',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DIC',
+    ];
+    return '${months[event.startsAt.month - 1]} ${event.startsAt.year}';
+  }
+
+  String get _serial =>
+      'EDITION ${edition.toString().padLeft(3, '0')} / ${_seasonTag()}';
+
+  String _seasonTag() {
+    final m = event.startsAt.month;
+    // FW = Sept-Feb, SS = Mar-Aug
+    final season = (m >= 9 || m <= 2) ? 'FW' : 'SS';
+    final yy = event.startsAt.year.toString().substring(2);
+    return '$season$yy';
+  }
+
+  String get _releaseTag => isLive ? 'AVAILABLE NOW' : 'AVAILABLE ${_bigDate}';
+
+  @override
+  Widget build(BuildContext context) {
+    final isIos = h.isIosStyle;
+    final accent = event.themeColor;
+    final accentDark = event.themeColorDark;
+    final cardBg = isIos ? const Color(0xFF1A1A1A) : h.surface;
+    final dateBig = isIos ? accent : HudTokens.goldBright;
+    final monthDim = Colors.white.withValues(alpha: 0.55);
+    final serialDim = Colors.white.withValues(alpha: 0.4);
+    final releaseColor = isIos ? Colors.white : HudTokens.goldBright;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: GestureDetector(
+        onTap: onTap,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Container(
+            decoration: BoxDecoration(
+              color: cardBg,
+              border: isIos
+                  ? null
+                  : Border.all(
+                      color: HudTokens.gold.withValues(alpha: 0.18),
+                      width: 1,
+                    ),
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Date-side
+                  Expanded(
+                    flex: 105,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _bigDate,
+                                style: GoogleFonts.bebasNeue(
+                                  fontSize: 48,
+                                  color: dateBig,
+                                  letterSpacing: -0.5,
+                                  height: 0.85,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _monthLabel,
+                                style: GoogleFonts.inter(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  color: monthDim,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                event.name.toUpperCase(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.bebasNeue(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  letterSpacing: 1.2,
+                                  height: 1,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _serial,
+                                style: GoogleFonts.jetBrainsMono(
+                                  fontSize: 7.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: serialDim,
+                                  letterSpacing: 1.8,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _releaseTag,
+                                style: GoogleFonts.bebasNeue(
+                                  fontSize: 11,
+                                  color: releaseColor,
+                                  letterSpacing: 1.6,
+                                  height: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Pic-side
+                  Expanded(
+                    flex: 100,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [accentDark, accent],
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Radial highlights
+                          Positioned.fill(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: RadialGradient(
+                                  center: const Alignment(-0.3, -0.2),
+                                  radius: 0.7,
+                                  colors: [
+                                    Colors.white.withValues(alpha: 0.18),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Giant emoji icon (low opacity for depth)
+                          Center(
+                            child: Opacity(
+                              opacity: 0.55,
+                              child: Text(
+                                event.icon,
+                                style: const TextStyle(
+                                  fontSize: 70,
+                                  height: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // EN VIVO sticker if active
+                          if (isLive)
+                            Positioned(
+                              top: 8,
+                              left: 8,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFCC3333),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                                child: Text(
+                                  'LIVE',
+                                  style: GoogleFonts.bebasNeue(
+                                    fontSize: 9,
+                                    color: Colors.white,
+                                    letterSpacing: 1.5,
+                                    height: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          // White stripe with edition mini-tag bottom-right
+                          Positioned(
+                            bottom: 6,
+                            right: 6,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.92),
+                              ),
+                              child: Text(
+                                _seasonTag(),
+                                style: GoogleFonts.inter(
+                                  fontSize: 7.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// Big featured polaroid for currently-active events.
-/// Slight rotation, paper white background, polaroid bottom area for the title.
-class _ActivePolaroid extends StatelessWidget {
-  const _ActivePolaroid({
+/// Past drop — small archival card with "SOLD OUT" stripe.
+class _PastDropCard extends StatelessWidget {
+  const _PastDropCard({
     required this.event,
     required this.h,
+    required this.edition,
     required this.onTap,
   });
   final PixoraEvent event;
   final HudTheme h;
+  final int edition;
   final VoidCallback onTap;
+
+  String get _shortDate {
+    final m = event.startsAt.month.toString().padLeft(2, '0');
+    final d = event.startsAt.day.toString().padLeft(2, '0');
+    return '$m.$d';
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isIos = h.isIosStyle;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 6, 22, 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: GestureDetector(
         onTap: onTap,
-        child: Transform.rotate(
-          angle: -0.026, // ~-1.5 degrees
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(3),
           child: Container(
+            height: 56,
             decoration: BoxDecoration(
-              color: const Color(0xFFFAFAF6), // paper white, theme-independent
-              borderRadius: BorderRadius.circular(2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.55),
-                  blurRadius: 26,
-                  offset: const Offset(0, 12),
-                ),
-              ],
+              color: isIos
+                  ? const Color(0xFF2A2A2A)
+                  : h.surface.withValues(alpha: 0.6),
+              border: isIos
+                  ? null
+                  : Border.all(
+                      color: HudTokens.gold.withValues(alpha: 0.10),
+                      width: 1,
+                    ),
             ),
-            child: Stack(
-              clipBehavior: Clip.none,
+            child: Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
-                  child: Column(
-                    children: [
-                      // The "photo" — gradient with the event's theme + giant icon
-                      AspectRatio(
-                        aspectRatio: 1,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(1),
-                          child: _ThemeGradient(event: event, iconSize: 200),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        event.name,
-                        textAlign: TextAlign.center,
-                        style:
-                            _caveat(size: 28, color: const Color(0xFF1A1A1A)),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        event.formattedDateRange,
-                        textAlign: TextAlign.center,
-                        style:
-                            _caveat(size: 16, color: const Color(0xFF888888)),
-                      ),
-                      const SizedBox(height: 18),
-                    ],
+                // Small thumb
+                Container(
+                  width: 56,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [event.themeColorDark, event.themeColor],
+                    ),
                   ),
-                ),
-                // EN VIVO pin (rotated, looks taped on)
-                Positioned(
-                  top: -8,
-                  right: -8,
-                  child: Transform.rotate(
-                    angle: 0.14,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFCC3333),
-                        borderRadius: BorderRadius.circular(4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.4),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Text(
-                        'EN VIVO',
-                        style: TextStyle(
-                          fontFamily: 'JetBrainsMono',
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: 1.2,
-                        ),
+                  child: Center(
+                    child: Opacity(
+                      opacity: 0.55,
+                      child: Text(
+                        event.icon,
+                        style: const TextStyle(fontSize: 24, height: 1),
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PolaroidRow extends StatelessWidget {
-  const _PolaroidRow({
-    required this.events,
-    required this.h,
-    required this.isPast,
-    required this.onTap,
-  });
-  final List<PixoraEvent> events;
-  final HudTheme h;
-  final bool isPast;
-  final ValueChanged<PixoraEvent> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 22),
-        itemCount: events.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 14),
-        itemBuilder: (_, i) => _MiniPolaroid(
-          event: events[i],
-          isPast: isPast,
-          rotationIndex: i,
-          onTap: () => onTap(events[i]),
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniPolaroid extends StatelessWidget {
-  const _MiniPolaroid({
-    required this.event,
-    required this.isPast,
-    required this.rotationIndex,
-    required this.onTap,
-  });
-  final PixoraEvent event;
-  final bool isPast;
-  final int rotationIndex;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    // Vary rotation slightly so the row doesn't look mechanical
-    final angles = [-0.035, 0.026, -0.018, 0.04, -0.022, 0.03];
-    final angle = angles[rotationIndex % angles.length];
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Transform.rotate(
-        angle: angle,
-        child: Opacity(
-          opacity: isPast ? 0.65 : 1.0,
-          child: Container(
-            width: 130,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFAFAF6),
-              borderRadius: BorderRadius.circular(2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        event.name.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.bebasNeue(
+                          fontSize: 13,
+                          color: Colors.white,
+                          letterSpacing: 1.0,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '$_shortDate · EDITION ${edition.toString().padLeft(3, '0')}',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 7.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.5),
+                          letterSpacing: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                // SOLD OUT stripe
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.65),
+                  ),
+                  child: Text(
+                    'SOLD OUT',
+                    style: GoogleFonts.bebasNeue(
+                      fontSize: 11,
+                      color: isIos ? Colors.white : HudTokens.goldBright,
+                      letterSpacing: 1.8,
+                      height: 1,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
-              child: Column(
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: _ThemeGradient(event: event, iconSize: 56),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    event.name,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: _caveat(size: 16, color: const Color(0xFF1A1A1A)),
-                  ),
-                  Text(
-                    event.formattedDateRange.split(' · ').first,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: _caveat(size: 12, color: const Color(0xFF888888)),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Themed gradient "photo" with the event's color and giant icon (emoji).
-/// Used inside polaroids — no real wallpaper image needed for the album view.
-class _ThemeGradient extends StatelessWidget {
-  const _ThemeGradient({required this.event, required this.iconSize});
-  final PixoraEvent event;
-  final double iconSize;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [event.themeColor, event.themeColorDark],
-        ),
-      ),
-      alignment: Alignment.center,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Soft inner shadow / vignette
-          Container(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.18),
-                ],
-                stops: const [0.6, 1.0],
-              ),
-            ),
-          ),
-          // Giant icon (emoji) with subtle white tint background for readability
-          Opacity(
-            opacity: 0.42,
-            child: Text(
-              event.icon,
-              style: TextStyle(fontSize: iconSize, height: 1),
-            ),
-          ),
-        ],
       ),
     );
   }

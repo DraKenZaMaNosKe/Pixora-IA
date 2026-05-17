@@ -629,7 +629,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           crossAxisCount: 3,
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
-          childAspectRatio: 1.05,
+          // 0.82 (height > width) — the cassette mini has top stripe + reels
+          // row + title + duration + bottom stats. Previous 1.05 over-flowed
+          // by ~23px on Samsung. 2026-05-16 fix.
+          childAspectRatio: 0.82,
         ),
         itemCount: tones.length > 6 ? 6 : tones.length,
         itemBuilder: (_, i) {

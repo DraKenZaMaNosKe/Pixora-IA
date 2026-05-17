@@ -30,16 +30,35 @@ class WallpaperPreviewPage extends ConsumerStatefulWidget {
       _WallpaperPreviewPageState();
 }
 
-class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
+class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
+    with TickerProviderStateMixin {
   bool _isApplying = false;
   double _downloadProgress = 0.0;
   String _loadingStatus = '';
   LoadingPhase _loadingPhase = LoadingPhase.downloading;
 
+  late final AnimationController _holoShine;
+  late final AnimationController _holoSweep;
+
   @override
   void initState() {
     super.initState();
     WallpaperStatsService.instance.trackView(widget.wallpaper.id);
+    _holoShine = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 5000),
+    )..repeat();
+    _holoSweep = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3500),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _holoShine.dispose();
+    _holoSweep.dispose();
+    super.dispose();
   }
 
   // ── Business logic (unchanged) ────────────────────────────────────────
@@ -453,33 +472,70 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
       return _buildCodexScaffold(isFav);
     }
 
+    return _buildHoloCardScaffold(isFav);
+  }
+
+  /// Trading Card Holo (concept #05, Eduardo 2026-05-16). Wallpaper rendered
+  /// as a collectible card with animated holographic foil bg, ★★★ RARE stamp,
+  /// lot serial, square holo image with diagonal shine sweep, black name strip
+  /// with collection chip, italic description, and a pill APPLY CTA pegado
+  /// abajo. iOS = silver foil. B&G = gold/copper foil with hue-rotate.
+  Widget _buildHoloCardScaffold(bool isFav) {
+    final h = context.hud;
+    final isIos = h.isIosStyle;
+    final w = widget.wallpaper;
+
     return Scaffold(
-      backgroundColor: context.hud.bg,
+      backgroundColor:
+          isIos ? const Color(0xFFF5F7FA) : const Color(0xFF07060E),
       body: Stack(
         fit: StackFit.expand,
         children: [
+          // Cosmic background with subtle radials
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: isIos
+                    ? const RadialGradient(
+                        center: Alignment.topCenter,
+                        radius: 1.2,
+                        colors: [Color(0x145E5CE6), Color(0xFFF5F7FA)],
+                        stops: [0.0, 0.6],
+                      )
+                    : RadialGradient(
+                        center: Alignment.topCenter,
+                        radius: 1.4,
+                        colors: [
+                          const Color(0xFF502878).withValues(alpha: 0.20),
+                          const Color(0xFF07060E),
+                        ],
+                        stops: const [0.0, 0.7],
+                      ),
+              ),
+            ),
+          ),
           SafeArea(
-            child: Column(
-              children: [
-                _buildTopBar(isFav),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildFrame(),
-                        const SizedBox(height: 22),
-                        _buildCatalog(w),
-                        const SizedBox(height: 20),
-                        _buildPriceRow(),
-                        const SizedBox(height: 16),
-                        _buildCta(),
-                      ],
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+              child: Column(
+                children: [
+                  _buildHoloTopBar(isFav),
+                  const SizedBox(height: 4),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildHoloCard(),
+                          const SizedBox(height: 12),
+                          _buildHoloDescription(),
+                          const SizedBox(height: 14),
+                          _buildHoloCta(),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           LoadingOverlay(
@@ -490,6 +546,345 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
             phase: _loadingPhase,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHoloTopBar(bool isFav) {
+    final h = context.hud;
+    final isIos = h.isIosStyle;
+    final accent = isIos ? const Color(0xFF0A84FF) : HudTokens.goldBright;
+
+    return Row(
+      children: [
+        InkWell(
+          onTap: () => Navigator.pop(context),
+          borderRadius: BorderRadius.circular(999),
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Icon(Icons.arrow_back_ios_new, color: accent, size: 18),
+          ),
+        ),
+        const Spacer(),
+        InkWell(
+          onTap: () =>
+              ref.read(favoritesProvider.notifier).toggle(widget.wallpaper.id),
+          borderRadius: BorderRadius.circular(999),
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Icon(
+              isFav ? Icons.favorite : Icons.favorite_border,
+              color: isFav && isIos ? const Color(0xFFFF3B30) : accent,
+              size: 18,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHoloCard() {
+    final h = context.hud;
+    final isIos = h.isIosStyle;
+
+    // Holographic foil gradient — animated background-position.
+    final iosColors = const [
+      Color(0xFFD8E0EE),
+      Color(0xFFF7FAFF),
+      Color(0xFFCDD9EE),
+      Color(0xFFF7FAFF),
+      Color(0xFFB8C8E0),
+    ];
+    final darkColors = const [
+      Color(0xFF8B7228),
+      Color(0xFFF5D676),
+      Color(0xFFB8860B),
+      Color(0xFFF5D676),
+      Color(0xFF8B7228),
+    ];
+    final foilColors = isIos ? iosColors : darkColors;
+
+    return AspectRatio(
+      aspectRatio: 4 / 5.4,
+      child: AnimatedBuilder(
+        animation: _holoShine,
+        builder: (_, __) {
+          // Animate the gradient by shifting alignment from (-1,0) → (1,0)
+          final t = _holoShine.value;
+          final align = (t < 0.5 ? t * 2 : 2 - t * 2);
+          final beginX = -1.0 + align * 2.0;
+          return Container(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment(beginX, -1),
+                end: Alignment(beginX + 0.8, 1),
+                colors: foilColors,
+                stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: isIos
+                      ? const Color(0xFF3C5078).withValues(alpha: 0.25)
+                      : Colors.black.withValues(alpha: 0.7),
+                  blurRadius: isIos ? 22 : 28,
+                  offset: const Offset(0, 10),
+                ),
+                if (!isIos)
+                  BoxShadow(
+                    color: HudTokens.gold.withValues(alpha: 0.4),
+                    blurRadius: 24,
+                  ),
+              ],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: isIos ? 0.7 : 0.18),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                // Header — RARE pill + lot serial
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '★★★ RARE',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFFFD95E),
+                            letterSpacing: 2.4,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        _lotNumber.replaceFirst('N° ', 'N° ') + ' / ∞',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w600,
+                          color: isIos
+                              ? const Color(0xFF1A2640)
+                              : const Color(0xFF1A1300),
+                          letterSpacing: 1.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Holo image (square) with sweep animation
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 1,
+                          child: CachedWallpaperImage(
+                            imageUrl: widget.wallpaper.fullImageUrl,
+                            useAuroraLoader: true,
+                          ),
+                        ),
+                        // Holographic shine sweep
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _holoSweep,
+                              builder: (_, __) {
+                                final v = _holoSweep.value;
+                                // 0→0.5: -0.6 → 0.6, then back
+                                final x = v < 0.5
+                                    ? -0.6 + v * 2.4
+                                    : 0.6 - (v - 0.5) * 2.4;
+                                final opacity =
+                                    v < 0.5 ? v * 2 : 1.0 - (v - 0.5) * 2;
+                                return FractionalTranslation(
+                                  translation: Offset(x, 0),
+                                  child: Opacity(
+                                    opacity: opacity * 0.6,
+                                    child: const DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment(-0.5, -1),
+                                          end: Alignment(0.5, 1),
+                                          colors: [
+                                            Color(0x00FFFFFF),
+                                            Color(0x59FFFFFF),
+                                            Color(0x00FFFFFF),
+                                          ],
+                                          stops: [0.30, 0.48, 0.66],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 7),
+                // Name strip — black band with name + collection
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.78),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.wallpaper.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.1,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.wallpaper.category.toUpperCase(),
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 7,
+                          fontWeight: FontWeight.w600,
+                          color: isIos
+                              ? const Color(0xFF6EC3FF)
+                              : const Color(0xFFFFD95E),
+                          letterSpacing: 2.8,
+                          height: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHoloDescription() {
+    final h = context.hud;
+    final isIos = h.isIosStyle;
+    final w = widget.wallpaper;
+    final text = w.description.isNotEmpty ? w.description : w.name;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: isIos
+            ? GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                color: h.textDim,
+                height: 1.4,
+              )
+            : GoogleFonts.cormorantGaramond(
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w400,
+                color: h.textDim,
+                height: 1.4,
+              ),
+      ),
+    );
+  }
+
+  Widget _buildHoloCta() {
+    final h = context.hud;
+    final isIos = h.isIosStyle;
+    final label = _isApplying
+        ? (_downloadProgress > 0
+            ? 'APLICANDO ${(_downloadProgress * 100).toInt()}%'
+            : 'APLICANDO...')
+        : 'APLICAR WALLPAPER';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _isApplying ? null : _showApplyDialog,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            gradient: isIos
+                ? const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFF4A9EFF),
+                      Color(0xFF0A84FF),
+                      Color(0xFF0066CC),
+                    ],
+                    stops: [0.0, 0.5, 1.0],
+                  )
+                : const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFFF5D676),
+                      Color(0xFFD4AF37),
+                      Color(0xFF8B5A1F),
+                    ],
+                    stops: [0.0, 0.5, 1.0],
+                  ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isIos
+                  ? Colors.white.withValues(alpha: 0.5)
+                  : const Color(0xFFF5D676),
+              width: 0.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isIos
+                    ? const Color(0xFF0A84FF).withValues(alpha: 0.32)
+                    : HudTokens.gold.withValues(alpha: 0.40),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: isIos ? Colors.white : const Color(0xFF1A1300),
+              letterSpacing: 1.8,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -771,43 +1166,55 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage> {
     );
   }
 
+  /// Cabinet of Curiosities CTA — chiseled Cinzel text on a dark stone /
+  /// mahogany surface. The `CodexDetailLayout` wraps this in its brass frame.
   Widget _buildCta() {
     final h = context.hud;
-    final label = Platform.isIOS ? 'GUARDAR EN FOTOS' : 'APLICAR A MI TELÉFONO';
+    final isIos = h.isIosStyle;
+    final stoneBg = isIos
+        ? const Color(0xFF3A2818) // limestone/sepia dark
+        : const Color(0xFF1C0E08); // dark mahogany
+    final brassText = isIos
+        ? const Color(0xFFE8C476) // brass on dark stone
+        : HudTokens.goldBright;
+    final label = _isApplying
+        ? (_downloadProgress > 0
+            ? 'APLICANDO ${(_downloadProgress * 100).toInt()}%'
+            : 'APLICANDO...')
+        : (Platform.isIOS ? 'GUARDAR EN FOTOS' : 'APLICAR WALLPAPER');
     return InkWell(
       onTap: _isApplying ? null : _showApplyDialog,
-      borderRadius: h.isIosStyle ? BorderRadius.circular(14) : null,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: h.isIosStyle ? 14 : 16),
-        decoration: BoxDecoration(
-          color: h.accent,
-          borderRadius: h.isIosStyle ? BorderRadius.circular(14) : null,
-          boxShadow: h.isIosStyle
-              ? [
-                  BoxShadow(
-                    color: h.accent.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         alignment: Alignment.center,
-        child: h.isIosStyle
-            ? Text(
-                Platform.isIOS ? 'Guardar en Fotos' : 'Aplicar wallpaper',
-                style: HudTokens.body(
-                  size: 16,
-                  weight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: -0.2,
-                ),
-              )
-            : Text(
-                label,
-                style: _display(14, color: h.bg, w: FontWeight.w900, ls: 0.25),
+        decoration: BoxDecoration(
+          color: stoneBg,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.4),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+              spreadRadius: -1,
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.cinzel(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: brassText,
+            letterSpacing: 2.4,
+            shadows: [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                offset: const Offset(0, 1),
+                blurRadius: 1,
               ),
+            ],
+          ),
+        ),
       ),
     );
   }

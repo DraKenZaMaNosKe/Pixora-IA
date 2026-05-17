@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/utils/locale_helper.dart';
-import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
+import '../../../../core/widgets/watch_card_pieces.dart';
 import '../../data/models/story.dart';
 import '../../providers/story_providers.dart';
 import 'story_detail_page.dart';
@@ -283,10 +283,7 @@ class _ComicHeroPanel extends StatelessWidget {
                       ],
                     ),
                   ),
-                  WallpaperStatsBar(
-                    wallpaperId: 'story_${story.id}',
-                    glowColor: HudTokens.gold,
-                  ),
+                  ActivityRings(wallpaperId: 'story_${story.id}'),
                 ],
               ),
             ),
@@ -554,10 +551,7 @@ class _ChapterCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  WallpaperStatsBar(
-                    wallpaperId: 'story_${story.id}',
-                    glowColor: HudTokens.gold,
-                  ),
+                  ActivityRings(wallpaperId: 'story_${story.id}'),
                   const SizedBox(height: 4),
                   const Icon(Icons.chevron_right,
                       color: HudTokens.gold, size: 18),

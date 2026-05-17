@@ -5,12 +5,28 @@ import '../../../core/services/catalog_service.dart';
 import '../data/models/wallpaper.dart';
 
 /// Categories that have their own dedicated section in the app and must
-/// NEVER bleed into the regular Wallpapers feed (featured / trending / new /
-/// category rows). Iah Egyptian and future cultural calendars live in ARCANO.
+/// NEVER bleed into the regular Wallpapers feed.
 const _arcanoCategories = {'ARCANO'};
 
-bool _isArcano(Wallpaper w) =>
-    _arcanoCategories.contains(w.category.toUpperCase());
+/// Tags that explicitly mark a wallpaper as ARCANO-section content.
+/// Generic tags (`zodiac`, `livecalendar`) are too broad — many wallpapers
+/// use them without being calendar/observatory content. Use `arcano` as
+/// the dedicated marker tag when adding new content to this section.
+const _arcanoTags = {'arcano'};
+
+/// Hard whitelist of wallpaper IDs that belong in ARCANO. Use this for
+/// wallpapers that pre-date the tagging convention. Add new items here
+/// OR tag them with `arcano` in the Supabase catalog — either works.
+const _arcanoIds = {'zodiac_cosmos'};
+
+bool _isArcano(Wallpaper w) {
+  if (_arcanoIds.contains(w.id)) return true;
+  if (_arcanoCategories.contains(w.category.toUpperCase())) return true;
+  for (final t in w.tags) {
+    if (_arcanoTags.contains(t.toLowerCase())) return true;
+  }
+  return false;
+}
 
 /// Helper para comprobar si un wallpaper tiene un tag específico
 /// (case-insensitive, sin acentos en convención).

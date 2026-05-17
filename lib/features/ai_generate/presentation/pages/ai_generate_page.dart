@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -41,8 +42,17 @@ class _AIGenerationState {
   });
 }
 
-class _AIGeneratePageState extends State<AIGeneratePage> {
+class _AIGeneratePageState extends State<AIGeneratePage>
+    with SingleTickerProviderStateMixin {
   static const _nativeChannel = MethodChannel('com.orbix.pixora/wallpaper');
+
+  // Holographic Forge palette — picked 2026-05-16 (matches Inkwell header
+  // + Ember nav + Pixora identity foil).
+  static const _bg = Color(0xFF1F1B17);
+  static const _ivory = Color(0xFFE8E6E0);
+  static const _ivoryDim = Color(0x99E8E6E0);
+  // Single source of truth — see HudTokens.foilPalette.
+  static const _holoColors = HudTokens.foilPalette;
 
   final _promptController = TextEditingController();
   String? _selectedStyle;
@@ -54,6 +64,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   StreamSubscription<AuthState>? _authSub;
   String? _currentUid;
   final _scrollController = ScrollController();
+  late final AnimationController _foilCtrl;
 
   final _styles = const [
     'Anime',
@@ -69,6 +80,10 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   @override
   void initState() {
     super.initState();
+    _foilCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..repeat();
     SubscriptionService.instance.refreshStatus();
     _currentUid = Supabase.instance.client.auth.currentUser?.id;
     _subscribeQueue();
@@ -99,6 +114,7 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
 
   @override
   void dispose() {
+    _foilCtrl.dispose();
     _promptController.dispose();
     _scrollController.dispose();
     _queueChannel?.unsubscribe();
@@ -177,7 +193,9 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
       if (_latest!.status == 'pending') {
         unawaited(_dispatchWorker(_latest!.id));
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[AIGenerate] _loadLastGeneration failed: $e');
+    }
   }
 
   /// Loads every successful generation the current user ever made, newest
@@ -208,7 +226,9 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
                 ))
             .toList(growable: false);
       });
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[AIGenerate] _loadHistory failed: $e');
+    }
   }
 
   /// Promotes a history item to the result panel and scrolls to the top so
@@ -231,7 +251,9 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
         'process_ia_queue',
         body: {'queue_id': queueId},
       );
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[AIGenerate] _dispatchWorker failed: $e');
+    }
   }
 
   // ── Gating ────────────────────────────────────────────────────────────
@@ -666,50 +688,41 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
 
   @override
   Widget build(BuildContext context) {
-    final h = context.hud;
     return Scaffold(
-      backgroundColor: h.bg,
+      backgroundColor: _bg,
       body: ListenableBuilder(
         listenable: Listenable.merge([
           CreditService.instance,
           SubscriptionService.instance,
         ]),
         builder: (context, _) {
-          return CustomPaint(
-            painter: ScanLinesPainter(color: h.text),
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: const EdgeInsets.fromLTRB(
-                HudTokens.sp5,
-                HudTokens.sp5,
-                HudTokens.sp5,
-                HudTokens.sp8,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeroCard(),
-                  if (_latest != null) ...[
-                    const SizedBox(height: HudTokens.sp6),
-                    _buildResultPanel(_latest!),
-                  ],
-                  const SizedBox(height: HudTokens.sp6),
-                  _buildPromptInput(),
-                  const SizedBox(height: HudTokens.sp5),
-                  _buildStyleGrid(),
-                  const SizedBox(height: HudTokens.sp6),
-                  HudPrimaryButton(
-                    label: _buttonLabel,
-                    busy: _submitting,
-                    onPressed: _handleGeneratePressed,
-                  ),
-                  if (AuthService.instance.isLoggedIn &&
-                      _history.isNotEmpty) ...[
-                    const SizedBox(height: HudTokens.sp8),
-                    _buildHistoryGrid(),
-                  ],
+          return SingleChildScrollView(
+            controller: _scrollController,
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeroCard(),
+                if (_latest != null) ...[
+                  const SizedBox(height: 22),
+                  _buildResultPanel(_latest!),
                 ],
-              ),
+                const SizedBox(height: 22),
+                _buildPromptInput(),
+                const SizedBox(height: 18),
+                _buildStyleGrid(),
+                const SizedBox(height: 22),
+                _HoloForgeButton(
+                  controller: _foilCtrl,
+                  label: _buttonLabel,
+                  busy: _submitting,
+                  onPressed: _handleGeneratePressed,
+                ),
+                if (AuthService.instance.isLoggedIn && _history.isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  _buildHistoryGrid(),
+                ],
+              ],
             ),
           );
         },
@@ -718,124 +731,186 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   }
 
   Widget _buildHeroCard() {
-    final h = context.hud;
     final sub = SubscriptionService.instance;
     final credits = CreditService.instance.balance;
     final auth = AuthService.instance;
 
     String statusLine;
     if (!auth.isLoggedIn) {
-      statusLine = '> AUTH_REQUIRED';
+      statusLine = '> AUTH_REQUIRED · INICIA SESIÓN PARA FORJAR';
     } else if (sub.hasAccess) {
       statusLine =
-          '> QUOTA: ${sub.generationsRemaining}/${sub.generationsLimit} · MONTH';
+          '> CUOTA: ${sub.generationsRemaining}/${sub.generationsLimit} ESTE MES';
     } else if (sub.freeGensRemaining > 0) {
-      statusLine = '> TRIAL: ${sub.freeGensRemaining} FREE GENS REMAINING';
+      statusLine = '> ${sub.freeGensRemaining} FORJADAS GRATIS RESTANTES';
     } else {
-      statusLine = '> SUBSCRIBE_TO_UNLOCK';
+      statusLine = '> SUSCRÍBETE PARA DESBLOQUEAR';
     }
 
-    return ClipPath(
-      clipper: const CornerCutClipper(cut: HudTokens.cornerCutLg),
-      child: Container(
-        padding: const EdgeInsets.all(HudTokens.sp5),
-        decoration: BoxDecoration(
-          color: h.surfaceHi,
-          border: Border.all(color: h.accent, width: HudTokens.borderMed),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  '// IA GENERATOR',
-                  style: HudTokens.display(
-                    size: 12,
-                    color: h.accent,
-                    letterSpacing: 0.1,
+    return _HoloFrame(
+      controller: _foilCtrl,
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Mono eyebrow + model selector chip
+          Row(
+            children: [
+              Text(
+                '// PIXORA · AI FORGE',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFE0B47A),
+                  letterSpacing: 2.2,
+                ),
+              ),
+              const Spacer(),
+              _HoloPill(
+                controller: _foilCtrl,
+                child: Text(
+                  'NANO_BANANA',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: _ivory,
+                    letterSpacing: 1.4,
                   ),
                 ),
-                const Spacer(),
-                HudBadge(
-                  text: 'NANO_BANANA',
-                  color: h.surface,
-                  onColor: h.accent2,
-                ),
-              ],
-            ),
-            const SizedBox(height: HudTokens.sp3),
-            Text(
-              'PIXORA\nIA',
-              style: HudTokens.display(
-                size: 36,
-                color: h.text,
-                letterSpacing: -0.01,
               ),
-            ),
-            const SizedBox(height: HudTokens.sp4),
-            Text(
-              statusLine,
-              style: HudTokens.mono(
-                size: 11,
-                color: h.textDim,
-                letterSpacing: 0.1,
-              ),
-            ),
-            const SizedBox(height: HudTokens.sp4),
-            Row(
-              children: [
-                HudStatChip(label: '💎', value: '$credits'),
-                const SizedBox(width: HudTokens.sp5),
-                HudStatChip(
-                  label: 'COST',
-                  value: '30 💎',
-                  color: h.accent,
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Iridescent title "Forja un wallpaper"
+          AnimatedBuilder(
+            animation: _foilCtrl,
+            builder: (_, __) {
+              final shift = _foilCtrl.value;
+              return ShaderMask(
+                shaderCallback: (rect) => LinearGradient(
+                  begin: Alignment(-1 + shift * 2, 0),
+                  end: Alignment(1 + shift * 2, 0),
+                  colors: _holoColors,
+                ).createShader(rect),
+                blendMode: BlendMode.srcIn,
+                child: Text(
+                  'Forja un\nwallpaper.',
+                  style: GoogleFonts.fraunces(
+                    fontSize: 32,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    height: 1.05,
+                    letterSpacing: -0.6,
+                  ),
                 ),
-              ],
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          Text(
+            statusLine,
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: _ivoryDim,
+              letterSpacing: 1.2,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 14),
+          // Cost row — your diamonds + cost per forge
+          Row(
+            children: [
+              _HoloPill(
+                controller: _foilCtrl,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('💎', style: TextStyle(fontSize: 12)),
+                    const SizedBox(width: 4),
+                    Text('$credits',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: _ivory,
+                          letterSpacing: 0.5,
+                        )),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              _HoloPill(
+                controller: _foilCtrl,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('COSTO',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: _ivoryDim,
+                          letterSpacing: 1.6,
+                        )),
+                    const SizedBox(width: 6),
+                    Text('30 💎',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: _ivory,
+                          letterSpacing: 0.5,
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPromptInput() {
-    final h = context.hud;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          '> PROMPT_',
-          style: HudTokens.mono(
-            size: 11,
-            color: h.accent,
-            weight: FontWeight.w700,
-            letterSpacing: 0.15,
+          '// PROMPT',
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFFE0B47A),
+            letterSpacing: 2.2,
           ),
         ),
-        const SizedBox(height: HudTokens.sp2),
-        ClipPath(
-          clipper: const CornerCutClipper(cut: HudTokens.cornerCutSm),
-          child: Container(
-            color: h.surface,
-            padding: const EdgeInsets.all(HudTokens.sp3),
-            child: TextField(
-              controller: _promptController,
-              maxLines: 3,
-              maxLength: 1000,
-              style: HudTokens.body(size: 14, color: h.text),
-              cursorColor: h.accent,
-              decoration: InputDecoration(
-                hintText:
-                    'un dragón cyberpunk sobre una ciudad neón en la noche...',
-                hintStyle: HudTokens.body(size: 14, color: h.textDim),
-                border: InputBorder.none,
-                counterStyle: HudTokens.mono(
-                  size: 9,
-                  color: h.textDim,
-                  letterSpacing: 0.1,
-                ),
+        const SizedBox(height: 8),
+        _HoloFrame(
+          controller: _foilCtrl,
+          padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+          child: TextField(
+            controller: _promptController,
+            maxLines: 3,
+            maxLength: 1000,
+            style: GoogleFonts.fraunces(
+              fontSize: 15,
+              fontStyle: FontStyle.italic,
+              color: _ivory,
+              height: 1.4,
+            ),
+            cursorColor: const Color(0xFF67E8F9),
+            decoration: InputDecoration(
+              hintText:
+                  'un dragón cyberpunk sobre una ciudad neón en la noche…',
+              hintStyle: GoogleFonts.fraunces(
+                fontSize: 15,
+                fontStyle: FontStyle.italic,
+                color: _ivoryDim,
+              ),
+              border: InputBorder.none,
+              counterStyle: GoogleFonts.jetBrainsMono(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: _ivoryDim,
+                letterSpacing: 1.4,
               ),
             ),
           ),
@@ -845,53 +920,30 @@ class _AIGeneratePageState extends State<AIGeneratePage> {
   }
 
   Widget _buildStyleGrid() {
-    final h = context.hud;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          '> STYLE_',
-          style: HudTokens.mono(
-            size: 11,
-            color: h.accent,
-            weight: FontWeight.w700,
-            letterSpacing: 0.15,
+          '// ESTILO',
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFFE0B47A),
+            letterSpacing: 2.2,
           ),
         ),
-        const SizedBox(height: HudTokens.sp2),
+        const SizedBox(height: 10),
         Wrap(
-          spacing: HudTokens.sp2,
-          runSpacing: HudTokens.sp2,
+          spacing: 8,
+          runSpacing: 8,
           children: _styles.map((style) {
             final selected = _selectedStyle == style;
-            return GestureDetector(
+            return _HoloStyleChip(
+              controller: _foilCtrl,
+              label: style,
+              selected: selected,
               onTap: () =>
                   setState(() => _selectedStyle = selected ? null : style),
-              child: ClipPath(
-                clipper: const CornerCutClipper(cut: 6),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: HudTokens.sp3,
-                    vertical: HudTokens.sp2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: selected ? h.accent : h.surface,
-                    border: Border.all(
-                      color: selected ? h.accent : h.divider,
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    style.toUpperCase(),
-                    style: HudTokens.mono(
-                      size: 11,
-                      weight: FontWeight.w700,
-                      color: selected ? Colors.white : h.text,
-                      letterSpacing: 0.1,
-                    ),
-                  ),
-                ),
-              ),
             );
           }).toList(),
         ),
@@ -1169,6 +1221,252 @@ class _HistoryCell extends StatelessWidget {
                   ),
                 ),
         ),
+      ),
+    );
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+//  Holographic Forge widgets — iridescent foil family.
+// ═════════════════════════════════════════════════════════════════════
+
+// Single source of truth — see HudTokens.foilPalette.
+const _holoColorsModule = HudTokens.foilPalette;
+
+const _bgModule = Color(0xFF1F1B17);
+const _surfaceModule = Color(0xFF2A2418);
+
+/// Box with an animated 1.5px foil-gradient border that shifts continuously.
+class _HoloFrame extends StatelessWidget {
+  const _HoloFrame({
+    required this.controller,
+    required this.child,
+    this.padding = EdgeInsets.zero,
+  });
+  final AnimationController controller;
+  final Widget child;
+  final EdgeInsets padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (_, __) {
+        final shift = controller.value;
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+              begin: Alignment(-1 + shift * 2, 0),
+              end: Alignment(1 + shift * 2, 0),
+              colors: _holoColorsModule,
+            ),
+          ),
+          padding: const EdgeInsets.all(1.5),
+          child: Container(
+            decoration: BoxDecoration(
+              color: _surfaceModule,
+              borderRadius: BorderRadius.circular(9),
+            ),
+            padding: padding,
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Small pill wrapper with iridescent border (mono labels, badges).
+class _HoloPill extends StatelessWidget {
+  const _HoloPill({required this.controller, required this.child});
+  final AnimationController controller;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (_, __) {
+        final shift = controller.value;
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            gradient: LinearGradient(
+              begin: Alignment(-1 + shift * 2, 0),
+              end: Alignment(1 + shift * 2, 0),
+              colors: _holoColorsModule,
+            ),
+          ),
+          padding: const EdgeInsets.all(1),
+          child: Container(
+            decoration: BoxDecoration(
+              color: _bgModule,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Style chip: inactive = foil border only, active = full foil fill.
+class _HoloStyleChip extends StatelessWidget {
+  const _HoloStyleChip({
+    required this.controller,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+  final AnimationController controller;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (_, __) {
+          final shift = controller.value;
+          final foil = LinearGradient(
+            begin: Alignment(-1 + shift * 2, 0),
+            end: Alignment(1 + shift * 2, 0),
+            colors: _holoColorsModule,
+          );
+          if (selected) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                gradient: foil,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE0B47A).withValues(alpha: 0.45),
+                    blurRadius: 12,
+                    spreadRadius: -2,
+                  ),
+                ],
+              ),
+              child: Text(
+                label.toUpperCase(),
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF1F1B17),
+                  letterSpacing: 1.4,
+                ),
+              ),
+            );
+          }
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              gradient: foil,
+            ),
+            padding: const EdgeInsets.all(1),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+              decoration: BoxDecoration(
+                color: _bgModule,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                label.toUpperCase(),
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFE8E6E0),
+                  letterSpacing: 1.4,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// The big "✦ FORJAR ✦" CTA — full iridescent rectangle with shadow.
+class _HoloForgeButton extends StatelessWidget {
+  const _HoloForgeButton({
+    required this.controller,
+    required this.label,
+    required this.busy,
+    required this.onPressed,
+  });
+  final AnimationController controller;
+  final String label;
+  final bool busy;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: busy ? null : onPressed,
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (_, __) {
+          final shift = controller.value;
+          return Container(
+            height: 58,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              gradient: LinearGradient(
+                begin: Alignment(-1 + shift * 2, 0),
+                end: Alignment(1 + shift * 2, 0),
+                colors: _holoColorsModule,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFE0B47A).withValues(alpha: 0.5),
+                  blurRadius: 20,
+                  spreadRadius: -2,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
+                  color: const Color(0xFF6EE7B7).withValues(alpha: 0.3),
+                  blurRadius: 16,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: busy
+                ? const SizedBox(
+                    width: 26,
+                    height: 26,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: Color(0xFF1F1B17),
+                    ),
+                  )
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '✦  ${label.toUpperCase()}  ✦',
+                      maxLines: 1,
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                      style: GoogleFonts.fraunces(
+                        fontSize: 17,
+                        fontStyle: FontStyle.italic,
+                        color: const Color(0xFF1F1B17),
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.8,
+                      ),
+                    ),
+                  ),
+          );
+        },
       ),
     );
   }

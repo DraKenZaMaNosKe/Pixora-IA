@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/services/analytics_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
@@ -7,19 +10,13 @@ import '../../../core/services/catalog_service.dart';
 import '../../../core/services/wallpaper_engine_coordinator.dart';
 import '../../../core/utils/locale_helper.dart';
 
-/// Pixora Daily — dedicated page for the auto-rotating wallpaper feature.
+/// Pixora Daily — Synthwave Daily layout (concept #03, Eduardo 2026-05-16).
 ///
-/// Design: Apple TV Widget concept (#01 from `docs/design/pixora_daily_concepts.html`)
-/// picked by user 2026-05-05. Pure black bg, stack carousel of 3 wallpapers,
-/// 3 elegant rows for config (Frecuencia, Aplicar a, Categoría), big primary
-/// CTA at bottom. Vibe: iOS Settings premium.
-///
-/// Replaces the previously-buried AutoRotate UI inside settings_page.dart.
-/// The underlying service (AutoRotateService + native AutoRotateWorker) is
-/// unchanged; this is a UX refactor for discoverability.
-///
-/// Section §16.X of master doc: "Pixora Daily — feature exception #1
-/// to PRODUCTO_TERMINADO pact, 2026-05-05."
+/// Background: deep purple→magenta gradient + scanlines CRT + horizon-grid
+/// floor cyan. Header: Orbitron Tron-style title with chromatic aberration.
+/// Carousel: 3 thumbs each with its own neon ring (pink/cyan/yellow). Menu
+/// rows: dark translucent cards with per-row neon outline + glow. CTA:
+/// arcade button. Category sheet: neon panel with active-row highlight.
 class PixoraDailyPage extends StatefulWidget {
   const PixoraDailyPage({super.key});
 
@@ -28,20 +25,22 @@ class PixoraDailyPage extends StatefulWidget {
 }
 
 class _PixoraDailyPageState extends State<PixoraDailyPage> {
-  static const _appleBlue = Color(0xFF0A84FF);
-  static const _appleBlueDark = Color(0xFF0072E0);
+  // ── Synthwave palette ───────────────────────────────────────────
+  static const _neonPink = Color(0xFFFF2BD6);
+  static const _neonCyan = Color(0xFF00F0FF);
+  static const _neonYellow = Color(0xFFFFE44D);
+  static const _bgTop = Color(0xFF1A0033);
+  static const _bgMid = Color(0xFF3D0066);
+  static const _bgDeep = Color(0xFF7A0099);
 
   bool _enabled = false;
   bool _loading = true;
   bool _busy = false;
   int _intervalMinutes = 30;
-  int _target = 2; // 0=Home, 1=Lock, 2=Both
-  String? _category; // null = all
+  int _target = 2;
+  String? _category;
   int _cachedCount = 0;
   String _cacheSize = '0.0';
-
-  // 3 sample wallpaper URLs for the stack carousel preview. We pull these
-  // from the live catalog so the user sees REAL content from his app.
   List<String> _previewUrls = const [];
 
   @override
@@ -117,13 +116,13 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(LocaleHelper.pick(
-              es: '✨ Pixora Daily activo · cada ${_intervalLabel(_intervalMinutes)}$preemptedMsg',
-              en: '✨ Pixora Daily active · every ${_intervalLabel(_intervalMinutes)}$preemptedMsg',
+              es: '✨ Daily ACTIVO · cada ${_intervalLabel(_intervalMinutes)}$preemptedMsg',
+              en: '✨ Daily ACTIVE · every ${_intervalLabel(_intervalMinutes)}$preemptedMsg',
             )),
-            backgroundColor: _appleBlue,
+            backgroundColor: _neonPink,
             behavior: SnackBarBehavior.floating,
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         );
       }
@@ -131,26 +130,20 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
   }
 
   Future<void> _pickInterval() async {
-    final v = await showModalBottomSheet<int>(
-      context: context,
-      backgroundColor: const Color(0xFF1C1C1E),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => _PickerSheet<int>(
-        title: LocaleHelper.pick(es: 'Frecuencia', en: 'Frequency'),
-        items: const [
-          (5, '5 min'),
-          (15, '15 min'),
-          (30, '30 min'),
-          (60, '1 h'),
-          (120, '2 h'),
-          (360, '6 h'),
-          (720, '12 h'),
-          (1440, '24 h'),
-        ],
-        current: _intervalMinutes,
-      ),
+    final v = await _showSynthSheet<int>(
+      title: LocaleHelper.pick(es: 'FRECUENCIA', en: 'FREQUENCY'),
+      items: const [
+        (5, '5 min'),
+        (15, '15 min'),
+        (30, '30 min'),
+        (60, '1 h'),
+        (120, '2 h'),
+        (360, '6 h'),
+        (720, '12 h'),
+        (1440, '24 h'),
+      ],
+      current: _intervalMinutes,
+      accent: _neonPink,
     );
     if (v != null && v != _intervalMinutes) {
       setState(() => _intervalMinutes = v);
@@ -159,21 +152,15 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
   }
 
   Future<void> _pickTarget() async {
-    final v = await showModalBottomSheet<int>(
-      context: context,
-      backgroundColor: const Color(0xFF1C1C1E),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => _PickerSheet<int>(
-        title: LocaleHelper.pick(es: 'Aplicar a', en: 'Apply to'),
-        items: [
-          (0, LocaleHelper.pick(es: 'Pantalla principal', en: 'Home screen')),
-          (1, LocaleHelper.pick(es: 'Pantalla de bloqueo', en: 'Lock screen')),
-          (2, LocaleHelper.pick(es: 'Ambas pantallas', en: 'Both screens')),
-        ],
-        current: _target,
-      ),
+    final v = await _showSynthSheet<int>(
+      title: LocaleHelper.pick(es: 'APLICAR A', en: 'APPLY TO'),
+      items: [
+        (0, LocaleHelper.pick(es: 'Pantalla principal', en: 'Home screen')),
+        (1, LocaleHelper.pick(es: 'Pantalla de bloqueo', en: 'Lock screen')),
+        (2, LocaleHelper.pick(es: 'Ambas pantallas', en: 'Both screens')),
+      ],
+      current: _target,
+      accent: _neonCyan,
     );
     if (v != null && v != _target) {
       setState(() => _target = v);
@@ -182,45 +169,56 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
   }
 
   Future<void> _pickCategory() async {
-    final v = await showModalBottomSheet<String?>(
-      context: context,
-      backgroundColor: const Color(0xFF1C1C1E),
-      isScrollControlled:
-          true, // permite que el sheet sea más alto que la mitad
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => _PickerSheet<String?>(
-        title: LocaleHelper.pick(es: 'Categoría', en: 'Category'),
-        items: [
-          (
-            null,
-            LocaleHelper.pick(es: 'Todas las categorías', en: 'All categories')
-          ),
-          (
-            'DAILY',
-            LocaleHelper.pick(
-                es: 'Pixora Daily (curado)', en: 'Pixora Daily (curated)')
-          ),
-          (
-            'PANORAMIC',
-            LocaleHelper.pick(es: 'Solo panorámicos', en: 'Panoramic only')
-          ),
-          ('NATURE', LocaleHelper.pick(es: 'Naturaleza', en: 'Nature')),
-          ('ANIME', 'Anime'),
-          ('GAMING', 'Gaming'),
-          ('SCIFI', LocaleHelper.pick(es: 'Sci-Fi', en: 'Sci-Fi')),
-          ('FANTASY', LocaleHelper.pick(es: 'Fantasía', en: 'Fantasy')),
-          ('CULTURE', LocaleHelper.pick(es: 'Cultura', en: 'Culture')),
-          ('CALENDAR', LocaleHelper.pick(es: 'Calendarios', en: 'Calendar')),
-        ],
-        current: _category,
-      ),
+    final v = await _showSynthSheet<String?>(
+      title: LocaleHelper.pick(es: 'CATEGORÍA', en: 'CATEGORY'),
+      items: [
+        (
+          null,
+          LocaleHelper.pick(es: 'Todas las categorías', en: 'All categories'),
+        ),
+        (
+          'DAILY',
+          LocaleHelper.pick(
+              es: 'Pixora Daily (curado)', en: 'Pixora Daily (curated)'),
+        ),
+        (
+          'PANORAMIC',
+          LocaleHelper.pick(es: 'Solo panorámicos', en: 'Panoramic only'),
+        ),
+        ('NATURE', LocaleHelper.pick(es: 'Naturaleza', en: 'Nature')),
+        ('ANIME', 'Anime'),
+        ('GAMING', 'Gaming'),
+        ('SCIFI', 'Sci-Fi'),
+        ('FANTASY', LocaleHelper.pick(es: 'Fantasía', en: 'Fantasy')),
+        ('CULTURE', LocaleHelper.pick(es: 'Cultura', en: 'Culture')),
+        ('CALENDAR', LocaleHelper.pick(es: 'Calendarios', en: 'Calendar')),
+      ],
+      current: _category,
+      accent: _neonYellow,
     );
     if (v != _category) {
       setState(() => _category = v);
       if (_enabled) await _restart();
     }
+  }
+
+  Future<T?> _showSynthSheet<T>({
+    required String title,
+    required List<(T, String)> items,
+    required T current,
+    required Color accent,
+  }) {
+    return showModalBottomSheet<T>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => _SynthSheet<T>(
+        title: title,
+        items: items,
+        current: current,
+        accent: accent,
+      ),
+    );
   }
 
   Future<void> _restart() async {
@@ -237,14 +235,14 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
     if (m < 60) return '$m min';
     if (m < 1440) {
       final h = m ~/ 60;
-      return LocaleHelper.pick(es: '$h h', en: '$h h');
+      return '$h h';
     }
-    return LocaleHelper.pick(es: '24 h', en: '24 h');
+    return '24 h';
   }
 
   String _targetLabel(int t) => switch (t) {
-        0 => LocaleHelper.pick(es: 'Pantalla principal', en: 'Home screen'),
-        1 => LocaleHelper.pick(es: 'Pantalla de bloqueo', en: 'Lock screen'),
+        0 => LocaleHelper.pick(es: 'Principal', en: 'Home'),
+        1 => LocaleHelper.pick(es: 'Bloqueo', en: 'Lock'),
         _ => LocaleHelper.pick(es: 'Ambas', en: 'Both'),
       };
 
@@ -265,69 +263,120 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: _bgTop,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: _neonCyan),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: _loading
-          ? const Center(
-              child:
-                  CircularProgressIndicator(color: _appleBlue, strokeWidth: 2),
-            )
-          : SafeArea(
-              top: false,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildHeader(),
-                    const SizedBox(height: 12),
-                    _buildStackCarousel(),
-                    const SizedBox(height: 24),
-                    _buildRows(),
-                    const SizedBox(height: 16),
-                    if (_enabled) _buildStatsCard(),
-                    const SizedBox(height: 20),
-                    _buildPrimaryCta(),
-                    const SizedBox(height: 28),
-                  ],
+      body: Stack(
+        children: [
+          // Layer 1: gradient background
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [_bgTop, _bgMid, _bgDeep, _neonPink],
+                  stops: [0.0, 0.4, 0.8, 1.0],
                 ),
               ),
             ),
+          ),
+          // Layer 2: horizon-grid floor bottom
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 220,
+            child: IgnorePointer(child: _HorizonGrid()),
+          ),
+          // Layer 3: scanlines
+          const Positioned.fill(
+            child: IgnorePointer(child: _Scanlines()),
+          ),
+          // Layer 4: content
+          _loading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                      color: _neonCyan, strokeWidth: 2),
+                )
+              : SafeArea(
+                  top: false,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(top: 80, bottom: 32),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 14),
+                        _buildCarousel(),
+                        const SizedBox(height: 20),
+                        _buildRows(),
+                        if (_enabled) ...[
+                          const SizedBox(height: 12),
+                          _buildStatsCard(),
+                        ],
+                        const SizedBox(height: 20),
+                        _buildPrimaryCta(),
+                      ],
+                    ),
+                  ),
+                ),
+        ],
+      ),
     );
   }
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 8, 28, 4),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            LocaleHelper.pick(es: 'PIXORA · DAILY', en: 'PIXORA · DAILY'),
-            style: TextStyle(
-              fontFamily: 'GeistMono',
+            'PIXORA · DAILY',
+            style: GoogleFonts.jetBrainsMono(
               fontSize: 10,
-              letterSpacing: 2,
-              color: _appleBlue,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 2.4,
+              color: _neonCyan,
+              shadows: [
+                Shadow(
+                  color: _neonCyan.withValues(alpha: 0.7),
+                  blurRadius: 6,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
-            'Pixora Daily',
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.8,
-              color: Colors.white,
-              height: 1,
+            'PIXORA DAILY',
+            style: GoogleFonts.orbitron(
+              fontSize: 30,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.02 * 30,
+              color: _neonYellow,
+              height: 1.0,
+              shadows: [
+                const Shadow(
+                  color: _neonPink,
+                  offset: Offset(2, 0),
+                ),
+                const Shadow(
+                  color: _neonCyan,
+                  offset: Offset(-2, 0),
+                ),
+                Shadow(
+                  color: _neonYellow.withValues(alpha: 0.65),
+                  blurRadius: 14,
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 6),
@@ -336,10 +385,9 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
               es: 'Tu pantalla, viva todo el día',
               en: 'Your screen, alive all day',
             ),
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.5),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: Colors.white.withValues(alpha: 0.85),
               fontWeight: FontWeight.w400,
               letterSpacing: -0.1,
             ),
@@ -349,68 +397,46 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
     );
   }
 
-  Widget _buildStackCarousel() {
+  Widget _buildCarousel() {
     final urls = _previewUrls;
+    final colors = [_neonPink, _neonCyan, _neonYellow];
     return SizedBox(
-      height: 240,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (urls.length > 0)
-            _stackCard(urls[0], const Offset(-100, 8), -12, 1, 0.7),
-          if (urls.length > 1)
-            _stackCard(urls[1], const Offset(100, 8), 12, 2, 0.85),
-          if (urls.length > 2)
-            _stackCard(urls[2], Offset.zero, 0, 3, 1.0, withBorder: true),
-          // Empty state if catalog hasn't loaded yet
-          if (urls.isEmpty)
-            Container(
-              width: 180,
-              height: 230,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1C1C1E),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-              ),
-              child: const Icon(Icons.image_outlined,
-                  color: Colors.white24, size: 40),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _stackCard(
-      String url, Offset offset, double rot, int z, double opacity,
-      {bool withBorder = false}) {
-    return Transform.translate(
-      offset: offset,
-      child: Transform.rotate(
-        angle: rot * 3.14159 / 180,
-        child: Opacity(
-          opacity: opacity,
-          child: Container(
-            width: 180,
-            height: 230,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              image: DecorationImage(
-                image: NetworkImage(url),
-                fit: BoxFit.cover,
-              ),
-              border: withBorder
-                  ? Border.all(
-                      color: Colors.white.withValues(alpha: 0.1), width: 2)
-                  : null,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.4),
-                  blurRadius: 40,
-                  offset: const Offset(0, 20),
+      height: 110,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        child: Row(
+          children: List.generate(3, (i) {
+            final hasImage = i < urls.length;
+            final color = colors[i];
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: i < 2 ? 7 : 0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.55),
+                        blurRadius: 18,
+                      ),
+                    ],
+                    border: Border.all(color: color, width: 2),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: hasImage
+                        ? Image.network(
+                            urls[i],
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                Container(color: const Color(0xFF1A0033)),
+                          )
+                        : Container(color: const Color(0xFF1A0033)),
+                  ),
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          }),
         ),
       ),
     );
@@ -418,30 +444,30 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
 
   Widget _buildRows() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Column(
         children: [
-          _row(
-            icon: Icons.timer,
-            title: LocaleHelper.pick(es: 'Frecuencia', en: 'Frequency'),
-            value: LocaleHelper.pick(
-              es: 'cada ${_intervalLabel(_intervalMinutes)}',
-              en: 'every ${_intervalLabel(_intervalMinutes)}',
-            ),
+          _synthRow(
+            color: _neonPink,
+            icon: '⏱',
+            label: LocaleHelper.pick(es: 'FRECUENCIA', en: 'FREQUENCY'),
+            value: _intervalLabel(_intervalMinutes).toUpperCase(),
             onTap: _pickInterval,
           ),
           const SizedBox(height: 8),
-          _row(
-            icon: Icons.phone_android,
-            title: LocaleHelper.pick(es: 'Aplicar a', en: 'Apply to'),
-            value: _targetLabel(_target),
+          _synthRow(
+            color: _neonCyan,
+            icon: '◳',
+            label: LocaleHelper.pick(es: 'APLICAR A', en: 'APPLY TO'),
+            value: _targetLabel(_target).toUpperCase(),
             onTap: _pickTarget,
           ),
           const SizedBox(height: 8),
-          _row(
-            icon: Icons.collections_outlined,
-            title: LocaleHelper.pick(es: 'Categoría', en: 'Category'),
-            value: _categoryLabel(_category),
+          _synthRow(
+            color: _neonYellow,
+            icon: '★',
+            label: LocaleHelper.pick(es: 'CATEGORÍA', en: 'CATEGORY'),
+            value: _categoryLabel(_category).toUpperCase(),
             onTap: _pickCategory,
           ),
         ],
@@ -449,56 +475,75 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
     );
   }
 
-  Widget _row({
-    required IconData icon,
-    required String title,
+  Widget _synthRow({
+    required Color color,
+    required String icon,
+    required String label,
     required String value,
     required VoidCallback onTap,
   }) {
     return Material(
-      color: Colors.white.withValues(alpha: 0.06),
-      borderRadius: BorderRadius.circular(14),
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(11, 10, 11, 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0A001E).withValues(alpha: 0.62),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color, width: 1.5),
+            boxShadow: [
+              BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 14),
+            ],
+          ),
           child: Row(
             children: [
               Container(
-                width: 34,
-                height: 34,
+                width: 28,
+                height: 28,
                 decoration: BoxDecoration(
-                  color: _appleBlue.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
+                  color: color.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                child: Icon(icon, color: _appleBlue, size: 18),
+                alignment: Alignment.center,
+                child: Text(
+                  icon,
+                  style: GoogleFonts.orbitron(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                    shadows: [
+                      Shadow(
+                          color: color.withValues(alpha: 0.7), blurRadius: 6),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  title,
-                  style: TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                  label,
+                  style: GoogleFonts.orbitron(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
-                    letterSpacing: -0.1,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
               Text(
                 value,
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 13,
-                  color: Colors.white.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.w400,
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.88),
+                  letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Icon(Icons.chevron_right,
-                  color: Colors.white.withValues(alpha: 0.4), size: 18),
+                  size: 16, color: Colors.white.withValues(alpha: 0.55)),
             ],
           ),
         ),
@@ -508,41 +553,41 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
 
   Widget _buildStatsCard() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: _appleBlue.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _appleBlue.withValues(alpha: 0.3)),
+          color: _neonCyan.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _neonCyan, width: 1),
+          boxShadow: [
+            BoxShadow(color: _neonCyan.withValues(alpha: 0.35), blurRadius: 12),
+          ],
         ),
         child: Row(
           children: [
-            Icon(Icons.check_circle_rounded, color: _appleBlue, size: 18),
+            Icon(Icons.check_circle_rounded, color: _neonCyan, size: 18),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    LocaleHelper.pick(es: 'Daily activo', en: 'Daily active'),
-                    style: TextStyle(
-                      fontFamily: 'Geist',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    LocaleHelper.pick(es: 'DAILY ACTIVO', en: 'DAILY ACTIVE'),
+                    style: GoogleFonts.orbitron(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: _neonCyan,
+                      letterSpacing: 1.4,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    LocaleHelper.pick(
-                      es: '$_cachedCount cacheados · $_cacheSize MB',
-                      en: '$_cachedCount cached · $_cacheSize MB',
-                    ),
-                    style: TextStyle(
-                      fontFamily: 'Geist',
-                      fontSize: 11,
+                    '$_cachedCount cached · $_cacheSize MB',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 9,
                       color: Colors.white.withValues(alpha: 0.6),
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ],
@@ -556,141 +601,346 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
 
   Widget _buildPrimaryCta() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: _busy ? null : _toggle,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _enabled ? const Color(0xFF1C1C1E) : _appleBlue,
-            disabledBackgroundColor: _appleBlue.withValues(alpha: 0.5),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            elevation: 0,
-            side: _enabled
-                ? const BorderSide(color: Color(0xFF38383A), width: 1)
-                : null,
-          ).copyWith(
-            overlayColor: WidgetStateProperty.all(_appleBlueDark),
-          ),
-          child: _busy
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      _enabled ? Icons.pause : Icons.play_arrow,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      _enabled
-                          ? LocaleHelper.pick(
-                              es: 'Pausar Daily', en: 'Pause Daily')
-                          : LocaleHelper.pick(
-                              es: 'Activar Daily', en: 'Enable Daily'),
-                      style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.2,
-                      ),
-                    ),
-                  ],
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _busy ? null : _toggle,
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  _neonPink.withValues(alpha: 0.55),
+                  _neonCyan.withValues(alpha: 0.55),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: _neonYellow, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: _neonYellow.withValues(alpha: 0.45),
+                  blurRadius: 24,
                 ),
+                BoxShadow(
+                  color: _neonPink.withValues(alpha: 0.30),
+                  blurRadius: 18,
+                  spreadRadius: -4,
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            child: _busy
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: _neonYellow,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _enabled
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                        size: 20,
+                        color: _neonYellow,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _enabled
+                            ? LocaleHelper.pick(
+                                es: 'PAUSAR DAILY', en: 'PAUSE DAILY')
+                            : LocaleHelper.pick(
+                                es: 'ACTIVAR DAILY', en: 'ENABLE DAILY'),
+                        style: GoogleFonts.orbitron(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: _neonYellow,
+                          letterSpacing: 2.0,
+                          shadows: [
+                            Shadow(
+                              color: _neonYellow.withValues(alpha: 0.85),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
   }
 }
 
-class _PickerSheet<T> extends StatelessWidget {
-  const _PickerSheet({
+// ═════════════════════════════════════════════════════════════════════
+// Horizon grid floor — perspective-rotated cyan grid
+// ═════════════════════════════════════════════════════════════════════
+class _HorizonGrid extends StatelessWidget {
+  const _HorizonGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(painter: _HorizonGridPainter());
+  }
+}
+
+class _HorizonGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cyan = const Color(0xFF00F0FF);
+    // Vertical lines fan out from horizon (top center) to bottom edges
+    final vPaint = Paint()
+      ..color = cyan.withValues(alpha: 0.55)
+      ..strokeWidth = 1;
+    final hPaint = Paint()
+      ..color = cyan.withValues(alpha: 0.45)
+      ..strokeWidth = 1;
+    final vanish = Offset(size.width / 2, 0);
+    for (var i = -10; i <= 10; i++) {
+      final endX = size.width / 2 + (i * size.width * 0.18);
+      canvas.drawLine(vanish, Offset(endX, size.height), vPaint);
+    }
+    // Horizontal lines with perspective spacing (closer at top)
+    for (var i = 1; i <= 8; i++) {
+      final t = math.pow(i / 8, 2).toDouble();
+      final y = t * size.height;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), hPaint);
+    }
+    // Bottom cyan glow overlay
+    final glow = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.transparent,
+          cyan.withValues(alpha: 0.12),
+          cyan.withValues(alpha: 0.22),
+        ],
+        stops: const [0, 0.3, 1.0],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), glow);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Scanlines overlay (CRT effect)
+// ═════════════════════════════════════════════════════════════════════
+class _Scanlines extends StatefulWidget {
+  const _Scanlines();
+  @override
+  State<_Scanlines> createState() => _ScanlinesState();
+}
+
+class _ScanlinesState extends State<_Scanlines>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (_, __) {
+        return CustomPaint(
+          painter: _ScanlinesPainter(offset: _c.value * 4),
+        );
+      },
+    );
+  }
+}
+
+class _ScanlinesPainter extends CustomPainter {
+  _ScanlinesPainter({required this.offset});
+  final double offset;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.black.withValues(alpha: 0.18);
+    for (var y = offset; y < size.height; y += 4) {
+      canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ScanlinesPainter old) => old.offset != offset;
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// Synthwave bottom sheet picker
+// ═════════════════════════════════════════════════════════════════════
+class _SynthSheet<T> extends StatelessWidget {
+  const _SynthSheet({
     required this.title,
     required this.items,
     required this.current,
+    required this.accent,
   });
   final String title;
   final List<(T, String)> items;
   final T current;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    // Cap the sheet at 75% de la pantalla — el resto deja ver la página
-    // detrás. Si los items no caben, scroll vertical (antes hacía overflow
-    // por 74px con 8 items + status/nav bars en pantallas chicas).
     final maxH = MediaQuery.of(context).size.height * 0.75;
-    return SafeArea(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxH),
+    return Container(
+      constraints: BoxConstraints(maxHeight: maxH),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            const Color(0xFF0A001E).withValues(alpha: 0.96),
+            const Color(0xFF3C005A).withValues(alpha: 0.96),
+          ],
+        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        border: Border(
+          top: BorderSide(color: accent, width: 2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: accent.withValues(alpha: 0.40),
+            blurRadius: 30,
+            offset: const Offset(0, -8),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
         child: Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 8),
+          padding: const EdgeInsets.fromLTRB(0, 18, 0, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    letterSpacing: -0.3,
+              // Top dragger
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final (val, label) in items)
-                        InkWell(
-                          onTap: () => Navigator.pop(context, val),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 14),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    label,
-                                    style: const TextStyle(
-                                      fontFamily: 'Geist',
-                                      fontSize: 15,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                if (val == current)
-                                  const Icon(
-                                    Icons.check,
-                                    color: Color(0xFF0A84FF),
-                                    size: 20,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 6),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Text(
+                  title,
+                  style: GoogleFonts.orbitron(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: accent,
+                    letterSpacing: 1.6,
+                    shadows: [
+                      Shadow(
+                          color: accent.withValues(alpha: 0.7), blurRadius: 8),
                     ],
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final (val, label) in items)
+                        _SheetRow<T>(
+                          value: val,
+                          label: label,
+                          isActive: val == current,
+                          accent: accent,
+                          onTap: () => Navigator.pop(context, val),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SheetRow<T> extends StatelessWidget {
+  const _SheetRow({
+    required this.value,
+    required this.label,
+    required this.isActive,
+    required this.accent,
+    required this.onTap,
+  });
+  final T value;
+  final String label;
+  final bool isActive;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          decoration: BoxDecoration(
+            color: isActive ? accent.withValues(alpha: 0.12) : null,
+            border: Border(
+              left: BorderSide(
+                color: isActive ? accent : Colors.transparent,
+                width: 2,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label.toUpperCase(),
+                  style: GoogleFonts.orbitron(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+              ),
+              if (isActive) Icon(Icons.check_rounded, color: accent, size: 18),
             ],
           ),
         ),

@@ -184,6 +184,19 @@ class HudTokens {
   static const Duration dFast = Duration(milliseconds: 120);
   static const Duration dNormal = Duration(milliseconds: 240);
   static const Duration dSlow = Duration(milliseconds: 420);
+
+  // ── Holographic foil palette ─────────────────────────────────────────
+  // Rose Gold + Emerald — single source of truth for the foil identity
+  // (header ribbon, avatar ring, title ShaderMask, credit pill border,
+  // AI Create forge frame). Eduardo picked 2026-05-16 — no purples.
+  static const List<Color> foilPalette = [
+    Color(0xFFE0B47A), // rose-gold
+    Color(0xFFF4D6B8), // peach-cream
+    Color(0xFFFFFFFF), // pearl
+    Color(0xFF6EE7B7), // mint-emerald
+    Color(0xFFE0B47A), // close loop
+  ];
+  static const Color foilGlow = Color(0xFFE0B47A); // primary glow shadow
 }
 
 /// Theme extension. `context.hud.gold`, `context.hud.accent`, etc.

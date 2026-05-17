@@ -86,24 +86,26 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
     );
   }
 
-  /// iOS White theme — Apple Blue Filled (concept #01).
-  /// Solid blue gradient bg, white icon container, white text — high contrast.
+  /// iOS White theme — Apple Premium (concept #01, 2026-05-15).
+  /// 135° gradient #0A84FF → #0066CC, translucent white pills, white text,
+  /// large blue glow shadow. Matches the rest of the Apple Premium iOS HOME
+  /// tokens (hero pill, NEW badges) for full coherence.
   Widget _buildLightTheme() {
     const appleBlue = Color(0xFF0A84FF);
-    const appleBlueDark = Color(0xFF0072E0);
+    const appleBlueDeep = Color(0xFF0066CC);
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [appleBlue, appleBlueDark],
+          colors: [appleBlue, appleBlueDeep],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: appleBlue.withValues(alpha: 0.35),
-            blurRadius: 18,
+            color: appleBlue.withValues(alpha: 0.30),
+            blurRadius: 20,
             offset: const Offset(0, 6),
           ),
         ],
@@ -114,12 +116,12 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.96),
+              color: Colors.white.withValues(alpha: 0.22),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.autorenew_rounded,
-              color: appleBlue,
+              color: Colors.white,
               size: 24,
             ),
           ),
@@ -147,7 +149,7 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.white.withValues(alpha: 0.22),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -156,7 +158,7 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
                           fontSize: 8,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1,
-                          color: appleBlueDark,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -170,8 +172,8 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
                           en: 'Changes every ${_intervalLabel(_intervalMinutes)}',
                         )
                       : LocaleHelper.pick(
-                          es: 'Tu pantalla cambia sola, como Bing Spotlight',
-                          en: 'Your screen changes itself, like Bing Spotlight',
+                          es: 'Wallpapers aleatorios',
+                          en: 'Random wallpapers',
                         ),
                   style: TextStyle(
                     fontSize: 12,
@@ -315,8 +317,8 @@ class _PixoraDailyBannerState extends State<PixoraDailyBanner> {
                           en: 'Changes every ${_intervalLabel(_intervalMinutes)}',
                         )
                       : LocaleHelper.pick(
-                          es: 'Tu pantalla cambia sola, curado por ti',
-                          en: 'Your screen changes itself, curated by you',
+                          es: 'Wallpapers aleatorios',
+                          en: 'Random wallpapers',
                         ),
                   style: TextStyle(
                     fontSize: 12,

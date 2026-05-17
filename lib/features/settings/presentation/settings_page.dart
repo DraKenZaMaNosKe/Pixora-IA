@@ -91,87 +91,90 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Account section
-        const _SectionHeader('Account'),
-        _buildAccountSection(),
-        const SizedBox(height: 20),
-        // Pixora Daily lives as a featured banner on the Wallpapers home
-        // (PixoraDailyBanner widget). Removed from Settings 2026-05-05 to
-        // avoid duplicate entry points and reinforce the dedicated section.
-        Divider(color: context.hud.divider),
-        _SectionHeader(LocaleHelper.pick(
-          es: 'Efecto al tocar',
-          en: 'Touch effect',
-        )),
-        _buildTouchTrailSection(),
-        Divider(color: context.hud.divider),
-        _SectionHeader(LocaleHelper.pick(
-          es: 'Overlays del wallpaper',
-          en: 'Wallpaper overlays',
-        )),
-        _buildOverlaysSection(),
-        Divider(color: context.hud.divider),
-        const _SectionHeader('General'),
-        const _ThemePickerSection(),
-        _SettingsTile(
-          icon: Icons.school_outlined,
-          title: LocaleHelper.pick(
-            es: 'Reabrir tutorial guiado',
-            en: 'Restart guided tutorial',
+    // Control Deck HUD — picked 2026-05-16. Always-black bg + CRT
+    // scanlines + cyan grid + terminal-style section headers and rows.
+    return Container(
+      color: const Color(0xFF050505),
+      child: Stack(
+        children: [
+          // CRT scanlines + grid overlay
+          const Positioned.fill(
+            child: IgnorePointer(child: _HudCrtBg()),
           ),
-          subtitle: LocaleHelper.pick(
-            es: 'Vuelve a ver las indicaciones de las secciones',
-            en: 'See the section walkthrough again',
-          ),
-          onTap: () async {
-            await TrainingService.instance.reset();
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(LocaleHelper.pick(
-                  es: 'Tutorial reactivado. Toca cualquier sección para verlo.',
-                  en: 'Tutorial reactivated. Open any section to see it.',
-                )),
+          ListView(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 40),
+            children: [
+              const _HudSectionHeader('SYSTEM', 'ACCOUNT'),
+              _buildAccountSection(),
+              const SizedBox(height: 14),
+              const _HudDivider(),
+              _HudSectionHeader('PRESENTATION',
+                  LocaleHelper.pick(es: 'TOUCH_EFFECT', en: 'TOUCH_EFFECT')),
+              _buildTouchTrailSection(),
+              const _HudDivider(),
+              _HudSectionHeader('WALLPAPER',
+                  LocaleHelper.pick(es: 'OVERLAYS', en: 'OVERLAYS')),
+              _buildOverlaysSection(),
+              const _HudDivider(),
+              const _HudSectionHeader('GENERAL', 'PREFERENCES'),
+              const _ThemePickerSection(),
+              _SettingsTile(
+                icon: Icons.school_outlined,
+                title: LocaleHelper.pick(
+                  es: 'Reabrir tutorial guiado',
+                  en: 'Restart guided tutorial',
+                ),
+                subtitle: LocaleHelper.pick(
+                  es: 'Vuelve a ver las indicaciones de las secciones',
+                  en: 'See the section walkthrough again',
+                ),
+                onTap: () async {
+                  await TrainingService.instance.reset();
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(LocaleHelper.pick(
+                        es: 'Tutorial reactivado. Toca cualquier sección para verlo.',
+                        en: 'Tutorial reactivated. Open any section to see it.',
+                      )),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
-        Divider(color: context.hud.divider),
-        const _SectionHeader('About'),
-        _SettingsTile(
-          icon: Icons.info_outline,
-          title: 'Pixora IA',
-          subtitle: _appVersion.isEmpty ? 'Version —' : 'Version $_appVersion',
-        ),
-        const _SettingsTile(
-          icon: Icons.code,
-          title: 'Made by',
-          subtitle: 'Orbix Studio',
-        ),
-        const SizedBox(height: 12),
-        Divider(color: context.hud.divider),
-        _SectionHeader(LocaleHelper.pick(
-          es: 'Zona de peligro',
-          en: 'Danger zone',
-        )),
-        _SettingsTile(
-          icon: Icons.delete_forever,
-          title: LocaleHelper.pick(
-            es: 'Eliminar mi cuenta',
-            en: 'Delete my account',
+              const _HudDivider(),
+              const _HudSectionHeader('INFO', 'ABOUT'),
+              _SettingsTile(
+                icon: Icons.info_outline,
+                title: 'Pixora IA',
+                subtitle: _appVersion.isEmpty ? 'v —' : 'v$_appVersion',
+              ),
+              const _SettingsTile(
+                icon: Icons.code,
+                title: 'Made by',
+                subtitle: 'Orbix Studio',
+              ),
+              const SizedBox(height: 8),
+              const _HudDivider(),
+              _HudSectionHeader('CRITICAL',
+                  LocaleHelper.pick(es: 'DANGER_ZONE', en: 'DANGER_ZONE')),
+              _SettingsTile(
+                icon: Icons.delete_forever,
+                title: LocaleHelper.pick(
+                  es: 'Eliminar mi cuenta',
+                  en: 'Delete my account',
+                ),
+                subtitle: LocaleHelper.pick(
+                  es: 'Borra permanentemente tu cuenta y todos tus datos',
+                  en: 'Permanently delete your account and all your data',
+                ),
+                onTap: _confirmDeleteAccount,
+                iconColor: HudTokens.goldDeep,
+              ),
+              const SizedBox(height: 60),
+            ],
           ),
-          subtitle: LocaleHelper.pick(
-            es: 'Borra permanentemente tu cuenta y todos tus datos',
-            en: 'Permanently delete your account and all your data',
-          ),
-          onTap: _confirmDeleteAccount,
-          iconColor: HudTokens.goldDeep,
-        ),
-        const SizedBox(height: 40),
-      ],
+        ],
+      ),
     );
   }
 
@@ -464,14 +467,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       children: items.map((t) {
         final key = t.$1;
         final enabled = _overlays[key] ?? true;
-        return SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          secondary: Icon(t.$2,
-              color: enabled ? context.hud.accent : context.hud.textDim),
-          title: Text(t.$3),
-          subtitle: Text(t.$4, style: TextStyle(color: context.hud.textDim)),
-          value: enabled,
-          activeColor: context.hud.accent,
+        return _HudOverlayRow(
+          icon: t.$2,
+          title: t.$3,
+          subtitle: t.$4,
+          enabled: enabled,
           onChanged: (v) => _setOverlay(key, v),
         );
       }).toList(),
@@ -649,27 +649,131 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // Pickers for AutoRotate config moved to PixoraDailyPage.
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(this.title);
+// ── HUD palette (Control Deck) ─────────────────────────────────────
+const _hudGreen = Color(0xFF5BFF8E);
+const _hudCyan = Color(0xFF19F0FF);
+const _hudRed = Color(0xFFFF4D4D);
+const _hudInk = Color(0xFFD9F8E6);
+const _hudInkDim = Color(0x99D9F8E6);
+const _hudGrid = Color(0x1419F0FF);
+
+/// CRT background — scanlines + cyan grid + faint green glow at top.
+class _HudCrtBg extends StatelessWidget {
+  const _HudCrtBg();
+  @override
+  Widget build(BuildContext context) => CustomPaint(painter: _CrtPainter());
+}
+
+class _CrtPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Faint green halo top
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, 120),
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0x1A5BFF8E), Color(0x00000000)],
+        ).createShader(Rect.fromLTWH(0, 0, size.width, 120)),
+    );
+    // Cyan grid
+    final grid = Paint()
+      ..color = _hudGrid
+      ..strokeWidth = 0.4;
+    const step = 22.0;
+    for (var x = 0.0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid);
+    }
+    for (var y = 0.0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
+    }
+    // Horizontal scanlines (CRT)
+    final scan = Paint()..color = const Color(0x0E000000);
+    for (var y = 0.0; y < size.height; y += 3) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), scan);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+
+/// Thin cyan-dim divider between HUD sections.
+class _HudDivider extends StatelessWidget {
+  const _HudDivider();
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Container(
+          height: 1,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                _hudCyan.withValues(alpha: 0.0),
+                _hudCyan.withValues(alpha: 0.35),
+                _hudCyan.withValues(alpha: 0.0),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+/// Terminal header — `> CATEGORY // TITLE_NAME` mono with LED dot.
+class _HudSectionHeader extends StatelessWidget {
+  const _HudSectionHeader(this.category, this.title);
+  final String category;
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    final h = context.hud;
     return Padding(
-      padding: EdgeInsets.fromLTRB(h.isIosStyle ? 20 : 0,
-          h.isIosStyle ? 22 : 16, 0, h.isIosStyle ? 8 : 8),
-      child: Text(
-        h.isIosStyle ? title.toUpperCase() : title,
-        style: GoogleFonts.getFont(
-          (h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily).isEmpty
-              ? 'Inter'
-              : (h.isIosStyle ? h.monoFontFamily : h.bodyFontFamily),
-          fontSize: h.isIosStyle ? 11 : 13,
-          fontWeight: FontWeight.w600,
-          letterSpacing: h.isIosStyle ? 1.0 : 0.0,
-          color: h.isIosStyle ? h.textDim : h.accent,
-        ),
+      padding: const EdgeInsets.fromLTRB(2, 14, 0, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _hudGreen,
+              boxShadow: [
+                BoxShadow(
+                  color: _hudGreen.withValues(alpha: 0.6),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '> $category ',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: _hudGreen,
+              letterSpacing: 1.4,
+            ),
+          ),
+          Text(
+            '// ${title.toUpperCase()}',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: _hudCyan,
+              letterSpacing: 1.4,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              height: 0.6,
+              color: _hudCyan.withValues(alpha: 0.25),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -692,79 +796,72 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final h = context.hud;
-    final defaultIcon = h.isIosStyle ? h.accent : h.textDim;
     final isDanger = iconColor == HudTokens.goldDeep;
-    final iconClr = isDanger
-        ? (h.isIosStyle ? const Color(0xFFFF3B30) : HudTokens.goldDeep)
-        : (iconColor ?? defaultIcon);
-
-    if (h.isIosStyle) {
-      return InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: h.divider, width: 0.5),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: iconClr, size: 20),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.getFont(
-                        h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: isDanger
-                            ? (h.isIosStyle
-                                ? const Color(0xFFFF3B30)
-                                : HudTokens.goldDeep)
-                            : h.text,
-                      ),
-                    ),
-                    if (subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: GoogleFonts.getFont(
-                          h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
-                          fontSize: 12,
-                          color: h.textDim,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (onTap != null)
-                Icon(Icons.chevron_right_rounded, color: h.textDim, size: 20),
-            ],
+    final accent = isDanger ? _hudRed : (iconColor ?? _hudGreen);
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Color(0x1419F0FF), width: 0.6),
           ),
         ),
-      );
-    }
-
-    // Black & Gold / Day — original ListTile look
-    return ListTile(
-      leading: Icon(icon, color: iconClr),
-      title: Text(
-        title,
-        style: isDanger
-            ? const TextStyle(color: HudTokens.goldDeep)
-            : TextStyle(color: h.text),
+        child: Row(
+          children: [
+            // Bracketed icon panel — like a hardware indicator
+            Container(
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.08),
+                border: Border.all(color: accent.withValues(alpha: 0.4)),
+              ),
+              child: Icon(icon, color: accent, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title.toUpperCase(),
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isDanger ? _hudRed : _hudInk,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 9.5,
+                        color: _hudInkDim,
+                        letterSpacing: 0.6,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (onTap != null) ...[
+              const SizedBox(width: 8),
+              Text(
+                '►',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 12,
+                  color: accent.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
-      subtitle: Text(subtitle, style: TextStyle(color: h.textDim)),
-      onTap: onTap,
-      contentPadding: EdgeInsets.zero,
     );
   }
 }
@@ -825,14 +922,14 @@ class _ThemePickerSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+              padding: const EdgeInsets.fromLTRB(4, 8, 0, 8),
               child: Text(
-                LocaleHelper.pick(es: 'TEMA VISUAL', en: 'VISUAL THEME'),
-                style: GoogleFonts.getFont(
-                  h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
-                  fontSize: 11,
-                  letterSpacing: 2.4,
-                  color: h.textDim,
+                LocaleHelper.pick(es: '── THEME_MODE', en: '── THEME_MODE'),
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  letterSpacing: 1.4,
+                  fontWeight: FontWeight.w700,
+                  color: _hudCyan.withValues(alpha: 0.65),
                 ),
               ),
             ),
@@ -861,55 +958,58 @@ class _ThemeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final h = context.hud;
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: const EdgeInsets.fromLTRB(4, 10, 4, 10),
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: h.divider, width: 0.5),
+          border: const Border(
+            bottom: BorderSide(color: Color(0x1419F0FF), width: 0.6),
           ),
           color:
-              active ? h.surfaceHi.withValues(alpha: 0.5) : Colors.transparent,
+              active ? _hudGreen.withValues(alpha: 0.06) : Colors.transparent,
         ),
         child: Row(
           children: [
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: active ? h.accent : h.divider,
-                  width: 1.5,
-                ),
-                color: active ? h.accent : Colors.transparent,
+            // Bracketed selector "[ • ]" / "[   ]"
+            Text(
+              active ? '[ ● ]' : '[   ]',
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: active ? _hudGreen : _hudInkDim,
+                letterSpacing: 0.8,
+                shadows: active
+                    ? [
+                        Shadow(
+                          color: _hudGreen.withValues(alpha: 0.7),
+                          blurRadius: 8,
+                        ),
+                      ]
+                    : null,
               ),
-              child: active ? Icon(Icons.check, size: 14, color: h.bg) : null,
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    ThemeService.labelFor(id),
-                    style: GoogleFonts.getFont(
-                      h.bodyFontFamily.isEmpty ? 'Inter' : h.bodyFontFamily,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: h.text,
+                    ThemeService.labelFor(id).toUpperCase(),
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: active ? _hudGreen : _hudInk,
+                      letterSpacing: 1.2,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     ThemeService.taglineFor(id),
-                    style: GoogleFonts.getFont(
-                      h.monoFontFamily.isEmpty ? 'Inter' : h.monoFontFamily,
-                      fontSize: 10,
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 9.5,
                       letterSpacing: 0.6,
-                      color: h.textDim,
+                      color: _hudInkDim,
                     ),
                   ),
                 ],
@@ -957,6 +1057,140 @@ class _SwatchPreview extends StatelessWidget {
                 color: preview.accent,
                 borderRadius: BorderRadius.circular(2),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── HUD Overlay row — hardware switch with LED indicator ──────────
+class _HudOverlayRow extends StatelessWidget {
+  const _HudOverlayRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.enabled,
+    required this.onChanged,
+  });
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onChanged(!enabled),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Color(0x1419F0FF), width: 0.6),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: enabled
+                    ? _hudGreen.withValues(alpha: 0.10)
+                    : _hudInkDim.withValues(alpha: 0.05),
+                border: Border.all(
+                  color: enabled
+                      ? _hudGreen.withValues(alpha: 0.5)
+                      : _hudInkDim.withValues(alpha: 0.2),
+                ),
+              ),
+              child:
+                  Icon(icon, color: enabled ? _hudGreen : _hudInkDim, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title.toUpperCase(),
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: enabled ? _hudInk : _hudInkDim,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 9.5,
+                      color: _hudInkDim,
+                      letterSpacing: 0.6,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            _HudSwitch(enabled: enabled),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HudSwitch extends StatelessWidget {
+  const _HudSwitch({required this.enabled});
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      width: 44,
+      height: 22,
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      decoration: BoxDecoration(
+        color: enabled
+            ? _hudGreen.withValues(alpha: 0.18)
+            : _hudInkDim.withValues(alpha: 0.06),
+        border: Border.all(
+          color: enabled ? _hudGreen : _hudInkDim.withValues(alpha: 0.4),
+          width: 1,
+        ),
+        boxShadow: enabled
+            ? [
+                BoxShadow(
+                  color: _hudGreen.withValues(alpha: 0.35),
+                  blurRadius: 8,
+                ),
+              ]
+            : null,
+      ),
+      child: Row(
+        mainAxisAlignment:
+            enabled ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          Container(
+            width: 14,
+            height: 14,
+            decoration: BoxDecoration(
+              color: enabled ? _hudGreen : _hudInkDim,
+              boxShadow: enabled
+                  ? [
+                      BoxShadow(
+                        color: _hudGreen.withValues(alpha: 0.8),
+                        blurRadius: 6,
+                      ),
+                    ]
+                  : null,
             ),
           ),
         ],

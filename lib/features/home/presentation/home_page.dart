@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/design/hud_shapes.dart';
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/design/hud_widgets.dart';
@@ -224,24 +226,26 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   bool get _isWallpapersTab => _currentIndex == 0;
 
-  String get _title {
-    final titles = [
-      'PIXORA',
-      if (!Platform.isIOS) 'LIVE',
-      if (!Platform.isIOS) '3D',
-      if (!Platform.isIOS) 'CULTURA',
-      if (!Platform.isIOS) 'EVENTOS',
-      if (!Platform.isIOS) 'AURA',
-      if (!Platform.isIOS) 'ARCANO',
-      if (!Platform.isIOS) 'STORIES',
-      if (!Platform.isIOS) 'DAY CYCLE',
-      if (!Platform.isIOS) 'TONES',
-      if (!Platform.isIOS) 'AI CREATE',
-      'FAVORITES',
-      'SETTINGS',
-    ];
-    return titles[_currentIndex];
-  }
+  // Title list allocated once at app start (platform check happens once).
+  // Was being rebuilt on every _title getter call → wasted allocations
+  // per setState. Review H-5 fix 2026-05-16.
+  static final _titles = <String>[
+    'Pixora',
+    if (!Platform.isIOS) 'Live',
+    if (!Platform.isIOS) '3D',
+    if (!Platform.isIOS) 'Cultura',
+    if (!Platform.isIOS) 'Eventos',
+    if (!Platform.isIOS) 'Aura',
+    if (!Platform.isIOS) 'Arcano',
+    if (!Platform.isIOS) 'Stories',
+    if (!Platform.isIOS) 'Day Cycle',
+    if (!Platform.isIOS) 'Tones',
+    if (!Platform.isIOS) 'AI Create',
+    'Favoritos',
+    'Ajustes',
+  ];
+
+  String get _title => _titles[_currentIndex];
 
   void _onAvatarTap() {
     // Both logged-in and guest open the profile page; the page itself shows
@@ -442,10 +446,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               );
         return GestureDetector(
           onTap: _onAvatarTap,
-          child: Padding(
-            padding: const EdgeInsets.only(left: HudTokens.sp3),
-            child: _PlusHaloAvatar(child: child),
-          ),
+          child: _PlusHaloAvatar(child: child),
         );
       },
     );
@@ -549,13 +550,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         final h = context.hud;
         final isIos = h.isIosStyle;
         final credits = CreditService.instance.balance;
+        // Apple Premium #01: ios-surface bg, no border, ios-blue text + icon.
+        // B&G keeps the gold border / dark surface treatment.
+        const iosBlue = Color(0xFF0A84FF);
         final inner = Container(
           padding: EdgeInsets.symmetric(
               horizontal: isIos ? 10 : HudTokens.sp3, vertical: 5),
           decoration: BoxDecoration(
-            color: isIos ? Colors.white : h.surface,
+            color: isIos ? HudTokens.iosSurface : h.surface,
             borderRadius: isIos ? BorderRadius.circular(12) : null,
-            border: Border.all(color: h.accent, width: isIos ? 1.0 : 1.5),
+            border: isIos ? null : Border.all(color: h.accent, width: 1.5),
             boxShadow: isIos
                 ? [
                     BoxShadow(
@@ -569,13 +573,13 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.diamond, size: 14, color: h.accent2),
+              Icon(Icons.diamond, size: 14, color: isIos ? iosBlue : h.accent2),
               const SizedBox(width: 5),
               Text('$credits',
                   style: HudTokens.mono(
                       size: 13,
                       weight: FontWeight.w700,
-                      color: h.text,
+                      color: isIos ? iosBlue : h.text,
                       letterSpacing: isIos ? 0.0 : 0.05)),
             ],
           ),
@@ -594,61 +598,34 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   PreferredSizeWidget _buildAppBar() {
-    final h = context.hud;
-    final transparent = _isWallpapersTab;
-    // Over a transparent AppBar the hero image shows through. On iOS White
-    // the dark text disappears against bright wallpapers — add a halo shadow
-    // for legibility (B&G title shows over a dark hero so a soft black shadow
-    // works for both themes when transparent).
-    final List<Shadow>? titleShadows = transparent
-        ? [
-            Shadow(
-              color: Colors.black.withValues(alpha: h.isIosStyle ? 0.55 : 0.7),
-              blurRadius: 10,
-              offset: const Offset(0, 1),
-            ),
-          ]
-        : null;
-    final Color iconColor = transparent && h.isIosStyle ? Colors.white : h.text;
-    return AppBar(
-      backgroundColor: transparent ? Colors.transparent : h.bg,
-      elevation: 0,
-      leading: _buildAvatar(),
-      leadingWidth: 56,
-      title: Text(
-        _title,
-        style: HudTokens.display(
-          size: 18,
-          color: transparent && h.isIosStyle ? Colors.white : h.text,
-          letterSpacing: 0.04,
-        ).copyWith(shadows: titleShadows),
-      ),
-      actions: [
-        _buildCreditsBadge(),
-        const SizedBox(width: HudTokens.sp2),
-        if (_isWallpapersTab)
-          IconButton(
-            icon: Icon(Icons.search, color: iconColor, size: 22),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const WallpaperSearchPage(),
-                ),
-              );
-            },
-          ),
-        const SizedBox(width: HudTokens.sp1),
-      ],
+    return _HoloRibbonAppBar(
+      title: _title,
+      avatar: _buildAvatar(),
+      creditsBadge: _buildCreditsBadge(),
+      trailing: _isWallpapersTab
+          ? IconButton(
+              icon:
+                  const Icon(Icons.search, color: Color(0xFFE8E6E0), size: 22),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const WallpaperSearchPage(),
+                  ),
+                );
+              },
+            )
+          : null,
     );
   }
 
   Widget _buildBottomNav() {
-    final h = context.hud;
-    // Per-tab brand colors — each section gets its own accent on the active
-    // pill (Soft Pastel Pill design picked 2026-04-29). Inactive icons stay
-    // monochromatic h.textDim so the row reads quiet, then the active section
-    // bursts into its own color.
+    // Ember Reactive — picked 2026-05-16. Always-dark warm charcoal nav
+    // (`#1F1B17`), the active tab's brand color BLEEDS up from the bottom
+    // as a radial ember; gold dust particles drift slowly; a 1px hairline
+    // above the bar in the active color glows like neon; a Liquid Glass
+    // Pill slides physically between tabs (300ms easeOutQuart) absorbing
+    // the destination's brand color, icon white inside.
     final items = <_NavItemData>[
       const _NavItemData(Icons.image_outlined, 'WALL', Color(0xFF3B82F6)),
       if (!Platform.isIOS)
@@ -680,41 +657,14 @@ class _HomePageState extends ConsumerState<HomePage> {
       const _NavItemData(Icons.favorite_outline, 'FAV', Color(0xFFF43F5E)),
       const _NavItemData(Icons.settings_outlined, 'SET', Color(0xFF64748B)),
     ];
-    return Container(
-      decoration: BoxDecoration(
-        color: h.bg,
-        border: Border(
-          top: BorderSide(
-            color: h.divider,
-            width: h.isIosStyle ? 0.5 : 1,
-          ),
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          child: Row(
-            children: [
-              for (var i = 0; i < items.length; i++)
-                Expanded(
-                  child: KeyedSubtree(
-                    key: _navKeys[i],
-                    child: _NavItem(
-                      data: items[i],
-                      active: _currentIndex == i,
-                      onTap: () {
-                        AnalyticsService.instance
-                            .trackTabView(items[i].label.toLowerCase());
-                        setState(() => _currentIndex = i);
-                      },
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
+    return _EmberReactiveNav(
+      items: items,
+      currentIndex: _currentIndex,
+      navKeys: _navKeys,
+      onTap: (i) {
+        AnalyticsService.instance.trackTabView(items[i].label.toLowerCase());
+        setState(() => _currentIndex = i);
+      },
     );
   }
 
@@ -722,22 +672,18 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final h = context.hud;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: h.isDark
-          ? SystemUiOverlayStyle.light.copyWith(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.light,
-              systemNavigationBarColor: h.bg,
-              systemNavigationBarIconBrightness: Brightness.light,
-            )
-          : SystemUiOverlayStyle.dark.copyWith(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.dark,
-              systemNavigationBarColor: h.bg,
-              systemNavigationBarIconBrightness: Brightness.dark,
-            ),
+      // The Ember Reactive nav uses warm charcoal `#1F1B17`. The system
+      // nav (3-button bar) must match it OR a grey strip appears between
+      // the two. Always force the charcoal — matches what the Inkwell
+      // header + Ember nav already use.
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: const Color(0xFF1F1B17),
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
       child: Scaffold(
         backgroundColor: h.bg,
-        extendBodyBehindAppBar: _isWallpapersTab,
         appBar: _buildAppBar(),
         body: IndexedStack(index: _currentIndex, children: _pages),
         bottomNavigationBar: _buildBottomNav(),
@@ -753,59 +699,592 @@ class _NavItemData {
   const _NavItemData(this.icon, this.label, this.color);
 }
 
-/// Soft Pastel Pill nav item.
+/// Ember Reactive bottom nav — picked 2026-05-16.
 ///
-/// Inactive: monochromatic — icon + label in `h.textDim`, no fill.
-/// Active:   rounded pill with the section's brand color at ~14 % alpha,
-///           icon + label go full color of the section. The active pill is
-///           the only place color appears in the row, so the user instantly
-///           sees both "where I am" and "what kind of section it is".
-class _NavItem extends StatelessWidget {
-  const _NavItem(
-      {required this.data, required this.active, required this.onTap});
+/// Visual identity:
+///   • Always-dark warm charcoal bg `#1F1B17` (warm graphite, not B&G ink)
+///   • The ACTIVE tab's brand color BLEEDS up from the bottom as a radial
+///     ember (~28% alpha at base, fading to 0). Crossfades over 600ms when
+///     the user switches tabs.
+///   • 6 gold dust particles drift slowly upward (22s loop) above the bleed
+///     — almost imperceptible, but they kill the dead-air feel.
+///   • A 1px hairline sits above the bar in the active brand color with
+///     8px glow — reads like neon piping.
+///   • Glass surface `rgba(28,24,20,0.78)` over the bleed — the dark glass
+///     lets the color leak through subtly.
+///   • A Liquid Glass Pill slides PHYSICALLY between tabs (300ms
+///     easeOutQuart) absorbing the destination tab's brand color. Icon
+///     inside the pill is pure white; inactive icons are warm off-white
+///     at 55% alpha.
+///   • Active tab label fades in below the pill (mono, all-caps, 7px).
+class _EmberReactiveNav extends StatefulWidget {
+  const _EmberReactiveNav({
+    required this.items,
+    required this.currentIndex,
+    required this.navKeys,
+    required this.onTap,
+  });
+
+  final List<_NavItemData> items;
+  final int currentIndex;
+  final List<GlobalKey> navKeys;
+  final ValueChanged<int> onTap;
+
+  @override
+  State<_EmberReactiveNav> createState() => _EmberReactiveNavState();
+}
+
+class _EmberReactiveNavState extends State<_EmberReactiveNav>
+    with TickerProviderStateMixin {
+  static const _bg = Color(0xFF1F1B17);
+  static const _glass = Color(0xC71C1814); // 0.78
+  static const _offWhite = Color(0xFFE8E6E0);
+  static const _inactive = Color(0x8CE8E6E0); // 0.55
+
+  late final AnimationController _dustCtrl;
+  Color _bleedColor = const Color(0xFF3B82F6);
+
+  @override
+  void initState() {
+    super.initState();
+    _dustCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 22),
+    )..repeat();
+    _bleedColor = widget.items[widget.currentIndex].color;
+  }
+
+  @override
+  void didUpdateWidget(covariant _EmberReactiveNav old) {
+    super.didUpdateWidget(old);
+    if (old.currentIndex != widget.currentIndex) {
+      _bleedColor = widget.items[widget.currentIndex].color;
+    }
+  }
+
+  @override
+  void dispose() {
+    _dustCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final n = widget.items.length;
+    return Container(
+      color: _bg,
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 64,
+          child: LayoutBuilder(
+            builder: (ctx, c) {
+              final w = c.maxWidth;
+              final tabW = w / n;
+              return Stack(
+                children: [
+                  // Ember bleed — radial gradient from bottom-center in the
+                  // active brand color. TweenAnimationBuilder crossfades on
+                  // tab switch (600ms).
+                  Positioned.fill(
+                    child: TweenAnimationBuilder<Color?>(
+                      tween: ColorTween(end: _bleedColor),
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeOutCubic,
+                      builder: (_, color, __) {
+                        return IgnorePointer(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: RadialGradient(
+                                center: const Alignment(0, 1.2),
+                                radius: 1.1,
+                                colors: [
+                                  (color ?? _bleedColor)
+                                      .withValues(alpha: 0.28),
+                                  (color ?? _bleedColor).withValues(alpha: 0.0),
+                                ],
+                                stops: const [0.0, 0.85],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  // Gold dust particles drifting upward — wrapped in
+                  // RepaintBoundary so the 60fps custom paint doesn't
+                  // trigger a full bottom-nav repaint every frame.
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: RepaintBoundary(
+                        child: AnimatedBuilder(
+                          animation: _dustCtrl,
+                          builder: (_, __) => CustomPaint(
+                            painter:
+                                _GoldDustPainter(progress: _dustCtrl.value),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Glass overlay — dark warm translucent so bleed bleeds through
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Container(color: _glass),
+                    ),
+                  ),
+                  // Neon hairline at the very top, in active color
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: TweenAnimationBuilder<Color?>(
+                      tween: ColorTween(end: _bleedColor),
+                      duration: const Duration(milliseconds: 600),
+                      builder: (_, color, __) {
+                        final c = color ?? _bleedColor;
+                        return Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            color: c,
+                            boxShadow: [
+                              BoxShadow(
+                                color: c.withValues(alpha: 0.55),
+                                blurRadius: 8,
+                                spreadRadius: 0.5,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  // Liquid pill — slides between tabs, absorbing brand color
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutQuart,
+                    left: widget.currentIndex * tabW + (tabW - 44) / 2,
+                    top: 10,
+                    width: 44,
+                    height: 44,
+                    child: IgnorePointer(
+                      child: TweenAnimationBuilder<Color?>(
+                        tween: ColorTween(end: _bleedColor),
+                        duration: const Duration(milliseconds: 300),
+                        builder: (_, color, __) {
+                          final c = color ?? _bleedColor;
+                          return Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                center: const Alignment(-0.3, -0.3),
+                                colors: [
+                                  Color.lerp(c, Colors.white, 0.25)!,
+                                  c,
+                                  Color.lerp(c, Colors.black, 0.2)!,
+                                ],
+                                stops: const [0.0, 0.6, 1.0],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: c.withValues(alpha: 0.45),
+                                  blurRadius: 14,
+                                  spreadRadius: -2,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.35),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  // Tab row — icons sit ABOVE the pill so the active one
+                  // appears inside the pill (white) and inactives sit on
+                  // the dark glass (warm off-white at 55%).
+                  Row(
+                    children: [
+                      for (var i = 0; i < n; i++)
+                        Expanded(
+                          child: KeyedSubtree(
+                            key: widget.navKeys[i],
+                            child: _EmberTab(
+                              data: widget.items[i],
+                              active: widget.currentIndex == i,
+                              activeColor: _offWhite, // unused on active
+                              inactiveColor: _inactive,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                widget.onTap(i);
+                              },
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmberTab extends StatelessWidget {
+  const _EmberTab({
+    required this.data,
+    required this.active,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.onTap,
+  });
+
   final _NavItemData data;
   final bool active;
+  final Color activeColor;
+  final Color inactiveColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final h = context.hud;
-    final color = active ? data.color : h.textDim;
-    final pillBg = active
-        ? data.color.withValues(alpha: h.isIosStyle ? 0.14 : 0.18)
-        : null;
     return InkWell(
-      onTap: () {
-        // Haptic feedback on tab tap.
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-      borderRadius: BorderRadius.circular(14),
-      splashColor: data.color.withValues(alpha: 0.18),
-      highlightColor: data.color.withValues(alpha: 0.06),
-      // Icon-only nav — labels removed because they overflow at 10 items.
-      // The colored pill on the active tab is enough wayfinding.
-      // SizedBox with fixed height stops the pill from stretching to fill
-      // the entire parent (which made the active tab eat the whole screen).
+      onTap: onTap,
+      splashColor: data.color.withValues(alpha: 0.15),
+      highlightColor: data.color.withValues(alpha: 0.05),
       child: SizedBox(
-        height: 44,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
-          decoration: BoxDecoration(
-            color: pillBg,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Center(
-            child: AnimatedScale(
-              scale: active ? 1.15 : 1.0,
+        height: 64,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            AnimatedScale(
+              scale: active ? 1.1 : 1.0,
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOutBack,
-              child: Icon(data.icon, color: color, size: 22),
+              child: Icon(
+                data.icon,
+                size: 22,
+                color: active ? Colors.white : inactiveColor,
+              ),
+            ),
+            // Active label fades in below the pill
+            Positioned(
+              bottom: 4,
+              child: AnimatedOpacity(
+                opacity: active ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 220),
+                child: Text(
+                  data.label,
+                  style: const TextStyle(
+                    fontSize: 7,
+                    letterSpacing: 1.4,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFE8E6E0),
+                    fontFamily: 'JetBrainsMono',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 6 gold dust particles drifting slowly upward, fading at top.
+/// Deterministic per-session so they don't shimmer randomly.
+class _GoldDustPainter extends CustomPainter {
+  final double progress; // 0..1 over 22s
+
+  static final _particles = List.generate(6, (i) {
+    final r = math.Random(i * 1009 + 7);
+    return _Dust(
+      x: r.nextDouble(),
+      seed: r.nextDouble(),
+      radius: 1.2 + r.nextDouble() * 1.0,
+    );
+  });
+
+  _GoldDustPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final p in _particles) {
+      // Each particle has its own phase offset so they don't drift in sync
+      final t = (progress + p.seed) % 1.0;
+      final y = size.height * (1.0 - t); // bottom → top
+      // Fade in at bottom, fade out at top
+      final alpha = (math.sin(t * math.pi) * 0.5).clamp(0.0, 0.5);
+      final x = p.x * size.width + math.sin(t * math.pi * 2 + p.seed * 6) * 4;
+      canvas.drawCircle(
+        Offset(x, y),
+        p.radius,
+        Paint()..color = const Color(0xFFD4AF37).withValues(alpha: alpha),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GoldDustPainter old) =>
+      old.progress != progress;
+}
+
+class _Dust {
+  final double x, seed, radius;
+  _Dust({required this.x, required this.seed, required this.radius});
+}
+
+/// ─────────────────────────────────────────────────────────────────────
+///  Holographic Ribbon Header — picked 2026-05-16.
+///
+/// Unified header used in EVERY section. A 2px iridescent foil ribbon
+/// runs across the top edge, shifting purple → cyan → silver → pink in
+/// a 5s loop. The avatar wears an iridescent ring; the section title is
+/// rendered via ShaderMask with the same foil gradient (Fraunces italic
+/// mixed-case); the credits diamond pill gets an iridescent border too.
+///
+/// On the Wallpapers tab the bg is transparent so the hero banner shows
+/// through; everywhere else it sits on the theme's `bg` color.
+/// ─────────────────────────────────────────────────────────────────────
+class _HoloRibbonAppBar extends StatefulWidget implements PreferredSizeWidget {
+  const _HoloRibbonAppBar({
+    required this.title,
+    required this.avatar,
+    required this.creditsBadge,
+    this.trailing,
+  });
+
+  final String title;
+  final Widget avatar;
+  final Widget creditsBadge;
+  final Widget? trailing;
+
+  // Inkwell Dark Solid — `#1F1B17` warm charcoal, ALWAYS dark regardless
+  // of theme (matches the Ember Reactive bottom nav for unified identity).
+  static const _bg = Color(0xFF1F1B17);
+  static const _brass = Color(0xFFD4AF37);
+
+  // 56 (header) + 2 (ribbon)
+  @override
+  Size get preferredSize => const Size.fromHeight(58);
+
+  @override
+  State<_HoloRibbonAppBar> createState() => _HoloRibbonAppBarState();
+}
+
+class _HoloRibbonAppBarState extends State<_HoloRibbonAppBar>
+    with SingleTickerProviderStateMixin {
+  // Single source of truth — see HudTokens.foilPalette.
+  static const _holoColors = HudTokens.foilPalette;
+
+  late final AnimationController _foilCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _foilCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _foilCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final topPad = MediaQuery.of(context).padding.top;
+    return Container(
+      color: _HoloRibbonAppBar._bg,
+      padding: EdgeInsets.only(top: topPad),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Holographic foil ribbon — 2px running across the top edge.
+          // RepaintBoundary so the 60fps gradient shift doesn't cascade.
+          RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _foilCtrl,
+              builder: (_, __) {
+                final shift = _foilCtrl.value;
+                return Container(
+                  height: 2,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment(-1 + shift * 2, 0),
+                      end: Alignment(1 + shift * 2, 0),
+                      colors: _holoColors,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFE0B47A).withValues(alpha: 0.30),
+                        blurRadius: 6,
+                        spreadRadius: -1,
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-        ),
+          SizedBox(
+            height: 54,
+            child: Row(
+              children: [
+                const SizedBox(width: 10),
+                // Avatar with iridescent ring (the inner _PlusHaloAvatar
+                // still keeps the gold breathing ring for Plus subscribers)
+                _HoloRing(controller: _foilCtrl, child: widget.avatar),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: RepaintBoundary(
+                    child: AnimatedBuilder(
+                      animation: _foilCtrl,
+                      builder: (_, __) {
+                        final shift = _foilCtrl.value;
+                        return ShaderMask(
+                          shaderCallback: (rect) {
+                            return LinearGradient(
+                              begin: Alignment(-1 + shift * 2, 0),
+                              end: Alignment(1 + shift * 2, 0),
+                              colors: _holoColors,
+                            ).createShader(rect);
+                          },
+                          blendMode: BlendMode.srcIn,
+                          child: Text(
+                            widget.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.fraunces(
+                              fontSize: 22,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              letterSpacing: -0.3,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                if (widget.trailing != null) ...[
+                  widget.trailing!,
+                  const SizedBox(width: 2),
+                ],
+                _HoloPillBorder(
+                  controller: _foilCtrl,
+                  child: widget.creditsBadge,
+                ),
+                const SizedBox(width: 10),
+              ],
+            ),
+          ),
+          // Brass hairline below the bar — 0.5px at 30% alpha for a hint
+          // of separation against the content below, never loud.
+          Container(
+            height: 0.5,
+            color: _HoloRibbonAppBar._brass.withValues(alpha: 0.30),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Iridescent foil ring around the avatar — 1.5px gradient border
+/// using a SweepGradient that slowly rotates so the foil "moves".
+class _HoloRing extends StatelessWidget {
+  const _HoloRing({required this.controller, required this.child});
+  final AnimationController controller;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    // RepaintBoundary so the 60fps sweep rotation doesn't cascade into
+    // the AppBar Row — review C-1 fix 2026-05-16.
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (_, __) {
+          return Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: SweepGradient(
+                startAngle: 0,
+                endAngle: math.pi * 2,
+                transform: GradientRotation(controller.value * math.pi * 2),
+                colors: HudTokens.foilPalette,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: HudTokens.foilGlow.withValues(alpha: 0.25),
+                  blurRadius: 8,
+                  spreadRadius: -1,
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(1.5),
+            child: ClipOval(
+              child: Center(child: child),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Pill wrapper that adds a 1px iridescent border around the existing
+/// credits-diamond badge — keeps badge internals untouched.
+class _HoloPillBorder extends StatelessWidget {
+  const _HoloPillBorder({required this.controller, required this.child});
+  final AnimationController controller;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    // RepaintBoundary — review C-1 fix 2026-05-16.
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (_, __) {
+          final shift = controller.value;
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              gradient: LinearGradient(
+                begin: Alignment(-1 + shift * 2, 0),
+                end: Alignment(1 + shift * 2, 0),
+                colors: HudTokens.foilPalette,
+              ),
+            ),
+            padding: const EdgeInsets.all(1),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: child,
+            ),
+          );
+        },
       ),
     );
   }

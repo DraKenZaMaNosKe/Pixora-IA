@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import '../design/hud_tokens.dart';
 import '../models/cultural_content.dart';
 
-/// Editorial "Códice Mexica" layout for cultural/mythology wallpapers.
+/// CULTURA detail layout — Cabinet of Curiosities (Wunderkammer) concept #04
+/// picked by Eduardo on 2026-05-16. Replaces the previous "Códice Mexica"
+/// greca layout with a 19th-century natural-history cabinet aesthetic:
+/// gilded brass frame with corner medallions, latin specimen label, two
+/// column body in Cormorant Garamond, monospace catalog table, rotated
+/// provenance tag, ornamented Ofrenda panel, and a brass-stamped CTA.
 ///
-/// One widget renders both Black & Gold and iOS White themes, switching
-/// colors via `context.hud`. Layout, typography, and decorative elements
-/// (greca, glyph, drop cap) are identical across themes; only colors and
-/// surface treatments change.
+/// One widget renders both iOS (light Victorian) and B&G (dark mahogany).
 class CodexDetailLayout extends StatelessWidget {
   const CodexDetailLayout({
     super.key,
@@ -18,179 +22,139 @@ class CodexDetailLayout extends StatelessWidget {
     required this.statusBar,
   });
 
-  /// The wallpaper preview image painted as the hero (340 dp tall).
+  /// The wallpaper preview painted inside the gilded frame.
   final Widget heroImage;
 
-  /// Wallpaper name (e.g. "Mictlantecuhtli · Señor del Mictlan").
+  /// Wallpaper name (e.g. "Mictlantecuhtli · Señor del Mictlán"). Used to
+  /// derive the cabinet specimen title.
   final String title;
 
   /// Editorial content from the catalog. Optional fields render conditionally.
   final CulturalContent cultural;
 
-  /// CTA widget (the "Set as Live Wallpaper" button + ad/credit row).
+  /// CTA widget — the page provides the apply button. The layout wraps it in
+  /// a brass-stamped container, but the inner button keeps its own logic.
   final Widget applyCta;
 
-  /// Top app bar / status overlay rendered above the scroll.
+  /// Top bar / status overlay rendered above the scroll.
   final Widget statusBar;
-
-  static const double _heroHeight = 340;
 
   @override
   Widget build(BuildContext context) {
     final hud = context.hud;
     final isIos = hud.isIosStyle;
 
-    // Color palette — derived from theme so it matches the rest of the app.
-    final bg = hud.bg;
-    final text = hud.text;
-    final dim = hud.textDim;
-    final accent = hud.accent;
-    final divider = isIos
-        ? const Color(0xFFC0B09A) // warmer beige for iOS
-        : const Color(0xFF44351A); // dark brown for B&G
+    // ── Cabinet palette (matches concept #04) ───────────────────────
+    final bgGradient = isIos
+        ? const [Color(0xFFF6EFDC), Color(0xFFEAD8B6)]
+        : const [Color(0xFF1C0E08), Color(0xFF0E0805)];
+    final parchInk = isIos ? const Color(0xFF3A2818) : const Color(0xFFE6D8B8);
+    final filigree = isIos ? const Color(0xFF8E7B4E) : HudTokens.goldDeep;
+    final brassBright = isIos ? const Color(0xFFD6AD6A) : HudTokens.goldBright;
+    final brassDeep = isIos ? const Color(0xFFB88C4A) : HudTokens.gold;
+    final medallionInner =
+        isIos ? const Color(0xFFF0C474) : HudTokens.goldBright;
+    final medallionOuter = isIos ? const Color(0xFF8C6224) : HudTokens.goldDeep;
 
     return Stack(
       children: [
-        // Scrollable content
+        // ── Cosmic / parchment background ──────────────────────────
         Positioned.fill(
-          child: Container(
-            color: bg,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: bgGradient,
+              ),
+            ),
+          ),
+        ),
+        // ── Wood-grain striations overlay ──────────────────────────
+        const Positioned.fill(
+          child: IgnorePointer(child: _WoodGrainOverlay()),
+        ),
+
+        // ── Scrollable content ─────────────────────────────────────
+        Positioned.fill(
+          child: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 140),
+              padding: const EdgeInsets.only(top: 56, bottom: 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Hero image with bottom-fade into bg
-                  SizedBox(
-                    height: _heroHeight,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        heroImage,
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.center,
-                              end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, bg],
-                              stops: const [0.5, 1.0],
-                            ),
-                          ),
-                        ),
-                      ],
+                  // Hero inside gilded frame
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _GildedFrame(
+                      child: heroImage,
+                      brassBright: brassBright,
+                      brassDeep: brassDeep,
+                      medallionInner: medallionInner,
+                      medallionOuter: medallionOuter,
                     ),
                   ),
+                  const SizedBox(height: 8),
 
-                  // Decorative greca (mesoamerican border pattern)
-                  CustomPaint(
-                    size: const Size(double.infinity, 14),
-                    painter: _GrecaPainter(color: accent),
+                  // Specimen label — serial, title, latin
+                  _SpecimenLabel(
+                    serial: _serial(),
+                    title: _shortName(title),
+                    latin: cultural.subtitle ?? '',
+                    pronunciation: cultural.pronunciation ?? '',
+                    parchInk: parchInk,
+                    filigree: filigree,
+                    accent: brassBright,
+                    isIos: isIos,
                   ),
+                  const SizedBox(height: 14),
 
-                  // Body
+                  // Two-column body (if lead present)
+                  if ((cultural.lead ?? '').isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _TwoColumnBody(
+                        text: cultural.lead!,
+                        color: parchInk,
+                        rule: filigree,
+                      ),
+                    ),
+                  const SizedBox(height: 14),
+
+                  // Catalog table for facts
+                  if (cultural.facts.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _CatalogTable(
+                        facts: cultural.facts,
+                        keyColor: filigree,
+                        valueColor: parchInk,
+                        rule: filigree.withValues(alpha: 0.20),
+                      ),
+                    ),
+                  const SizedBox(height: 14),
+
+                  // Ofrenda panel
+                  if (cultural.ofrenda != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _OfrendaPanel(
+                        ofrenda: cultural.ofrenda!,
+                        accent: brassBright,
+                        parchInk: parchInk,
+                        filigree: filigree,
+                        isIos: isIos,
+                      ),
+                    ),
+                  const SizedBox(height: 18),
+
+                  // Brass-stamped CTA wrapper around the page's apply button
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(26, 24, 26, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if ((cultural.chapter ?? '').isNotEmpty)
-                          Text(
-                            '— ${cultural.chapter} —',
-                            style: TextStyle(
-                              fontFamily: 'Fraunces',
-                              fontStyle: FontStyle.italic,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 2.5,
-                              color: accent,
-                            ),
-                          ),
-                        const SizedBox(height: 8),
-
-                        // Main title (the wallpaper name, split smartly)
-                        Text(
-                          _splitTitle(title),
-                          style: TextStyle(
-                            fontFamily: 'Fraunces',
-                            fontSize: 36,
-                            fontWeight: FontWeight.w400,
-                            height: 1.05,
-                            color: text,
-                          ),
-                        ),
-                        if ((cultural.subtitle ?? '').isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            cultural.subtitle!,
-                            style: TextStyle(
-                              fontFamily: 'Fraunces',
-                              fontStyle: FontStyle.italic,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w400,
-                              color: accent,
-                              height: 1.05,
-                            ),
-                          ),
-                        ],
-
-                        if ((cultural.pronunciation ?? '').isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            cultural.pronunciation!,
-                            style: TextStyle(
-                              fontFamily: 'Fraunces',
-                              fontStyle: FontStyle.italic,
-                              fontSize: 13,
-                              color: dim,
-                            ),
-                          ),
-                        ],
-
-                        // Lead paragraph with drop cap
-                        if ((cultural.lead ?? '').isNotEmpty) ...[
-                          const SizedBox(height: 18),
-                          _LeadParagraph(
-                            text: cultural.lead!,
-                            textColor: text,
-                            accent: accent,
-                          ),
-                        ],
-
-                        // Facts grid 2-col
-                        if (cultural.facts.isNotEmpty) ...[
-                          const SizedBox(height: 24),
-                          _FactsGrid(
-                            facts: cultural.facts,
-                            keyColor: dim,
-                            valueColor: text,
-                            divider: divider,
-                          ),
-                        ],
-
-                        // Ofrenda card
-                        if (cultural.ofrenda != null) ...[
-                          const SizedBox(height: 22),
-                          _OfrendaCard(
-                            ofrenda: cultural.ofrenda!,
-                            accent: accent,
-                            text: text,
-                          ),
-                        ],
-
-                        const SizedBox(height: 24),
-
-                        // CTA — uses the Apply button passed in (preserves all
-                        // ad / credit / loading logic from the page).
-                        applyCta,
-
-                        const SizedBox(height: 16),
-
-                        // Closing greca
-                        CustomPaint(
-                          size: const Size(double.infinity, 14),
-                          painter: _GrecaPainter(color: accent),
-                        ),
-                      ],
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _BrassStampedCtaWrap(
+                      brassBright: brassBright,
+                      brassDeep: brassDeep,
+                      child: applyCta,
                     ),
                   ),
                 ],
@@ -199,119 +163,417 @@ class CodexDetailLayout extends StatelessWidget {
           ),
         ),
 
-        // Top status bar (back button + name) painted on top of the hero.
+        // ── Top status bar (back, lot, fav) ─────────────────────────
         Positioned(top: 0, left: 0, right: 0, child: statusBar),
+
+        // ── Provenance tag floating on the right side ───────────────
+        Positioned(
+          top: 380,
+          right: 8,
+          child: _ProvenanceTag(
+            year: _provYear(),
+            label: cultural.chapter ?? 'MICTLÁN',
+            accent: brassBright,
+            filigree: filigree,
+            parchInk: parchInk,
+            isIos: isIos,
+          ),
+        ),
       ],
     );
   }
 
-  /// Split "Mictlantecuhtli · Señor del Mictlan" into two lines at the
-  /// middle separator so the long names don't overflow on small phones.
-  String _splitTitle(String s) {
-    if (s.contains(' · ')) return s.replaceFirst(' · ', '\n');
-    return s;
+  String _shortName(String s) {
+    if (s.contains(' · ')) return s.split(' · ').first.toUpperCase();
+    return s.toUpperCase();
+  }
+
+  String _serial() {
+    // EXHIBIT-style serial derived from the title
+    final base = title.contains(' · ') ? title.split(' · ').first : title;
+    final letters = base
+        .replaceAll(RegExp(r'[^A-Za-z]'), '')
+        .toUpperCase()
+        .padRight(3, 'X')
+        .substring(0, 3);
+    final num = base.hashCode.abs() % 1000;
+    return 'SPECIMEN · $letters-${num.toString().padLeft(3, '0')}';
+  }
+
+  String _provYear() {
+    // Roman year-ish marker pulled from chapter; falls back to MCMXCIX
+    final ch = (cultural.chapter ?? '').toUpperCase();
+    if (ch.contains('IX')) return 'MCMLXXII';
+    if (ch.contains('VIII')) return 'MCMLXIV';
+    if (ch.contains('VII')) return 'MCMLVII';
+    if (ch.contains('VI')) return 'MCMLI';
+    if (ch.contains('V')) return 'MCMXLV';
+    return 'MCMXCIX';
   }
 }
 
-/// Drop-cap intro paragraph in italic Fraunces.
-class _LeadParagraph extends StatelessWidget {
-  const _LeadParagraph({
-    required this.text,
-    required this.textColor,
-    required this.accent,
-  });
-  final String text;
-  // ignore: non_constant_identifier_names
-  final Color textColor;
-  final Color accent;
+// ─────────────────────────────────────────────────────────────────────
+// Wood-grain striations overlay
+// ─────────────────────────────────────────────────────────────────────
+class _WoodGrainOverlay extends StatelessWidget {
+  const _WoodGrainOverlay();
 
   @override
   Widget build(BuildContext context) {
-    final words = text.trim().split(' ');
-    if (words.isEmpty) return const SizedBox.shrink();
-    final first = words.first;
-    final rest = words.sublist(1).join(' ');
-    final firstLetter = first.isNotEmpty ? first[0] : '';
-    final firstRest = first.length > 1 ? first.substring(1) : '';
+    return CustomPaint(
+      painter: _WoodGrainPainter(isIos: context.hud.isIosStyle),
+    );
+  }
+}
 
-    return Container(
-      padding: const EdgeInsets.only(left: 16),
-      decoration: BoxDecoration(
-        border: Border(left: BorderSide(color: accent, width: 2)),
-      ),
-      child: Text.rich(
-        TextSpan(
-          style: TextStyle(
-            fontFamily: 'Fraunces',
-            fontStyle: FontStyle.italic,
-            fontSize: 15,
-            height: 1.55,
-            color: textColor.withValues(alpha: 0.85),
-          ),
-          children: [
-            TextSpan(
-              text: firstLetter,
-              style: TextStyle(
-                fontSize: 50,
-                height: 0.85,
-                fontWeight: FontWeight.w600,
-                fontStyle: FontStyle.normal,
-                color: accent,
+class _WoodGrainPainter extends CustomPainter {
+  _WoodGrainPainter({required this.isIos});
+  final bool isIos;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final fineColor = isIos
+        ? const Color(0xFF3A2818).withValues(alpha: 0.05)
+        : HudTokens.gold.withValues(alpha: 0.05);
+    final coarseColor = isIos
+        ? const Color(0xFF3A2818).withValues(alpha: 0.04)
+        : HudTokens.gold.withValues(alpha: 0.04);
+    final fine = Paint()
+      ..color = fineColor
+      ..strokeWidth = 1;
+    final coarse = Paint()
+      ..color = coarseColor
+      ..strokeWidth = 1;
+    for (var y = 22.0; y < size.height; y += 4) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), fine);
+    }
+    for (var y = 38.0; y < size.height; y += 17) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), coarse);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WoodGrainPainter old) => old.isIos != isIos;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Gilded frame with 4 corner medallions
+// ─────────────────────────────────────────────────────────────────────
+class _GildedFrame extends StatelessWidget {
+  const _GildedFrame({
+    required this.child,
+    required this.brassBright,
+    required this.brassDeep,
+    required this.medallionInner,
+    required this.medallionOuter,
+  });
+  final Widget child;
+  final Color brassBright;
+  final Color brassDeep;
+  final Color medallionInner;
+  final Color medallionOuter;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1 / 1.1,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Brass gradient frame
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [brassBright, brassDeep, brassBright],
+                stops: const [0.0, 0.5, 1.0],
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.35),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            TextSpan(text: '$firstRest $rest'),
-          ],
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.black.withValues(alpha: 0.40),
+                  width: 1,
+                ),
+              ),
+              child: ClipRect(child: child),
+            ),
+          ),
+          // 4 corner medallions
+          Positioned(
+            top: -4,
+            left: -4,
+            child: _Medallion(
+              inner: medallionInner,
+              outer: medallionOuter,
+            ),
+          ),
+          Positioned(
+            top: -4,
+            right: -4,
+            child: _Medallion(
+              inner: medallionInner,
+              outer: medallionOuter,
+            ),
+          ),
+          Positioned(
+            bottom: -4,
+            left: -4,
+            child: _Medallion(
+              inner: medallionInner,
+              outer: medallionOuter,
+            ),
+          ),
+          Positioned(
+            bottom: -4,
+            right: -4,
+            child: _Medallion(
+              inner: medallionInner,
+              outer: medallionOuter,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Medallion extends StatelessWidget {
+  const _Medallion({required this.inner, required this.outer});
+  final Color inner;
+  final Color outer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [inner, outer],
+          stops: const [0.3, 0.9],
+        ),
+        border: Border.all(
+          color: Colors.black.withValues(alpha: 0.5),
+          width: 1,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        '+',
+        style: GoogleFonts.cinzel(
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+          color: Colors.black.withValues(alpha: 0.6),
+          height: 1.0,
         ),
       ),
     );
   }
 }
 
-/// 2-column facts grid with dashed top borders, codex-style.
-class _FactsGrid extends StatelessWidget {
-  const _FactsGrid({
-    required this.facts,
-    required this.keyColor,
-    required this.valueColor,
-    required this.divider,
+// ─────────────────────────────────────────────────────────────────────
+// Specimen label — serial, Cinzel title, italic latin subtitle
+// ─────────────────────────────────────────────────────────────────────
+class _SpecimenLabel extends StatelessWidget {
+  const _SpecimenLabel({
+    required this.serial,
+    required this.title,
+    required this.latin,
+    required this.pronunciation,
+    required this.parchInk,
+    required this.filigree,
+    required this.accent,
+    required this.isIos,
   });
-
-  final List<CulturalFact> facts;
-  final Color keyColor;
-  final Color valueColor;
-  final Color divider;
+  final String serial;
+  final String title;
+  final String latin;
+  final String pronunciation;
+  final Color parchInk;
+  final Color filigree;
+  final Color accent;
+  final bool isIos;
 
   @override
   Widget build(BuildContext context) {
-    // Pair facts into rows of 2
-    final rows = <List<CulturalFact>>[];
-    for (int i = 0; i < facts.length; i += 2) {
-      rows.add(facts.sublist(i, (i + 2).clamp(0, facts.length)));
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 18),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: filigree.withValues(alpha: 0.30), width: 1),
+          bottom: BorderSide(color: filigree.withValues(alpha: 0.30), width: 1),
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            serial,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 7,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 3.0,
+              color: filigree,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.cinzel(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+              color: isIos ? parchInk : accent,
+              height: 1.1,
+            ),
+          ),
+          if (latin.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              latin,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cormorantGaramond(
+                fontSize: 11,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w400,
+                color: parchInk.withValues(alpha: 0.75),
+                height: 1.2,
+              ),
+            ),
+          ],
+          if (pronunciation.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              pronunciation,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
+                color: parchInk.withValues(alpha: 0.55),
+                letterSpacing: 1.0,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Two-column manuscript body in Cormorant Garamond
+// ─────────────────────────────────────────────────────────────────────
+class _TwoColumnBody extends StatelessWidget {
+  const _TwoColumnBody({
+    required this.text,
+    required this.color,
+    required this.rule,
+  });
+  final String text;
+  final Color color;
+  final Color rule;
+
+  @override
+  Widget build(BuildContext context) {
+    // Split the text in two roughly equal halves at the nearest sentence break.
+    final mid = text.length ~/ 2;
+    var split = mid;
+    final breakIdx = text.lastIndexOf('. ', mid + 30);
+    if (breakIdx > mid - 60 && breakIdx < text.length - 10) {
+      split = breakIdx + 2;
     }
+    final col1 = text.substring(0, split).trim();
+    final col2 = text.substring(split).trim();
+
+    final style = GoogleFonts.cormorantGaramond(
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      color: color,
+      height: 1.5,
+    );
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: Text(col1, style: style)),
+          Container(
+            width: 1,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            color: rule.withValues(alpha: 0.30),
+          ),
+          Expanded(child: Text(col2, style: style)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Old-world catalog table — mono key/value rows with dashed bottom borders
+// ─────────────────────────────────────────────────────────────────────
+class _CatalogTable extends StatelessWidget {
+  const _CatalogTable({
+    required this.facts,
+    required this.keyColor,
+    required this.valueColor,
+    required this.rule,
+  });
+  final List<CulturalFact> facts;
+  final Color keyColor;
+  final Color valueColor;
+  final Color rule;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: rows.map((row) {
-        return Padding(
+      children: facts.map((f) {
+        return Container(
           padding: const EdgeInsets.symmetric(vertical: 4),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: rule, width: 1)),
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _FactCell(
-                    fact: row[0],
-                    keyColor: keyColor,
-                    valueColor: valueColor,
-                    divider: divider),
+              SizedBox(
+                width: 90,
+                child: Text(
+                  f.key.toUpperCase(),
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.6,
+                    color: keyColor,
+                  ),
+                ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 8),
               Expanded(
-                child: row.length > 1
-                    ? _FactCell(
-                        fact: row[1],
-                        keyColor: keyColor,
-                        valueColor: valueColor,
-                        divider: divider)
-                    : const SizedBox.shrink(),
+                child: Text(
+                  f.value,
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
+                    color: valueColor,
+                    height: 1.4,
+                  ),
+                ),
               ),
             ],
           ),
@@ -321,97 +583,157 @@ class _FactsGrid extends StatelessWidget {
   }
 }
 
-class _FactCell extends StatelessWidget {
-  const _FactCell({
-    required this.fact,
-    required this.keyColor,
-    required this.valueColor,
-    required this.divider,
+// ─────────────────────────────────────────────────────────────────────
+// Rotated provenance tag
+// ─────────────────────────────────────────────────────────────────────
+class _ProvenanceTag extends StatelessWidget {
+  const _ProvenanceTag({
+    required this.year,
+    required this.label,
+    required this.accent,
+    required this.filigree,
+    required this.parchInk,
+    required this.isIos,
   });
-  final CulturalFact fact;
-  final Color keyColor;
-  final Color valueColor;
-  final Color divider;
+  final String year;
+  final String label;
+  final Color accent;
+  final Color filigree;
+  final Color parchInk;
+  final bool isIos;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: divider, style: BorderStyle.solid, width: 0.5),
+    return Transform.rotate(
+      angle: 0.14, // ~8deg
+      child: Container(
+        width: 82,
+        padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+        decoration: BoxDecoration(
+          color: isIos
+              ? const Color(0xFFEAD8B6).withValues(alpha: 0.85)
+              : HudTokens.gold.withValues(alpha: 0.10),
+          border: Border.all(color: filigree, width: 1),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            fact.key.toUpperCase(),
-            style: TextStyle(
-              fontFamily: 'JetBrainsMono',
-              fontSize: 9,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 2.5,
-              color: keyColor,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Punched hole
+            Positioned(
+              left: -10,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: filigree.withValues(alpha: 0.7),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        blurRadius: 0,
+                        spreadRadius: -1,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            fact.value,
-            style: TextStyle(
-              fontFamily: 'Fraunces',
-              fontSize: 14,
-              height: 1.3,
-              color: valueColor,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'PROV.',
+                  style: GoogleFonts.cinzel(
+                    fontSize: 7,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.4,
+                    color: accent,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  label.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.cormorantGaramond(
+                    fontSize: 9,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w500,
+                    color: parchInk,
+                    height: 1.1,
+                  ),
+                ),
+                Text(
+                  year,
+                  style: GoogleFonts.cormorantGaramond(
+                    fontSize: 8,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w400,
+                    color: parchInk.withValues(alpha: 0.75),
+                    height: 1.1,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _OfrendaCard extends StatelessWidget {
-  const _OfrendaCard({
+// ─────────────────────────────────────────────────────────────────────
+// Ofrenda panel — bordered with Cinzel header
+// ─────────────────────────────────────────────────────────────────────
+class _OfrendaPanel extends StatelessWidget {
+  const _OfrendaPanel({
     required this.ofrenda,
     required this.accent,
-    required this.text,
+    required this.parchInk,
+    required this.filigree,
+    required this.isIos,
   });
   final CulturalOfrenda ofrenda;
   final Color accent;
-  final Color text;
+  final Color parchInk;
+  final Color filigree;
+  final bool isIos;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.07),
-        border: Border.all(color: accent.withValues(alpha: 0.25), width: 1),
+        color: isIos
+            ? Colors.white.withValues(alpha: 0.45)
+            : HudTokens.gold.withValues(alpha: 0.05),
+        border: Border.all(color: filigree, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            ofrenda.label,
-            style: TextStyle(
-              fontFamily: 'Fraunces',
-              fontStyle: FontStyle.italic,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.0,
-              color: accent,
+            ofrenda.label.toUpperCase(),
+            style: GoogleFonts.cinzel(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 3.0,
+              color: filigree,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             ofrenda.text,
-            style: TextStyle(
-              fontFamily: 'Fraunces',
+            style: GoogleFonts.cormorantGaramond(
+              fontSize: 12,
               fontStyle: FontStyle.italic,
-              fontSize: 13,
-              height: 1.5,
-              color: text.withValues(alpha: 0.85),
+              fontWeight: FontWeight.w400,
+              color: parchInk,
+              height: 1.45,
             ),
           ),
         ],
@@ -420,36 +742,52 @@ class _OfrendaCard extends StatelessWidget {
   }
 }
 
-/// Stepped meander pattern (greca) inspired by mesoamerican textiles.
-class _GrecaPainter extends CustomPainter {
-  _GrecaPainter({required this.color});
-  final Color color;
+// ─────────────────────────────────────────────────────────────────────
+// Brass-stamped CTA wrapper
+// ─────────────────────────────────────────────────────────────────────
+class _BrassStampedCtaWrap extends StatelessWidget {
+  const _BrassStampedCtaWrap({
+    required this.child,
+    required this.brassBright,
+    required this.brassDeep,
+  });
+  final Widget child;
+  final Color brassBright;
+  final Color brassDeep;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-
-    const step = 26.0;
-    final h = size.height;
-    final centerY = h / 2;
-
-    final path = Path();
-    double x = 0;
-    while (x < size.width) {
-      // Stepped square pattern — outline of a "greca"
-      path.moveTo(x, centerY + 3);
-      path.lineTo(x + 8, centerY + 3);
-      path.lineTo(x + 8, centerY - 3);
-      path.lineTo(x + 16, centerY - 3);
-      path.lineTo(x + 16, centerY + 3);
-      x += step;
-    }
-    canvas.drawPath(path, paint);
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [brassBright, brassDeep],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+          BoxShadow(
+            color: brassBright.withValues(alpha: 0.30),
+            blurRadius: 18,
+            offset: const Offset(0, 0),
+          ),
+        ],
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.85),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.6),
+            width: 1,
+          ),
+        ),
+        child: child,
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant _GrecaPainter old) => old.color != color;
 }

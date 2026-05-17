@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/widgets/aurora_waves_loading.dart';
+import '../../../../core/widgets/stamped_foil_header.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
-import 'wallpaper_stats_bar.dart';
+import '../../../../core/widgets/watch_card_pieces.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class WallpaperCarouselRow extends StatefulWidget {
@@ -73,41 +74,14 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Section header — kept (and themed) so users navigate
-                // by category, but kept ELEGANT so it never competes with
-                // the imagery. Italic serif on top, gold underline accent.
+                // Stamped Foil header (concept #01, Eduardo 2026-05-16) —
+                // metallic stamp with hairline outline + glyph + 4.5s shimmer.
+                // iOS: dark text + Apple Blue glyph. B&G: gold foil + gold star.
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          color: context.hud.accent,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        widget.title,
-                        style: GoogleFonts.fraunces(
-                          fontSize: 22,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w500,
-                          color: context.hud.text,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Container(
-                          height: 1,
-                          color: context.hud.accent.withValues(alpha: 0.25),
-                        ),
-                      ),
-                    ],
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: StampedFoilHeader(label: widget.title),
                   ),
                 ),
                 // Horizontal list with scroll-driven effects
@@ -248,34 +222,17 @@ class _ParallaxCarouselCard extends StatelessWidget {
                       Positioned(
                         top: 8,
                         left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: h.accent,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            wallpaper.badge!.toUpperCase(),
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              letterSpacing: 0.4,
-                            ),
-                          ),
+                        child: WatchCartouchePill(
+                          label: wallpaper.badge!.toUpperCase(),
                         ),
                       ),
-                    // Stats bar (likes/views/downloads) bottom-centered
+                    // Activity Rings bottom-centered (concept #04)
                     Positioned(
                       left: 0,
                       right: 0,
                       bottom: 8,
                       child: Center(
-                        child: WallpaperStatsBar(
-                          wallpaperId: wallpaper.id,
-                          glowColor: h.accent,
-                        ),
+                        child: ActivityRings(wallpaperId: wallpaper.id),
                       ),
                     ),
                   ],
@@ -353,16 +310,13 @@ class _ParallaxCarouselCard extends StatelessWidget {
                               imageUrl: wallpaper.previewUrl),
                         ),
                       ),
-                      // Stats bar bottom-centered
+                      // Activity Rings bottom-centered (concept #04)
                       Positioned(
                         left: 0,
                         right: 0,
                         bottom: 4,
                         child: Center(
-                          child: WallpaperStatsBar(
-                            wallpaperId: wallpaper.id,
-                            glowColor: context.hud.accent,
-                          ),
+                          child: ActivityRings(wallpaperId: wallpaper.id),
                         ),
                       ),
                       // Badge top-left
