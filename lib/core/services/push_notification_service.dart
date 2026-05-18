@@ -3,6 +3,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'app_strings_service.dart';
+
 /// Top-level handler required by FCM for background messages.
 /// Must be a top-level function (not a class method) because it runs in
 /// an isolated Dart isolate when the app is in background or terminated.
@@ -78,10 +80,25 @@ class PushNotificationService {
       await FirebaseMessaging.instance.subscribeToTopic('new_content');
       debugPrint('[PixoraFCM] Subscribed to topic: new_content');
 
-      // Foreground handler — when the user receives a push while looking
-      // at the app, Android does NOT show the system notification by
-      // default. We re-display it with flutter_local_notifications.
+      // Subscribe to the Text CMS invalidation topic. wp_admin_server.py
+      // sends a data-only push to this topic on every string upsert, so the
+      // app can refresh its local cache without waiting for TTL or pull.
+      await FirebaseMessaging.instance.subscribeToTopic('text_cms_update');
+      debugPrint('[PixoraFCM] Subscribed to topic: text_cms_update');
+
+      // Foreground handler — handles two cases:
+      // 1. Data-only push with type='text_cms_invalidate' → refresh CMS cache silently
+      // 2. Normal notification → re-display via flutter_local_notifications
+      //    (Android does NOT show system notif in foreground by default).
       FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
+        // Case 1: silent Text CMS invalidation push.
+        if (msg.data['type'] == 'text_cms_invalidate') {
+          debugPrint(
+              '[PixoraFCM] text_cms_invalidate received — refreshing AppStringsService');
+          AppStringsService.instance.refresh();
+          return;
+        }
+        // Case 2: user-visible notification.
         final notification = msg.notification;
         final android = notification?.android;
         if (notification != null && android != null) {

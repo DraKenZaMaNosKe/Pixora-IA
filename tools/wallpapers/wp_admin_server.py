@@ -70,7 +70,17 @@ CATALOGS = {
 # Text CMS — Phase 1 endpoints (2026-05-18)
 # Reads/writes go through this server (which holds service_role).
 # Plan: docs/superpowers/plans/2026-05-17-text-cms-phase1.md
-TEXT_CMS_FCM_TOPIC = 'text_cms_update'  # used by Task 11 (FCM push)
+TEXT_CMS_FCM_TOPIC = 'text_cms_update'  # used by _fcm_push.send_text_cms_update()
+
+# FCM push helper (sibling module). Soft import — server still runs if the
+# helper is broken or the service account JSON is missing. send_text_cms_update()
+# returns False in those cases and we silently degrade to TTL-based refresh.
+try:
+    from _fcm_push import send_text_cms_update as _fcm_push_text_cms_update
+except Exception as _fcm_err:
+    print(f"[wp_admin_server] FCM push helper unavailable: {_fcm_err}")
+    def _fcm_push_text_cms_update():
+        return False
 
 
 # ─── Get service key once at startup ──────────────────────────────────────────
@@ -185,8 +195,11 @@ class Handler(BaseHTTPRequestHandler):
         )
         if status not in (200, 201):
             return self._send_json(resp, status)
-        # Phase 1: no FCM push yet (deferred to Task 11). Just return updated row.
-        self._send_json({"ok": True, "row": resp[0] if isinstance(resp, list) else resp})
+        # Fire FCM push so all subscribed clients invalidate their cache and
+        # refetch immediately. Non-blocking: if push fails, clients still
+        # refresh via TTL / resume hook / pull-to-refresh.
+        pushed = _fcm_push_text_cms_update()
+        self._send_json({"ok": True, "pushed": pushed, "row": resp[0] if isinstance(resp, list) else resp})
 
     def _handle_strings_bulk_upsert(self, body: list):
         """POST /api/strings/bulk-upsert — body: [{key, es, en, component_id}, ...]."""
@@ -195,7 +208,8 @@ class Handler(BaseHTTPRequestHandler):
         status, resp = _supabase_rest("POST", "app_strings", body=body, query="on_conflict=key")
         if status not in (200, 201):
             return self._send_json(resp, status)
-        self._send_json({"ok": True, "count": len(body), "rows": resp})
+        pushed = _fcm_push_text_cms_update()
+        self._send_json({"ok": True, "count": len(body), "pushed": pushed, "rows": resp})
 
     def _handle_strings_seed(self, body: list):
         """POST /api/strings/seed — body: [{section, component, file_path, key, es, en}, ...].
