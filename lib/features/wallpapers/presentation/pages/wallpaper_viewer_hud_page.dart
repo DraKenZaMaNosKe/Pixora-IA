@@ -1,10 +1,14 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../data/models/wallpaper.dart';
+import 'wallpaper_preview_page.dart';
 
 /// HUD Wallpaper Viewer — Eduardo's pick (Concept #5 Neon HUD Professional,
 /// 2026-05-17). Full-screen horizontal swipe viewer for a single category.
@@ -74,6 +78,11 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
   late final AnimationController _scanlineCtrl;
   int _currentIndex = 0;
   late final List<_ViewerItem> _items;
+  // Tracks which wallpapers the user liked DURING this viewer session.
+  // Persisted to Supabase via WallpaperStatsService.toggleLike on each tap.
+  // We track locally too so the heart icon flips immediately without a
+  // round-trip to the server.
+  final Set<String> _likedIds = <String>{};
 
   @override
   void initState() {
@@ -115,6 +124,145 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
     if (_currentIndex < 0 || _currentIndex >= _items.length) return null;
     final item = _items[_currentIndex];
     return item is _WallpaperItem ? item.wallpaper : null;
+  }
+
+  // ─── Action handlers ──────────────────────────────────────────────────
+
+  Future<void> _onShare() async {
+    final wp = _currentWallpaper;
+    if (wp == null) return;
+    HapticFeedback.lightImpact();
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: '${wp.name} · Pixora IA\n${wp.previewUrl}',
+          subject: wp.name,
+        ),
+      );
+    } catch (e) {
+      debugPrint('[ViewerHud] share failed: $e');
+    }
+  }
+
+  Future<void> _onLike() async {
+    final wp = _currentWallpaper;
+    if (wp == null) return;
+    HapticFeedback.lightImpact();
+    // Optimistic toggle so the heart flips instantly.
+    final wasLiked = _likedIds.contains(wp.id);
+    setState(() {
+      if (wasLiked) {
+        _likedIds.remove(wp.id);
+      } else {
+        _likedIds.add(wp.id);
+      }
+    });
+    try {
+      await WallpaperStatsService.instance.toggleLike(wp.id);
+    } catch (e) {
+      debugPrint('[ViewerHud] toggleLike failed (revert): $e');
+      // Rollback on failure so the UI matches server state.
+      if (!mounted) return;
+      setState(() {
+        if (wasLiked) {
+          _likedIds.add(wp.id);
+        } else {
+          _likedIds.remove(wp.id);
+        }
+      });
+    }
+  }
+
+  Future<void> _onAcquire() async {
+    final wp = _currentWallpaper;
+    if (wp == null) return;
+    HapticFeedback.mediumImpact();
+    // Route to the existing Trading Card preview page which already has the
+    // full apply flow (main screen / lock screen / both / live wallpaper
+    // with effects + AdService gating + credit refund). Keeping both
+    // experiences: HUD viewer for discovery/swipe, preview page for apply.
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => WallpaperPreviewPage(wallpaper: wp),
+      ),
+    );
+  }
+
+  Future<void> _onOverflow() async {
+    final wp = _currentWallpaper;
+    if (wp == null) return;
+    HapticFeedback.lightImpact();
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: WallpaperViewerHudPage.inkLayer,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(2)),
+        side: BorderSide(color: Color(0x3300E5FF), width: 1),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 3,
+                color: WallpaperViewerHudPage.cyan.withValues(alpha: 0.3),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  '// ${wp.name.toUpperCase()}',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.8,
+                    color: WallpaperViewerHudPage.cyan,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _OverflowAction(
+                icon: Icons.link,
+                label: 'Copiar enlace',
+                onTap: () async {
+                  await Clipboard.setData(ClipboardData(text: wp.previewUrl));
+                  if (sheetCtx.mounted) Navigator.of(sheetCtx).pop();
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Enlace copiado')),
+                  );
+                },
+              ),
+              _OverflowAction(
+                icon: Icons.info_outline,
+                label: 'Acerca del autor',
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Por: ${wp.authorName}')),
+                  );
+                },
+              ),
+              _OverflowAction(
+                icon: Icons.flag_outlined,
+                label: 'Reportar contenido',
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Reporte enviado · gracias')),
+                  );
+                },
+                tint: WallpaperViewerHudPage.amber,
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -169,7 +317,15 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
                 _StatsBar(
                   wallpaper: _currentWallpaper,
                 ),
-                const _ActionRow(),
+                _ActionRow(
+                  // null when on an ad card so the buttons disable.
+                  onShare: _currentWallpaper != null ? _onShare : null,
+                  onLike: _currentWallpaper != null ? _onLike : null,
+                  onAcquire: _currentWallpaper != null ? _onAcquire : null,
+                  onOverflow: _currentWallpaper != null ? _onOverflow : null,
+                  liked: _currentWallpaper != null &&
+                      _likedIds.contains(_currentWallpaper!.id),
+                ),
                 _BannerAdHost(
                   adUnitId: WallpaperViewerHudPage._testBannerAdUnitId,
                 ),
@@ -566,7 +722,23 @@ class _StatsBar extends StatelessWidget {
 
 // ─── Action row (share · like · ACQUIRE · overflow) ──────────────────────
 class _ActionRow extends StatelessWidget {
-  const _ActionRow();
+  const _ActionRow({
+    this.onShare,
+    this.onLike,
+    this.onAcquire,
+    this.onOverflow,
+    this.liked = false,
+  });
+
+  /// Tap handlers. Null = button rendered as disabled (greyed out).
+  final VoidCallback? onShare;
+  final VoidCallback? onLike;
+  final VoidCallback? onAcquire;
+  final VoidCallback? onOverflow;
+
+  /// Whether the current wallpaper is in the user's favorites — shows a
+  /// filled heart in amber when true.
+  final bool liked;
 
   @override
   Widget build(BuildContext context) {
@@ -579,56 +751,85 @@ class _ActionRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _hudIcon(Icons.share_outlined),
+          _hudIcon(Icons.share_outlined, onShare),
           const SizedBox(width: 8),
-          _hudIcon(Icons.favorite_border),
+          _hudIcon(
+            liked ? Icons.favorite : Icons.favorite_border,
+            onLike,
+            tint: liked ? WallpaperViewerHudPage.amber : null,
+          ),
           const Spacer(),
           // ACQUIRE button — main CTA
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              color: WallpaperViewerHudPage.amber,
-              boxShadow: [
-                BoxShadow(
-                  color: WallpaperViewerHudPage.amber.withValues(alpha: 0.4),
-                  blurRadius: 14,
+          GestureDetector(
+            onTap: onAcquire,
+            behavior: HitTestBehavior.opaque,
+            child: Opacity(
+              opacity: onAcquire == null ? 0.5 : 1.0,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                decoration: BoxDecoration(
+                  color: WallpaperViewerHudPage.amber,
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          WallpaperViewerHudPage.amber.withValues(alpha: 0.4),
+                      blurRadius: 14,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.play_arrow_rounded,
-                    size: 16, color: WallpaperViewerHudPage.ink),
-                const SizedBox(width: 6),
-                Text(
-                  'ACQUIRE',
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 2.5,
-                    color: WallpaperViewerHudPage.ink,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.play_arrow_rounded,
+                        size: 16, color: WallpaperViewerHudPage.ink),
+                    const SizedBox(width: 6),
+                    Text(
+                      'ACQUIRE',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2.5,
+                        color: WallpaperViewerHudPage.ink,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           const Spacer(),
-          _hudIcon(Icons.more_horiz),
+          _hudIcon(Icons.more_horiz, onOverflow),
         ],
       ),
     );
   }
 
-  Widget _hudIcon(IconData icon) {
-    return Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        border: Border.all(color: WallpaperViewerHudPage.cyan, width: 1),
-        color: WallpaperViewerHudPage.cyan.withValues(alpha: 0.04),
+  Widget _hudIcon(IconData icon, VoidCallback? onTap, {Color? tint}) {
+    final disabled = onTap == null;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Opacity(
+        opacity: disabled ? 0.4 : 1.0,
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: tint ?? WallpaperViewerHudPage.cyan,
+              width: 1,
+            ),
+            color:
+                (tint ?? WallpaperViewerHudPage.cyan).withValues(alpha: 0.04),
+          ),
+          child: Icon(
+            icon,
+            size: 14,
+            color: tint ?? WallpaperViewerHudPage.cyan,
+          ),
+        ),
       ),
-      child: Icon(icon, size: 14, color: WallpaperViewerHudPage.cyan),
     );
   }
 }
@@ -864,6 +1065,47 @@ class _BannerAdHostState extends State<_BannerAdHost> {
       width: _ad!.size.width.toDouble(),
       height: _ad!.size.height.toDouble(),
       child: AdWidget(ad: _ad!),
+    );
+  }
+}
+
+// ─── Overflow bottom sheet row ───────────────────────────────────────────
+class _OverflowAction extends StatelessWidget {
+  const _OverflowAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.tint,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color? tint;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = tint ?? WallpaperViewerHudPage.cyan;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.2,
+                color: WallpaperViewerHudPage.bone,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
