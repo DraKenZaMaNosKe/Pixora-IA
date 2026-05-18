@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/utils/locale_helper.dart';
 import '../../data/user_profile_service.dart';
 
 /// Onboarding modal — Iridescent Liquid Metal (concept #05 v2, Eduardo
@@ -67,9 +68,21 @@ class _ArcanoOnboardingSheetState extends State<ArcanoOnboardingSheet> {
       firstDate: DateTime(1925),
       lastDate: DateTime(now.year - 5, now.month, now.day),
       initialDate: _birthDate ?? DateTime(1995, 1, 1),
-      helpText: 'Tu fecha de nacimiento',
-      cancelText: 'Cancelar',
-      confirmText: 'Listo',
+      helpText: LocaleHelper.fromCms(
+        'arcano.onboarding.date_picker.help_text',
+        fallbackEs: 'Tu fecha de nacimiento',
+        fallbackEn: 'Your date of birth',
+      ),
+      cancelText: LocaleHelper.fromCms(
+        'arcano.onboarding.date_picker.cancel',
+        fallbackEs: 'Cancelar',
+        fallbackEn: 'Cancel',
+      ),
+      confirmText: LocaleHelper.fromCms(
+        'arcano.onboarding.date_picker.confirm',
+        fallbackEs: 'Listo',
+        fallbackEn: 'Done',
+      ),
       builder: (ctx, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
@@ -180,7 +193,11 @@ class _ArcanoOnboardingSheetState extends State<ArcanoOnboardingSheet> {
 
                   // Eyebrow
                   Text(
-                    'PIXORA · ONBOARDING',
+                    LocaleHelper.fromCms(
+                      'arcano.onboarding.header_eyebrow',
+                      fallbackEs: 'PIXORA · ONBOARDING',
+                      fallbackEn: 'PIXORA · ONBOARDING',
+                    ),
                     style: GoogleFonts.jetBrainsMono(
                       fontSize: 10,
                       letterSpacing: 3.0,
@@ -191,13 +208,24 @@ class _ArcanoOnboardingSheetState extends State<ArcanoOnboardingSheet> {
                   const SizedBox(height: 8),
 
                   // Iridescent animated title
-                  const _IridescentTitle('Bienvenido.'),
+                  _IridescentTitle(LocaleHelper.fromCms(
+                    'arcano.onboarding.title',
+                    fallbackEs: 'Bienvenido.',
+                    fallbackEn: 'Welcome.',
+                  )),
                   const SizedBox(height: 10),
 
                   // Description
                   Text(
-                    'Dos datos para abrir tu mundo: galería personalizada, '
-                    'calendario zodiacal y horóscopo diario.',
+                    LocaleHelper.fromCms(
+                      'arcano.onboarding.subtitle',
+                      fallbackEs:
+                          'Dos datos para abrir tu mundo: galería personalizada, '
+                          'calendario zodiacal y horóscopo diario.',
+                      fallbackEn:
+                          'Two details to unlock your world: personalized gallery, '
+                          'zodiac calendar and daily horoscope.',
+                    ),
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: Colors.white.withValues(alpha: 0.65),
@@ -207,7 +235,11 @@ class _ArcanoOnboardingSheetState extends State<ArcanoOnboardingSheet> {
                   const SizedBox(height: 26),
 
                   // Name field
-                  const _MinimalLabel('NOMBRE'),
+                  _MinimalLabel(LocaleHelper.fromCms(
+                    'arcano.onboarding.name_label',
+                    fallbackEs: 'NOMBRE',
+                    fallbackEn: 'NAME',
+                  )),
                   const SizedBox(height: 4),
                   _MinimalUnderlineField(
                     controller: _nameCtrl,
@@ -221,7 +253,11 @@ class _ArcanoOnboardingSheetState extends State<ArcanoOnboardingSheet> {
                   const SizedBox(height: 18),
 
                   // Birth date
-                  const _MinimalLabel('FECHA DE NACIMIENTO'),
+                  _MinimalLabel(LocaleHelper.fromCms(
+                    'arcano.onboarding.birthdate_label',
+                    fallbackEs: 'FECHA DE NACIMIENTO',
+                    fallbackEn: 'DATE OF BIRTH',
+                  )),
                   const SizedBox(height: 4),
                   _MinimalUnderlineDate(
                     date: _birthDate,
@@ -244,7 +280,12 @@ class _ArcanoOnboardingSheetState extends State<ArcanoOnboardingSheet> {
                   const SizedBox(height: 14),
                   Center(
                     child: Text(
-                      'Datos locales · cifrados en tu dispositivo',
+                      LocaleHelper.fromCms(
+                        'arcano.onboarding.privacy_footer',
+                        fallbackEs:
+                            'Datos locales · cifrados en tu dispositivo',
+                        fallbackEn: 'Local data · encrypted on your device',
+                      ),
                       style: GoogleFonts.jetBrainsMono(
                         fontSize: 9,
                         letterSpacing: 0.5,
@@ -475,7 +516,11 @@ class _MinimalUnderlineDate extends StatelessWidget {
     final hasDate = date != null;
     final label = hasDate
         ? '${date!.day.toString().padLeft(2, '0')} / ${_months[date!.month]} / ${date!.year}'
-        : 'Toca para escoger';
+        : LocaleHelper.fromCms(
+            'arcano.onboarding.date_picker_placeholder',
+            fallbackEs: 'Toca para escoger',
+            fallbackEn: 'Tap to choose',
+          );
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -618,7 +663,17 @@ class _IridescentCtaState extends State<_IridescentCta>
                   )
                 else
                   Text(
-                    widget.enabled ? 'Continuar' : 'Completa los datos',
+                    widget.enabled
+                        ? LocaleHelper.fromCms(
+                            'arcano.onboarding.cta_enabled',
+                            fallbackEs: 'Continuar',
+                            fallbackEn: 'Continue',
+                          )
+                        : LocaleHelper.fromCms(
+                            'arcano.onboarding.cta_disabled',
+                            fallbackEs: 'Completa los datos',
+                            fallbackEn: 'Complete the form',
+                          ),
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
