@@ -22,6 +22,9 @@ class Wallpaper {
     this.downloadCount = 0,
     this.createdAt,
     this.cultural,
+    this.authorName = 'Pixora Studio',
+    this.authorUserId,
+    this.customPreviewUrl,
   });
 
   final String id;
@@ -51,7 +54,24 @@ class Wallpaper {
   /// without rebuilding the APK.
   final CulturalContent? cultural;
 
-  String get previewUrl => SupabaseConfig.imageUrl(previewFile);
+  /// Display name of the author. Default 'Pixora Studio' for catalog wallpapers
+  /// uploaded by the team. Set to the user's display name for user-published
+  /// wallpapers (Phase 2 feature).
+  final String authorName;
+
+  /// Optional FK to a future profiles table for user-published wallpapers.
+  /// When non-null, tapping the author opens their profile / gallery.
+  /// Always null for catalog wallpapers uploaded by the Pixora team.
+  final int? authorUserId;
+
+  /// Optional override for the preview URL. When non-null, used INSTEAD of
+  /// `SupabaseConfig.imageUrl(previewFile)`. Useful for adapter cases where
+  /// the file lives in a different bucket (e.g. LiveWallpaper previews live
+  /// in the `wallpaper-videos` bucket, not `wallpaper-images`).
+  final String? customPreviewUrl;
+
+  String get previewUrl =>
+      customPreviewUrl ?? SupabaseConfig.imageUrl(previewFile);
   String get fullImageUrl => SupabaseConfig.imageUrl(imageFile);
 
   String get imageSizeFormatted {
@@ -86,6 +106,8 @@ class Wallpaper {
       cultural: json['cultural'] is Map<String, dynamic>
           ? CulturalContent.fromJson(json['cultural'] as Map<String, dynamic>)
           : null,
+      authorName: json['authorName'] as String? ?? 'Pixora Studio',
+      authorUserId: json['authorUserId'] as int?,
     );
   }
 
@@ -117,6 +139,8 @@ class Wallpaper {
       cultural: row['cultural'] is Map<String, dynamic>
           ? CulturalContent.fromJson(row['cultural'] as Map<String, dynamic>)
           : null,
+      authorName: row['author_name'] as String? ?? 'Pixora Studio',
+      authorUserId: (row['author_user_id'] as num?)?.toInt(),
     );
   }
 
@@ -165,5 +189,7 @@ class Wallpaper {
         'tags': tags,
         'downloadCount': downloadCount,
         'createdAt': createdAt?.toIso8601String(),
+        'authorName': authorName,
+        'authorUserId': authorUserId,
       };
 }

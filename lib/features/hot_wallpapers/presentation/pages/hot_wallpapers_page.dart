@@ -9,6 +9,9 @@ import '../../../../core/services/app_strings_service.dart';
 import '../../../../core/services/live_wallpaper_catalog_service.dart';
 import '../../../../core/widgets/aurora_waves_loading.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
+import '../../../wallpapers/data/wallpaper_adapter.dart';
+import '../../../wallpapers/presentation/pages/wallpaper_viewer_hud_page.dart';
+import '../../../wallpapers/presentation/widgets/category_chip_hud.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../providers/live_wallpaper_providers.dart';
 import 'live_wallpaper_preview_page.dart';
@@ -105,6 +108,16 @@ class _HotContent extends ConsumerWidget {
                         LiveWallpaperPreviewPage(wallpaper: items[i]),
                   )),
             ),
+          ),
+
+          // ── HUD chips row — entry point to the WallpaperViewerHudPage
+          // (Eduardo's pick 2026-05-17). Tap any chip opens the special
+          // explorer with horizontal swipe + native ads. LIVE wallpapers
+          // are adapted to Wallpaper via wallpaperFromLive() so the same
+          // viewer renders both static AND live previews.
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(
+            child: _LiveHudChipsRow(categories: categories),
           ),
 
           // ── Popular Now (horizontal row, ya era lazy) ────────
@@ -507,6 +520,68 @@ class _ShimmerLoading extends StatelessWidget {
             children: List.generate(4, (_) => skelCard(0, 0)),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// HUD chips row for LIVE — entry point to the WallpaperViewerHudPage.
+/// Builds dynamic chips from the categories present in the LIVE catalog,
+/// sorted by item count (most-populated first), max 6.
+/// Tap converts that category's LiveWallpapers → Wallpaper via
+/// `wallpaperFromLive()` and pushes the viewer.
+class _LiveHudChipsRow extends StatefulWidget {
+  const _LiveHudChipsRow({required this.categories});
+  final Map<String, List<LiveWallpaper>> categories;
+
+  @override
+  State<_LiveHudChipsRow> createState() => _LiveHudChipsRowState();
+}
+
+class _LiveHudChipsRowState extends State<_LiveHudChipsRow> {
+  String? _activeKey;
+
+  void _openViewer(String catKey, List<LiveWallpaper> items) {
+    setState(() => _activeKey = catKey);
+    final adapted = items.map(wallpaperFromLive).toList();
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (_) => WallpaperViewerHudPage(
+          wallpapers: adapted,
+          category: catKey.toUpperCase(),
+        ),
+      ),
+    )
+        .then((_) {
+      if (mounted) setState(() => _activeKey = null);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Sort categories by count, take top 6.
+    final sorted = widget.categories.entries.toList()
+      ..sort((a, b) => b.value.length.compareTo(a.value.length));
+    final top = sorted.take(6).toList();
+    return Container(
+      color: const Color(0xFF02050A),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final entry in top) ...[
+              CategoryChipHud(
+                label: entry.key,
+                count: entry.value.length,
+                active: _activeKey == entry.key,
+                onTap: () => _openViewer(entry.key, entry.value),
+              ),
+              const SizedBox(width: 10),
+            ],
+          ],
+        ),
       ),
     );
   }
