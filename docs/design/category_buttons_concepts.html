@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora · Category Buttons · 5 Conceptos (HUD style)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300..900&family=Geist+Mono:wght@300..700&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#02050a;
+    --ink-2:#070b14;
+    --ink-3:#0f1620;
+    --electric-cyan:#00E5FF;
+    --electric-cyan-deep:#0099B0;
+    --electric-amber:#FFB400;
+    --electric-amber-deep:#B07A00;
+    --crimson:#FF3D5C;
+    --gold:#C9A961;
+    --bone:#e8eef5;
+  }
+  html,body{background:radial-gradient(ellipse at top,#0a0f1a 0%,#02050a 60%,#000 100%);color:var(--bone);font-family:'JetBrains Mono',monospace;-webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden}
+
+  /* === Page chrome === */
+  .archive{max-width:1500px;margin:0 auto;padding:64px 32px 96px}
+  .archive-header{text-align:center;margin-bottom:64px;position:relative}
+  .archive-header::before{content:'';position:absolute;inset:-32px -32px auto -32px;height:200px;background:radial-gradient(ellipse 600px 200px at center top,rgba(0,229,255,0.1),transparent 70%);z-index:-1}
+  .eyebrow{font-size:11px;letter-spacing:.32em;color:var(--electric-cyan);text-transform:uppercase;margin-bottom:18px;opacity:0;animation:fade .8s .1s forwards;font-weight:600}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(36px,6vw,60px);line-height:1.02;letter-spacing:-.025em;color:#fff;margin-bottom:20px;opacity:0;animation:fade .9s .3s forwards}
+  h1 .num{color:var(--electric-cyan);font-weight:200}
+  .sub{font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;color:rgba(232,238,245,.6);max-width:680px;margin:0 auto;opacity:0;animation:fade .9s .5s forwards}
+  .sub b{color:var(--electric-amber);font-weight:500}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--electric-cyan) 50%,transparent);margin:48px auto;width:60%;opacity:.3}
+
+  /* === Section === */
+  section.concept{margin-bottom:80px;opacity:0;animation:rise 1s forwards}
+  section.concept:nth-of-type(1){animation-delay:.6s}
+  section.concept:nth-of-type(2){animation-delay:.75s}
+  section.concept:nth-of-type(3){animation-delay:.9s}
+  section.concept:nth-of-type(4){animation-delay:1.05s}
+  section.concept:nth-of-type(5){animation-delay:1.2s}
+  .c-header{display:flex;align-items:flex-end;justify-content:space-between;padding:0 4px 18px;border-bottom:1px solid rgba(0,229,255,.15);margin-bottom:32px;gap:24px;flex-wrap:wrap}
+  .c-header .left{flex:1;min-width:240px}
+  .c-num{font-size:10px;letter-spacing:.3em;color:var(--electric-amber);margin-bottom:6px;font-weight:600}
+  .c-name{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:26px;line-height:1.15;color:#fff;margin-bottom:6px;letter-spacing:-.01em}
+  .c-tag{font-family:'Inter',sans-serif;font-size:12px;color:rgba(232,238,245,.6);font-weight:400;line-height:1.4;max-width:520px}
+  .c-verdict{font-size:9px;letter-spacing:.1em;line-height:1.6;color:rgba(232,238,245,.5);border-left:1px solid var(--electric-cyan);padding:6px 12px}
+  .c-verdict .p{color:#7DD8C8;display:block}
+  .c-verdict .c{color:var(--electric-amber);display:block;opacity:.8}
+  .demo-row{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;padding:32px 16px;background:rgba(7,11,20,.4);border:1px solid rgba(0,229,255,.08);border-radius:8px;min-height:120px;position:relative;overflow:hidden}
+  .demo-row::before{content:'HOVER ME · CLICK ME';position:absolute;top:8px;right:12px;font-size:8px;letter-spacing:.3em;color:rgba(0,229,255,.3)}
+
+  /* === Footer === */
+  footer{text-align:center;margin-top:64px;padding-top:32px;border-top:1px solid rgba(0,229,255,.15);font-size:10px;letter-spacing:.3em;color:rgba(232,238,245,.3);text-transform:uppercase}
+
+  /* === Animations === */
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+  @keyframes pulse-cyan{0%,100%{box-shadow:0 0 0 0 rgba(0,229,255,.5),0 0 12px rgba(0,229,255,.4)}50%{box-shadow:0 0 0 6px rgba(0,229,255,0),0 0 18px rgba(0,229,255,.6)}}
+  @keyframes pulse-amber{0%,100%{box-shadow:0 0 0 0 rgba(255,180,0,.5),0 0 12px rgba(255,180,0,.4)}50%{box-shadow:0 0 0 6px rgba(255,180,0,0),0 0 18px rgba(255,180,0,.6)}}
+  @keyframes idle-glow{0%,100%{opacity:.6}50%{opacity:1}}
+  @keyframes scan-line{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+  @keyframes flicker{0%,100%{opacity:1}50%{opacity:.85}}
+  @keyframes corner-rotate{0%,100%{opacity:.5}50%{opacity:1}}
+  @keyframes typing-bar{0%,100%{transform:scaleX(0)}50%{transform:scaleX(1)}}
+
+  /* === Ad showing overlay (when button is tapped) === */
+  .ad-mock{position:fixed;inset:0;background:rgba(2,5,10,.92);backdrop-filter:blur(20px);z-index:1000;display:none;align-items:center;justify-content:center;padding:40px;opacity:0;transition:opacity .25s}
+  .ad-mock.on{display:flex;opacity:1}
+  .ad-mock .ad-card{width:320px;background:#fff;color:#000;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,229,255,.4),0 30px 80px rgba(0,229,255,.3);position:relative}
+  .ad-mock .ad-card .ad-bar{padding:6px 12px;background:#0866FF;color:#fff;font-size:9px;letter-spacing:.15em;font-weight:700;font-family:'Inter',sans-serif;display:flex;justify-content:space-between;align-items:center}
+  .ad-mock .ad-card .ad-bar .x{cursor:pointer;font-size:14px}
+  .ad-mock .ad-card .ad-body{padding:16px}
+  .ad-mock .ad-card .ad-head{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#000;margin-bottom:4px}
+  .ad-mock .ad-card .ad-spo{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:#65676b;letter-spacing:.05em;margin-bottom:12px}
+  .ad-mock .ad-card .ad-img{height:140px;background:linear-gradient(135deg,#1bb76e,#0e6e42);position:relative;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;letter-spacing:.05em}
+  .ad-mock .ad-card .ad-desc{padding:12px 16px;font-family:'Inter',sans-serif;font-size:12px;color:#3c3c3c;line-height:1.4}
+  .ad-mock .ad-card .ad-cta{margin:0 16px 16px;padding:12px;background:#42b72a;color:#fff;text-align:center;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;border-radius:6px;letter-spacing:.05em;cursor:pointer}
+  .ad-mock .ad-after{margin-top:16px;font-size:10px;letter-spacing:.2em;color:var(--electric-cyan);font-family:'JetBrains Mono',monospace;opacity:.7}
+  .ad-mock .ad-after b{color:var(--electric-amber)}
+
+  /* ============================================== */
+  /* CONCEPT 01 — TARGET CHIP (HUD corners) */
+  /* ============================================== */
+  .b1{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;background:rgba(0,229,255,.04);border:1px solid var(--electric-cyan-deep);color:var(--electric-cyan);font-size:10px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;cursor:pointer;transition:all .25s ease;font-family:'JetBrains Mono',monospace}
+  .b1::before,.b1::after{content:'';position:absolute;width:8px;height:8px;border:2px solid var(--electric-amber);transition:all .25s ease;opacity:.7}
+  .b1::before{top:-2px;left:-2px;border-right:none;border-bottom:none}
+  .b1::after{bottom:-2px;right:-2px;border-left:none;border-top:none}
+  .b1 .ic{margin-right:6px;font-size:8px;opacity:.7}
+  .b1:hover{background:rgba(0,229,255,.12);border-color:var(--electric-cyan);color:#fff;box-shadow:inset 0 0 12px rgba(0,229,255,.2),0 0 18px rgba(0,229,255,.4);transform:translateY(-1px)}
+  .b1:hover::before,.b1:hover::after{opacity:1;width:14px;height:14px;border-width:2px}
+  .b1:hover .ic{opacity:1}
+  .b1:active{transform:translateY(0);background:rgba(0,229,255,.25)}
+  .b1.on{background:rgba(0,229,255,.18);color:#fff;border-color:var(--electric-cyan);box-shadow:0 0 16px rgba(0,229,255,.5)}
+  .b1.on::before,.b1.on::after{opacity:1;border-color:var(--electric-cyan);animation:corner-rotate 2s ease-in-out infinite}
+
+  /* ============================================== */
+  /* CONCEPT 02 — NEON STAMP (outline glow) */
+  /* ============================================== */
+  .b2{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;background:transparent;border:1.5px solid var(--electric-cyan);color:var(--electric-cyan);font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .3s cubic-bezier(.2,.8,.2,1);font-family:'JetBrains Mono',monospace;border-radius:4px;overflow:hidden;text-shadow:0 0 6px rgba(0,229,255,.6)}
+  .b2::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,229,255,.18),transparent);transform:translateX(-100%);transition:transform .5s ease}
+  .b2:hover{color:#fff;border-color:#fff;box-shadow:0 0 0 1px var(--electric-cyan),0 0 16px rgba(0,229,255,.5),inset 0 0 10px rgba(0,229,255,.2);text-shadow:0 0 10px rgba(255,255,255,.8);transform:translateY(-2px)}
+  .b2:hover::before{transform:translateX(100%)}
+  .b2:active{transform:translateY(0);box-shadow:0 0 0 1px var(--electric-cyan),0 0 8px rgba(0,229,255,.3),inset 0 0 16px rgba(0,229,255,.4)}
+  .b2.on{background:var(--electric-cyan);color:#02050a;text-shadow:none;border-color:var(--electric-cyan);box-shadow:0 0 20px rgba(0,229,255,.6)}
+
+  /* ============================================== */
+  /* CONCEPT 03 — TERMINAL SCAN (scanline animation) */
+  /* ============================================== */
+  .b3{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:12px 22px;background:linear-gradient(180deg,rgba(0,229,255,.06) 0%,rgba(0,229,255,.02) 100%);border:1px solid var(--electric-cyan-deep);border-left:3px solid var(--electric-cyan);color:var(--electric-cyan);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;transition:all .25s ease;font-family:'JetBrains Mono',monospace;overflow:hidden}
+  .b3::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--electric-cyan),transparent);opacity:0;transition:opacity .2s ease}
+  .b3 .cur{display:inline-block;margin-right:6px;color:var(--electric-amber);animation:flicker 1.2s ease-in-out infinite}
+  .b3:hover{background:linear-gradient(180deg,rgba(0,229,255,.18) 0%,rgba(0,229,255,.06) 100%);color:#fff;border-color:var(--electric-cyan);border-left-color:var(--electric-amber);border-left-width:4px;padding-left:23px}
+  .b3:hover::before{opacity:1;animation:scan-line 1s linear infinite}
+  .b3:hover .cur{color:#fff}
+  .b3:active{transform:scale(.97)}
+  .b3.on{background:linear-gradient(180deg,rgba(0,229,255,.25) 0%,rgba(0,229,255,.08) 100%);color:#fff;border-left-color:var(--electric-amber);border-left-width:4px;padding-left:23px}
+  .b3.on .cur{color:var(--electric-amber)}
+
+  /* ============================================== */
+  /* CONCEPT 04 — ARCADE PILL (3D press) */
+  /* ============================================== */
+  .b4{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:12px 22px;background:linear-gradient(180deg,var(--electric-amber) 0%,var(--electric-amber-deep) 100%);color:#02050a;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .15s cubic-bezier(.2,.8,.2,1);font-family:'JetBrains Mono',monospace;border:none;border-radius:6px;box-shadow:0 4px 0 var(--electric-amber-deep),0 6px 12px rgba(255,180,0,.3);text-shadow:0 1px 0 rgba(255,255,255,.2)}
+  .b4 .ic{margin-right:8px;font-size:11px}
+  .b4:hover{background:linear-gradient(180deg,#FFD15B 0%,var(--electric-amber) 100%);box-shadow:0 5px 0 var(--electric-amber-deep),0 8px 18px rgba(255,180,0,.5);transform:translateY(-1px)}
+  .b4:active{transform:translateY(4px);box-shadow:0 0 0 var(--electric-amber-deep),0 2px 6px rgba(255,180,0,.3)}
+  .b4.alt{background:linear-gradient(180deg,var(--electric-cyan) 0%,var(--electric-cyan-deep) 100%);box-shadow:0 4px 0 var(--electric-cyan-deep),0 6px 12px rgba(0,229,255,.3)}
+  .b4.alt:hover{background:linear-gradient(180deg,#5EEDFF 0%,var(--electric-cyan) 100%);box-shadow:0 5px 0 var(--electric-cyan-deep),0 8px 18px rgba(0,229,255,.5)}
+  .b4.alt:active{box-shadow:0 0 0 var(--electric-cyan-deep),0 2px 6px rgba(0,229,255,.3)}
+  .b4.on{animation:pulse-amber 2.4s ease-in-out infinite}
+
+  /* ============================================== */
+  /* CONCEPT 05 — DUAL-LAYER HUD (premium tech) */
+  /* ============================================== */
+  .b5-wrap{position:relative;display:inline-block;padding:3px;background:linear-gradient(135deg,var(--electric-cyan-deep) 0%,var(--electric-amber-deep) 100%);border-radius:2px;transition:all .3s ease}
+  .b5-wrap::before{content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;background:linear-gradient(135deg,var(--electric-cyan),var(--electric-amber));z-index:-1;opacity:0;transition:opacity .3s ease;filter:blur(8px)}
+  .b5{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 18px;background:linear-gradient(180deg,#0a1018 0%,#02050a 100%);color:var(--electric-cyan);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;transition:all .25s ease;font-family:'JetBrains Mono',monospace;border:none;min-width:120px}
+  .b5 .dot{width:6px;height:6px;border-radius:50%;background:var(--electric-amber);box-shadow:0 0 6px var(--electric-amber);animation:idle-glow 2s ease-in-out infinite}
+  .b5 .count{font-size:8px;letter-spacing:.1em;color:rgba(0,229,255,.5);margin-left:6px}
+  .b5-wrap:hover{box-shadow:0 0 24px rgba(0,229,255,.4)}
+  .b5-wrap:hover::before{opacity:.6}
+  .b5-wrap:hover .b5{color:#fff;background:linear-gradient(180deg,#0F1E2E 0%,#0a1018 100%)}
+  .b5-wrap:hover .b5 .dot{background:#fff;box-shadow:0 0 10px #fff}
+  .b5-wrap:active{transform:scale(.97)}
+  .b5-wrap.on{background:linear-gradient(135deg,var(--electric-cyan),var(--electric-amber))}
+  .b5-wrap.on::before{opacity:.8}
+  .b5-wrap.on .b5{color:#fff;background:linear-gradient(180deg,#0a1018 0%,#02050a 100%)}
+
+  /* === When tapped, show a "showing ad" flash === */
+  .tapped{animation:tap-flash .4s ease-out}
+  @keyframes tap-flash{0%{filter:brightness(2.5)}100%{filter:brightness(1)}}
+
+  /* Floating status bar at top showing tap behavior */
+  .tap-flow{margin-top:24px;padding:12px 18px;background:rgba(255,180,0,.06);border:1px dashed var(--electric-amber);border-radius:4px;display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.1em;color:rgba(232,238,245,.7)}
+  .tap-flow .step{color:var(--electric-amber);font-weight:700}
+
+</style>
+</head>
+<body>
+  <div class="archive">
+    <header class="archive-header">
+      <div class="eyebrow">Pixora · Category Buttons · v1</div>
+      <h1>Category Buttons <span class="num">· 5 estilos HUD</span></h1>
+      <p class="sub">Coordina con el viewer Neon HUD Professional (#5) que elegiste. Cada tap dispara un <b>native ad</b> antes de abrir el viewer. Hover sobre cada uno para sentir las animaciones — click para ver el ad mock.</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <!-- CONCEPT 01 — TARGET CHIP -->
+    <section class="concept">
+      <div class="c-header">
+        <div class="left">
+          <div class="c-num">No. 01</div>
+          <div class="c-name">Target Chip</div>
+          <div class="c-tag">Esquinas amber tipo HUD militar. Borde cyan se enciende al hover, esquinas se expanden. El estilo más cercano al "target frame" del viewer.</div>
+        </div>
+        <div class="c-verdict"><span class="p">✓ matchea 1:1 con el viewer HUD</span><span class="c">✗ requiere espacio para esquinas marcadas</span></div>
+      </div>
+      <div class="demo-row">
+        <button class="b1 on" data-cat="TRENDING"><span class="ic">▸</span>TRENDING</button>
+        <button class="b1" data-cat="ARTE"><span class="ic">▸</span>ARTE</button>
+        <button class="b1" data-cat="DARK"><span class="ic">▸</span>DARK</button>
+        <button class="b1" data-cat="GAMING"><span class="ic">▸</span>GAMING</button>
+      </div>
+    </section>
+
+    <!-- CONCEPT 02 — NEON STAMP -->
+    <section class="concept">
+      <div class="c-header">
+        <div class="left">
+          <div class="c-num">No. 02</div>
+          <div class="c-name">Neon Stamp</div>
+          <div class="c-tag">Outline neon con sweep de luz al hover. Tipografía más bold. Al estar activo se invierte: cyan solido con texto negro. Look más "letrero de bar".</div>
+        </div>
+        <div class="c-verdict"><span class="p">✓ legible desde lejos, vibe arcade</span><span class="c">✗ menos identidad propia, más genérico</span></div>
+      </div>
+      <div class="demo-row">
+        <button class="b2 on" data-cat="TRENDING">TRENDING</button>
+        <button class="b2" data-cat="ARTE">ARTE</button>
+        <button class="b2" data-cat="DARK">DARK</button>
+        <button class="b2" data-cat="GAMING">GAMING</button>
+      </div>
+    </section>
+
+    <!-- CONCEPT 03 — TERMINAL SCAN -->
+    <section class="concept">
+      <div class="c-header">
+        <div class="left">
+          <div class="c-num">No. 03</div>
+          <div class="c-name">Terminal Scan</div>
+          <div class="c-tag">Borde izquierdo grueso amber + cursor parpadeante. Al hover: scanline horizontal recorre el botón + borde se expande. Look terminal/CLI premium.</div>
+        </div>
+        <div class="c-verdict"><span class="p">✓ super HUD, refuerza "tech serio"</span><span class="c">✗ scanline puede distraer si hay muchos</span></div>
+      </div>
+      <div class="demo-row">
+        <button class="b3 on" data-cat="TRENDING"><span class="cur">▌</span>TRENDING</button>
+        <button class="b3" data-cat="ARTE"><span class="cur">▌</span>ARTE</button>
+        <button class="b3" data-cat="DARK"><span class="cur">▌</span>DARK</button>
+        <button class="b3" data-cat="GAMING"><span class="cur">▌</span>GAMING</button>
+      </div>
+    </section>
+
+    <!-- CONCEPT 04 — ARCADE PILL -->
+    <section class="concept">
+      <div class="c-header">
+        <div class="left">
+          <div class="c-num">No. 04</div>
+          <div class="c-name">Arcade Pill (3D press)</div>
+          <div class="c-tag">Botón sólido con profundidad 3D (sombra abajo simula que está elevado). Al press se "hunde". Combina cyan + amber. Súper feedback táctil.</div>
+        </div>
+        <div class="c-verdict"><span class="p">✓ MÁS satisfactorio al tocar (haptic feel)</span><span class="c">✗ menos "HUD", más juguetón</span></div>
+      </div>
+      <div class="demo-row">
+        <button class="b4 on" data-cat="TRENDING"><span class="ic">★</span>TRENDING</button>
+        <button class="b4 alt" data-cat="ARTE"><span class="ic">◆</span>ARTE</button>
+        <button class="b4" data-cat="DARK"><span class="ic">▼</span>DARK</button>
+        <button class="b4 alt" data-cat="GAMING"><span class="ic">▶</span>GAMING</button>
+      </div>
+    </section>
+
+    <!-- CONCEPT 05 — DUAL-LAYER HUD -->
+    <section class="concept">
+      <div class="c-header">
+        <div class="left">
+          <div class="c-num">No. 05</div>
+          <div class="c-name">Dual-Layer HUD <span style="color:var(--electric-amber);font-style:normal;font-size:11px;letter-spacing:.2em;font-family:'JetBrains Mono';">★ PREMIUM</span></div>
+          <div class="c-tag">Doble borde: cyan→amber gradient outline + interior negro premium. Dot amber pulsante (status LED). Contador de wallpapers. Al hover: glow exterior se expande. <b>Más sofisticado, vibe enterprise.</b></div>
+        </div>
+        <div class="c-verdict"><span class="p">✓ más caro/premium, distintivo de Pixora</span><span class="c">✗ takes más espacio horizontal</span></div>
+      </div>
+      <div class="demo-row">
+        <div class="b5-wrap on" data-cat="TRENDING">
+          <button class="b5"><span class="dot"></span>TRENDING<span class="count">347</span></button>
+        </div>
+        <div class="b5-wrap" data-cat="ARTE">
+          <button class="b5"><span class="dot"></span>ARTE<span class="count">128</span></button>
+        </div>
+        <div class="b5-wrap" data-cat="DARK">
+          <button class="b5"><span class="dot"></span>DARK<span class="count">86</span></button>
+        </div>
+        <div class="b5-wrap" data-cat="GAMING">
+          <button class="b5"><span class="dot"></span>GAMING<span class="count">213</span></button>
+        </div>
+      </div>
+      <div class="tap-flow">
+        <span class="step">FLOW:</span>
+        <span>tap → <b style="color:var(--electric-amber)">native ad</b> aparece (3-5s) → ad se cierra → entra al viewer #5 con la categoría seleccionada</span>
+      </div>
+    </section>
+
+    <footer>Pixora · Category Buttons · Design Archive · Mayo 2026 · v1</footer>
+  </div>
+
+  <!-- Ad mock overlay (shown when any category button is tapped) -->
+  <div class="ad-mock" id="adMock">
+    <div class="ad-card">
+      <div class="ad-bar"><span>Ads served by Meta · Sponsored</span><span class="x" onclick="closeAd()">×</span></div>
+      <div class="ad-body">
+        <div class="ad-head">SHEIN</div>
+        <div class="ad-spo">Set de camisa sin mangas con estampado</div>
+      </div>
+      <div class="ad-img">SHOP NOW</div>
+      <div class="ad-desc">Experimenta comodidad y estilo con nuestra gama de colecciones de ropa infantil.</div>
+      <div class="ad-cta">SHOP NOW</div>
+      <div class="ad-after" style="text-align:center;padding:0 16px 14px">
+        ad cerrará en <b id="adCountdown">5</b>s · luego abre viewer
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // tap behavior: show ad, then would route to viewer
+    const overlay = document.getElementById('adMock');
+    const countdown = document.getElementById('adCountdown');
+    let adTimer = null;
+
+    function showAd(category){
+      overlay.classList.add('on');
+      let seconds = 5;
+      countdown.textContent = seconds;
+      adTimer = setInterval(()=>{
+        seconds--;
+        countdown.textContent = seconds;
+        if(seconds<=0){clearInterval(adTimer);closeAd()}
+      },1000);
+    }
+    function closeAd(){
+      overlay.classList.remove('on');
+      if(adTimer)clearInterval(adTimer);
+    }
+
+    // wire all category buttons across all concepts
+    document.querySelectorAll('.b1,.b2,.b3,.b4,.b5-wrap').forEach(btn=>{
+      btn.addEventListener('click',(e)=>{
+        const cat = btn.dataset.cat || 'CATEGORY';
+        btn.classList.add('tapped');
+        setTimeout(()=>btn.classList.remove('tapped'),400);
+        // also toggle 'on' state within its concept row
+        btn.parentElement.querySelectorAll('[data-cat]').forEach(b=>b.classList.remove('on'));
+        btn.classList.add('on');
+        showAd(cat);
+      });
+    });
+
+    // Close ad on overlay click (outside card)
+    overlay.addEventListener('click',(e)=>{if(e.target===overlay)closeAd()});
+  </script>
+</body>
+</html>

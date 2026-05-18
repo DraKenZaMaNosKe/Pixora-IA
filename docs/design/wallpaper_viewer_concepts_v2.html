@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora · Wallpaper Viewer · 5 Conceptos v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300..900&family=Geist+Mono:wght@300..700&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&family=Cinzel:wght@400..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Anton&family=Archivo:wght@400..900&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    /* Premium neutrals */
+    --ink:#0a0a0c;
+    --ink-2:#13131a;
+    --ink-3:#1c1c24;
+    --bone:#f4f1ea;
+    --bone-2:#e8e4d8;
+    --paper:#fafaf7;
+    /* Gold (muted/deep, no garish) */
+    --gold:#C9A961;
+    --gold-bright:#E8D196;
+    --gold-deep:#7A6A3D;
+    --gold-veryDeep:#3B331E;
+    /* Foil */
+    --foil-1:#D4B987;
+    --foil-2:#F0E0B8;
+    --foil-3:#FFFFFF;
+    --foil-4:#B8D4C0;
+    /* Accent colors (NO purple/pink) */
+    --electric-cyan:#00E5FF;
+    --electric-amber:#FFB400;
+    --apple-blue:#0A84FF;
+    --crimson:#C8102E;
+    --moss:#7A8A5C;
+    /* Ad mark */
+    --ad-green:#1bb76e;
+  }
+  html,body{background:linear-gradient(180deg,#050505 0%,#0a0a0d 40%,#040404 100%);color:#eee;font-family:'Geist',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden}
+
+  /* === Page chrome === */
+  .archive{max-width:1500px;margin:0 auto;padding:64px 32px 96px}
+  .archive-header{text-align:center;margin-bottom:64px;position:relative}
+  .archive-header::before{content:'';position:absolute;inset:-32px -32px auto -32px;height:200px;background:radial-gradient(ellipse 600px 200px at center top,rgba(201,169,97,0.12),transparent 70%);z-index:-1}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:var(--gold);text-transform:uppercase;margin-bottom:18px;opacity:0;animation:fade .8s .1s forwards}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(40px,7vw,72px);line-height:1.02;letter-spacing:-.025em;color:#fff;margin-bottom:20px;opacity:0;animation:fade .9s .3s forwards}
+  h1 .num{color:var(--gold);font-weight:200}
+  .sub{font-family:'Geist',sans-serif;font-size:15px;line-height:1.5;color:rgba(255,255,255,.6);max-width:720px;margin:0 auto;opacity:0;animation:fade .9s .5s forwards}
+  .sub b{color:var(--foil-2);font-weight:500}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent);margin:48px auto;width:60%;opacity:.4}
+
+  /* === Grid === */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:48px 32px;align-items:start}
+  @media (min-width:1280px){.grid{grid-template-columns:repeat(3,1fr)}}
+
+  /* === Concept card === */
+  .concept{display:flex;flex-direction:column;align-items:center;gap:24px;opacity:0;animation:rise 1s forwards}
+  .concept:nth-child(1){animation-delay:.6s}
+  .concept:nth-child(2){animation-delay:.75s}
+  .concept:nth-child(3){animation-delay:.9s}
+  .concept:nth-child(4){animation-delay:1.05s}
+  .concept:nth-child(5){animation-delay:1.2s}
+
+  /* === Phone frame === */
+  .phone{
+    width:300px;height:620px;border-radius:42px;
+    background:#000;
+    padding:8px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.05) inset,
+      0 -1px 0 rgba(0,0,0,.4) inset,
+      0 30px 60px -20px rgba(0,0,0,.7),
+      0 50px 100px -30px rgba(201,169,97,.08);
+    position:relative;
+    overflow:hidden;
+  }
+  .phone::before{
+    content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    width:90px;height:24px;background:#000;border-radius:14px;z-index:50;
+    border:1px solid rgba(255,255,255,.05);
+  }
+  .screen{width:100%;height:100%;border-radius:34px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+  /* === Meta block === */
+  .meta{width:300px;color:rgba(255,255,255,.85)}
+  .meta-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--gold);margin-bottom:6px}
+  .meta-name{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:24px;line-height:1.15;color:#fff;margin-bottom:8px;letter-spacing:-.01em}
+  .meta-tag{font-family:'Geist',sans-serif;font-size:12px;line-height:1.45;color:rgba(255,255,255,.55);margin-bottom:14px;font-weight:300}
+  .palette{display:flex;gap:6px;margin-bottom:14px}
+  .swatch{width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.1);box-shadow:0 0 0 1px rgba(0,0,0,.4) inset}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.6;letter-spacing:.05em;border-left:1px solid var(--gold);padding-left:10px;color:rgba(255,255,255,.55)}
+  .verdict .p{color:var(--foil-4)}
+  .verdict .c{color:var(--electric-amber);opacity:.85}
+
+  /* === Footer === */
+  footer{text-align:center;margin-top:96px;padding-top:32px;border-top:1px solid rgba(201,169,97,.15);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.3);text-transform:uppercase}
+
+  /* === Animations === */
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+  @keyframes pulse-soft{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.04);opacity:.92}}
+  @keyframes pulse-glow{0%,100%{box-shadow:0 0 0 0 rgba(201,169,97,.45),0 4px 14px rgba(201,169,97,.35)}50%{box-shadow:0 0 0 12px rgba(201,169,97,0),0 4px 18px rgba(201,169,97,.5)}}
+  @keyframes peek-slide{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+  @keyframes tilt-card{0%,100%{transform:rotateY(-3deg) rotateX(2deg)}50%{transform:rotateY(3deg) rotateX(-1deg)}}
+  @keyframes flicker{0%,100%{opacity:1}50%{opacity:.7}}
+  @keyframes hud-sweep{0%{opacity:.3;transform:scaleX(0)}50%{opacity:.8;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}
+
+  /* ============================================== */
+  /* CONCEPT 01 — PREMIUM TRADING CARD HOLO (refined v5) */
+  /* Like previous #5 but NO cosmic/zodiac, abstract collectible */
+  /* ============================================== */
+  .c1 .screen{background:radial-gradient(ellipse at center,#15151a 0%,#080809 80%);color:#eee;font-family:'JetBrains Mono',monospace}
+  .c1 .status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:11px;font-weight:500;color:var(--gold)}
+  .c1 .series-bar{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(201,169,97,.2)}
+  .c1 .series-bar .back-h{color:var(--gold);font-size:13px;cursor:pointer}
+  .c1 .series-bar .ser{font-size:9px;letter-spacing:.3em;color:var(--gold-bright);text-transform:uppercase;font-weight:600}
+  .c1 .series-bar .num-card{font-size:8px;letter-spacing:.2em;color:var(--gold);border:1px solid var(--gold-deep);padding:3px 6px;border-radius:2px}
+  .c1 .cat-tabs{display:flex;gap:4px;padding:8px 14px 12px;overflow-x:auto}
+  .c1 .cat-tabs::-webkit-scrollbar{display:none}
+  .c1 .ctab{flex-shrink:0;font-size:8px;font-weight:700;letter-spacing:.2em;padding:5px 9px;border:1px solid var(--gold-deep);color:var(--gold-deep);border-radius:2px;text-transform:uppercase;transition:.2s}
+  .c1 .ctab.on{background:linear-gradient(90deg,var(--foil-1),var(--foil-2),var(--foil-3),var(--foil-4),var(--foil-1));background-size:300% 100%;color:#000;border-color:var(--gold-bright);animation:shimmer 3s linear infinite}
+  .c1 .viewer{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 12px;position:relative;perspective:1000px}
+  .c1 .card-3d{width:78%;aspect-ratio:9/13;border-radius:12px;padding:7px;background:linear-gradient(135deg,var(--foil-1),var(--foil-2),var(--foil-3),var(--foil-4),var(--foil-1));background-size:300% 300%;animation:shimmer 4s linear infinite,tilt-card 6s ease-in-out infinite;box-shadow:0 0 30px rgba(201,169,97,.4),0 20px 50px -10px rgba(0,0,0,.7);transform-style:preserve-3d}
+  .c1 .card-art{width:100%;height:78%;background:linear-gradient(135deg,#0F4C5C 0%,#5F0F40 35%,#FB8B24 70%,#E36414 100%);border-radius:6px;position:relative;overflow:hidden}
+  .c1 .card-art::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);background-size:300% 100%;animation:shimmer 3.5s linear infinite}
+  .c1 .card-art::after{content:'★★★ HOLO';position:absolute;top:6px;right:8px;font-size:7px;color:var(--gold-bright);letter-spacing:.15em;background:rgba(0,0,0,.5);padding:2px 5px;border-radius:2px;font-weight:700}
+  .c1 .card-info{padding:6px 4px 0;display:flex;justify-content:space-between;align-items:center}
+  .c1 .card-info .nm{font-size:9px;font-weight:700;letter-spacing:.05em;color:#0a0a0c}
+  .c1 .card-info .sig{font-family:'Fraunces',serif;font-style:italic;font-size:9px;color:rgba(10,10,12,.7)}
+  .c1 .peek-3d{position:absolute;top:18%;width:22px;height:64%;border-radius:6px;background:linear-gradient(135deg,var(--gold-deep),#0a0a0c);border:1px solid var(--gold-deep);box-shadow:0 4px 12px rgba(0,0,0,.5)}
+  .c1 .peek-3d.l{left:6px;transform:rotate(-3deg)}
+  .c1 .peek-3d.r{right:6px;transform:rotate(3deg)}
+  .c1 .actions{padding:12px 22px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid rgba(201,169,97,.2)}
+  .c1 .a-act{width:34px;height:34px;border-radius:2px;border:1px solid var(--gold-deep);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--gold);background:rgba(201,169,97,.04)}
+  .c1 .a-pull{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--foil-1),var(--foil-3),var(--foil-4));color:#0a0a0c;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;box-shadow:0 0 0 1px var(--gold-bright),0 8px 22px rgba(201,169,97,.5);animation:pulse-glow 2.4s ease-in-out infinite}
+  .c1 .se-banner{margin:8px 14px 12px;padding:8px 10px;border:1px dashed var(--gold);border-radius:2px;display:flex;align-items:center;gap:8px;background:rgba(201,169,97,.04)}
+  .c1 .se-banner .se-lbl{font-size:8px;letter-spacing:.3em;color:var(--gold-bright);font-weight:700}
+  .c1 .se-banner .se-tx{font-size:9px;color:#eee;flex:1}
+  .c1 .se-banner .se-brand{font-size:8px;letter-spacing:.1em;color:var(--gold);border:1px solid var(--gold-deep);padding:2px 5px;border-radius:1px}
+
+  /* ============================================== */
+  /* CONCEPT 02 — APPLE TV+ POSTER (cinematic)      */
+  /* ============================================== */
+  .c2 .screen{background:#000;color:#fff;font-family:'Inter',-apple-system,sans-serif}
+  .c2 .wp-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1B3A4B 0%,#2E5266 30%,#D4A574 80%);z-index:1}
+  .c2 .wp-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,transparent 30%,transparent 60%,rgba(0,0,0,.85) 100%)}
+  .c2 .floating-header{position:absolute;top:50px;left:0;right:0;padding:0 18px;display:flex;justify-content:space-between;align-items:center;z-index:10}
+  .c2 .back-btn{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;border:1px solid rgba(255,255,255,.15)}
+  .c2 .author-block{display:flex;align-items:center;gap:6px}
+  .c2 .author-block .av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--gold-bright),var(--gold-deep));font-size:9px;font-weight:700;color:#000;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.3)}
+  .c2 .author-block .info{display:flex;flex-direction:column;line-height:1.1}
+  .c2 .author-block .info .by{font-size:7px;letter-spacing:.2em;color:rgba(255,255,255,.7);text-transform:uppercase;font-weight:600}
+  .c2 .author-block .info .nm{font-size:11px;font-weight:600;color:#fff}
+  .c2 .cred{font-size:11px;font-weight:600;color:#fff;background:rgba(0,0,0,.35);backdrop-filter:blur(20px);padding:5px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.12)}
+  .c2 .editor-pick{position:absolute;top:100px;left:18px;z-index:10;font-size:9px;letter-spacing:.25em;color:var(--gold-bright);font-weight:700;text-transform:uppercase;display:flex;align-items:center;gap:6px;animation:fade 1s 1s both}
+  .c2 .editor-pick::before{content:'★';color:var(--gold-bright)}
+  .c2 .poster-info{position:absolute;bottom:170px;left:18px;right:18px;z-index:10;color:#fff}
+  .c2 .poster-info .cat-tag{font-size:9px;font-weight:700;letter-spacing:.3em;color:rgba(255,255,255,.7);margin-bottom:8px}
+  .c2 .poster-info .title{font-family:'Fraunces',serif;font-weight:500;font-size:28px;letter-spacing:-.02em;line-height:1;margin-bottom:6px}
+  .c2 .poster-info .desc{font-size:11px;color:rgba(255,255,255,.7);font-weight:400;line-height:1.4}
+  .c2 .actions-tv{position:absolute;bottom:96px;left:18px;right:18px;display:flex;gap:8px;z-index:10}
+  .c2 .actions-tv .get{flex:1;background:#fff;color:#000;padding:10px;font-size:12px;font-weight:600;text-align:center;border-radius:8px;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:6px}
+  .c2 .actions-tv .ico{width:38px;height:38px;background:rgba(255,255,255,.2);backdrop-filter:blur(20px);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid rgba(255,255,255,.12)}
+  .c2 .continue-rail{position:absolute;bottom:46px;left:0;right:0;padding:0 14px;display:flex;gap:6px;z-index:10}
+  .c2 .continue-rail .mini{width:42px;height:50px;border-radius:4px;background:linear-gradient(135deg,#5C6B73,#1B2A30);border:1px solid rgba(255,255,255,.15);position:relative}
+  .c2 .continue-rail .mini:nth-child(1){background:linear-gradient(135deg,#9CAF88,#3D4D2F)}
+  .c2 .continue-rail .mini:nth-child(2){background:linear-gradient(135deg,#D4A574,#7A5C3B);outline:1.5px solid #fff}
+  .c2 .continue-rail .mini:nth-child(3){background:linear-gradient(135deg,#C8102E,#5A0815)}
+  .c2 .continue-rail .mini:nth-child(4){background:linear-gradient(135deg,#1B3A4B,#0A1A22)}
+  .c2 .continue-rail .mini:nth-child(5){background:linear-gradient(135deg,#FFB400,#7A5500)}
+  .c2 .continue-rail .mini.ad{background:#fff;display:flex;align-items:center;justify-content:center;color:#000;font-size:7px;font-weight:700;letter-spacing:.1em}
+  .c2 .bottom-bar{position:absolute;bottom:0;left:0;right:0;height:34px;display:flex;align-items:center;justify-content:center;font-size:8px;letter-spacing:.3em;color:rgba(255,255,255,.5);background:rgba(0,0,0,.7);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.06);z-index:5}
+
+  /* ============================================== */
+  /* CONCEPT 03 — MUSEUM EXHIBITION (Tate / MoMA)  */
+  /* ============================================== */
+  .c3 .screen{background:var(--bone);color:var(--ink);font-family:'Cormorant Garamond',serif}
+  .c3 .status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:11px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif}
+  .c3 .museum-head{padding:8px 18px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(10,10,12,.15)}
+  .c3 .museum-head .x{font-size:14px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:300;cursor:pointer}
+  .c3 .museum-head .title{font-family:'Bodoni Moda',serif;font-size:13px;font-weight:500;color:var(--ink);letter-spacing:.01em}
+  .c3 .museum-head .cr{font-family:'Inter',sans-serif;font-size:10px;color:var(--ink);font-weight:500}
+  .c3 .gallery-rooms{padding:10px 18px;display:flex;gap:14px;border-bottom:1px solid rgba(10,10,12,.1)}
+  .c3 .room{font-family:'Bodoni Moda',serif;font-size:11px;color:rgba(10,10,12,.4);position:relative;cursor:pointer;letter-spacing:.02em;transition:.2s}
+  .c3 .room.on{color:var(--ink);font-style:italic}
+  .c3 .room.on::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:2px;background:var(--ink)}
+  .c3 .viewer{flex:1;display:flex;align-items:center;gap:8px;padding:14px 14px 8px;position:relative}
+  .c3 .pk{flex-shrink:0;width:16px;height:88%;background:linear-gradient(135deg,#9CAF88,#3D4D2F);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  .c3 .pk.r{background:linear-gradient(135deg,#C8102E,#5A0815);animation:peek-slide 3s ease-in-out infinite}
+  .c3 .artwork{flex:1;height:100%;background:linear-gradient(160deg,#1B3A4B,#2E5266 50%,#D4A574 100%);box-shadow:0 12px 36px -8px rgba(0,0,0,.3),0 0 0 1px rgba(10,10,12,.1)}
+  .c3 .placard{padding:10px 18px;background:var(--bone-2);border-top:1px solid rgba(10,10,12,.15)}
+  .c3 .placard .work-num{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:.25em;color:var(--ink);font-weight:600;margin-bottom:4px}
+  .c3 .placard .work-name{font-family:'Bodoni Moda',serif;font-style:italic;font-size:15px;font-weight:500;color:var(--ink);margin-bottom:3px}
+  .c3 .placard .work-by{font-family:'Inter',sans-serif;font-size:10px;color:rgba(10,10,12,.6);font-weight:500;letter-spacing:.02em}
+  .c3 .placard .work-by b{font-weight:600;color:var(--ink)}
+  .c3 .actions{padding:10px 18px;display:flex;align-items:center;justify-content:space-between;background:var(--bone)}
+  .c3 .a-meta{display:flex;gap:10px;color:rgba(10,10,12,.5);font-size:13px}
+  .c3 .a-acq{padding:10px 18px;background:var(--ink);color:var(--bone);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.05em;border-radius:0}
+  .c3 .ad-plaque{padding:8px 18px 12px;background:var(--bone-2);border-top:1px solid rgba(10,10,12,.15);display:flex;gap:8px;align-items:center}
+  .c3 .ad-plaque .ad-img{width:38px;height:38px;background:linear-gradient(135deg,#7A8A5C,#3D4D2F)}
+  .c3 .ad-plaque .ad-info{flex:1}
+  .c3 .ad-plaque .ad-info .lbl{font-family:'Inter',sans-serif;font-size:8px;letter-spacing:.25em;color:rgba(10,10,12,.55);font-weight:600;text-transform:uppercase}
+  .c3 .ad-plaque .ad-info .tt{font-family:'Bodoni Moda',serif;font-style:italic;font-size:11px;color:var(--ink);margin-top:2px}
+
+  /* ============================================== */
+  /* CONCEPT 04 — MONOGRAPH BOOK (high editorial)   */
+  /* ============================================== */
+  .c4 .screen{background:#0d0c0a;color:var(--bone);font-family:'Bodoni Moda',serif;position:relative}
+  .c4 .screen::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at top,rgba(201,169,97,.04),transparent 70%);pointer-events:none}
+  .c4 .status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:11px;font-weight:500;color:var(--bone);font-family:'Inter',sans-serif}
+  .c4 .book-head{padding:10px 22px 14px;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid rgba(244,241,234,.18)}
+  .c4 .book-head .back{font-size:14px;color:var(--gold-bright);font-family:'Inter',sans-serif;font-weight:300;cursor:pointer}
+  .c4 .book-head .mono{font-family:'Bodoni Moda',serif;font-style:italic;font-weight:400;font-size:14px;color:var(--bone);letter-spacing:-.01em}
+  .c4 .book-head .vol{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:.25em;color:var(--gold-bright);font-weight:500}
+  .c4 .toc{padding:10px 22px;display:flex;gap:14px;font-family:'Bodoni Moda',serif;font-size:11px;color:rgba(244,241,234,.35);border-bottom:1px solid rgba(244,241,234,.1);overflow-x:auto}
+  .c4 .toc::-webkit-scrollbar{display:none}
+  .c4 .toc .tc{flex-shrink:0;letter-spacing:.02em;cursor:pointer}
+  .c4 .toc .tc.on{color:var(--bone);font-style:italic;border-bottom:1px solid var(--gold-bright);padding-bottom:1px}
+  .c4 .folio{padding:12px 22px 4px;display:flex;justify-content:space-between;align-items:baseline}
+  .c4 .folio .f-num{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:.3em;color:rgba(244,241,234,.4);font-weight:500}
+  .c4 .folio .f-pl{font-family:'Bodoni Moda',serif;font-style:italic;font-size:10px;color:rgba(244,241,234,.5)}
+  .c4 .viewer{flex:1;padding:12px 22px;display:flex;align-items:center;gap:8px;position:relative}
+  .c4 .pk{flex-shrink:0;width:14px;height:90%;background:linear-gradient(135deg,#7A8A5C,#1F2A14)}
+  .c4 .pk.r{background:linear-gradient(135deg,#1B3A4B,#0A1A22);animation:peek-slide 3s ease-in-out infinite}
+  .c4 .plate{flex:1;height:100%;background:linear-gradient(160deg,#FFB400 0%,#C8102E 50%,#3B0810 100%);box-shadow:0 10px 30px -6px rgba(0,0,0,.6);position:relative}
+  .c4 .plate::before{content:'PLATE I';position:absolute;bottom:-22px;left:0;font-family:'Inter',sans-serif;font-size:8px;letter-spacing:.4em;color:rgba(244,241,234,.45);font-weight:500}
+  .c4 .caption{padding:14px 22px 8px;border-top:1px solid rgba(244,241,234,.1)}
+  .c4 .caption .lbl{font-family:'Inter',sans-serif;font-size:8px;letter-spacing:.3em;color:var(--gold-bright);font-weight:600;text-transform:uppercase;margin-bottom:4px}
+  .c4 .caption .work{font-family:'Bodoni Moda',serif;font-style:italic;font-weight:400;font-size:16px;color:var(--bone);letter-spacing:-.01em;line-height:1.1}
+  .c4 .caption .by{font-family:'Bodoni Moda',serif;font-size:10px;color:rgba(244,241,234,.55);margin-top:4px}
+  .c4 .caption .by b{color:var(--gold-bright);font-weight:500;font-style:italic}
+  .c4 .actions{padding:10px 22px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(244,241,234,.1)}
+  .c4 .acts-l{display:flex;gap:14px;color:rgba(244,241,234,.5);font-size:13px;font-family:'Inter',sans-serif}
+  .c4 .acq-btn{padding:9px 14px;background:var(--bone);color:var(--ink);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;border:none;cursor:pointer;text-transform:uppercase}
+  .c4 .colophon{padding:8px 22px 12px;font-family:'Inter',sans-serif;font-size:8px;letter-spacing:.25em;color:rgba(244,241,234,.4);text-transform:uppercase;border-top:1px solid rgba(244,241,234,.06);display:flex;justify-content:space-between;align-items:center}
+  .c4 .colophon b{color:var(--gold-bright);font-weight:600}
+
+  /* ============================================== */
+  /* CONCEPT 05 — NEON HUD PROFESSIONAL (cyberpunk maduro) */
+  /* ============================================== */
+  .c5 .screen{background:#02050a;color:#e8eef5;font-family:'JetBrains Mono',monospace;position:relative}
+  .c5 .screen::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(0,229,255,.05),transparent 50%),radial-gradient(circle at 80% 90%,rgba(255,180,0,.05),transparent 50%);pointer-events:none}
+  .c5 .scanline{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--electric-cyan),transparent);opacity:.4;animation:hud-sweep 4s ease-in-out infinite;top:55%}
+  .c5 .status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:10px;font-weight:500;color:var(--electric-cyan);letter-spacing:.05em}
+  .c5 .hud-top{padding:8px 14px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,229,255,.2);background:rgba(0,229,255,.02)}
+  .c5 .hud-top .esc{font-size:11px;color:var(--electric-cyan);letter-spacing:.15em;cursor:pointer}
+  .c5 .hud-top .target{font-size:9px;color:var(--electric-cyan);letter-spacing:.3em;font-weight:700;display:flex;align-items:center;gap:6px}
+  .c5 .hud-top .target::before{content:'◉';animation:flicker 1.5s ease-in-out infinite}
+  .c5 .hud-top .cred-hud{font-size:9px;color:var(--electric-amber);border:1px solid var(--electric-amber);padding:3px 6px;letter-spacing:.1em}
+  .c5 .ch-bar{padding:6px 14px 10px;display:flex;gap:0;border-bottom:1px solid rgba(0,229,255,.15);overflow-x:auto}
+  .c5 .ch-bar::-webkit-scrollbar{display:none}
+  .c5 .ch{flex-shrink:0;font-size:8px;letter-spacing:.2em;padding:5px 8px;color:rgba(0,229,255,.5);border:1px solid rgba(0,229,255,.2);margin-right:-1px;text-transform:uppercase;font-weight:700;cursor:pointer;transition:.2s}
+  .c5 .ch.on{background:var(--electric-cyan);color:#02050a;border-color:var(--electric-cyan);box-shadow:0 0 12px rgba(0,229,255,.5);position:relative;z-index:1}
+  .c5 .viewer{flex:1;padding:8px 12px;display:flex;align-items:center;gap:6px;position:relative}
+  .c5 .pk{flex-shrink:0;width:18px;height:90%;background:linear-gradient(135deg,#1F2A38,#0A1018);border:1px solid rgba(0,229,255,.15);position:relative}
+  .c5 .pk.r{background:linear-gradient(135deg,#3D2E0F,#1A1408);border-color:rgba(255,180,0,.2);animation:peek-slide 3s ease-in-out infinite}
+  .c5 .target-frame{flex:1;height:100%;position:relative;padding:6px;border:1px solid var(--electric-cyan)}
+  .c5 .target-frame::before,.c5 .target-frame::after{content:'';position:absolute;width:14px;height:14px;border:2px solid var(--electric-amber)}
+  .c5 .target-frame::before{top:-2px;left:-2px;border-right:none;border-bottom:none}
+  .c5 .target-frame::after{bottom:-2px;right:-2px;border-left:none;border-top:none}
+  .c5 .target-frame .corner-tl,.c5 .target-frame .corner-tr,.c5 .target-frame .corner-bl,.c5 .target-frame .corner-br{position:absolute;width:14px;height:14px;border:2px solid var(--electric-amber)}
+  .c5 .target-frame .corner-tr{top:-2px;right:-2px;border-left:none;border-bottom:none}
+  .c5 .target-frame .corner-bl{bottom:-2px;left:-2px;border-right:none;border-top:none}
+  .c5 .target-content{width:100%;height:100%;background:linear-gradient(135deg,#0F4C5C 0%,#1B3A4B 30%,#FFB400 100%);position:relative;overflow:hidden}
+  .c5 .target-content::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,229,255,.1) 0%,transparent 20%,transparent 80%,rgba(0,0,0,.5) 100%)}
+  .c5 .target-overlay{position:absolute;bottom:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-end;z-index:5}
+  .c5 .target-overlay .id{font-size:8px;letter-spacing:.15em;color:var(--electric-cyan);font-weight:700}
+  .c5 .target-overlay .id b{color:var(--electric-amber);font-weight:700}
+  .c5 .target-overlay .by-h{font-size:7px;letter-spacing:.2em;color:rgba(232,238,245,.7);text-align:right}
+  .c5 .stats-bar{padding:6px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(0,229,255,.15);font-size:8px;letter-spacing:.15em;color:rgba(0,229,255,.6);font-weight:600}
+  .c5 .stats-bar b{color:var(--electric-amber)}
+  .c5 .actions{padding:10px 14px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid rgba(0,229,255,.15)}
+  .c5 .a-hud{width:34px;height:34px;border:1px solid var(--electric-cyan);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--electric-cyan);background:rgba(0,229,255,.04)}
+  .c5 .a-acquire{padding:10px 18px;background:var(--electric-amber);color:#02050a;font-size:10px;font-weight:700;letter-spacing:.2em;display:flex;align-items:center;gap:6px;box-shadow:0 0 14px rgba(255,180,0,.4);animation:pulse-soft 2s ease-in-out infinite}
+  .c5 .sponsor-strip{padding:8px 14px;display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,180,0,.2);background:rgba(255,180,0,.03)}
+  .c5 .sponsor-strip .tag{font-size:8px;letter-spacing:.25em;color:var(--electric-amber);font-weight:700;border:1px solid var(--electric-amber);padding:2px 5px}
+  .c5 .sponsor-strip .tx{font-size:9px;color:rgba(232,238,245,.7);flex:1;letter-spacing:.05em}
+  .c5 .sponsor-strip .go{font-size:8px;color:var(--electric-amber);font-weight:700;letter-spacing:.15em}
+</style>
+</head>
+<body>
+  <div class="archive">
+    <header class="archive-header">
+      <div class="eyebrow">Pixora · Design Archive · Mayo 2026 · v2</div>
+      <h1>Wallpaper Viewer <span class="num">· 5 Conceptos v2</span></h1>
+      <p class="sub">Iteración v2 — feedback aplicado: <b>sin morados ni rosas saturados</b>, sin temas cósmicos / zodiacales. <b>Más formal, épico, galería premium.</b> El #1 mantiene el espíritu del Trading Card Holo (que te gustó) pero con paleta neutra.</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <main class="grid">
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 01 — PREMIUM TRADING CARD HOLO (refined)       -->
+      <!-- ====================================================== -->
+      <div class="concept c1">
+        <div class="phone">
+          <div class="screen">
+            <div class="status-bar"><span>4:42</span><span>●●● 71</span></div>
+            <div class="series-bar">
+              <div class="back-h">‹</div>
+              <div class="ser">SERIE I · ED. LIMITADA</div>
+              <div class="num-card">N°042/∞</div>
+            </div>
+            <div class="cat-tabs">
+              <div class="ctab on">TRENDING</div>
+              <div class="ctab">NEW</div>
+              <div class="ctab">ARTE</div>
+              <div class="ctab">DARK</div>
+              <div class="ctab">GAMING</div>
+            </div>
+            <div class="viewer">
+              <div class="peek-3d l"></div>
+              <div class="card-3d">
+                <div class="card-art"></div>
+                <div class="card-info">
+                  <div class="nm">PRISMÁTICO</div>
+                  <div class="sig">— Wall_E</div>
+                </div>
+              </div>
+              <div class="peek-3d r"></div>
+            </div>
+            <div class="actions">
+              <div class="a-act">↗</div>
+              <div class="a-act">♡</div>
+              <div class="a-pull">↓</div>
+              <div class="a-act">⋯</div>
+            </div>
+            <div class="se-banner">
+              <div class="se-lbl">EDICIÓN ESPECIAL</div>
+              <div class="se-tx">Carta promocional</div>
+              <div class="se-brand">SHEIN</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 01</div>
+          <div class="meta-name">Holographic Trading Card · v2</div>
+          <div class="meta-tag">Mismo espíritu que el que te gustó — pero SIN tema cósmico ni zodiacal. Coleccionable abstracto, premium. Foil + tilt 3D.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#0a0a0c"></div>
+            <div class="swatch" style="background:#C9A961"></div>
+            <div class="swatch" style="background:#E8D196"></div>
+            <div class="swatch" style="background:#B8D4C0"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> tu favorito de v1, paleta limpia neutral<br/><span class="p">✓</span> ads como "edición especial" — chido, no molesto</div>
+            <div><span class="c">✗</span> requiere assets de wallpaper bien curados</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 02 — APPLE TV+ POSTER                          -->
+      <!-- ====================================================== -->
+      <div class="concept c2">
+        <div class="phone">
+          <div class="screen">
+            <div class="wp-bg"></div>
+            <div class="floating-header">
+              <div class="back-btn">‹</div>
+              <div class="author-block">
+                <div class="av">W</div>
+                <div class="info"><span class="by">BY</span><span class="nm">Wall_E_Design</span></div>
+              </div>
+              <div class="cred">◆ 10</div>
+            </div>
+            <div class="editor-pick">EDITOR'S PICK · TRENDING</div>
+            <div class="poster-info">
+              <div class="cat-tag">ARTE · OBRA Nº 042</div>
+              <div class="title">Prismático</div>
+              <div class="desc">Una pieza inspirada en los reflejos del cristal templado al amanecer.</div>
+            </div>
+            <div class="actions-tv">
+              <div class="get">↓ OBTENER</div>
+              <div class="ico">♡</div>
+              <div class="ico">↗</div>
+              <div class="ico">⋯</div>
+            </div>
+            <div class="continue-rail">
+              <div class="mini"></div>
+              <div class="mini"></div>
+              <div class="mini"></div>
+              <div class="mini"></div>
+              <div class="mini ad">AD</div>
+              <div class="mini"></div>
+            </div>
+            <div class="bottom-bar">CONTINUE BROWSING · SWIPE ›</div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 02</div>
+          <div class="meta-name">Apple TV+ Poster</div>
+          <div class="meta-tag">Cinematic key art con título grande y CTA blanco. Rail abajo con thumbnails (incluye ad como mini-card discreta).</div>
+          <div class="palette">
+            <div class="swatch" style="background:#000"></div>
+            <div class="swatch" style="background:#1B3A4B"></div>
+            <div class="swatch" style="background:#D4A574"></div>
+            <div class="swatch" style="background:#fff"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> cinematic épico, formal, vibe streaming premium<br/><span class="p">✓</span> ads naturales como "patrocinado en feed"</div>
+            <div><span class="c">✗</span> menos identidad propia, parece Netflix/Apple</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 03 — MUSEUM EXHIBITION                         -->
+      <!-- ====================================================== -->
+      <div class="concept c3">
+        <div class="phone">
+          <div class="screen">
+            <div class="status-bar"><span>4:42</span><span>●●● 71</span></div>
+            <div class="museum-head">
+              <div class="x">←</div>
+              <div class="title">Pixora Museum</div>
+              <div class="cr">◆ 10</div>
+            </div>
+            <div class="gallery-rooms">
+              <div class="room on">Tendencias</div>
+              <div class="room">Nuevo</div>
+              <div class="room">Arte</div>
+              <div class="room">Gaming</div>
+            </div>
+            <div class="viewer">
+              <div class="pk"></div>
+              <div class="artwork"></div>
+              <div class="pk r"></div>
+            </div>
+            <div class="placard">
+              <div class="work-num">SALA I · OBRA 042/∞</div>
+              <div class="work-name">Prismático</div>
+              <div class="work-by">por <b>Wall_E_Design</b> · Adquirido Mayo 2026</div>
+            </div>
+            <div class="actions">
+              <div class="a-meta">↗ &nbsp; ♡ &nbsp; ⋯</div>
+              <div class="a-acq">↓ ADQUIRIR</div>
+            </div>
+            <div class="ad-plaque">
+              <div class="ad-img"></div>
+              <div class="ad-info">
+                <div class="lbl">PATROCINADO · SHEIN</div>
+                <div class="tt">Colección de primavera</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 03</div>
+          <div class="meta-name">Museum Exhibition</div>
+          <div class="meta-tag">Estilo museo de arte (Tate, MoMA). Paleta off-white + ink. Placard con cédula como obra real. Ads como obra patrocinada.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#f4f1ea"></div>
+            <div class="swatch" style="background:#0a0a0c"></div>
+            <div class="swatch" style="background:#7A8A5C"></div>
+            <div class="swatch" style="background:#C9A961"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> tema CULTURA al máximo, refinado, formal<br/><span class="p">✓</span> adapta perfecto al theme iOS White existente</div>
+            <div><span class="c">✗</span> menos "wow" inicial, requiere acostumbrarse</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 04 — MONOGRAPH BOOK                            -->
+      <!-- ====================================================== -->
+      <div class="concept c4">
+        <div class="phone">
+          <div class="screen">
+            <div class="status-bar"><span>4:42</span><span>●●● 71</span></div>
+            <div class="book-head">
+              <div class="back">‹</div>
+              <div class="mono">Monograph</div>
+              <div class="vol">VOL XII</div>
+            </div>
+            <div class="toc">
+              <div class="tc on">trending</div>
+              <div class="tc">new</div>
+              <div class="tc">arte</div>
+              <div class="tc">dark</div>
+              <div class="tc">gaming</div>
+            </div>
+            <div class="folio">
+              <div class="f-num">042 / ∞</div>
+              <div class="f-pl">— mayo, 2026</div>
+            </div>
+            <div class="viewer">
+              <div class="pk"></div>
+              <div class="plate"></div>
+              <div class="pk r"></div>
+            </div>
+            <div class="caption">
+              <div class="lbl">PLACA · ARTE</div>
+              <div class="work">Prismático</div>
+              <div class="by">por <b>Wall_E_Design</b></div>
+            </div>
+            <div class="actions">
+              <div class="acts-l">↗ ♡ ⋯</div>
+              <button class="acq-btn">↓ INCORPORAR</button>
+            </div>
+            <div class="colophon">
+              <span>PATROCINADO · <b>SHEIN</b></span>
+              <span>VER →</span>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 04</div>
+          <div class="meta-name">Monograph Book</div>
+          <div class="meta-tag">Libro de fotografía artística — tipografía Bodoni Moda italic, márgenes amplios, foliación. Ad como "colophon" al pie.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#0d0c0a"></div>
+            <div class="swatch" style="background:#f4f1ea"></div>
+            <div class="swatch" style="background:#E8D196"></div>
+            <div class="swatch" style="background:#7A6A3D"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> high-end coffee table book, ultra premium<br/><span class="p">✓</span> Bodoni Moda + Inter combo súper formal</div>
+            <div><span class="c">✗</span> menos espacio para wallpaper, denso de leer</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 05 — NEON HUD PROFESSIONAL                     -->
+      <!-- ====================================================== -->
+      <div class="concept c5">
+        <div class="phone">
+          <div class="screen">
+            <div class="scanline"></div>
+            <div class="status-bar"><span>04:42</span><span>71%</span></div>
+            <div class="hud-top">
+              <div class="esc">‹ ESC</div>
+              <div class="target">TARGET ACQUIRED</div>
+              <div class="cred-hud">◆ 10</div>
+            </div>
+            <div class="ch-bar">
+              <div class="ch on">TRENDING</div>
+              <div class="ch">NEW</div>
+              <div class="ch">ARTE</div>
+              <div class="ch">DARK</div>
+              <div class="ch">GAME</div>
+              <div class="ch">CYBER</div>
+            </div>
+            <div class="viewer">
+              <div class="pk"></div>
+              <div class="target-frame">
+                <span class="corner-tl"></span><span class="corner-tr"></span>
+                <span class="corner-bl"></span><span class="corner-br"></span>
+                <div class="target-content">
+                  <div class="target-overlay">
+                    <div class="id">ID: <b>WP_042</b></div>
+                    <div class="by-h">AUTHOR<br/>WALL_E</div>
+                  </div>
+                </div>
+              </div>
+              <div class="pk r"></div>
+            </div>
+            <div class="stats-bar">
+              <span>RATING <b>4.8★</b></span>
+              <span>DL <b>2.4K</b></span>
+              <span>RARITY <b>EPIC</b></span>
+            </div>
+            <div class="actions">
+              <div class="a-hud">↗</div>
+              <div class="a-hud">♡</div>
+              <button class="a-acquire">▶ ACQUIRE</button>
+              <div class="a-hud">⋯</div>
+            </div>
+            <div class="sponsor-strip">
+              <span class="tag">SPONSOR</span>
+              <span class="tx">SHEIN · Colección infantil</span>
+              <span class="go">VIEW ›</span>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 05</div>
+          <div class="meta-name">Neon HUD Professional</div>
+          <div class="meta-tag">Cyberpunk maduro tipo Mr. Robot. Negro absoluto + cyan eléctrico + amber. HUD militar/tech con corners marcados. Stats bar premium.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#02050a"></div>
+            <div class="swatch" style="background:#00E5FF"></div>
+            <div class="swatch" style="background:#FFB400"></div>
+            <div class="swatch" style="background:#e8eef5"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> épico tech, edgy pero serio (no infantil)<br/><span class="p">✓</span> rating + downloads + rarity visibles = trust signals</div>
+            <div><span class="c">✗</span> menos "calmo", muy informativo (puede saturar)</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>Pixora · Wallpaper Viewer · Design Archive v2 · Mayo 2026</footer>
+  </div>
+</body>
+</html>

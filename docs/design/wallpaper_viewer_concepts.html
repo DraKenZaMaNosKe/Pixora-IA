@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora · Wallpaper Viewer · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300..900&family=Geist+Mono:wght@300..700&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&family=Cinzel:wght@400..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#070710;
+    --ink-2:#0f0e1a;
+    --ink-3:#1a1827;
+    --paper:#fafaf7;
+    --gold:#D4AF37;
+    --gold-bright:#F5D676;
+    --gold-deep:#5A4E36;
+    --foil-1:#E0B47A;
+    --foil-2:#F4D6B8;
+    --foil-3:#FFFFFF;
+    --foil-4:#6EE7B7;
+    --ios-blue:#007AFF;
+    --ios-bg:#FFFFFF;
+    --ios-grey:#F2F2F7;
+    --ios-grey-2:#E5E5EA;
+    --ios-text:#1c1c1e;
+    --ios-text-dim:#8e8e93;
+    --ad-green:#1bb76e;
+    --ad-meta-blue:#0866FF;
+    --constellation:#67E8F9;
+    --magenta:#EC4899;
+  }
+  html,body{background:linear-gradient(180deg,#050308 0%,#0a0612 40%,#040308 100%);color:#eee;font-family:'Geist',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden}
+
+  /* === Page chrome === */
+  .archive{max-width:1500px;margin:0 auto;padding:64px 32px 96px}
+  .archive-header{text-align:center;margin-bottom:64px;position:relative}
+  .archive-header::before{content:'';position:absolute;inset:-32px -32px auto -32px;height:200px;background:radial-gradient(ellipse 600px 200px at center top,rgba(212,175,55,0.12),transparent 70%);z-index:-1}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:var(--gold);text-transform:uppercase;margin-bottom:18px;opacity:0;animation:fade .8s .1s forwards}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(40px,7vw,72px);line-height:1.02;letter-spacing:-.025em;color:#fff;margin-bottom:20px;opacity:0;animation:fade .9s .3s forwards}
+  h1 .num{color:var(--gold);font-weight:200}
+  .sub{font-family:'Geist',sans-serif;font-size:15px;line-height:1.5;color:rgba(255,255,255,.6);max-width:680px;margin:0 auto;opacity:0;animation:fade .9s .5s forwards}
+  .sub b{color:var(--foil-2);font-weight:500}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent);margin:48px auto;width:60%;opacity:.4}
+
+  /* === Grid === */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:48px 32px;align-items:start}
+  @media (min-width:1280px){.grid{grid-template-columns:repeat(3,1fr)}}
+
+  /* === Concept card === */
+  .concept{display:flex;flex-direction:column;align-items:center;gap:24px;opacity:0;animation:rise 1s forwards}
+  .concept:nth-child(1){animation-delay:.6s}
+  .concept:nth-child(2){animation-delay:.75s}
+  .concept:nth-child(3){animation-delay:.9s}
+  .concept:nth-child(4){animation-delay:1.05s}
+  .concept:nth-child(5){animation-delay:1.2s}
+
+  /* === Phone frame === */
+  .phone{
+    width:300px;height:620px;border-radius:42px;
+    background:#000;
+    padding:8px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.05) inset,
+      0 -1px 0 rgba(0,0,0,.4) inset,
+      0 30px 60px -20px rgba(0,0,0,.7),
+      0 50px 100px -30px rgba(212,175,55,.08);
+    position:relative;
+    overflow:hidden;
+  }
+  .phone::before{
+    content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    width:90px;height:24px;background:#000;border-radius:14px;z-index:50;
+    border:1px solid rgba(255,255,255,.05);
+  }
+  .screen{width:100%;height:100%;border-radius:34px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+  /* === Meta block === */
+  .meta{width:300px;color:rgba(255,255,255,.85)}
+  .meta-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--gold);margin-bottom:6px}
+  .meta-name{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:24px;line-height:1.15;color:#fff;margin-bottom:8px;letter-spacing:-.01em}
+  .meta-tag{font-family:'Geist',sans-serif;font-size:12px;line-height:1.45;color:rgba(255,255,255,.55);margin-bottom:14px;font-weight:300}
+  .palette{display:flex;gap:6px;margin-bottom:14px}
+  .swatch{width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.1);box-shadow:0 0 0 1px rgba(0,0,0,.4) inset}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.6;letter-spacing:.05em;border-left:1px solid var(--gold);padding-left:10px;color:rgba(255,255,255,.55)}
+  .verdict .p{color:var(--foil-4)}
+  .verdict .c{color:var(--magenta);opacity:.85}
+
+  /* === Footer === */
+  footer{text-align:center;margin-top:96px;padding-top:32px;border-top:1px solid rgba(212,175,55,.15);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.3);text-transform:uppercase}
+
+  /* === Animations === */
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+  @keyframes pulse-soft{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.04);opacity:.92}}
+  @keyframes pulse-glow{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.5),0 4px 14px rgba(212,175,55,.4)}50%{box-shadow:0 0 0 12px rgba(212,175,55,0),0 4px 18px rgba(212,175,55,.55)}}
+  @keyframes peek-slide{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+  @keyframes constellation-twinkle{0%,100%{opacity:.3}50%{opacity:1}}
+  @keyframes tilt-card{0%,100%{transform:rotateY(-3deg) rotateX(2deg)}50%{transform:rotateY(3deg) rotateX(-1deg)}}
+  @keyframes spin-slow{to{transform:rotate(360deg)}}
+
+  /* ============================================== */
+  /* CONCEPT 01 — APPLE PHOTOS MEMORIES (iOS)       */
+  /* ============================================== */
+  .c1 .screen{background:var(--ios-bg);font-family:'Inter',-apple-system,sans-serif;color:var(--ios-text)}
+  .c1 .status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:11px;font-weight:600;color:var(--ios-text)}
+  .c1 .status-bar .right{display:flex;gap:5px;align-items:center;font-size:10px}
+  .c1 .cat-row{display:flex;gap:8px;padding:10px 14px 14px;overflow-x:auto}
+  .c1 .cat-row::-webkit-scrollbar{display:none}
+  .c1 .chip{flex-shrink:0;font-size:11px;font-weight:600;padding:7px 14px;border-radius:18px;background:var(--ios-grey);color:var(--ios-text);letter-spacing:.01em;transition:.2s}
+  .c1 .chip.active{background:var(--ios-text);color:#fff;animation:pulse-soft 2.4s ease-in-out infinite}
+  .c1 .viewer{flex:1;position:relative;padding:0 14px;display:flex;align-items:center;gap:0;overflow:hidden}
+  .c1 .wp-bg-blur{position:absolute;inset:-20px;background:radial-gradient(circle at 50% 40%,#FF6B9D,#9B59B6 40%,#3A1C4E 80%);filter:blur(40px);opacity:.18;transform:scale(1.2);z-index:0}
+  .c1 .wp-peek{position:absolute;width:32px;height:80%;top:10%;border-radius:20px;background:linear-gradient(135deg,#9B59B6,#5D2E8C);z-index:1}
+  .c1 .wp-peek.l{left:-12px}
+  .c1 .wp-peek.r{right:-12px;background:linear-gradient(135deg,#3498DB,#2C3E50);animation:peek-slide 3s ease-in-out infinite}
+  .c1 .wp-card{flex:1;height:84%;background:linear-gradient(150deg,#FF6B9D 0%,#9B59B6 50%,#3A1C4E 100%);border-radius:28px;position:relative;z-index:2;box-shadow:0 20px 50px -10px rgba(155,89,182,.4);overflow:hidden;animation:breathe 4s ease-in-out infinite}
+  .c1 .wp-card::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.18),transparent 50%)}
+  .c1 .floating-header{position:absolute;top:54px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:10}
+  .c1 .back-btn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;color:var(--ios-text);font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+  .c1 .author-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);padding:5px 10px 5px 5px;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+  .c1 .avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#FF6B9D,#FFD93D);font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+  .c1 .author-name{font-size:11px;font-weight:600;color:var(--ios-text)}
+  .c1 .credit-pill{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);padding:6px 10px;border-radius:20px;font-size:11px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+  .c1 .actions{padding:14px 18px 18px;background:rgba(255,255,255,.7);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-around;border-top:.5px solid rgba(0,0,0,.06)}
+  .c1 .action-icon{width:36px;height:36px;border-radius:50%;background:var(--ios-grey);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ios-text)}
+  .c1 .dl-btn{width:54px;height:54px;border-radius:50%;background:var(--ios-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px rgba(0,122,255,.4);animation:pulse-soft 2.6s ease-in-out infinite}
+  .c1 .ad-banner{height:50px;background:var(--ios-grey);display:flex;align-items:center;padding:0 14px;gap:10px;border-top:.5px solid rgba(0,0,0,.06)}
+  .c1 .ad-tag{font-size:8px;font-weight:700;color:var(--ios-text-dim);letter-spacing:.1em;background:rgba(0,0,0,.06);padding:2px 5px;border-radius:3px}
+  .c1 .ad-text{font-size:11px;font-weight:500;color:var(--ios-text);flex:1}
+  .c1 .ad-cta{font-size:11px;font-weight:600;color:var(--ios-blue)}
+
+  /* ============================================== */
+  /* CONCEPT 02 — ZODIAC ORACLE CARDS (B&G)         */
+  /* ============================================== */
+  .c2 .screen{background:radial-gradient(ellipse at 50% 30%,#1a0d2e 0%,#070710 60%,#000 100%);color:#eee;font-family:'Cormorant Garamond',serif}
+  .c2 .screen::before{content:'';position:absolute;inset:0;background-image:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 60% 70%,var(--gold),transparent),radial-gradient(1px 1px at 80% 20%,#fff,transparent),radial-gradient(1px 1px at 40% 80%,var(--constellation),transparent);background-size:200px 200px;opacity:.6;animation:constellation-twinkle 4s ease-in-out infinite;pointer-events:none}
+  .c2 .status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:11px;font-weight:600;color:var(--gold);font-family:'JetBrains Mono',monospace}
+  .c2 .head-row{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;z-index:5;position:relative}
+  .c2 .back-arr{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--gold)}
+  .c2 .title-glyph{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.3em;color:var(--gold-bright);font-weight:500}
+  .c2 .credit-c{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);padding:4px 8px;border:1px solid var(--gold-deep);border-radius:10px}
+  .c2 .const-row{display:flex;justify-content:space-around;padding:6px 12px 16px;border-bottom:1px solid rgba(212,175,55,.18)}
+  .c2 .const-row .gl{font-family:'Cinzel',serif;font-size:14px;color:rgba(212,175,55,.4);position:relative;transition:.3s;cursor:pointer}
+  .c2 .const-row .gl.active{color:var(--gold-bright);text-shadow:0 0 12px rgba(245,214,118,.6)}
+  .c2 .const-row .gl.active::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:18px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:shimmer 2.5s linear infinite;background-size:200% 100%}
+  .c2 .by-row{text-align:center;padding:10px 0 6px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase}
+  .c2 .by-row b{font-family:'Cinzel',serif;font-weight:500;font-size:10px;color:var(--gold-bright);letter-spacing:.25em}
+  .c2 .viewer{flex:1;display:flex;align-items:center;justify-content:center;padding:0 18px;position:relative;z-index:2}
+  .c2 .tarot{width:74%;aspect-ratio:9/14;position:relative;border-radius:14px;padding:10px;background:linear-gradient(135deg,var(--gold-deep),var(--gold),var(--gold-bright),var(--gold));background-size:300% 300%;animation:shimmer 5s linear infinite;box-shadow:0 0 24px rgba(212,175,55,.35),0 20px 40px -10px rgba(0,0,0,.6)}
+  .c2 .tarot-inner{width:100%;height:100%;background:linear-gradient(180deg,#1a0d2e 0%,#3D1A5C 50%,#6D2B7A 100%);border-radius:8px;position:relative;overflow:hidden}
+  .c2 .tarot-inner::after{content:'★';position:absolute;top:8px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:9px}
+  .c2 .tarot-inner::before{content:'';position:absolute;inset:8px;border:1px solid rgba(212,175,55,.25);border-radius:4px}
+  .c2 .peek-l,.c2 .peek-r{position:absolute;top:12%;width:20px;height:76%;border-radius:6px;background:linear-gradient(135deg,var(--gold-deep),#1a0d2e);border:1px solid var(--gold-deep)}
+  .c2 .peek-l{left:6px}
+  .c2 .peek-r{right:6px}
+  .c2 .actions{padding:14px 24px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid rgba(212,175,55,.18);z-index:2;position:relative}
+  .c2 .a-icon{width:36px;height:36px;border-radius:50%;border:1px solid var(--gold-deep);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--gold-bright);background:rgba(212,175,55,.04)}
+  .c2 .a-dl{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--gold-bright),var(--gold) 50%,var(--gold-deep) 100%);color:#1a0d2e;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;box-shadow:0 0 0 1px var(--gold-bright),0 6px 20px rgba(212,175,55,.5);animation:pulse-glow 2.6s ease-in-out infinite}
+  .c2 .ad-card{margin:10px 18px 14px;border:1px solid rgba(212,175,55,.4);background:linear-gradient(180deg,rgba(26,13,46,.9),rgba(7,7,16,.9));border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center;font-family:'Cormorant Garamond',serif;position:relative;animation:breathe 4s ease-in-out infinite}
+  .c2 .ad-card::before{content:'OFRENDA';position:absolute;top:-7px;left:10px;background:var(--ink);font-family:'Cinzel',serif;font-size:8px;letter-spacing:.3em;color:var(--gold);padding:0 6px}
+  .c2 .ad-card .ad-img{width:42px;height:42px;border-radius:4px;background:linear-gradient(135deg,#67E8F9,#9B59B6)}
+  .c2 .ad-card .ad-tx{flex:1;font-size:11px;color:#eee;line-height:1.2;font-style:italic}
+  .c2 .ad-card .ad-tx small{display:block;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--gold);letter-spacing:.2em;font-style:normal;margin-top:2px}
+  .c2 .ad-card .ad-go{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--gold);border:1px solid var(--gold-deep);padding:3px 6px;border-radius:3px;letter-spacing:.1em}
+
+  /* ============================================== */
+  /* CONCEPT 03 — TIKTOK INFINITE FLOW              */
+  /* ============================================== */
+  .c3 .screen{background:#000;color:#fff;font-family:'Inter',sans-serif;position:relative}
+  .c3 .wp-full{position:absolute;inset:0;background:linear-gradient(135deg,#FF6B9D 0%,#9B59B6 40%,#3498DB 100%);z-index:1}
+  .c3 .wp-full::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.15),transparent 50%),linear-gradient(180deg,transparent 50%,rgba(0,0,0,.5) 100%)}
+  .c3 .icon-cats{position:absolute;top:50px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:5}
+  .c3 .icat{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.45);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;border:1px solid rgba(255,255,255,.12);transition:.3s}
+  .c3 .icat.active{background:rgba(255,255,255,.95);color:#000;animation:pulse-soft 2s ease-in-out infinite;border-color:#fff}
+  .c3 .head-meta{position:absolute;top:96px;left:14px;z-index:5;display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.4);backdrop-filter:blur(14px);padding:5px 10px 5px 5px;border-radius:18px;border:1px solid rgba(255,255,255,.08)}
+  .c3 .head-meta .av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#FFD93D,#FF6B9D);font-size:9px;font-weight:700;color:#000;display:flex;align-items:center;justify-content:center}
+  .c3 .head-meta .nm{font-size:11px;font-weight:600;color:#fff}
+  .c3 .ai-pill{position:absolute;top:128px;left:14px;z-index:5;font-size:9px;font-weight:600;background:rgba(0,0,0,.4);backdrop-filter:blur(14px);padding:3px 8px;border-radius:10px;color:var(--foil-4);border:1px solid rgba(110,231,183,.3);letter-spacing:.05em}
+  .c3 .right-rail{position:absolute;right:10px;bottom:140px;z-index:5;display:flex;flex-direction:column;gap:18px;align-items:center}
+  .c3 .right-rail .ra{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.5);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;border:1px solid rgba(255,255,255,.1)}
+  .c3 .right-rail .ra.dl{background:linear-gradient(135deg,#FF6B9D,#9B59B6);box-shadow:0 4px 16px rgba(155,89,182,.5);animation:pulse-soft 2.4s ease-in-out infinite}
+  .c3 .right-rail .lbl{font-size:8px;color:#fff;font-weight:600;letter-spacing:.05em;text-shadow:0 1px 2px rgba(0,0,0,.6);margin-top:-12px}
+  .c3 .ad-overlay{position:absolute;bottom:60px;left:14px;right:14px;background:rgba(0,0,0,.6);backdrop-filter:blur(20px);border-radius:14px;padding:10px 12px;z-index:5;border:1px solid rgba(255,255,255,.08);animation:breathe 3.5s ease-in-out infinite}
+  .c3 .ad-overlay .row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .c3 .ad-overlay .sp{font-size:8px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.15em;background:rgba(255,255,255,.1);padding:2px 5px;border-radius:3px}
+  .c3 .ad-overlay .tt{font-size:10px;font-weight:600;color:#fff;flex:1}
+  .c3 .ad-overlay .cta{margin-top:6px;background:#fff;color:#000;font-size:10px;font-weight:700;text-align:center;padding:7px;border-radius:8px;letter-spacing:.05em}
+  .c3 .bottom-bar{position:absolute;bottom:0;left:0;right:0;height:50px;background:rgba(0,0,0,.6);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;z-index:5;font-size:9px;color:rgba(255,255,255,.4);font-family:'Geist Mono',monospace;letter-spacing:.2em;border-top:1px solid rgba(255,255,255,.05)}
+
+  /* ============================================== */
+  /* CONCEPT 04 — MAGAZINE EDITORIAL (B&G lean)     */
+  /* ============================================== */
+  .c4 .screen{background:#0d0a0f;color:#eee;font-family:'Cormorant Garamond',serif}
+  .c4 .status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:11px;font-weight:500;color:var(--paper);font-family:'JetBrains Mono',monospace}
+  .c4 .masthead{padding:6px 18px 14px;border-bottom:1px solid rgba(212,175,55,.3);display:flex;justify-content:space-between;align-items:baseline}
+  .c4 .masthead .back-x{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--gold);font-weight:300}
+  .c4 .masthead .ed{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:18px;letter-spacing:-.01em;color:var(--paper)}
+  .c4 .masthead .cr{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.15em}
+  .c4 .cat-italic{padding:10px 18px;font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:rgba(245,250,247,.4);display:flex;flex-wrap:wrap;gap:10px;font-weight:300}
+  .c4 .cat-italic .word{position:relative;cursor:pointer}
+  .c4 .cat-italic .word.on{color:var(--paper)}
+  .c4 .cat-italic .word.on::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--gold);animation:shimmer 2.5s linear infinite;background:linear-gradient(90deg,transparent,var(--gold),transparent);background-size:200% 100%}
+  .c4 .by-eyebrow{padding:4px 18px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase}
+  .c4 .by-name{padding:0 18px 10px;font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--paper);letter-spacing:-.01em;font-weight:300}
+  .c4 .viewer{flex:1;padding:0 18px;display:flex;align-items:center;gap:6px;position:relative;overflow:hidden}
+  .c4 .pk{width:18px;height:85%;background:linear-gradient(135deg,#3498DB,#1a4a6e);border-radius:2px}
+  .c4 .pk.r{background:linear-gradient(135deg,#FF6B9D,#7B2D5C);animation:peek-slide 3s ease-in-out infinite}
+  .c4 .frame{flex:1;height:92%;padding:10px;background:linear-gradient(135deg,var(--gold-deep),var(--gold)) padding-box,linear-gradient(135deg,var(--gold-bright),var(--gold-deep)) border-box;border:1px solid transparent;border-radius:2px;position:relative}
+  .c4 .frame-inner{width:100%;height:100%;background:linear-gradient(150deg,#5C2E8A 0%,#9B59B6 50%,#FF6B9D 100%);position:relative}
+  .c4 .frame-inner::before,.c4 .frame-inner::after{content:'';position:absolute;width:14px;height:14px;border:1px solid var(--gold)}
+  .c4 .frame-inner::before{top:-6px;left:-6px;border-right:none;border-bottom:none}
+  .c4 .frame-inner::after{bottom:-6px;right:-6px;border-left:none;border-top:none}
+  .c4 .actions{padding:14px 22px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(212,175,55,.3)}
+  .c4 .a-text{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;color:rgba(245,250,247,.5);text-transform:uppercase}
+  .c4 .a-cta{font-family:'Fraunces',serif;font-style:italic;font-size:12px;color:var(--paper);padding:8px 14px;border:1px solid var(--gold);border-radius:1px;letter-spacing:.05em;background:linear-gradient(90deg,transparent,rgba(212,175,55,.08),transparent);background-size:200% 100%;animation:shimmer 3s linear infinite}
+  .c4 .a-cta::after{content:'  →';color:var(--gold)}
+  .c4 .ad-page{padding:10px 18px 14px;border-top:1px solid rgba(212,175,55,.3);background:linear-gradient(180deg,#0d0a0f,#16111a)}
+  .c4 .ad-page .ad-img{height:60px;background:linear-gradient(135deg,#1bb76e,#0e6e42);border-radius:1px;margin-bottom:8px;position:relative}
+  .c4 .ad-page .ad-img::after{content:'SHEIN';position:absolute;top:8px;left:10px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#fff;letter-spacing:.1em}
+  .c4 .ad-page .ad-cap{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+  .c4 .ad-page .ad-cap span{color:rgba(245,250,247,.5)}
+
+  /* ============================================== */
+  /* CONCEPT 05 — HOLOGRAPHIC TRADING CARD (B&G)    */
+  /* ============================================== */
+  .c5 .screen{background:radial-gradient(ellipse at center,#1a0d2e 0%,#040308 80%);color:#eee;font-family:'JetBrains Mono',monospace}
+  .c5 .status-bar{height:46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:11px;font-weight:500;color:var(--gold)}
+  .c5 .series-bar{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(212,175,55,.2)}
+  .c5 .series-bar .back-h{color:var(--gold);font-size:13px}
+  .c5 .series-bar .ser{font-size:9px;letter-spacing:.3em;color:var(--gold-bright);text-transform:uppercase}
+  .c5 .series-bar .num-card{font-size:8px;letter-spacing:.2em;color:var(--gold);border:1px solid var(--gold-deep);padding:3px 6px;border-radius:2px}
+  .c5 .cat-tabs{display:flex;gap:4px;padding:8px 14px 12px;overflow-x:auto}
+  .c5 .cat-tabs::-webkit-scrollbar{display:none}
+  .c5 .ctab{flex-shrink:0;font-size:8px;font-weight:700;letter-spacing:.2em;padding:5px 9px;border:1px solid var(--gold-deep);color:var(--gold-deep);border-radius:2px;text-transform:uppercase}
+  .c5 .ctab.on{background:linear-gradient(90deg,var(--foil-1),var(--foil-2),var(--foil-3),var(--foil-4),var(--foil-1));background-size:300% 100%;color:#000;border-color:var(--gold-bright);animation:shimmer 3s linear infinite}
+  .c5 .viewer{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 12px;position:relative;perspective:1000px}
+  .c5 .card-3d{width:78%;aspect-ratio:9/13;border-radius:12px;padding:7px;background:linear-gradient(135deg,var(--foil-1),var(--foil-2),var(--foil-3),var(--foil-4),var(--foil-1));background-size:300% 300%;animation:shimmer 4s linear infinite,tilt-card 6s ease-in-out infinite;box-shadow:0 0 30px rgba(212,175,55,.4),0 20px 50px -10px rgba(0,0,0,.7);transform-style:preserve-3d}
+  .c5 .card-art{width:100%;height:78%;background:linear-gradient(135deg,#FF6B9D 0%,#9B59B6 30%,#3498DB 70%,#FFD93D 100%);border-radius:6px;position:relative;overflow:hidden}
+  .c5 .card-art::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);background-size:300% 100%;animation:shimmer 3.5s linear infinite}
+  .c5 .card-art::after{content:'★ ★ ★';position:absolute;top:6px;right:8px;font-size:7px;color:var(--gold-bright);letter-spacing:.15em;background:rgba(0,0,0,.4);padding:2px 5px;border-radius:2px}
+  .c5 .card-info{padding:6px 4px 0;display:flex;justify-content:space-between;align-items:center}
+  .c5 .card-info .nm{font-size:9px;font-weight:700;letter-spacing:.05em;color:#1a0d2e}
+  .c5 .card-info .sig{font-family:'Fraunces',serif;font-style:italic;font-size:9px;color:rgba(26,13,46,.7)}
+  .c5 .peek-3d{position:absolute;top:18%;width:22px;height:64%;border-radius:6px;background:linear-gradient(135deg,var(--gold-deep),#1a0d2e);border:1px solid var(--gold-deep);box-shadow:0 4px 12px rgba(0,0,0,.5)}
+  .c5 .peek-3d.l{left:6px;transform:rotate(-3deg)}
+  .c5 .peek-3d.r{right:6px;transform:rotate(3deg)}
+  .c5 .actions{padding:12px 22px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid rgba(212,175,55,.2)}
+  .c5 .a-act{width:34px;height:34px;border-radius:2px;border:1px solid var(--gold-deep);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--gold);background:rgba(212,175,55,.04)}
+  .c5 .a-pull{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--foil-1),var(--foil-3),var(--foil-4));color:#1a0d2e;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;box-shadow:0 0 0 1px var(--gold-bright),0 8px 22px rgba(212,175,55,.5);animation:pulse-glow 2.4s ease-in-out infinite}
+  .c5 .se-banner{margin:8px 14px 12px;padding:8px 10px;border:1px dashed var(--gold);border-radius:2px;display:flex;align-items:center;gap:8px;background:rgba(212,175,55,.04)}
+  .c5 .se-banner .se-lbl{font-size:8px;letter-spacing:.3em;color:var(--gold-bright);font-weight:700}
+  .c5 .se-banner .se-tx{font-size:9px;color:#eee;flex:1}
+  .c5 .se-banner .se-brand{font-size:8px;letter-spacing:.1em;color:var(--gold);border:1px solid var(--gold-deep);padding:2px 5px;border-radius:1px}
+</style>
+</head>
+<body>
+  <div class="archive">
+    <header class="archive-header">
+      <div class="eyebrow">Pixora · Design Archive · Mayo 2026</div>
+      <h1>Wallpaper Viewer <span class="num">· 5 Conceptos</span></h1>
+      <p class="sub">Swipe horizontal estilo ZEDGE + native ads intercalados + autor visible. <b>Eduardo elige UNO</b> para implementar en Flutter (compatible con los 2 temas: iOS White y Black &amp; Gold).</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <main class="grid">
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 01 — APPLE PHOTOS MEMORIES                     -->
+      <!-- ====================================================== -->
+      <div class="concept c1">
+        <div class="phone">
+          <div class="screen">
+            <div class="status-bar"><span>4:42</span><span class="right">●●● 71</span></div>
+            <div class="cat-row">
+              <div class="chip active">TRENDING</div>
+              <div class="chip">NEW</div>
+              <div class="chip">ARTE</div>
+              <div class="chip">MITO</div>
+              <div class="chip">GAMING</div>
+            </div>
+            <div class="viewer">
+              <div class="wp-bg-blur"></div>
+              <div class="wp-peek l"></div>
+              <div class="wp-card"></div>
+              <div class="wp-peek r"></div>
+            </div>
+            <div class="floating-header">
+              <div class="back-btn">‹</div>
+              <div class="author-pill"><div class="avatar">W</div><div class="author-name">Wall_E_Design</div></div>
+              <div class="credit-pill">💎 10</div>
+            </div>
+            <div class="actions">
+              <div class="action-icon">↗</div>
+              <div class="action-icon">♡</div>
+              <div class="dl-btn">↓</div>
+              <div class="action-icon">⋯</div>
+            </div>
+            <div class="ad-banner">
+              <span class="ad-tag">AD</span>
+              <span class="ad-text">SHEIN · Colección infantil</span>
+              <span class="ad-cta">SHOP</span>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 01</div>
+          <div class="meta-name">Apple Photos Memories</div>
+          <div class="meta-tag">Glass blur Apple Premium, native banner abajo, círculo iOS-blue de download, header flotante.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#fafaf7"></div>
+            <div class="swatch" style="background:#007AFF"></div>
+            <div class="swatch" style="background:#F2F2F7"></div>
+            <div class="swatch" style="background:#1c1c1e"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> familiar para usuarios iPhone, transición natural<br/><span class="p">✓</span> ads no-invasivos, look limpio Premium</div>
+            <div><span class="c">✗</span> menos "Pixora signature", se siente iOS más que B&amp;G</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 02 — ZODIAC ORACLE CARDS                       -->
+      <!-- ====================================================== -->
+      <div class="concept c2">
+        <div class="phone">
+          <div class="screen">
+            <div class="status-bar"><span>4:42</span><span>● ●● 71</span></div>
+            <div class="head-row">
+              <div class="back-arr">‹</div>
+              <div class="title-glyph">ORÁCULO · WALLPAPERS</div>
+              <div class="credit-c">💎 10</div>
+            </div>
+            <div class="const-row">
+              <span class="gl">♈</span>
+              <span class="gl active">♉</span>
+              <span class="gl">♊</span>
+              <span class="gl">♋</span>
+              <span class="gl">♌</span>
+              <span class="gl">♍</span>
+            </div>
+            <div class="by-row">CARTA REVELADA POR<br/><b>· WALL_E_DESIGN ·</b></div>
+            <div class="viewer">
+              <div class="peek-l"></div>
+              <div class="tarot"><div class="tarot-inner"></div></div>
+              <div class="peek-r"></div>
+            </div>
+            <div class="actions">
+              <div class="a-icon">↗</div>
+              <div class="a-icon">♡</div>
+              <div class="a-dl">↓</div>
+              <div class="a-icon">⋯</div>
+            </div>
+            <div class="ad-card">
+              <div class="ad-img"></div>
+              <div class="ad-tx">Pociones de seda, edición limitada<small>SHEIN · PATROCINADO</small></div>
+              <div class="ad-go">VER →</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 02</div>
+          <div class="meta-name">Zodiac Oracle Cards</div>
+          <div class="meta-tag">Cada wallpaper es carta tarot con marco foil que brilla. Constelaciones como categorías, crest dorado.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#070710"></div>
+            <div class="swatch" style="background:#D4AF37"></div>
+            <div class="swatch" style="background:#F5D676"></div>
+            <div class="swatch" style="background:#67E8F9"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> 100% Pixora signature, Saint Seiya vibe<br/><span class="p">✓</span> ads se sienten como "ofrendas", consistente</div>
+            <div><span class="c">✗</span> menos eficaz para tema iOS White, requiere variant</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 03 — TIKTOK INFINITE FLOW                      -->
+      <!-- ====================================================== -->
+      <div class="concept c3">
+        <div class="phone">
+          <div class="screen">
+            <div class="wp-full"></div>
+            <div class="icon-cats">
+              <div class="icat">⚡</div>
+              <div class="icat active">✦</div>
+              <div class="icat">🎨</div>
+              <div class="icat">⚔</div>
+              <div class="icat">🌙</div>
+            </div>
+            <div class="head-meta"><div class="av">K</div><div class="nm">KimZDesigns</div></div>
+            <div class="ai-pill">✨ AI Generator</div>
+            <div class="right-rail">
+              <div class="ra">♡</div>
+              <div class="lbl">2.4K</div>
+              <div class="ra">↗</div>
+              <div class="lbl">SHARE</div>
+              <div class="ra dl">↓</div>
+              <div class="lbl">GET</div>
+              <div class="ra">⋯</div>
+            </div>
+            <div class="ad-overlay">
+              <div class="row"><span class="sp">SPONSORED</span><span class="tt">SHEIN · Colección infantil</span></div>
+              <div class="cta">SHOP NOW</div>
+            </div>
+            <div class="bottom-bar">SWIPE · NEXT</div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 03</div>
+          <div class="meta-name">TikTok Infinite Flow</div>
+          <div class="meta-tag">Edge-to-edge wallpaper, acciones laterales tipo TikTok, ad como overlay glass. Funciona en ambos temas.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#000"></div>
+            <div class="swatch" style="background:#FF6B9D"></div>
+            <div class="swatch" style="background:#9B59B6"></div>
+            <div class="swatch" style="background:#fff"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> máxima inmersión visual, scroll adictivo<br/><span class="p">✓</span> theme-agnostic — wallpaper domina la UI</div>
+            <div><span class="c">✗</span> riesgo de canibalizar tiempo, no muy "Pixora único"</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 04 — MAGAZINE EDITORIAL                        -->
+      <!-- ====================================================== -->
+      <div class="concept c4">
+        <div class="phone">
+          <div class="screen">
+            <div class="status-bar"><span>4:42</span><span>●●● 71</span></div>
+            <div class="masthead">
+              <div class="back-x">‹</div>
+              <div class="ed">Pixora Editorial</div>
+              <div class="cr">VOL XII</div>
+            </div>
+            <div class="cat-italic">
+              <span class="word on">trending</span>
+              <span class="word">·</span>
+              <span class="word">arte</span>
+              <span class="word">·</span>
+              <span class="word">mitología</span>
+              <span class="word">·</span>
+              <span class="word">gaming</span>
+            </div>
+            <div class="by-eyebrow">DESIGNED BY</div>
+            <div class="by-name">Wall_E_Design</div>
+            <div class="viewer">
+              <div class="pk"></div>
+              <div class="frame"><div class="frame-inner"></div></div>
+              <div class="pk r"></div>
+            </div>
+            <div class="actions">
+              <div class="a-text">↗ COMPARTIR · ♡ 248</div>
+              <div class="a-cta">OBTENER ESTA PIEZA</div>
+            </div>
+            <div class="ad-page">
+              <div class="ad-img"></div>
+              <div class="ad-cap">PATROCINADO · <span>colección de primavera</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 04</div>
+          <div class="meta-name">Magazine Editorial</div>
+          <div class="meta-tag">Vogue-style con categorías italic, marco foil, CTA texto outlined. Ads como página de revista.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#0d0a0f"></div>
+            <div class="swatch" style="background:#D4AF37"></div>
+            <div class="swatch" style="background:#fafaf7"></div>
+            <div class="swatch" style="background:#1bb76e"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> luxury feel, ads como editorial (alto valor)<br/><span class="p">✓</span> Fraunces italic refuerza identidad Pixora</div>
+            <div><span class="c">✗</span> sin "wow factor" inicial, requiere acostumbrarse</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================== -->
+      <!-- CONCEPT 05 — HOLOGRAPHIC TRADING CARD                  -->
+      <!-- ====================================================== -->
+      <div class="concept c5">
+        <div class="phone">
+          <div class="screen">
+            <div class="status-bar"><span>4:42</span><span>●●● 71</span></div>
+            <div class="series-bar">
+              <div class="back-h">‹</div>
+              <div class="ser">SERIE I · ARTE COSMICO</div>
+              <div class="num-card">N°042/∞</div>
+            </div>
+            <div class="cat-tabs">
+              <div class="ctab on">TRENDING</div>
+              <div class="ctab">NEW</div>
+              <div class="ctab">ARTE</div>
+              <div class="ctab">MITO</div>
+              <div class="ctab">GAME</div>
+            </div>
+            <div class="viewer">
+              <div class="peek-3d l"></div>
+              <div class="card-3d">
+                <div class="card-art"></div>
+                <div class="card-info">
+                  <div class="nm">PRISMÁTICO</div>
+                  <div class="sig">— Wall_E</div>
+                </div>
+              </div>
+              <div class="peek-3d r"></div>
+            </div>
+            <div class="actions">
+              <div class="a-act">↗</div>
+              <div class="a-act">♡</div>
+              <div class="a-pull">↓</div>
+              <div class="a-act">⋯</div>
+            </div>
+            <div class="se-banner">
+              <div class="se-lbl">EDICIÓN ESPECIAL</div>
+              <div class="se-tx">Carta promocional</div>
+              <div class="se-brand">SHEIN</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 05</div>
+          <div class="meta-name">Holographic Trading Card</div>
+          <div class="meta-tag">Card foil con tilt 3D, shimmer animado. Ads como "edición especial" coleccionable. Continuidad total con Pixora.</div>
+          <div class="palette">
+            <div class="swatch" style="background:#040308"></div>
+            <div class="swatch" style="background:#E0B47A"></div>
+            <div class="swatch" style="background:#6EE7B7"></div>
+            <div class="swatch" style="background:#F5D676"></div>
+          </div>
+          <div class="verdict">
+            <div><span class="p">✓</span> continuidad TOTAL con Trading Card Holo existente<br/><span class="p">✓</span> ads como "promo cards" — coleccionables, no molestos</div>
+            <div><span class="c">✗</span> compleja la animación 3D, performance a vigilar</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>Pixora · Wallpaper Viewer · Design Archive · Mayo 2026</footer>
+  </div>
+</body>
+</html>
