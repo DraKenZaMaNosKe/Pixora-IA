@@ -281,47 +281,66 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                   ),
                 ),
                 SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 36),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Opacity(
-                          opacity: contentOpacity,
-                          child: _buildTopDeco(),
+                  // LayoutBuilder + IntrinsicHeight + ClipRect protect the
+                  // splash from RenderFlex overflow on phones where the
+                  // Spacers + fixed-height children sum > available height
+                  // (notch + 3-button-nav steal vertical space briefly during
+                  // the contentController fade-in). The ClipRect silently
+                  // hides any overflow instead of painting yellow stripes.
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => ClipRect(
+                      child: SingleChildScrollView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints:
+                              BoxConstraints(minHeight: constraints.maxHeight),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 32, vertical: 36),
+                            child: IntrinsicHeight(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Opacity(
+                                    opacity: contentOpacity,
+                                    child: _buildTopDeco(),
+                                  ),
+                                  const Spacer(),
+                                  Opacity(
+                                    opacity: contentOpacity,
+                                    child: _buildDiamondLogo(),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  Opacity(
+                                    opacity: contentOpacity,
+                                    child: _buildTitle(),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Opacity(
+                                    opacity: contentOpacity,
+                                    child: _buildDivider(),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Opacity(
+                                    opacity: contentOpacity,
+                                    child: _buildTagline(),
+                                  ),
+                                  const Spacer(),
+                                  Opacity(
+                                    opacity: contentOpacity,
+                                    child: _buildBottomDeco(),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Opacity(
+                                    opacity: contentOpacity,
+                                    child: _buildProgress(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                        const Spacer(),
-                        Opacity(
-                          opacity: contentOpacity,
-                          child: _buildDiamondLogo(),
-                        ),
-                        const SizedBox(height: 32),
-                        Opacity(
-                          opacity: contentOpacity,
-                          child: _buildTitle(),
-                        ),
-                        const SizedBox(height: 14),
-                        Opacity(
-                          opacity: contentOpacity,
-                          child: _buildDivider(),
-                        ),
-                        const SizedBox(height: 12),
-                        Opacity(
-                          opacity: contentOpacity,
-                          child: _buildTagline(),
-                        ),
-                        const Spacer(),
-                        Opacity(
-                          opacity: contentOpacity,
-                          child: _buildBottomDeco(),
-                        ),
-                        const SizedBox(height: 20),
-                        Opacity(
-                          opacity: contentOpacity,
-                          child: _buildProgress(),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
