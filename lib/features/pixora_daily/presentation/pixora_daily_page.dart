@@ -9,6 +9,7 @@ import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/catalog_service.dart';
 import '../../../core/services/wallpaper_engine_coordinator.dart';
 import '../../../core/utils/locale_helper.dart';
+import 'widgets/daily_activation_overlay.dart';
 
 /// Pixora Daily — Synthwave Daily layout (concept #03, Eduardo 2026-05-16).
 ///
@@ -95,37 +96,57 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
         _busy = false;
       });
     } else {
-      final ok = await AutoRotateService.instance.start(
-        intervalMinutes: _intervalMinutes,
-        target: _target,
-        category: _category,
-      );
-      if (!mounted) return;
-      setState(() {
-        _enabled = ok;
-        _busy = false;
-      });
-      if (ok) {
-        final preempted = AutoRotateService.instance.lastPreempted;
-        final preemptedMsg = preempted == WallpaperEngine.none
-            ? ''
-            : LocaleHelper.pick(
-                es: ' · Reemplazó ${WallpaperEngineCoordinator.labelEs(preempted)}',
-                en: ' · Replaced ${WallpaperEngineCoordinator.labelEs(preempted)}',
+      // Show the synthwave activation overlay BEFORE kicking off the
+      // AutoRotateService.start(). The overlay auto-closes after 3s and
+      // calls our onComplete callback, which then runs the real start +
+      // shows the success snackbar.
+      // Eduardo's request 2026-05-17: full-screen synthwave transition with
+      // moving grid lines at the moment of activation.
+      final route = PageRouteBuilder<void>(
+        opaque: false,
+        barrierDismissible: false,
+        pageBuilder: (_, __, ___) => DailyActivationOverlay(
+          intervalLabel: _intervalLabel(_intervalMinutes),
+          onComplete: () async {
+            final ok = await AutoRotateService.instance.start(
+              intervalMinutes: _intervalMinutes,
+              target: _target,
+              category: _category,
+            );
+            if (!mounted) return;
+            setState(() {
+              _enabled = ok;
+              _busy = false;
+            });
+            if (ok) {
+              final preempted = AutoRotateService.instance.lastPreempted;
+              final preemptedMsg = preempted == WallpaperEngine.none
+                  ? ''
+                  : LocaleHelper.pick(
+                      es: ' · Reemplazó ${WallpaperEngineCoordinator.labelEs(preempted)}',
+                      en: ' · Replaced ${WallpaperEngineCoordinator.labelEs(preempted)}',
+                    );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(LocaleHelper.pick(
+                    es: '✨ Daily ACTIVO · cada ${_intervalLabel(_intervalMinutes)}$preemptedMsg',
+                    en: '✨ Daily ACTIVE · every ${_intervalLabel(_intervalMinutes)}$preemptedMsg',
+                  )),
+                  backgroundColor: _neonPink,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
               );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(LocaleHelper.pick(
-              es: '✨ Daily ACTIVO · cada ${_intervalLabel(_intervalMinutes)}$preemptedMsg',
-              en: '✨ Daily ACTIVE · every ${_intervalLabel(_intervalMinutes)}$preemptedMsg',
-            )),
-            backgroundColor: _neonPink,
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        );
-      }
+            }
+          },
+        ),
+        transitionDuration: const Duration(milliseconds: 250),
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+      );
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).push(route);
     }
   }
 
