@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../../core/widgets/stamped_foil_header.dart';
+import '../../../../core/services/app_strings_service.dart';
 import '../../../../core/services/live_wallpaper_catalog_service.dart';
 import '../../../../core/widgets/aurora_waves_loading.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
@@ -74,7 +75,10 @@ class _HotContent extends ConsumerWidget {
       onRefresh: () async {
         LiveWallpaperCatalogService.instance.clearCache();
         ref.invalidate(liveWallpaperCatalogProvider);
-        await ref.read(liveWallpaperCatalogProvider.future);
+        await Future.wait([
+          ref.read(liveWallpaperCatalogProvider.future),
+          AppStringsService.instance.refresh(),
+        ]);
       },
       color: context.hud.accent,
       backgroundColor: context.hud.surface,

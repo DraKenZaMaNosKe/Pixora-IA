@@ -182,6 +182,13 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.detached) {
       WallpaperStatsService.instance.dispose();
     }
+    if (state == AppLifecycleState.resumed) {
+      // Text CMS: refresh strings when user comes back to the app. Combined
+      // with the 5-min TTL and pull-to-refresh in section pages, this gives
+      // near-live updates without needing FCM push. Non-blocking; failures
+      // fall back silently to the existing cache.
+      unawaited(AppStringsService.instance.refresh());
+    }
   }
 
   @override

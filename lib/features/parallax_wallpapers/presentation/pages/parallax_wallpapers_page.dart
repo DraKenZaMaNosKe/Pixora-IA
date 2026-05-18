@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/services/app_strings_service.dart';
 import '../../../../core/utils/locale_helper.dart';
 import '../../../wallpapers/data/models/wallpaper.dart';
 import '../../../wallpapers/presentation/pages/wallpaper_preview_page.dart';
@@ -24,7 +25,10 @@ class ParallaxWallpapersPage extends ConsumerWidget {
     final asyncList = ref.watch(parallaxWallpapersProvider);
 
     return RefreshIndicator(
-      onRefresh: () async => ref.invalidate(parallaxWallpapersProvider),
+      onRefresh: () async {
+        ref.invalidate(parallaxWallpapersProvider);
+        await AppStringsService.instance.refresh();
+      },
       child: asyncList.when(
         loading: () => Center(
           child: CircularProgressIndicator(color: h.accent),

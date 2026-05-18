@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/services/app_strings_service.dart';
 import '../../../../core/utils/locale_helper.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
 import '../../providers/day_cycle_providers.dart';
@@ -49,7 +50,10 @@ class DayCyclePage extends ConsumerWidget {
           );
         }
         return RefreshIndicator(
-          onRefresh: () async => ref.invalidate(dayCycleCatalogProvider),
+          onRefresh: () async {
+            ref.invalidate(dayCycleCatalogProvider);
+            await AppStringsService.instance.refresh();
+          },
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
             children: [

@@ -22,7 +22,10 @@ class AppStringsService extends ChangeNotifier {
 
   static const String _boxName = 'app_strings_cache';
   static const String _lastFetchKey = '__last_fetch_iso__';
-  static const Duration _ttl = Duration(hours: 1);
+  // TTL kept short (5 min) so cache feels live. Pull-to-refresh and the app
+  // lifecycle 'resumed' hook in PixoraApp also call refresh() — combined,
+  // edits in pixora-admin reach the user within seconds, no FCM needed yet.
+  static const Duration _ttl = Duration(minutes: 5);
 
   Box<dynamic>? _box;
   bool _initialized = false;

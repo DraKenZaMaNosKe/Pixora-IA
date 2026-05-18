@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/services/app_strings_service.dart';
 import '../../../../core/services/catalog_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/wallpaper_providers.dart';
@@ -21,7 +22,10 @@ class WallpapersPage extends ConsumerWidget {
         // re-fetched no traería nada nuevo.
         CatalogService.instance.clearCache();
         ref.invalidate(catalogProvider);
-        await ref.read(catalogProvider.future);
+        await Future.wait([
+          ref.read(catalogProvider.future),
+          AppStringsService.instance.refresh(),
+        ]);
       },
       child: catalogAsync.when(
         loading: () => const CustomScrollView(

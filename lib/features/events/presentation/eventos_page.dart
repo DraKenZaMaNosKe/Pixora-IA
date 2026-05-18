@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/analytics_service.dart';
+import '../../../core/services/app_strings_service.dart';
 import '../data/models/event.dart';
 import '../providers/events_provider.dart';
 import 'event_detail_page.dart';
@@ -46,7 +47,10 @@ class EventosPage extends ConsumerWidget {
               color: h.accent,
               onRefresh: () async {
                 ref.invalidate(eventsProvider);
-                await ref.read(eventsProvider.future);
+                await Future.wait([
+                  ref.read(eventsProvider.future),
+                  AppStringsService.instance.refresh(),
+                ]);
               },
               child: _LookbookLayout(events: events, h: h),
             );
