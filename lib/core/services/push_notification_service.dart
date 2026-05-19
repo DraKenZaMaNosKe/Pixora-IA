@@ -3,7 +3,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../../features/events/data/events_service.dart';
 import 'app_strings_service.dart';
+import 'catalog_service.dart';
+import 'day_cycle_catalog_service.dart';
+import 'live_wallpaper_catalog_service.dart';
+import 'ringtone_service.dart';
+import 'story_catalog_service.dart';
 
 /// Top-level handler required by FCM for background messages.
 /// Must be a top-level function (not a class method) because it runs in
@@ -98,7 +104,19 @@ class PushNotificationService {
           AppStringsService.instance.refresh();
           return;
         }
-        // Case 2: user-visible notification.
+        // Case 2: silent Catalog invalidation push.
+        // Payload: {type: 'catalog_invalidate', scope: 'wallpapers'|'live'|
+        // 'stories'|'day_cycle'|'ringtones'|'events'|'all'}
+        // Dispatched by wp_admin_server.py when Eduardo publishes content
+        // (Tier 3, 2026-05-18). Clears the matching service's cache; the
+        // next user scroll / pull-to-refresh hits the network → fresh data.
+        if (msg.data['type'] == 'catalog_invalidate') {
+          final scope = msg.data['scope'] ?? 'all';
+          debugPrint('[PixoraFCM] catalog_invalidate scope=$scope');
+          _handleCatalogInvalidate(scope.toString());
+          return;
+        }
+        // Case 3: user-visible notification.
         final notification = msg.notification;
         final android = notification?.android;
         if (notification != null && android != null) {
@@ -139,5 +157,51 @@ class PushNotificationService {
   /// Opt out from notifications (called from settings).
   Future<void> unsubscribeFromNewContent() async {
     await FirebaseMessaging.instance.unsubscribeFromTopic('new_content');
+  }
+
+  /// Dispatches a `catalog_invalidate` push to the right service(s).
+  /// Scope can be a single catalog (`'wallpapers'`, `'live'`, `'stories'`,
+  /// `'day_cycle'`, `'ringtones'`, `'events'`) or `'all'`.
+  /// Unknown scopes are treated as no-ops with a debug log.
+  Future<void> _handleCatalogInvalidate(String scope) async {
+    Future<void> wallpapers() => CatalogService.instance.clearCache();
+    Future<void> live() => LiveWallpaperCatalogService.instance.clearCache();
+    Future<void> stories() => StoryCatalogService.instance.clearCache();
+    Future<void> dayCycle() => DayCycleCatalogService.instance.clearCache();
+    Future<void> ringtones() => RingtoneService.instance.clearCache();
+    Future<void> events() => EventsService.instance.clearCache();
+
+    switch (scope) {
+      case 'wallpapers':
+        await wallpapers();
+        break;
+      case 'live':
+        await live();
+        break;
+      case 'stories':
+        await stories();
+        break;
+      case 'day_cycle':
+        await dayCycle();
+        break;
+      case 'ringtones':
+        await ringtones();
+        break;
+      case 'events':
+        await events();
+        break;
+      case 'all':
+        await Future.wait([
+          wallpapers(),
+          live(),
+          stories(),
+          dayCycle(),
+          ringtones(),
+          events(),
+        ]);
+        break;
+      default:
+        debugPrint('[PixoraFCM] unknown catalog scope: $scope');
+    }
   }
 }
