@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import '../constants/supabase_config.dart';
+import 'catalog_cache_store.dart';
 import 'download_service.dart';
 import '../../features/ringtones/data/models/ringtone_pack.dart';
 
@@ -14,36 +14,46 @@ class RingtoneService {
 
   static const _channel = MethodChannel('com.orbix.pixora/wallpaper');
   static const _catalogFile = 'ringtones_catalog.json';
+  static const _cacheKey = 'images:ringtones_catalog.json';
+  static const _ttl = Duration(hours: 6);
 
   List<RingtonePack> _packs = [];
   DateTime? _lastFetch;
 
+  Future<void> clearCache() async {
+    _packs = [];
+    _lastFetch = null;
+    await CatalogCacheStore.instance.clear(_cacheKey);
+  }
+
   Future<List<RingtonePack>> fetchCatalog({bool forceRefresh = false}) async {
-    if (_packs.isNotEmpty && !forceRefresh &&
+    if (_packs.isNotEmpty &&
+        !forceRefresh &&
         _lastFetch != null &&
-        DateTime.now().difference(_lastFetch!) < const Duration(hours: 6)) {
+        DateTime.now().difference(_lastFetch!) < _ttl) {
       return _packs;
     }
-
-    try {
-      final url = '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$_catalogFile';
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Cache-Control': 'no-cache'},
-      ).timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final body = utf8.decode(response.bodyBytes);
-        final json = jsonDecode(body) as Map<String, dynamic>;
-        final list = (json['packs'] as List<dynamic>?) ?? [];
+    final url =
+        '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$_catalogFile';
+    final result = await CatalogCacheStore.instance.fetchWithCache(
+      key: _cacheKey,
+      url: url,
+      ttl: _ttl,
+      forceRefresh: forceRefresh,
+    );
+    if (result.hasBody) {
+      try {
+        final data = jsonDecode(result.body!) as Map<String, dynamic>;
+        final list = (data['packs'] as List<dynamic>?) ?? [];
         _packs = list
             .map((e) => RingtonePack.fromJson(e as Map<String, dynamic>))
             .toList();
         _lastFetch = DateTime.now();
-        debugPrint('[Pixora] Ringtone catalog loaded: ${_packs.length} packs');
+        debugPrint(
+            '[Pixora] Ringtone catalog loaded (${result.source.name}): ${_packs.length}');
+      } catch (e) {
+        debugPrint('[Pixora] Ringtone parse error: $e');
       }
-    } catch (e) {
-      debugPrint('[Pixora] Ringtone catalog fetch failed: $e');
     }
     return _packs;
   }
@@ -77,7 +87,8 @@ class RingtoneService {
   Future<bool> checkPermission() async {
     if (!Platform.isAndroid) return false;
     try {
-      final result = await _channel.invokeMethod<bool>('checkWriteSettingsPermission');
+      final result =
+          await _channel.invokeMethod<bool>('checkWriteSettingsPermission');
       return result ?? false;
     } catch (e) {
       debugPrint('[Pixora] Check permission failed: $e');

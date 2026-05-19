@@ -1,93 +1,67 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import '../constants/supabase_config.dart';
 import '../../features/stories/data/models/story.dart';
+import 'catalog_cache_store.dart';
 
+/// Catálogo de stories. Tier 3 (2026-05-18): migrado a CatalogCacheStore.
 class StoryCatalogService {
   StoryCatalogService._();
   static final instance = StoryCatalogService._();
 
-  static const _cacheHours = 6;
   static const _catalogFile = 'stories_catalog.json';
+  static const _cacheKey = 'images:stories_catalog.json';
+  static const _ttl = Duration(hours: 6);
 
   List<Story> _stories = [];
   DateTime? _lastFetch;
 
   List<Story> get stories => _stories;
 
+  Future<void> clearCache() async {
+    _stories = [];
+    _lastFetch = null;
+    await CatalogCacheStore.instance.clear(_cacheKey);
+  }
+
   bool get _isCacheValid =>
-      _lastFetch != null &&
-      DateTime.now().difference(_lastFetch!) < const Duration(hours: _cacheHours);
+      _lastFetch != null && DateTime.now().difference(_lastFetch!) < _ttl;
 
   Future<List<Story>> fetchCatalog({bool forceRefresh = false}) async {
     if (_stories.isNotEmpty && _isCacheValid && !forceRefresh) {
       return _stories;
     }
-
-    try {
-      // Try loading from network
-      final url = '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$_catalogFile';
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Cache-Control': 'no-cache'},
-      ).timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final body = utf8.decode(response.bodyBytes);
-        final json = jsonDecode(body) as Map<String, dynamic>;
-        final list = (json['stories'] as List<dynamic>?) ?? [];
-        _stories = list
-            .map((e) => Story.fromJson(e as Map<String, dynamic>))
-            .toList();
+    final url =
+        '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$_catalogFile';
+    final result = await CatalogCacheStore.instance.fetchWithCache(
+      key: _cacheKey,
+      url: url,
+      ttl: _ttl,
+      forceRefresh: forceRefresh,
+    );
+    if (result.hasBody) {
+      final parsed = _parse(result.body!);
+      if (parsed.isNotEmpty) {
+        _stories = parsed;
         _lastFetch = DateTime.now();
-
-        // Save to local cache
-        await _saveToCache(body);
-
-        debugPrint('[Pixora] Stories catalog loaded: ${_stories.length} stories');
+        debugPrint(
+            '[Pixora] Stories catalog loaded (${result.source.name}): ${_stories.length}');
         return _stories;
       }
-    } catch (e) {
-      debugPrint('[Pixora] Stories network fetch failed: $e');
     }
-
-    // Fallback to local cache
-    final cached = await _loadFromCache();
-    if (cached != null) {
-      _stories = cached;
-      debugPrint('[Pixora] Loaded ${_stories.length} stories from cache');
-    }
-
     return _stories;
   }
 
-  Future<void> _saveToCache(String json) async {
+  List<Story> _parse(String body) {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/stories_cache.json');
-      await file.writeAsString(json);
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final list = (data['stories'] as List<dynamic>?) ?? [];
+      return list
+          .map((e) => Story.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      debugPrint('[Pixora] Stories cache write error: $e');
+      debugPrint('[Pixora] Stories parse error: $e');
+      return [];
     }
-  }
-
-  Future<List<Story>?> _loadFromCache() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/stories_cache.json');
-      if (await file.exists()) {
-        final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-        final list = (json['stories'] as List<dynamic>?) ?? [];
-        return list
-            .map((e) => Story.fromJson(e as Map<String, dynamic>))
-            .toList();
-      }
-    } catch (e) {
-      debugPrint('[Pixora] Stories cache read error: $e');
-    }
-    return null;
   }
 }

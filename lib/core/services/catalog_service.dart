@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
 import '../constants/supabase_config.dart';
 import '../../features/wallpapers/data/models/wallpaper.dart';
+import 'catalog_cache_store.dart';
 
 /// Catalog service — reads wallpapers from Postgres `wallpapers_v` view.
 ///
@@ -21,6 +20,7 @@ class CatalogService {
   static final instance = CatalogService._();
 
   static const _cacheMinutes = 30;
+  static const _cacheKey = 'postgres:wallpapers_v';
   List<Wallpaper> _wallpapers = [];
   DateTime? _lastFetch;
 
@@ -28,9 +28,12 @@ class CatalogService {
 
   List<Wallpaper> get wallpapers => _wallpapers;
 
-  void clearCache() {
+  /// Limpia el cache (memoria + Hive). Lo dispara el FCM `catalog_invalidate`
+  /// scope=wallpapers|all y el pull-to-refresh del grid de WALLPAPERS.
+  Future<void> clearCache() async {
     _wallpapers = [];
     _lastFetch = null;
+    await CatalogCacheStore.instance.clear(_cacheKey);
   }
 
   /// Cold-start optimization: lee el catalog_cache.json de disco ANTES de
@@ -44,18 +47,20 @@ class CatalogService {
   Future<void> preloadFromDiskCache() async {
     if (_wallpapers.isNotEmpty) return;
     try {
-      final cached = await _loadFromCache();
-      if (cached == null || cached.isEmpty) return;
-      _wallpapers = cached;
+      final entry = await CatalogCacheStore.instance.read(_cacheKey);
+      if (entry == null) return;
+      final list = _parseFromJsonBody(entry.body);
+      if (list.isEmpty) return;
+      _wallpapers = list;
       // Tratamos la cache como recién obtenida — el TTL de 30 min empieza
       // a contar desde el cold start. La próxima request fresca pasará el
-      // _isCacheValid check y se atenderá desde memoria; al expirar, Riverpod
-      // / pull-to-refresh dispararán el fetch real a Postgres.
+      // _isCacheValid check; al expirar, Riverpod / pull-to-refresh
+      // dispararán el fetch real a Postgres.
       _lastFetch = DateTime.now();
       debugPrint(
-          '[Pixora] Catalog preloaded from disk: ${_wallpapers.length} wallpapers');
+          '[Pixora] Catalog preloaded from Hive: ${_wallpapers.length} wallpapers');
     } catch (e) {
-      debugPrint('[Pixora] Disk preload failed: $e');
+      debugPrint('[Pixora] Hive preload failed: $e');
     }
   }
 
@@ -83,7 +88,7 @@ class CatalogService {
     if (fromSupabase != null && fromSupabase.isNotEmpty) {
       _wallpapers = fromSupabase;
       _lastFetch = DateTime.now();
-      await _saveToCache(_wallpapers);
+      await _persistToHive(_wallpapers);
       debugPrint(
           '[Pixora] Catalog loaded from Postgres: ${_wallpapers.length}');
       return _wallpapers;
@@ -99,12 +104,15 @@ class CatalogService {
       return _wallpapers;
     }
 
-    // 3) Fallback to local cache
-    final cached = await _loadFromCache();
-    if (cached != null && cached.isNotEmpty) {
-      _wallpapers = cached;
-      debugPrint(
-          '[Pixora] Catalog loaded from local cache: ${_wallpapers.length}');
+    // 3) Fallback to Hive cache
+    final entry = await CatalogCacheStore.instance.read(_cacheKey);
+    if (entry != null) {
+      final cached = _parseFromJsonBody(entry.body);
+      if (cached.isNotEmpty) {
+        _wallpapers = cached;
+        debugPrint(
+            '[Pixora] Catalog loaded from Hive cache: ${_wallpapers.length}');
+      }
     }
     return _wallpapers;
   }
@@ -142,14 +150,11 @@ class CatalogService {
       }).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         final body = utf8.decode(response.bodyBytes);
-        final json = jsonDecode(body) as Map<String, dynamic>;
-        final list = (json['wallpapers'] as List<dynamic>?) ?? [];
-        final parsed = list
-            .map((e) => Wallpaper.fromJson(e as Map<String, dynamic>))
-            .toList();
-        parsed.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-        // Persist as cache so future cold-starts have something
-        await _saveToCacheRaw(body);
+        final parsed = _parseFromJsonBody(body);
+        // Persist a Hive con el ETag por si Postgres falla en una próxima
+        // visita — el fallback usará este snapshot.
+        await CatalogCacheStore.instance
+            .write(_cacheKey, body, response.headers['etag']);
         return parsed;
       }
     } catch (e) {
@@ -158,41 +163,34 @@ class CatalogService {
     return null;
   }
 
-  Future<void> _saveToCache(List<Wallpaper> list) async {
+  /// Serializa la lista actual y la guarda en Hive como JSON sin ETag
+  /// (los rows vienen de Postgres, no de Storage, por eso no hay ETag).
+  Future<void> _persistToHive(List<Wallpaper> list) async {
     try {
       final body = jsonEncode({
         'wallpapers': list.map((w) => w.toJson()).toList(),
         'cachedAt': DateTime.now().toIso8601String(),
       });
-      await _saveToCacheRaw(body);
+      await CatalogCacheStore.instance.write(_cacheKey, body, null);
     } catch (e) {
-      debugPrint('[Pixora] Cache write error: $e');
+      debugPrint('[Pixora] Hive write error: $e');
     }
   }
 
-  Future<void> _saveToCacheRaw(String json) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/catalog_cache.json');
-    await file.writeAsString(json);
-  }
-
-  Future<List<Wallpaper>?> _loadFromCache() async {
+  /// Parsea un body JSON con la forma `{wallpapers: [...]}` y devuelve la
+  /// lista ordenada por sortOrder. Devuelve [] ante cualquier error.
+  List<Wallpaper> _parseFromJsonBody(String body) {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/catalog_cache.json');
-      if (await file.exists()) {
-        final json =
-            jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-        final list = json['wallpapers'] as List<dynamic>;
-        final wallpapers = list
-            .map((e) => Wallpaper.fromJson(e as Map<String, dynamic>))
-            .toList();
-        wallpapers.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-        return wallpapers;
-      }
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final list = (data['wallpapers'] as List<dynamic>?) ?? [];
+      final wallpapers = list
+          .map((e) => Wallpaper.fromJson(e as Map<String, dynamic>))
+          .toList();
+      wallpapers.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+      return wallpapers;
     } catch (e) {
-      debugPrint('[Pixora] Cache read error: $e');
+      debugPrint('[Pixora] Catalog parse error: $e');
+      return [];
     }
-    return null;
   }
 }

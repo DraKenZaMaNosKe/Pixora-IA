@@ -10,16 +10,21 @@ import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/analytics_service.dart';
 import 'core/services/app_strings_service.dart';
+import 'core/services/catalog_cache_store.dart';
 import 'core/services/catalog_service.dart';
 import 'core/services/credit_service.dart';
+import 'core/services/day_cycle_catalog_service.dart';
 import 'core/services/grace_pass_service.dart';
 import 'core/services/legal_service.dart';
 import 'core/services/live_wallpaper_catalog_service.dart';
+import 'core/services/ringtone_service.dart';
+import 'core/services/story_catalog_service.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/services/subscription_service.dart';
 import 'core/services/theme_service.dart';
 import 'core/services/wallpaper_engine_coordinator.dart';
 import 'features/aura/services/aura_player_service.dart';
+import 'features/events/data/events_service.dart';
 import 'core/services/wallpaper_stats_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/splash/presentation/splash_page.dart';
@@ -115,6 +120,10 @@ Future<void> main() async {
     // hardcoded strings in each widget.
     unawaited(AppStringsService.instance.initialize());
     AdService.instance.initialize();
+    // Hive-backed catalog cache (Tier 3, 2026-05-18) — initialize before any
+    // catalog service tries to read from it. Non-blocking: if Hive fails,
+    // the cache helper just no-ops and services fall back to network.
+    unawaited(CatalogCacheStore.instance.initialize());
     // Cold-start optimization — precarga los catálogos desde disco antes
     // de runApp() para que las pantallas Wallpapers/LIVE arranquen con
     // data al instante en vez del skeleton 1-3s. Hacemos ambos en
@@ -188,6 +197,27 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
       // near-live updates without needing FCM push. Non-blocking; failures
       // fall back silently to the existing cache.
       unawaited(AppStringsService.instance.refresh());
+      // Tier 3 (2026-05-18): trigger cheap ETag checks across all catalogs.
+      // Each fetchCatalog respects its own TTL — calls inside the window
+      // are no-ops, calls past it do a HEAD (~20ms) and only redownload
+      // when the server ETag differs. Catches publish events that the
+      // FCM push may have missed (e.g. notification denied, app killed).
+      unawaited(_refreshCatalogsOnResume());
+    }
+  }
+
+  Future<void> _refreshCatalogsOnResume() async {
+    try {
+      await Future.wait([
+        CatalogService.instance.fetchCatalog(),
+        LiveWallpaperCatalogService.instance.fetchCatalog(),
+        StoryCatalogService.instance.fetchCatalog(),
+        DayCycleCatalogService.instance.fetchCatalog(),
+        RingtoneService.instance.fetchCatalog(),
+        EventsService.instance.getEvents(),
+      ]);
+    } catch (e) {
+      debugPrint('[Pixora] Resume catalog refresh failed: $e');
     }
   }
 

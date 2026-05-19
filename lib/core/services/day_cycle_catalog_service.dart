@@ -1,81 +1,64 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import '../constants/supabase_config.dart';
 import '../../features/day_cycle/data/models/day_cycle_theme.dart';
+import 'catalog_cache_store.dart';
 
+/// Catálogo de Day Cycle themes. Tier 3 (2026-05-18): migrado a
+/// CatalogCacheStore.
 class DayCycleCatalogService {
   DayCycleCatalogService._();
   static final instance = DayCycleCatalogService._();
 
-  static const _cacheHours = 6;
   static const _catalogFile = 'day_cycle_catalog.json';
+  static const _cacheKey = 'images:day_cycle_catalog.json';
+  static const _ttl = Duration(hours: 6);
 
   List<DayCycleTheme> _themes = [];
   DateTime? _lastFetch;
 
+  Future<void> clearCache() async {
+    _themes = [];
+    _lastFetch = null;
+    await CatalogCacheStore.instance.clear(_cacheKey);
+  }
+
   bool get _isCacheValid =>
-      _lastFetch != null &&
-      DateTime.now().difference(_lastFetch!) < const Duration(hours: _cacheHours);
+      _lastFetch != null && DateTime.now().difference(_lastFetch!) < _ttl;
 
   Future<List<DayCycleTheme>> fetchCatalog({bool forceRefresh = false}) async {
     if (_themes.isNotEmpty && _isCacheValid && !forceRefresh) return _themes;
-
-    try {
-      final url = '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$_catalogFile';
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Cache-Control': 'no-cache'},
-      ).timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final body = utf8.decode(response.bodyBytes);
-        final json = jsonDecode(body) as Map<String, dynamic>;
-        final list = (json['themes'] as List<dynamic>?) ?? [];
-        _themes = list
-            .map((e) => DayCycleTheme.fromJson(e as Map<String, dynamic>))
-            .toList();
+    final url =
+        '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$_catalogFile';
+    final result = await CatalogCacheStore.instance.fetchWithCache(
+      key: _cacheKey,
+      url: url,
+      ttl: _ttl,
+      forceRefresh: forceRefresh,
+    );
+    if (result.hasBody) {
+      final parsed = _parse(result.body!);
+      if (parsed.isNotEmpty) {
+        _themes = parsed;
         _lastFetch = DateTime.now();
-        await _saveToCache(body);
-        debugPrint('[Pixora] Day cycle catalog loaded: ${_themes.length} themes');
+        debugPrint(
+            '[Pixora] Day cycle catalog loaded (${result.source.name}): ${_themes.length}');
         return _themes;
       }
-    } catch (e) {
-      debugPrint('[Pixora] Day cycle network fetch failed: $e');
-    }
-
-    final cached = await _loadFromCache();
-    if (cached != null) {
-      _themes = cached;
-      debugPrint('[Pixora] Loaded ${_themes.length} day cycle themes from cache');
     }
     return _themes;
   }
 
-  Future<void> _saveToCache(String json) async {
+  List<DayCycleTheme> _parse(String body) {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/day_cycle_cache.json');
-      await file.writeAsString(json);
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final list = (data['themes'] as List<dynamic>?) ?? [];
+      return list
+          .map((e) => DayCycleTheme.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      debugPrint('[Pixora] Day cycle cache write error: $e');
+      debugPrint('[Pixora] Day cycle parse error: $e');
+      return [];
     }
-  }
-
-  Future<List<DayCycleTheme>?> _loadFromCache() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/day_cycle_cache.json');
-      if (await file.exists()) {
-        final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-        final list = (json['themes'] as List<dynamic>?) ?? [];
-        return list.map((e) => DayCycleTheme.fromJson(e as Map<String, dynamic>)).toList();
-      }
-    } catch (e) {
-      debugPrint('[Pixora] Day cycle cache read error: $e');
-    }
-    return null;
   }
 }
