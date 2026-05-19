@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Dual-Layer HUD category chip — Eduardo's pick (Concept #5 from
-/// category_buttons_concepts.html, 2026-05-17).
+/// Sapphire HUD category chip — Eduardo's gems pick (Concept #03
+/// "Sapphire Blue" from category_chips_gems.html, 2026-05-18).
 ///
 /// Visual recipe:
-/// - Outer gradient border (cyan electric → amber)
-/// - Inner background ink premium (deep black)
-/// - LED dot amber pulsante (status indicator)
+/// - Outer gradient border (sapphire bright → sapphire deep)
+/// - Inner background ink premium (very dark navy)
+/// - LED dot sapphire bright pulsante (status indicator)
 /// - Mono uppercase label + optional count
+/// - **Shine sweep**: diagonal white highlight crosses each chip on a
+///   stagger (offset derived from the label hash so chips don't
+///   sync to a single visible wave)
 /// - Hover/press feedback: outer glow expands
 /// - Active state: bigger glow + filled gradient border
 ///
 /// Used in WALLPAPERS + LIVE sections as the entry point to the
 /// WallpaperViewerHudPage. Colors are hardcoded (not theme-dependent)
 /// because the HUD viewer is a "special explorer" that lives apart from
-/// the app's regular B&G / iOS White themes.
+/// the app's regular B&G / iOS White themes — and Sapphire reads premium
+/// on both backgrounds.
 class CategoryChipHud extends StatefulWidget {
   const CategoryChipHud({
     super.key,
@@ -40,36 +44,46 @@ class CategoryChipHud extends StatefulWidget {
   /// Tap handler. Caller is responsible for pushing the viewer page.
   final VoidCallback onTap;
 
-  // ─── HUD palette (hardcoded, theme-independent) ────────────────────────
+  // ─── Sapphire palette (hardcoded, theme-independent) ──────────────────
   static const _ink = Color(0xFF02050A);
-  static const _inkLayer = Color(0xFF0A1018);
-  static const _cyan = Color(0xFF00E5FF);
-  static const _cyanDeep = Color(0xFF0099B0);
-  static const _amber = Color(0xFFFFB400);
-  static const _amberDeep = Color(0xFFB07A00);
+  static const _inkLayer = Color(0xFF06101D);
+  static const _sapphire = Color(0xFF1FA8FF);
+  static const _sapphireDeep = Color(0xFF0B5BB8);
+  static const _sapphireBright = Color(0xFF5CC6FF);
+  static const _sapphirePale = Color(0xFFBFE6FF);
 
   @override
   State<CategoryChipHud> createState() => _CategoryChipHudState();
 }
 
 class _CategoryChipHudState extends State<CategoryChipHud>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _pulseCtrl;
+  late final AnimationController _shineCtrl;
+  late final double _phaseOffset;
   bool _pressed = false;
 
   @override
   void initState() {
     super.initState();
-    // Slow pulse for the LED dot. Always running — independent of active state.
+    // Slow pulse for the LED dot. Always running — independent of active.
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
+    // Shine sweep across the chip — every ~4s.
+    _shineCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 4000),
+    )..repeat();
+    // Stable per-label offset so the row of chips doesn't shine in lockstep.
+    _phaseOffset = (widget.label.hashCode.abs() % 100) / 100.0;
   }
 
   @override
   void dispose() {
     _pulseCtrl.dispose();
+    _shineCtrl.dispose();
     super.dispose();
   }
 
@@ -90,90 +104,93 @@ class _CategoryChipHudState extends State<CategoryChipHud>
           duration: const Duration(milliseconds: 250),
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: active
-                  ? const [CategoryChipHud._cyan, CategoryChipHud._amber]
-                  : const [
-                      CategoryChipHud._cyanDeep,
-                      CategoryChipHud._amberDeep,
-                    ],
+            gradient: const LinearGradient(
+              colors: [
+                CategoryChipHud._sapphireBright,
+                CategoryChipHud._sapphireDeep,
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(3),
-            boxShadow: active
-                ? [
-                    BoxShadow(
-                      color: CategoryChipHud._cyan.withValues(alpha: 0.35),
-                      blurRadius: 14,
-                      spreadRadius: 0,
-                    ),
-                  ]
-                : [],
-          ),
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [CategoryChipHud._inkLayer, CategoryChipHud._ink],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+            boxShadow: [
+              BoxShadow(
+                color: CategoryChipHud._sapphire.withValues(
+                  alpha: active ? 0.45 : 0.20,
+                ),
+                blurRadius: active ? 16 : 10,
+                spreadRadius: 0,
               ),
-              borderRadius: BorderRadius.all(Radius.circular(2)),
-            ),
-            padding: const EdgeInsets.fromLTRB(12, 9, 14, 9),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(2)),
+            child: Stack(
               children: [
-                // LED dot — amber pulsante
-                AnimatedBuilder(
-                  animation: _pulseCtrl,
-                  builder: (_, __) {
-                    final t = _pulseCtrl.value;
-                    final glow = 4.0 + (t * 6.0);
-                    return Container(
-                      width: 6,
-                      height: 6,
-                      margin: const EdgeInsets.only(right: 8),
-                      decoration: BoxDecoration(
-                        color: CategoryChipHud._amber,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color:
-                                CategoryChipHud._amber.withValues(alpha: 0.5),
-                            blurRadius: glow,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                // Label
-                Text(
-                  widget.label.toUpperCase(),
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 2.2,
-                    color: active ? Colors.white : CategoryChipHud._cyan,
-                  ),
-                ),
-                // Counter (optional)
-                if (widget.count != null) ...[
-                  const SizedBox(width: 6),
-                  Text(
-                    widget.count.toString(),
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1,
-                      color: active
-                          ? Colors.white.withValues(alpha: 0.7)
-                          : CategoryChipHud._cyan.withValues(alpha: 0.5),
+                // Inner ink layer (base background)
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: const Alignment(0, -1.2),
+                      radius: 1.4,
+                      colors: [
+                        CategoryChipHud._sapphire.withValues(alpha: 0.18),
+                        CategoryChipHud._inkLayer,
+                        CategoryChipHud._ink,
+                      ],
+                      stops: const [0.0, 0.55, 1.0],
                     ),
                   ),
-                ],
+                  padding: const EdgeInsets.fromLTRB(12, 9, 14, 9),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _LedDot(controller: _pulseCtrl, active: active),
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.label.toUpperCase(),
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 2.2,
+                          color: active
+                              ? Colors.white
+                              : CategoryChipHud._sapphirePale,
+                        ),
+                      ),
+                      if (widget.count != null) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          widget.count.toString(),
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1,
+                            color: active
+                                ? Colors.white.withValues(alpha: 0.7)
+                                : CategoryChipHud._sapphire
+                                    .withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                // Shine sweep — diagonal white highlight crossing the chip.
+                // IgnorePointer so it never steals taps.
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: AnimatedBuilder(
+                      animation: _shineCtrl,
+                      builder: (_, __) {
+                        final t = (_shineCtrl.value + _phaseOffset) % 1.0;
+                        return CustomPaint(
+                          painter: _SapphireShinePainter(progress: t),
+                        );
+                      },
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -181,4 +198,93 @@ class _CategoryChipHudState extends State<CategoryChipHud>
       ),
     );
   }
+}
+
+/// LED dot — sapphire bright with breathing glow.
+class _LedDot extends StatelessWidget {
+  const _LedDot({required this.controller, required this.active});
+  final AnimationController controller;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (_, __) {
+        final t = controller.value;
+        final glow = 4.0 + (t * 6.0);
+        return Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: CategoryChipHud._sapphireBright,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: CategoryChipHud._sapphireBright.withValues(alpha: 0.6),
+                blurRadius: glow,
+              ),
+              BoxShadow(
+                color: CategoryChipHud._sapphire.withValues(alpha: 0.4),
+                blurRadius: glow + 4,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// CustomPainter that draws a diagonal white-to-transparent gradient band
+/// sweeping across the chip from left to right. The band has a steep
+/// 115° angle so it reads as a "shine" rather than a horizontal line.
+class _SapphireShinePainter extends CustomPainter {
+  _SapphireShinePainter({required this.progress});
+
+  /// 0..1 — where in the sweep cycle we are.
+  final double progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Move from off-screen left to off-screen right.
+    // Band width is ~40% of the chip width.
+    final w = size.width;
+    final h = size.height;
+    final bandWidth = w * 0.4;
+    final travel = w + bandWidth * 2;
+    final x = -bandWidth + travel * progress;
+
+    // Skip rendering when off-screen on either side (cheap optimization).
+    if (x + bandWidth < 0 || x > w) return;
+
+    // Diagonal gradient using transform — rotate the gradient by ~25° via
+    // a sheared rect approach. Simpler: paint a parallelogram of width
+    // bandWidth, slanted by skewing the points.
+    final path = Path()
+      ..moveTo(x, 0)
+      ..lineTo(x + bandWidth, 0)
+      ..lineTo(x + bandWidth - h * 0.5, h)
+      ..lineTo(x - h * 0.5, h)
+      ..close();
+
+    final shader = const LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      colors: [
+        Color(0x00FFFFFF),
+        Color(0x33FFFFFF),
+        Color(0x66FFFFFF),
+        Color(0x33FFFFFF),
+        Color(0x00FFFFFF),
+      ],
+      stops: [0.0, 0.30, 0.5, 0.70, 1.0],
+    ).createShader(Rect.fromLTWH(x, 0, bandWidth, h));
+
+    canvas.drawPath(path, Paint()..shader = shader);
+  }
+
+  @override
+  bool shouldRepaint(_SapphireShinePainter old) => old.progress != progress;
 }
