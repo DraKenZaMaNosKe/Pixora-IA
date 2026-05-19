@@ -721,6 +721,9 @@ class _StatsBar extends StatelessWidget {
 }
 
 // ─── Action row (share · like · ACQUIRE · overflow) ──────────────────────
+// Concept #02 "Holographic Glitch" (Eduardo 2026-05-18) — every ~5s each
+// button briefly glitches: RGB chromatic aberration ghosts + jitter offset.
+// A subtle scanline overlay constantly scrolls across the buttons.
 class _ActionRow extends StatelessWidget {
   const _ActionRow({
     this.onShare,
@@ -751,55 +754,67 @@ class _ActionRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _hudIcon(Icons.share_outlined, onShare),
+          _GlitchEffect(
+            phaseOffset: 0.00,
+            child: _hudIcon(Icons.share_outlined, onShare),
+          ),
           const SizedBox(width: 8),
-          _hudIcon(
-            liked ? Icons.favorite : Icons.favorite_border,
-            onLike,
-            tint: liked ? WallpaperViewerHudPage.amber : null,
+          _GlitchEffect(
+            phaseOffset: 0.22,
+            child: _hudIcon(
+              liked ? Icons.favorite : Icons.favorite_border,
+              onLike,
+              tint: liked ? WallpaperViewerHudPage.amber : null,
+            ),
           ),
           const Spacer(),
           // ACQUIRE button — main CTA
-          GestureDetector(
-            onTap: onAcquire,
-            behavior: HitTestBehavior.opaque,
-            child: Opacity(
-              opacity: onAcquire == null ? 0.5 : 1.0,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                decoration: BoxDecoration(
-                  color: WallpaperViewerHudPage.amber,
-                  boxShadow: [
-                    BoxShadow(
-                      color:
-                          WallpaperViewerHudPage.amber.withValues(alpha: 0.4),
-                      blurRadius: 14,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.play_arrow_rounded,
-                        size: 16, color: WallpaperViewerHudPage.ink),
-                    const SizedBox(width: 6),
-                    Text(
-                      'ACQUIRE',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2.5,
-                        color: WallpaperViewerHudPage.ink,
+          _GlitchEffect(
+            phaseOffset: 0.55,
+            child: GestureDetector(
+              onTap: onAcquire,
+              behavior: HitTestBehavior.opaque,
+              child: Opacity(
+                opacity: onAcquire == null ? 0.5 : 1.0,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: WallpaperViewerHudPage.amber,
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            WallpaperViewerHudPage.amber.withValues(alpha: 0.4),
+                        blurRadius: 14,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.play_arrow_rounded,
+                          size: 16, color: WallpaperViewerHudPage.ink),
+                      const SizedBox(width: 6),
+                      Text(
+                        'ACQUIRE',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 2.5,
+                          color: WallpaperViewerHudPage.ink,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
           const Spacer(),
-          _hudIcon(Icons.more_horiz, onOverflow),
+          _GlitchEffect(
+            phaseOffset: 0.78,
+            child: _hudIcon(Icons.more_horiz, onOverflow),
+          ),
         ],
       ),
     );
@@ -832,6 +847,196 @@ class _ActionRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Holographic Glitch wrapper — concept #02 from hud_action_buttons_concepts
+/// (Eduardo's pick 2026-05-18). Wraps any [child] with:
+///   1. A subtle scanline that constantly scrolls across the child.
+///   2. A brief "glitch burst" (~12% of cycle) where the child shows RGB
+///      chromatic ghost copies (red shifted left, cyan shifted right) plus
+///      a 1-2px positional jitter, recalling Cyberpunk 2077 / Detroit:BH UI.
+///
+/// [phaseOffset] (0..1) lets the parent stagger multiple buttons so they
+/// never glitch in lockstep.
+class _GlitchEffect extends StatefulWidget {
+  const _GlitchEffect({
+    required this.child,
+    required this.phaseOffset,
+  });
+
+  final Widget child;
+  final double phaseOffset;
+
+  @override
+  State<_GlitchEffect> createState() => _GlitchEffectState();
+}
+
+class _GlitchEffectState extends State<_GlitchEffect>
+    with TickerProviderStateMixin {
+  late final AnimationController _glitchCtrl;
+  late final AnimationController _scanCtrl;
+
+  // Glitch window — last 12% of each cycle shows the chromatic burst.
+  static const _glitchStart = 0.88;
+
+  // Ghost colors for RGB split (Cyberpunk red + electric cyan).
+  static const _ghostRed = Color(0xFFFF003C);
+  static const _ghostCyan = Color(0xFF00FFE0);
+
+  @override
+  void initState() {
+    super.initState();
+    _glitchCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 5000),
+    )..repeat();
+    _scanCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _glitchCtrl.dispose();
+    _scanCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_glitchCtrl, _scanCtrl]),
+      builder: (_, __) {
+        final t = (_glitchCtrl.value + widget.phaseOffset) % 1.0;
+        final inGlitch = t > _glitchStart;
+        // Drive per-frame jitter using a discrete frame counter so the
+        // effect feels like staccato glitches, not smooth motion.
+        Offset jitter = Offset.zero;
+        bool showGhosts = false;
+        double redOpacity = 0;
+        double cyanOpacity = 0;
+        if (inGlitch) {
+          final glitchPhase = (t - _glitchStart) / (1.0 - _glitchStart);
+          final frame = (glitchPhase * 6).floor();
+          showGhosts = true;
+          switch (frame) {
+            case 0:
+              jitter = const Offset(-1.5, 0);
+              redOpacity = 0.55;
+              cyanOpacity = 0.55;
+              break;
+            case 1:
+              jitter = const Offset(1.5, 0);
+              redOpacity = 0.7;
+              cyanOpacity = 0.5;
+              break;
+            case 2:
+              jitter = const Offset(0, -1);
+              redOpacity = 0.4;
+              cyanOpacity = 0.65;
+              break;
+            case 3:
+              jitter = const Offset(0.5, 0);
+              redOpacity = 0.65;
+              cyanOpacity = 0.0;
+              break;
+            case 4:
+              jitter = const Offset(2, 0.5);
+              redOpacity = 0.55;
+              cyanOpacity = 0.55;
+              break;
+            default:
+              jitter = Offset.zero;
+              redOpacity = 0.0;
+              cyanOpacity = 0.3;
+          }
+        }
+        return Transform.translate(
+          offset: jitter,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              if (showGhosts)
+                Transform.translate(
+                  offset: const Offset(-2.5, 0),
+                  child: Opacity(
+                    opacity: redOpacity,
+                    child: ColorFiltered(
+                      colorFilter: const ColorFilter.mode(
+                        _ghostRed,
+                        BlendMode.srcATop,
+                      ),
+                      child: widget.child,
+                    ),
+                  ),
+                ),
+              if (showGhosts)
+                Transform.translate(
+                  offset: const Offset(2.5, 0),
+                  child: Opacity(
+                    opacity: cyanOpacity,
+                    child: ColorFiltered(
+                      colorFilter: const ColorFilter.mode(
+                        _ghostCyan,
+                        BlendMode.srcATop,
+                      ),
+                      child: widget.child,
+                    ),
+                  ),
+                ),
+              widget.child,
+              // Scanline overlay — non-interactive
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: _ScanlineOverlayPainter(
+                      progress: _scanCtrl.value,
+                      color: WallpaperViewerHudPage.cyan,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// CustomPainter that draws a thin horizontal scanline (1-2px) sliding
+/// vertically across the child. Subtle — used to reinforce the "screen
+/// glitch" feeling without being distracting between glitch bursts.
+class _ScanlineOverlayPainter extends CustomPainter {
+  _ScanlineOverlayPainter({required this.progress, required this.color});
+
+  /// 0..1 = top to bottom sweep, loops.
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    final y = size.height * progress;
+    // Soft band ~2px tall with quick fade.
+    final rect = Rect.fromLTWH(0, y - 1, size.width, 2);
+    final paint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          color.withValues(alpha: 0.0),
+          color.withValues(alpha: 0.25),
+          color.withValues(alpha: 0.0),
+        ],
+      ).createShader(rect);
+    canvas.drawRect(rect, paint);
+  }
+
+  @override
+  bool shouldRepaint(_ScanlineOverlayPainter old) =>
+      old.progress != progress || old.color != color;
 }
 
 // ─── Mock native ad card (intercalated in PageView) ──────────────────────
