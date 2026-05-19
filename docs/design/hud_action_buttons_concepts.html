@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora · HUD Action Buttons · 5 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#02050A;
+    --ink-2:#06101D;
+    --cyan:#00E5FF;
+    --cyan-deep:#0099B0;
+    --amber:#FFB400;
+    --amber-deep:#B07A00;
+    --amber-bright:#FFD66B;
+    --white:#fff;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#0a0a14 0%,#020205 70%,#000 100%);
+    color:#eee;font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+
+  .archive{max-width:1500px;margin:0 auto;padding:56px 32px 96px}
+  .head{text-align:center;margin-bottom:48px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:var(--cyan);text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fade .8s .1s forwards;font-weight:600}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(36px,6vw,60px);line-height:1.02;letter-spacing:-.02em;color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards}
+  h1 .num{color:var(--amber);font-weight:200}
+  .sub{font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;color:rgba(255,255,255,.6);max-width:720px;margin:0 auto;opacity:0;animation:fade .9s .5s forwards}
+  .sub b{color:var(--amber-bright);font-weight:500}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--cyan) 50%,transparent);margin:40px auto;width:60%;opacity:.4}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:64px 32px;align-items:start}
+  @media (min-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
+
+  .concept{display:grid;grid-template-columns:1fr;gap:18px;opacity:0;animation:rise 1s forwards}
+  .concept:nth-child(1){animation-delay:.5s}
+  .concept:nth-child(2){animation-delay:.65s}
+  .concept:nth-child(3){animation-delay:.8s}
+  .concept:nth-child(4){animation-delay:.95s}
+  .concept:nth-child(5){animation-delay:1.1s}
+
+  .stage{
+    background:var(--ink);
+    border-radius:18px;
+    padding:32px 18px;
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(0,229,255,.08);
+  }
+  .stage::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at center top,rgba(0,229,255,.06),transparent 60%);
+    pointer-events:none;
+  }
+  .stage-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--cyan);opacity:.5;margin-bottom:20px;font-weight:700;
+  }
+
+  /* ===== Action row anatomy (mirror of WallpaperViewerHudPage) ===== */
+  .action-row{
+    display:flex;align-items:center;gap:10px;
+  }
+  .btn{
+    position:relative;
+    background:transparent;
+    border:1.5px solid rgba(0,229,255,.4);
+    border-radius:8px;
+    color:var(--cyan);
+    cursor:pointer;
+    transition:all .2s ease;
+    overflow:visible;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .btn-square{
+    width:44px;height:44px;font-size:20px;
+  }
+  .btn-acquire{
+    flex:1;
+    height:48px;
+    padding:0 18px;
+    border-color:rgba(255,180,0,.6);
+    color:var(--amber);
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;font-size:13px;letter-spacing:.15em;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(180deg,rgba(255,180,0,.18),rgba(255,180,0,.05));
+  }
+  .btn-acquire .triangle{
+    width:0;height:0;
+    border-left:7px solid currentColor;
+    border-top:5px solid transparent;
+    border-bottom:5px solid transparent;
+    margin-right:2px;
+  }
+
+  .meta{padding:0 4px}
+  .meta-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--cyan);margin-bottom:8px;font-weight:600}
+  .meta-name{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:26px;line-height:1.15;color:#fff;margin-bottom:8px;letter-spacing:-.01em}
+  .meta-tag{font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;color:rgba(255,255,255,.6);margin-bottom:14px;font-weight:300}
+  .meta-tag b{color:var(--amber-bright);font-weight:500}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.7;letter-spacing:.05em;border-left:1px solid var(--cyan);padding-left:12px;color:rgba(255,255,255,.55)}
+  .verdict .p{color:#A7E2A1}
+  .verdict .c{color:var(--amber-bright);opacity:.85}
+
+  footer{text-align:center;margin-top:96px;padding-top:28px;border-top:1px solid rgba(0,229,255,.15);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.3);text-transform:uppercase}
+
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ============================================== */
+  /* CONCEPT 01 — SHOCKWAVE PULSE                   */
+  /* Onda concéntrica al tap + idle pulse sutil     */
+  /* ============================================== */
+  .c1 .btn{animation:c1-idle 2.8s ease-in-out infinite}
+  @keyframes c1-idle{
+    0%,100%{box-shadow:0 0 0 0 currentColor,inset 0 0 0 0 currentColor}
+    50%{box-shadow:0 0 8px -2px currentColor}
+  }
+  .c1 .btn::before,
+  .c1 .btn::after{
+    content:'';position:absolute;inset:-2px;
+    border:1.5px solid currentColor;
+    border-radius:9px;
+    opacity:0;
+    pointer-events:none;
+    animation:shockwave 3.5s ease-out infinite;
+  }
+  .c1 .btn::after{animation-delay:1.75s}
+  @keyframes shockwave{
+    0%{transform:scale(1);opacity:.8}
+    100%{transform:scale(1.8);opacity:0}
+  }
+  .c1 .btn-acquire{animation:c1-acquire 2.4s ease-in-out infinite}
+  @keyframes c1-acquire{
+    0%,100%{box-shadow:0 0 12px -4px var(--amber),inset 0 1px 0 rgba(255,214,107,.15)}
+    50%{box-shadow:0 0 24px -2px var(--amber),inset 0 1px 0 rgba(255,214,107,.3),0 0 0 1px var(--amber-bright)}
+  }
+  .c1 .btn:nth-child(1)::before{animation-delay:.3s}
+  .c1 .btn:nth-child(2)::before{animation-delay:.9s}
+  .c1 .btn:nth-child(4)::before{animation-delay:1.5s}
+
+  /* ============================================== */
+  /* CONCEPT 02 — HOLOGRAPHIC GLITCH                */
+  /* RGB chromatic aberration + scanline flicker    */
+  /* ============================================== */
+  .c2 .btn{
+    animation:c2-glitch 4s steps(1) infinite;
+  }
+  @keyframes c2-glitch{
+    0%,90%,100%{
+      text-shadow:0 0 0 transparent;
+      transform:translate(0,0);
+    }
+    91%{text-shadow:-2px 0 #FF003C,2px 0 #00FFE0;transform:translate(-1px,0)}
+    92%{text-shadow:2px 0 #FF003C,-2px 0 #00FFE0;transform:translate(1px,0)}
+    93%{text-shadow:0 0 0 transparent;transform:translate(0,0)}
+    95%{text-shadow:-1px 0 #FF003C,1px 0 #00FFE0;transform:translate(0,-1px)}
+    96%{text-shadow:0 0 0 transparent;transform:translate(0,0)}
+  }
+  .c2 .btn::before{
+    content:'';position:absolute;inset:0;border-radius:7px;
+    background:linear-gradient(180deg,transparent 0,transparent 48%,rgba(0,229,255,.25) 49%,rgba(0,229,255,.25) 51%,transparent 52%,transparent 100%);
+    background-size:100% 8px;
+    opacity:.5;
+    pointer-events:none;
+    animation:c2-scan 2.5s linear infinite;
+  }
+  @keyframes c2-scan{
+    0%{background-position:0 -100%}
+    100%{background-position:0 200%}
+  }
+  .c2 .btn-acquire{animation:c2-glitch-acq 5s steps(1) infinite}
+  @keyframes c2-glitch-acq{
+    0%,80%,100%{color:var(--amber)}
+    81%{color:#FF003C;text-shadow:2px 0 #00FFE0}
+    82%{color:var(--amber);text-shadow:none}
+    84%{color:#00FFE0;text-shadow:-2px 0 #FF003C}
+    85%{color:var(--amber);text-shadow:none}
+  }
+
+  /* ============================================== */
+  /* CONCEPT 03 — LIQUID FILL                       */
+  /* Líquido cyan sube como ola interna al tap      */
+  /* ============================================== */
+  .c3 .btn{overflow:hidden}
+  .c3 .btn::before{
+    content:'';position:absolute;left:0;right:0;bottom:-100%;height:200%;
+    background:linear-gradient(180deg,transparent 0%,rgba(0,229,255,.35) 50%,rgba(0,229,255,.6) 100%);
+    pointer-events:none;
+    animation:liquid-rise 3s ease-in-out infinite;
+  }
+  @keyframes liquid-rise{
+    0%,90%,100%{transform:translateY(0)}
+    20%,70%{transform:translateY(-50%)}
+  }
+  .c3 .btn::after{
+    content:'';position:absolute;left:50%;top:-50%;width:80%;height:80%;
+    background:radial-gradient(ellipse,rgba(0,229,255,.4),transparent 70%);
+    transform:translateX(-50%);
+    pointer-events:none;
+    opacity:0;
+    animation:liquid-glow 3s ease-in-out infinite;
+  }
+  @keyframes liquid-glow{
+    0%,90%,100%{opacity:0;transform:translateX(-50%) translateY(0)}
+    50%{opacity:.7;transform:translateX(-50%) translateY(20%)}
+  }
+  .c3 .btn-acquire::before{
+    background:linear-gradient(180deg,transparent 0%,rgba(255,180,0,.45) 50%,rgba(255,180,0,.7) 100%);
+  }
+  .c3 .btn-acquire::after{
+    background:radial-gradient(ellipse,rgba(255,180,0,.6),transparent 70%);
+  }
+
+  /* ============================================== */
+  /* CONCEPT 04 — PARTICLE BURST                    */
+  /* Explosión de sparks cyan/amber al tap          */
+  /* ============================================== */
+  .c4 .btn{
+    animation:c4-base 2.5s ease-in-out infinite;
+  }
+  @keyframes c4-base{
+    0%,90%,100%{box-shadow:0 0 0 0 transparent}
+    45%{box-shadow:0 0 12px -2px currentColor}
+  }
+  .c4 .btn .sparks{
+    position:absolute;inset:0;
+    pointer-events:none;
+  }
+  .c4 .btn .spark{
+    position:absolute;left:50%;top:50%;
+    width:3px;height:3px;border-radius:50%;
+    background:currentColor;
+    box-shadow:0 0 6px currentColor;
+    opacity:0;
+    animation:spark-burst 2.5s ease-out infinite;
+  }
+  .c4 .btn .spark:nth-child(1){animation-delay:0s;--dx:18px;--dy:-22px}
+  .c4 .btn .spark:nth-child(2){animation-delay:0s;--dx:-22px;--dy:-18px}
+  .c4 .btn .spark:nth-child(3){animation-delay:0s;--dx:22px;--dy:18px}
+  .c4 .btn .spark:nth-child(4){animation-delay:0s;--dx:-18px;--dy:22px}
+  .c4 .btn .spark:nth-child(5){animation-delay:0s;--dx:0;--dy:-28px;background:var(--amber);box-shadow:0 0 6px var(--amber)}
+  .c4 .btn .spark:nth-child(6){animation-delay:0s;--dx:28px;--dy:0;background:var(--amber);box-shadow:0 0 6px var(--amber)}
+  @keyframes spark-burst{
+    0%,40%,100%{opacity:0;transform:translate(-50%,-50%) scale(0)}
+    45%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    65%{opacity:.8;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.6)}
+    80%{opacity:0;transform:translate(calc(-50% + var(--dx) * 1.3),calc(-50% + var(--dy) * 1.3)) scale(.2)}
+  }
+  .c4 .btn:nth-child(1){animation-delay:0s}
+  .c4 .btn:nth-child(2){animation-delay:.6s}
+  .c4 .btn:nth-child(4){animation-delay:1.2s}
+
+  /* ============================================== */
+  /* CONCEPT 05 — MAGNETIC LEVITATE + ENERGY LINES  */
+  /* Bobbing flotante + field lines al "activarse"  */
+  /* ============================================== */
+  .c5 .btn{
+    animation:c5-float 3.6s ease-in-out infinite;
+  }
+  @keyframes c5-float{
+    0%,100%{transform:translateY(0);box-shadow:0 4px 8px -4px currentColor}
+    50%{transform:translateY(-3px);box-shadow:0 8px 14px -4px currentColor}
+  }
+  .c5 .btn:nth-child(1){animation-delay:0s}
+  .c5 .btn:nth-child(2){animation-delay:.4s}
+  .c5 .btn:nth-child(3){animation-delay:.8s}
+  .c5 .btn:nth-child(4){animation-delay:1.2s}
+  /* Magnetic field lines that appear periodically */
+  .c5 .btn::before,
+  .c5 .btn::after{
+    content:'';position:absolute;
+    border:1px solid currentColor;
+    border-radius:50%;
+    pointer-events:none;
+    opacity:0;
+  }
+  .c5 .btn::before{
+    width:120%;height:140%;
+    top:-20%;left:-10%;
+    animation:c5-field 3s ease-in-out infinite;
+  }
+  .c5 .btn::after{
+    width:160%;height:180%;
+    top:-40%;left:-30%;
+    animation:c5-field 3s ease-in-out .25s infinite;
+  }
+  @keyframes c5-field{
+    0%,70%,100%{opacity:0;transform:scale(.85)}
+    25%{opacity:.45;transform:scale(1)}
+    50%{opacity:0;transform:scale(1.15)}
+  }
+  .c5 .btn-acquire{
+    animation:c5-float 3.6s ease-in-out infinite,c5-acq-glow 2.4s ease-in-out infinite;
+  }
+  @keyframes c5-acq-glow{
+    0%,100%{background:linear-gradient(180deg,rgba(255,180,0,.18),rgba(255,180,0,.05))}
+    50%{background:linear-gradient(180deg,rgba(255,180,0,.35),rgba(255,180,0,.15));box-shadow:0 0 24px -2px var(--amber),inset 0 0 0 1px var(--amber-bright)}
+  }
+
+</style>
+</head>
+<body>
+  <div class="archive">
+    <header class="head">
+      <div class="eyebrow">Pixora · HUD Viewer · Action Row</div>
+      <h1>Botones épicos <span class="num">· 5 conceptos</span></h1>
+      <p class="sub">Para los 4 botones del action row del <b>Wallpaper Explorer HUD</b>: <b>Share · Like · Acquire · Overflow</b>. Cada concepto en loop continuo simulando el "tap" para que veas el efecto en vivo. Mantienen la palette HUD (cyan + amber + ink). Elige UNO y lo implemento en Flutter.</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <main class="grid">
+
+      <!-- CONCEPT 01 — SHOCKWAVE PULSE -->
+      <div class="concept c1">
+        <div class="stage">
+          <div class="stage-label">// concept · shockwave pulse</div>
+          <div class="action-row">
+            <button class="btn btn-square">⇪</button>
+            <button class="btn btn-square">♡</button>
+            <button class="btn btn-acquire"><span class="triangle"></span>ACQUIRE</button>
+            <button class="btn btn-square">⋯</button>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 01</div>
+          <div class="meta-name">Shockwave Pulse</div>
+          <div class="meta-tag">Onda concéntrica cyan se expande hacia afuera periódicamente desde cada botón + glow respirando. Acquire pulsa con doble glow amber. <b>Vibe radar sci-fi blockbuster</b>.</div>
+          <div class="verdict">
+            <div><span class="p">✓ legible, llama atención sin saturar — efecto clásico HUD</span></div>
+            <div><span class="c">✗ puede sentirse "estándar" si quieres algo único</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 02 — HOLOGRAPHIC GLITCH -->
+      <div class="concept c2">
+        <div class="stage">
+          <div class="stage-label">// concept · holographic glitch</div>
+          <div class="action-row">
+            <button class="btn btn-square">⇪</button>
+            <button class="btn btn-square">♡</button>
+            <button class="btn btn-acquire"><span class="triangle"></span>ACQUIRE</button>
+            <button class="btn btn-square">⋯</button>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 02</div>
+          <div class="meta-name">Holographic Glitch</div>
+          <div class="meta-tag">Aberración cromática RGB (red/cyan split) + scanline flicker recorriendo cada botón. <b>Vibe Cyberpunk 2077 / Detroit Become Human</b>. Los botones parecen holos parpadeantes.</div>
+          <div class="verdict">
+            <div><span class="p">✓ único, llamativo, refuerza identidad "HUD futurista"</span></div>
+            <div><span class="c">✗ el glitch puede ser intenso — vigilar epilepsy-safe</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 03 — LIQUID FILL -->
+      <div class="concept c3">
+        <div class="stage">
+          <div class="stage-label">// concept · liquid fill</div>
+          <div class="action-row">
+            <button class="btn btn-square">⇪</button>
+            <button class="btn btn-square">♡</button>
+            <button class="btn btn-acquire"><span class="triangle"></span>ACQUIRE</button>
+            <button class="btn btn-square">⋯</button>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 03</div>
+          <div class="meta-name">Liquid Fill</div>
+          <div class="meta-tag">Líquido cyan/amber sube como ola interna desde abajo, llena el botón y se desvanece. <b>Vibe Apple Liquid Glass / iOS 19</b>. Refinado y orgánico.</div>
+          <div class="verdict">
+            <div><span class="p">✓ premium absoluto, sensación de "energía cargándose"</span></div>
+            <div><span class="c">✗ requiere clip preciso — overflow puede sentirse pesado</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 04 — PARTICLE BURST -->
+      <div class="concept c4">
+        <div class="stage">
+          <div class="stage-label">// concept · particle burst</div>
+          <div class="action-row">
+            <button class="btn btn-square">⇪
+              <span class="sparks"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></span>
+            </button>
+            <button class="btn btn-square">♡
+              <span class="sparks"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></span>
+            </button>
+            <button class="btn btn-acquire"><span class="triangle"></span>ACQUIRE
+              <span class="sparks"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></span>
+            </button>
+            <button class="btn btn-square">⋯
+              <span class="sparks"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></span>
+            </button>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 04</div>
+          <div class="meta-name">Particle Burst</div>
+          <div class="meta-tag">Al "tap" explotan <b>6 sparks cyan + amber</b> hacia afuera del botón (stagger por botón). Glow base periódico. Vibe celebración / Pokémon GO catch / unlock.</div>
+          <div class="verdict">
+            <div><span class="p">✓ divertido, gratificante, sensación de "logro" al tapear</span></div>
+            <div><span class="c">✗ si dispara con cada tap puede saturar en uso intenso</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 05 — MAGNETIC LEVITATE -->
+      <div class="concept c5">
+        <div class="stage">
+          <div class="stage-label">// concept · magnetic levitate</div>
+          <div class="action-row">
+            <button class="btn btn-square">⇪</button>
+            <button class="btn btn-square">♡</button>
+            <button class="btn btn-acquire"><span class="triangle"></span>ACQUIRE</button>
+            <button class="btn btn-square">⋯</button>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 05</div>
+          <div class="meta-name">Magnetic Levitate</div>
+          <div class="meta-tag">Botones <b>flotan con bobbing sutil</b> (stagger por botón = ola coreografiada) + anillos de campo magnético aparecen y desaparecen alrededor periódicamente. Acquire gana glow amber al ritmo. <b>Vibe Iron Man HUD / JARVIS</b>.</div>
+          <div class="verdict">
+            <div><span class="p">✓ ÉPICO total, sensación de tecnología viva, único en mobile apps</span></div>
+            <div><span class="c">✗ múltiples animaciones en simultáneo cuestan repaints</span></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>Pixora · HUD Action Buttons · Design Archive · Mayo 2026</footer>
+  </div>
+</body>
+</html>

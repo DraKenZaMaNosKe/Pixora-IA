@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora · Category Chips · 5 Conceptos Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    /* Theme bases */
+    --ios-bg:#FAFAFC;
+    --ios-card:#FFFFFF;
+    --ios-ink:#1A1A1F;
+    --ios-mute:#6B7080;
+    --ios-blue:#0A84FF;
+    --ios-cyan:#22D3EE;
+    --ios-mint:#34C759;
+
+    --bg-ink:#070710;
+    --bg-ink-2:#0B0B16;
+    --bg-paper:#F5E9C8;
+    --gold-deep:#D9B14A;
+    --gold-bright:#F5D676;
+    --gold-pale:#FBE9B6;
+    --gold-warm:#E8C26A;
+
+    /* Category accents */
+    --cat-trending:#FFB400;
+    --cat-new:#22D3EE;
+    --cat-arte:#EC4899;
+    --cat-mito:#6EE7B7;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#0a0a14 0%,#020205 70%,#000 100%);
+    color:#eee;font-family:'Geist',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+
+  /* ===== Header ===== */
+  .archive{max-width:1500px;margin:0 auto;padding:56px 32px 96px}
+  .head{text-align:center;margin-bottom:48px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:var(--gold-bright);text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fade .8s .1s forwards;font-weight:600}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(36px,6vw,60px);line-height:1.02;letter-spacing:-.02em;color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards}
+  h1 .num{color:var(--gold-deep);font-weight:200}
+  .sub{font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;color:rgba(255,255,255,.6);max-width:720px;margin:0 auto;opacity:0;animation:fade .9s .5s forwards}
+  .sub b{color:var(--gold-bright);font-weight:500}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep) 50%,transparent);margin:40px auto;width:60%;opacity:.4}
+
+  /* ===== Grid ===== */
+  .grid{display:grid;grid-template-columns:1fr;gap:80px 32px;align-items:start}
+  @media (min-width:920px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1400px){.grid{grid-template-columns:repeat(2,1fr)}}
+
+  /* ===== Concept block ===== */
+  .concept{display:grid;grid-template-columns:1fr;gap:18px;opacity:0;animation:rise 1s forwards}
+  .concept:nth-child(1){animation-delay:.6s}
+  .concept:nth-child(2){animation-delay:.75s}
+  .concept:nth-child(3){animation-delay:.9s}
+  .concept:nth-child(4){animation-delay:1.05s}
+  .concept:nth-child(5){animation-delay:1.2s}
+
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .panel{
+    border-radius:18px;
+    padding:24px 18px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  .panel.ios{
+    background:linear-gradient(180deg,#F8F8FC,#EFEFF4);
+    color:var(--ios-ink);
+    box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 20px 40px -10px rgba(255,255,255,.05);
+  }
+  .panel.bg{
+    background:linear-gradient(180deg,var(--bg-ink-2),var(--bg-ink));
+    color:#fff;
+    box-shadow:0 1px 0 rgba(217,177,74,.1) inset,0 20px 40px -10px rgba(217,177,74,.08);
+    border:1px solid rgba(217,177,74,.12);
+  }
+  .panel-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:.3em;
+    text-transform:uppercase;font-weight:700;
+    margin-bottom:14px;display:flex;align-items:center;gap:6px;
+  }
+  .panel.ios .panel-label{color:rgba(0,0,0,.45)}
+  .panel.bg .panel-label{color:var(--gold-bright);opacity:.7}
+  .panel-label::after{content:'';flex:1;height:1px;background:currentColor;opacity:.2}
+
+  .chips-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+  /* ===== Meta ===== */
+  .meta{padding:0 4px}
+  .meta-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--gold-bright);margin-bottom:8px;font-weight:600}
+  .meta-name{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:26px;line-height:1.15;color:#fff;margin-bottom:8px;letter-spacing:-.01em}
+  .meta-tag{font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;color:rgba(255,255,255,.6);margin-bottom:14px;font-weight:300}
+  .meta-tag b{color:var(--gold-bright);font-weight:500}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.7;letter-spacing:.05em;border-left:1px solid var(--gold-bright);padding-left:12px;color:rgba(255,255,255,.55)}
+  .verdict .p{color:#A7E2A1}
+  .verdict .c{color:var(--gold-bright);opacity:.85}
+
+  footer{text-align:center;margin-top:96px;padding-top:28px;border-top:1px solid rgba(217,177,74,.15);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.3);text-transform:uppercase}
+
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ============================================== */
+  /* CONCEPT 01 — APPLE GLASS PILL                  */
+  /* Apple Vision Pro vibe — frosted glass + thin   */
+  /* border, ultra premium minimal                  */
+  /* ============================================== */
+  .c1 .panel.ios{background:linear-gradient(180deg,#F8F8FC,#EAEAF0)}
+  .c1 .panel.bg{
+    background:
+      radial-gradient(ellipse at top left,rgba(217,177,74,.06),transparent 60%),
+      linear-gradient(180deg,#0B0B16,#070710);
+  }
+  .chip-c1{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:8px 14px;border-radius:24px;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:11px;
+    letter-spacing:.06em;text-transform:uppercase;
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    transition:transform .3s ease;
+    cursor:pointer;
+    position:relative;
+  }
+  .chip-c1:hover{transform:translateY(-1px)}
+  .ios .chip-c1{
+    background:rgba(255,255,255,.6);
+    color:var(--ios-ink);
+    box-shadow:0 1px 0 rgba(255,255,255,1) inset,
+               0 0 0 1px rgba(0,0,0,.06),
+               0 2px 6px rgba(0,0,0,.04);
+  }
+  .ios .chip-c1.active{
+    background:rgba(10,132,255,.10);
+    color:var(--ios-blue);
+    box-shadow:0 0 0 1.5px var(--ios-blue),
+               0 0 0 4px rgba(10,132,255,.12),
+               0 2px 6px rgba(10,132,255,.18);
+  }
+  .bg .chip-c1{
+    background:rgba(255,255,255,.04);
+    color:#FBE9B6;
+    box-shadow:0 1px 0 rgba(245,214,118,.08) inset,
+               0 0 0 1px rgba(245,214,118,.18),
+               0 2px 6px rgba(0,0,0,.4);
+  }
+  .bg .chip-c1.active{
+    background:rgba(245,214,118,.08);
+    color:var(--gold-bright);
+    box-shadow:0 1px 0 rgba(245,214,118,.25) inset,
+               0 0 0 1.5px var(--gold-bright),
+               0 0 0 4px rgba(245,214,118,.12),
+               0 2px 8px rgba(245,214,118,.25);
+  }
+  .chip-c1 .dot{
+    width:5px;height:5px;border-radius:50%;
+    background:currentColor;opacity:.6;
+  }
+  .chip-c1.active .dot{
+    opacity:1;
+    box-shadow:0 0 6px currentColor;
+    animation:pulse-c1 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-c1{
+    0%,100%{opacity:.7;transform:scale(1)}
+    50%{opacity:1;transform:scale(1.3)}
+  }
+  .chip-c1 .ct{font-family:'JetBrains Mono',monospace;font-size:9px;opacity:.6;font-weight:500}
+
+  /* ============================================== */
+  /* CONCEPT 02 — HOLOGRAPHIC FOIL TAG               */
+  /* Foil shimmer (Pixora signature) + edge highlight*/
+  /* ============================================== */
+  .chip-c2{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:9px 15px;border-radius:8px;
+    font-family:'Geist',sans-serif;font-weight:700;font-size:11px;
+    letter-spacing:.08em;text-transform:uppercase;
+    position:relative;overflow:hidden;
+    cursor:pointer;
+    transition:transform .25s ease;
+  }
+  .chip-c2:hover{transform:translateY(-1px)}
+  .chip-c2::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(110deg,
+      transparent 35%,
+      rgba(255,255,255,.55) 50%,
+      transparent 65%);
+    background-size:250% 100%;
+    background-position:-200% center;
+    animation:foil-c2 3.6s ease-in-out infinite;
+    pointer-events:none;
+    mix-blend-mode:overlay;
+  }
+  @keyframes foil-c2{
+    0%{background-position:-150% center}
+    100%{background-position:250% center}
+  }
+  .ios .chip-c2{
+    background:linear-gradient(135deg,#E8E8EE,#F5F5F8);
+    color:var(--ios-ink);
+    border:1px solid rgba(0,0,0,.08);
+  }
+  .ios .chip-c2.active{
+    background:linear-gradient(135deg,#0A84FF,#0066CC);
+    color:#fff;
+    border:none;
+    box-shadow:0 4px 12px -2px rgba(10,132,255,.4);
+  }
+  .bg .chip-c2{
+    background:linear-gradient(135deg,#1A1A28,#0F0F1A);
+    color:var(--gold-pale);
+    border:1px solid rgba(217,177,74,.2);
+  }
+  .bg .chip-c2.active{
+    background:linear-gradient(135deg,var(--gold-deep),var(--gold-bright));
+    color:var(--bg-ink);
+    border:none;
+    box-shadow:0 4px 12px -2px rgba(217,177,74,.5);
+  }
+  .chip-c2 .ct{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;font-weight:600;
+    padding:1px 5px;border-radius:3px;
+    background:rgba(0,0,0,.12);
+    margin-left:2px;
+  }
+  .bg .chip-c2 .ct{background:rgba(0,0,0,.3);color:var(--gold-pale)}
+  .chip-c2.active .ct{background:rgba(0,0,0,.18);color:inherit}
+
+  /* ============================================== */
+  /* CONCEPT 03 — METRO TICKET STUB                  */
+  /* Boletos vintage perforados, edge ticking,       */
+  /* color por categoría, vibe NYC subway             */
+  /* ============================================== */
+  .chip-c3{
+    display:inline-flex;align-items:center;gap:0;
+    border-radius:6px;
+    font-family:'Inter',sans-serif;font-weight:800;font-size:10px;
+    letter-spacing:.1em;text-transform:uppercase;
+    cursor:pointer;
+    overflow:visible;
+    transition:transform .2s ease;
+    position:relative;
+  }
+  .chip-c3:hover{transform:translateY(-1px)}
+  .chip-c3 .stub{
+    padding:7px 8px 7px 10px;
+    background:transparent;
+    color:inherit;
+  }
+  .chip-c3 .label{
+    padding:7px 12px 7px 10px;
+  }
+  .chip-c3 .perf{
+    width:1px;height:18px;
+    background-image:linear-gradient(to bottom,currentColor 0,currentColor 2px,transparent 2px,transparent 5px);
+    background-size:1px 5px;
+    opacity:.6;
+    flex-shrink:0;
+  }
+  .chip-c3 .ct{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;font-weight:700;
+  }
+  .ios .chip-c3{
+    background:#FFFFFF;
+    color:var(--ios-ink);
+    border:1.5px solid #E0E0E8;
+    box-shadow:0 2px 4px rgba(0,0,0,.04);
+  }
+  .ios .chip-c3.cat-trending.active{border-color:var(--cat-trending);color:#9C7000}
+  .ios .chip-c3.cat-new.active{border-color:var(--cat-new);color:#0F7F8F}
+  .ios .chip-c3.cat-arte.active{border-color:var(--cat-arte);color:#A6135E}
+  .ios .chip-c3.cat-mito.active{border-color:var(--cat-mito);color:#1A8C5A}
+  .ios .chip-c3.active{box-shadow:0 4px 10px -2px currentColor}
+  .bg .chip-c3{
+    background:rgba(255,255,255,.03);
+    color:rgba(255,255,255,.65);
+    border:1.5px solid rgba(255,255,255,.12);
+  }
+  .bg .chip-c3.cat-trending.active{border-color:var(--cat-trending);color:var(--cat-trending);background:rgba(255,180,0,.08)}
+  .bg .chip-c3.cat-new.active{border-color:var(--cat-new);color:var(--cat-new);background:rgba(34,211,238,.08)}
+  .bg .chip-c3.cat-arte.active{border-color:var(--cat-arte);color:var(--cat-arte);background:rgba(236,72,153,.08)}
+  .bg .chip-c3.cat-mito.active{border-color:var(--cat-mito);color:var(--cat-mito);background:rgba(110,231,183,.08)}
+  .bg .chip-c3.active{
+    box-shadow:0 0 0 3px rgba(0,0,0,.4),0 0 12px -2px currentColor;
+  }
+
+  /* ============================================== */
+  /* CONCEPT 04 — EMBOSSED CARTOUCHE                 */
+  /* Esquinas tipo cartouche egipcio / Saint Seiya,  */
+  /* engraved feel, gold corners on active           */
+  /* ============================================== */
+  .chip-c4{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:9px 16px;border-radius:3px;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:13px;
+    letter-spacing:.04em;
+    cursor:pointer;
+    position:relative;
+    transition:all .25s ease;
+  }
+  .chip-c4:hover{transform:translateY(-1px)}
+  .chip-c4::before,
+  .chip-c4::after{
+    content:'';position:absolute;width:6px;height:6px;
+    border:1px solid currentColor;
+    opacity:0;
+    transition:opacity .3s ease;
+  }
+  .chip-c4::before{top:-2px;left:-2px;border-right:none;border-bottom:none}
+  .chip-c4::after{bottom:-2px;right:-2px;border-left:none;border-top:none}
+  .chip-c4.active::before,
+  .chip-c4.active::after{opacity:1;animation:cart-blink 2.2s ease-in-out infinite}
+  @keyframes cart-blink{
+    0%,100%{opacity:.5}
+    50%{opacity:1}
+  }
+  .chip-c4 .dot{
+    width:4px;height:4px;border-radius:50%;
+    background:currentColor;
+    opacity:.7;
+  }
+  .chip-c4 .ct{
+    font-family:'JetBrains Mono',monospace;
+    font-style:normal;
+    font-size:9px;opacity:.7;font-weight:600;
+  }
+  .ios .chip-c4{
+    background:transparent;
+    color:var(--ios-mute);
+    border:1px solid rgba(0,0,0,.12);
+  }
+  .ios .chip-c4.active{
+    background:rgba(10,132,255,.06);
+    color:var(--ios-blue);
+    border-color:var(--ios-blue);
+  }
+  .bg .chip-c4{
+    background:transparent;
+    color:rgba(245,233,200,.5);
+    border:1px solid rgba(217,177,74,.2);
+  }
+  .bg .chip-c4.active{
+    color:var(--gold-bright);
+    border-color:var(--gold-bright);
+    background:rgba(245,214,118,.04);
+    box-shadow:0 0 18px -4px rgba(245,214,118,.3);
+  }
+
+  /* ============================================== */
+  /* CONCEPT 05 — NEON SEGMENT (BAR CHART vibe)      */
+  /* Pill con underline gradient animado + count    */
+  /* bold, vibe analytics premium                    */
+  /* ============================================== */
+  .chip-c5{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:8px 14px 10px;border-radius:10px;
+    font-family:'Geist',sans-serif;font-weight:700;font-size:11px;
+    letter-spacing:.07em;text-transform:uppercase;
+    cursor:pointer;
+    position:relative;
+    transition:all .25s ease;
+    overflow:hidden;
+  }
+  .chip-c5:hover{transform:translateY(-1px)}
+  .chip-c5::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:2px;
+    background:transparent;
+    transform-origin:left center;
+    transform:scaleX(0);
+    transition:transform .4s cubic-bezier(.4,0,.2,1);
+  }
+  .chip-c5.active::after{transform:scaleX(1)}
+  .chip-c5 .ct{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;font-weight:800;
+    opacity:.85;
+  }
+  .ios .chip-c5{
+    background:rgba(0,0,0,.04);
+    color:var(--ios-ink);
+  }
+  .ios .chip-c5.active{
+    background:rgba(10,132,255,.08);
+    color:var(--ios-blue);
+  }
+  .ios .chip-c5.active::after{
+    background:linear-gradient(90deg,#0A84FF,#22D3EE,#0A84FF);
+    background-size:200% 100%;
+    animation:flow-c5 2s linear infinite;
+    box-shadow:0 0 8px rgba(10,132,255,.5);
+  }
+  .bg .chip-c5{
+    background:rgba(255,255,255,.04);
+    color:rgba(245,233,200,.6);
+  }
+  .bg .chip-c5.active{
+    background:rgba(245,214,118,.06);
+    color:var(--gold-bright);
+  }
+  .bg .chip-c5.active::after{
+    background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright),var(--gold-pale),var(--gold-bright),var(--gold-deep));
+    background-size:200% 100%;
+    animation:flow-c5 2.4s linear infinite;
+    box-shadow:0 0 10px rgba(245,214,118,.6);
+  }
+  @keyframes flow-c5{
+    0%{background-position:0% 50%}
+    100%{background-position:200% 50%}
+  }
+
+</style>
+</head>
+<body>
+  <div class="archive">
+    <header class="head">
+      <div class="eyebrow">Pixora · Category Chips · Mayo 2026</div>
+      <h1>Chips premium <span class="num">· 5 estilos</span></h1>
+      <p class="sub">Para reemplazar los chips actuales de las secciones <b>WALLPAPERS</b> y <b>LIVE</b>. Cada concepto se muestra en <b>iOS White</b> (izquierda) y <b>Black & Gold</b> (derecha). El primer chip está activo para que veas el estado seleccionado. Anima en hover y en transición de selección. Elige UNO y lo implemento en ambos themes.</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <main class="grid">
+
+      <!-- CONCEPT 01 — APPLE GLASS PILL -->
+      <div class="concept c1">
+        <div class="pair">
+          <div class="panel ios">
+            <div class="panel-label">iOS White</div>
+            <div class="chips-row">
+              <div class="chip-c1 active"><span class="dot"></span>Trending <span class="ct">18</span></div>
+              <div class="chip-c1"><span class="dot"></span>New <span class="ct">11</span></div>
+              <div class="chip-c1"><span class="dot"></span>Arte <span class="ct">9</span></div>
+              <div class="chip-c1"><span class="dot"></span>Mito <span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold</div>
+            <div class="chips-row">
+              <div class="chip-c1 active"><span class="dot"></span>Trending <span class="ct">18</span></div>
+              <div class="chip-c1"><span class="dot"></span>New <span class="ct">11</span></div>
+              <div class="chip-c1"><span class="dot"></span>Arte <span class="ct">9</span></div>
+              <div class="chip-c1"><span class="dot"></span>Mito <span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 01</div>
+          <div class="meta-name">Apple Glass Pill</div>
+          <div class="meta-tag">Frosted glass con backdrop-blur, borde delgado, dot pulsante al activo. <b>Vibe Apple Vision Pro</b> — minimal extremo, ultra premium. Coherente con la dirección visual de iOS.</div>
+          <div class="verdict">
+            <div><span class="p">✓ máxima elegancia, no compite con el contenido</span></div>
+            <div><span class="c">✗ minimal — puede no destacar si quieres CTA fuerte</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 02 — HOLOGRAPHIC FOIL TAG -->
+      <div class="concept c2">
+        <div class="pair">
+          <div class="panel ios">
+            <div class="panel-label">iOS White</div>
+            <div class="chips-row">
+              <div class="chip-c2 active">Trending <span class="ct">18</span></div>
+              <div class="chip-c2">New <span class="ct">11</span></div>
+              <div class="chip-c2">Arte <span class="ct">9</span></div>
+              <div class="chip-c2">Mito <span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold</div>
+            <div class="chips-row">
+              <div class="chip-c2 active">Trending <span class="ct">18</span></div>
+              <div class="chip-c2">New <span class="ct">11</span></div>
+              <div class="chip-c2">Arte <span class="ct">9</span></div>
+              <div class="chip-c2">Mito <span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 02</div>
+          <div class="meta-name">Holographic Foil Tag</div>
+          <div class="meta-tag">Pill con <b>foil shimmer signature Pixora</b> (matchea Trading Card + hero foil). El activo se rellena con gradient — el resto queda neutro con shimmer sutil. Coherente con identidad B&G.</div>
+          <div class="verdict">
+            <div><span class="p">✓ identidad Pixora ya construida — usuario reconoce el lenguaje</span></div>
+            <div><span class="c">✗ mix-blend-mode puede variar en Android viejos</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 03 — METRO TICKET STUB -->
+      <div class="concept c3">
+        <div class="pair">
+          <div class="panel ios">
+            <div class="panel-label">iOS White</div>
+            <div class="chips-row">
+              <div class="chip-c3 cat-trending active"><span class="label">Trending</span><span class="perf"></span><span class="stub"><span class="ct">18</span></span></div>
+              <div class="chip-c3 cat-new"><span class="label">New</span><span class="perf"></span><span class="stub"><span class="ct">11</span></span></div>
+              <div class="chip-c3 cat-arte"><span class="label">Arte</span><span class="perf"></span><span class="stub"><span class="ct">9</span></span></div>
+              <div class="chip-c3 cat-mito"><span class="label">Mito</span><span class="perf"></span><span class="stub"><span class="ct">6</span></span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold</div>
+            <div class="chips-row">
+              <div class="chip-c3 cat-trending active"><span class="label">Trending</span><span class="perf"></span><span class="stub"><span class="ct">18</span></span></div>
+              <div class="chip-c3 cat-new"><span class="label">New</span><span class="perf"></span><span class="stub"><span class="ct">11</span></span></div>
+              <div class="chip-c3 cat-arte"><span class="label">Arte</span><span class="perf"></span><span class="stub"><span class="ct">9</span></span></div>
+              <div class="chip-c3 cat-mito"><span class="label">Mito</span><span class="perf"></span><span class="stub"><span class="ct">6</span></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 03</div>
+          <div class="meta-name">Metro Ticket Stub</div>
+          <div class="meta-tag">Cada chip se ve como un boleto de metro con <b>perforación divisoria</b> entre nombre y contador. Color único por categoría (amber, cyan, magenta, mint). Vibe NYC subway / Japanese rail.</div>
+          <div class="verdict">
+            <div><span class="p">✓ jerarquía clarísima (label + count separados visualmente)</span></div>
+            <div><span class="c">✗ 4 colores en una fila puede saturar — mejor con 2-3 chips</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 04 — EMBOSSED CARTOUCHE -->
+      <div class="concept c4">
+        <div class="pair">
+          <div class="panel ios">
+            <div class="panel-label">iOS White</div>
+            <div class="chips-row">
+              <div class="chip-c4 active"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="chip-c4"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="chip-c4"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="chip-c4"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold</div>
+            <div class="chips-row">
+              <div class="chip-c4 active"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="chip-c4"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="chip-c4"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="chip-c4"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 04</div>
+          <div class="meta-name">Embossed Cartouche</div>
+          <div class="meta-tag">Esquinas decorativas estilo <b>cartouche egipcio / Saint Seiya armor</b>. Tipografía Fraunces italic. Solo el activo muestra esquinas + glow. Matchea LiveCalendar Iah perfectamente.</div>
+          <div class="verdict">
+            <div><span class="p">✓ refinado, editorial, coherente con narrativa cósmica</span></div>
+            <div><span class="c">✗ Fraunces italic en chip pequeño puede ser difícil de leer rápido</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 05 — NEON SEGMENT (analytics vibe) -->
+      <div class="concept c5">
+        <div class="pair">
+          <div class="panel ios">
+            <div class="panel-label">iOS White</div>
+            <div class="chips-row">
+              <div class="chip-c5 active">Trending <span class="ct">18</span></div>
+              <div class="chip-c5">New <span class="ct">11</span></div>
+              <div class="chip-c5">Arte <span class="ct">9</span></div>
+              <div class="chip-c5">Mito <span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold</div>
+            <div class="chips-row">
+              <div class="chip-c5 active">Trending <span class="ct">18</span></div>
+              <div class="chip-c5">New <span class="ct">11</span></div>
+              <div class="chip-c5">Arte <span class="ct">9</span></div>
+              <div class="chip-c5">Mito <span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 05</div>
+          <div class="meta-name">Neon Segment</div>
+          <div class="meta-tag">Pill plano con <b>underline gradient animado fluyendo</b> en el activo (como un bar chart vivo). Counter en mono bold. Vibe analytics premium / Stripe dashboard.</div>
+          <div class="verdict">
+            <div><span class="p">✓ moderno, claro, el underline flow llama atención sutil</span></div>
+            <div><span class="c">✗ podría sentirse "dashboardy" en una app visual</span></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>Pixora · Category Chips · Design Archive · Mayo 2026</footer>
+  </div>
+</body>
+</html>

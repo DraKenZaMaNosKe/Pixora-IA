@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora Daily Button · 5 Animaciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#070710;
+    --ink-2:#0f0e1a;
+    --paper:#fafaf7;
+    --pd-blue:#2D6FE6;
+    --pd-blue-light:#5B95EF;
+    --pd-blue-deep:#1A4FB3;
+    --cyan:#22D3EE;
+    --pink:#EC4899;
+    --amber:#FFB400;
+    --gold:#D4AF37;
+    --mint:#6EE7B7;
+    --foil-1:#E0B47A;
+    --foil-2:#F4D6B8;
+    --foil-3:#FFFFFF;
+    --foil-4:#6EE7B7;
+  }
+  html,body{background:radial-gradient(ellipse at top,#0a0a14 0%,#020205 70%,#000 100%);color:#eee;font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden}
+
+  /* Header */
+  .archive{max-width:1500px;margin:0 auto;padding:56px 32px 96px}
+  .head{text-align:center;margin-bottom:48px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:var(--pd-blue-light);text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fade .8s .1s forwards;font-weight:600}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(36px,6vw,60px);line-height:1.02;letter-spacing:-.02em;color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards}
+  h1 .num{color:var(--pd-blue);font-weight:200}
+  .sub{font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;color:rgba(255,255,255,.6);max-width:680px;margin:0 auto;opacity:0;animation:fade .9s .5s forwards}
+  .sub b{color:var(--cyan);font-weight:500}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--pd-blue) 50%,transparent);margin:40px auto;width:60%;opacity:.4}
+
+  /* Grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:48px 28px;align-items:start}
+  @media (min-width:1280px){.grid{grid-template-columns:repeat(3,1fr)}}
+
+  /* Concept */
+  .concept{display:flex;flex-direction:column;align-items:center;gap:20px;opacity:0;animation:rise 1s forwards}
+  .concept:nth-child(1){animation-delay:.6s}
+  .concept:nth-child(2){animation-delay:.75s}
+  .concept:nth-child(3){animation-delay:.9s}
+  .concept:nth-child(4){animation-delay:1.05s}
+  .concept:nth-child(5){animation-delay:1.2s}
+
+  /* Phone frame */
+  .phone{width:300px;height:200px;border-radius:28px;background:#000;padding:8px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 30px 60px -20px rgba(0,0,0,.7),0 50px 100px -30px rgba(45,111,230,.18);position:relative}
+  .stage{width:100%;height:100%;border-radius:22px;background:#0c0c14;padding:18px 14px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;position:relative}
+
+  /* Meta */
+  .meta{width:300px;color:rgba(255,255,255,.85)}
+  .meta-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--pd-blue-light);margin-bottom:6px;font-weight:600}
+  .meta-name{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:22px;line-height:1.15;color:#fff;margin-bottom:6px;letter-spacing:-.01em}
+  .meta-tag{font-family:'Inter',sans-serif;font-size:12px;line-height:1.45;color:rgba(255,255,255,.55);margin-bottom:12px;font-weight:300}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.6;letter-spacing:.05em;border-left:1px solid var(--pd-blue-light);padding-left:10px;color:rgba(255,255,255,.55)}
+  .verdict .p{color:var(--mint)}
+  .verdict .c{color:var(--amber);opacity:.85}
+
+  /* Footer */
+  footer{text-align:center;margin-top:80px;padding-top:28px;border-top:1px solid rgba(45,111,230,.15);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.3);text-transform:uppercase}
+
+  /* Base button anatomy — shared across all concepts */
+  .pd-btn{
+    position:relative;
+    border-radius:14px;
+    height:64px;
+    padding:0 14px 0 8px;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  .pd-icon{
+    width:48px;height:48px;
+    border-radius:12px;
+    background:rgba(255,255,255,.16);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:20px;
+    flex-shrink:0;
+    margin-right:12px;
+    backdrop-filter:blur(4px);
+    position:relative;
+    z-index:2;
+  }
+  .pd-text{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;position:relative;z-index:2}
+  .pd-title{font-family:'Inter',sans-serif;font-weight:700;font-size:15px;color:#fff;display:flex;align-items:center;gap:8px;line-height:1.1}
+  .pd-badge{font-family:'Inter',sans-serif;font-size:9px;font-weight:800;letter-spacing:.12em;padding:2px 6px;border-radius:8px;background:var(--amber);color:#1a1100}
+  .pd-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;color:rgba(255,255,255,.78);margin-top:2px;line-height:1.1}
+  .pd-arrow{position:relative;z-index:2;color:#fff;opacity:.85;font-size:18px;margin-left:8px}
+
+  /* Animations shared */
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ============================================== */
+  /* CONCEPT 01 — AURORA WAVE                       */
+  /* gradient diagonal animado cruzando el botón     */
+  /* ============================================== */
+  .c1 .pd-btn{background:linear-gradient(135deg,var(--pd-blue-deep),var(--pd-blue) 35%,var(--cyan) 75%,var(--pd-blue));background-size:300% 300%;animation:aurora-shift 4.5s ease-in-out infinite;box-shadow:0 8px 22px -6px rgba(45,111,230,.55),0 0 0 1px rgba(255,255,255,.04) inset}
+  @keyframes aurora-shift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .c1 .pd-icon{background:rgba(255,255,255,.22);box-shadow:0 0 12px rgba(255,255,255,.25),0 0 0 1px rgba(255,255,255,.15)}
+  .c1 .pd-icon::before{content:'';position:absolute;inset:-2px;border-radius:14px;background:conic-gradient(from 0deg,var(--cyan),var(--pd-blue-light),var(--cyan));z-index:-1;animation:aurora-spin 6s linear infinite;filter:blur(6px);opacity:.7}
+  @keyframes aurora-spin{to{transform:rotate(360deg)}}
+
+  /* ============================================== */
+  /* CONCEPT 02 — HOLOGRAPHIC SHIMMER                */
+  /* foil iridiscente sweep horizontal               */
+  /* ============================================== */
+  .c2 .pd-btn{background:linear-gradient(180deg,var(--pd-blue),var(--pd-blue-deep));box-shadow:0 8px 22px -6px rgba(45,111,230,.5)}
+  .c2 .pd-btn::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.4) 35%,rgba(110,231,183,.6) 50%,rgba(244,214,184,.5) 65%,transparent 80%);
+    background-size:250% 100%;
+    background-position:-200% center;
+    animation:foil-sweep 3s ease-in-out infinite;
+    mix-blend-mode:overlay;
+  }
+  @keyframes foil-sweep{0%{background-position:-150% center}100%{background-position:250% center}}
+  .c2 .pd-icon{background:linear-gradient(135deg,#fff,#dbeafe);color:var(--pd-blue);box-shadow:0 0 14px rgba(255,255,255,.5)}
+
+  /* ============================================== */
+  /* CONCEPT 03 — PULSE BREATHING + GLOW HALO        */
+  /* el botón "respira" con halo expandiéndose       */
+  /* ============================================== */
+  .c3 .pd-btn{background:linear-gradient(180deg,var(--pd-blue),var(--pd-blue-deep));box-shadow:0 0 0 0 rgba(45,111,230,.5),0 8px 22px -6px rgba(45,111,230,.45);animation:pulse-pd 2.4s ease-in-out infinite}
+  @keyframes pulse-pd{
+    0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,.55),0 8px 22px -6px rgba(45,111,230,.5);transform:scale(1)}
+    50%{box-shadow:0 0 0 14px rgba(34,211,238,0),0 12px 30px -6px rgba(45,111,230,.7);transform:scale(1.015)}
+  }
+  .c3 .pd-icon{background:rgba(255,255,255,.22);box-shadow:0 0 0 0 rgba(255,255,255,.6) inset,0 0 18px rgba(255,255,255,.4);animation:pulse-icon 2.4s ease-in-out infinite}
+  @keyframes pulse-icon{
+    0%,100%{box-shadow:0 0 12px rgba(255,255,255,.3)}
+    50%{box-shadow:0 0 24px rgba(255,255,255,.7),0 0 36px rgba(34,211,238,.4)}
+  }
+  .c3 .pd-icon span{display:inline-block;animation:spin-soft 8s linear infinite}
+  @keyframes spin-soft{to{transform:rotate(360deg)}}
+
+  /* ============================================== */
+  /* CONCEPT 04 — PARTICLE ORBIT                     */
+  /* partículas circulando alrededor del icono       */
+  /* ============================================== */
+  .c4 .pd-btn{background:linear-gradient(180deg,var(--pd-blue),var(--pd-blue-deep));box-shadow:0 8px 22px -6px rgba(45,111,230,.5);overflow:visible}
+  .c4 .stage{position:relative;overflow:hidden}
+  .c4 .pd-btn::before,.c4 .pd-btn::after{content:'';position:absolute;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan),0 0 16px rgba(34,211,238,.6);top:50%;left:32px;margin-top:-3px}
+  .c4 .pd-btn::before{animation:orbit 3s linear infinite}
+  .c4 .pd-btn::after{animation:orbit 3s linear infinite -1.5s;background:var(--mint);box-shadow:0 0 8px var(--mint),0 0 16px rgba(110,231,183,.6)}
+  @keyframes orbit{
+    0%{transform:rotate(0deg) translateX(28px) rotate(0deg);opacity:.9}
+    50%{opacity:.4}
+    100%{transform:rotate(360deg) translateX(28px) rotate(-360deg);opacity:.9}
+  }
+  .c4 .pd-icon{background:rgba(255,255,255,.22);box-shadow:0 0 14px rgba(255,255,255,.3)}
+  .c4 .pd-icon::after{content:'';position:absolute;width:60px;height:60px;border:1px dashed rgba(34,211,238,.4);border-radius:50%;animation:spin-soft 12s linear infinite}
+
+  /* ============================================== */
+  /* CONCEPT 05 — NEON SCAN LINE + BORDER PULSE      */
+  /* línea horizontal escaneando + borde neón        */
+  /* ============================================== */
+  .c5 .pd-btn{background:linear-gradient(180deg,var(--pd-blue),var(--pd-blue-deep));box-shadow:0 8px 22px -6px rgba(45,111,230,.45);border:1.5px solid var(--cyan);animation:neon-border 2s ease-in-out infinite}
+  @keyframes neon-border{
+    0%,100%{box-shadow:0 0 6px rgba(34,211,238,.3),0 0 14px rgba(34,211,238,.2),0 8px 22px -6px rgba(45,111,230,.45);border-color:rgba(34,211,238,.7)}
+    50%{box-shadow:0 0 14px rgba(34,211,238,.7),0 0 28px rgba(34,211,238,.4),0 8px 30px -6px rgba(45,111,230,.6);border-color:var(--cyan)}
+  }
+  .c5 .pd-btn::after{
+    content:'';position:absolute;left:0;right:0;top:50%;height:1.5px;
+    background:linear-gradient(90deg,transparent,var(--cyan) 30%,#fff 50%,var(--cyan) 70%,transparent);
+    transform:translateY(-50%) scaleX(0);
+    transform-origin:left center;
+    animation:scan 2.2s ease-in-out infinite;
+    box-shadow:0 0 8px var(--cyan);
+  }
+  @keyframes scan{
+    0%{transform:translateY(-50%) translateX(-30%) scaleX(0);opacity:0}
+    25%{transform:translateY(-50%) translateX(-10%) scaleX(.5);opacity:1}
+    75%{transform:translateY(-50%) translateX(80%) scaleX(.5);opacity:1}
+    100%{transform:translateY(-50%) translateX(120%) scaleX(0);opacity:0}
+  }
+  .c5 .pd-icon{background:rgba(255,255,255,.22);border:1px solid rgba(34,211,238,.4)}
+  .c5 .pd-icon span{color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
+
+</style>
+</head>
+<body>
+  <div class="archive">
+    <header class="head">
+      <div class="eyebrow">Pixora Daily Button · Mayo 2026</div>
+      <h1>Animación CTA <span class="num">· 5 estilos</span></h1>
+      <p class="sub">Llamar la atención del usuario al banner <b>Pixora Daily</b> de la pantalla principal. Cada concepto loop continuo — quédate viendo unos segundos para sentir el ritmo. Eduardo elige UNO y lo implemento en Flutter.</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <main class="grid">
+
+      <!-- CONCEPT 01 — AURORA WAVE -->
+      <div class="concept c1">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon"><span>↻</span></div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 01</div>
+          <div class="meta-name">Aurora Wave</div>
+          <div class="meta-tag">Gradient diagonal azul→cyan que oscila lentamente. Halo cónico spinning detrás del icono. Vibe norther lights, premium.</div>
+          <div class="verdict">
+            <div><span class="p">✓ elegante, no agresivo, leerlo se siente "vivo"</span></div>
+            <div><span class="c">✗ animación sutil — puede pasar desapercibida</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 02 — HOLOGRAPHIC SHIMMER -->
+      <div class="concept c2">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon"><span>↻</span></div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 02</div>
+          <div class="meta-name">Holographic Shimmer</div>
+          <div class="meta-tag">Sweep iridiscente (white→mint→peach) cruzando horizontal. Conecta con la identidad foil que ya usamos en Trading Cards y headers.</div>
+          <div class="verdict">
+            <div><span class="p">✓ muy "Pixora signature" — consistente con foil del resto de la app</span></div>
+            <div><span class="c">✗ requiere mix-blend-mode (puede variar en Android viejos)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 03 — PULSE BREATHING -->
+      <div class="concept c3">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon"><span>↻</span></div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 03</div>
+          <div class="meta-name">Pulse Breathing + Halo</div>
+          <div class="meta-tag">El botón "respira" — scale 1.015 + halo cyan expandiéndose. Icono ↻ rota lentamente. Muy notificación, llama atención sin invasivo.</div>
+          <div class="verdict">
+            <div><span class="p">✓ MÁS notorio — ojo va inmediato al CTA</span></div>
+            <div><span class="c">✗ si abusas, cansa al usuario al rato</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 04 — PARTICLE ORBIT -->
+      <div class="concept c4">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon"><span>↻</span></div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 04</div>
+          <div class="meta-name">Particle Orbit</div>
+          <div class="meta-tag">Partículas cyan + mint orbitando alrededor del icono + dashed ring rotando. Vibe "energía rotando", futurista sutil.</div>
+          <div class="verdict">
+            <div><span class="p">✓ distintivo, divertido, refuerza idea "rotación"</span></div>
+            <div><span class="c">✗ más complejo de implementar bien en Flutter</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 05 — NEON SCAN + BORDER PULSE -->
+      <div class="concept c5">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon"><span>↻</span></div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 05</div>
+          <div class="meta-name">Neon Scan + Border Pulse</div>
+          <div class="meta-tag">Línea horizontal cyan escanea izquierda→derecha + borde cyan pulsa. Conecta con el HUD viewer que ya implementamos (consistency).</div>
+          <div class="verdict">
+            <div><span class="p">✓ matchea con HUD viewer style (cyan/amber lengua común)</span></div>
+            <div><span class="c">✗ puede sentirse "tech" en una app más visual</span></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>Pixora · Daily Button · Design Archive · Mayo 2026</footer>
+  </div>
+</body>
+</html>

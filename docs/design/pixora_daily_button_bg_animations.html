@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora Daily Button · B&G · 5 Animaciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#070710;
+    --ink-2:#0b0b16;
+    --ink-3:#10101c;
+    --gold-deep:#D9B14A;
+    --gold-bright:#F5D676;
+    --gold-warm:#E8C26A;
+    --gold-pale:#FBE9B6;
+    --gold-shadow:#8A7A56;
+    --paper:#F5E9C8;
+  }
+  html,body{background:radial-gradient(ellipse at top,#0a0a14 0%,#020205 70%,#000 100%);color:#eee;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden}
+
+  .archive{max-width:1500px;margin:0 auto;padding:56px 32px 96px}
+  .head{text-align:center;margin-bottom:48px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:var(--gold-bright);text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fade .8s .1s forwards;font-weight:600}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(36px,6vw,60px);line-height:1.02;letter-spacing:-.02em;color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards}
+  h1 .num{color:var(--gold-deep);font-weight:200}
+  .sub{font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;color:rgba(255,255,255,.6);max-width:680px;margin:0 auto;opacity:0;animation:fade .9s .5s forwards}
+  .sub b{color:var(--gold-bright);font-weight:500}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep) 50%,transparent);margin:40px auto;width:60%;opacity:.4}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:48px 28px;align-items:start}
+  @media (min-width:1280px){.grid{grid-template-columns:repeat(3,1fr)}}
+
+  .concept{display:flex;flex-direction:column;align-items:center;gap:20px;opacity:0;animation:rise 1s forwards}
+  .concept:nth-child(1){animation-delay:.6s}
+  .concept:nth-child(2){animation-delay:.75s}
+  .concept:nth-child(3){animation-delay:.9s}
+  .concept:nth-child(4){animation-delay:1.05s}
+  .concept:nth-child(5){animation-delay:1.2s}
+
+  .phone{width:300px;height:200px;border-radius:28px;background:#000;padding:8px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 30px 60px -20px rgba(0,0,0,.7),0 50px 100px -30px rgba(217,177,74,.12);position:relative}
+  .stage{width:100%;height:100%;border-radius:22px;background:var(--ink);padding:18px 14px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;position:relative}
+
+  .meta{width:300px;color:rgba(255,255,255,.85)}
+  .meta-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--gold-bright);margin-bottom:6px;font-weight:600}
+  .meta-name{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:22px;line-height:1.15;color:#fff;margin-bottom:6px;letter-spacing:-.01em}
+  .meta-tag{font-family:'Inter',sans-serif;font-size:12px;line-height:1.45;color:rgba(255,255,255,.55);margin-bottom:12px;font-weight:300}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.6;letter-spacing:.05em;border-left:1px solid var(--gold-bright);padding-left:10px;color:rgba(255,255,255,.55)}
+  .verdict .p{color:#A7E2A1}
+  .verdict .c{color:var(--gold-bright);opacity:.85}
+
+  footer{text-align:center;margin-top:80px;padding-top:28px;border-top:1px solid rgba(217,177,74,.15);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.3);text-transform:uppercase}
+
+  /* ============================================== */
+  /* Base banner anatomy (B&G mirror of current Flutter widget) */
+  /* ============================================== */
+  .pd-btn{
+    position:relative;
+    border-radius:14px;
+    height:64px;
+    padding:0 14px 0 8px;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+    cursor:pointer;
+    background:linear-gradient(135deg,rgba(217,177,74,.18),rgba(138,122,86,.08));
+    border:1px solid rgba(217,177,74,.45);
+  }
+  .pd-icon{
+    width:48px;height:48px;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--gold-deep),var(--gold-bright));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);font-size:22px;font-weight:900;
+    flex-shrink:0;
+    margin-right:12px;
+    position:relative;
+    z-index:2;
+    box-shadow:0 6px 18px -4px rgba(217,177,74,.4);
+  }
+  .pd-text{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;position:relative;z-index:2}
+  .pd-title{font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:16px;color:#fff;display:flex;align-items:center;gap:8px;line-height:1.1}
+  .pd-badge{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:.18em;padding:2px 6px;border-radius:4px;background:rgba(217,177,74,.18);color:var(--gold-bright)}
+  .pd-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:400;color:rgba(255,255,255,.7);margin-top:2px;line-height:1.1}
+  .pd-arrow{position:relative;z-index:2;color:var(--gold-bright);opacity:.7;font-size:18px;margin-left:8px}
+
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ============================================== */
+  /* CONCEPT 01 — GOLD FOIL SHIMMER (signature)      */
+  /* foil dorado iridiscente sweep — matchea Trading */
+  /* Card holo + hero foil banners                   */
+  /* ============================================== */
+  .c1 .pd-btn{
+    background:
+      linear-gradient(135deg,rgba(217,177,74,.20),rgba(138,122,86,.06));
+  }
+  .c1 .pd-btn::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(110deg,
+      transparent 25%,
+      rgba(245,214,118,.18) 40%,
+      rgba(251,233,182,.42) 50%,
+      rgba(245,214,118,.18) 60%,
+      transparent 75%);
+    background-size:250% 100%;
+    background-position:-200% center;
+    animation:foil-sweep-bg 3.6s ease-in-out infinite;
+    mix-blend-mode:screen;
+  }
+  @keyframes foil-sweep-bg{
+    0%{background-position:-150% center}
+    100%{background-position:250% center}
+  }
+  .c1 .pd-icon{box-shadow:0 6px 18px -4px rgba(245,214,118,.55),0 0 0 1px rgba(251,233,182,.3) inset}
+
+  /* ============================================== */
+  /* CONCEPT 02 — ENGRAVED BORDER GLOW              */
+  /* borde gold "respirando" + esquinas cartouche    */
+  /* tipo Saint Seiya / Iah egipcio                  */
+  /* ============================================== */
+  .c2 .pd-btn{
+    animation:eng-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes eng-pulse{
+    0%,100%{
+      box-shadow:0 0 0 0 rgba(217,177,74,.25);
+      border-color:rgba(217,177,74,.45);
+    }
+    50%{
+      box-shadow:0 0 14px 0 rgba(245,214,118,.4),0 0 26px -4px rgba(217,177,74,.45);
+      border-color:rgba(245,214,118,.85);
+    }
+  }
+  /* Corner markers — cartouche style */
+  .c2 .pd-btn::before,
+  .c2 .pd-btn::after{
+    content:'';position:absolute;width:10px;height:10px;border:1.5px solid var(--gold-bright);
+    box-shadow:0 0 6px rgba(245,214,118,.6);
+    animation:corner-glow 2.4s ease-in-out infinite;
+    pointer-events:none;
+    z-index:3;
+  }
+  .c2 .pd-btn::before{top:6px;left:6px;border-right:none;border-bottom:none}
+  .c2 .pd-btn::after{bottom:6px;right:6px;border-left:none;border-top:none}
+  @keyframes corner-glow{
+    0%,100%{opacity:.5}
+    50%{opacity:1}
+  }
+
+  /* ============================================== */
+  /* CONCEPT 03 — STAR FIELD DRIFT                   */
+  /* puntos dorados moviendose lento, constelación   */
+  /* — vibe Saint Seiya cosmic                       */
+  /* ============================================== */
+  .c3 .pd-btn{overflow:hidden}
+  .c3 .pd-btn .stars{
+    position:absolute;inset:0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%,var(--gold-pale) 100%,transparent),
+      radial-gradient(1px 1px at 50% 60%,var(--gold-bright) 100%,transparent),
+      radial-gradient(1.5px 1.5px at 75% 40%,var(--gold-pale) 100%,transparent),
+      radial-gradient(1px 1px at 35% 75%,var(--gold-warm) 100%,transparent),
+      radial-gradient(1.5px 1.5px at 85% 70%,var(--gold-bright) 100%,transparent),
+      radial-gradient(1px 1px at 60% 15%,var(--gold-pale) 100%,transparent),
+      radial-gradient(1px 1px at 10% 50%,var(--gold-bright) 100%,transparent),
+      radial-gradient(1.5px 1.5px at 90% 25%,var(--gold-pale) 100%,transparent);
+    background-size:200% 200%;
+    background-position:0 0;
+    animation:star-drift 12s linear infinite;
+    opacity:.85;
+    z-index:1;
+  }
+  @keyframes star-drift{
+    0%{background-position:0 0}
+    100%{background-position:200% 100%}
+  }
+  /* Twinkling layer */
+  .c3 .pd-btn .twinkle{
+    position:absolute;inset:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 30% 50%,var(--gold-pale) 100%,transparent),
+      radial-gradient(1.5px 1.5px at 70% 20%,var(--gold-bright) 100%,transparent),
+      radial-gradient(1px 1px at 45% 85%,var(--gold-pale) 100%,transparent);
+    animation:twinkle 2.5s ease-in-out infinite;
+    z-index:1;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.2}
+    50%{opacity:1}
+  }
+
+  /* ============================================== */
+  /* CONCEPT 04 — LIQUID GOLD RIPPLE                 */
+  /* bg gold se mueve como líquido espeso, gradient  */
+  /* radial animado + brillo central                 */
+  /* ============================================== */
+  .c4 .pd-btn{
+    background:
+      radial-gradient(circle at 30% 50%,rgba(245,214,118,.32) 0%,rgba(217,177,74,.18) 35%,rgba(138,122,86,.08) 80%),
+      linear-gradient(135deg,rgba(217,177,74,.10),rgba(138,122,86,.04));
+    background-size:200% 200%,100% 100%;
+    background-position:0% 50%,0 0;
+    animation:liquid-flow 5s ease-in-out infinite;
+  }
+  @keyframes liquid-flow{
+    0%,100%{background-position:0% 50%,0 0}
+    50%{background-position:100% 50%,0 0}
+  }
+  .c4 .pd-icon{
+    animation:icon-shine 3s ease-in-out infinite;
+  }
+  @keyframes icon-shine{
+    0%,100%{box-shadow:0 6px 18px -4px rgba(217,177,74,.4)}
+    50%{box-shadow:0 6px 22px -2px rgba(245,214,118,.7),0 0 0 1px rgba(251,233,182,.45) inset}
+  }
+
+  /* ============================================== */
+  /* CONCEPT 05 — PULSE HEARTBEAT + HALO            */
+  /* el icono pulsa con ritmo de heartbeat doble +  */
+  /* halo gold expandiéndose                         */
+  /* ============================================== */
+  .c5 .pd-icon{
+    animation:heartbeat 1.6s ease-in-out infinite;
+  }
+  @keyframes heartbeat{
+    0%,28%,100%{transform:scale(1);box-shadow:0 6px 18px -4px rgba(217,177,74,.4)}
+    8%{transform:scale(1.10);box-shadow:0 8px 24px -2px rgba(245,214,118,.7)}
+    16%{transform:scale(1.0);box-shadow:0 6px 20px -4px rgba(217,177,74,.5)}
+    22%{transform:scale(1.08);box-shadow:0 8px 22px -2px rgba(245,214,118,.6)}
+  }
+  /* Halo ring */
+  .c5 .pd-btn::before{
+    content:'';position:absolute;left:16px;top:50%;
+    width:48px;height:48px;border-radius:12px;
+    border:1.5px solid var(--gold-bright);
+    margin-top:-24px;
+    opacity:0;
+    animation:halo 1.6s ease-out infinite;
+    z-index:1;
+    pointer-events:none;
+  }
+  @keyframes halo{
+    0%{transform:scale(1);opacity:.7}
+    100%{transform:scale(1.7);opacity:0}
+  }
+  .c5 .pd-btn::after{
+    content:'';position:absolute;left:16px;top:50%;
+    width:48px;height:48px;border-radius:12px;
+    border:1px solid var(--gold-warm);
+    margin-top:-24px;
+    opacity:0;
+    animation:halo 1.6s ease-out .8s infinite;
+    z-index:1;
+    pointer-events:none;
+  }
+
+</style>
+</head>
+<body>
+  <div class="archive">
+    <header class="head">
+      <div class="eyebrow">Pixora Daily · Black & Gold · Mayo 2026</div>
+      <h1>Animación CTA <span class="num">· 5 estilos B&G</span></h1>
+      <p class="sub">Pensados <b>desde cero para el tema Black & Gold</b> (no son traducción del cyan iOS). Respetan el ink negro + gold deep #D9B14A + gold bright #F5D676 que ya tenemos en hero banners, Trading Cards y dashboard. Loop continuo — déjalos correr para sentir el ritmo. Elige UNO y lo implemento.</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <main class="grid">
+
+      <!-- CONCEPT 01 — GOLD FOIL SHIMMER -->
+      <div class="concept c1">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon">↻</div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 01</div>
+          <div class="meta-name">Gold Foil Shimmer</div>
+          <div class="meta-tag">Foil dorado iridiscente cruzando horizontal en loop. <b>Signature Pixora</b> — matchea Trading Card Holo + hero foil banners + Stamped Foil section headers.</div>
+          <div class="verdict">
+            <div><span class="p">✓ máxima coherencia con identidad B&G ya construida</span></div>
+            <div><span class="c">✗ mix-blend-mode screen puede variar levemente en Android viejos</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 02 — ENGRAVED BORDER GLOW -->
+      <div class="concept c2">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon">↻</div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 02</div>
+          <div class="meta-name">Engraved Border Glow</div>
+          <div class="meta-tag">Borde gold "respira" + esquinas decorativas tipo cartouche egipcio (matchea LiveCalendar Iah). Sensación de objeto precioso/sagrado, vibe Saint Seiya armadura.</div>
+          <div class="verdict">
+            <div><span class="p">✓ refinado, premium, no agresivo — leerlo se siente "vivo"</span></div>
+            <div><span class="c">✗ animación sutil — puede pasar desapercibida en scroll rápido</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 03 — STAR FIELD DRIFT -->
+      <div class="concept c3">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="stars"></div>
+              <div class="twinkle"></div>
+              <div class="pd-icon">↻</div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 03</div>
+          <div class="meta-name">Star Field Drift</div>
+          <div class="meta-tag">Puntos dorados moviéndose como constelación lenta + puntos centellantes. <b>Vibe Saint Seiya cosmic</b> que ya tiene la app. Conecta con galería estelar / Iah.</div>
+          <div class="verdict">
+            <div><span class="p">✓ único, distintivo, refuerza narrativa cósmica de Pixora</span></div>
+            <div><span class="c">✗ background extra cuesta repaints — vigilar en devices low-end</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 04 — LIQUID GOLD RIPPLE -->
+      <div class="concept c4">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon">↻</div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 04</div>
+          <div class="meta-name">Liquid Gold Ripple</div>
+          <div class="meta-tag">Gradient radial dorado se mueve como líquido espeso de izquierda a derecha. Icono brilla intermitente. Sensación de "oro fundido" — lujo absoluto.</div>
+          <div class="verdict">
+            <div><span class="p">✓ visualmente rico, sin efectos overlay (todo bg)</span></div>
+            <div><span class="c">✗ puede competir visualmente con el hero banner de arriba</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 05 — PULSE HEARTBEAT + HALO -->
+      <div class="concept c5">
+        <div class="phone">
+          <div class="stage">
+            <div class="pd-btn">
+              <div class="pd-icon">↻</div>
+              <div class="pd-text">
+                <div class="pd-title">Pixora Daily <span class="pd-badge">NUEVO</span></div>
+                <div class="pd-sub">Wallpapers aleatorios</div>
+              </div>
+              <div class="pd-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num">No. 05</div>
+          <div class="meta-name">Pulse Heartbeat + Halo</div>
+          <div class="meta-tag">El icono dorado late con ritmo de heartbeat doble (lub-dub) + halo gold expandiéndose hacia afuera en ondas. <b>El más llamativo</b> — el ojo va directo al CTA.</div>
+          <div class="verdict">
+            <div><span class="p">✓ máxima atención del usuario sin invasivo</span></div>
+            <div><span class="c">✗ si está siempre activo puede cansar — quizá solo cuando _enabled = false</span></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>Pixora · Daily Button · B&G Design Archive · Mayo 2026</footer>
+  </div>
+</body>
+</html>

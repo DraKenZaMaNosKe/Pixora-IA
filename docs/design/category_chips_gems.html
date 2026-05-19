@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora · Category Chips · Gems · 5 Variantes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg-ink:#070710;
+    --bg-ink-2:#0B0B16;
+    --ios-bg:#FAFAFC;
+    --ios-card:#FFFFFF;
+
+    /* Gems */
+    --ruby:#FF2D7A;
+    --ruby-deep:#B0144C;
+    --ruby-bright:#FF5FA0;
+    --ruby-pale:#FFC2DC;
+
+    --pink-diamond:#FF8DC3;
+    --pink-diamond-deep:#D9498F;
+    --pink-diamond-bright:#FFB8D8;
+    --pink-diamond-white:#FFE7F0;
+
+    --sapphire:#1FA8FF;
+    --sapphire-deep:#0B5BB8;
+    --sapphire-bright:#5CC6FF;
+    --sapphire-pale:#BFE6FF;
+
+    --emerald:#10D08C;
+    --emerald-deep:#0A8055;
+    --emerald-bright:#5BEBB1;
+    --emerald-pale:#B6F4D6;
+
+    --amethyst:#A461FF;
+    --amethyst-deep:#6520C9;
+    --amethyst-bright:#C497FF;
+    --amethyst-pale:#E2D0FF;
+
+    --topaz:#FFB400;
+    --topaz-deep:#C97C00;
+    --topaz-bright:#FFD66B;
+    --topaz-pale:#FFEBB8;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#0a0a14 0%,#020205 70%,#000 100%);
+    color:#eee;font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+
+  .archive{max-width:1500px;margin:0 auto;padding:56px 32px 96px}
+  .head{text-align:center;margin-bottom:48px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:var(--ruby-bright);text-transform:uppercase;margin-bottom:16px;opacity:0;animation:fade .8s .1s forwards;font-weight:600}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:clamp(36px,6vw,60px);line-height:1.02;letter-spacing:-.02em;color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards}
+  h1 .num{color:var(--ruby);font-weight:200}
+  .sub{font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;color:rgba(255,255,255,.6);max-width:720px;margin:0 auto;opacity:0;animation:fade .9s .5s forwards}
+  .sub b{color:var(--pink-diamond-bright);font-weight:500}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--ruby) 50%,transparent);margin:40px auto;width:60%;opacity:.4}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:72px 32px;align-items:start}
+  @media (min-width:920px){.grid{grid-template-columns:repeat(2,1fr)}}
+
+  .concept{display:grid;grid-template-columns:1fr;gap:18px;opacity:0;animation:rise 1s forwards}
+  .concept:nth-child(1){animation-delay:.5s}
+  .concept:nth-child(2){animation-delay:.65s}
+  .concept:nth-child(3){animation-delay:.8s}
+  .concept:nth-child(4){animation-delay:.95s}
+  .concept:nth-child(5){animation-delay:1.1s}
+
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .panel{
+    border-radius:18px;
+    padding:24px 18px 28px;
+    position:relative;overflow:hidden;
+  }
+  .panel.ios{
+    background:linear-gradient(180deg,#F8F8FC,#EFEFF4);
+    color:#1A1A1F;
+  }
+  .panel.bg{
+    background:linear-gradient(180deg,#0B0B16,#070710);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.05);
+  }
+  .panel-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:.3em;
+    text-transform:uppercase;font-weight:700;
+    margin-bottom:14px;display:flex;align-items:center;gap:6px;
+  }
+  .panel.ios .panel-label{color:rgba(0,0,0,.4)}
+  .panel.bg .panel-label{color:rgba(255,255,255,.4)}
+  .panel-label::after{content:'';flex:1;height:1px;background:currentColor;opacity:.2}
+
+  .chips-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+  .meta{padding:0 4px}
+  .meta-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;margin-bottom:8px;font-weight:600}
+  .meta-name{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:26px;line-height:1.15;color:#fff;margin-bottom:8px;letter-spacing:-.01em}
+  .meta-tag{font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;color:rgba(255,255,255,.6);margin-bottom:14px;font-weight:300}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.7;letter-spacing:.05em;border-left:1px solid currentColor;padding-left:12px;color:rgba(255,255,255,.55)}
+  .verdict .p{color:#A7E2A1}
+  .verdict .c{opacity:.85}
+
+  footer{text-align:center;margin-top:96px;padding-top:28px;border-top:1px solid rgba(255,45,122,.15);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.3);text-transform:uppercase}
+
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== Base gem chip anatomy (preserves current HUD shape) ===== */
+  .gem{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 12px;
+    border-radius:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;
+    cursor:pointer;position:relative;overflow:hidden;
+    border:1.5px solid currentColor;
+    transition:transform .2s ease;
+  }
+  .gem:hover{transform:translateY(-1px)}
+  .gem .dot{
+    width:5px;height:5px;border-radius:50%;
+    background:currentColor;
+    box-shadow:0 0 6px currentColor;
+    flex-shrink:0;
+  }
+  .gem .ct{
+    font-size:9px;opacity:.7;margin-left:1px;font-weight:600;
+  }
+  /* Sparkle pseudo — appears in gem variants */
+  .gem.sparkles::after{
+    content:'✦';
+    position:absolute;
+    font-size:8px;
+    opacity:0;
+    pointer-events:none;
+    animation:sparkle-pop 3s ease-in-out infinite;
+  }
+  @keyframes sparkle-pop{
+    0%,40%,100%{opacity:0;transform:translate(0,0) scale(.4)}
+    50%{opacity:1;transform:translate(2px,-3px) scale(1)}
+    65%{opacity:0;transform:translate(4px,-6px) scale(.6)}
+  }
+
+  /* ============================================== */
+  /* CONCEPT 01 — RUBY ROSE (rosa-rojo brillante)   */
+  /* ============================================== */
+  .c1 .gem{
+    color:var(--ruby);
+    background:
+      radial-gradient(ellipse at 30% 20%,rgba(255,95,160,.22) 0%,transparent 60%),
+      linear-gradient(180deg,rgba(255,45,122,.06),rgba(176,20,76,.10));
+    box-shadow:
+      inset 0 1px 0 rgba(255,194,220,.4),
+      inset 0 0 12px rgba(255,45,122,.18),
+      0 0 0 0 rgba(255,45,122,0);
+    animation:gem-pulse-ruby 2.8s ease-in-out infinite;
+  }
+  .c1 .gem::after{
+    top:4px;right:6px;
+    color:var(--ruby-pale);
+    text-shadow:0 0 6px var(--ruby-bright);
+  }
+  @keyframes gem-pulse-ruby{
+    0%,100%{box-shadow:inset 0 1px 0 rgba(255,194,220,.4),inset 0 0 12px rgba(255,45,122,.18),0 0 12px rgba(255,45,122,.2)}
+    50%{box-shadow:inset 0 1px 0 rgba(255,194,220,.6),inset 0 0 18px rgba(255,45,122,.35),0 0 22px rgba(255,45,122,.45)}
+  }
+  /* Stagger per-chip phase */
+  .c1 .gem:nth-child(1){animation-delay:0s}
+  .c1 .gem:nth-child(2){animation-delay:.7s}
+  .c1 .gem:nth-child(3){animation-delay:1.4s}
+  .c1 .gem:nth-child(4){animation-delay:2.1s}
+  .ios.c1-ios .gem{
+    color:var(--ruby-deep);
+    background:
+      radial-gradient(ellipse at 30% 20%,rgba(255,194,220,.7) 0%,rgba(255,143,194,.3) 50%,transparent 80%),
+      linear-gradient(180deg,#FFF,#FFF1F6);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,1),
+      inset 0 0 10px rgba(255,45,122,.10),
+      0 4px 12px -4px rgba(255,45,122,.35);
+  }
+
+  /* ============================================== */
+  /* CONCEPT 02 — PINK DIAMOND (facetado + sparkles)*/
+  /* ============================================== */
+  .c2 .gem{
+    color:var(--pink-diamond);
+    background:
+      linear-gradient(135deg,rgba(255,231,240,.18) 0%,rgba(255,141,195,.08) 50%,rgba(217,73,143,.14) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,231,240,.5),
+      inset 1px 0 0 rgba(255,231,240,.18),
+      inset -1px 0 0 rgba(217,73,143,.2),
+      0 0 14px rgba(255,141,195,.25);
+    position:relative;
+  }
+  /* Facet lines */
+  .c2 .gem::before{
+    content:'';position:absolute;inset:0;
+    background:
+      linear-gradient(135deg,transparent 49%,rgba(255,231,240,.25) 50%,transparent 51%),
+      linear-gradient(45deg,transparent 49%,rgba(217,73,143,.15) 50%,transparent 51%);
+    pointer-events:none;
+    opacity:.6;
+  }
+  /* Multiple sparkles */
+  .c2 .gem::after{
+    top:3px;right:5px;
+    color:#fff;
+    text-shadow:0 0 8px var(--pink-diamond-bright),0 0 12px var(--pink-diamond);
+  }
+  .c2 .gem:nth-child(2)::after{animation-delay:.8s}
+  .c2 .gem:nth-child(3)::after{animation-delay:1.6s}
+  .c2 .gem:nth-child(4)::after{animation-delay:2.4s}
+  .ios.c2-ios .gem{
+    color:var(--pink-diamond-deep);
+    background:
+      linear-gradient(135deg,#FFF 0%,#FFE7F0 50%,#FFB8D8 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,1),
+      0 4px 14px -4px rgba(255,141,195,.45),
+      0 0 0 1px rgba(255,141,195,.25);
+  }
+
+  /* ============================================== */
+  /* CONCEPT 03 — SAPPHIRE BLUE (azul profundo)     */
+  /* ============================================== */
+  .c3 .gem{
+    color:var(--sapphire);
+    background:
+      radial-gradient(ellipse at 50% 0%,rgba(92,198,255,.30) 0%,rgba(31,168,255,.10) 50%,transparent 80%),
+      linear-gradient(180deg,rgba(11,91,184,.08),rgba(11,91,184,.18));
+    box-shadow:
+      inset 0 2px 0 rgba(191,230,255,.35),
+      inset 0 0 12px rgba(31,168,255,.20),
+      0 0 14px rgba(31,168,255,.25);
+  }
+  /* Shine sweep across */
+  .c3 .gem::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);
+    background-size:250% 100%;
+    background-position:-200% center;
+    animation:shine-sapphire 4s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes shine-sapphire{
+    0%{background-position:-150% center}
+    100%{background-position:250% center}
+  }
+  .c3 .gem:nth-child(2)::before{animation-delay:1s}
+  .c3 .gem:nth-child(3)::before{animation-delay:2s}
+  .c3 .gem:nth-child(4)::before{animation-delay:3s}
+  .ios.c3-ios .gem{
+    color:var(--sapphire-deep);
+    background:
+      radial-gradient(ellipse at 50% 0%,rgba(191,230,255,.7) 0%,rgba(92,198,255,.25) 50%,transparent 80%),
+      linear-gradient(180deg,#FFF,#EAF5FF);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,1),
+      0 4px 14px -4px rgba(31,168,255,.4);
+  }
+
+  /* ============================================== */
+  /* CONCEPT 04 — EMERALD (verde con cuts)          */
+  /* ============================================== */
+  .c4 .gem{
+    color:var(--emerald);
+    background:
+      linear-gradient(180deg,rgba(91,235,177,.10) 0%,rgba(10,128,85,.18) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(182,244,214,.4),
+      inset 0 0 10px rgba(16,208,140,.20),
+      0 0 14px rgba(16,208,140,.25);
+  }
+  /* Emerald step cuts (horizontal lines) */
+  .c4 .gem::before{
+    content:'';position:absolute;
+    top:2px;left:6px;right:6px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(182,244,214,.5),transparent);
+    pointer-events:none;
+  }
+  .c4 .gem::after{
+    content:'';
+    position:absolute;
+    bottom:2px;left:6px;right:6px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(10,128,85,.6),transparent);
+    pointer-events:none;
+    animation:none;
+  }
+  /* Pulsing glow on dot */
+  .c4 .gem .dot{
+    animation:dot-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes dot-pulse{
+    0%,100%{box-shadow:0 0 4px currentColor;opacity:.8}
+    50%{box-shadow:0 0 10px currentColor,0 0 18px currentColor;opacity:1;transform:scale(1.2)}
+  }
+  .ios.c4-ios .gem{
+    color:var(--emerald-deep);
+    background:
+      linear-gradient(180deg,#FFF,#E8FCF1);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,1),
+      0 4px 14px -4px rgba(16,208,140,.4);
+  }
+
+  /* ============================================== */
+  /* CONCEPT 05 — MULTI-GEM (cada chip una gema)    */
+  /* trending=topaz · new=sapphire · arte=ruby ·    */
+  /* mito=emerald — vibe colección de gemas         */
+  /* ============================================== */
+  .c5 .gem{
+    background:
+      radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.20) 0%,transparent 60%),
+      linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.08));
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.25),
+      inset 0 0 10px currentColor,
+      0 0 12px currentColor;
+    animation:gem-breath 2.6s ease-in-out infinite;
+  }
+  .c5 .gem.g-topaz{color:var(--topaz);animation-delay:0s}
+  .c5 .gem.g-sapphire{color:var(--sapphire);animation-delay:.65s}
+  .c5 .gem.g-ruby{color:var(--ruby);animation-delay:1.3s}
+  .c5 .gem.g-emerald{color:var(--emerald);animation-delay:1.95s}
+  @keyframes gem-breath{
+    0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.25),inset 0 0 8px currentColor,0 0 10px currentColor}
+    50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 14px currentColor,0 0 20px currentColor}
+  }
+  .c5 .gem .dot{box-shadow:0 0 8px currentColor,0 0 14px currentColor}
+  .ios.c5-ios .gem.g-topaz{color:var(--topaz-deep);background:linear-gradient(180deg,#FFF,#FFF5DC);box-shadow:inset 0 1px 0 #fff,0 4px 12px -4px rgba(255,180,0,.4)}
+  .ios.c5-ios .gem.g-sapphire{color:var(--sapphire-deep);background:linear-gradient(180deg,#FFF,#EAF5FF);box-shadow:inset 0 1px 0 #fff,0 4px 12px -4px rgba(31,168,255,.4)}
+  .ios.c5-ios .gem.g-ruby{color:var(--ruby-deep);background:linear-gradient(180deg,#FFF,#FFF1F6);box-shadow:inset 0 1px 0 #fff,0 4px 12px -4px rgba(255,45,122,.4)}
+  .ios.c5-ios .gem.g-emerald{color:var(--emerald-deep);background:linear-gradient(180deg,#FFF,#E8FCF1);box-shadow:inset 0 1px 0 #fff,0 4px 12px -4px rgba(16,208,140,.4)}
+
+</style>
+</head>
+<body>
+  <div class="archive">
+    <header class="head">
+      <div class="eyebrow">Pixora · Category Chips · Gems Edition</div>
+      <h1>Gemas <span class="num">· 5 esquemas</span></h1>
+      <p class="sub">Mantenemos la estructura HUD actual (rectangular, border 1.5px, dot + label + count) pero le metemos personalidad de <b>piedras preciosas</b> tipo Zelda rubies — facetas, brillo interno, sparkles aleatorios, glow pulsante. Cada concepto en <b>iOS White</b> (izquierda) y <b>Black & Gold</b> (derecha). Elige UNO y lo implemento.</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <main class="grid">
+
+      <!-- C1 RUBY ROSE -->
+      <div class="concept c1">
+        <div class="pair">
+          <div class="panel ios c1-ios">
+            <div class="panel-label">iOS White · Ruby Rose</div>
+            <div class="chips-row">
+              <div class="gem sparkles"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem sparkles"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem sparkles"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem sparkles"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold · Ruby Rose</div>
+            <div class="chips-row">
+              <div class="gem sparkles"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem sparkles"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem sparkles"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem sparkles"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num" style="color:var(--ruby-bright)">No. 01</div>
+          <div class="meta-name">Ruby Rose</div>
+          <div class="meta-tag">Rosa-rojo brillante con <b>glow pulsante stagger</b> (cada chip late en distinto tiempo) + sparkle ocasional ✦ que aparece en la esquina. Vibe rubí de Zelda.</div>
+          <div class="verdict" style="color:var(--ruby-bright)">
+            <div><span class="p">✓ romántico, llama atención, color único en la app</span></div>
+            <div><span class="c">✗ rosa puede sentirse "femenino" si quieres tono neutral</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- C2 PINK DIAMOND -->
+      <div class="concept c2">
+        <div class="pair">
+          <div class="panel ios c2-ios">
+            <div class="panel-label">iOS White · Pink Diamond</div>
+            <div class="chips-row">
+              <div class="gem sparkles"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem sparkles"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem sparkles"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem sparkles"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold · Pink Diamond</div>
+            <div class="chips-row">
+              <div class="gem sparkles"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem sparkles"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem sparkles"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem sparkles"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num" style="color:var(--pink-diamond-bright)">No. 02</div>
+          <div class="meta-name">Pink Diamond</div>
+          <div class="meta-tag">Rosa con <b>facetas diagonales visibles</b> (líneas internas que simulan cortes de diamante) + sparkle blanco brillante. Inner light shine. Más "diamond cut" que "ruby blob".</div>
+          <div class="verdict" style="color:var(--pink-diamond-bright)">
+            <div><span class="p">✓ facetas dan sensación 3D — premium absoluto</span></div>
+            <div><span class="c">✗ rosa + sparkle puede sentirse "infantil" en cierto contexto</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- C3 SAPPHIRE -->
+      <div class="concept c3">
+        <div class="pair">
+          <div class="panel ios c3-ios">
+            <div class="panel-label">iOS White · Sapphire</div>
+            <div class="chips-row">
+              <div class="gem"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold · Sapphire</div>
+            <div class="chips-row">
+              <div class="gem"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num" style="color:var(--sapphire-bright)">No. 03</div>
+          <div class="meta-name">Sapphire Blue</div>
+          <div class="meta-tag">Azul zafiro con <b>shine sweep diagonal</b> cruzando cada chip (stagger). Inner glow azul profundo + highlight superior. Vibe ágata pulida, joya seria.</div>
+          <div class="verdict" style="color:var(--sapphire-bright)">
+            <div><span class="p">✓ tono neutral/serio — se ve "tech premium" sin perder gema</span></div>
+            <div><span class="c">✗ azul ya domina el banner de Pixora Daily — puede competir</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- C4 EMERALD -->
+      <div class="concept c4">
+        <div class="pair">
+          <div class="panel ios c4-ios">
+            <div class="panel-label">iOS White · Emerald</div>
+            <div class="chips-row">
+              <div class="gem"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold · Emerald</div>
+            <div class="chips-row">
+              <div class="gem"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num" style="color:var(--emerald-bright)">No. 04</div>
+          <div class="meta-name">Emerald</div>
+          <div class="meta-tag">Verde esmeralda con <b>step cuts horizontales</b> (líneas finas top/bottom que simulan facetas escalonadas reales de esmeraldas). Dot late con doble pulso.</div>
+          <div class="verdict" style="color:var(--emerald-bright)">
+            <div><span class="p">✓ verde se relaciona con "nuevo/fresco" — semántica bonus</span></div>
+            <div><span class="c">✗ verde puede confundirse con badge ACTIVO de otros componentes</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- C5 MULTI-GEM -->
+      <div class="concept c5">
+        <div class="pair">
+          <div class="panel ios c5-ios">
+            <div class="panel-label">iOS White · Multi-Gem Collection</div>
+            <div class="chips-row">
+              <div class="gem g-topaz"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem g-sapphire"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem g-ruby"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem g-emerald"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+          <div class="panel bg">
+            <div class="panel-label">Black & Gold · Multi-Gem Collection</div>
+            <div class="chips-row">
+              <div class="gem g-topaz"><span class="dot"></span>Trending<span class="ct">18</span></div>
+              <div class="gem g-sapphire"><span class="dot"></span>New<span class="ct">11</span></div>
+              <div class="gem g-ruby"><span class="dot"></span>Arte<span class="ct">9</span></div>
+              <div class="gem g-emerald"><span class="dot"></span>Mito<span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-num" style="color:var(--topaz-bright)">No. 05</div>
+          <div class="meta-name">Multi-Gem Collection</div>
+          <div class="meta-tag">Cada chip es una gema distinta: <b>Trending=Topacio · New=Zafiro · Arte=Rubí · Mito=Esmeralda</b>. Cada una con su glow pulsante stagger. Vibe colección de cofre de Zelda.</div>
+          <div class="verdict" style="color:var(--topaz-bright)">
+            <div><span class="p">✓ visualmente único — cada categoría es identificable de un vistazo</span></div>
+            <div><span class="c">✗ 4 colores en una row puede saturar el feed visual de la app</span></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer>Pixora · Category Chips · Gems Archive · Mayo 2026</footer>
+  </div>
+</body>
+</html>
