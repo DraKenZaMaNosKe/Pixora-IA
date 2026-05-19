@@ -77,10 +77,15 @@ TEXT_CMS_FCM_TOPIC = 'text_cms_update'  # used by _fcm_push.send_text_cms_update
 # returns False in those cases and we silently degrade to TTL-based refresh.
 try:
     from _fcm_push import send_text_cms_update as _fcm_push_text_cms_update
+    from _fcm_push import send_catalog_invalidate as _fcm_push_catalog_invalidate
+    from _fcm_push import VALID_CATALOG_SCOPES as _FCM_VALID_SCOPES
 except Exception as _fcm_err:
     print(f"[wp_admin_server] FCM push helper unavailable: {_fcm_err}")
     def _fcm_push_text_cms_update():
         return False
+    def _fcm_push_catalog_invalidate(scope: str):
+        return False
+    _FCM_VALID_SCOPES = set()
 
 
 # ─── Get service key once at startup ──────────────────────────────────────────
@@ -792,6 +797,16 @@ class Handler(BaseHTTPRequestHandler):
                 result["storage"] = {"error": e.read().decode()[:300], "status": e.code}
                 return self._send_json(result, e.code)
 
+            # Auto-invalidate the matching client cache via FCM so users see
+            # the edit on their next scroll. kind=='static' → 'wallpapers',
+            # kind=='live' → 'live'. Soft failure: dashboard edit still
+            # reported as successful even if the push couldn't be sent.
+            invalidate_scope = 'wallpapers' if kind == 'static' else 'live'
+            result["fcm_invalidate"] = {
+                "scope": invalidate_scope,
+                "pushed": _fcm_push_catalog_invalidate(invalidate_scope),
+            }
+
             return self._send_json(result)
 
         # ─── Text CMS (Postgres-backed) ───────────────────────────
@@ -804,6 +819,22 @@ class Handler(BaseHTTPRequestHandler):
         if path == '/api/strings/seed':
             body = self._read_json_body()
             return self._handle_strings_seed(body)
+
+        # ─── Catalog invalidate (FCM push) ────────────────────────
+        # POST /api/fcm/catalog-invalidate?scope=wallpapers|live|stories|
+        # day_cycle|ringtones|events|all
+        # Forces every client subscribed to 'new_content' to drop the
+        # matching service cache. Used both by the manual "Invalidar"
+        # button in the dashboard and auto-fired after publish actions.
+        if path == '/api/fcm/catalog-invalidate':
+            qs = urllib.parse.urlparse(self.path).query
+            params = urllib.parse.parse_qs(qs)
+            scope = (params.get('scope') or ['all'])[0]
+            if scope not in _FCM_VALID_SCOPES:
+                return self._send_json(
+                    {"error": f"invalid scope: {scope}", "valid": sorted(_FCM_VALID_SCOPES)}, 400)
+            pushed = _fcm_push_catalog_invalidate(scope)
+            return self._send_json({"scope": scope, "pushed": pushed})
 
         return self._send(404, "text/plain", b"not found")
 
@@ -839,12 +870,20 @@ class Handler(BaseHTTPRequestHandler):
                 # Invalida el cache in-memory para que el siguiente GET / search
                 # traiga la versión nueva de Storage (si no, sirve stale por 60s).
                 Handler._catalog_cache.pop(kind, None)
+                # Auto-invalidate the matching client-side cache via FCM so
+                # users see the new catalog on their next scroll. Mapping:
+                # static→wallpapers, live→live, stories→stories,
+                # day_cycle→day_cycle, ringtones→ringtones.
+                scope_map = {"static": "wallpapers", "live": "live"}
+                invalidate_scope = scope_map.get(kind, kind)
+                pushed = _fcm_push_catalog_invalidate(invalidate_scope)
                 return self._send_json({
                     "ok": True,
                     "bucket": bucket,
                     "file": fname,
                     "count": len(parsed.get(items_key, [])),
                     "storage_response": resp[:200],
+                    "fcm_invalidate": {"scope": invalidate_scope, "pushed": pushed},
                 })
             except urllib.error.HTTPError as e:
                 return self._send_json({"error": e.read().decode()[:300]}, e.code)

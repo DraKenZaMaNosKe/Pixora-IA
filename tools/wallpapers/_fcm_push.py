@@ -118,7 +118,48 @@ def send_text_cms_update() -> bool:
     )
 
 
+# Valid scopes accepted by the Flutter client's
+# PushNotificationService._handleCatalogInvalidate(). Any other value is
+# logged and ignored by the app.
+VALID_CATALOG_SCOPES = {
+    "wallpapers",
+    "live",
+    "stories",
+    "day_cycle",
+    "ringtones",
+    "events",
+    "all",
+}
+
+
+def send_catalog_invalidate(scope: str) -> bool:
+    """Push the catalog_invalidate signal to all Pixora clients (Tier 3,
+    2026-05-18). The Flutter client clears the matching service's cache;
+    the next user scroll / pull-to-refresh / app resume picks up the
+    fresh content from Supabase Storage or Postgres.
+
+    [scope] must be one of VALID_CATALOG_SCOPES — falsy or unknown values
+    return False without sending."""
+    if scope not in VALID_CATALOG_SCOPES:
+        print(f"[FCM] invalid catalog scope: {scope!r}")
+        return False
+    return send_to_topic(
+        topic="new_content",
+        data={
+            "type": "catalog_invalidate",
+            "scope": scope,
+            "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        },
+    )
+
+
 if __name__ == "__main__":
     # Direct invocation: send a test push and report result.
-    ok = send_text_cms_update()
-    print(f"send_text_cms_update -> {ok}")
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "catalog":
+        target = sys.argv[2] if len(sys.argv) > 2 else "all"
+        ok = send_catalog_invalidate(target)
+        print(f"send_catalog_invalidate({target!r}) -> {ok}")
+    else:
+        ok = send_text_cms_update()
+        print(f"send_text_cms_update -> {ok}")

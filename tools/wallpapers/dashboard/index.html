@@ -974,6 +974,53 @@ footer .ornament {
 .kpi .label { word-break: break-word; }
 button { white-space: nowrap; }
 
+/* === SYNC PANEL (Tier 3 cache invalidation, 2026-05-18) === */
+.sync-panel {
+  background: linear-gradient(180deg, #1a1f3a 0%, #0e1228 100%);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 14px 18px;
+  box-shadow: 0 4px 18px -4px rgba(0, 229, 255, 0.15);
+}
+.sync-header { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:10px; }
+.sync-header strong { color:#00E5FF; font-size:14px; letter-spacing:0.5px; }
+.sync-hint { color:#9aa; font-size:11px; flex:1; min-width:240px; line-height:1.4; }
+.sync-btns { display:flex; gap:8px; flex-wrap:wrap; }
+.sync-btn {
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  color: #BFE6FF;
+  padding: 7px 13px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sync-btn:hover {
+  background: rgba(0, 229, 255, 0.18);
+  border-color: #00E5FF;
+  transform: translateY(-1px);
+}
+.sync-btn-all {
+  background: linear-gradient(135deg, #FFB400, #FF8800);
+  border-color: #FFD66B;
+  color: #1a1100;
+}
+.sync-btn-all:hover {
+  background: linear-gradient(135deg, #FFD66B, #FFB400);
+}
+.sync-status {
+  margin-top: 10px;
+  font-size: 12px;
+  min-height: 18px;
+  color: #9aa;
+  font-family: ui-monospace, monospace;
+}
+.sync-status.ok { color:#A7E2A1; }
+.sync-status.err { color:#FF7575; }
+
 /* === TEXTOS tab === */
 .textos-header { padding: 12px 20px; border-bottom: 1px solid #2a2a3a; display:flex; flex-direction:column; gap:8px; }
 .textos-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
@@ -1056,6 +1103,24 @@ button { white-space: nowrap; }
 
   <!-- ════ PAGE: SANTUARIO (home) ══════════════════════════════════════════ -->
   <section class="page active" data-page="home">
+
+  <!-- SYNC PANEL · Force-invalidate user caches (Tier 3, 2026-05-18) -->
+  <div class="sync-panel">
+    <div class="sync-header">
+      <strong>⚡ Sincronizar con usuarios</strong>
+      <span class="sync-hint">Limpia el cache en la app de todos los usuarios para que vean el contenido nuevo al instante. Se dispara automáticamente al publicar/editar — solo usa estos botones si quieres forzarlo manualmente.</span>
+    </div>
+    <div class="sync-btns">
+      <button class="sync-btn" onclick="invalidateScope('wallpapers')" title="Wallpapers estáticos">🖼️ Wallpapers</button>
+      <button class="sync-btn" onclick="invalidateScope('live')" title="Live wallpapers (video)">🎬 LIVE</button>
+      <button class="sync-btn" onclick="invalidateScope('stories')" title="Stories">📖 Stories</button>
+      <button class="sync-btn" onclick="invalidateScope('day_cycle')" title="Day Cycle themes">🌅 Day Cycle</button>
+      <button class="sync-btn" onclick="invalidateScope('ringtones')" title="Tonos">🔔 Tonos</button>
+      <button class="sync-btn" onclick="invalidateScope('events')" title="Eventos">🎉 Eventos</button>
+      <button class="sync-btn sync-btn-all" onclick="invalidateScope('all')" title="Limpia todo de un golpe">⚡ TODO</button>
+    </div>
+    <div id="sync-status" class="sync-status"></div>
+  </div>
 
   <!-- KPI HERO · Resumen del catálogo -->
   <div class="kpi-grid">
@@ -3174,6 +3239,39 @@ function guardarTextosModal() { TextosCMS.saveModal(); }
     TextosCMS.load();
   }
 })();
+
+// === Sync panel — force-invalidate user caches via FCM (Tier 3) ===
+// Endpoint: POST /api/fcm/catalog-invalidate?scope=<scope>
+// Server returns {scope, pushed:true|false}. pushed=false typically means
+// the firebase-service-account.json is missing — UI shows a soft warning.
+async function invalidateScope(scope) {
+  const status = document.getElementById('sync-status');
+  const btns = document.querySelectorAll('.sync-btn');
+  btns.forEach(b => b.disabled = true);
+  status.className = 'sync-status';
+  status.textContent = '→ enviando push catalog_invalidate scope=' + scope + ' …';
+  try {
+    const res = await fetch('/api/fcm/catalog-invalidate?scope=' + encodeURIComponent(scope), {
+      method: 'POST',
+    });
+    const data = await res.json();
+    if (res.ok && data.pushed) {
+      status.className = 'sync-status ok';
+      status.textContent = '✓ push enviado scope=' + scope + ' · usuarios verán contenido nuevo en su siguiente scroll/refresh';
+    } else if (res.ok && !data.pushed) {
+      status.className = 'sync-status err';
+      status.textContent = '⚠ push devolvió pushed=false — revisa que firebase-service-account.json exista en orbixprivate/secrets/pixora-firebase/';
+    } else {
+      status.className = 'sync-status err';
+      status.textContent = '✗ error ' + res.status + ': ' + (data.error || 'unknown');
+    }
+  } catch (e) {
+    status.className = 'sync-status err';
+    status.textContent = '✗ network error: ' + e.message;
+  } finally {
+    btns.forEach(b => b.disabled = false);
+  }
+}
 </script>
 </body>
 </html>
