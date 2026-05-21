@@ -20,14 +20,23 @@ projectDir = fso.GetParentFolderName(fso.GetParentFolderName(scriptDir))
 serverPath = scriptDir & "\wp_admin_server.py"
 
 ' pythonw.exe = Python For Windows; runs without opening a console window.
-' Falls back to whatever's on PATH if not in the standard install dirs.
+' Search order: system-wide installs first, then user-scope (winget user install),
+' then PATH fallback. User-scope paths use %LOCALAPPDATA% so it works on any
+' machine without hardcoding the username (repo syncs across laptops).
 pythonwPath = "pythonw.exe"
+localAppData = sh.ExpandEnvironmentStrings("%LOCALAPPDATA%")
 If fso.FileExists("C:\Python314\pythonw.exe") Then
   pythonwPath = "C:\Python314\pythonw.exe"
 ElseIf fso.FileExists("C:\Python313\pythonw.exe") Then
   pythonwPath = "C:\Python313\pythonw.exe"
 ElseIf fso.FileExists("C:\Python312\pythonw.exe") Then
   pythonwPath = "C:\Python312\pythonw.exe"
+ElseIf fso.FileExists(localAppData & "\Programs\Python\Python314\pythonw.exe") Then
+  pythonwPath = localAppData & "\Programs\Python\Python314\pythonw.exe"
+ElseIf fso.FileExists(localAppData & "\Programs\Python\Python313\pythonw.exe") Then
+  pythonwPath = localAppData & "\Programs\Python\Python313\pythonw.exe"
+ElseIf fso.FileExists(localAppData & "\Programs\Python\Python312\pythonw.exe") Then
+  pythonwPath = localAppData & "\Programs\Python\Python312\pythonw.exe"
 End If
 
 ' Run command: pythonw "wp_admin_server.py"
