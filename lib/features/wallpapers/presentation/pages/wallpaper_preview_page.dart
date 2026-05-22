@@ -693,7 +693,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
                         AspectRatio(
                           aspectRatio: 1,
                           child: CachedWallpaperImage(
-                            imageUrl: widget.wallpaper.fullImageUrl,
+                            imageUrl: widget.wallpaper.previewUrl,
                             useAuroraLoader: true,
                           ),
                         ),
