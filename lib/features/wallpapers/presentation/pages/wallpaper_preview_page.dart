@@ -215,8 +215,18 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
 
     _setLoading('Descargando pieza...');
 
+    // asLive=true switches the ContentItem to the wallpaper-videos bucket and
+    // liveVideo type. That mapping is correct ONLY for wallpapers reached via
+    // wallpaperFromLive() — those have customPreviewUrl set and imageFile
+    // pointing to the video. For pure static wallpapers (no video backing),
+    // keep asLive=false so the download targets wallpaper-images; the install
+    // still uses InstallTarget.liveWallpaper so the LiveWallpaperInstaller
+    // adds effects on top of the static image (or upgrades it to canvas_scene
+    // via the catalog index lookup in WallpaperService.setLiveWallpaper).
+    final isAdaptedLive = widget.wallpaper.customPreviewUrl != null;
+
     final success = await ContentManager.instance.downloadAndInstall(
-      item: widget.wallpaper.toContentItem(asLive: true),
+      item: widget.wallpaper.toContentItem(asLive: isAdaptedLive),
       target: InstallTarget.liveWallpaper,
       onProgress: (p) {
         if (mounted) setState(() => _downloadProgress = p);
