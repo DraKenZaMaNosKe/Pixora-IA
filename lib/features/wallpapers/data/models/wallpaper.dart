@@ -154,7 +154,30 @@ class Wallpaper {
   bool get isPanoramic => category == 'PANORAMIC';
 
   /// Convert to unified ContentItem for ContentManager.
+  ///
+  /// When [asLive] is true, the wallpaper is treated as a LIVE video item:
+  /// the file lives in the `wallpaper-videos` bucket and the type maps to
+  /// `liveVideo` so `ContentManager.downloadAndInstall` resolves the right
+  /// URL and installs via the live-wallpaper pipeline. The adapter
+  /// `wallpaperFromLive()` stores the video path in `imageFile` precisely
+  /// for this case (with `customPreviewUrl` already pointing to the right
+  /// preview bucket).
   ContentItem toContentItem({bool asLive = false}) {
+    if (asLive) {
+      return ContentItem(
+        id: id,
+        type: ContentType.liveVideo,
+        remoteFile: imageFile,
+        bucket: ContentUrlResolver.wallpaperVideosBucket,
+        previewFile: previewFile,
+        name: name,
+        metadata: {
+          'glowColor': glowColor,
+          'category': category,
+          'interactive': false,
+        },
+      );
+    }
     final type = isPanoramic
         ? ContentType.panoramicWallpaper
         : ContentType.staticWallpaper;
