@@ -25,6 +25,8 @@ class Wallpaper {
     this.authorName = 'Pixora Studio',
     this.authorUserId,
     this.customPreviewUrl,
+    this.mediaWidth,
+    this.mediaHeight,
   });
 
   final String id;
@@ -70,6 +72,25 @@ class Wallpaper {
   /// in the `wallpaper-videos` bucket, not `wallpaper-images`).
   final String? customPreviewUrl;
 
+  /// Pixel dimensions of the source media. Null for legacy items pending
+  /// backfill. Filled by the upload pipeline (or the backfill script that
+  /// downloads + measures with Pillow). Used by the dimension-agnostic UI
+  /// (Fase 2) to decide rendering: ultra-wide → horizontal scroll,
+  /// vertical → fullscreen, etc.
+  final int? mediaWidth;
+  final int? mediaHeight;
+
+  /// Aspect ratio (width / height). Null if dimensions are unknown. Use
+  /// `aspectRatio ?? <fallback>` if you need a non-null value (most callers
+  /// can default to the legacy assumption of 9:16 = 0.5625 for static or
+  /// 4:1 = 4.0 for panoramic, based on `isPanoramic`).
+  double? get aspectRatio {
+    if (mediaWidth == null || mediaHeight == null || mediaHeight! <= 0) {
+      return null;
+    }
+    return mediaWidth! / mediaHeight!;
+  }
+
   String get previewUrl =>
       customPreviewUrl ?? SupabaseConfig.imageUrl(previewFile);
   String get fullImageUrl => SupabaseConfig.imageUrl(imageFile);
@@ -108,6 +129,8 @@ class Wallpaper {
           : null,
       authorName: json['authorName'] as String? ?? 'Pixora Studio',
       authorUserId: json['authorUserId'] as int?,
+      mediaWidth: (json['mediaWidth'] as num?)?.toInt(),
+      mediaHeight: (json['mediaHeight'] as num?)?.toInt(),
     );
   }
 
@@ -141,6 +164,8 @@ class Wallpaper {
           : null,
       authorName: row['author_name'] as String? ?? 'Pixora Studio',
       authorUserId: (row['author_user_id'] as num?)?.toInt(),
+      mediaWidth: (row['media_width'] as num?)?.toInt(),
+      mediaHeight: (row['media_height'] as num?)?.toInt(),
     );
   }
 
