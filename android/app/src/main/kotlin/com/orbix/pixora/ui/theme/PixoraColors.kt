@@ -3,40 +3,61 @@ package com.orbix.pixora.ui.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * Pixora HUD palette — ported from v1's `HudTokens.kt`.
+ * Pixora "Cosmos" palette — unified extract of the three v1 design systems
+ * that survived: deep ink starfield base, gold premium accents, plus an
+ * Aurora palette used to color-code AURA tracks and category badges.
  *
- * The HUD identity: dark cosmic background, gold accents (premium feel),
- * cyan/pink for callouts (Holographic Foil aesthetic from v1.7.17 redesign).
- *
- * Material 3 color slots are mapped in `PixoraTheme.kt` — these constants
- * are the raw palette referenced by both the theme and individual widgets
- * that need exact colors (e.g. accent rings on cards).
+ * Hex values match the docs/design HTML redesign concepts so the Compose
+ * implementation lines up 1:1 with the visual specs.
  */
 object PixoraColors {
-    // ─── Backgrounds ───────────────────────────────────────────────────
-    val Dark = Color(0xFF07060E)       // app background
-    val InkLayer = Color(0xFF0F0E1A)   // surface above bg
-    val InkTile = Color(0xFF1A1A22)    // cards / tiles
 
-    // ─── Brand accents ────────────────────────────────────────────────
-    val Gold = Color(0xFFC8A05A)       // primary HUD gold
-    val GoldBright = Color(0xFFE5B040) // hover / focus
-    val Copper = Color(0xFFB87A3C)     // secondary gold
+    // ─── Ink / Surfaces ───────────────────────────────────────────────
+    val Ink = Color(0xFF070710)         // app background — deep cosmos
+    val Ink2 = Color(0xFF0D0D18)        // surface layer 1 — sheets, modals
+    val Surface = Color(0xFF14141F)     // cards / tiles
+    val Surface2 = Color(0xFF1C1C2A)    // elevated cards (Pack header, etc.)
+    val Hairline = Color(0x0FFFFFFF)    // 6% white — divider, border
 
-    // ─── Action / callout ─────────────────────────────────────────────
-    val Cyan = Color(0xFF00E5FF)       // info, panoramic glow
-    val PinkAccent = Color(0xFFFF80AB) // hot, premium, sexy
-    val RoseGold = Color(0xFFFFB6C1)   // soft accent
+    // Legacy aliases (keep so we don't break refs while migrating)
+    val Dark get() = Ink
+    val InkLayer get() = Ink2
+    val InkTile get() = Surface
+
+    // ─── Brand Gold ───────────────────────────────────────────────────
+    val Gold = Color(0xFFD4AF37)         // primary brand gold
+    val GoldBright = Color(0xFFF5D676)   // hover / focus / highlight
+    val GoldDeep = Color(0xFF8B7228)     // labels, lowlight gold
+    val GoldHaze = Color(0x1AD4AF37)     // 10% gold tint — glow background
+
+    // Legacy alias
+    val Copper get() = GoldDeep
+
+    // ─── Aurora — used by AURA tracks + secondary category badges ─────
+    val AuroraLavender = Color(0xFFB8A8E8)
+    val AuroraOcean = Color(0xFF87C5E8)
+    val AuroraMagenta = Color(0xFFC75FA8)
+    val AuroraCyan = Color(0xFF4FC3D9)
+    val AuroraPeach = Color(0xFFFFC7B5)
+    val AuroraViolet = Color(0xFF6A4FB5)
+    val AuroraAmber = Color(0xFFE8B86E)
+    val AuroraRose = Color(0xFFE8A5C5)
+
+    // ─── iOS callout greens/pinks (legacy compatibility) ──────────────
+    val Cyan = AuroraCyan
+    val PinkAccent = AuroraRose
+    val RoseGold = AuroraPeach
 
     // ─── Status ───────────────────────────────────────────────────────
-    val OkGreen = Color(0xFF00C853)
+    val OkGreen = Color(0xFF10B981)
     val WarnAmber = Color(0xFFFFB300)
-    val ErrorRed = Color(0xFFFF4757)
+    val ErrorRed = Color(0xFFE5484D)
 
-    // ─── Text ─────────────────────────────────────────────────────────
-    val TextPrimary = Color(0xFFE8E8F0)
-    val TextSecondary = Color(0xFF9DA3B4)
-    val TextDim = Color(0xFF5A6075)
+    // ─── Text — cream-not-white for editorial warmth ──────────────────
+    val TextPrimary = Color(0xFFF5F4EE)     // cream
+    val TextSecondary = Color(0xFF9A988E)   // dim cream
+    val TextFaint = Color(0xFF5A5752)       // very dim — captions, metadata
+    val TextDim = TextSecondary             // alias
 
     // ─── Dividers / borders ───────────────────────────────────────────
     val Divider = Color(0xFF2A2A3A)

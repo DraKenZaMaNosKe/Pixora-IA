@@ -20,8 +20,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import com.orbix.pixora.ui.components.PixoraAppBar
+import com.orbix.pixora.ui.theme.PixoraColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -80,13 +80,14 @@ fun StoriesScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     Scaffold(
+        containerColor = PixoraColors.Ink,
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.stories.isEmpty()) "Historias" else "Historias · ${state.stories.size}") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                ),
+            PixoraAppBar(
+                title = "Historias",
+                eyebrow = "// COMIC BOOK · CHRONICLES",
+                subtitle = if (state.stories.isEmpty()) null
+                    else "${state.stories.size} sagas en movimiento",
+                accentColor = PixoraColors.AuroraAmber,
             )
         },
     ) { innerPadding ->

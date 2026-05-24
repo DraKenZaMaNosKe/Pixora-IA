@@ -19,8 +19,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import com.orbix.pixora.ui.components.PixoraAppBar
+import com.orbix.pixora.ui.theme.PixoraColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,18 +48,14 @@ fun LiveScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = PixoraColors.Ink,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (state.items.isEmpty()) "Live Wallpapers"
-                        else "Live · ${state.items.size}",
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                ),
+            PixoraAppBar(
+                title = "Live Wallpapers",
+                eyebrow = "// PIXORA · EN MOVIMIENTO",
+                subtitle = if (state.items.isEmpty()) null
+                    else "${state.items.size} videos · loop perfecto",
+                accentColor = PixoraColors.AuroraMagenta,
             )
         },
     ) { innerPadding ->

@@ -13,8 +13,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import com.orbix.pixora.ui.components.PixoraAppBar
+import com.orbix.pixora.ui.theme.PixoraColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,13 +30,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun FavoritesScreen() {
     Scaffold(
+        containerColor = PixoraColors.Ink,
         topBar = {
-            TopAppBar(
-                title = { Text("Favoritos") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                ),
+            PixoraAppBar(
+                title = "Favoritos",
+                eyebrow = "// CABINET · WUNDERKAMMER",
+                subtitle = "Tu colección personal",
+                accentColor = PixoraColors.AuroraRose,
             )
         },
     ) { innerPadding ->

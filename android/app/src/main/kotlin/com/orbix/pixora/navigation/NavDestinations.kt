@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.PublicOff
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewInAr
@@ -43,9 +44,22 @@ enum class PixoraDestination(
     ;
 
     companion object {
-        // The 5 most visible — shown in the bottom bar. Rest are accessible
-        // via overflow menu / settings drawer (TBD later in MVP).
-        val Primary = listOf(Wallpapers, Live, Aura, Favorites, Settings)
+        /**
+         * Bottom-bar tabs (4 sections + the "Más" opener).
+         *
+         * "Más" is a sentinel — it doesn't navigate, instead it opens the
+         * [PixoraNavHost] secondary-sections modal. Real navigation to
+         * stories/tonos/daycycle/etc. happens FROM that sheet.
+         */
+        val Primary = listOf(Wallpapers, Live, Aura, Favorites)
+        val MoreLabel = "Más"
+        val MoreIcon = Icons.Outlined.GridView
+
+        /** Sections shown inside the "Más" modal grid (in display order). */
+        val Secondary = listOf(
+            Stories, DayCycle, Ringtones, ThreeD,
+            Cultura, Eventos, Arcano, AiGenerate, Settings,
+        )
 
         // ── Sub-routes (with args) ───────────────────────────────────────
         // Detail viewer for a single wallpaper. Reached by tapping a card

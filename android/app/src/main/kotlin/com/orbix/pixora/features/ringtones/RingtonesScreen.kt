@@ -23,8 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import com.orbix.pixora.ui.components.PixoraAppBar
+import com.orbix.pixora.ui.theme.PixoraColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -95,13 +95,14 @@ fun RingtonesScreen(viewModel: RingtonesViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val nowPlayingId by viewModel.nowPlayingId.collectAsStateWithLifecycle()
     Scaffold(
+        containerColor = PixoraColors.Ink,
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.packs.isEmpty()) "Tonos" else "Tonos · ${state.packs.size} packs") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                ),
+            PixoraAppBar(
+                title = "Tonos",
+                eyebrow = "// RETRO · CASSETTE",
+                subtitle = if (state.packs.isEmpty()) null
+                    else "${state.packs.size} packs · ringtones + notificaciones",
+                accentColor = PixoraColors.AuroraMagenta,
             )
         },
     ) { innerPadding ->

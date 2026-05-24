@@ -168,6 +168,11 @@ dependencies {
     // ─── Splash Screen API (Android 12+) ─────────────────────────────────
     implementation("androidx.core:core-splashscreen:1.0.1")
 
+    // ─── Compose Google Fonts (downloadable) ─────────────────────────────
+    // Lets us reference Geist / Fraunces / JetBrains Mono / Cormorant /
+    // Cinzel via Font(GoogleFont(...)) without bundling .ttf files.
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.6")
+
     // ─── Material Components (provides Theme.Material3.* XML themes) ─────
     // Compose Material 3 only provides Composables; the XML <style> system
     // needs this lib for `Theme.Material3.DayNight.NoActionBar` parent.
