@@ -15,16 +15,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Repeat
+import androidx.compose.material.icons.outlined.RepeatOne
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -73,13 +82,21 @@ fun AuraMiniPlayer(
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh),
         ) {
-            LinearProgressIndicator(
-                progress = { state.progress },
-                color = accent,
-                trackColor = accent.copy(alpha = 0.2f),
+            // Scrubber slider — replaces the static progress bar
+            Slider(
+                value = state.progress.coerceIn(0f, 1f),
+                onValueChange = { v ->
+                    val ms = (v * state.durationMs).toLong()
+                    viewModel.seekTo(ms)
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = accent,
+                    activeTrackColor = accent,
+                    inactiveTrackColor = accent.copy(alpha = 0.25f),
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(3.dp),
+                    .height(20.dp),
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -128,11 +145,29 @@ fun AuraMiniPlayer(
                         maxLines = 1,
                     )
                     Text(
-                        text = formatProgress(state.positionMs, state.durationMs),
+                        text = if (state.sleepTimerMs != null)
+                            "${formatProgress(state.positionMs, state.durationMs)}  ·  ⏱ ${formatTimer(state.sleepTimerMs)}"
+                        else formatProgress(state.positionMs, state.durationMs),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                // Loop toggle
+                IconButton(onClick = { viewModel.setLooping(!state.looping) }) {
+                    Icon(
+                        imageVector = if (state.looping) Icons.Outlined.RepeatOne else Icons.Outlined.Repeat,
+                        contentDescription = "Repetir",
+                        tint = if (state.looping) accent else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                // Sleep timer with dropdown
+                SleepTimerButton(
+                    accent = accent,
+                    isActive = state.sleepTimerMs != null,
+                    onSet = viewModel::setSleepTimer,
+                    onCancel = viewModel::cancelSleepTimer,
+                )
+                // Play/pause
                 IconButton(onClick = { viewModel.togglePlayPause() }) {
                     Icon(
                         imageVector = if (state.isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
@@ -152,6 +187,53 @@ fun AuraMiniPlayer(
     }
 }
 
+@Composable
+private fun SleepTimerButton(
+    accent: Color,
+    isActive: Boolean,
+    onSet: (Int) -> Unit,
+    onCancel: () -> Unit,
+) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }) {
+            Icon(
+                imageVector = Icons.Outlined.AccessTime,
+                contentDescription = "Temporizador de sueño",
+                tint = if (isActive) accent else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            listOf(15, 30, 45, 60).forEach { mins ->
+                DropdownMenuItem(
+                    text = { Text("$mins min") },
+                    onClick = {
+                        onSet(mins)
+                        open = false
+                    },
+                )
+            }
+            if (isActive) {
+                DropdownMenuItem(
+                    text = { Text("Cancelar temporizador") },
+                    onClick = {
+                        onCancel()
+                        open = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+private fun formatTimer(remainingMs: Long?): String {
+    if (remainingMs == null) return ""
+    val totalSec = (remainingMs / 1000).coerceAtLeast(0)
+    val m = totalSec / 60
+    val s = totalSec % 60
+    return "%d:%02d".format(m, s)
+}
+
 private fun formatProgress(positionMs: Long, durationMs: Long): String {
     fun fmt(ms: Long): String {
         val total = (ms / 1000).coerceAtLeast(0)
@@ -169,4 +251,8 @@ class AuraMiniPlayerViewModel @Inject constructor(
     val state: StateFlow<AuraPlayerState> = player.state
     fun togglePlayPause() = player.togglePlayPause()
     fun stop() = player.stop()
+    fun seekTo(ms: Long) = player.seekTo(ms)
+    fun setLooping(enabled: Boolean) = player.setLooping(enabled)
+    fun setSleepTimer(minutes: Int) = player.setSleepTimer(minutes)
+    fun cancelSleepTimer() = player.cancelSleepTimer()
 }

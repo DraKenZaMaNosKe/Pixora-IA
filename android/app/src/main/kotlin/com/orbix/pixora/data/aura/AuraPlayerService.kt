@@ -26,6 +26,8 @@ data class AuraPlayerState(
     val positionMs: Long = 0L,
     val durationMs: Long = 0L,
     val looping: Boolean = false,
+    /** Remaining millis on the sleep timer; null = no timer set. */
+    val sleepTimerMs: Long? = null,
 ) {
     val progress: Float
         get() = if (durationMs > 0) (positionMs.toFloat() / durationMs).coerceIn(0f, 1f) else 0f
@@ -69,6 +71,7 @@ class AuraPlayerService @Inject constructor(
     }
 
     private var pollingJob: kotlinx.coroutines.Job? = null
+    private var sleepTimerJob: kotlinx.coroutines.Job? = null
 
     fun play(track: AuraTrack) {
         val current = _state.value.nowPlaying
@@ -105,6 +108,34 @@ class AuraPlayerService @Inject constructor(
     fun setLooping(enabled: Boolean) {
         player.repeatMode = if (enabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
         _state.value = _state.value.copy(looping = enabled)
+    }
+
+    /**
+     * Start a sleep timer that pauses playback after [minutes].
+     * Pass 0 (or call [cancelSleepTimer]) to clear an active timer.
+     */
+    fun setSleepTimer(minutes: Int) {
+        cancelSleepTimer()
+        if (minutes <= 0) return
+        val totalMs = minutes * 60_000L
+        _state.value = _state.value.copy(sleepTimerMs = totalMs)
+        sleepTimerJob = scope.launch {
+            var remaining = totalMs
+            while (remaining > 0) {
+                delay(1000)
+                remaining -= 1000
+                _state.value = _state.value.copy(sleepTimerMs = remaining.coerceAtLeast(0))
+            }
+            // Time's up
+            player.pause()
+            _state.value = _state.value.copy(sleepTimerMs = null)
+        }
+    }
+
+    fun cancelSleepTimer() {
+        sleepTimerJob?.cancel()
+        sleepTimerJob = null
+        _state.value = _state.value.copy(sleepTimerMs = null)
     }
 
     private fun startPolling() {

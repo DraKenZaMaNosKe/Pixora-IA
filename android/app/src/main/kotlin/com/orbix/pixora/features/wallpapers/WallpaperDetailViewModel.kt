@@ -8,6 +8,7 @@ import com.orbix.pixora.data.repos.WallpaperRepository
 import android.app.Activity
 import com.orbix.pixora.data.ads.AdService
 import com.orbix.pixora.data.credits.CreditService
+import com.orbix.pixora.data.stats.WallpaperStatsService
 import com.orbix.pixora.data.wallpaper.ApplyResult
 import com.orbix.pixora.data.wallpaper.WallpaperApplyService
 import com.orbix.pixora.ui.components.DownloadStage
@@ -44,6 +45,7 @@ class WallpaperDetailViewModel @Inject constructor(
     private val applyService: WallpaperApplyService,
     private val adService: AdService,
     private val creditService: CreditService,
+    private val statsService: WallpaperStatsService,
 ) : ViewModel() {
 
     private val wallpaperId: String = savedStateHandle.get<String>("id").orEmpty()
@@ -63,6 +65,7 @@ class WallpaperDetailViewModel @Inject constructor(
                 loading = false,
                 errorMsg = if (w == null) "Wallpaper no encontrado" else null,
             )
+            if (w != null) statsService.trackView(w.id)
         }
     }
 
@@ -89,6 +92,7 @@ class WallpaperDetailViewModel @Inject constructor(
                 when (result) {
                     is ApplyResult.Success -> {
                         if (awardedCredit) creditService.earnFromAd()
+                        statsService.trackDownload(w.id)
                         _state.value = _state.value.copy(
                             applying = false,
                             justApplied = true,
