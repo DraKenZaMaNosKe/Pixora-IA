@@ -185,6 +185,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
           _toneLoadingStatus = 'Download failed';
         });
         await Future.delayed(const Duration(milliseconds: 1200));
+        if (!mounted) return;
         setState(() => _settingId = null);
       }
       return;
@@ -208,6 +209,7 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
             : 'Failed to set ringtone';
       });
       await Future.delayed(const Duration(milliseconds: 1200));
+      if (!mounted) return;
       setState(() => _settingId = null);
     }
   }

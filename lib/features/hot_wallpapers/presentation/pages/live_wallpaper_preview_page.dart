@@ -137,6 +137,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
           _loadingStatus = 'Explore wallpaper set!';
         });
         await Future.delayed(const Duration(milliseconds: 1200));
+        if (!mounted) return;
         setState(() => _isApplying = false);
       }
       return;
@@ -216,6 +217,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
             : 'Live wallpaper applied!';
       });
       await Future.delayed(const Duration(milliseconds: 1200));
+      if (!mounted) return;
       setState(() => _isApplying = false);
     }
   }

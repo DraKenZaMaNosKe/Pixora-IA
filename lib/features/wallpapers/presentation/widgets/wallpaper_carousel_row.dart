@@ -6,7 +6,6 @@ import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class WallpaperCarouselRow extends StatefulWidget {
   const WallpaperCarouselRow({

@@ -115,6 +115,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage>
             _loadingStatus = 'Failed to download frame ${i + 1}';
           });
           await Future.delayed(const Duration(milliseconds: 1500));
+          if (!mounted) return;
           setState(() => _isStarting = false);
         }
         return;
@@ -151,6 +152,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage>
         _loadingStatus = success ? 'Story started!' : 'Failed to start story';
       });
       await Future.delayed(const Duration(milliseconds: 1200));
+      if (!mounted) return;
       setState(() => _isStarting = false);
     }
   }

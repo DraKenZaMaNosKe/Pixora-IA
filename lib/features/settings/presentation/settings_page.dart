@@ -913,7 +913,6 @@ class _ThemePickerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final h = context.hud;
     return ListenableBuilder(
       listenable: ThemeService.instance,
       builder: (context, _) {
