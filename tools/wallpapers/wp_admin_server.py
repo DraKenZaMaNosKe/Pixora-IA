@@ -340,7 +340,7 @@ class Handler(BaseHTTPRequestHandler):
         if status == 200 and isinstance(stats, list):
             by_id_stats = {row["id"]: row for row in stats}
         pub_rows, pub_status = self._proxy(
-            f"wallpapers?id=in.({ids_csv})&select=id,published,daily_eligible"
+            f"wallpapers?id=in.({ids_csv})&select=id,published,daily_eligible,media_width,media_height"
         )
         by_id_pub: dict = {}
         if pub_status == 200 and isinstance(pub_rows, list):
@@ -356,6 +356,11 @@ class Handler(BaseHTTPRequestHandler):
             # solo viven en Storage, no en tabla wallpapers).
             it["published"] = (pr.get("published", True) if pr else True)
             it["daily_eligible"] = (pr.get("daily_eligible", False) if pr else False)
+            # Fase 2 dimension-agnostic: media_width/height para que el
+            # dashboard muestre dimensions reales + detecte panoramicos por
+            # ratio (>=3:1) además del flag manual category=PANORAMIC.
+            it["media_width"] = (pr.get("media_width") if pr else None)
+            it["media_height"] = (pr.get("media_height") if pr else None)
 
     def _handle_catalog_search(self, query):
         q = (query.get("q", [""])[0] or "").lower().strip()
@@ -709,6 +714,10 @@ class Handler(BaseHTTPRequestHandler):
         "glowColor": "glow_color",
         "published": "published",          # bool — false = oculto del app
         "dailyEligible": "daily_eligible", # bool — true = rota en Pixora Daily curado
+        # Fase 2 dimension-agnostic: permitir editar dimensions manualmente
+        # desde el dashboard si una imagen se midio mal (ej. timeout en backfill).
+        "mediaWidth":  "media_width",
+        "mediaHeight": "media_height",
     }
 
     def _update_static_postgres(self, wid: str, fields: dict) -> tuple[dict, int]:

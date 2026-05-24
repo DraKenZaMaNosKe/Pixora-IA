@@ -2316,10 +2316,26 @@ async function doSearch(resetPage = true) {
          </div>` : '';
     const dailyBadge = w.daily_eligible === true
       ? `<div class="wp-daily-badge" title="Eligible para Pixora Daily">★</div>` : '';
+    // Fase 2 dimension-agnostic: pill "PANO" si es panoramico (por ratio
+    // >=3:1 o por categoria manual). Y line de dimensions en el meta.
+    const ratio = (w.media_width && w.media_height) ? (w.media_width / w.media_height) : null;
+    const isPanoByRatio = ratio !== null && ratio >= 3.0;
+    const isPanoByCategory = (w.category || '').toUpperCase() === 'PANORAMIC';
+    const showPano = isPanoByRatio || isPanoByCategory;
+    const panoTitle = isPanoByRatio
+      ? `Auto-detectado por ratio ${ratio.toFixed(2)}:1`
+      : 'Manual category=PANORAMIC (sin dimensions backfilled)';
+    const panoBadge = showPano
+      ? `<div class="wp-badge" style="background:#FF80AB;color:#0B0B14;margin-top:6px" title="${escape(panoTitle)}">PANO</div>`
+      : '';
+    const dimsHtml = (w.media_width && w.media_height)
+      ? `<span title="Dimensions reales (Fase 2)" style="color:#9DA3B4;font-size:11px">${w.media_width}×${w.media_height}</span>`
+      : `<span title="Dimensions desconocidas — correr backfill" style="color:#FF4757;font-size:11px;opacity:0.7">?×?</span>`;
     card.innerHTML = `
       <div class="thumb" style="background-image:url('${escape(w.preview_url)}')">
         ${kindHtml}
         ${badgeHtml}
+        ${panoBadge}
         ${dailyBadge}
         ${hiddenOverlay}
       </div>
@@ -2328,6 +2344,7 @@ async function doSearch(resetPage = true) {
         <div class="stats">
           <span title="vistas"><span class="material-symbols-rounded">visibility</span> ${fmt(w.view_count)}</span>
           <span title="installs"><span class="material-symbols-rounded">download</span> ${fmt(w.install_count)}</span>
+          ${dimsHtml}
         </div>
       </div>
     `;
