@@ -1,5 +1,6 @@
 package com.orbix.pixora.navigation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -8,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.orbix.pixora.features.aura.AuraMiniPlayer
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -49,26 +51,31 @@ fun PixoraNavHost() {
 
     Scaffold(
         bottomBar = {
-            if (showBottomBar) {
-                NavigationBar {
-                    PixoraDestination.Primary.forEach { dest ->
-                        val selected = currentRoute == dest.route
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                if (!selected) {
-                                    navController.navigate(dest.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
+            // Mini-player sits ABOVE the bottom nav bar so it persists
+            // across tab switches without blocking the nav.
+            Column {
+                AuraMiniPlayer()
+                if (showBottomBar) {
+                    NavigationBar {
+                        PixoraDestination.Primary.forEach { dest ->
+                            val selected = currentRoute == dest.route
+                            NavigationBarItem(
+                                selected = selected,
+                                onClick = {
+                                    if (!selected) {
+                                        navController.navigate(dest.route) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
                                         }
-                                        launchSingleTop = true
-                                        restoreState = true
                                     }
-                                }
-                            },
-                            icon = { androidx.compose.material3.Icon(dest.icon, contentDescription = dest.label) },
-                            label = { Text(dest.label) },
-                        )
+                                },
+                                icon = { androidx.compose.material3.Icon(dest.icon, contentDescription = dest.label) },
+                                label = { Text(dest.label) },
+                            )
+                        }
                     }
                 }
             }

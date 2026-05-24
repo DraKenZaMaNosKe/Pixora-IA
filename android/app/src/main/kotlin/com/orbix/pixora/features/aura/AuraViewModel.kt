@@ -2,6 +2,8 @@ package com.orbix.pixora.features.aura
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.orbix.pixora.data.aura.AuraPlayerService
+import com.orbix.pixora.data.aura.AuraPlayerState
 import com.orbix.pixora.data.models.AuraTrack
 import com.orbix.pixora.data.repos.AuraRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,10 +27,12 @@ data class AuraUiState(
 @HiltViewModel
 class AuraViewModel @Inject constructor(
     private val repo: AuraRepository,
+    private val playerService: AuraPlayerService,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuraUiState())
     val state: StateFlow<AuraUiState> = _state.asStateFlow()
+    val playerState: StateFlow<AuraPlayerState> = playerService.state
 
     init { refresh() }
 
@@ -46,4 +50,6 @@ class AuraViewModel @Inject constructor(
             )
         }
     }
+
+    fun onTrackTapped(track: AuraTrack) = playerService.play(track)
 }

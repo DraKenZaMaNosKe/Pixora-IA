@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Forest
 import androidx.compose.material.icons.outlined.GraphicEq
+import androidx.compose.material.icons.outlined.Pause
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,10 +44,10 @@ import com.orbix.pixora.data.models.AuraTrack
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuraScreen(
-    onTrackClick: (String) -> Unit = {},
     viewModel: AuraViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val playerState by viewModel.playerState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -73,14 +75,24 @@ fun AuraScreen(
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center),
                 )
-                else -> AuraList(state, onTrackClick)
+                else -> AuraList(
+                    state = state,
+                    nowPlayingId = playerState.nowPlaying?.id,
+                    isPlaying = playerState.isPlaying,
+                    onTrackClick = viewModel::onTrackTapped,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun AuraList(state: AuraUiState, onTrackClick: (String) -> Unit) {
+private fun AuraList(
+    state: AuraUiState,
+    nowPlayingId: String?,
+    isPlaying: Boolean,
+    onTrackClick: (AuraTrack) -> Unit,
+) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -88,25 +100,33 @@ private fun AuraList(state: AuraUiState, onTrackClick: (String) -> Unit) {
     ) {
         if (state.frequencies.isNotEmpty()) {
             item { SectionHeader("Frecuencias Solfeggio", Icons.Outlined.GraphicEq) }
-            items(state.frequencies, onTrackClick)
+            items(state.frequencies, nowPlayingId, isPlaying, onTrackClick)
         }
         if (state.nature.isNotEmpty()) {
             item { SectionHeader("Naturaleza", Icons.Outlined.Forest) }
-            items(state.nature, onTrackClick)
+            items(state.nature, nowPlayingId, isPlaying, onTrackClick)
         }
         if (state.other.isNotEmpty()) {
             item { SectionHeader("Otros", Icons.Outlined.PlayCircleOutline) }
-            items(state.other, onTrackClick)
+            items(state.other, nowPlayingId, isPlaying, onTrackClick)
         }
     }
 }
 
 private fun androidx.compose.foundation.lazy.LazyListScope.items(
     tracks: List<AuraTrack>,
-    onTrackClick: (String) -> Unit,
+    nowPlayingId: String?,
+    isPlaying: Boolean,
+    onTrackClick: (AuraTrack) -> Unit,
 ) {
     items(tracks.size, key = { tracks[it].id }) { i ->
-        TrackRow(tracks[i]) { onTrackClick(tracks[i].id) }
+        val track = tracks[i]
+        val isCurrent = track.id == nowPlayingId
+        TrackRow(
+            track = track,
+            isCurrent = isCurrent,
+            isPlaying = isCurrent && isPlaying,
+        ) { onTrackClick(track) }
     }
 }
 
@@ -135,19 +155,27 @@ private fun SectionHeader(label: String, icon: ImageVector) {
 }
 
 @Composable
-private fun TrackRow(track: AuraTrack, onClick: () -> Unit) {
+private fun TrackRow(
+    track: AuraTrack,
+    isCurrent: Boolean,
+    isPlaying: Boolean,
+    onClick: () -> Unit,
+) {
     val accent = runCatching { Color(android.graphics.Color.parseColor(track.accentHex)) }
         .getOrDefault(MaterialTheme.colorScheme.primary)
+    val bgColor = if (isCurrent) accent.copy(alpha = 0.18f)
+                  else MaterialTheme.colorScheme.surfaceVariant
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(bgColor)
             .clickable { onClick() }
             .padding(12.dp),
     ) {
-        // Hz badge or play icon
+        // Hz badge / play icon — when this row is currently playing, show
+        // the pause/play icon overlay instead of the static badge.
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -155,15 +183,19 @@ private fun TrackRow(track: AuraTrack, onClick: () -> Unit) {
                 .clip(CircleShape)
                 .background(accent),
         ) {
-            if (track.hz != null) {
-                Text(
+            when {
+                isCurrent -> Icon(
+                    imageVector = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
+                    contentDescription = if (isPlaying) "Pausar" else "Reproducir",
+                    tint = Color.White,
+                )
+                track.hz != null -> Text(
                     text = "${track.hz}",
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                 )
-            } else {
-                Icon(
+                else -> Icon(
                     imageVector = Icons.Outlined.PlayCircleOutline,
                     contentDescription = null,
                     tint = Color.White,
@@ -179,7 +211,7 @@ private fun TrackRow(track: AuraTrack, onClick: () -> Unit) {
                 text = track.displayName,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = if (isCurrent) accent else MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
             )
             Text(
