@@ -86,8 +86,12 @@ class SubscriptionService extends ChangeNotifier {
       (_generationsLimit - _generationsUsed).clamp(0, 999999);
   int get freeGensRemaining => _freeGensRemaining;
   bool get hasAccess => _status.hasAccess;
+
+  /// True si el user puede generar IA. Dos caminos:
+  ///   1. Suscriptor activo Y le quedan generations del plan
+  ///   2. Tiene gens gratis disponibles (acumuladas por trial / promo)
   bool get canGenerate =>
-      hasAccess && generationsRemaining > 0 || _freeGensRemaining > 0;
+      (hasAccess && generationsRemaining > 0) || _freeGensRemaining > 0;
   ProductDetails? get monthlyProduct => _monthlyProduct;
   bool get storeAvailable => _storeAvailable;
   bool get purchaseInFlight => _purchaseInFlight;
@@ -404,7 +408,8 @@ class SubscriptionService extends ChangeNotifier {
         }
         lastError = 'status=$status data=$data';
       } catch (e, st) {
-        debugPrint('[Subs] invoke attempt $attempt threw: ${e.runtimeType}: $e');
+        debugPrint(
+            '[Subs] invoke attempt $attempt threw: ${e.runtimeType}: $e');
         debugPrint('[Subs] stack: $st');
         lastError = e;
       }
@@ -427,8 +432,9 @@ class SubscriptionService extends ChangeNotifier {
   /// Subscribe to `user_subscriptions` updates so a change on another device
   /// (or an RTDN event received on the server) reflects here within ~1s.
   void _subscribeToRealtime() {
-    if (!_isLoggedIn || _realtimeChannel != null) return;
-    final uid = _sb.auth.currentUser!.id;
+    if (_realtimeChannel != null) return;
+    final uid = _sb.auth.currentUser?.id;
+    if (uid == null) return;
     _realtimeChannel = _sb
         .channel('user_subs_$uid')
         .onPostgresChanges(

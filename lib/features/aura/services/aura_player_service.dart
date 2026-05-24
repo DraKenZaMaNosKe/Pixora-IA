@@ -37,6 +37,8 @@ class AuraPlayerService extends ChangeNotifier {
   }
 
   Future<void> play(AuraTrack track) async {
+    // Guardar el estado anterior para rollback si la carga falla.
+    final previous = _current;
     _current = track;
     notifyListeners();
     AnalyticsService.instance.trackAuraStarted(track.id);
@@ -60,6 +62,11 @@ class AuraPlayerService extends ChangeNotifier {
       _startListenTick();
     } catch (e) {
       debugPrint('[Pixora] AURA play failed: $e');
+      // Rollback: si la carga falló, el reproductor NO está sonando este
+      // track. Restaurar `_current` evita que la UI muestre "playing track X"
+      // cuando realmente nada está sonando.
+      _current = previous;
+      notifyListeners();
     }
   }
 

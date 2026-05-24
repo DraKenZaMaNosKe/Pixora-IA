@@ -163,6 +163,12 @@ class AdService {
 
   /// Pre-load an interstitial ad so it's ready when needed.
   void loadInterstitialAd() {
+    // Defense in depth: si ads están desactivados, NO cargar. Importante
+    // porque el callback Future.delayed(10s, () => loadInterstitialAd())
+    // del onAdFailedToLoad puede ejecutarse después de que toggleamos el
+    // _debugDisableAds (futuro: settings) — sin este guard, se queda en
+    // un loop de retry con SDK no disponible.
+    if (_debugDisableAds) return;
     if (_isAdLoading || _isAdLoaded) return;
     _isAdLoading = true;
     InterstitialAd.load(

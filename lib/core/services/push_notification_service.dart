@@ -169,12 +169,30 @@ class PushNotificationService {
   /// `'day_cycle'`, `'ringtones'`, `'events'`) or `'all'`.
   /// Unknown scopes are treated as no-ops with a debug log.
   Future<void> _handleCatalogInvalidate(String scope) async {
-    Future<void> wallpapers() => CatalogService.instance.clearCache();
-    Future<void> live() => LiveWallpaperCatalogService.instance.clearCache();
-    Future<void> stories() => StoryCatalogService.instance.clearCache();
-    Future<void> dayCycle() => DayCycleCatalogService.instance.clearCache();
-    Future<void> ringtones() => RingtoneService.instance.clearCache();
-    Future<void> events() => EventsService.instance.clearCache();
+    // Cada clearCache puede fallar (Hive box no abierto, disk full, etc.).
+    // Envolver cada una en try/catch evita que un service roto bloquee
+    // a los demás cuando scope=='all'. Errores se loggean para diagnóstico
+    // sin propagar — la invalidación es best-effort (próximo TTL la cubre).
+    Future<void> safeClear(String name, Future<void> Function() fn) async {
+      try {
+        await fn();
+      } catch (e) {
+        debugPrint('[PixoraFCM] clearCache($name) failed: $e');
+      }
+    }
+
+    Future<void> wallpapers() =>
+        safeClear('wallpapers', () => CatalogService.instance.clearCache());
+    Future<void> live() => safeClear(
+        'live', () => LiveWallpaperCatalogService.instance.clearCache());
+    Future<void> stories() =>
+        safeClear('stories', () => StoryCatalogService.instance.clearCache());
+    Future<void> dayCycle() => safeClear(
+        'day_cycle', () => DayCycleCatalogService.instance.clearCache());
+    Future<void> ringtones() =>
+        safeClear('ringtones', () => RingtoneService.instance.clearCache());
+    Future<void> events() =>
+        safeClear('events', () => EventsService.instance.clearCache());
 
     switch (scope) {
       case 'wallpapers':
