@@ -197,8 +197,11 @@ class AdService {
     String? placement,
     String? wallpaperId,
   }) async {
-    _actionCount++;
-    // alternating decision removed 2026-05-05; counter kept for analytics
+    // NOTE: _actionCount++ se MUEVE hasta después de los early-returns
+    // (sub/grace/debug) para que la cadencia alternating solo cuente acciones
+    // que realmente intentan mostrar ad. Antes contaba TODAS, dejando el
+    // counter en estado random cuando el user perdía premium — el primer ad
+    // post-downgrade podía ser "skip" o "show" según paridad histórica.
 
     // ─── Subscription gate ──────────────────────────────────────────────────
     // Premium subscribers (active/trial/grace/cancelled-but-not-expired) see
@@ -262,6 +265,7 @@ class AdService {
     // comportamiento que tenía antes; la "burla del counter" no es real
     // porque cuando matas la app, AdMob también pierde el ad pre-cargado,
     // así que efectivamente no hay ventaja en hacerlo.
+    _actionCount++;
     final shouldShow = _actionCount.isOdd;
     if (!shouldShow) {
       _logAd(

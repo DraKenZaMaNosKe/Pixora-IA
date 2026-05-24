@@ -50,7 +50,6 @@ class PushNotificationService {
       debugPrint('[PixoraFCM] calling Firebase.initializeApp()');
       await Firebase.initializeApp();
       debugPrint('[PixoraFCM] Firebase.initializeApp() OK');
-      _initialized = true;
 
       // Background handler must be registered before any other listener
       FirebaseMessaging.onBackgroundMessage(
@@ -142,6 +141,12 @@ class PushNotificationService {
       // from Firebase Console)
       final token = await FirebaseMessaging.instance.getToken();
       debugPrint('[PixoraFCM] Token: $token');
+
+      // Mark initialized ONLY at the very end. If anything above throws
+      // (channel creation, permission request, topic subscribe, etc.), we
+      // leave `_initialized = false` so the next init() call retries the
+      // partial setup instead of skipping it as "already done".
+      _initialized = true;
     } catch (e, st) {
       debugPrint('[PixoraFCM] Init failed: $e');
       debugPrint('[PixoraFCM] Stack: $st');

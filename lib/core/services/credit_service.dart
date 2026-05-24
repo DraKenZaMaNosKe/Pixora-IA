@@ -216,12 +216,15 @@ class CreditService extends ChangeNotifier {
   // ── Internal helpers ──────────────────────────────────────────────────
 
   Future<void> _refreshFromServer() async {
-    if (!_isLoggedIn) return;
+    // Cache uid BEFORE await — if the user signs out between the guard
+    // and the use, `_userId` becomes null and `_userId!` would crash.
+    final uid = _userId;
+    if (uid == null) return;
     try {
       final row = await _client
           .from('user_credits')
           .select()
-          .eq('user_id', _userId!)
+          .eq('user_id', uid)
           .maybeSingle();
       if (row != null) {
         _balance = (row['balance'] as int?) ?? 0;
@@ -237,8 +240,9 @@ class CreditService extends ChangeNotifier {
   }
 
   void _subscribeToRealtimeBalance() {
-    if (!_isLoggedIn || _realtimeChannel != null) return;
-    final uid = _userId!;
+    if (_realtimeChannel != null) return;
+    final uid = _userId;
+    if (uid == null) return;
     _realtimeChannel = _client
         .channel('user_credits_$uid')
         .onPostgresChanges(
