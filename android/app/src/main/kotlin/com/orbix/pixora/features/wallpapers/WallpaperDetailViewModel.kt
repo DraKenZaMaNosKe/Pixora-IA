@@ -10,6 +10,7 @@ import com.orbix.pixora.data.ads.AdService
 import com.orbix.pixora.data.credits.CreditService
 import com.orbix.pixora.data.wallpaper.ApplyResult
 import com.orbix.pixora.data.wallpaper.WallpaperApplyService
+import com.orbix.pixora.ui.components.DownloadStage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,9 @@ data class WallpaperDetailUiState(
     val justApplied: Boolean = false,
     val errorMsg: String? = null,
     val event: DetailEvent? = null,
+    /** Pipeline state for the DownloadManagerOverlay. */
+    val downloadStage: DownloadStage = DownloadStage.Idle,
+    val downloadError: String? = null,
 )
 
 @HiltViewModel
@@ -67,7 +71,20 @@ class WallpaperDetailViewModel @Inject constructor(
         if (_state.value.applying) return
         adService.showInterstitial(activity) { awardedCredit ->
             viewModelScope.launch {
-                _state.value = _state.value.copy(applying = true, justApplied = false)
+                // Stage 1: downloading bitmap from Supabase
+                _state.value = _state.value.copy(
+                    applying = true,
+                    justApplied = false,
+                    downloadStage = DownloadStage.Downloading,
+                    downloadError = null,
+                )
+                // Heuristic split between download/apply phases — the
+                // service does both atomically so we fake the transition
+                // for UX clarity. Reads as "first it grabs the file,
+                // then it pushes it to the wallpaper engine".
+                kotlinx.coroutines.delay(450)
+                _state.value = _state.value.copy(downloadStage = DownloadStage.Applying)
+
                 val result = applyService.applyFromUrl(w.imageUrl, isPanoramic = w.isPanoramic)
                 when (result) {
                     is ApplyResult.Success -> {
@@ -75,17 +92,27 @@ class WallpaperDetailViewModel @Inject constructor(
                         _state.value = _state.value.copy(
                             applying = false,
                             justApplied = true,
+                            downloadStage = DownloadStage.Success,
                             event = DetailEvent.Toast(
                                 if (awardedCredit) "Aplicado ✨ +1 💎" else "Wallpaper aplicado ✨",
                             ),
                         )
-                        delay(2500)
+                        delay(1500)
+                        _state.value = _state.value.copy(downloadStage = DownloadStage.Idle)
+                        delay(1000)
                         _state.value = _state.value.copy(justApplied = false)
                     }
                     is ApplyResult.Error -> {
                         _state.value = _state.value.copy(
                             applying = false,
+                            downloadStage = DownloadStage.Error,
+                            downloadError = result.message,
                             event = DetailEvent.Toast("Error: ${result.message}"),
+                        )
+                        delay(3000)
+                        _state.value = _state.value.copy(
+                            downloadStage = DownloadStage.Idle,
+                            downloadError = null,
                         )
                     }
                 }
@@ -95,5 +122,12 @@ class WallpaperDetailViewModel @Inject constructor(
 
     fun consumeEvent() {
         _state.value = _state.value.copy(event = null)
+    }
+
+    fun dismissDownloadOverlay() {
+        _state.value = _state.value.copy(
+            downloadStage = DownloadStage.Idle,
+            downloadError = null,
+        )
     }
 }

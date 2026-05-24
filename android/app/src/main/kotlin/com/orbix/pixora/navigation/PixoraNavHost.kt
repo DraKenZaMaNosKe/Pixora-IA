@@ -57,6 +57,7 @@ import com.orbix.pixora.features.settings.SettingsScreen
 import com.orbix.pixora.features.stories.StoriesScreen
 import com.orbix.pixora.features.threed.ThreeDScreen
 import com.orbix.pixora.features.wallpapers.WallpaperDetailScreen
+import com.orbix.pixora.features.wallpapers.WallpaperExplorerHud
 import com.orbix.pixora.features.wallpapers.WallpapersScreen
 import com.orbix.pixora.ui.theme.PixoraColors
 import com.orbix.pixora.ui.theme.PixoraFonts
@@ -113,6 +114,11 @@ fun PixoraNavHost() {
                     onWallpaperClick = { id ->
                         navController.navigate(PixoraDestination.wallpaperDetail(id))
                     },
+                    onChipExplore = { category, firstId ->
+                        navController.navigate(
+                            PixoraDestination.wallpaperExplorer(category, firstId)
+                        )
+                    },
                 )
             }
             composable(
@@ -123,6 +129,23 @@ fun PixoraNavHost() {
                 WallpaperDetailScreen(
                     wallpaperId = id,
                     onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                route = PixoraDestination.WallpaperExplorerRoute,
+                arguments = listOf(
+                    navArgument("category") { type = NavType.StringType },
+                    navArgument("initialId") { type = NavType.StringType },
+                ),
+            ) { backStackEntry ->
+                val cat = backStackEntry.arguments?.getString("category")
+                    ?.takeIf { it != "all" }
+                val initialId = backStackEntry.arguments?.getString("initialId")
+                    ?.takeIf { it != "first" }
+                WallpaperExplorerHud(
+                    categoryFilter = cat,
+                    initialId = initialId,
+                    onClose = { navController.popBackStack() },
                 )
             }
             composable(PixoraDestination.Live.route) { LiveScreen() }
@@ -168,28 +191,50 @@ private fun PixoraEmberNav(
         listState.animateScrollToItem(target)
     }
 
+    // Midnight Glass (concept #5 from bottom_nav_liquid_pill_variants).
+    // Solid iOS systemGray6 ish dark + 2px neon top stripe that fades.
+    // The "3 glass layers" effect is faked with stacked tinted scrims.
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(PixoraColors.Ink2)
-            // Respect the system 3-button / gesture nav so our tabs don't
-            // sit under the OS chrome.
+            .background(Color(0xFF1C1C1E))
             .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
-        // Top hairline in gold-haze
+        // 2px neon gradient stripe — cyan → magenta → amber, fades at edges
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            Color.Transparent,
+                            PixoraColors.AuroraCyan.copy(alpha = 0.85f),
+                            PixoraColors.AuroraMagenta.copy(alpha = 0.95f),
+                            PixoraColors.AuroraAmber.copy(alpha = 0.85f),
+                            Color.Transparent,
+                        ),
+                    ),
+                ),
+        )
+        // Glass tint band — subtle cyan→amber→violet wash over the bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
                 .background(
                     Brush.horizontalGradient(
-                        listOf(Color.Transparent, PixoraColors.GoldHaze, Color.Transparent),
+                        listOf(
+                            PixoraColors.AuroraCyan.copy(alpha = 0.18f),
+                            PixoraColors.AuroraAmber.copy(alpha = 0.18f),
+                            PixoraColors.AuroraViolet.copy(alpha = 0.18f),
+                        ),
                     ),
                 ),
         )
         LazyRow(
             state = listState,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -216,7 +261,7 @@ private fun NavTab(
         label = "navIconColor",
     )
     val bgColor by animateColorAsState(
-        targetValue = if (selected) PixoraColors.GoldHaze else Color.Transparent,
+        targetValue = if (selected) dest.accent.copy(alpha = 0.20f) else Color.Transparent,
         animationSpec = tween(180),
         label = "navBgColor",
     )
@@ -226,11 +271,15 @@ private fun NavTab(
         modifier = Modifier
             .width(64.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(bgColor)
+            .background(
+                if (selected) Brush.verticalGradient(
+                    listOf(bgColor, Color.Transparent),
+                ) else Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent))
+            )
             .then(
                 if (selected) Modifier.border(
-                    width = 0.5.dp,
-                    color = dest.accent.copy(alpha = 0.4f),
+                    width = 0.6.dp,
+                    color = dest.accent.copy(alpha = 0.55f),
                     shape = RoundedCornerShape(14.dp),
                 ) else Modifier
             )

@@ -61,5 +61,13 @@ enum class PixoraDestination(
         // in the grid. Hidden from the bottom bar.
         const val WallpaperDetailRoute = "wallpaper_detail/{id}"
         fun wallpaperDetail(id: String) = "wallpaper_detail/$id"
+
+        // Wallpaper Explorer HUD full-screen modal (PageView). Reached by
+        // tapping a CHIP in the WALLPAPERS section. Args:
+        //  - category: filter name (or "all")
+        //  - initialId: wallpaper to land on first (or "first")
+        const val WallpaperExplorerRoute = "wallpaper_explorer/{category}/{initialId}"
+        fun wallpaperExplorer(category: String?, initialId: String?) =
+            "wallpaper_explorer/${category ?: "all"}/${initialId ?: "first"}"
     }
 }

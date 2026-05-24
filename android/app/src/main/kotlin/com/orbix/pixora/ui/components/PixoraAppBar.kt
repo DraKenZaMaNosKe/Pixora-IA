@@ -1,6 +1,8 @@
 package com.orbix.pixora.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.PersonOutline
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -60,38 +67,50 @@ fun PixoraAppBar(
     subtitle: String? = null,
     accentColor: Color = PixoraColors.AuroraCyan,
     showCreditsPill: Boolean = true,
+    showAvatar: Boolean = true,
+    onAvatarClick: () -> Unit = {},
     creditsViewModel: PixoraAppBarCreditsViewModel = hiltViewModel(),
 ) {
     val balance by creditsViewModel.balance.collectAsStateWithLifecycle(initialValue = 0L)
 
+    // Inkwell Dark Solid (concept #1 from unified_header_darker_variants).
+    // Warm carbon bg → no glow distractions → max contrast for the foil.
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(PixoraColors.Ink)
-            .padding(top = 0.dp)
+            .background(PixoraColors.InkwellWarm)
     ) {
         IridescentRibbon(accentColor)
 
-        // Eyebrow row + credits pill
+        // Eyebrow row + avatar (left) + credits pill (right)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp),
         ) {
-            Text(
-                text = eyebrow ?: "// PIXORA",
-                style = MaterialTheme.typography.labelSmall.copy(color = PixoraColors.GoldDeep),
-                maxLines = 1,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                if (showAvatar) {
+                    AvatarRing(onClick = onAvatarClick)
+                }
+                Text(
+                    text = eyebrow ?: "// PIXORA",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = PixoraColors.Gold.copy(alpha = 0.65f),
+                    ),
+                    maxLines = 1,
+                )
+            }
             if (showCreditsPill) DiamondPill(balance = balance)
         }
 
-        // Title row
+        // Title row — foil POP via dual gold tint on first word + cream rest.
         Text(
             text = buildAnnotatedString {
-                // Fraunces italic display with subtle gold tint on first word
                 val firstSpace = title.indexOf(' ')
                 if (firstSpace > 0) {
                     withStyle(SpanStyle(color = PixoraColors.GoldBright)) {
@@ -101,7 +120,7 @@ fun PixoraAppBar(
                         append(title.substring(firstSpace))
                     }
                 } else {
-                    withStyle(SpanStyle(color = PixoraColors.TextPrimary)) {
+                    withStyle(SpanStyle(color = PixoraColors.GoldBright)) {
                         append(title)
                     }
                 }
@@ -111,20 +130,36 @@ fun PixoraAppBar(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = if (subtitle == null) 12.dp else 4.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = if (subtitle == null) 14.dp else 4.dp),
         )
 
         if (subtitle != null) {
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodyMedium.copy(color = PixoraColors.TextSecondary),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = PixoraColors.TextSecondary,
+                ),
                 maxLines = 2,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 14.dp),
             )
         }
+
+        // Brass-gold hairline at 30% alpha — separates header from content
+        // without competing visually. Per concept spec: "apenas separa".
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(0.6.dp)
+                .background(PixoraColors.Gold.copy(alpha = 0.30f)),
+        )
     }
 }
 
+/**
+ * Foil ribbon — 2px iridescent gradient (gold → accent → gold). Sole
+ * decorative stroke in the Inkwell Dark Solid header. Per concept #1:
+ * "el foil es la única estrella en escena".
+ */
 @Composable
 private fun IridescentRibbon(accent: Color) {
     Box(
@@ -137,6 +172,8 @@ private fun IridescentRibbon(accent: Color) {
                         PixoraColors.GoldDeep,
                         PixoraColors.Gold,
                         PixoraColors.GoldBright,
+                        accent,
+                        Color.White.copy(alpha = 0.85f),
                         accent,
                         PixoraColors.GoldBright,
                         PixoraColors.Gold,
@@ -176,6 +213,33 @@ private fun DiamondPill(balance: Long) {
                 fontFamily = PixoraFonts.JetBrainsMono,
                 fontWeight = FontWeight.W600,
             ),
+        )
+    }
+}
+
+@Composable
+private fun AvatarRing(onClick: () -> Unit) {
+    // 36dp circle — generic person icon for now (signed-out state).
+    // Wire to AuthService.user.photoUrl when sign-in is implemented.
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .shadow(elevation = 3.dp, shape = CircleShape)
+            .clip(CircleShape)
+            .background(PixoraColors.Surface)
+            .border(
+                width = 1.dp,
+                color = PixoraColors.GoldBright.copy(alpha = 0.7f),
+                shape = CircleShape,
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.PersonOutline,
+            contentDescription = "Iniciar sesión",
+            tint = PixoraColors.GoldBright,
+            modifier = Modifier.size(20.dp),
         )
     }
 }

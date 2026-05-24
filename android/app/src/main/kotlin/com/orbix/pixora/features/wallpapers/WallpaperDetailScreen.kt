@@ -1,9 +1,11 @@
 package com.orbix.pixora.features.wallpapers
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +30,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import android.app.Activity
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,19 +47,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.orbix.pixora.ui.components.DownloadManagerOverlay
+import com.orbix.pixora.ui.theme.PixoraColors
+import com.orbix.pixora.ui.theme.PixoraFonts
 
 /**
- * Full-bleed wallpaper preview + Aplicar CTA. Reached via tap on a grid card.
+ * Static wallpaper detail — opens when tapping a card in the grid.
  *
- * Layout decisions:
- *  - AsyncImage fills the whole screen (under top/bottom bars).
- *  - Top scrim hosts back button + name (status-bar inset aware).
- *  - Bottom scrim hosts the big Aplicar button (nav-bar inset aware).
- *  - Snackbar surfaces apply success/error.
- *
- * The `wallpaperId` arg is consumed by the ViewModel via SavedStateHandle.
- * It's accepted here for API symmetry with NavHost (so the route stays
- * readable at the wiring site).
+ * Trading Card vibe but full-bleed: image fills the screen, top scrim
+ * hosts back button + Fraunces italic title with gold first word,
+ * bottom scrim hosts the Apply CTA. Aura HUD (cards swipeable) is a
+ * SEPARATE flow triggered by tapping chips, not cards — see
+ * WallpaperExplorerHud for that.
  */
 @Composable
 fun WallpaperDetailScreen(
@@ -70,7 +71,6 @@ fun WallpaperDetailScreen(
     val context = LocalContext.current
     val activity = context as? Activity
 
-    // Surface one-shot events as snackbars.
     LaunchedEffect(state.event) {
         when (val e = state.event) {
             is DetailEvent.Toast -> {
@@ -83,7 +83,7 @@ fun WallpaperDetailScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackHost) },
-        containerColor = Color.Black,
+        containerColor = PixoraColors.Ink,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -92,7 +92,7 @@ fun WallpaperDetailScreen(
         ) {
             when {
                 state.loading -> CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
+                    color = PixoraColors.GoldBright,
                     modifier = Modifier.align(Alignment.Center),
                 )
                 state.wallpaper == null -> Text(
@@ -107,6 +107,11 @@ fun WallpaperDetailScreen(
                     context = context,
                 )
             }
+            // Full-screen download manager overlay sits on top of everything
+            DownloadManagerOverlay(
+                stage = state.downloadStage,
+                errorMessage = state.downloadError,
+            )
         }
     }
 }
@@ -119,29 +124,26 @@ private fun DetailContent(
     context: android.content.Context,
 ) {
     val w = state.wallpaper ?: return
+    val firstSpace = w.name.indexOf(' ')
+    val firstWord = if (firstSpace > 0) w.name.substring(0, firstSpace) else w.name
+    val restName = if (firstSpace > 0) w.name.substring(firstSpace) else ""
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Full-bleed image
         AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(w.imageUrl)
-                .crossfade(true)
-                .build(),
+            model = ImageRequest.Builder(context).data(w.imageUrl).crossfade(true).build(),
             contentDescription = w.name,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
         )
 
-        // Top gradient + back button + title
+        // Top scrim
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp)
+                .height(160.dp)
                 .align(Alignment.TopCenter)
                 .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color(0xCC000000), Color.Transparent),
-                    ),
+                    Brush.verticalGradient(listOf(Color(0xCC000000), Color.Transparent)),
                 ),
         )
         Column(
@@ -157,31 +159,58 @@ private fun DetailContent(
                     tint = Color.White,
                 )
             }
+            // Eyebrow + title with gold first word
             Text(
-                text = w.name,
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 12.dp),
+                text = "// ADMIT · ONE",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = PixoraColors.GoldBright,
+                    fontFamily = PixoraFonts.JetBrainsMono,
+                    fontWeight = FontWeight.W700,
+                ),
+                modifier = Modifier.padding(horizontal = 14.dp),
             )
+            Spacer(Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text(
+                    text = firstWord,
+                    style = MaterialTheme.typography.displayMedium.copy(
+                        color = PixoraColors.GoldBright,
+                        fontFamily = PixoraFonts.Fraunces,
+                        fontStyle = FontStyle.Italic,
+                    ),
+                )
+                if (restName.isNotEmpty()) {
+                    Text(
+                        text = restName,
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            color = Color.White,
+                            fontFamily = PixoraFonts.Fraunces,
+                            fontStyle = FontStyle.Italic,
+                        ),
+                    )
+                }
+            }
             Text(
-                text = w.authorName,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xCCFFFFFF),
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
+                text = w.authorName.uppercase(),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontFamily = PixoraFonts.JetBrainsMono,
+                ),
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
             )
         }
 
-        // Bottom gradient + Apply CTA
+        // Bottom scrim + Apply CTA
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp)
+                .height(200.dp)
                 .align(Alignment.BottomCenter)
                 .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color(0xEE000000)),
-                    ),
+                    Brush.verticalGradient(listOf(Color.Transparent, Color(0xEE000000))),
                 ),
         )
         Column(
@@ -198,15 +227,15 @@ private fun DetailContent(
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = when {
-                        state.justApplied -> Color(0xFF2E7D32) // verde éxito
-                        else -> MaterialTheme.colorScheme.primary
+                        state.justApplied -> Color(0xFF10B981)
+                        else -> PixoraColors.GoldBright
                     },
-                    contentColor = Color.White,
+                    contentColor = PixoraColors.Ink,
                     disabledContainerColor = when {
-                        state.justApplied -> Color(0xFF2E7D32)
-                        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        state.justApplied -> Color(0xFF10B981)
+                        else -> PixoraColors.GoldBright.copy(alpha = 0.5f)
                     },
-                    disabledContentColor = Color.White,
+                    disabledContentColor = PixoraColors.Ink,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -215,35 +244,43 @@ private fun DetailContent(
                 when {
                     state.applying -> {
                         CircularProgressIndicator(
-                            color = Color.White,
+                            color = PixoraColors.Ink,
                             strokeWidth = 2.dp,
                             modifier = Modifier.height(20.dp),
                         )
                         Spacer(Modifier.height(0.dp))
                         Text(
-                            text = "  Aplicando…",
-                            fontWeight = FontWeight.SemiBold,
+                            text = "  APLICANDO…",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontFamily = PixoraFonts.JetBrainsMono,
+                                fontWeight = FontWeight.W800,
+                            ),
                         )
                     }
                     state.justApplied -> {
                         Icon(
                             imageVector = Icons.Outlined.CheckCircle,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = PixoraColors.Ink,
                         )
                         Text(
-                            text = "  Wallpaper aplicado",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
+                            text = "  WALLPAPER APLICADO",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontFamily = PixoraFonts.JetBrainsMono,
+                                fontWeight = FontWeight.W800,
+                            ),
                         )
                     }
                     else -> Text(
-                        text = "Aplicar como wallpaper",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        text = "▶ APLICAR COMO WALLPAPER",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontFamily = PixoraFonts.JetBrainsMono,
+                            fontWeight = FontWeight.W800,
+                        ),
                     )
                 }
             }
         }
     }
 }
+

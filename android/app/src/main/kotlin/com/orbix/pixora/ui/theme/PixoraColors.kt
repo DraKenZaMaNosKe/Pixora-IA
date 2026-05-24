@@ -43,6 +43,31 @@ object PixoraColors {
     val AuroraAmber = Color(0xFFE8B86E)
     val AuroraRose = Color(0xFFE8A5C5)
 
+    // ─── Gem palette — chips "Multi-Gem Collection" ───────────────────
+    // Each chip becomes a distinct gem. 4 stops per gem for state ramps.
+    val Topaz = Color(0xFFFFB400)
+    val TopazDeep = Color(0xFFC97C00)
+    val TopazBright = Color(0xFFFFD66B)
+    val TopazPale = Color(0xFFFFEBB8)
+
+    val Sapphire = Color(0xFF1FA8FF)
+    val SapphireDeep = Color(0xFF0B5BB8)
+    val SapphireBright = Color(0xFF5CC6FF)
+    val SapphirePale = Color(0xFFBFE6FF)
+
+    val Ruby = Color(0xFFFF2D7A)
+    val RubyDeep = Color(0xFFB0144C)
+    val RubyBright = Color(0xFFFF5FA0)
+    val RubyPale = Color(0xFFFFC2DC)
+
+    val Emerald = Color(0xFF10D08C)
+    val EmeraldDeep = Color(0xFF0A8055)
+    val EmeraldBright = Color(0xFF5BEBB1)
+    val EmeraldPale = Color(0xFFB6F4D6)
+
+    // Inkwell Dark Solid header background (warm carbon, not pure black)
+    val InkwellWarm = Color(0xFF1F1B17)
+
     // ─── iOS callout greens/pinks (legacy compatibility) ──────────────
     val Cyan = AuroraCyan
     val PinkAccent = AuroraRose
