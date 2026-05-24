@@ -28,13 +28,19 @@ class WallpaperRepository @Inject constructor(
      * with proper logging when we set up Timber).
      */
     suspend fun fetchAll(): List<Wallpaper> = runCatching {
-        supabase.from("wallpapers_v")
+        val list = supabase.from("wallpapers_v")
             .select {
                 order(column = "sort_order", order = Order.ASCENDING)
             }
             .decodeList<Wallpaper>()
+        println("[WallpaperRepo] fetchAll OK — ${list.size} items")
+        if (list.isNotEmpty()) {
+            println("[WallpaperRepo] first item: ${list[0].id} previewUrl=${list[0].previewUrl}")
+        }
+        list
     }.getOrElse {
         println("[WallpaperRepo] fetchAll failed: ${it.message}")
+        it.printStackTrace()
         emptyList()
     }
 
