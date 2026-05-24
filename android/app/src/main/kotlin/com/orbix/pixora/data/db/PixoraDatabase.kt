@@ -11,12 +11,13 @@ import androidx.room.RoomDatabase
  * version + write a migration when adding new tables.
  */
 @Database(
-    entities = [CreditEntity::class],
-    version = 1,
+    entities = [CreditEntity::class, FavoriteEntity::class],
+    version = 2,
     exportSchema = false,
 )
 abstract class PixoraDatabase : RoomDatabase() {
     abstract fun creditDao(): CreditDao
+    abstract fun favoriteDao(): FavoriteDao
 
     companion object {
         const val DB_NAME = "pixora.db"

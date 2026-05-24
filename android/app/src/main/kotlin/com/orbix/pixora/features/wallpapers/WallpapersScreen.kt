@@ -54,6 +54,7 @@ import com.orbix.pixora.data.models.Wallpaper
 import com.orbix.pixora.ui.components.EditorialHeroBanner
 import com.orbix.pixora.ui.components.Gem
 import com.orbix.pixora.ui.components.GemChip
+import com.orbix.pixora.ui.components.HeartButton
 import com.orbix.pixora.ui.components.PixoraAppBar
 import com.orbix.pixora.ui.components.ShimmerImage
 import com.orbix.pixora.ui.theme.PixoraColors
@@ -75,6 +76,7 @@ fun WallpapersScreen(
     viewModel: WallpapersViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val favoriteIds by viewModel.favoriteIds.collectAsStateWithLifecycle()
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val filtered = remember(state.wallpapers, selectedCategory) {
         if (selectedCategory == null) state.wallpapers
@@ -131,10 +133,8 @@ fun WallpapersScreen(
                         items = filtered,
                         cover = cover,
                         selectedCategory = selectedCategory,
+                        favoriteIds = favoriteIds,
                         onSelectCategory = { cat ->
-                            // Tap chip → open HUD Explorer for that category (v1
-                            // behavior, doc maestro §12.29). Pass first matching
-                            // wallpaper as initial page.
                             val firstInCat = state.wallpapers.firstOrNull {
                                 cat == null ||
                                 it.category.equals(cat, ignoreCase = true) ||
@@ -143,10 +143,8 @@ fun WallpapersScreen(
                             onChipExplore(cat, firstInCat?.id)
                         },
                         onWallpaperClick = onWallpaperClick,
-                        onExploreAll = {
-                            // Hero EXPLORE sticker → open explorer for "all"
-                            onChipExplore(null, cover?.id)
-                        },
+                        onExploreAll = { onChipExplore(null, cover?.id) },
+                        onToggleFavorite = viewModel::toggleFavorite,
                     )
                     if (filtered.isEmpty() && cover != null) {
                         Text(
@@ -228,9 +226,11 @@ private fun WallpapersGridWithHero(
     items: List<Wallpaper>,
     cover: Wallpaper?,
     selectedCategory: String?,
+    favoriteIds: Set<String>,
     onSelectCategory: (String?) -> Unit,
     onWallpaperClick: (String) -> Unit,
     onExploreAll: () -> Unit,
+    onToggleFavorite: (Wallpaper) -> Unit,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -268,7 +268,13 @@ private fun WallpapersGridWithHero(
             items = items,
             key = { _, w -> w.id },
         ) { index, wallpaper ->
-            TradingCardHolo(wallpaper, index + 1) { onWallpaperClick(wallpaper.id) }
+            TradingCardHolo(
+                wallpaper = wallpaper,
+                serial = index + 1,
+                isFavorite = wallpaper.id in favoriteIds,
+                onToggleFavorite = { onToggleFavorite(wallpaper) },
+                onClick = { onWallpaperClick(wallpaper.id) },
+            )
         }
     }
 }
@@ -296,6 +302,8 @@ private fun splitTitle(title: String): Pair<String, String> {
 private fun TradingCardHolo(
     wallpaper: Wallpaper,
     serial: Int,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
     onClick: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -383,10 +391,17 @@ private fun TradingCardHolo(
             }
         }
 
-        // Top-right serial number pill (N° 042 style)
-        SerialPill(serial = serial, accent = glow, modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(6.dp))
+        // Top-right column: heart (toggle) + serial pill below
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(6.dp),
+        ) {
+            HeartButton(isFavorite = isFavorite, onToggle = onToggleFavorite)
+            SerialPill(serial = serial, accent = glow)
+        }
     }
 }
 

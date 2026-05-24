@@ -28,4 +28,9 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideCreditDao(db: PixoraDatabase): CreditDao = db.creditDao()
+
+    @Provides
+    @Singleton
+    fun provideFavoriteDao(db: PixoraDatabase): com.orbix.pixora.data.db.FavoriteDao =
+        db.favoriteDao()
 }
