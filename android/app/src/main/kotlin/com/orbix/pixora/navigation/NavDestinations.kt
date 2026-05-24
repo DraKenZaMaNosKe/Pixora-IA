@@ -77,5 +77,13 @@ enum class PixoraDestination(
         // Ringtone pack detail (Cassette A/B Sides).
         const val RingtonePackRoute = "ringtone_pack/{packId}"
         fun ringtonePack(packId: String) = "ringtone_pack/$packId"
+
+        // Story chapter viewer (Marvel Splash) — swipeable frames.
+        const val StoryDetailRoute = "story_detail/{storyId}"
+        fun storyDetail(storyId: String) = "story_detail/$storyId"
+
+        // Day cycle theme detail — preview 4 periods + apply current.
+        const val DayCycleDetailRoute = "daycycle_detail/{themeId}"
+        fun dayCycleDetail(themeId: String) = "daycycle_detail/$themeId"
     }
 }

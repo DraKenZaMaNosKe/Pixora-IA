@@ -1,13 +1,16 @@
 package com.orbix.pixora.data.wallpaper
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Process
 import com.orbix.pixora.PixoraLiveWallpaperService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.HttpURLConnection
@@ -50,9 +53,36 @@ class LiveApplyService @Inject constructor(
             if (!staged.exists() || staged.length() == 0L) {
                 return@withContext LiveApplyResult.Error("Video no quedó en cache")
             }
+            // Kill the :wallpaper process so Android respawns a fresh
+            // Engine that reads the just-staged file. Without this, the
+            // OLD MediaPlayer keeps playing because Android reuses the
+            // engine across "re-set" actions (memory tech_wallpaper_surface_canvas_video).
+            killWallpaperProcess()
+            // Give Android a beat to register the kill before launching picker
+            delay(150)
             withContext(Dispatchers.Main) { launchPicker(activity) }
             LiveApplyResult.PickerLaunched
         }
+
+    /**
+     * Look up the PID of our :wallpaper isolated process and kill it.
+     * Android will respawn the WallpaperService cleanly when needed,
+     * picking up the freshly-staged current_live.mp4.
+     */
+    private fun killWallpaperProcess() {
+        runCatching {
+            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val pkg = context.packageName
+            val target = "$pkg:wallpaper"
+            am.runningAppProcesses?.forEach { proc ->
+                if (proc.processName == target) {
+                    Process.killProcess(proc.pid)
+                }
+            }
+        }.onFailure {
+            println("[LiveApplyService] killWallpaperProcess failed: ${it.message}")
+        }
+    }
 
     private fun downloadToCache(url: String): File {
         val target = File(context.cacheDir, PixoraLiveWallpaperService.CURRENT_LIVE_FILE)

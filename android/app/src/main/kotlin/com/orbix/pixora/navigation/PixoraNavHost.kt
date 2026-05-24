@@ -48,6 +48,7 @@ import com.orbix.pixora.features.arcano.ArcanoScreen
 import com.orbix.pixora.features.aura.AuraMiniPlayer
 import com.orbix.pixora.features.aura.AuraScreen
 import com.orbix.pixora.features.cultura.CulturaScreen
+import com.orbix.pixora.features.daycycle.DayCycleDetailScreen
 import com.orbix.pixora.features.daycycle.DayCycleScreen
 import com.orbix.pixora.features.eventos.EventosScreen
 import com.orbix.pixora.features.favorites.FavoritesScreen
@@ -57,6 +58,7 @@ import com.orbix.pixora.features.ringtones.RingtonePackScreen
 import com.orbix.pixora.features.ringtones.RingtonesScreen
 import com.orbix.pixora.features.settings.SettingsScreen
 import com.orbix.pixora.features.stories.StoriesScreen
+import com.orbix.pixora.features.stories.StoryDetailScreen
 import com.orbix.pixora.features.threed.ThreeDScreen
 import com.orbix.pixora.features.wallpapers.WallpaperDetailScreen
 import com.orbix.pixora.features.wallpapers.WallpaperExplorerHud
@@ -172,8 +174,40 @@ fun PixoraNavHost() {
             composable(PixoraDestination.Eventos.route) { EventosScreen() }
             composable(PixoraDestination.Aura.route) { AuraScreen() }
             composable(PixoraDestination.Arcano.route) { ArcanoScreen() }
-            composable(PixoraDestination.Stories.route) { StoriesScreen() }
-            composable(PixoraDestination.DayCycle.route) { DayCycleScreen() }
+            composable(PixoraDestination.Stories.route) {
+                StoriesScreen(
+                    onStoryClick = { id ->
+                        navController.navigate(PixoraDestination.storyDetail(id))
+                    },
+                )
+            }
+            composable(
+                route = PixoraDestination.StoryDetailRoute,
+                arguments = listOf(navArgument("storyId") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("storyId").orEmpty()
+                StoryDetailScreen(
+                    storyId = id,
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(PixoraDestination.DayCycle.route) {
+                DayCycleScreen(
+                    onThemeClick = { id ->
+                        navController.navigate(PixoraDestination.dayCycleDetail(id))
+                    },
+                )
+            }
+            composable(
+                route = PixoraDestination.DayCycleDetailRoute,
+                arguments = listOf(navArgument("themeId") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("themeId").orEmpty()
+                DayCycleDetailScreen(
+                    themeId = id,
+                    onBack = { navController.popBackStack() },
+                )
+            }
             composable(PixoraDestination.Ringtones.route) {
                 RingtonesScreen(
                     onPackClick = { packId ->
