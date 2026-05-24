@@ -157,6 +157,14 @@ dependencies {
     // ─── In-App Billing v7 ───────────────────────────────────────────────
     implementation("com.android.billingclient:billing-ktx:7.1.1")
 
+    // ─── Sign-In: Credential Manager + Google ID ─────────────────────────
+    // Modern replacement for the deprecated GoogleSignIn API. Doesn't
+    // need Firebase Auth as backend — just a Web Client ID from Google
+    // Cloud Console (we reuse the v1 type=3 client from google-services.json).
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
     // ─── Firebase (DISABLED for Day 1) ───────────────────────────────────
     // Re-enable in session 4 cuando setup completo (BoM + plugin gms
     // google-services + plugin crashlytics + plugin perf). firebase-analytics

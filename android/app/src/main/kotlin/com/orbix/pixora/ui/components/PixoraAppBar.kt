@@ -37,11 +37,26 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
+import android.app.Activity
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.orbix.pixora.data.auth.AuthService
+import com.orbix.pixora.data.auth.PixoraUser
+import com.orbix.pixora.data.auth.SignInResult
 import com.orbix.pixora.data.credits.CreditService
 import com.orbix.pixora.ui.theme.PixoraColors
 import com.orbix.pixora.ui.theme.PixoraFonts
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -68,10 +83,14 @@ fun PixoraAppBar(
     accentColor: Color = PixoraColors.AuroraCyan,
     showCreditsPill: Boolean = true,
     showAvatar: Boolean = true,
-    onAvatarClick: () -> Unit = {},
+    onAvatarClick: (() -> Unit)? = null,
     creditsViewModel: PixoraAppBarCreditsViewModel = hiltViewModel(),
+    authViewModel: PixoraAppBarAuthViewModel = hiltViewModel(),
 ) {
     val balance by creditsViewModel.balance.collectAsStateWithLifecycle(initialValue = 0L)
+    val user by authViewModel.user.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val activity = context as? Activity
 
     // Inkwell Dark Solid (concept #1 from unified_header_darker_variants).
     // Warm carbon bg → no glow distractions → max contrast for the foil.
@@ -95,7 +114,16 @@ fun PixoraAppBar(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 if (showAvatar) {
-                    AvatarRing(onClick = onAvatarClick)
+                    AvatarRing(
+                        user = user,
+                        onClick = {
+                            // External handler wins if provided. Otherwise:
+                            // signed-in → sign-out via dropdown TBD;
+                            // signed-out → trigger Credential Manager.
+                            onAvatarClick?.invoke()
+                                ?: activity?.let { authViewModel.signIn(it) }
+                        },
+                    )
                 }
                 Text(
                     text = eyebrow ?: "// PIXORA",
@@ -218,9 +246,8 @@ private fun DiamondPill(balance: Long) {
 }
 
 @Composable
-private fun AvatarRing(onClick: () -> Unit) {
-    // 36dp circle — generic person icon for now (signed-out state).
-    // Wire to AuthService.user.photoUrl when sign-in is implemented.
+private fun AvatarRing(user: PixoraUser?, onClick: () -> Unit) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .size(36.dp)
@@ -235,12 +262,21 @@ private fun AvatarRing(onClick: () -> Unit) {
             .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = Icons.Outlined.PersonOutline,
-            contentDescription = "Iniciar sesión",
-            tint = PixoraColors.GoldBright,
-            modifier = Modifier.size(20.dp),
-        )
+        val photo = user?.photoUrl
+        if (photo != null) {
+            AsyncImage(
+                model = ImageRequest.Builder(context).data(photo).crossfade(true).build(),
+                contentDescription = user.name ?: user.email ?: "Cuenta",
+                modifier = Modifier.fillMaxWidth(),
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Outlined.PersonOutline,
+                contentDescription = "Iniciar sesión",
+                tint = PixoraColors.GoldBright,
+                modifier = Modifier.size(20.dp),
+            )
+        }
     }
 }
 
@@ -249,4 +285,25 @@ class PixoraAppBarCreditsViewModel @Inject constructor(
     creditService: CreditService,
 ) : ViewModel() {
     val balance: Flow<Long> = creditService.balance
+}
+
+@HiltViewModel
+class PixoraAppBarAuthViewModel @Inject constructor(
+    private val authService: AuthService,
+) : ViewModel() {
+    val user: StateFlow<PixoraUser?> = authService.user
+
+    fun signIn(activity: Activity) {
+        viewModelScope.launch {
+            val result = authService.signIn(activity)
+            // Errors will be surfaced via snackbar once we wire one in the AppBar
+            when (result) {
+                is SignInResult.Success -> println("[Auth] Welcome ${result.user.name}")
+                is SignInResult.Cancelled -> println("[Auth] cancelled: ${result.reason}")
+                is SignInResult.Error -> println("[Auth] error: ${result.message}")
+            }
+        }
+    }
+
+    fun signOut() = authService.signOut()
 }
