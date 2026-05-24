@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash theme (Android 12+ SplashScreen API). Used during cold start
+         until Compose hierarchy is ready. -->
+    <style name="Theme.Pixora.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/pixora_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.Pixora</item>
+    </style>
+
+    <!-- Main app theme — minimal because Compose Material3 owns colors/typography.
+         Only window-level attrs that the system reads BEFORE Compose paints. -->
+    <style name="Theme.Pixora" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/pixora_dark</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

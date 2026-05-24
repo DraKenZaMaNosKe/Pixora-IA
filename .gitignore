@@ -95,8 +95,15 @@ linux/flutter/ephemeral/
 macos/Flutter/GeneratedPluginRegistrant.swift
 macos/Flutter/ephemeral/
 
-# Local Android build output
+# Local Android build outputs (Gradle, Hilt, KSP, Compose, APKs)
 /android/build/
+/android/app/build/
+/android/.gradle/
+/android/.kotlin/
+/android/app/.cxx/
+# Backups created during v1 → v2 migration (preserve as reference, not in git)
+*.flutter-backup
+*.kt.legacy
 
 # Claude scheduled tasks lock
 .claude/scheduled_tasks.lock

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pixora IA</string>
+    <string name="wallpaper_label">Pixora Live Wallpaper</string>
     <string name="wallpaper_description">Pixora IA Live Wallpaper</string>
+    <string name="shader_wallpaper_label">Pixora Realm Shader</string>
     <string name="shader_wallpaper_description">Pixora Realm - Real-time GPU Shader Wallpaper</string>
 </resources>

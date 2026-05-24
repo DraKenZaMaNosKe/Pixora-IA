@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#000000</color>
-    <!-- Pure ink black used by the launch screen (before Flutter boots). -->
-    <color name="launchBg">#000000</color>
+    <!-- Pixora HUD palette (matches Compose PixoraColors) -->
+    <color name="pixora_dark">#FF07060E</color>
+    <color name="pixora_gold">#FFE5B040</color>
+    <color name="pixora_cyan">#FF00E5FF</color>
+    <color name="pixora_accent">#FFFF80AB</color>
+    <!-- Legacy v1 colors used by launch_background.xml + adaptive icon -->
+    <color name="launchBg">#FF07060E</color>
+    <color name="ic_launcher_background">#FF07060E</color>
 </resources>
