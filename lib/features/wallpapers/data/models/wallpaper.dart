@@ -175,8 +175,23 @@ class Wallpaper {
     return DateTime.now().difference(createdAt!).inDays <= 14;
   }
 
-  /// Whether this is a panoramic wallpaper (ultra-wide).
-  bool get isPanoramic => category == 'PANORAMIC';
+  /// Whether this wallpaper should be treated as panoramic (ultra-wide).
+  ///
+  /// Hybrid detection — Fase 2 of the dimension-agnostic refactor:
+  ///   1. If `aspectRatio >= 3.0` → panoramic (detected from real dimensions,
+  ///      so any wallpaper with ultra-wide source qualifies regardless of
+  ///      which thematic category it lives in).
+  ///   2. Else if `category == 'PANORAMIC'` → panoramic (legacy/manual tag,
+  ///      preserves behavior for items pending dimension backfill or items
+  ///      explicitly curated as panoramic).
+  ///
+  /// Defense in depth: either signal triggers panoramic rendering, so we
+  /// never accidentally hide an item during the transition.
+  bool get isPanoramic {
+    final ratio = aspectRatio;
+    if (ratio != null && ratio >= 3.0) return true;
+    return category == 'PANORAMIC';
+  }
 
   /// Convert to unified ContentItem for ContentManager.
   ///

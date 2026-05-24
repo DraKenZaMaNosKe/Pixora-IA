@@ -203,8 +203,12 @@ class _HudChipsRowState extends ConsumerState<_HudChipsRow> {
   static const _chips = <_ChipDef>[
     _ChipDef(label: 'TRENDING', key: 'trending'),
     _ChipDef(label: 'NEW', key: 'new'),
+    _ChipDef(label: 'PANORAMIC', key: 'panoramic'),
+    _ChipDef(label: 'ANIME', key: 'anime'),
+    _ChipDef(label: 'GAMING', key: 'gaming'),
     _ChipDef(label: 'ARTE', key: 'arte'),
     _ChipDef(label: 'MITO', key: 'mitologia'),
+    _ChipDef(label: 'CALENDAR', key: 'calendar'),
   ];
 
   Future<List<Wallpaper>> _fetch(WidgetRef ref, String key) async {
@@ -213,10 +217,18 @@ class _HudChipsRowState extends ConsumerState<_HudChipsRow> {
         return ref.read(trendingWallpapersProvider.future);
       case 'new':
         return ref.read(newWallpapersProvider.future);
+      case 'panoramic':
+        return ref.read(panoramicWallpapersProvider.future);
+      case 'anime':
+        return ref.read(animeWallpapersProvider.future);
+      case 'gaming':
+        return ref.read(gamingWallpapersProvider.future);
       case 'arte':
         return ref.read(arteWallpapersProvider.future);
       case 'mitologia':
         return ref.read(mitologiaWallpapersProvider.future);
+      case 'calendar':
+        return ref.read(calendarWallpapersProvider.future);
       default:
         return const [];
     }

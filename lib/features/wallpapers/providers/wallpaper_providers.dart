@@ -137,6 +137,51 @@ final mitologiaWallpapersProvider =
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 });
 
+/// Sección "Panoramic" — chip 5. Cualquier wallpaper que califique como
+/// panorámico (por ratio >= 3:1 o por categoría PANORAMIC manual). Fase 2
+/// del dimension-agnostic system: incluye los items "escondidos" en otras
+/// categorías que tienen ratio panorámico (ej. calendarios panorámicos).
+/// iOS no soporta panorámicos — se filtra en categoryRowsProvider, aquí
+/// devolvemos todos y el chip se oculta en iOS via WallpaperChipsRow.
+final panoramicWallpapersProvider =
+    FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogPublicProvider.future);
+  return wallpapers.where((w) => w.isPanoramic).toList()
+    ..sort((a, b) {
+      // Featured primero, luego sortOrder ascendente.
+      if (a.featured != b.featured) return a.featured ? -1 : 1;
+      return a.sortOrder.compareTo(b.sortOrder);
+    });
+});
+
+/// Sección "Gaming" — chip 6. Wallpapers de category GAMING. Es la 2da
+/// categoría más grande (~56 items): pixel art, fighting games, retro,
+/// classic console aesthetics.
+final gamingWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogPublicProvider.future);
+  return wallpapers.where((w) => w.category.toUpperCase() == 'GAMING').toList()
+    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+});
+
+/// Sección "Anime" — chip 7. Wallpapers de category ANIME. Personajes,
+/// series, mangas, fan art.
+final animeWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogPublicProvider.future);
+  return wallpapers.where((w) => w.category.toUpperCase() == 'ANIME').toList()
+    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+});
+
+/// Sección "Calendar" — chip 8. Wallpapers funcionales con calendarios
+/// mensuales/semestrales (refrigerador MX, doctor, vintage parchment,
+/// sci-fi AMOLED, SpongeBob, etc.). Categoría chica pero muy utilitaria.
+final calendarWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogPublicProvider.future);
+  return wallpapers
+      .where((w) => w.category.toUpperCase() == 'CALENDAR')
+      .toList()
+    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+});
+
 /// Category rows: grouped by category, min 3 items per row.
 /// Excluye las categorías que ya tienen su propio carousel curado arriba
 /// (Arte, Mitología) para evitar duplicación visual.
@@ -145,10 +190,17 @@ final categoryRowsProvider =
   final wallpapers = await ref.watch(catalogPublicProvider.future);
   final map = <String, List<Wallpaper>>{};
   for (final w in wallpapers) {
-    if (Platform.isIOS && w.category.toUpperCase() == 'PANORAMIC') continue;
+    if (Platform.isIOS && w.isPanoramic) continue;
     // Skip categorías que ya tienen sección dedicada arriba (Arte, Mitología).
     if (_curatedSectionCategories.contains(w.category.toUpperCase())) continue;
     map.putIfAbsent(w.category, () => []).add(w);
+    // Cross-list: cualquier wallpaper con ratio panorámico (>=3:1) también
+    // aparece en la sección PANORAMIC, sin importar su categoría temática.
+    // Así un wallpaper ANIME con ratio 4:1 sale en ANIME y en PANORAMIC.
+    // Items con category='PANORAMIC' ya están agregados arriba (no duplicar).
+    if (w.isPanoramic && w.category.toUpperCase() != 'PANORAMIC') {
+      map.putIfAbsent('PANORAMIC', () => []).add(w);
+    }
   }
   return map.entries
       .where((e) => e.value.length >= 3)

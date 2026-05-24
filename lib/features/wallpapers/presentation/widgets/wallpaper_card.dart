@@ -119,7 +119,7 @@ class _IosCard extends StatelessWidget {
                   // Watch Cartouche pills (concept #04, Eduardo 2026-05-16)
                   // — para PANO/NEW/CÓDICE. Mismo recipe que LIVE cards.
                   if (wallpaper.badge != null ||
-                      wallpaper.category == 'PANORAMIC' ||
+                      wallpaper.isPanoramic ||
                       wallpaper.cultural != null)
                     Positioned(
                       left: 8,
@@ -129,7 +129,7 @@ class _IosCard extends StatelessWidget {
                         spacing: 6,
                         runSpacing: 4,
                         children: [
-                          if (wallpaper.category == 'PANORAMIC')
+                          if (wallpaper.isPanoramic)
                             const WatchCartouchePill(label: 'PANO'),
                           if (wallpaper.badge != null)
                             WatchCartouchePill(
@@ -225,7 +225,7 @@ class _TicketStubCard extends StatelessWidget {
                 children: [
                   CachedWallpaperImage(imageUrl: wallpaper.previewUrl),
                   if (wallpaper.badge != null ||
-                      wallpaper.category == 'PANORAMIC' ||
+                      wallpaper.isPanoramic ||
                       wallpaper.cultural != null)
                     Positioned(
                       left: 4,
@@ -235,7 +235,7 @@ class _TicketStubCard extends StatelessWidget {
                         spacing: 4,
                         runSpacing: 4,
                         children: [
-                          if (wallpaper.category == 'PANORAMIC')
+                          if (wallpaper.isPanoramic)
                             _tag('PANO', h.goldBright, h.bg),
                           if (wallpaper.badge != null)
                             _tag(wallpaper.badge!.toUpperCase(), h.accent,
