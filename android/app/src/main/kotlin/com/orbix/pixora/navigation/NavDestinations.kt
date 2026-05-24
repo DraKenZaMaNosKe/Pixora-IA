@@ -46,5 +46,11 @@ enum class PixoraDestination(
         // The 5 most visible — shown in the bottom bar. Rest are accessible
         // via overflow menu / settings drawer (TBD later in MVP).
         val Primary = listOf(Wallpapers, Live, Aura, Favorites, Settings)
+
+        // ── Sub-routes (with args) ───────────────────────────────────────
+        // Detail viewer for a single wallpaper. Reached by tapping a card
+        // in the grid. Hidden from the bottom bar.
+        const val WallpaperDetailRoute = "wallpaper_detail/{id}"
+        fun wallpaperDetail(id: String) = "wallpaper_detail/$id"
     }
 }

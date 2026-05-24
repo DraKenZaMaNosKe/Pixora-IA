@@ -1,6 +1,7 @@
 package com.orbix.pixora.features.wallpapers
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,6 +48,7 @@ import com.orbix.pixora.data.models.Wallpaper
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WallpapersScreen(
+    onWallpaperClick: (String) -> Unit = {},
     viewModel: WallpapersViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -73,7 +75,7 @@ fun WallpapersScreen(
             when {
                 state.loading && state.wallpapers.isEmpty() -> LoadingState()
                 state.errorMsg != null && state.wallpapers.isEmpty() -> ErrorState(state.errorMsg!!)
-                else -> WallpapersGrid(state.wallpapers)
+                else -> WallpapersGrid(state.wallpapers, onWallpaperClick)
             }
         }
     }
@@ -104,7 +106,10 @@ private fun ErrorState(msg: String) {
 }
 
 @Composable
-private fun WallpapersGrid(items: List<Wallpaper>) {
+private fun WallpapersGrid(
+    items: List<Wallpaper>,
+    onWallpaperClick: (String) -> Unit,
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp),
@@ -116,20 +121,21 @@ private fun WallpapersGrid(items: List<Wallpaper>) {
             items = items,
             key = { it.id },
         ) { wallpaper ->
-            WallpaperCard(wallpaper)
+            WallpaperCard(wallpaper) { onWallpaperClick(wallpaper.id) }
         }
     }
 }
 
 @Composable
-private fun WallpaperCard(wallpaper: Wallpaper) {
+private fun WallpaperCard(wallpaper: Wallpaper, onClick: () -> Unit) {
     val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
             .aspectRatio(9f / 16f)
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable { onClick() },
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context)

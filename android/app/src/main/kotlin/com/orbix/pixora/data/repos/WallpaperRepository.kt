@@ -44,6 +44,20 @@ class WallpaperRepository @Inject constructor(
         emptyList()
     }
 
+    /** Fetch a single wallpaper by id. Returns null if not found / error. */
+    suspend fun fetchById(id: String): Wallpaper? = runCatching {
+        supabase.from("wallpapers_v")
+            .select {
+                filter { eq("id", id) }
+                limit(1)
+            }
+            .decodeList<Wallpaper>()
+            .firstOrNull()
+    }.getOrElse {
+        println("[WallpaperRepo] fetchById($id) failed: ${it.message}")
+        null
+    }
+
     /** Fetch wallpapers filtered by category (case-insensitive). */
     suspend fun fetchByCategory(category: String): List<Wallpaper> = runCatching {
         supabase.from("wallpapers_v")
