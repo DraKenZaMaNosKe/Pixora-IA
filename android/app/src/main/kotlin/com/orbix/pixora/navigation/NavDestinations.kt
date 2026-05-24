@@ -11,55 +11,50 @@ import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.MusicNote
-import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.PublicOff
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewInAr
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.orbix.pixora.ui.theme.PixoraColors
 
 /**
  * Pixora v2 destinations. One per major feature area, mirroring v1's
- * bottom navigation order. iOS-only gating is GONE (Android-only project).
+ * Ember Reactive Nav order. iOS-only gating is GONE (Android-only project).
  *
- * Use [route] for NavHost wiring; [label] + [icon] for the bottom bar.
+ * 13 destinations live in a horizontally-scrollable bottom bar — same UX
+ * pattern as v1.7.17. Use:
+ *   - [route]: NavHost wiring
+ *   - [label]: long label (used in AppBar / sheets)
+ *   - [shortLabel]: 3-4 char uppercase nav label (matches v1)
+ *   - [icon]: bottom-bar icon
+ *   - [accent]: per-section accent color (drives AppBar ribbon + nav pill)
  */
 enum class PixoraDestination(
     val route: String,
     val label: String,
+    val shortLabel: String,
     val icon: ImageVector,
+    val accent: Color,
 ) {
-    Wallpapers("wallpapers", "Wall", Icons.Outlined.Image),
-    Live("live", "Live", Icons.Outlined.Movie),
-    ThreeD("threed", "3D", Icons.Outlined.ViewInAr),
-    Cultura("cultura", "Cultura", Icons.Outlined.PublicOff),
-    Eventos("eventos", "Eventos", Icons.Outlined.Event),
-    Aura("aura", "AURA", Icons.Outlined.Headphones),
-    Arcano("arcano", "Arcano", Icons.Outlined.AutoAwesome),
-    Stories("stories", "Stories", Icons.Outlined.AutoStories),
-    DayCycle("daycycle", "Day", Icons.Outlined.Cyclone),
-    Ringtones("ringtones", "Tonos", Icons.Outlined.MusicNote),
-    AiGenerate("aigenerate", "IA", Icons.Outlined.AutoAwesome),
-    Favorites("favorites", "Favs", Icons.Outlined.Favorite),
-    Settings("settings", "Ajustes", Icons.Outlined.Settings),
+    Wallpapers("wallpapers", "Wallpapers", "WALL", Icons.Outlined.Image, PixoraColors.GoldBright),
+    Live("live", "Live", "LIVE", Icons.Outlined.Movie, PixoraColors.AuroraMagenta),
+    ThreeD("threed", "3D", "3D", Icons.Outlined.ViewInAr, PixoraColors.AuroraCyan),
+    Cultura("cultura", "Cultura", "CULT", Icons.Outlined.PublicOff, PixoraColors.AuroraAmber),
+    Eventos("eventos", "Eventos", "EVNT", Icons.Outlined.Event, PixoraColors.AuroraPeach),
+    Aura("aura", "AURA", "AURA", Icons.Outlined.Headphones, PixoraColors.AuroraLavender),
+    Arcano("arcano", "Arcano", "ARC", Icons.Outlined.AutoAwesome, PixoraColors.AuroraViolet),
+    Stories("stories", "Historias", "STOR", Icons.Outlined.AutoStories, PixoraColors.AuroraAmber),
+    DayCycle("daycycle", "Day Cycle", "DAY", Icons.Outlined.Cyclone, PixoraColors.AuroraOcean),
+    Ringtones("ringtones", "Tonos", "TON", Icons.Outlined.MusicNote, PixoraColors.AuroraMagenta),
+    AiGenerate("aigenerate", "Pixora IA", "IA", Icons.Outlined.AutoAwesome, PixoraColors.AuroraCyan),
+    Favorites("favorites", "Favoritos", "FAV", Icons.Outlined.Favorite, PixoraColors.AuroraRose),
+    Settings("settings", "Ajustes", "SET", Icons.Outlined.Settings, PixoraColors.AuroraCyan),
     ;
 
     companion object {
-        /**
-         * Bottom-bar tabs (4 sections + the "Más" opener).
-         *
-         * "Más" is a sentinel — it doesn't navigate, instead it opens the
-         * [PixoraNavHost] secondary-sections modal. Real navigation to
-         * stories/tonos/daycycle/etc. happens FROM that sheet.
-         */
-        val Primary = listOf(Wallpapers, Live, Aura, Favorites)
-        val MoreLabel = "Más"
-        val MoreIcon = Icons.Outlined.GridView
-
-        /** Sections shown inside the "Más" modal grid (in display order). */
-        val Secondary = listOf(
-            Stories, DayCycle, Ringtones, ThreeD,
-            Cultura, Eventos, Arcano, AiGenerate, Settings,
-        )
+        /** All destinations in display order — feeds the horizontal scrollable bar. */
+        val All: List<PixoraDestination> = entries
 
         // ── Sub-routes (with args) ───────────────────────────────────────
         // Detail viewer for a single wallpaper. Reached by tapping a card

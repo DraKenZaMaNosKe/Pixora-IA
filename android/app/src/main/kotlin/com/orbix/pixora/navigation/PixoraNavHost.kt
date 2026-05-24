@@ -1,41 +1,40 @@
 package com.orbix.pixora.navigation
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -60,34 +59,26 @@ import com.orbix.pixora.features.threed.ThreeDScreen
 import com.orbix.pixora.features.wallpapers.WallpaperDetailScreen
 import com.orbix.pixora.features.wallpapers.WallpapersScreen
 import com.orbix.pixora.ui.theme.PixoraColors
-import kotlinx.coroutines.launch
+import com.orbix.pixora.ui.theme.PixoraFonts
 
 /**
  * Top-level NavHost — single Activity, all features as Composables.
  *
- * Bottom bar shows 4 primary tabs (Wall / Live / AURA / Favs) plus a
- * "Más" entry that opens a [ModalBottomSheet] with the 9 secondary
- * sections in a 3-col grid. This matches v1's _EmberReactiveNav idea
- * of giving access to ALL sections without cramming 13 tiny tabs.
+ * Bottom bar is a horizontally-scrollable LazyRow with ALL 13 destinations
+ * (matches v1's "Ember Reactive Nav"). The selected tab auto-scrolls into
+ * view, gets a gold-haze pill background, and shows its accent color on the
+ * icon/label.
  *
- * Hidden routes (wallpaper detail, future detail screens) auto-hide the
- * bottom bar by checking [PixoraDestination.Primary] / Secondary lists.
+ * Hidden routes (wallpaper detail) auto-hide the bottom bar by checking
+ * against the destinations list.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PixoraNavHost() {
     val navController = rememberNavController()
     val currentEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
 
-    // "Más" sheet state
-    var showMoreSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-
-    // Hide bottom bar on full-bleed sub-routes (detail viewer, etc.).
-    val routesInBar = PixoraDestination.Primary.map { it.route } +
-        PixoraDestination.Secondary.map { it.route }
+    val routesInBar = PixoraDestination.All.map { it.route }
     val showBottomBar = currentRoute in routesInBar
 
     Scaffold(
@@ -96,7 +87,7 @@ fun PixoraNavHost() {
             Column {
                 AuraMiniPlayer()
                 if (showBottomBar) {
-                    PixoraBottomBar(
+                    PixoraEmberNav(
                         currentRoute = currentRoute,
                         onNavigate = { dest ->
                             navController.navigate(dest.route) {
@@ -107,7 +98,6 @@ fun PixoraNavHost() {
                                 restoreState = true
                             }
                         },
-                        onMoreClick = { showMoreSheet = true },
                     )
                 }
             }
@@ -148,23 +138,66 @@ fun PixoraNavHost() {
             composable(PixoraDestination.Favorites.route) { FavoritesScreen() }
             composable(PixoraDestination.Settings.route) { SettingsScreen() }
         }
+    }
+}
 
-        if (showMoreSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showMoreSheet = false },
-                sheetState = sheetState,
-                containerColor = PixoraColors.Ink2,
-            ) {
-                MoreSheetContent(
-                    onSectionClick = { dest ->
-                        scope.launch {
-                            sheetState.hide()
-                            showMoreSheet = false
-                        }
-                        navController.navigate(dest.route) {
-                            launchSingleTop = true
-                        }
-                    },
+/**
+ * Ember Reactive Nav — horizontal scrollable bar with all 13 tabs.
+ *
+ * Each tab is a clickable pill (icon + short label). Selected tab gets:
+ *  - Gold-haze background pill
+ *  - Accent-colored icon + label (its destination's accent)
+ *  - Top hairline in accent color
+ * Plus we auto-scroll so the selected tab is always visible.
+ */
+@Composable
+private fun PixoraEmberNav(
+    currentRoute: String?,
+    onNavigate: (PixoraDestination) -> Unit,
+) {
+    val items = PixoraDestination.All
+    val listState = rememberLazyListState()
+    val selectedIndex = items.indexOfFirst { it.route == currentRoute }
+        .takeIf { it >= 0 } ?: 0
+
+    // Auto-scroll so the selected tab is visible (center if possible).
+    LaunchedEffect(selectedIndex) {
+        // Aim to land the selected tab around position 2 from the left edge,
+        // so the user can see what's coming next.
+        val target = (selectedIndex - 2).coerceAtLeast(0)
+        listState.animateScrollToItem(target)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(PixoraColors.Ink2)
+            // Respect the system 3-button / gesture nav so our tabs don't
+            // sit under the OS chrome.
+            .windowInsetsPadding(WindowInsets.navigationBars),
+    ) {
+        // Top hairline in gold-haze
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(Color.Transparent, PixoraColors.GoldHaze, Color.Transparent),
+                    ),
+                ),
+        )
+        LazyRow(
+            state = listState,
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            items(items, key = { it.route }) { dest ->
+                NavTab(
+                    dest = dest,
+                    selected = dest.route == currentRoute,
+                    onClick = { onNavigate(dest) },
                 )
             }
         }
@@ -172,106 +205,55 @@ fun PixoraNavHost() {
 }
 
 @Composable
-private fun PixoraBottomBar(
-    currentRoute: String?,
-    onNavigate: (PixoraDestination) -> Unit,
-    onMoreClick: () -> Unit,
+private fun NavTab(
+    dest: PixoraDestination,
+    selected: Boolean,
+    onClick: () -> Unit,
 ) {
-    NavigationBar(
-        containerColor = PixoraColors.Ink2,
-        contentColor = PixoraColors.TextPrimary,
-    ) {
-        PixoraDestination.Primary.forEach { dest ->
-            val selected = currentRoute == dest.route
-            NavigationBarItem(
-                selected = selected,
-                onClick = { if (!selected) onNavigate(dest) },
-                icon = { Icon(dest.icon, contentDescription = dest.label) },
-                label = { Text(dest.label) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PixoraColors.GoldBright,
-                    selectedTextColor = PixoraColors.GoldBright,
-                    indicatorColor = PixoraColors.GoldHaze,
-                    unselectedIconColor = PixoraColors.TextSecondary,
-                    unselectedTextColor = PixoraColors.TextSecondary,
-                ),
-            )
-        }
-        // "Más" entry — opens the secondary sections sheet.
-        NavigationBarItem(
-            selected = false,
-            onClick = onMoreClick,
-            icon = { Icon(PixoraDestination.MoreIcon, contentDescription = PixoraDestination.MoreLabel) },
-            label = { Text(PixoraDestination.MoreLabel) },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = PixoraColors.TextSecondary,
-                unselectedTextColor = PixoraColors.TextSecondary,
-                indicatorColor = PixoraColors.GoldHaze,
-            ),
-        )
-    }
-}
+    val iconColor by animateColorAsState(
+        targetValue = if (selected) dest.accent else PixoraColors.TextSecondary,
+        animationSpec = tween(180),
+        label = "navIconColor",
+    )
+    val bgColor by animateColorAsState(
+        targetValue = if (selected) PixoraColors.GoldHaze else Color.Transparent,
+        animationSpec = tween(180),
+        label = "navBgColor",
+    )
 
-@Composable
-private fun MoreSheetContent(onSectionClick: (PixoraDestination) -> Unit) {
-    Column(modifier = Modifier.padding(bottom = 24.dp)) {
-        Text(
-            text = "// PIXORA · SECCIONES",
-            style = MaterialTheme.typography.labelSmall.copy(color = PixoraColors.GoldDeep),
-            modifier = Modifier.padding(start = 20.dp, top = 4.dp, bottom = 8.dp),
-        )
-        Text(
-            text = "Explora",
-            style = MaterialTheme.typography.displaySmall.copy(
-                color = PixoraColors.TextPrimary,
-                fontStyle = FontStyle.Italic,
-            ),
-            modifier = Modifier.padding(start = 20.dp, bottom = 16.dp),
-        )
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            items(PixoraDestination.Secondary) { dest ->
-                SectionTile(dest, onClick = { onSectionClick(dest) })
-            }
-        }
-    }
-}
-
-@Composable
-private fun SectionTile(dest: PixoraDestination, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+            .width(64.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(PixoraColors.Surface)
-            .clickable { onClick() }
-            .padding(vertical = 18.dp, horizontal = 8.dp)
-            .fillMaxWidth(),
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(PixoraColors.GoldHaze),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = dest.icon,
-                contentDescription = dest.label,
-                tint = PixoraColors.GoldBright,
-                modifier = Modifier.size(24.dp),
+            .background(bgColor)
+            .then(
+                if (selected) Modifier.border(
+                    width = 0.5.dp,
+                    color = dest.accent.copy(alpha = 0.4f),
+                    shape = RoundedCornerShape(14.dp),
+                ) else Modifier
             )
-        }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+    ) {
+        Icon(
+            imageVector = dest.icon,
+            contentDescription = dest.label,
+            tint = iconColor,
+            modifier = Modifier.size(22.dp),
+        )
         Text(
-            text = dest.label,
-            style = MaterialTheme.typography.labelMedium.copy(color = PixoraColors.TextPrimary),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 10.dp),
+            text = dest.shortLabel,
+            style = MaterialTheme.typography.labelSmall.copy(
+                color = iconColor,
+                fontFamily = PixoraFonts.JetBrainsMono,
+            ),
+            modifier = Modifier.padding(top = 4.dp),
         )
     }
 }
