@@ -135,7 +135,7 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
       if (state.contains(wallpaperId)) {
         final entry = box.toMap().entries.firstWhere(
               (e) => e.value == wallpaperId,
-              orElse: () => MapEntry(-1, ''),
+              orElse: () => const MapEntry(-1, ''),
             );
         if (entry.key != -1) await box.delete(entry.key);
         state = {...state}..remove(wallpaperId);

@@ -297,9 +297,9 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
       body: Stack(
         children: [
           // Layer 1: gradient background
-          Positioned.fill(
+          const Positioned.fill(
             child: DecoratedBox(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -587,7 +587,7 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
         ),
         child: Row(
           children: [
-            Icon(Icons.check_circle_rounded, color: _neonCyan, size: 18),
+            const Icon(Icons.check_circle_rounded, color: _neonCyan, size: 18),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -717,7 +717,7 @@ class _HorizonGrid extends StatelessWidget {
 class _HorizonGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final cyan = const Color(0xFF00F0FF);
+    const cyan = Color(0xFF00F0FF);
     // Vertical lines fan out from horizon (top center) to bottom edges
     final vPaint = Paint()
       ..color = cyan.withValues(alpha: 0.55)

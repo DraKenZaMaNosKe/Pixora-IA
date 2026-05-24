@@ -116,7 +116,7 @@ class _AuroraWavesPainter extends CustomPainter {
     ];
 
     final blobRadius = math.max(w, h) * 0.6;
-    final tau = 2 * math.pi;
+    const tau = 2 * math.pi;
 
     for (var i = 0; i < blobs.length; i++) {
       final phase = i * (tau / blobs.length);

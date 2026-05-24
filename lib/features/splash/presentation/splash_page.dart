@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/catalog_index_service.dart';
@@ -177,6 +176,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
         ),
       );
     } else {
+      if (!context.mounted) return;
       _navigateToPitchOrHome(context);
     }
   }
@@ -196,6 +196,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
         ),
       );
     } else {
+      if (!context.mounted) return;
       _navigateToHome(context);
     }
   }
@@ -360,7 +361,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
         for (var i = 0; i < 5; i++) ...[
           Text(
             i.isEven ? '◆' : '◇',
-            style: TextStyle(color: _gold, fontSize: 14, height: 1),
+            style: const TextStyle(color: _gold, fontSize: 14, height: 1),
           ),
           if (i < 4) const SizedBox(width: 14),
         ],
@@ -487,7 +488,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
             for (var i = 0; i < 3; i++) ...[
               Text(
                 i == 1 ? '◇' : '◆',
-                style: TextStyle(color: _gold, fontSize: 12, height: 1),
+                style: const TextStyle(color: _gold, fontSize: 12, height: 1),
               ),
               if (i < 2) const SizedBox(width: 18),
             ],

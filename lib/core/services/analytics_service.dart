@@ -51,7 +51,7 @@ class AnalyticsService {
   final List<_Event> _queue = [];
 
   /// Whether to print debug logs.
-  bool _verbose = kDebugMode;
+  final bool _verbose = kDebugMode;
 
   Future<void> init() async {
     if (_initialized) return;

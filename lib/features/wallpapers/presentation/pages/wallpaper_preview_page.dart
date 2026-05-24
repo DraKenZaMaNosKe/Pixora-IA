@@ -330,12 +330,6 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
     return 'N° ${hash.toString().padLeft(3, '0')}';
   }
 
-  /// Artist line for the auction feel. Falls back if description empty.
-  String get _artistLine {
-    final desc = widget.wallpaper.description.trim();
-    if (desc.isNotEmpty) return '— $desc';
-    return '— Pixora original collection';
-  }
 
   void _showApplyOptions() {
     final isFree = AdService.instance.isNextActionFree;
@@ -597,14 +591,14 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
     final isIos = h.isIosStyle;
 
     // Holographic foil gradient — animated background-position.
-    final iosColors = const [
+    const iosColors = [
       Color(0xFFD8E0EE),
       Color(0xFFF7FAFF),
       Color(0xFFCDD9EE),
       Color(0xFFF7FAFF),
       Color(0xFFB8C8E0),
     ];
-    final darkColors = const [
+    const darkColors = [
       Color(0xFF8B7228),
       Color(0xFFF5D676),
       Color(0xFFB8860B),
@@ -678,7 +672,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
                         ),
                       ),
                       Text(
-                        _lotNumber.replaceFirst('N° ', 'N° ') + ' / ∞',
+                        '${_lotNumber.replaceFirst('N° ', 'N° ')} / ∞',
                         style: GoogleFonts.jetBrainsMono(
                           fontSize: 8,
                           fontWeight: FontWeight.w600,

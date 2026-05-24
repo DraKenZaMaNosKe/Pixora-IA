@@ -87,11 +87,11 @@ class CodexDetailLayout extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: _GildedFrame(
-                      child: heroImage,
                       brassBright: brassBright,
                       brassDeep: brassDeep,
                       medallionInner: medallionInner,
                       medallionOuter: medallionOuter,
+                      child: heroImage,
                     ),
                   ),
                   const SizedBox(height: 8),

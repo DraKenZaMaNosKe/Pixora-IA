@@ -316,7 +316,7 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   // Top-left badge — solid color, theme-aware
-                  Positioned(
+                  const Positioned(
                     top: 12,
                     left: 12,
                     child: _SolidBadge(
@@ -324,7 +324,7 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   // Bottom holographic APLICAR button
-                  Positioned(
+                  const Positioned(
                     left: 16,
                     bottom: 16,
                     child: _HoloApplyButton(label: '▸ APLICAR'),
@@ -370,7 +370,7 @@ class _GridCard extends StatelessWidget {
                 cacheWidth: 320,
                 errorBuilder: (_, __, ___) => Container(color: h.surfaceHi),
               ),
-              Positioned(
+              const Positioned(
                 top: 6,
                 right: 6,
                 child: _HoloChip(label: '3D', dense: true),

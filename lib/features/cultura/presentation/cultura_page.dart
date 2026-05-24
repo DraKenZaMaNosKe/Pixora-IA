@@ -456,8 +456,8 @@ class _CornerPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
     if (isTopLeft) {
       // Top edge + left edge
-      canvas.drawLine(Offset(0, 1), Offset(size.width, 1), paint);
-      canvas.drawLine(Offset(1, 0), Offset(1, size.height), paint);
+      canvas.drawLine(const Offset(0, 1), Offset(size.width, 1), paint);
+      canvas.drawLine(const Offset(1, 0), Offset(1, size.height), paint);
     } else {
       // Bottom edge + right edge
       canvas.drawLine(Offset(0, size.height - 1),

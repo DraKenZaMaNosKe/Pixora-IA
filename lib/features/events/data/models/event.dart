@@ -103,8 +103,9 @@ class PixoraEvent {
 
   factory PixoraEvent.fromJson(Map<String, dynamic> json) {
     Color parseColor(String? hex, [Color fallback = const Color(0xFF888888)]) {
-      if (hex == null || !hex.startsWith('#') || hex.length < 7)
+      if (hex == null || !hex.startsWith('#') || hex.length < 7) {
         return fallback;
+      }
       try {
         final v = int.parse(hex.substring(1, 7), radix: 16);
         return Color(0xFF000000 | v);

@@ -171,11 +171,11 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage>
       body: Stack(
         children: [
           // Background gradient
-          Positioned.fill(
+          const Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  center: const Alignment(0, -0.8),
+                  center: Alignment(0, -0.8),
                   radius: 1.3,
                   colors: [_bgMid, _bg],
                 ),

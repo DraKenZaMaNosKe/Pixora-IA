@@ -326,7 +326,7 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
                   liked: _currentWallpaper != null &&
                       _likedIds.contains(_currentWallpaper!.id),
                 ),
-                _BannerAdHost(
+                const _BannerAdHost(
                   adUnitId: WallpaperViewerHudPage._testBannerAdUnitId,
                 ),
               ],

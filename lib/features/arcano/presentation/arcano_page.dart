@@ -735,11 +735,12 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage>
         SnackBar(content: Text('Error: $e')),
       );
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _installing = false;
           _installingId = null;
         });
+      }
     }
   }
 

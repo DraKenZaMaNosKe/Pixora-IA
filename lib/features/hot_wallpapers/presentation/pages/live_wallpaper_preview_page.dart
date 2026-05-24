@@ -100,8 +100,9 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         for (var i = 0; i < w.frameCount; i++) {
           final frameFile = File(
               '${framesDir.path}/frame_${(i + 1).toString().padLeft(4, '0')}.jpg');
-          if (await frameFile.exists() && await frameFile.length() > 100)
+          if (await frameFile.exists() && await frameFile.length() > 100) {
             continue;
+          }
           await DownloadService.instance.downloadFile(
             w.frameUrl(i),
             frameFile,
@@ -241,7 +242,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Video deleted from device'),
+            content: const Text('Video deleted from device'),
             backgroundColor: context.hud.accent,
           ),
         );
@@ -1094,7 +1095,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Icon(Icons.diamond, size: 12, color: grayMid),
+                            const Icon(Icons.diamond, size: 12, color: grayMid),
                             const SizedBox(width: 4),
                             Text(
                               '$credits',

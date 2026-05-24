@@ -118,18 +118,18 @@ class _DailyActivationOverlayState extends State<DailyActivationOverlay>
             child: Stack(
               children: [
                 // Background gradient + sun glow
-                Positioned.fill(
+                const Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: const [
+                        colors: [
                           DailyActivationOverlay._bgTop,
                           DailyActivationOverlay._bgMid,
                           DailyActivationOverlay._bgDeep,
                         ],
-                        stops: const [0.0, 0.45, 1.0],
+                        stops: [0.0, 0.45, 1.0],
                       ),
                     ),
                   ),
@@ -224,7 +224,7 @@ class _DailyActivationOverlayState extends State<DailyActivationOverlay>
                                   ),
                                 ],
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.play_arrow_rounded,
                                 size: 44,
                                 color: DailyActivationOverlay._neonYellow,

@@ -289,7 +289,7 @@ class _DropCard extends StatelessWidget {
     return '$season$yy';
   }
 
-  String get _releaseTag => isLive ? 'AVAILABLE NOW' : 'AVAILABLE ${_bigDate}';
+  String get _releaseTag => isLive ? 'AVAILABLE NOW' : 'AVAILABLE $_bigDate';
 
   @override
   Widget build(BuildContext context) {

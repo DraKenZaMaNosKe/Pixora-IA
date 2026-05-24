@@ -97,8 +97,9 @@ class Wallpaper {
 
   String get imageSizeFormatted {
     if (imageSize < 1024) return '$imageSize B';
-    if (imageSize < 1024 * 1024)
+    if (imageSize < 1024 * 1024) {
       return '${(imageSize / 1024).toStringAsFixed(0)} KB';
+    }
     return '${(imageSize / 1024 / 1024).toStringAsFixed(1)} MB';
   }
 

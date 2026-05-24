@@ -373,13 +373,16 @@ class _AIGeneratePageState extends State<AIGeneratePage>
 
   Future<void> _onSave() async {
     final file = await _downloadResult();
+    if (!mounted) return;
     if (file == null) {
       _snack('ERROR: no se pudo descargar', color: context.hud.accent);
       return;
     }
-    await Share.shareXFiles(
-      [XFile(file.path)],
-      subject: 'Pixora · Generación ${_latest!.id}',
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path)],
+        subject: 'Pixora · Generación ${_latest!.id}',
+      ),
     );
   }
 
@@ -395,6 +398,7 @@ class _AIGeneratePageState extends State<AIGeneratePage>
 
   Future<void> _doApplyWallpaper() async {
     final file = await _downloadResult();
+    if (!mounted) return;
     if (file == null) {
       _snack('ERROR: no se pudo descargar', color: context.hud.accent);
       return;
@@ -419,14 +423,17 @@ class _AIGeneratePageState extends State<AIGeneratePage>
 
   Future<void> _onShare() async {
     final file = await _downloadResult();
+    if (!mounted) return;
     if (file == null) {
       _snack('ERROR: no se pudo descargar', color: context.hud.accent);
       return;
     }
     WallpaperStatsService.instance.trackShare('ai_generated');
-    await Share.shareXFiles(
-      [XFile(file.path)],
-      text: 'Mira lo que generé con Pixora IA',
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path)],
+        text: 'Mira lo que generé con Pixora IA',
+      ),
     );
   }
 

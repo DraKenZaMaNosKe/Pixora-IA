@@ -1266,7 +1266,7 @@ class _PlusHaloAvatarState extends State<_PlusHaloAvatar>
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: SweepGradient(
+                gradient: const SweepGradient(
                   colors: [
                     HudTokens.goldDeep,
                     HudTokens.gold,

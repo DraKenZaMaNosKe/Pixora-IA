@@ -84,7 +84,7 @@ class LiveWallpaperCatalogService {
         DateTime.now().difference(_lastFetch!) < _ttl) {
       return _memCache!;
     }
-    final url = '${SupabaseConfig.storageBase}/wallpaper-videos/$_catalogFile';
+    const url = '${SupabaseConfig.storageBase}/wallpaper-videos/$_catalogFile';
     final result = await CatalogCacheStore.instance.fetchWithCache(
       key: _cacheKey,
       url: url,

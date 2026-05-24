@@ -169,6 +169,7 @@ class _CategoryRows extends ConsumerWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: rows.length,
+        // ignore: deprecated_member_use
         cacheExtent: 200,
         addAutomaticKeepAlives: false,
         addRepaintBoundaries: false,

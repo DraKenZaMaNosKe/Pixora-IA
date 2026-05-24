@@ -66,7 +66,7 @@ class _AuroraLoadingIndicatorState extends State<AuroraLoadingIndicator>
           builder: (context, _) {
             final t = _controller.value;
             // 4s ramp + 0.5s hold inside the 4.5s cycle
-            final rampPortion = 4000 / 4500;
+            const rampPortion = 4000 / 4500;
             final progress = t < rampPortion ? (t / rampPortion) : 1.0;
             // Wall-clock seconds for particle / wave motion
             final wallClock =

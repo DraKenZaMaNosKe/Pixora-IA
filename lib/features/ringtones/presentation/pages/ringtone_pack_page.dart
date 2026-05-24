@@ -292,9 +292,9 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
       body: Stack(
         children: [
           // Cosmic gradient bg
-          Positioned.fill(
+          const Positioned.fill(
             child: DecoratedBox(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,

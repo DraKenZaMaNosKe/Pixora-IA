@@ -31,7 +31,7 @@ class StoryCatalogService {
     if (_stories.isNotEmpty && _isCacheValid && !forceRefresh) {
       return _stories;
     }
-    final url =
+    const url =
         '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/$_catalogFile';
     final result = await CatalogCacheStore.instance.fetchWithCache(
       key: _cacheKey,

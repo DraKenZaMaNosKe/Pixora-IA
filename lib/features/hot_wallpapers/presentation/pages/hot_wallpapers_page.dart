@@ -468,10 +468,10 @@ class _ShimmerLoading extends StatelessWidget {
           // Hero banner placeholder
           ClipRRect(
             borderRadius: BorderRadius.circular(18),
-            child: SizedBox(
+            child: const SizedBox(
               width: double.infinity,
               height: 200,
-              child: const AuroraWavesLoading(),
+              child: AuroraWavesLoading(),
             ),
           ),
           const SizedBox(height: 28),

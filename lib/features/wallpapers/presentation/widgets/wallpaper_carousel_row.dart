@@ -91,6 +91,7 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     itemCount: widget.items.length,
+                    // ignore: deprecated_member_use
                     cacheExtent: 150,
                     // Aggressive memory: drop offscreen cards from the
                     // element tree as soon as they scroll out (default

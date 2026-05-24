@@ -36,9 +36,7 @@ class _GlobalHeartbeat {
 
   void addListener(VoidCallback cb) {
     _listeners.add(cb);
-    if (_ticker == null) {
-      _ticker = Ticker(_onTick, debugLabel: 'GlobalHeartbeat')..start();
-    }
+    _ticker ??= Ticker(_onTick, debugLabel: 'GlobalHeartbeat')..start();
   }
 
   void removeListener(VoidCallback cb) {
