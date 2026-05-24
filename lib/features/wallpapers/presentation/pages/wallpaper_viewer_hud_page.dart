@@ -530,6 +530,8 @@ class _TargetFrame extends StatelessWidget {
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: double.infinity,
+                  // Card grande del viewer modal (~400px). Decodificar 600px.
+                  memCacheWidth: 600,
                   placeholder: (_, __) => Container(
                     color: WallpaperViewerHudPage.inkLayer,
                     child: const Center(

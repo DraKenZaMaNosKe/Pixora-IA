@@ -360,7 +360,10 @@ class _AIGeneratePageState extends State<AIGeneratePage>
     final url = _latest?.resultUrl;
     if (url == null) return null;
     try {
-      final resp = await http.get(Uri.parse(url));
+      // Timeout 30s — imágenes generadas pueden ser pesadas (~5 MB) y la
+      // red del user puede ser lenta. Sin timeout, http.get cuelga forever.
+      final resp =
+          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 30));
       if (resp.statusCode != 200) return null;
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/pixora_gen_${_latest!.id}.png');

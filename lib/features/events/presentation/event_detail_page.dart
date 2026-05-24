@@ -427,6 +427,9 @@ class _ResolvedTile extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: wallpaper.previewUrl,
               fit: BoxFit.cover,
+              // Card chica en grid (~150px). Decodificar a 300px (2x retina)
+              // en lugar del bitmap original (1080+) ahorra ~6x memoria.
+              memCacheWidth: 300,
               placeholder: (_, __) => Container(color: event.themeColorDark),
               errorWidget: (_, __, ___) => Container(
                 color: event.themeColorDark,

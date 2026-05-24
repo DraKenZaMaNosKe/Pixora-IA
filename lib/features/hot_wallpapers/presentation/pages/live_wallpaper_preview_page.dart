@@ -401,6 +401,9 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                           CachedNetworkImage(
                             imageUrl: w.previewUrl,
                             fit: BoxFit.cover,
+                            // Card en grid (~200px). Decodificar a 400px (2x
+                            // retina) ahorra memoria vs bitmap full size.
+                            memCacheWidth: 400,
                             errorWidget: (_, __, ___) =>
                                 Container(color: surfaceTile),
                           ),
@@ -925,6 +928,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
                                     CachedNetworkImage(
                                       imageUrl: w.previewUrl,
                                       fit: BoxFit.cover,
+                                      memCacheWidth: 400,
                                       errorWidget: (_, __, ___) => Container(
                                           color: const Color(0xFF1A1A22)),
                                     ),
@@ -1226,6 +1230,8 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
             heroImage: CachedNetworkImage(
               imageUrl: w.previewUrl,
               fit: BoxFit.cover,
+              // Hero image grande en CodexDetailLayout (~width pantalla).
+              memCacheWidth: 800,
               errorWidget: (_, __, ___) => Container(color: context.hud.bg),
             ),
             title: w.name,

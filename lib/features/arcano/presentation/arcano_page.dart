@@ -757,7 +757,10 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage>
       return localFile.path;
     }
     final url = SupabaseConfig.imageUrl(fileName);
-    final res = await http.get(Uri.parse(url));
+    // Timeout 30s — los wallpapers pueden ser pesados (panorámicas ~500 KB)
+    // y red lenta. Sin timeout, http.get cuelga indefinidamente.
+    final res =
+        await http.get(Uri.parse(url)).timeout(const Duration(seconds: 30));
     if (res.statusCode != 200) {
       throw Exception('Download failed: HTTP ${res.statusCode}');
     }

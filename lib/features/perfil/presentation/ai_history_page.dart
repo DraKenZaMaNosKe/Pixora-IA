@@ -173,6 +173,8 @@ class _AITile extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: url,
               fit: BoxFit.cover,
+              // Card historia AI ~200px. Decodificar 400px ahorra memoria.
+              memCacheWidth: 400,
               placeholder: (_, __) => Container(color: h.surface),
               errorWidget: (_, __, ___) => Container(
                 color: h.surface,
