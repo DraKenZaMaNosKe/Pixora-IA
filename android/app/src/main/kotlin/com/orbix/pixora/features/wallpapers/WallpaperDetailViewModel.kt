@@ -59,7 +59,7 @@ class WallpaperDetailViewModel @Inject constructor(
         if (_state.value.applying) return
         viewModelScope.launch {
             _state.value = _state.value.copy(applying = true)
-            val result = applyService.applyFromUrl(w.imageUrl)
+            val result = applyService.applyFromUrl(w.imageUrl, isPanoramic = w.isPanoramic)
             _state.value = _state.value.copy(
                 applying = false,
                 event = when (result) {
