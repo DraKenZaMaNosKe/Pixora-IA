@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,6 +36,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.orbix.pixora.data.aura.AuraPlayerService
 import com.orbix.pixora.data.aura.AuraPlayerState
+import com.orbix.pixora.ui.components.SacredMandala
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -85,13 +87,18 @@ fun AuraMiniPlayer(
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
+                // Sacred Mandala badge — matches the same per-frequency
+                // pattern in the AURA row, sized down for the mini-player.
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(accent),
+                    modifier = Modifier.size(44.dp),
                 ) {
+                    SacredMandala(
+                        color = accent,
+                        hz = track.hz,
+                        isPlaying = state.isPlaying,
+                        modifier = Modifier.fillMaxSize(),
+                    )
                     if (track.hz != null) {
                         Text(
                             text = "${track.hz}",

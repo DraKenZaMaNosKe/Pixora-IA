@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.orbix.pixora.data.models.AuraTrack
+import com.orbix.pixora.ui.components.SacredMandala
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -174,15 +175,20 @@ private fun TrackRow(
             .clickable { onClick() }
             .padding(12.dp),
     ) {
-        // Hz badge / play icon — when this row is currently playing, show
-        // the pause/play icon overlay instead of the static badge.
+        // Sacred Mandala badge — per-frequency procedural pattern with
+        // playback pulse. Hz number floats over the mandala. When this
+        // row is the current playing track, an overlay pause icon
+        // appears so tap-to-pause is obvious.
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(accent),
+            modifier = Modifier.size(54.dp),
         ) {
+            SacredMandala(
+                color = accent,
+                hz = track.hz,
+                isPlaying = isCurrent && isPlaying,
+                modifier = Modifier.fillMaxSize(),
+            )
             when {
                 isCurrent -> Icon(
                     imageVector = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
@@ -191,9 +197,10 @@ private fun TrackRow(
                 )
                 track.hz != null -> Text(
                     text = "${track.hz}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                    ),
                 )
                 else -> Icon(
                     imageVector = Icons.Outlined.PlayCircleOutline,
