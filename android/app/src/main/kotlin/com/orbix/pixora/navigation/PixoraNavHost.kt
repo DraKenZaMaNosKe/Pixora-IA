@@ -51,7 +51,9 @@ import com.orbix.pixora.features.cultura.CulturaScreen
 import com.orbix.pixora.features.daycycle.DayCycleScreen
 import com.orbix.pixora.features.eventos.EventosScreen
 import com.orbix.pixora.features.favorites.FavoritesScreen
+import com.orbix.pixora.features.live.LiveDetailScreen
 import com.orbix.pixora.features.live.LiveScreen
+import com.orbix.pixora.features.ringtones.RingtonePackScreen
 import com.orbix.pixora.features.ringtones.RingtonesScreen
 import com.orbix.pixora.features.settings.SettingsScreen
 import com.orbix.pixora.features.stories.StoriesScreen
@@ -148,7 +150,23 @@ fun PixoraNavHost() {
                     onClose = { navController.popBackStack() },
                 )
             }
-            composable(PixoraDestination.Live.route) { LiveScreen() }
+            composable(PixoraDestination.Live.route) {
+                LiveScreen(
+                    onLiveClick = { id ->
+                        navController.navigate(PixoraDestination.liveDetail(id))
+                    },
+                )
+            }
+            composable(
+                route = PixoraDestination.LiveDetailRoute,
+                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id").orEmpty()
+                LiveDetailScreen(
+                    wallpaperId = id,
+                    onBack = { navController.popBackStack() },
+                )
+            }
             composable(PixoraDestination.ThreeD.route) { ThreeDScreen() }
             composable(PixoraDestination.Cultura.route) { CulturaScreen() }
             composable(PixoraDestination.Eventos.route) { EventosScreen() }
@@ -156,7 +174,23 @@ fun PixoraNavHost() {
             composable(PixoraDestination.Arcano.route) { ArcanoScreen() }
             composable(PixoraDestination.Stories.route) { StoriesScreen() }
             composable(PixoraDestination.DayCycle.route) { DayCycleScreen() }
-            composable(PixoraDestination.Ringtones.route) { RingtonesScreen() }
+            composable(PixoraDestination.Ringtones.route) {
+                RingtonesScreen(
+                    onPackClick = { packId ->
+                        navController.navigate(PixoraDestination.ringtonePack(packId))
+                    },
+                )
+            }
+            composable(
+                route = PixoraDestination.RingtonePackRoute,
+                arguments = listOf(navArgument("packId") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("packId").orEmpty()
+                RingtonePackScreen(
+                    packId = id,
+                    onBack = { navController.popBackStack() },
+                )
+            }
             composable(PixoraDestination.AiGenerate.route) { AiGenerateScreen() }
             composable(PixoraDestination.Favorites.route) { FavoritesScreen() }
             composable(PixoraDestination.Settings.route) { SettingsScreen() }

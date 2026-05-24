@@ -91,7 +91,10 @@ class RingtonesViewModel @Inject constructor(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RingtonesScreen(viewModel: RingtonesViewModel = hiltViewModel()) {
+fun RingtonesScreen(
+    onPackClick: (String) -> Unit = {},
+    viewModel: RingtonesViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val nowPlayingId by viewModel.nowPlayingId.collectAsStateWithLifecycle()
     Scaffold(
@@ -117,7 +120,7 @@ fun RingtonesScreen(viewModel: RingtonesViewModel = hiltViewModel()) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.Center),
                 )
-                else -> PacksList(state.packs, nowPlayingId, viewModel::onToneTapped)
+                else -> PacksList(state.packs, nowPlayingId, viewModel::onToneTapped, onPackClick)
             }
         }
     }
@@ -128,23 +131,22 @@ private fun PacksList(
     packs: List<RingtonePack>,
     nowPlayingId: String?,
     onToneTap: (Ringtone) -> Unit,
+    onPackClick: (String) -> Unit,
 ) {
     LazyColumn(
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxSize(),
     ) {
-        items(packs, key = { it.id }) { pack -> PackCard(pack, nowPlayingId, onToneTap) }
+        items(packs, key = { it.id }) { pack -> PackCard(pack, onPackClick) }
     }
 }
 
 @Composable
 private fun PackCard(
     pack: RingtonePack,
-    nowPlayingId: String?,
-    onToneTap: (Ringtone) -> Unit,
+    onPackClick: (String) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     Column(
         modifier = Modifier
@@ -156,7 +158,7 @@ private fun PackCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = !expanded }
+                .clickable { onPackClick(pack.id) }
                 .padding(12.dp),
         ) {
             AsyncImage(
@@ -186,21 +188,11 @@ private fun PackCard(
                 )
             }
         }
-        if (expanded) {
-            Column(modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)) {
-                pack.tones.forEach { tone ->
-                    ToneRow(
-                        tone = tone,
-                        isPlaying = tone.id == nowPlayingId,
-                        onTap = { onToneTap(tone) },
-                    )
-                }
-            }
-        }
     }
 }
 
 @Composable
+@Suppress("unused")
 private fun ToneRow(tone: Ringtone, isPlaying: Boolean, onTap: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

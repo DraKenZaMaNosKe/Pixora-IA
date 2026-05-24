@@ -69,5 +69,13 @@ enum class PixoraDestination(
         const val WallpaperExplorerRoute = "wallpaper_explorer/{category}/{initialId}"
         fun wallpaperExplorer(category: String?, initialId: String?) =
             "wallpaper_explorer/${category ?: "all"}/${initialId ?: "first"}"
+
+        // Live wallpaper detail (Frosted Stage). Reached by tapping a LiveCard.
+        const val LiveDetailRoute = "live_detail/{id}"
+        fun liveDetail(id: String) = "live_detail/$id"
+
+        // Ringtone pack detail (Cassette A/B Sides).
+        const val RingtonePackRoute = "ringtone_pack/{packId}"
+        fun ringtonePack(packId: String) = "ringtone_pack/$packId"
     }
 }
