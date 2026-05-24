@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,6 +28,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import android.app.Activity
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -66,6 +68,7 @@ fun WallpaperDetailScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackHost = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val activity = context as? Activity
 
     // Surface one-shot events as snackbars.
     LaunchedEffect(state.event) {
@@ -100,7 +103,7 @@ fun WallpaperDetailScreen(
                 else -> DetailContent(
                     state = state,
                     onBack = onBack,
-                    onApply = { viewModel.apply() },
+                    onApply = { activity?.let { viewModel.apply(it) } },
                     context = context,
                 )
             }
@@ -191,29 +194,50 @@ private fun DetailContent(
         ) {
             Button(
                 onClick = onApply,
-                enabled = !state.applying,
+                enabled = !state.applying && !state.justApplied,
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = when {
+                        state.justApplied -> Color(0xFF2E7D32) // verde éxito
+                        else -> MaterialTheme.colorScheme.primary
+                    },
+                    contentColor = Color.White,
+                    disabledContainerColor = when {
+                        state.justApplied -> Color(0xFF2E7D32)
+                        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                    },
+                    disabledContentColor = Color.White,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
             ) {
-                if (state.applying) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.height(20.dp),
-                    )
-                    Spacer(Modifier.height(0.dp))
-                    Text(
-                        text = "  Aplicando…",
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                } else {
-                    Text(
+                when {
+                    state.applying -> {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.height(20.dp),
+                        )
+                        Spacer(Modifier.height(0.dp))
+                        Text(
+                            text = "  Aplicando…",
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                    state.justApplied -> {
+                        Icon(
+                            imageVector = Icons.Outlined.CheckCircle,
+                            contentDescription = null,
+                            tint = Color.White,
+                        )
+                        Text(
+                            text = "  Wallpaper aplicado",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                    else -> Text(
                         text = "Aplicar como wallpaper",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,

@@ -14,5 +14,12 @@ fun ArcanoScreen() {
     FeatureShell(
         title = "Arcano",
         icon = Icons.Outlined.AutoAwesome,
+        subtitle = "Tarot, runas y oráculos cósmicos",
+        bullets = listOf(
+            "Tirada diaria de cartas (3 cartas: pasado / presente / futuro)",
+            "Catálogo de las 22 arcanos mayores con interpretación",
+            "Runas vikingas y oráculo zodiacal",
+            "Wallpaper dinámico que cambia con tu carta del día",
+        ),
     )
 }

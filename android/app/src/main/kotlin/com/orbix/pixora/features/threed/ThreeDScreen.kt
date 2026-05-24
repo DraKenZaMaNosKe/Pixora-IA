@@ -14,5 +14,12 @@ fun ThreeDScreen() {
     FeatureShell(
         title = "Wallpapers 3D",
         icon = Icons.Outlined.ViewInAr,
+        subtitle = "Shaders y escenas interactivas en tiempo real",
+        bullets = listOf(
+            "Black Hole, Solar System, Galaxia procedural",
+            "Acuario interactivo (toca para alimentar a los peces)",
+            "Bosque con luciérnagas reactivas al touch",
+            "Shaders GLSL personalizables con tu color favorito",
+        ),
     )
 }

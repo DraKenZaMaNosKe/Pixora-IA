@@ -22,4 +22,17 @@ object SupabaseConfig {
 
     /** Build a public URL for a file in the wallpaper-videos bucket. */
     fun videoUrl(filename: String): String = "$STORAGE_PUBLIC/$VIDEOS_BUCKET/$filename"
+
+    // ─── JSON catalogs in Storage (read-only public) ──────────────────
+    // Source of truth for content per kind. Editable from pixora-admin
+    // without app updates (6h-cache on client side in v1; v2 just fetches
+    // fresh on app start and on pull-to-refresh).
+    const val CATALOG_LIVE = "live_wallpaper_catalog.json"
+    const val CATALOG_STORIES = "stories_catalog.json"
+    const val CATALOG_DAY_CYCLE = "day_cycle_catalog.json"
+    const val CATALOG_RINGTONES = "ringtones_catalog.json"
+
+    /** Public URL for a JSON catalog file in a Storage bucket. */
+    fun catalogUrl(bucket: String, file: String): String =
+        "$STORAGE_PUBLIC/$bucket/$file"
 }

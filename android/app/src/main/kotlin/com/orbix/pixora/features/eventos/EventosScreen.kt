@@ -14,5 +14,12 @@ fun EventosScreen() {
     FeatureShell(
         title = "Eventos",
         icon = Icons.Outlined.Event,
+        subtitle = "Calendario lunar y fechas cósmicas",
+        bullets = listOf(
+            "Calendario lunar con fases en tiempo real",
+            "Eclipses, solsticios y equinoccios",
+            "Días feriados de México con wallpaper temático",
+            "Notificaciones de eventos astronómicos importantes",
+        ),
     )
 }

@@ -5,9 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.orbix.pixora.data.models.Wallpaper
 import com.orbix.pixora.data.repos.WallpaperRepository
+import android.app.Activity
+import com.orbix.pixora.data.ads.AdService
+import com.orbix.pixora.data.credits.CreditService
 import com.orbix.pixora.data.wallpaper.ApplyResult
 import com.orbix.pixora.data.wallpaper.WallpaperApplyService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +27,8 @@ data class WallpaperDetailUiState(
     val wallpaper: Wallpaper? = null,
     val loading: Boolean = true,
     val applying: Boolean = false,
+    /** True for ~2s after a successful apply so the CTA can show feedback. */
+    val justApplied: Boolean = false,
     val errorMsg: String? = null,
     val event: DetailEvent? = null,
 )
@@ -32,6 +38,8 @@ class WallpaperDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repo: WallpaperRepository,
     private val applyService: WallpaperApplyService,
+    private val adService: AdService,
+    private val creditService: CreditService,
 ) : ViewModel() {
 
     private val wallpaperId: String = savedStateHandle.get<String>("id").orEmpty()
@@ -54,19 +62,34 @@ class WallpaperDetailViewModel @Inject constructor(
         }
     }
 
-    fun apply() {
+    fun apply(activity: Activity) {
         val w = _state.value.wallpaper ?: return
         if (_state.value.applying) return
-        viewModelScope.launch {
-            _state.value = _state.value.copy(applying = true)
-            val result = applyService.applyFromUrl(w.imageUrl, isPanoramic = w.isPanoramic)
-            _state.value = _state.value.copy(
-                applying = false,
-                event = when (result) {
-                    is ApplyResult.Success -> DetailEvent.Toast("Wallpaper aplicado ✨")
-                    is ApplyResult.Error -> DetailEvent.Toast("Error: ${result.message}")
-                },
-            )
+        adService.showInterstitial(activity) { awardedCredit ->
+            viewModelScope.launch {
+                _state.value = _state.value.copy(applying = true, justApplied = false)
+                val result = applyService.applyFromUrl(w.imageUrl, isPanoramic = w.isPanoramic)
+                when (result) {
+                    is ApplyResult.Success -> {
+                        if (awardedCredit) creditService.earnFromAd()
+                        _state.value = _state.value.copy(
+                            applying = false,
+                            justApplied = true,
+                            event = DetailEvent.Toast(
+                                if (awardedCredit) "Aplicado ✨ +1 💎" else "Wallpaper aplicado ✨",
+                            ),
+                        )
+                        delay(2500)
+                        _state.value = _state.value.copy(justApplied = false)
+                    }
+                    is ApplyResult.Error -> {
+                        _state.value = _state.value.copy(
+                            applying = false,
+                            event = DetailEvent.Toast("Error: ${result.message}"),
+                        )
+                    }
+                }
+            }
         }
     }
 
