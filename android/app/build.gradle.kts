@@ -8,7 +8,10 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
-    id("com.google.gms.google-services")
+    // Firebase google-services plugin removido temporalmente — re-enable
+    // cuando agreguemos firebase-messaging + crashlytics correctly setup
+    // (necesitan su Crashlytics Gradle plugin para no crashear en boot).
+    // id("com.google.gms.google-services")
 }
 
 val keystoreProperties = Properties().apply {
@@ -154,11 +157,13 @@ dependencies {
     // ─── In-App Billing v7 ───────────────────────────────────────────────
     implementation("com.android.billingclient:billing-ktx:7.1.1")
 
-    // ─── Firebase ────────────────────────────────────────────────────────
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
-    implementation("com.google.firebase:firebase-messaging-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
-    implementation("com.google.firebase:firebase-analytics-ktx")
+    // ─── Firebase (DISABLED for Day 1) ───────────────────────────────────
+    // Re-enable in session 4 cuando setup completo (BoM + plugin gms
+    // google-services + plugin crashlytics + plugin perf). firebase-analytics
+    // arrastra crashlytics transitively → boot crash sin el plugin.
+    // implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    // implementation("com.google.firebase:firebase-messaging-ktx")
+    // implementation("com.google.firebase:firebase-analytics-ktx")
 
     // ─── Splash Screen API (Android 12+) ─────────────────────────────────
     implementation("androidx.core:core-splashscreen:1.0.1")
