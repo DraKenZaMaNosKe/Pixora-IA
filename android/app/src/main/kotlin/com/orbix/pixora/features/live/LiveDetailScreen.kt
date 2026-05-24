@@ -41,14 +41,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -59,7 +58,9 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import android.app.Activity
 import com.orbix.pixora.data.models.LiveWallpaper
+import com.orbix.pixora.ui.components.DownloadManagerOverlay
 import com.orbix.pixora.ui.theme.PixoraColors
 import com.orbix.pixora.ui.theme.PixoraFonts
 import kotlinx.coroutines.launch
@@ -87,7 +88,13 @@ fun LiveDetailScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackHost = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val activity = LocalContext.current as? Activity
+
+    LaunchedEffect(state.toast) {
+        val msg = state.toast ?: return@LaunchedEffect
+        snackHost.showSnackbar(msg)
+        viewModel.consumeToast()
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackHost) },
@@ -111,13 +118,13 @@ fun LiveDetailScreen(
                 else -> FrostedStage(
                     wallpaper = state.wallpaper!!,
                     onBack = onBack,
-                    onApply = {
-                        scope.launch {
-                            snackHost.showSnackbar("Live wallpaper apply próximamente")
-                        }
-                    },
+                    onApply = { activity?.let { viewModel.apply(it) } },
                 )
             }
+            DownloadManagerOverlay(
+                stage = state.downloadStage,
+                errorMessage = state.downloadError,
+            )
         }
     }
 }

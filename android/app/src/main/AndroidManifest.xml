@@ -39,9 +39,12 @@
             </intent-filter>
         </activity>
 
-        <!-- TODO v2 session 2: re-enable when PixoraWallpaperService is ported from .kt.legacy
-<service
-            android:name=".PixoraWallpaperService"
+        <!-- Live wallpaper service — plays cacheDir/current_live.mp4 looped.
+             Lives in a separate :wallpaper process so future GL/Canvas
+             renderers can be added without sharing a Surface with MediaPlayer
+             (see memory tech_wallpaper_surface_canvas_video). -->
+        <service
+            android:name=".PixoraLiveWallpaperService"
             android:exported="true"
             android:process=":wallpaper"
             android:label="@string/wallpaper_label"
@@ -53,7 +56,6 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/live_wallpaper"/>
         </service>
--->
 
         <!-- TODO v2 session 2: re-enable when gl.ShaderWallpaperService is ported from .kt.legacy
 <service
