@@ -29,12 +29,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,6 +53,7 @@ import com.orbix.pixora.ui.components.EditorialHeroBanner
 import com.orbix.pixora.ui.components.Gem
 import com.orbix.pixora.ui.components.GemChip
 import com.orbix.pixora.ui.components.HeartButton
+import com.orbix.pixora.ui.components.HeroCarousel
 import com.orbix.pixora.ui.components.PixoraAppBar
 import com.orbix.pixora.ui.components.ShimmerImage
 import com.orbix.pixora.ui.theme.PixoraColors
@@ -107,31 +106,18 @@ fun WallpapersScreen(
                 state.loading && state.wallpapers.isEmpty() -> LoadingState()
                 state.errorMsg != null && state.wallpapers.isEmpty() -> ErrorState(state.errorMsg!!)
                 else -> {
-                    // Hero cover rotates every 8s through a random pool —
-                    // prefers featured wallpapers, falls back to all.
-                    val pool = remember(state.wallpapers) {
+                    // Hero pool — featured wallpapers (fallback to full set
+                    // when fewer than 3 featured exist). HeroCarousel handles
+                    // auto-advance + manual swipe internally.
+                    val heroPool = remember(state.wallpapers) {
                         val featured = state.wallpapers.filter { it.featured }
-                        if (featured.size >= 3) featured else state.wallpapers
-                    }
-                    var coverIdx by remember(pool) { mutableStateOf(0) }
-                    val cover = pool.getOrNull(coverIdx) ?: pool.firstOrNull()
-
-                    LaunchedEffect(pool) {
-                        if (pool.size < 2) return@LaunchedEffect
-                        while (true) {
-                            delay(8_000)
-                            // Pick a different index than the current one
-                            var next = (0 until pool.size).random()
-                            if (next == coverIdx && pool.size > 1) {
-                                next = (next + 1) % pool.size
-                            }
-                            coverIdx = next
-                        }
+                        val pool = if (featured.size >= 3) featured else state.wallpapers
+                        pool.take(8)  // cap so we don't render 280 dots
                     }
 
                     WallpapersGridWithHero(
                         items = filtered,
-                        cover = cover,
+                        heroPool = heroPool,
                         selectedCategory = selectedCategory,
                         favoriteIds = favoriteIds,
                         onSelectCategory = { cat ->
@@ -143,10 +129,10 @@ fun WallpapersScreen(
                             onChipExplore(cat, firstInCat?.id)
                         },
                         onWallpaperClick = onWallpaperClick,
-                        onExploreAll = { onChipExplore(null, cover?.id) },
+                        onExploreAll = { onChipExplore(null, heroPool.firstOrNull()?.id) },
                         onToggleFavorite = viewModel::toggleFavorite,
                     )
-                    if (filtered.isEmpty() && cover != null) {
+                    if (filtered.isEmpty()) {
                         Text(
                             text = "Sin piezas en esta categoría",
                             style = MaterialTheme.typography.bodyMedium.copy(color = PixoraColors.TextSecondary),
@@ -224,7 +210,7 @@ private fun CategoryChipsRow(selected: String?, onSelect: (String?) -> Unit) {
 @Composable
 private fun WallpapersGridWithHero(
     items: List<Wallpaper>,
-    cover: Wallpaper?,
+    heroPool: List<Wallpaper>,
     selectedCategory: String?,
     favoriteIds: Set<String>,
     onSelectCategory: (String?) -> Unit,
@@ -239,23 +225,36 @@ private fun WallpapersGridWithHero(
         verticalArrangement = Arrangement.spacedBy(14.dp),
         modifier = Modifier.fillMaxSize(),
     ) {
-        // Hero banner — full-width row at top
-        if (cover != null) {
+        // Hero carousel — full-width row at top. User can swipe manually
+        // or let auto-advance every 8s show the next cover.
+        if (heroPool.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                val (word1, word2) = splitTitle(cover.name)
-                EditorialHeroBanner(
-                    imageUrl = cover.imageUrl,
-                    titleWord1 = word1,
-                    titleWord2 = word2,
-                    volumeLabel = "VOL XII · ${"%03d".format(items.size)}",
-                    blurbText = "Lo mejor de la colección, escogido por nosotros",
-                    onCardTap = { onWallpaperClick(cover.id) },
-                    onExploreTap = onExploreAll,
-                )
+                HeroCarousel(
+                    items = heroPool,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(4f / 5f),
+                ) { cover ->
+                    val (word1, word2) = splitTitle(cover.name)
+                    EditorialHeroBanner(
+                        imageUrl = cover.imageUrl,
+                        titleWord1 = word1,
+                        titleWord2 = word2,
+                        volumeLabel = "VOL XII · ${"%03d".format(items.size)}",
+                        blurbText = "Lo mejor de la colección, escogido por nosotros",
+                        onCardTap = { onWallpaperClick(cover.id) },
+                        onExploreTap = onExploreAll,
+                    )
+                }
             }
         }
 
-        // Category chips row — full-width row below hero
+        // Big "EXPLORADOR" entry below the hero
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            ExplorerEntryButton(onClick = onExploreAll)
+        }
+
+        // Category chips row
         item(span = { GridItemSpan(maxLineSpan) }) {
             CategoryChipsRow(
                 selected = selectedCategory,
@@ -284,6 +283,52 @@ private fun splitTitle(title: String): Pair<String, String> {
     val space = title.indexOf(' ')
     return if (space > 0) title.substring(0, space) to title.substring(space + 1)
     else title to ""
+}
+
+@Composable
+private fun ExplorerEntryButton(onClick: () -> Unit) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(PixoraColors.GoldBright)
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = "▶",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = PixoraColors.Ink,
+                    fontWeight = FontWeight.W900,
+                ),
+            )
+            Text(
+                text = "EXPLORADOR HUD",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    color = PixoraColors.Ink,
+                    fontFamily = PixoraFonts.JetBrainsMono,
+                    fontWeight = FontWeight.W900,
+                ),
+            )
+            Text(
+                text = "·",
+                style = MaterialTheme.typography.labelLarge.copy(color = PixoraColors.Ink),
+            )
+            Text(
+                text = "todas las categorías",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = PixoraColors.Ink.copy(alpha = 0.7f),
+                    fontFamily = PixoraFonts.JetBrainsMono,
+                ),
+            )
+        }
+    }
 }
 
 /**

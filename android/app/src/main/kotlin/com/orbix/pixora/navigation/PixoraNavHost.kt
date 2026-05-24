@@ -169,7 +169,13 @@ fun PixoraNavHost() {
                     onBack = { navController.popBackStack() },
                 )
             }
-            composable(PixoraDestination.ThreeD.route) { ThreeDScreen() }
+            composable(PixoraDestination.ThreeD.route) {
+                ThreeDScreen(
+                    onWallpaperClick = { id ->
+                        navController.navigate(PixoraDestination.wallpaperDetail(id))
+                    },
+                )
+            }
             composable(PixoraDestination.Cultura.route) { CulturaScreen() }
             composable(PixoraDestination.Eventos.route) { EventosScreen() }
             composable(PixoraDestination.Aura.route) { AuraScreen() }

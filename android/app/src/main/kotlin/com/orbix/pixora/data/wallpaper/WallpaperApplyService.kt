@@ -4,10 +4,7 @@ import android.app.WallpaperManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.os.Build
-import android.util.DisplayMetrics
-import android.view.WindowManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,62 +35,59 @@ class WallpaperApplyService @Inject constructor(
 ) {
 
     /**
-     * @param isPanoramic when true, scale the bitmap to screen height and
-     *  pass NO crop hint so Android keeps the full width — then home swipe
-     *  scrolls through the wallpaper (Android auto-handles the offset).
-     *  When false (or unknown), apply normally and let Android center-crop.
+     * Apply a wallpaper from URL.
+     *
+     * Per doc maestro §24.2-24.3 (4+ hours of v1 debug): Samsung One UI's
+     * native panoramic scroll is reserved for ImageWallpaper set via
+     * `WallpaperManager.setBitmap()`. The KEY insight is:
+     *  - DO NOT scale the bitmap manually (Samsung scales the source).
+     *  - DO NOT pass a visibleCropHint (overrides Samsung's auto-detection).
+     *  - DO call `suggestDesiredDimensions` BEFORE setBitmap so the
+     *    launcher knows it's a wide wallpaper.
+     *  - DO apply panoramic with FLAG_SYSTEM only (no FLAG_LOCK — lock
+     *    screen doesn't scroll).
+     *
+     * Aspect ratio must be >= 3:1 for Samsung to detect it as panoramic.
+     * Pixora's official panoramic spec is 4192x1024 (4.09:1).
      */
     suspend fun applyFromUrl(url: String, isPanoramic: Boolean = false): ApplyResult =
         withContext(Dispatchers.IO) {
             runCatching {
-                val raw = downloadBitmap(url)
+                val bitmap = downloadBitmap(url)
                     ?: return@runCatching ApplyResult.Error("No se pudo decodificar la imagen")
 
                 val wm = WallpaperManager.getInstance(context)
-                val finalBitmap = if (isPanoramic) scaleToScreenHeight(raw) else raw
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    val flags = WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK
-                    val visibleCrop: Rect? = if (isPanoramic) {
-                        // Initial visible portion = leftmost screen-width slice;
-                        // Android scrolls right as the user swipes home pages.
-                        val (sw, _) = screenDims()
-                        Rect(0, 0, sw, finalBitmap.height)
-                    } else null
-                    wm.setBitmap(finalBitmap, visibleCrop, true, flags)
-                } else {
+                if (isPanoramic) {
+                    // Hint to Samsung's launcher that this wallpaper is
+                    // wider than screen so home swipe scrolls it.
                     @Suppress("DEPRECATION")
-                    wm.setBitmap(finalBitmap)
+                    runCatching {
+                        wm.suggestDesiredDimensions(bitmap.width, bitmap.height)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        // FLAG_SYSTEM only — lock screen doesn't scroll, applying
+                        // FLAG_LOCK to a panoramic crops it weirdly on the lockscreen.
+                        wm.setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        wm.setBitmap(bitmap)
+                    }
+                } else {
+                    // Regular static wallpaper — apply to both screens.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        val flags = WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK
+                        wm.setBitmap(bitmap, null, true, flags)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        wm.setBitmap(bitmap)
+                    }
                 }
                 ApplyResult.Success
             }.getOrElse { e ->
                 ApplyResult.Error(e.message ?: "Error desconocido al aplicar")
             }
         }
-
-    /**
-     * Scale panoramic bitmap so its height matches screen height. Width
-     * scales proportionally — staying wider than screen so swipe scrolls
-     * the wallpaper. Avoids passing a 4192x1024 image when the device is
-     * only ~1080x2400 (massive memory waste + WallpaperManager rescales
-     * anyway).
-     */
-    private fun scaleToScreenHeight(src: Bitmap): Bitmap {
-        val (_, sh) = screenDims()
-        if (src.height == sh) return src
-        val ratio = sh.toFloat() / src.height.toFloat()
-        val newW = (src.width * ratio).toInt().coerceAtLeast(1)
-        return Bitmap.createScaledBitmap(src, newW, sh, true)
-    }
-
-    /** Returns (width, height) in pixels of the default display. */
-    private fun screenDims(): Pair<Int, Int> {
-        val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val metrics = DisplayMetrics()
-        @Suppress("DEPRECATION")
-        wm.defaultDisplay.getRealMetrics(metrics)
-        return metrics.widthPixels to metrics.heightPixels
-    }
 
     private fun downloadBitmap(url: String): Bitmap? {
         val conn = (URL(url).openConnection() as HttpURLConnection).apply {

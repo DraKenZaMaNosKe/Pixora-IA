@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
@@ -46,7 +47,9 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.orbix.pixora.data.models.LiveWallpaper
+import com.orbix.pixora.ui.components.HeroCarousel
 import com.orbix.pixora.ui.components.ShimmerImage
+import androidx.compose.runtime.remember
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,6 +94,11 @@ fun LiveScreen(
 
 @Composable
 private fun LiveGrid(items: List<LiveWallpaper>, onClick: (String) -> Unit) {
+    val heroPool = remember(items) {
+        // Prefer NEW badges, then top 5 by sortOrder; cap at 6.
+        val news = items.filter { it.badge?.uppercase() == "NEW" }
+        (if (news.size >= 3) news else items).take(6)
+    }
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp),
@@ -98,7 +106,103 @@ private fun LiveGrid(items: List<LiveWallpaper>, onClick: (String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(14.dp),
         modifier = Modifier.fillMaxSize(),
     ) {
+        if (heroPool.isNotEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                HeroCarousel(
+                    items = heroPool,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 11f),
+                ) { hero ->
+                    LiveHeroCard(hero) { onClick(hero.id) }
+                }
+            }
+        }
         items(items, key = { it.id }) { item -> LiveProCard(item) { onClick(item.id) } }
+    }
+}
+
+/**
+ * Hero-sized version of LiveProCard — wider aspect ratio (16:11) so the
+ * pulsing LIVE badge + title + GET CTA breathe more. Reuses the same
+ * visual language as the cards but oriented landscape.
+ */
+@Composable
+private fun LiveHeroCard(item: LiveWallpaper, onClick: () -> Unit) {
+    val glow = runCatching { Color(android.graphics.Color.parseColor(item.glowColor)) }
+        .getOrDefault(PixoraColors.AuroraMagenta)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 11f)
+            .clip(RoundedCornerShape(16.dp))
+            .background(PixoraColors.Surface)
+            .clickable { onClick() },
+    ) {
+        ShimmerImage(
+            url = item.previewUrl,
+            contentDescription = item.name,
+            modifier = Modifier.fillMaxSize(),
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+                .align(Alignment.BottomCenter)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, Color(0xEE000000)),
+                    ),
+                ),
+        )
+        // Bottom: title + category + GET CTA
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp),
+        ) {
+            Text(
+                text = "// PIXORA · EN MOVIMIENTO",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = glow,
+                    fontFamily = PixoraFonts.JetBrainsMono,
+                    fontWeight = FontWeight.W700,
+                ),
+            )
+            Text(
+                text = item.name,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = Color.White,
+                    fontWeight = FontWeight.W900,
+                ),
+                maxLines = 2,
+            )
+        }
+        // LIVE pill top-left
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(12.dp)
+                .clip(RoundedCornerShape(50))
+                .background(Color(0xCC000000))
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFE53935)),
+            )
+            Spacer(Modifier.size(6.dp))
+            Text(
+                text = "LIVE",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = Color.White,
+                    fontFamily = PixoraFonts.JetBrainsMono,
+                    fontWeight = FontWeight.W800,
+                ),
+            )
+        }
     }
 }
 

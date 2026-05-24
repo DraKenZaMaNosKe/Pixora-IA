@@ -34,7 +34,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -88,20 +92,35 @@ fun WallpaperExplorerHud(
     val detailState by detailViewModel.state.collectAsStateWithLifecycle()
     val snackHost = remember { SnackbarHostState() }
     val activity = LocalContext.current as? Activity
+    val scope = rememberCoroutineScope()
 
-    val items = remember(state.wallpapers, categoryFilter) {
-        if (categoryFilter == null) state.wallpapers
+    // Active category is now mutable so chip taps swap the pool live.
+    var activeCategory by remember(categoryFilter) { mutableStateOf(categoryFilter) }
+
+    val items = remember(state.wallpapers, activeCategory) {
+        if (activeCategory == null) state.wallpapers
         else state.wallpapers.filter {
-            it.category.equals(categoryFilter, ignoreCase = true) ||
-            it.tags.any { tag -> tag.equals(categoryFilter, ignoreCase = true) }
+            it.category.equals(activeCategory, ignoreCase = true) ||
+            it.tags.any { tag -> tag.equals(activeCategory, ignoreCase = true) }
         }
     }
 
-    val initialPage = remember(items, initialId) {
-        items.indexOfFirst { it.id == initialId }.coerceAtLeast(0)
+    val initialPage = remember(items, initialId, activeCategory) {
+        // Only honor initialId on the first category (categoryFilter == activeCategory).
+        // After user taps a chip, jump to page 0 of the new filtered list.
+        if (activeCategory == categoryFilter) {
+            items.indexOfFirst { it.id == initialId }.coerceAtLeast(0)
+        } else 0
     }
 
     val pagerState = rememberPagerState(initialPage = initialPage) { items.size }
+
+    // Whenever the category changes mid-session, animate the pager back to 0.
+    LaunchedEffect(activeCategory) {
+        if (pagerState.currentPage != 0 && items.isNotEmpty()) {
+            scope.launch { pagerState.animateScrollToPage(0) }
+        }
+    }
 
     LaunchedEffect(detailState.event) {
         when (val e = detailState.event) {
@@ -141,7 +160,10 @@ fun WallpaperExplorerHud(
                 currentIndex = pagerState.currentPage + 1,
                 total = items.size,
             )
-            HudChipsRowStatic(active = categoryFilter)
+            HudChipsRow(
+                active = activeCategory,
+                onSelect = { cat -> activeCategory = cat },
+            )
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
@@ -249,23 +271,39 @@ private fun FlickerDot() {
 }
 
 @Composable
-private fun HudChipsRowStatic(active: String?) {
-    val labels = listOf("TRENDING", "NEW", "ARTE", "MITO", "ANIME", "GAMING", "PANO", "DARK")
+private fun HudChipsRow(active: String?, onSelect: (String?) -> Unit) {
+    // (label, filter value) — null = ALL.
+    val chips = listOf<Pair<String, String?>>(
+        "ALL" to null,
+        "TRENDING" to "trending",
+        "NEW" to "new",
+        "PANORAMIC" to "PANORAMIC",
+        "ANIME" to "ANIME",
+        "GAMING" to "GAMING",
+        "ARTE" to "arte",
+        "MITO" to "mitologia",
+        "CALENDAR" to "CALENDAR",
+        "NATURE" to "NATURE",
+        "FANTASY" to "FANTASY",
+        "DARK" to "DARK",
+    )
     LazyRow(
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(0.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        items(labels) { lbl ->
-            val on = lbl.equals(active, ignoreCase = true)
+        items(chips.size) { i ->
+            val (label, value) = chips[i]
+            val on = (value ?: "ALL").equals(active ?: "ALL", ignoreCase = true)
             Box(
                 modifier = Modifier
                     .background(if (on) HudCyan else Color.Transparent)
                     .border(0.8.dp, if (on) HudCyan else HudCyanFaint)
+                    .clickable { onSelect(value) }
                     .padding(horizontal = 10.dp, vertical = 5.dp),
             ) {
                 Text(
-                    text = lbl,
+                    text = label,
                     style = MaterialTheme.typography.labelSmall.copy(
                         color = if (on) HudInk else HudCyan.copy(alpha = 0.55f),
                         fontFamily = PixoraFonts.JetBrainsMono,
@@ -278,12 +316,6 @@ private fun HudChipsRowStatic(active: String?) {
     HudHairline()
 }
 
-private fun androidx.compose.foundation.lazy.LazyListScope.items(
-    items: List<String>,
-    itemContent: @Composable (String) -> Unit,
-) {
-    items(count = items.size) { i -> itemContent(items[i]) }
-}
 
 @Composable
 private fun TargetFrame(w: Wallpaper) {
