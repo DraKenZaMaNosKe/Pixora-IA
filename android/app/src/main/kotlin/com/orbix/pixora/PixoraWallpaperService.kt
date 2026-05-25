@@ -52,6 +52,15 @@ class PixoraWallpaperService : WallpaperService() {
         @Volatile private var lastDecodedSurfaceW: Int = 0
         @Volatile private var lastDecodedSurfaceH: Int = 0
 
+        // Scaling idempotency guard — same idea for createScaledBitmap(). The
+        // versioning counter above protects against applying stale results, but
+        // the underlying Bitmap.createScaledBitmap() work (up to ~44 MB alloc
+        // for a 9433x2340 panoramic) still runs N times per activation. This
+        // guard short-circuits BEFORE the Thread spawns when nothing changed.
+        @Volatile private var lastScaledForPath: String? = null
+        @Volatile private var lastScaledSurfaceW: Int = 0
+        @Volatile private var lastScaledSurfaceH: Int = 0
+
         // Panoramic scroll
         private var isPanoramic = false
         @Volatile private var panoramicBitmap: Bitmap? = null
@@ -993,6 +1002,22 @@ class PixoraWallpaperService : WallpaperService() {
             val bmp = wallpaperBitmap ?: return
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
+            // Idempotency guard: if the last successful scaling was for this exact
+            // path + surface dims AND the resulting bitmap is still alive, skip the
+            // entire Thread spawn + Bitmap.createScaledBitmap allocation.
+            val currentPath = lastDecodedPath
+            val existingScaled = scaledBitmap
+            val existingPan = panoramicBitmap
+            if (currentPath != null &&
+                currentPath == lastScaledForPath &&
+                surfaceWidth == lastScaledSurfaceW &&
+                surfaceHeight == lastScaledSurfaceH &&
+                ((existingScaled != null && !existingScaled.isRecycled) ||
+                 (existingPan != null && !existingPan.isRecycled))) {
+                Log.d(TAG, "createScaledBitmap: already current ($currentPath @ ${surfaceWidth}x${surfaceHeight}), skipping")
+                return
+            }
+
             // Increment version — any Thread with an older version will discard its result
             val myVersion = ++scaleVersion
 
@@ -1028,6 +1053,11 @@ class PixoraWallpaperService : WallpaperService() {
                                 oldScaled?.recycle()
                                 oldPan?.recycle()
                             }
+                            // Record successful scaling so the guard at the top can
+                            // short-circuit subsequent identical calls.
+                            lastScaledForPath = currentPath
+                            lastScaledSurfaceW = targetW
+                            lastScaledSurfaceH = targetH
                             bmp.recycle()
                             Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - targetW}px)")
                         } else {
@@ -1062,6 +1092,10 @@ class PixoraWallpaperService : WallpaperService() {
                                 if (oldScaled !== scaled) oldScaled?.recycle()
                                 if (oldPan !== scaled) oldPan?.recycle()
                             }
+                            // Record successful scaling for the idempotency guard.
+                            lastScaledForPath = currentPath
+                            lastScaledSurfaceW = targetW
+                            lastScaledSurfaceH = targetH
                             // Don't recycle bmp if Android reused it as the scaled result
                             // (createScaledBitmap returns the same object when dims match)
                             if (bmp !== scaled && bmp !== cropped) bmp.recycle()
