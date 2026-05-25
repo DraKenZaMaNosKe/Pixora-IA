@@ -73,6 +73,18 @@
         </service>
 -->
 
+        <!-- FileProvider for sharing temp wallpaper bitmaps with Samsung's
+             native crop+set picker (getCropAndSetWallpaperIntent). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-6734758230109098~5773436794"/>

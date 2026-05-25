@@ -1,5 +1,6 @@
 package com.orbix.pixora.data.wallpaper
 
+import android.app.Activity
 import android.app.WallpaperManager
 import android.content.Context
 import android.graphics.Bitmap
@@ -14,19 +15,36 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Applies a static wallpaper from a remote URL to the system.
+ * Applies a wallpaper from URL — port of v1's setWallpaper (Pixora
+ * Flutter branch `play-store-estable`, MainActivity.kt L690-718 +
+ * static_wallpaper_installer.dart).
  *
- * v1 went through a Flutter MethodChannel → MainActivity → WallpaperManager
- * trip. v2 is one Kotlin file: download the bitmap, hand it to
- * WallpaperManager. No service, no IPC, no Surface conflict (those concerns
- * only matter for LIVE wallpapers; static API is synchronous and trivial).
+ * v1 pattern (battle-tested for months in production):
+ *  1. Download bitmap with original extension (webp/jpg/png).
+ *  2. `BitmapFactory.decodeFile/decodeStream` — Android handles all
+ *     three formats natively.
+ *  3. `wm.setBitmap(bitmap, null, true, flag)` direct, NO picker,
+ *     NO FileProvider, NO suggestDesiredDimensions, NO setStream.
+ *  4. Samsung One UI's compositor auto-detects panoramic by aspect
+ *     ratio >= 3:1 and enables home-page horizontal scroll.
  *
- * On Android N+ we apply to both HOME and LOCK in a single call. Older
- * devices only have the system wallpaper slot — same call, same result.
+ * Key insight (the bit I missed earlier): panoramic must be applied
+ * to FLAG_SYSTEM only — NOT FLAG_LOCK too. Applying a wide wallpaper
+ * to the lock screen forces Samsung to crop to 9:16 which kills the
+ * panoramic dimensions in the system wallpaper too.
+ *
+ * Non-panoramic wallpapers go to both screens as before.
  */
 sealed class ApplyResult {
     data object Success : ApplyResult()
     data class Error(val message: String) : ApplyResult()
+}
+
+/** Which surface to apply the wallpaper to — matches v1's target int. */
+enum class ApplyTarget(val flag: Int) {
+    Home(WallpaperManager.FLAG_SYSTEM),
+    Lock(WallpaperManager.FLAG_LOCK),
+    Both(WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK),
 }
 
 @Singleton
@@ -34,60 +52,32 @@ class WallpaperApplyService @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
 
-    /**
-     * Apply a wallpaper from URL.
-     *
-     * Per doc maestro §24.2-24.3 (4+ hours of v1 debug): Samsung One UI's
-     * native panoramic scroll is reserved for ImageWallpaper set via
-     * `WallpaperManager.setBitmap()`. The KEY insight is:
-     *  - DO NOT scale the bitmap manually (Samsung scales the source).
-     *  - DO NOT pass a visibleCropHint (overrides Samsung's auto-detection).
-     *  - DO call `suggestDesiredDimensions` BEFORE setBitmap so the
-     *    launcher knows it's a wide wallpaper.
-     *  - DO apply panoramic with FLAG_SYSTEM only (no FLAG_LOCK — lock
-     *    screen doesn't scroll).
-     *
-     * Aspect ratio must be >= 3:1 for Samsung to detect it as panoramic.
-     * Pixora's official panoramic spec is 4192x1024 (4.09:1).
-     */
-    suspend fun applyFromUrl(url: String, isPanoramic: Boolean = false): ApplyResult =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                val bitmap = downloadBitmap(url)
-                    ?: return@runCatching ApplyResult.Error("No se pudo decodificar la imagen")
+    @Suppress("UNUSED_PARAMETER")
+    suspend fun applyFromUrl(
+        url: String,
+        isPanoramic: Boolean = false,
+        activity: Activity? = null,
+        target: ApplyTarget = ApplyTarget.Both,
+    ): ApplyResult = withContext(Dispatchers.IO) {
+        runCatching {
+            val bitmap = downloadBitmap(url)
+                ?: return@runCatching ApplyResult.Error("No se pudo decodificar la imagen")
+            val ratio = bitmap.width.toFloat() / bitmap.height
+            println("[WallpaperApplyService] apply: ${bitmap.width}x${bitmap.height} ratio ${"%.2f".format(ratio)} target=$target panoramic=$isPanoramic")
 
-                val wm = WallpaperManager.getInstance(context)
-
-                if (isPanoramic) {
-                    // Hint to Samsung's launcher that this wallpaper is
-                    // wider than screen so home swipe scrolls it.
-                    @Suppress("DEPRECATION")
-                    runCatching {
-                        wm.suggestDesiredDimensions(bitmap.width, bitmap.height)
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        // FLAG_SYSTEM only — lock screen doesn't scroll, applying
-                        // FLAG_LOCK to a panoramic crops it weirdly on the lockscreen.
-                        wm.setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        wm.setBitmap(bitmap)
-                    }
-                } else {
-                    // Regular static wallpaper — apply to both screens.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        val flags = WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK
-                        wm.setBitmap(bitmap, null, true, flags)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        wm.setBitmap(bitmap)
-                    }
-                }
-                ApplyResult.Success
-            }.getOrElse { e ->
-                ApplyResult.Error(e.message ?: "Error desconocido al aplicar")
+            val wm = WallpaperManager.getInstance(context)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                wm.setBitmap(bitmap, null, true, target.flag)
+            } else {
+                @Suppress("DEPRECATION")
+                wm.setBitmap(bitmap)
             }
+            bitmap.recycle()
+            ApplyResult.Success
+        }.getOrElse { e ->
+            ApplyResult.Error(e.message ?: "Error desconocido al aplicar")
         }
+    }
 
     private fun downloadBitmap(url: String): Bitmap? {
         val conn = (URL(url).openConnection() as HttpURLConnection).apply {

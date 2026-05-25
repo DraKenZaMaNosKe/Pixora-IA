@@ -2,7 +2,15 @@ package com.orbix.pixora.features.wallpapers
 
 import android.app.Activity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.orbix.pixora.data.wallpaper.ApplyTarget
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -60,6 +69,7 @@ import com.orbix.pixora.ui.theme.PixoraFonts
  * SEPARATE flow triggered by tapping chips, not cards — see
  * WallpaperExplorerHud for that.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WallpaperDetailScreen(
     @Suppress("UNUSED_PARAMETER") wallpaperId: String,
@@ -70,6 +80,7 @@ fun WallpaperDetailScreen(
     val snackHost = remember { SnackbarHostState() }
     val context = LocalContext.current
     val activity = context as? Activity
+    var showTargetSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.event) {
         when (val e = state.event) {
@@ -103,16 +114,140 @@ fun WallpaperDetailScreen(
                 else -> DetailContent(
                     state = state,
                     onBack = onBack,
-                    onApply = { activity?.let { viewModel.apply(it) } },
+                    onApply = { showTargetSheet = true },
                     context = context,
                 )
             }
-            // Full-screen download manager overlay sits on top of everything
             DownloadManagerOverlay(
                 stage = state.downloadStage,
                 errorMessage = state.downloadError,
             )
         }
+    }
+
+    if (showTargetSheet) {
+        ApplyTargetSheet(
+            isPanoramic = state.wallpaper?.isPanoramic == true,
+            onPick = { target ->
+                showTargetSheet = false
+                activity?.let { viewModel.apply(it, target) }
+            },
+            onDismiss = { showTargetSheet = false },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ApplyTargetSheet(
+    isPanoramic: Boolean,
+    onPick: (ApplyTarget) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = PixoraColors.Ink2,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = "// APLICAR EN",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = PixoraColors.GoldBright,
+                    fontFamily = PixoraFonts.JetBrainsMono,
+                    fontWeight = FontWeight.W700,
+                ),
+            )
+            Text(
+                text = if (isPanoramic) "Para que el scroll panorámico funcione, escoge solo Pantalla principal"
+                       else "¿Dónde quieres aplicar este wallpaper?",
+                style = MaterialTheme.typography.bodyMedium.copy(color = PixoraColors.TextSecondary),
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+            TargetOption(
+                title = "Pantalla principal",
+                subtitle = if (isPanoramic) "Recomendado para panorámicos · scroll horizontal nativo" else "Solo el home",
+                recommended = isPanoramic,
+                onClick = { onPick(ApplyTarget.Home) },
+            )
+            TargetOption(
+                title = "Pantalla de bloqueo",
+                subtitle = "Solo el lockscreen",
+                recommended = false,
+                onClick = { onPick(ApplyTarget.Lock) },
+            )
+            TargetOption(
+                title = "Ambas pantallas",
+                subtitle = if (isPanoramic) "El scroll panorámico puede no funcionar" else "Home + lockscreen",
+                recommended = !isPanoramic,
+                onClick = { onPick(ApplyTarget.Both) },
+            )
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun TargetOption(
+    title: String,
+    subtitle: String,
+    recommended: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = PixoraColors.TextPrimary,
+                        fontWeight = FontWeight.W700,
+                    ),
+                )
+                if (recommended) {
+                    Spacer(Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(PixoraColors.GoldBright)
+                            .padding(horizontal = 6.dp, vertical = 1.dp),
+                    ) {
+                        Text(
+                            text = "RECOMENDADO",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = PixoraColors.Ink,
+                                fontFamily = PixoraFonts.JetBrainsMono,
+                                fontWeight = FontWeight.W900,
+                            ),
+                        )
+                    }
+                }
+            }
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = PixoraColors.TextSecondary,
+                    fontFamily = PixoraFonts.JetBrainsMono,
+                ),
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
+        Text(
+            text = "›",
+            style = MaterialTheme.typography.titleLarge.copy(color = PixoraColors.GoldBright),
+        )
     }
 }
 

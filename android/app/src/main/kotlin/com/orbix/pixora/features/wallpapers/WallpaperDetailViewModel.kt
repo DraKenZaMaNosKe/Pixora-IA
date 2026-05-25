@@ -10,6 +10,7 @@ import com.orbix.pixora.data.ads.AdService
 import com.orbix.pixora.data.credits.CreditService
 import com.orbix.pixora.data.stats.WallpaperStatsService
 import com.orbix.pixora.data.wallpaper.ApplyResult
+import com.orbix.pixora.data.wallpaper.ApplyTarget
 import com.orbix.pixora.data.wallpaper.WallpaperApplyService
 import com.orbix.pixora.ui.components.DownloadStage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -69,7 +70,7 @@ class WallpaperDetailViewModel @Inject constructor(
         }
     }
 
-    fun apply(activity: Activity) {
+    fun apply(activity: Activity, target: ApplyTarget = ApplyTarget.Both) {
         val w = _state.value.wallpaper ?: return
         if (_state.value.applying) return
         adService.showInterstitial(activity) { awardedCredit ->
@@ -88,7 +89,12 @@ class WallpaperDetailViewModel @Inject constructor(
                 kotlinx.coroutines.delay(450)
                 _state.value = _state.value.copy(downloadStage = DownloadStage.Applying)
 
-                val result = applyService.applyFromUrl(w.imageUrl, isPanoramic = w.isPanoramic)
+                val result = applyService.applyFromUrl(
+                    url = w.imageUrl,
+                    isPanoramic = w.isPanoramic,
+                    activity = activity,
+                    target = target,
+                )
                 when (result) {
                     is ApplyResult.Success -> {
                         if (awardedCredit) creditService.earnFromAd()
