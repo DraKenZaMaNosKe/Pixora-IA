@@ -44,6 +44,14 @@ class PixoraWallpaperService : WallpaperService() {
         // Bitmap scaling version counter — prevents stale Thread results
         @Volatile private var scaleVersion = 0
 
+        // Decode idempotency guard — skip redundant BitmapFactory.decodeFile when
+        // path + surface dims haven't changed since last successful decode. Each
+        // engine activation fires loadWallpaperImage() up to 3 times (onSurfaceChanged
+        // + onVisibilityChanged + debounced prefs reload), all with identical inputs.
+        @Volatile private var lastDecodedPath: String? = null
+        @Volatile private var lastDecodedSurfaceW: Int = 0
+        @Volatile private var lastDecodedSurfaceH: Int = 0
+
         // Panoramic scroll
         private var isPanoramic = false
         @Volatile private var panoramicBitmap: Bitmap? = null
@@ -720,6 +728,28 @@ class PixoraWallpaperService : WallpaperService() {
                         stopVideoWallpaper()
                         // (shaders use separate service)
 
+                        // Skip bitmap decode if surface isn't ready yet — onSurfaceChanged
+                        // will call us back once it knows the real dimensions. Saves up to
+                        // two redundant decodes per engine activation (onCreate fires before
+                        // the launcher reports the surface).
+                        if (surfaceWidth <= 0 || surfaceHeight <= 0) {
+                            Log.d(TAG, "loadWallpaperImage: surface not ready (${surfaceWidth}x${surfaceHeight}), deferring decode")
+                            return
+                        }
+
+                        // Idempotency guard: if path + surface dims match the last successful
+                        // decode AND the bitmap is still alive, skip the decode entirely.
+                        // Stops the 2nd/3rd redundant decode from onVisibilityChanged and the
+                        // debounced prefs reload.
+                        val existing = wallpaperBitmap
+                        if (path == lastDecodedPath &&
+                            surfaceWidth == lastDecodedSurfaceW &&
+                            surfaceHeight == lastDecodedSurfaceH &&
+                            existing != null && !existing.isRecycled) {
+                            Log.d(TAG, "loadWallpaperImage: bitmap already current ($path @ ${surfaceWidth}x${surfaceHeight}), skipping decode")
+                            return
+                        }
+
                         val opts = BitmapFactory.Options()
                         opts.inJustDecodeBounds = true
                         BitmapFactory.decodeFile(path, opts)
@@ -730,10 +760,7 @@ class PixoraWallpaperService : WallpaperService() {
                             return
                         }
 
-                        // Use actual surface height, or screen height as fallback
-                        val targetH = if (surfaceHeight > 0) surfaceHeight else
-                            resources.displayMetrics.heightPixels
-                        opts.inSampleSize = calculateInSampleSize(opts, opts.outWidth, targetH)
+                        opts.inSampleSize = calculateInSampleSize(opts, opts.outWidth, surfaceHeight)
                         opts.inJustDecodeBounds = false
                         opts.inPreferredConfig = Bitmap.Config.RGB_565
 
@@ -746,7 +773,16 @@ class PixoraWallpaperService : WallpaperService() {
                         }
 
                         if (decoded != null) {
+                            // Recycle previous bitmap if it was replaced without going through
+                            // createScaledBitmap's reassignment path (e.g. consecutive reloads
+                            // before any scale completes).
+                            wallpaperBitmap?.takeIf { it !== decoded && !it.isRecycled }?.recycle()
                             wallpaperBitmap = decoded
+                            // Record successful decode so the idempotency guard above can
+                            // short-circuit subsequent identical loadWallpaperImage() calls.
+                            lastDecodedPath = path
+                            lastDecodedSurfaceW = surfaceWidth
+                            lastDecodedSurfaceH = surfaceHeight
                             Log.d(TAG, "Bitmap decoded OK: ${decoded.width}x${decoded.height} config=${decoded.config}")
                         } else {
                             Log.e(TAG, "Failed to decode bitmap: $path (sampleSize=${opts.inSampleSize})")
