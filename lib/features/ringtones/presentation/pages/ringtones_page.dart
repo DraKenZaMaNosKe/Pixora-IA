@@ -595,7 +595,11 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
   Widget _buildRecommendedRow(
       List<RingtoneTone> tones, List<RingtonePack> packs) {
     return SizedBox(
-      height: 86,
+      // 120, not 86 — _TapeMini content (top stripe + reels + title + duration
+      // + indicator + WallpaperStatsBar) is ~96-116px depending on whether the
+      // stats bar is in its 20px or 40px state. Previous 86 over-flowed by 23px
+      // on Samsung A15 (4 simultaneous warnings, one per visible card).
+      height: 120,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 14),
