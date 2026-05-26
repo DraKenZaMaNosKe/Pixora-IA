@@ -1,5 +1,6 @@
 package com.orbix.pixora
 
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
@@ -159,11 +160,43 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
                 .putExtra("clear_scene", true)
             applicationContext.sendBroadcast(notify)
 
+            // Force the :wallpaper process to respawn so the rotation lands
+            // instantly with a fresh Engine + Surface. The broadcast above is
+            // best-effort: if Android has suspended the Engine (OOM kill, low
+            // memory) the receiver may never fire and the user keeps seeing the
+            // previous wallpaper until the next foreground event. Killing the
+            // process guarantees Android re-binds the WallpaperService on the
+            // next paint cycle and the Engine reads the just-written prefs.
+            killWallpaperProcess()
+
             Log.d(TAG, "Wallpaper prefs updated: $path, glow=$glowColor")
             true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to set wallpaper: ${e.message}")
             false
+        }
+    }
+
+    /**
+     * Kill the ":wallpaper" process so Android respawns the WallpaperService
+     * with a fresh Engine that reads the just-written prefs. Same pattern as
+     * MainActivity.killWallpaperProcess() — duplicated here because Worker
+     * doesn't share Activity scope. Safe to call: only targets the wallpaper
+     * process by name, never the main app process.
+     */
+    private fun killWallpaperProcess() {
+        try {
+            val am = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return
+            val myPid = android.os.Process.myPid()
+            val target = "${applicationContext.packageName}:wallpaper"
+            am.runningAppProcesses?.forEach { proc ->
+                if (proc.processName == target && proc.pid != myPid) {
+                    Log.d(TAG, "Killing wallpaper process pid=${proc.pid} for instant rotation")
+                    android.os.Process.killProcess(proc.pid)
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "killWallpaperProcess: ${e.message}")
         }
     }
 
