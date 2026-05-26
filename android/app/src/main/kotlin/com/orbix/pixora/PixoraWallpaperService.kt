@@ -1002,24 +1002,31 @@ class PixoraWallpaperService : WallpaperService() {
             val bmp = wallpaperBitmap ?: return
             if (surfaceWidth <= 0 || surfaceHeight <= 0) return
 
-            // Idempotency guard: if the last successful scaling was for this exact
-            // path + surface dims AND the resulting bitmap is still alive, skip the
-            // entire Thread spawn + Bitmap.createScaledBitmap allocation.
+            // Idempotency guard: if a scaling for this exact path + surface dims
+            // has already been committed (either completed OR in-flight), skip
+            // the entire Thread spawn + Bitmap.createScaledBitmap allocation.
+            // Registration happens synchronously below, BEFORE Thread.spawn —
+            // that's what catches the 3-call burst from loadWallpaperImage in
+            // onSurfaceChanged + onVisibilityChanged + debounced prefs reload.
             val currentPath = lastDecodedPath
-            val existingScaled = scaledBitmap
-            val existingPan = panoramicBitmap
             if (currentPath != null &&
                 currentPath == lastScaledForPath &&
                 surfaceWidth == lastScaledSurfaceW &&
-                surfaceHeight == lastScaledSurfaceH &&
-                ((existingScaled != null && !existingScaled.isRecycled) ||
-                 (existingPan != null && !existingPan.isRecycled))) {
+                surfaceHeight == lastScaledSurfaceH) {
                 Log.d(TAG, "createScaledBitmap: already current ($currentPath @ ${surfaceWidth}x${surfaceHeight}), skipping")
                 return
             }
 
             // Increment version — any Thread with an older version will discard its result
             val myVersion = ++scaleVersion
+
+            // Register the in-flight scaling SYNCHRONOUSLY so subsequent burst
+            // calls hit the guard above. If this Thread eventually discards as
+            // stale or fails, a fresh loadWallpaperImage+createScaledBitmap will
+            // be triggered by a new path/dims change and overwrite these fields.
+            lastScaledForPath = currentPath
+            lastScaledSurfaceW = surfaceWidth
+            lastScaledSurfaceH = surfaceHeight
 
             // DON'T nullify scaledBitmap/panoramicBitmap here!
             // The old bitmap continues to be drawn until the new one is ready.
@@ -1053,11 +1060,7 @@ class PixoraWallpaperService : WallpaperService() {
                                 oldScaled?.recycle()
                                 oldPan?.recycle()
                             }
-                            // Record successful scaling so the guard at the top can
-                            // short-circuit subsequent identical calls.
-                            lastScaledForPath = currentPath
-                            lastScaledSurfaceW = targetW
-                            lastScaledSurfaceH = targetH
+                            // (lastScaledFor* already set synchronously before Thread spawn.)
                             bmp.recycle()
                             Log.d(TAG, "Panoramic: ${scaledWidth}x${scaledHeight} (scroll range: ${scaledWidth - targetW}px)")
                         } else {
@@ -1092,10 +1095,7 @@ class PixoraWallpaperService : WallpaperService() {
                                 if (oldScaled !== scaled) oldScaled?.recycle()
                                 if (oldPan !== scaled) oldPan?.recycle()
                             }
-                            // Record successful scaling for the idempotency guard.
-                            lastScaledForPath = currentPath
-                            lastScaledSurfaceW = targetW
-                            lastScaledSurfaceH = targetH
+                            // (lastScaledFor* already set synchronously before Thread spawn.)
                             // Don't recycle bmp if Android reused it as the scaled result
                             // (createScaledBitmap returns the same object when dims match)
                             if (bmp !== scaled && bmp !== cropped) bmp.recycle()
