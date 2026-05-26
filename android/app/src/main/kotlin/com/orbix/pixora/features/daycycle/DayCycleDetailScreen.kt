@@ -111,6 +111,8 @@ class DayCycleDetailViewModel @Inject constructor(
                 toast = when (result) {
                     is ApplyResult.Success -> "Período actual aplicado ✨"
                     is ApplyResult.Error -> "Error: ${result.message}"
+                    // Not reachable: DayCycle calls with isPanoramic=false.
+                    is ApplyResult.PickerLaunched -> null
                 },
             )
             delay(1500)
@@ -130,6 +132,7 @@ class DayCycleDetailViewModel @Inject constructor(
                 toast = when (result) {
                     is ApplyResult.Success -> "Período aplicado ✨"
                     is ApplyResult.Error -> "Error: ${result.message}"
+                    is ApplyResult.PickerLaunched -> null
                 },
             )
             delay(1500)

@@ -112,6 +112,20 @@ class WallpaperDetailViewModel @Inject constructor(
                         delay(1000)
                         _state.value = _state.value.copy(justApplied = false)
                     }
+                    is ApplyResult.PickerLaunched -> {
+                        // Panoramic path: bitmap is staged, picker opened.
+                        // Reward + track here too (user has committed to the
+                        // apply intent; the picker is just the final confirm).
+                        if (awardedCredit) creditService.earnFromAd()
+                        statsService.trackDownload(w.id)
+                        _state.value = _state.value.copy(
+                            applying = false,
+                            downloadStage = DownloadStage.Success,
+                            event = DetailEvent.Toast("Toca \"Establecer\" para confirmar"),
+                        )
+                        delay(2000)
+                        _state.value = _state.value.copy(downloadStage = DownloadStage.Idle)
+                    }
                     is ApplyResult.Error -> {
                         _state.value = _state.value.copy(
                             applying = false,

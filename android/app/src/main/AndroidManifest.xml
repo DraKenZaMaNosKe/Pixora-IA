@@ -57,6 +57,27 @@
                 android:resource="@xml/live_wallpaper"/>
         </service>
 
+        <!-- Static / panoramic image wallpaper service — Canvas-based.
+             Reads bitmap path from cacheDir/current_static.path. Lives in
+             its own :wallpaperstatic process (NOT :wallpaper, which is for
+             MediaPlayer) because a single WallpaperService.Engine Surface
+             can only have ONE producer at a time (Canvas OR MediaPlayer).
+             See v1 PixoraWallpaperService class header + memory
+             tech_wallpaper_surface_canvas_video for the full pitfall. -->
+        <service
+            android:name=".PixoraStaticWallpaperService"
+            android:exported="true"
+            android:process=":wallpaperstatic"
+            android:label="@string/wallpaper_label"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/static_wallpaper"/>
+        </service>
+
         <!-- TODO v2 session 2: re-enable when gl.ShaderWallpaperService is ported from .kt.legacy
 <service
             android:name=".gl.ShaderWallpaperService"

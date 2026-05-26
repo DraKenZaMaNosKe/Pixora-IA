@@ -106,6 +106,7 @@ class StoryDetailViewModel @Inject constructor(
                 toast = when (result) {
                     is ApplyResult.Success -> "Frame aplicado ✨"
                     is ApplyResult.Error -> "Error: ${result.message}"
+                    is ApplyResult.PickerLaunched -> null
                 },
             )
         }
