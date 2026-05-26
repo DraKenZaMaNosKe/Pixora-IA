@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'catalog_service.dart';
 import 'wallpaper_engine_coordinator.dart';
 
@@ -36,6 +37,20 @@ class AutoRotateService {
     if (!Platform.isAndroid) return false;
 
     try {
+      // Request microphone permission so the equalizer visualizer renders
+      // audio waveform on the rotating wallpapers. The wallpaper apply flow
+      // through WallpaperPreviewPage already does this, but AutoRotate runs
+      // entirely in background and never goes through the preview — without
+      // this request the visualizer stays silent for every rotated wallpaper.
+      // .request() is idempotent and shows the system dialog only if the
+      // permission is in an undetermined state; a denial doesn't block the
+      // rotation (the visualizer just degrades silently).
+      final micStatus = await Permission.microphone.request();
+      if (!micStatus.isGranted) {
+        debugPrint(
+            '[AutoRotate] Microphone not granted — visualizer will be muted');
+      }
+
       // Mutex: stop competing engines (DayCycle / Story) before claiming
       // the wallpaper Surface. Otherwise multiple engines fight for it.
       lastPreempted = await WallpaperEngineCoordinator.instance.claim(
