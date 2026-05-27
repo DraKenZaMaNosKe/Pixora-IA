@@ -1,0 +1,1302 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora · Microinteractions Showroom · Catálogo Completo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#02050A; --ink-2:#06101D;
+    --amber:#FFB400; --amber-deep:#B07A00; --amber-bright:#FFD66B;
+    --gold:#C9A650; --gold-rich:#E0C275;
+    --cream:#F0E6D2; --rust:#C77A3B;
+    --emerald:#3DD68C; --emerald-bright:#7FF5B5; --emerald-deep:#1E8754;
+    --rose:#FF5A8E; --rose-bright:#FF8AB0;
+    --violet:#9D4EDD;
+    --red:#FF5A5A;
+    --white:#fff; --charcoal:#1F1B17;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#0a0a14 0%,#020205 70%,#000 100%);
+    color:#eee;font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+
+  /* ─── HEADER ────────────────────────────────────────────────── */
+  .wrap{max-width:1600px;margin:0 auto;padding:48px 24px 120px}
+  .head{text-align:center;margin-bottom:48px}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;
+    color:var(--amber);text-transform:uppercase;margin-bottom:18px;font-weight:600;
+    opacity:0;animation:fade .8s .1s forwards;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(36px,5.5vw,56px);line-height:1.05;letter-spacing:-.02em;
+    color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards;
+  }
+  h1 .accent{color:var(--amber);font-weight:200}
+  .sub{
+    font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;
+    color:rgba(255,255,255,.6);max-width:760px;margin:0 auto 32px;
+    opacity:0;animation:fade .9s .5s forwards;
+  }
+  .sub b{color:var(--amber-bright);font-weight:500}
+
+  /* TOC */
+  .toc{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
+    max-width:1200px;margin:0 auto;
+    opacity:0;animation:fade .9s .7s forwards;
+  }
+  .toc a{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;font-weight:600;
+    color:rgba(255,180,0,.7);text-decoration:none;
+    padding:6px 14px;border-radius:99px;
+    background:rgba(255,180,0,.04);border:1px solid rgba(255,180,0,.15);
+    transition:all .25s;
+  }
+  .toc a:hover{
+    background:rgba(255,180,0,.15);color:var(--amber-bright);
+    border-color:var(--amber);transform:translateY(-1px);
+  }
+
+  /* ─── SECTION HEADERS ───────────────────────────────────────── */
+  .section{margin-top:80px}
+  .section-head{
+    display:flex;align-items:baseline;gap:18px;
+    margin:0 auto 32px;max-width:1500px;padding:0 8px;
+  }
+  .section-num{
+    font-family:'JetBrains Mono',monospace;font-size:48px;font-weight:300;
+    color:var(--amber);opacity:.4;letter-spacing:-.04em;
+  }
+  .section-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:32px;color:#fff;letter-spacing:-.01em;
+  }
+  .section-desc{
+    font-family:'Inter',sans-serif;font-size:13px;color:rgba(255,255,255,.5);
+    margin-left:auto;max-width:380px;text-align:right;line-height:1.5;
+  }
+
+  /* ─── MICRO GRID ─────────────────────────────────────────────── */
+  .micros{display:grid;grid-template-columns:1fr;gap:24px;max-width:1500px;margin:0 auto}
+  @media (min-width:800px){.micros{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1200px){.micros{grid-template-columns:repeat(3,1fr)}}
+
+  .micro{
+    background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));
+    border:1px solid rgba(255,255,255,.06);border-radius:18px;
+    padding:22px;transition:all .35s;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .micro:hover{
+    border-color:rgba(255,180,0,.3);transform:translateY(-2px);
+    box-shadow:0 12px 40px rgba(0,0,0,.4);
+  }
+  .micro-head{display:flex;align-items:baseline;gap:10px}
+  .micro-tag{
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    letter-spacing:.26em;color:var(--amber);text-transform:uppercase;font-weight:700;
+  }
+  .micro-name{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:18px;color:#fff;letter-spacing:-.005em;
+  }
+  .micro-desc{
+    font-family:'Inter',sans-serif;font-size:11.5px;line-height:1.55;
+    color:rgba(255,255,255,.55);
+  }
+  .micro-desc b{color:var(--amber-bright);font-weight:500}
+
+  /* DEMO BUTTON */
+  .demo-btn{
+    align-self:flex-start;
+    display:flex;align-items:center;gap:6px;
+    background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.3);
+    color:var(--amber-bright);
+    padding:6px 12px;border-radius:6px;
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;
+    letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+    cursor:pointer;transition:all .2s;
+  }
+  .demo-btn:hover{background:rgba(255,180,0,.15);border-color:var(--amber);transform:translateY(-1px)}
+  .demo-btn::before{content:'▶';font-size:8px}
+  .demo-btn.running{background:rgba(61,214,140,.15);border-color:var(--emerald);color:var(--emerald)}
+  .demo-btn.running::before{content:'◉';animation:blink 1s infinite}
+
+  .demo-stage{
+    flex:1;
+    background:linear-gradient(180deg,#0a0612,#1a0e08 60%,#0a0612);
+    border-radius:12px;padding:24px 18px;
+    display:flex;align-items:center;justify-content:center;
+    min-height:180px;position:relative;overflow:hidden;
+  }
+
+  /* ─── 1. DOWNLOAD PROGRESS ENGAGING ─────────────────────────── */
+  .download-card{
+    width:100%;display:flex;flex-direction:column;gap:12px;
+  }
+  .download-preview{
+    width:100%;aspect-ratio:9/16;border-radius:8px;
+    background:linear-gradient(135deg,#2a1818,#0a0612);
+    border:1px solid rgba(255,180,0,.1);
+    position:relative;overflow:hidden;
+  }
+  .download-preview::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,#4a2a1c,#1a0a14,#2a1428);
+    opacity:0;filter:blur(20px);
+    transition:opacity 1s,filter 1s;
+  }
+  .download-card.loading .download-preview::before{
+    animation:downloadPreviewIn 4s ease-out forwards;
+  }
+  .download-preview::after{
+    content:'';position:absolute;left:-100%;top:0;width:200%;height:100%;
+    background:linear-gradient(90deg,transparent 30%,rgba(255,180,0,.1) 50%,transparent 70%);
+    animation:shimmer 1.6s ease-in-out infinite;
+  }
+  .download-card.loading .download-preview::after{display:block}
+  .download-bar{
+    width:100%;height:4px;background:rgba(255,180,0,.1);border-radius:99px;overflow:hidden;
+  }
+  .download-bar .fill{
+    height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--amber),var(--amber-bright));
+    box-shadow:0 0 8px var(--amber);
+  }
+  .download-card.loading .download-bar .fill{animation:fillProgress 4s ease-out forwards}
+  .download-stat{
+    display:flex;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    color:rgba(255,180,0,.7);letter-spacing:.15em;text-transform:uppercase;
+  }
+  .download-stat .bytes{color:var(--amber-bright);font-weight:700}
+
+  /* ─── 2. AURA WAVE PULSE ─────────────────────────────────────── */
+  .aura-wave{
+    display:flex;align-items:flex-end;gap:4px;height:80px;
+  }
+  .aura-wave .bar{
+    width:4px;background:linear-gradient(180deg,var(--violet),var(--rose));
+    border-radius:2px;
+    box-shadow:0 0 8px rgba(157,78,221,.6);
+    animation:audioBar 1.4s ease-in-out infinite;
+  }
+  .aura-wave .bar:nth-child(1){height:30%;animation-delay:0s}
+  .aura-wave .bar:nth-child(2){height:60%;animation-delay:.1s}
+  .aura-wave .bar:nth-child(3){height:90%;animation-delay:.2s}
+  .aura-wave .bar:nth-child(4){height:50%;animation-delay:.3s}
+  .aura-wave .bar:nth-child(5){height:75%;animation-delay:.4s}
+  .aura-wave .bar:nth-child(6){height:40%;animation-delay:.5s}
+  .aura-wave .bar:nth-child(7){height:85%;animation-delay:.6s}
+  .aura-wave .bar:nth-child(8){height:55%;animation-delay:.7s}
+
+  /* ─── 3. LOGIN AVATAR MORPH ──────────────────────────────────── */
+  .avatar-morph{position:relative;width:80px;height:80px}
+  .avatar-morph .skeleton{
+    position:absolute;inset:0;border-radius:50%;
+    background:linear-gradient(135deg,#2a2018,#1a1208);
+    border:1px solid rgba(255,180,0,.2);
+    display:flex;align-items:center;justify-content:center;
+    transition:opacity .6s;
+  }
+  .avatar-morph .skeleton::after{
+    content:'';width:40%;height:40%;border-radius:50%;
+    background:rgba(255,180,0,.15);
+  }
+  .avatar-morph .real{
+    position:absolute;inset:0;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--rust));
+    border:2px solid var(--amber-bright);
+    opacity:0;transform:scale(.6);
+    transition:opacity .6s,transform .6s cubic-bezier(.2,.9,.3,1.3);
+    box-shadow:0 0 20px var(--amber);
+  }
+  .avatar-morph.loaded .skeleton{opacity:0}
+  .avatar-morph.loaded .real{opacity:1;transform:scale(1)}
+
+  /* ─── 4. APPLY WALLPAPER SEQUENCE ────────────────────────────── */
+  .apply-seq{display:flex;align-items:center;gap:8px}
+  .apply-seq .step{
+    display:flex;align-items:center;gap:6px;
+    padding:6px 10px;border-radius:6px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:600;
+    letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);
+    transition:all .35s;
+  }
+  .apply-seq .step .dot{
+    width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);
+    transition:.3s;
+  }
+  .apply-seq .step.done{background:rgba(61,214,140,.1);border-color:var(--emerald);color:var(--emerald)}
+  .apply-seq .step.done .dot{background:var(--emerald);box-shadow:0 0 6px var(--emerald)}
+  .apply-seq .step.active{background:rgba(255,180,0,.12);border-color:var(--amber);color:var(--amber-bright)}
+  .apply-seq .step.active .dot{background:var(--amber);box-shadow:0 0 6px var(--amber);animation:pulse 1s infinite}
+  .apply-seq .arrow{color:rgba(255,255,255,.2);font-size:10px}
+
+  /* ─── 5. CATALOG SHIMMER SKELETON ────────────────────────────── */
+  .shimmer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%}
+  .shimmer-card{
+    aspect-ratio:9/16;border-radius:6px;
+    background:linear-gradient(110deg,#2a1818 8%,#3a2818 18%,#2a1818 33%);
+    background-size:200% 100%;
+    animation:shimmerBg 1.4s linear infinite;
+  }
+  .shimmer-grid.loaded .shimmer-card{
+    animation:none;
+    background:linear-gradient(135deg,#3a2210,#1a0a14);
+    transition:background .4s;
+  }
+  .shimmer-grid.loaded .shimmer-card:nth-child(1){background:linear-gradient(135deg,#3a2210,#1a0a14)}
+  .shimmer-grid.loaded .shimmer-card:nth-child(2){background:linear-gradient(135deg,#2a1018,#0a1014)}
+  .shimmer-grid.loaded .shimmer-card:nth-child(3){background:linear-gradient(135deg,#1a2028,#0a1a14)}
+  .shimmer-grid.loaded .shimmer-card:nth-child(4){background:linear-gradient(135deg,#3a1818,#1a0a20)}
+  .shimmer-grid.loaded .shimmer-card:nth-child(5){background:linear-gradient(135deg,#2a2018,#1a0a08)}
+  .shimmer-grid.loaded .shimmer-card:nth-child(6){background:linear-gradient(135deg,#1a1828,#0a0a14)}
+
+  /* ─── 6. HEART FAVORITE BURST ─────────────────────────────────── */
+  .heart-btn{
+    width:48px;height:48px;border:none;border-radius:50%;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,90,142,.3);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .25s;position:relative;
+  }
+  .heart-btn:hover{background:rgba(255,90,142,.08)}
+  .heart-btn .heart{
+    width:22px;height:22px;color:rgba(255,255,255,.4);transition:all .3s;
+  }
+  .heart-btn.active .heart{
+    color:var(--rose);fill:var(--rose);
+    animation:heartPop .5s cubic-bezier(.2,.9,.3,1.4);
+    filter:drop-shadow(0 0 8px var(--rose));
+  }
+  .heart-btn.active::before{
+    content:'';position:absolute;inset:-10px;border-radius:50%;
+    background:radial-gradient(
+      4px 4px at 20% 30%,var(--rose-bright),transparent),
+      radial-gradient(3px 3px at 70% 25%,var(--rose),transparent),
+      radial-gradient(3px 3px at 80% 70%,var(--rose-bright),transparent),
+      radial-gradient(4px 4px at 25% 75%,var(--rose),transparent),
+      radial-gradient(3px 3px at 50% 90%,var(--rose-bright),transparent);
+    animation:heartParticles .8s ease-out forwards;
+    pointer-events:none;
+  }
+
+  /* ─── 7. CREDIT COUNT-UP + GLOW ──────────────────────────────── */
+  .credit-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(201,166,80,.12);border:1px solid rgba(201,166,80,.4);
+    padding:8px 16px;border-radius:99px;
+    font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+    color:var(--gold);transition:all .35s;
+  }
+  .credit-pill::before{content:'◆';color:var(--amber-bright);font-size:12px}
+  .credit-pill.earning{
+    background:rgba(255,214,107,.25);border-color:var(--amber-bright);color:var(--amber-bright);
+    box-shadow:0 0 24px rgba(255,180,0,.4);animation:creditPulse .6s ease-out;
+  }
+  .credit-num{display:inline-block;min-width:40px;text-align:right;font-variant-numeric:tabular-nums}
+
+  /* ─── 8. WALLPAPER APPLIED BOUNCE ────────────────────────────── */
+  .apply-bounce-btn{
+    width:100%;max-width:200px;padding:14px;border:none;border-radius:8px;
+    background:linear-gradient(135deg,var(--amber),var(--amber-deep));
+    color:var(--charcoal);font-family:'Inter',sans-serif;font-size:12px;
+    font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+    box-shadow:0 4px 14px rgba(255,180,0,.3);transition:all .25s;
+  }
+  .apply-bounce-btn.applied{
+    background:linear-gradient(135deg,var(--emerald),var(--emerald-deep));
+    color:#fff;animation:successBounce .5s cubic-bezier(.2,.9,.3,1.6);
+  }
+  .apply-bounce-btn.applied::before{content:'✓ '}
+
+  /* ─── 9. SUBSCRIPTION CONFETTI ───────────────────────────────── */
+  .sub-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+  .sub-badge{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 20px;border-radius:99px;
+    background:linear-gradient(135deg,#3a2210,#1a0e08);
+    border:1.5px solid var(--gold);
+    font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:14px;
+    color:var(--gold-rich);
+    box-shadow:0 0 24px rgba(201,166,80,.4);
+  }
+  .sub-badge::before{content:'◆';color:var(--amber-bright)}
+  .sub-stage.celebrating::after{
+    content:'';position:absolute;inset:0;
+    background:
+      radial-gradient(2px 2px at 20% 30%,var(--gold),transparent),
+      radial-gradient(2px 2px at 80% 20%,var(--amber-bright),transparent),
+      radial-gradient(1.5px 1.5px at 50% 60%,var(--gold-rich),transparent),
+      radial-gradient(2px 2px at 30% 80%,var(--amber),transparent),
+      radial-gradient(1.5px 1.5px at 70% 75%,var(--amber-bright),transparent),
+      radial-gradient(2px 2px at 60% 40%,var(--gold),transparent);
+    animation:confettiRain 2s ease-out forwards;pointer-events:none;
+  }
+
+  /* ─── 10. AUTOROTATE SLOW ICON ────────────────────────────────── */
+  .autorotate-icon{
+    width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+    color:var(--gold);
+    animation:rotateSlow 30s linear infinite;
+  }
+  .autorotate-icon svg{width:24px;height:24px}
+
+  /* ─── 11. AURA MINI PLAYER ────────────────────────────────────── */
+  .aura-mini{
+    width:100%;display:flex;align-items:center;gap:10px;
+    padding:10px;border-radius:12px;
+    background:linear-gradient(135deg,#1a0e2a,#0a0612);
+    border:1px solid rgba(157,78,221,.3);
+  }
+  .aura-mini .cover{
+    width:36px;height:36px;border-radius:6px;
+    background:radial-gradient(circle,var(--violet),var(--rose));
+    box-shadow:0 0 12px rgba(157,78,221,.5);
+    animation:pulse 2.5s ease-in-out infinite;
+  }
+  .aura-mini .body{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}
+  .aura-mini .title{
+    font-family:'Fraunces',serif;font-size:11px;color:#fff;font-style:italic;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .aura-mini .progress{
+    width:100%;height:2px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;
+  }
+  .aura-mini .progress .fill{
+    height:100%;width:35%;
+    background:linear-gradient(90deg,var(--violet),var(--rose));
+    border-radius:99px;
+    animation:progressGrow 8s ease-out infinite;
+  }
+  .aura-mini .play{
+    width:24px;height:24px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--rose);color:#fff;font-size:8px;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  /* ─── 12. SUBSCRIBER GOLD RING ────────────────────────────────── */
+  .sub-avatar{
+    width:48px;height:48px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--rust));
+    border:2.5px solid var(--gold-rich);
+    box-shadow:0 0 0 1px var(--ink),0 0 16px rgba(201,166,80,.5);
+    animation:goldShimmer 3s ease-in-out infinite;
+  }
+
+  /* ─── 13. PIXORA DAILY PULSE BADGE ────────────────────────────── */
+  .daily-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:5px 12px;border-radius:99px;
+    background:rgba(255,90,142,.12);border:1px solid var(--rose);
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--rose-bright);
+    animation:dailyPulse 3s ease-in-out infinite;
+  }
+  .daily-badge .dot{
+    width:5px;height:5px;border-radius:50%;background:var(--rose);
+    box-shadow:0 0 6px var(--rose);
+  }
+
+  /* ─── 14. TAB SLIDE CONTENT ──────────────────────────────────── */
+  .tab-demo{width:100%;height:100%;display:flex;flex-direction:column;gap:8px}
+  .tab-bar{
+    display:flex;background:rgba(31,27,23,.6);border-radius:8px;padding:4px;gap:4px;
+  }
+  .tab-item{
+    flex:1;padding:6px 10px;text-align:center;border-radius:6px;
+    font-family:'Inter',sans-serif;font-size:10px;font-weight:600;cursor:pointer;
+    color:rgba(255,255,255,.5);transition:all .3s;
+  }
+  .tab-item.active{background:var(--amber);color:var(--charcoal)}
+  .tab-content{
+    flex:1;border-radius:8px;
+    background:linear-gradient(135deg,#3a2210,#1a0a14);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:rgba(255,255,255,.5);
+  }
+  .tab-demo.switching .tab-content{animation:slideContent .35s ease-out}
+
+  /* ─── 15. HERO CARD → PREVIEW ────────────────────────────────── */
+  .hero-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+  .hero-card{
+    width:60px;aspect-ratio:9/16;border-radius:6px;
+    background:linear-gradient(135deg,#4a2a1c,#1a0a14);
+    border:1px solid rgba(255,180,0,.2);
+    transition:all .55s cubic-bezier(.2,.9,.3,1);
+    cursor:pointer;
+  }
+  .hero-stage.expanded .hero-card{
+    width:80%;
+    box-shadow:0 12px 40px rgba(0,0,0,.6),0 0 24px rgba(255,180,0,.2);
+  }
+
+  /* ─── 16. PULL TO REFRESH DROP ──────────────────────────────── */
+  .pull-drop{
+    width:40px;height:40px;
+    background:radial-gradient(circle at 30% 30%,var(--amber-bright),var(--amber-deep));
+    border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow:0 0 20px var(--amber);
+    animation:dropStretch 2s ease-in-out infinite;
+  }
+
+  /* ─── 17. FIRST APPLY TUTORIAL TOOLTIP ──────────────────────── */
+  .tutorial-stage{position:relative;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;gap:18px;justify-content:center}
+  .tutorial-tooltip{
+    position:relative;padding:10px 14px;border-radius:8px;
+    background:linear-gradient(135deg,#3a2812,#1a1208);
+    border:1px solid var(--amber);
+    font-family:'Inter',sans-serif;font-size:11px;color:var(--amber-bright);
+    box-shadow:0 4px 16px rgba(0,0,0,.4),0 0 12px rgba(255,180,0,.2);
+    animation:tooltipFloat 2.5s ease-in-out infinite;
+  }
+  .tutorial-tooltip::after{
+    content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+    width:0;height:0;border:6px solid transparent;border-top-color:var(--amber);
+  }
+  .tutorial-finger{
+    font-size:28px;animation:fingerTap 2.5s ease-in-out infinite;
+    transform-origin:center top;
+  }
+
+  /* ─── 18. FIRST OFFLINE WOBBLE ──────────────────────────────── */
+  .wobble-ind{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;
+    background:rgba(255,180,0,.1);border:1px solid var(--amber);
+    color:var(--amber-bright);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+    letter-spacing:.18em;text-transform:uppercase;
+  }
+  .wobble-ind .dot{width:6px;height:6px;border-radius:50%;background:var(--amber-bright)}
+  .wobble-ind.wobbling{animation:wobble .6s ease-in-out 3}
+
+  /* ─── 19. LONG PRESS CONTEXT MENU ───────────────────────────── */
+  .longpress-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+  .longpress-card{
+    width:80px;height:120px;border-radius:8px;
+    background:linear-gradient(135deg,#4a2a1c,#1a0a14);
+    border:1px solid rgba(255,180,0,.2);cursor:pointer;
+    transition:transform .25s;
+  }
+  .longpress-stage.pressed .longpress-card{transform:scale(.96)}
+  .context-menu{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.4);
+    opacity:0;pointer-events:none;
+    display:flex;flex-direction:column;gap:4px;
+    padding:8px;border-radius:10px;
+    background:rgba(15,10,18,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,180,0,.2);
+    box-shadow:0 12px 40px rgba(0,0,0,.6);
+    transition:all .3s cubic-bezier(.2,.9,.3,1.3);
+    min-width:140px;
+  }
+  .longpress-stage.pressed .context-menu{
+    opacity:1;transform:translate(-50%,-50%) scale(1);
+  }
+  .ctx-item{
+    padding:8px 12px;border-radius:6px;
+    font-family:'Inter',sans-serif;font-size:11px;color:rgba(255,255,255,.7);
+    display:flex;align-items:center;gap:8px;cursor:pointer;
+    opacity:0;animation:ctxItemIn .35s ease-out forwards;
+  }
+  .ctx-item:nth-child(1){animation-delay:.05s}
+  .ctx-item:nth-child(2){animation-delay:.1s}
+  .ctx-item:nth-child(3){animation-delay:.15s}
+  .ctx-item:nth-child(4){animation-delay:.2s}
+  .ctx-item:hover{background:rgba(255,180,0,.1);color:var(--amber-bright)}
+  .ctx-item .ico{font-size:14px}
+
+  /* ─── 20. COLLECTOR BADGE COSMIC BURST ──────────────────────── */
+  .collector-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+  .collector-badge{
+    display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:14px;
+    background:radial-gradient(ellipse at center,rgba(255,180,0,.18),rgba(0,0,0,.6));
+    border:1.5px solid var(--gold);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    position:relative;z-index:2;
+  }
+  .collector-badge .medal{
+    width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--rust));
+    border:2px solid var(--amber-bright);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--charcoal);font-weight:900;font-size:14px;
+    box-shadow:0 0 12px var(--amber);
+  }
+  .collector-badge .txt{
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .collector-badge .title{
+    font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:var(--cream);
+  }
+  .collector-badge .meta{
+    font-family:'JetBrains Mono',monospace;font-size:8.5px;
+    color:var(--gold);letter-spacing:.2em;text-transform:uppercase;
+  }
+  .collector-stage.celebrating::before{
+    content:'';position:absolute;inset:0;
+    background:
+      radial-gradient(2px 2px at 10% 20%,var(--amber-bright),transparent),
+      radial-gradient(1.5px 1.5px at 90% 30%,var(--gold),transparent),
+      radial-gradient(2px 2px at 50% 70%,var(--amber),transparent),
+      radial-gradient(1px 1px at 30% 90%,var(--amber-bright),transparent),
+      radial-gradient(2px 2px at 80% 80%,var(--gold-rich),transparent),
+      radial-gradient(1.5px 1.5px at 20% 60%,var(--amber-bright),transparent);
+    animation:cosmicBurst 2s ease-out forwards;pointer-events:none;
+  }
+
+  /* ─── 21. NEW DAY GREETING STAGGERED ────────────────────────── */
+  .greeting-stage{
+    width:100%;height:100%;display:flex;flex-direction:column;gap:10px;
+    padding:8px;
+  }
+  .greeting-text{
+    font-family:'Fraunces',serif;font-style:italic;font-size:14px;
+    color:var(--cream);text-align:center;margin-bottom:6px;
+    opacity:0;
+  }
+  .greeting-text b{color:var(--amber-bright);font-weight:500}
+  .greeting-stage.greeting .greeting-text{animation:greetingIn .6s ease-out forwards}
+  .greeting-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:1}
+  .greeting-card{
+    aspect-ratio:9/16;border-radius:5px;
+    background:linear-gradient(135deg,#3a2210,#1a0a14);
+    border:1px solid rgba(255,180,0,.15);
+    opacity:0;
+  }
+  .greeting-stage.greeting .greeting-card{animation:greetingCardIn .5s ease-out forwards}
+  .greeting-stage.greeting .greeting-card:nth-child(1){animation-delay:.3s}
+  .greeting-stage.greeting .greeting-card:nth-child(2){animation-delay:.4s}
+  .greeting-stage.greeting .greeting-card:nth-child(3){animation-delay:.5s}
+  .greeting-stage.greeting .greeting-card:nth-child(4){animation-delay:.6s}
+  .greeting-stage.greeting .greeting-card:nth-child(5){animation-delay:.7s}
+  .greeting-stage.greeting .greeting-card:nth-child(6){animation-delay:.8s}
+
+  /* ─── 22. ERROR SHAKE ─────────────────────────────────────────── */
+  .error-btn{
+    padding:12px 24px;border-radius:8px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--amber),var(--amber-deep));
+    color:var(--charcoal);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+    letter-spacing:.06em;text-transform:uppercase;
+  }
+  .error-btn.shaking{
+    background:linear-gradient(135deg,var(--red),#8a2020);color:#fff;
+    animation:errorShake .4s ease-out;
+  }
+  .error-btn.shaking::before{content:'✕ '}
+
+  /* ─── KEYFRAMES ─────────────────────────────────────────────── */
+  @keyframes fade{to{opacity:1}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}}
+  @keyframes shimmer{0%{transform:translateX(-50%)}100%{transform:translateX(50%)}}
+  @keyframes shimmerBg{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  @keyframes fillProgress{from{width:0}to{width:100%}}
+  @keyframes downloadPreviewIn{
+    0%{opacity:0;filter:blur(20px)}
+    100%{opacity:1;filter:blur(0)}
+  }
+  @keyframes audioBar{
+    0%,100%{transform:scaleY(.4)}
+    50%{transform:scaleY(1)}
+  }
+  @keyframes heartPop{
+    0%{transform:scale(1)}
+    30%{transform:scale(1.5)}
+    60%{transform:scale(.9)}
+    100%{transform:scale(1)}
+  }
+  @keyframes heartParticles{
+    0%{transform:scale(.5);opacity:1}
+    100%{transform:scale(2.5);opacity:0}
+  }
+  @keyframes creditPulse{
+    0%{transform:scale(1)}
+    50%{transform:scale(1.08)}
+    100%{transform:scale(1)}
+  }
+  @keyframes successBounce{
+    0%{transform:scale(1)}
+    30%{transform:scale(.92)}
+    60%{transform:scale(1.06)}
+    100%{transform:scale(1)}
+  }
+  @keyframes confettiRain{
+    0%{opacity:1;transform:translateY(-20px)}
+    100%{opacity:0;transform:translateY(60px)}
+  }
+  @keyframes rotateSlow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  @keyframes progressGrow{
+    0%{width:0}
+    100%{width:100%}
+  }
+  @keyframes goldShimmer{
+    0%,100%{box-shadow:0 0 0 1px var(--ink),0 0 16px rgba(201,166,80,.5)}
+    50%{box-shadow:0 0 0 1px var(--ink),0 0 24px rgba(255,214,107,.8)}
+  }
+  @keyframes dailyPulse{
+    0%,100%{box-shadow:0 0 0 rgba(255,90,142,.4)}
+    50%{box-shadow:0 0 16px rgba(255,90,142,.4)}
+  }
+  @keyframes slideContent{
+    from{opacity:0;transform:translateX(20px)}
+    to{opacity:1;transform:translateX(0)}
+  }
+  @keyframes dropStretch{
+    0%,100%{transform:scaleY(1) scaleX(1)}
+    50%{transform:scaleY(1.4) scaleX(.85)}
+  }
+  @keyframes tooltipFloat{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-4px)}
+  }
+  @keyframes fingerTap{
+    0%,100%{transform:scale(1) translateY(0)}
+    40%{transform:scale(.85) translateY(4px)}
+  }
+  @keyframes wobble{
+    0%,100%{transform:rotate(0)}
+    25%{transform:rotate(-5deg)}
+    75%{transform:rotate(5deg)}
+  }
+  @keyframes ctxItemIn{
+    from{opacity:0;transform:translateX(-8px)}
+    to{opacity:1;transform:translateX(0)}
+  }
+  @keyframes cosmicBurst{
+    0%{opacity:0;transform:scale(.5)}
+    30%{opacity:1;transform:scale(1.3)}
+    100%{opacity:0;transform:scale(2.5)}
+  }
+  @keyframes greetingIn{
+    from{opacity:0;transform:translateY(10px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  @keyframes greetingCardIn{
+    from{opacity:0;transform:translateY(20px) scale(.9)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+  }
+  @keyframes errorShake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(5px)}
+  }
+
+  /* FOOTER */
+  .foot{margin-top:80px;text-align:center;padding:32px;border-top:1px solid rgba(255,180,0,.15)}
+  .foot p{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="head">
+    <div class="eyebrow">PIXORA · MICROINTERACTIONS · DESIGN SYSTEM v1</div>
+    <h1>Vida en los <span class="accent">detalles</span></h1>
+    <p class="sub">
+      22 microinteractions catalogadas para toda Pixora. Agrupadas en
+      <b>6 categorías</b>: esperas que entretienen, confirmaciones que celebran,
+      errores que no asustan, estados que cuentan algo, navegación con personalidad,
+      easter eggs y descubrimiento. Tap <span style="color:var(--amber-bright)">▶ Demo</span>
+      en cada card para verla viva.
+    </p>
+    <nav class="toc">
+      <a href="#esperas">Esperas</a>
+      <a href="#confirmaciones">Confirmaciones</a>
+      <a href="#estados">Estados</a>
+      <a href="#navegacion">Navegación</a>
+      <a href="#descubrimiento">Descubrimiento</a>
+      <a href="#easter">Easter eggs</a>
+    </nav>
+  </header>
+
+
+  <!-- ═══════════════════════ 1. ESPERAS ═══════════════════════ -->
+  <section class="section" id="esperas">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-title">Esperas que entretienen</div>
+      <div class="section-desc">
+        Cuando el usuario debe esperar, dale algo que mirar — la espera se siente 40% más corta.
+      </div>
+    </div>
+    <div class="micros">
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M01</div><div class="micro-name">Download Progress Engaging</div></div>
+        <p class="micro-desc"><b>Dónde:</b> descarga de wallpaper. <b>Qué:</b> skeleton + blur a sharp + bar de progreso con bytes/total. El usuario "ve" el wallpaper llegando.</p>
+        <button class="demo-btn" onclick="demoDownload(this)">Demo descarga</button>
+        <div class="demo-stage">
+          <div class="download-card" id="download-card">
+            <div class="download-preview"></div>
+            <div class="download-bar"><div class="fill"></div></div>
+            <div class="download-stat">
+              <span>Descargando...</span>
+              <span class="bytes">2.4 / 5.8 MB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M02</div><div class="micro-name">AURA Wave Pulse Loading</div></div>
+        <p class="micro-desc"><b>Dónde:</b> AURA buffering track. <b>Qué:</b> ecualizador de barras violetas/rosas pulsantes — comunica "audio cargando" sin spinner.</p>
+        <div class="demo-stage">
+          <div class="aura-wave">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M03</div><div class="micro-name">Login Avatar Morph</div></div>
+        <p class="micro-desc"><b>Dónde:</b> Google Sign-In. <b>Qué:</b> avatar genérico (skeleton) se transforma en el real con scale + glow cuando llega del backend.</p>
+        <button class="demo-btn" onclick="demoAvatar(this)">Demo login</button>
+        <div class="demo-stage">
+          <div class="avatar-morph" id="avatar-morph">
+            <div class="skeleton"></div>
+            <div class="real"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M04</div><div class="micro-name">Apply Wallpaper Sequence</div></div>
+        <p class="micro-desc"><b>Dónde:</b> aplicar wallpaper. <b>Qué:</b> 3 steps visibles: "descomprimir → enviar al sistema → confirmar" cada uno con check verde.</p>
+        <button class="demo-btn" onclick="demoApplySeq(this)">Demo apply</button>
+        <div class="demo-stage">
+          <div class="apply-seq" id="apply-seq">
+            <div class="step" data-step="1"><div class="dot"></div>Cargando</div>
+            <div class="arrow">›</div>
+            <div class="step" data-step="2"><div class="dot"></div>Enviando</div>
+            <div class="arrow">›</div>
+            <div class="step" data-step="3"><div class="dot"></div>Listo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M05</div><div class="micro-name">Catalog Shimmer Skeleton</div></div>
+        <p class="micro-desc"><b>Dónde:</b> refresh del catálogo. <b>Qué:</b> grid de cards con shimmer mientras llegan, después fade-in a contenido real.</p>
+        <button class="demo-btn" onclick="demoShimmer(this)">Demo catálogo</button>
+        <div class="demo-stage">
+          <div class="shimmer-grid" id="shimmer-grid">
+            <div class="shimmer-card"></div><div class="shimmer-card"></div><div class="shimmer-card"></div>
+            <div class="shimmer-card"></div><div class="shimmer-card"></div><div class="shimmer-card"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ 2. CONFIRMACIONES ═══════════════════════ -->
+  <section class="section" id="confirmaciones">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <div class="section-title">Confirmaciones que celebran</div>
+      <div class="section-desc">
+        Cada vez que algo sale bien, el sistema lo celebra contigo. Refuerza dopamina, aumenta engagement.
+      </div>
+    </div>
+    <div class="micros">
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M06</div><div class="micro-name">Heart Favorite Burst</div></div>
+        <p class="micro-desc"><b>Dónde:</b> tap en favorito. <b>Qué:</b> corazón llena con bounce + mini partículas rosas saliendo radial. Satisfying click.</p>
+        <button class="demo-btn" onclick="demoHeart(this)">Demo favorito</button>
+        <div class="demo-stage">
+          <button class="heart-btn" id="heart-btn">
+            <svg class="heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M07</div><div class="micro-name">Credit Count-Up + Glow</div></div>
+        <p class="micro-desc"><b>Dónde:</b> después de ver anuncio. <b>Qué:</b> balance hace count-up animado 314 → 315 con glow ámbar pulse. Recompensa visible.</p>
+        <button class="demo-btn" onclick="demoCredit(this)">Demo ganar 💎</button>
+        <div class="demo-stage">
+          <div class="credit-pill" id="credit-pill">
+            <span class="credit-num">314</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M08</div><div class="micro-name">Wallpaper Applied Bounce</div></div>
+        <p class="micro-desc"><b>Dónde:</b> apply success. <b>Qué:</b> botón muta a verde con check + bounce sutil. Confirmación instantánea + delicia.</p>
+        <button class="demo-btn" onclick="demoApplied(this)">Demo aplicar</button>
+        <div class="demo-stage">
+          <button class="apply-bounce-btn" id="apply-bounce">Aplicar wallpaper</button>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M09</div><div class="micro-name">Subscription Confetti</div></div>
+        <p class="micro-desc"><b>Dónde:</b> activación de suscripción. <b>Qué:</b> badge "Premium" aparece con confetti dorado discreto. Momento épico sin ser ostentoso.</p>
+        <button class="demo-btn" onclick="demoSub(this)">Demo premium</button>
+        <div class="demo-stage">
+          <div class="sub-stage" id="sub-stage">
+            <div class="sub-badge">Pixora Premium</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M22</div><div class="micro-name">Error Shake</div></div>
+        <p class="micro-desc"><b>Dónde:</b> cualquier acción que falle. <b>Qué:</b> el botón se vuelve rojo y hace shake horizontal corto. Feedback claro sin alarma.</p>
+        <button class="demo-btn" onclick="demoError(this)">Demo error</button>
+        <div class="demo-stage">
+          <button class="error-btn" id="error-btn">Acción</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ 3. ESTADOS PERSISTENTES ═══════════════════════ -->
+  <section class="section" id="estados">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <div class="section-title">Estados que cuentan algo</div>
+      <div class="section-desc">
+        Indicadores siempre visibles que comunican "esto está pasando" sin estorbar.
+      </div>
+    </div>
+    <div class="micros">
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M10</div><div class="micro-name">AutoRotate Slow Icon</div></div>
+        <p class="micro-desc"><b>Dónde:</b> header cuando Pixora Daily está activo. <b>Qué:</b> ícono que rota lento (1 vuelta cada 30s). Confirma sin distraer.</p>
+        <div class="demo-stage">
+          <div class="autorotate-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 11-9-9 9 9 0 019 9z"/>
+              <path d="M16 12l-4-4-4 4"/>
+              <path d="M12 16V8"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M11</div><div class="micro-name">AURA Mini Player Floating</div></div>
+        <p class="micro-desc"><b>Dónde:</b> AURA reproduciendo en background. <b>Qué:</b> mini widget abajo con cover pulsante + barra de progreso. Like Spotify.</p>
+        <div class="demo-stage">
+          <div class="aura-mini">
+            <div class="cover"></div>
+            <div class="body">
+              <div class="title">Frecuencia Solfeggio 528 Hz</div>
+              <div class="progress"><div class="fill"></div></div>
+            </div>
+            <button class="play">▶</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M12</div><div class="micro-name">Subscriber Gold Ring</div></div>
+        <p class="micro-desc"><b>Dónde:</b> avatar del header si user es suscriptor. <b>Qué:</b> ring dorado permanente con shimmer sutil. Status premium visible.</p>
+        <div class="demo-stage">
+          <div class="sub-avatar"></div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M13</div><div class="micro-name">Pixora Daily Pulse Badge</div></div>
+        <p class="micro-desc"><b>Dónde:</b> badge en navegación cuando Daily está activo. <b>Qué:</b> pulse rosa muy lento (3s). Vivo sin agotar.</p>
+        <div class="demo-stage">
+          <div class="daily-badge">
+            <span class="dot"></span>DAILY ACTIVO
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ 4. NAVEGACIÓN ═══════════════════════ -->
+  <section class="section" id="navegacion">
+    <div class="section-head">
+      <div class="section-num">04</div>
+      <div class="section-title">Navegación con personalidad</div>
+      <div class="section-desc">
+        Transiciones entre pantallas que se sienten parte de la app, no genéricas Material.
+      </div>
+    </div>
+    <div class="micros">
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M14</div><div class="micro-name">Tab Slide Content</div></div>
+        <p class="micro-desc"><b>Dónde:</b> bottom nav switch. <b>Qué:</b> el contenido de la página hace slide-in desde el lado del tap (no cut abrupto).</p>
+        <button class="demo-btn" onclick="demoTab(this)">Demo switch</button>
+        <div class="demo-stage">
+          <div class="tab-demo" id="tab-demo">
+            <div class="tab-bar">
+              <div class="tab-item active" data-tab="A">WALL</div>
+              <div class="tab-item" data-tab="B">LIVE</div>
+              <div class="tab-item" data-tab="C">AURA</div>
+            </div>
+            <div class="tab-content" id="tab-content">Wallpapers</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M15</div><div class="micro-name">Hero Card → Preview</div></div>
+        <p class="micro-desc"><b>Dónde:</b> tap en wallpaper del grid. <b>Qué:</b> la card "vuela" expandiéndose hasta llenar pantalla. Cinematic.</p>
+        <button class="demo-btn" onclick="demoHero(this)">Demo expand</button>
+        <div class="demo-stage">
+          <div class="hero-stage" id="hero-stage">
+            <div class="hero-card"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M16</div><div class="micro-name">Pull to Refresh Drop</div></div>
+        <p class="micro-desc"><b>Dónde:</b> pull-down en home grid. <b>Qué:</b> gota dorada que se estira elastic mientras jalas. Reemplaza el spinner default.</p>
+        <div class="demo-stage">
+          <div class="pull-drop"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ 5. DESCUBRIMIENTO ═══════════════════════ -->
+  <section class="section" id="descubrimiento">
+    <div class="section-head">
+      <div class="section-num">05</div>
+      <div class="section-title">Descubrimiento y onboarding</div>
+      <div class="section-desc">
+        Educar al usuario sin sentirse tutorial. Hints contextuales que aparecen en el momento exacto.
+      </div>
+    </div>
+    <div class="micros">
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M17</div><div class="micro-name">First Apply Tutorial</div></div>
+        <p class="micro-desc"><b>Dónde:</b> después del PRIMER wallpaper aplicado. <b>Qué:</b> tooltip flotante con dedo apuntando "Toca ♡ para favoritos". Solo aparece 1 vez.</p>
+        <div class="demo-stage">
+          <div class="tutorial-stage">
+            <div class="tutorial-tooltip">Toca ♡ para guardar en favoritos</div>
+            <div class="tutorial-finger">👆</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M18</div><div class="micro-name">First Offline Wobble</div></div>
+        <p class="micro-desc"><b>Dónde:</b> primera vez que se pierde conexión. <b>Qué:</b> el indicador 📡 hace wobble 3 veces para llamar atención. Después aparece normal.</p>
+        <button class="demo-btn" onclick="demoWobble(this)">Demo wobble</button>
+        <div class="demo-stage">
+          <div class="wobble-ind" id="wobble-ind">
+            <span class="dot"></span>OFFLINE
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M19</div><div class="micro-name">Long Press Context Menu</div></div>
+        <p class="micro-desc"><b>Dónde:</b> long-press en wallpaper card. <b>Qué:</b> menú radial scale-in con items en stagger. Power user feature visible.</p>
+        <button class="demo-btn" onclick="demoLongPress(this)">Demo long press</button>
+        <div class="demo-stage">
+          <div class="longpress-stage" id="longpress-stage">
+            <div class="longpress-card"></div>
+            <div class="context-menu">
+              <div class="ctx-item"><span class="ico">♡</span>Favorito</div>
+              <div class="ctx-item"><span class="ico">⤓</span>Descargar</div>
+              <div class="ctx-item"><span class="ico">↗</span>Compartir</div>
+              <div class="ctx-item"><span class="ico">⚐</span>Reportar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ 6. EASTER EGGS ═══════════════════════ -->
+  <section class="section" id="easter">
+    <div class="section-head">
+      <div class="section-num">06</div>
+      <div class="section-title">Easter eggs y recompensas</div>
+      <div class="section-desc">
+        Momentos especiales que premian al usuario fiel. Bonding emocional con la app.
+      </div>
+    </div>
+    <div class="micros">
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M20</div><div class="micro-name">Collector Badge Burst</div></div>
+        <p class="micro-desc"><b>Dónde:</b> 10 wallpapers aplicados. <b>Qué:</b> badge "Coleccionista" aparece con cosmic burst de partículas. Momento "wow".</p>
+        <button class="demo-btn" onclick="demoCollector(this)">Demo badge</button>
+        <div class="demo-stage">
+          <div class="collector-stage" id="collector-stage">
+            <div class="collector-badge">
+              <div class="medal">★</div>
+              <div class="txt">
+                <div class="title">Coleccionista</div>
+                <div class="meta">10 wallpapers aplicados</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="micro">
+        <div class="micro-head"><div class="micro-tag">M21</div><div class="micro-name">New Day Greeting</div></div>
+        <p class="micro-desc"><b>Dónde:</b> al abrir app después de medianoche. <b>Qué:</b> saludo + cards de nuevos wallpapers entrando staggered. Sensación de visita diaria.</p>
+        <button class="demo-btn" onclick="demoGreeting(this)">Demo saludo</button>
+        <div class="demo-stage">
+          <div class="greeting-stage" id="greeting-stage">
+            <div class="greeting-text">Buenos días, hay <b>5 nuevos</b></div>
+            <div class="greeting-cards">
+              <div class="greeting-card"></div><div class="greeting-card"></div><div class="greeting-card"></div>
+              <div class="greeting-card"></div><div class="greeting-card"></div><div class="greeting-card"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <footer class="foot">
+    <p>PIXORA · MICROINTERACTIONS DESIGN SYSTEM · 22 PATTERNS · 2026-05-27</p>
+  </footer>
+
+</div>
+
+<script>
+  // Helper para running state
+  function withRunning(btn, fn, duration){
+    if(btn.classList.contains('running')) return;
+    btn.classList.add('running');
+    fn();
+    setTimeout(() => btn.classList.remove('running'), duration);
+  }
+
+  // M01 — Download
+  function demoDownload(btn){
+    withRunning(btn, () => {
+      const card = document.getElementById('download-card');
+      card.classList.remove('loading');
+      void card.offsetWidth;
+      card.classList.add('loading');
+    }, 4200);
+  }
+
+  // M03 — Avatar morph
+  function demoAvatar(btn){
+    withRunning(btn, () => {
+      const a = document.getElementById('avatar-morph');
+      a.classList.remove('loaded');
+      setTimeout(() => a.classList.add('loaded'), 1200);
+      setTimeout(() => a.classList.remove('loaded'), 4000);
+    }, 4200);
+  }
+
+  // M04 — Apply sequence
+  function demoApplySeq(btn){
+    withRunning(btn, () => {
+      const seq = document.getElementById('apply-seq');
+      const steps = seq.querySelectorAll('.step');
+      steps.forEach(s => {s.classList.remove('active','done')});
+      let i = 0;
+      const tick = () => {
+        if (i > 0) steps[i-1].classList.add('done');
+        if (i < steps.length){
+          steps[i].classList.remove('done');
+          steps[i].classList.add('active');
+          i++;
+          setTimeout(tick, 700);
+        } else {
+          setTimeout(() => steps.forEach(s => {s.classList.remove('active','done')}), 1500);
+        }
+      };
+      tick();
+    }, 4500);
+  }
+
+  // M05 — Shimmer
+  function demoShimmer(btn){
+    withRunning(btn, () => {
+      const g = document.getElementById('shimmer-grid');
+      g.classList.remove('loaded');
+      setTimeout(() => g.classList.add('loaded'), 1800);
+      setTimeout(() => g.classList.remove('loaded'), 4500);
+    }, 4500);
+  }
+
+  // M06 — Heart
+  function demoHeart(btn){
+    withRunning(btn, () => {
+      const h = document.getElementById('heart-btn');
+      h.classList.toggle('active');
+    }, 800);
+  }
+
+  // M07 — Credit count-up
+  function demoCredit(btn){
+    withRunning(btn, () => {
+      const pill = document.getElementById('credit-pill');
+      const num = pill.querySelector('.credit-num');
+      pill.classList.add('earning');
+      let current = 314;
+      const target = 315;
+      // simple count-up
+      const interval = setInterval(() => {
+        current += 0.05;
+        num.textContent = Math.floor(current);
+        if (current >= target){
+          num.textContent = target;
+          clearInterval(interval);
+        }
+      }, 25);
+      setTimeout(() => {
+        pill.classList.remove('earning');
+        num.textContent = '314';
+      }, 2500);
+    }, 2500);
+  }
+
+  // M08 — Applied bounce
+  function demoApplied(btn){
+    withRunning(btn, () => {
+      const a = document.getElementById('apply-bounce');
+      const orig = a.textContent;
+      a.classList.add('applied');
+      a.textContent = 'Aplicado';
+      setTimeout(() => {
+        a.classList.remove('applied');
+        a.textContent = orig;
+      }, 2000);
+    }, 2000);
+  }
+
+  // M09 — Subscription confetti
+  function demoSub(btn){
+    withRunning(btn, () => {
+      const s = document.getElementById('sub-stage');
+      s.classList.remove('celebrating');
+      void s.offsetWidth;
+      s.classList.add('celebrating');
+      setTimeout(() => s.classList.remove('celebrating'), 2200);
+    }, 2200);
+  }
+
+  // M14 — Tab switch
+  function demoTab(btn){
+    withRunning(btn, () => {
+      const d = document.getElementById('tab-demo');
+      const c = document.getElementById('tab-content');
+      const tabs = d.querySelectorAll('.tab-item');
+      const names = ['Wallpapers','Live','Aura'];
+      let i = 0;
+      const advance = () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        i = (i+1) % tabs.length;
+        tabs[i].classList.add('active');
+        d.classList.remove('switching');
+        void d.offsetWidth;
+        d.classList.add('switching');
+        c.textContent = names[i];
+      };
+      const t1 = setTimeout(advance, 300);
+      const t2 = setTimeout(advance, 1200);
+      const t3 = setTimeout(advance, 2100);
+    }, 2500);
+  }
+
+  // M15 — Hero expand
+  function demoHero(btn){
+    withRunning(btn, () => {
+      const h = document.getElementById('hero-stage');
+      h.classList.add('expanded');
+      setTimeout(() => h.classList.remove('expanded'), 2000);
+    }, 2000);
+  }
+
+  // M18 — Wobble
+  function demoWobble(btn){
+    withRunning(btn, () => {
+      const w = document.getElementById('wobble-ind');
+      w.classList.remove('wobbling');
+      void w.offsetWidth;
+      w.classList.add('wobbling');
+      setTimeout(() => w.classList.remove('wobbling'), 1800);
+    }, 1800);
+  }
+
+  // M19 — Long press
+  function demoLongPress(btn){
+    withRunning(btn, () => {
+      const l = document.getElementById('longpress-stage');
+      l.classList.add('pressed');
+      setTimeout(() => l.classList.remove('pressed'), 2500);
+    }, 2500);
+  }
+
+  // M20 — Collector badge
+  function demoCollector(btn){
+    withRunning(btn, () => {
+      const c = document.getElementById('collector-stage');
+      c.classList.remove('celebrating');
+      void c.offsetWidth;
+      c.classList.add('celebrating');
+      setTimeout(() => c.classList.remove('celebrating'), 2000);
+    }, 2000);
+  }
+
+  // M21 — Greeting
+  function demoGreeting(btn){
+    withRunning(btn, () => {
+      const g = document.getElementById('greeting-stage');
+      g.classList.remove('greeting');
+      void g.offsetWidth;
+      g.classList.add('greeting');
+      setTimeout(() => g.classList.remove('greeting'), 3000);
+    }, 3000);
+  }
+
+  // M22 — Error shake
+  function demoError(btn){
+    withRunning(btn, () => {
+      const e = document.getElementById('error-btn');
+      const orig = e.textContent;
+      e.classList.add('shaking');
+      e.textContent = 'Falló';
+      setTimeout(() => {
+        e.classList.remove('shaking');
+        e.textContent = orig;
+      }, 1500);
+    }, 1500);
+  }
+</script>
+
+</body>
+</html>
