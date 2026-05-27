@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora LIVE · Modo Concierto · Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&family=Bebas+Neue&family=Audiowide&family=Major+Mono+Display&family=Press+Start+2P&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#02050A;
+    --ink-2:#06101D;
+    --amber:#FFB400;
+    --amber-bright:#FFD66B;
+    --gold:#C9A650;
+    --cream:#F0E6D2;
+    --rose:#FF3478;
+    --rose-bright:#FF8FBE;
+    --violet:#9D4EDD;
+    --violet-bright:#C77DFF;
+    --cyan:#00E5FF;
+    --magenta:#FF00CC;
+    --yellow:#FFD600;
+    --green:#33FF99;
+    --red:#FF2D55;
+    --orange:#FF7A00;
+    --coral:#FF8866;
+    --charcoal:#1F1B17;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#080812 0%,#020205 60%,#000 100%);
+    color:#eee;font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+
+  /* ─── HEADER ─── */
+  .wrap{max-width:1700px;margin:0 auto;padding:48px 24px 120px}
+  .head{text-align:center;margin-bottom:64px;position:relative}
+  .head::before{
+    content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+    width:380px;height:380px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,52,120,.18),transparent 60%);
+    z-index:-1;animation:pulseGlow 4s ease-in-out infinite;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;
+    color:var(--rose);text-transform:uppercase;margin-bottom:18px;font-weight:600;
+    opacity:0;animation:fade .8s .1s forwards;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(48px,8vw,84px);line-height:.95;letter-spacing:-.03em;
+    color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards;
+  }
+  h1 .live{
+    font-family:'Audiowide',cursive;font-style:normal;font-weight:400;
+    background:linear-gradient(135deg,var(--rose),var(--violet) 50%,var(--cyan));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    letter-spacing:.02em;
+  }
+  .sub{
+    font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;
+    color:rgba(255,255,255,.65);max-width:720px;margin:0 auto 32px;
+    opacity:0;animation:fade .9s .5s forwards;
+  }
+  .sub b{
+    background:linear-gradient(135deg,var(--rose-bright),var(--violet-bright));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-weight:500;
+  }
+
+  /* ─── SECTION TITLES ─── */
+  .section{margin-top:96px}
+  .section-head{
+    display:flex;align-items:baseline;gap:18px;
+    margin:0 auto 40px;max-width:1600px;padding:0 8px;
+  }
+  .section-num{
+    font-family:'Audiowide',cursive;font-size:48px;font-weight:400;
+    color:var(--rose);opacity:.6;letter-spacing:-.04em;
+  }
+  .section-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:34px;color:#fff;letter-spacing:-.01em;
+  }
+  .section-desc{
+    font-family:'Inter',sans-serif;font-size:13px;color:rgba(255,255,255,.5);
+    margin-left:auto;max-width:380px;text-align:right;line-height:1.5;
+  }
+
+  /* ─── PHONE FRAME (landscape AND portrait) ─── */
+  .phones{
+    display:grid;grid-template-columns:1fr;gap:32px;
+    max-width:1600px;margin:0 auto;
+  }
+  @media (min-width:900px){.phones{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1400px){.phones{grid-template-columns:repeat(4,1fr)}}
+
+  .phone-card{
+    background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));
+    border:1px solid rgba(255,255,255,.06);border-radius:20px;
+    padding:18px;
+    transition:all .4s;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .phone-card:hover{
+    border-color:rgba(255,52,120,.3);
+    transform:translateY(-2px);
+    box-shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  .pc-head{display:flex;align-items:baseline;gap:8px}
+  .pc-tag{
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    letter-spacing:.28em;color:var(--rose);text-transform:uppercase;font-weight:700;
+  }
+  .pc-name{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:18px;color:#fff;letter-spacing:-.005em;
+  }
+  .pc-desc{
+    font-family:'Inter',sans-serif;font-size:11px;line-height:1.5;
+    color:rgba(255,255,255,.5);
+  }
+  .pc-desc b{color:var(--rose-bright);font-weight:500}
+
+  /* PORTRAIT phone */
+  .phone-p{
+    position:relative;width:100%;aspect-ratio:9/19.5;
+    background:#000;border-radius:28px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 24px 60px rgba(0,0,0,.6);
+    overflow:hidden;
+  }
+  /* LANDSCAPE phone (for marquesinas) */
+  .phone-l{
+    position:relative;width:100%;aspect-ratio:19.5/9;
+    background:#000;border-radius:18px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 16px 40px rgba(0,0,0,.6);
+    overflow:hidden;
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* SECTION 1 — MARQUESINAS (8 estilos)                          */
+  /* ════════════════════════════════════════════════════════════ */
+  .marquee-frame{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+
+  /* ── M1 · SCROLL ── */
+  .mq-scroll{
+    background:#000;
+    width:100%;display:flex;align-items:center;
+  }
+  .mq-scroll .text{
+    font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--rose);
+    text-shadow:0 0 20px var(--rose),0 0 40px var(--rose);
+    white-space:nowrap;letter-spacing:.04em;
+    animation:scrollText 6s linear infinite;
+  }
+
+  /* ── M2 · BLINK ── */
+  .mq-blink{
+    background:#000;
+    width:100%;display:flex;align-items:center;justify-content:center;
+  }
+  .mq-blink .text{
+    font-family:'Audiowide',cursive;font-size:44px;color:var(--magenta);
+    text-shadow:0 0 16px var(--magenta),0 0 32px var(--magenta);
+    animation:blinkText 1s steps(1) infinite;
+  }
+
+  /* ── M3 · GRADIENT FIRE ── */
+  .mq-fire{
+    background:radial-gradient(ellipse at bottom,#3a0a0a,#000);
+    width:100%;display:flex;align-items:center;justify-content:center;
+  }
+  .mq-fire .text{
+    font-family:'Bebas Neue',sans-serif;font-size:48px;
+    background:linear-gradient(180deg,var(--yellow) 10%,var(--orange) 40%,var(--red) 80%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 30px var(--orange);
+    letter-spacing:.06em;
+    animation:flameShift 1.5s ease-in-out infinite;
+  }
+
+  /* ── M4 · NEON CYBER ── */
+  .mq-neon{
+    background:#000510;
+    width:100%;display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .mq-neon::before{
+    content:'';position:absolute;inset:0;
+    background:
+      linear-gradient(to right,rgba(0,229,255,.1) 1px,transparent 1px) 0 0/30px 30px,
+      linear-gradient(to bottom,rgba(0,229,255,.1) 1px,transparent 1px) 0 0/30px 30px;
+    opacity:.4;
+  }
+  .mq-neon .text{
+    font-family:'Audiowide',cursive;font-size:42px;color:var(--cyan);
+    text-shadow:
+      0 0 8px var(--cyan),
+      0 0 16px var(--cyan),
+      0 0 32px var(--cyan),
+      0 0 60px rgba(0,229,255,.5);
+    letter-spacing:.06em;
+    position:relative;z-index:2;
+  }
+
+  /* ── M5 · GLITCH ── */
+  .mq-glitch{
+    background:#000;
+    width:100%;display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .mq-glitch .text{
+    font-family:'Major Mono Display',monospace;font-size:38px;color:#fff;
+    position:relative;
+    animation:glitchMain .3s infinite;
+  }
+  .mq-glitch .text::before,
+  .mq-glitch .text::after{
+    content:attr(data-text);position:absolute;left:0;top:0;
+  }
+  .mq-glitch .text::before{
+    color:var(--cyan);animation:glitchA .25s infinite;
+    clip-path:polygon(0 0,100% 0,100% 33%,0 33%);
+  }
+  .mq-glitch .text::after{
+    color:var(--magenta);animation:glitchB .35s infinite;
+    clip-path:polygon(0 66%,100% 66%,100% 100%,0 100%);
+  }
+
+  /* ── M6 · TYPEWRITER ── */
+  .mq-type{
+    background:#000;
+    width:100%;display:flex;align-items:center;justify-content:center;
+  }
+  .mq-type .text{
+    font-family:'JetBrains Mono',monospace;font-size:32px;
+    color:var(--green);text-shadow:0 0 12px var(--green);
+    overflow:hidden;border-right:3px solid var(--green);
+    white-space:nowrap;
+    animation:typeIn 4s steps(20) infinite,
+              caret .7s steps(1) infinite;
+    max-width:0;
+  }
+
+  /* ── M7 · BREATHE ── */
+  .mq-breathe{
+    background:linear-gradient(180deg,#1a0a20,#0a0010);
+    width:100%;display:flex;align-items:center;justify-content:center;
+  }
+  .mq-breathe .text{
+    font-family:'Fraunces',serif;font-style:italic;font-size:46px;
+    color:var(--violet-bright);
+    text-shadow:0 0 24px var(--violet);
+    animation:breatheText 3s ease-in-out infinite;
+  }
+
+  /* ── M8 · STARS ── */
+  .mq-stars{
+    background:#000;
+    width:100%;display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .mq-stars::before{
+    content:'';position:absolute;inset:0;
+    background:
+      radial-gradient(1.5px 1.5px at 20% 30%,#fff,transparent),
+      radial-gradient(1px 1px at 60% 70%,var(--yellow),transparent),
+      radial-gradient(2px 2px at 80% 20%,#fff,transparent),
+      radial-gradient(1px 1px at 30% 80%,var(--amber-bright),transparent),
+      radial-gradient(1.5px 1.5px at 10% 50%,#fff,transparent),
+      radial-gradient(1px 1px at 90% 60%,var(--yellow),transparent);
+    animation:twinkle 3s linear infinite;
+  }
+  .mq-stars .text{
+    font-family:'Press Start 2P',monospace;font-size:24px;color:var(--yellow);
+    text-shadow:0 0 12px var(--yellow);
+    position:relative;z-index:2;
+    letter-spacing:.04em;
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* SECTION 2 — LINTERNA RGB PRESETS                             */
+  /* ════════════════════════════════════════════════════════════ */
+  .torch-screen{
+    position:absolute;inset:0;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  .torch-label{
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    letter-spacing:.3em;text-transform:uppercase;font-weight:700;
+    color:rgba(255,255,255,.7);
+    margin-bottom:24px;
+    padding:4px 10px;
+    background:rgba(0,0,0,.3);border-radius:4px;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    z-index:3;
+  }
+
+  /* T1 — Romántica */
+  .t-romance{
+    background:radial-gradient(circle at center,var(--rose-bright),var(--violet));
+    animation:romancePulse 3s ease-in-out infinite;
+  }
+
+  /* T2 — Antro */
+  .t-antro{
+    animation:antroCycle 1.5s linear infinite;
+  }
+
+  /* T3 — Cumbia */
+  .t-cumbia{
+    background:linear-gradient(135deg,var(--green) 0%,var(--yellow) 100%);
+  }
+
+  /* T4 — Solo escuchar (negro) */
+  .t-blackout{
+    background:#000;
+    border:1px solid rgba(255,255,255,.05);
+  }
+  .t-blackout .torch-label{
+    color:rgba(255,255,255,.3);
+    background:rgba(255,255,255,.05);
+  }
+
+  /* T5 — Normal blanco */
+  .t-white{
+    background:#fff;
+  }
+  .t-white .torch-label{
+    color:rgba(0,0,0,.6);
+    background:rgba(0,0,0,.05);
+  }
+
+  /* T6 — Atardecer */
+  .t-sunset{
+    background:linear-gradient(180deg,var(--coral) 0%,var(--orange) 60%,#FF4500 100%);
+  }
+
+  /* T7 — Latido */
+  .t-heartbeat{
+    background:var(--red);
+    animation:heartbeatPulse 1s ease-in-out infinite;
+  }
+
+  /* T8 — AURA Reactive (animado) */
+  .t-aura{
+    background:linear-gradient(135deg,var(--violet),var(--cyan),var(--magenta));
+    background-size:300% 300%;
+    animation:auraReact 2s ease-in-out infinite;
+    position:relative;
+  }
+  .t-aura::before{
+    content:'';position:absolute;inset:0;
+    background:
+      radial-gradient(circle at 50% 100%,rgba(255,255,255,.4),transparent 50%);
+    animation:auraReactBars 1.2s ease-in-out infinite;
+  }
+  .t-aura .premium-pill{
+    position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    padding:3px 10px;border-radius:99px;
+    background:rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid var(--amber);
+    font-family:'JetBrains Mono',monospace;font-size:8px;
+    letter-spacing:.3em;text-transform:uppercase;font-weight:700;
+    color:var(--amber-bright);
+    z-index:3;
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* SECTION 3 — COMBO (marquesina + linterna sync)               */
+  /* ════════════════════════════════════════════════════════════ */
+  .combo{
+    max-width:900px;margin:0 auto;
+    background:linear-gradient(180deg,rgba(157,78,221,.04),rgba(255,52,120,.04));
+    border:1px solid rgba(157,78,221,.2);border-radius:24px;
+    padding:32px;
+  }
+  .combo-grid{display:grid;grid-template-columns:1fr;gap:24px;align-items:center}
+  @media (min-width:700px){.combo-grid{grid-template-columns:1fr 1fr}}
+  .combo-info h3{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:28px;
+    color:#fff;margin-bottom:8px;
+  }
+  .combo-info p{
+    font-family:'Inter',sans-serif;font-size:13px;line-height:1.6;
+    color:rgba(255,255,255,.7);margin-bottom:18px;
+  }
+  .combo-info p b{color:var(--rose-bright);font-weight:500}
+  .combo-info .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .combo-info .tag{
+    padding:4px 10px;border-radius:99px;
+    background:rgba(255,52,120,.12);border:1px solid rgba(255,52,120,.4);
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--rose-bright);
+  }
+  .combo-phone{
+    position:relative;width:100%;aspect-ratio:9/19.5;
+    background:#000;border-radius:28px;overflow:hidden;
+    box-shadow:0 0 0 1px rgba(255,255,255,.1),0 24px 60px rgba(0,0,0,.7),
+               0 0 60px rgba(255,52,120,.3);
+  }
+  .combo-screen{
+    position:absolute;inset:0;
+    background:radial-gradient(circle at center,var(--rose-bright),var(--violet));
+    animation:romancePulse 3s ease-in-out infinite;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .combo-screen .text{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:36px;
+    color:#fff;text-align:center;line-height:1.15;
+    text-shadow:0 0 20px rgba(0,0,0,.6),0 0 40px var(--rose);
+    padding:0 20px;
+    animation:breatheText 3s ease-in-out infinite;
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* SECTION 4 — ENTRY POINT (button en HomePage)                 */
+  /* ════════════════════════════════════════════════════════════ */
+  .entry-wrap{
+    max-width:600px;margin:0 auto;
+    display:flex;justify-content:center;
+  }
+  .entry-phone{
+    position:relative;width:280px;aspect-ratio:9/19.5;
+    background:#000;border-radius:28px;overflow:hidden;
+    box-shadow:0 0 0 1px rgba(255,255,255,.1),0 24px 60px rgba(0,0,0,.6);
+  }
+  .entry-phone .ph-content{
+    position:absolute;inset:0;padding:14px;
+    background:linear-gradient(180deg,#1F1B17,#0a0612 60%);
+  }
+  .entry-phone .ph-header{
+    display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  }
+  .entry-phone .ph-avatar{
+    width:22px;height:22px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),#C77A3B);
+  }
+  .entry-phone .ph-title{
+    font-family:'Fraunces',serif;font-style:italic;font-size:13px;
+    color:var(--cream);flex:1;
+  }
+  .entry-phone .ph-credits{
+    background:rgba(201,166,80,.12);padding:2px 8px;border-radius:8px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    color:var(--gold);
+  }
+  .entry-phone .live-btn{
+    width:100%;padding:18px;border-radius:14px;
+    background:linear-gradient(135deg,var(--rose),var(--violet) 70%,var(--cyan));
+    background-size:200% 200%;
+    animation:gradientShift 4s ease-in-out infinite;
+    box-shadow:0 8px 24px rgba(255,52,120,.4),0 0 24px rgba(157,78,221,.3);
+    margin-bottom:8px;
+    position:relative;overflow:hidden;
+  }
+  .live-btn::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.2) 50%,transparent 70%);
+    animation:shimmerBtn 2s linear infinite;
+  }
+  .live-btn-title{
+    font-family:'Audiowide',cursive;font-size:18px;color:#fff;text-align:center;
+    letter-spacing:.04em;position:relative;z-index:2;
+    text-shadow:0 2px 4px rgba(0,0,0,.4);
+  }
+  .live-btn-sub{
+    font-family:'Inter',sans-serif;font-size:9px;text-align:center;
+    color:rgba(255,255,255,.85);letter-spacing:.18em;text-transform:uppercase;
+    font-weight:600;margin-top:2px;position:relative;z-index:2;
+  }
+  .entry-phone .cards{
+    display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:14px;
+  }
+  .entry-phone .ph-card{
+    aspect-ratio:9/16;border-radius:6px;
+    background:linear-gradient(135deg,#2a1818,#0a0612);
+    border:1px solid rgba(255,180,0,.1);
+  }
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* SECTION 5 — STADIUM WAVE (futuro)                            */
+  /* ════════════════════════════════════════════════════════════ */
+  .stadium-section{
+    max-width:1100px;margin:0 auto;
+    background:radial-gradient(ellipse at center,rgba(255,52,120,.06),transparent 70%);
+    border-radius:24px;padding:48px 32px;
+  }
+  .stadium-grid{
+    display:grid;grid-template-columns:repeat(10,1fr);gap:8px;
+    max-width:600px;margin:32px auto;
+  }
+  .stadium-cell{
+    aspect-ratio:1;border-radius:3px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    animation:waveCell 4s ease-in-out infinite;
+  }
+  .stadium-grid > div:nth-child(1){animation-delay:0s;background:var(--rose)}
+  .stadium-grid > div:nth-child(2){animation-delay:.05s;background:var(--rose)}
+  .stadium-grid > div:nth-child(3){animation-delay:.1s;background:var(--violet)}
+  .stadium-grid > div:nth-child(4){animation-delay:.15s;background:var(--violet)}
+  .stadium-grid > div:nth-child(5){animation-delay:.2s;background:var(--cyan)}
+  .stadium-grid > div:nth-child(6){animation-delay:.25s;background:var(--cyan)}
+  .stadium-grid > div:nth-child(7){animation-delay:.3s;background:var(--magenta)}
+  .stadium-grid > div:nth-child(8){animation-delay:.35s;background:var(--magenta)}
+  .stadium-grid > div:nth-child(9){animation-delay:.4s;background:var(--yellow)}
+  .stadium-grid > div:nth-child(10){animation-delay:.45s;background:var(--yellow)}
+  .stadium-grid > div{animation-delay:calc(var(--col,1) * .05s + var(--row,1) * .1s)}
+
+  /* ════════════════════════════════════════════════════════════ */
+  /* ANIMATIONS                                                   */
+  /* ════════════════════════════════════════════════════════════ */
+  @keyframes fade{to{opacity:1}}
+  @keyframes pulseGlow{
+    0%,100%{opacity:.6;transform:translateX(-50%) scale(1)}
+    50%{opacity:1;transform:translateX(-50%) scale(1.15)}
+  }
+  @keyframes scrollText{
+    from{transform:translateX(100%)}
+    to{transform:translateX(-100%)}
+  }
+  @keyframes blinkText{
+    0%,49%{opacity:1}
+    50%,100%{opacity:.2}
+  }
+  @keyframes flameShift{
+    0%,100%{filter:hue-rotate(0deg) brightness(1)}
+    50%{filter:hue-rotate(-15deg) brightness(1.2)}
+  }
+  @keyframes glitchMain{
+    0%,100%{transform:translate(0)}
+    20%{transform:translate(-2px,2px)}
+    40%{transform:translate(-2px,-2px)}
+    60%{transform:translate(2px,2px)}
+    80%{transform:translate(2px,-2px)}
+  }
+  @keyframes glitchA{
+    0%,100%{transform:translate(0)}
+    20%{transform:translate(-3px,1px)}
+    40%{transform:translate(3px,-1px)}
+  }
+  @keyframes glitchB{
+    0%,100%{transform:translate(0)}
+    20%{transform:translate(2px,-2px)}
+    40%{transform:translate(-2px,2px)}
+  }
+  @keyframes typeIn{
+    0%{max-width:0}
+    50%,90%{max-width:600px}
+    100%{max-width:0}
+  }
+  @keyframes caret{
+    0%,49%{border-color:var(--green)}
+    50%,100%{border-color:transparent}
+  }
+  @keyframes breatheText{
+    0%,100%{opacity:.6;transform:scale(.96)}
+    50%{opacity:1;transform:scale(1.04)}
+  }
+  @keyframes twinkle{
+    0%{transform:translateX(0)}
+    100%{transform:translateX(-20%)}
+  }
+  @keyframes romancePulse{
+    0%,100%{filter:brightness(1) saturate(1)}
+    50%{filter:brightness(1.15) saturate(1.3)}
+  }
+  @keyframes antroCycle{
+    0%{background:var(--magenta)}
+    20%{background:var(--cyan)}
+    40%{background:var(--yellow)}
+    60%{background:var(--violet)}
+    80%{background:var(--green)}
+    100%{background:var(--magenta)}
+  }
+  @keyframes heartbeatPulse{
+    0%,100%{filter:brightness(.85)}
+    15%{filter:brightness(1.2)}
+    30%{filter:brightness(.85)}
+    45%{filter:brightness(1.15)}
+  }
+  @keyframes auraReact{
+    0%,100%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+  }
+  @keyframes auraReactBars{
+    0%,100%{opacity:.3;transform:scaleY(.6)}
+    50%{opacity:.8;transform:scaleY(1.2)}
+  }
+  @keyframes gradientShift{
+    0%,100%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+  }
+  @keyframes shimmerBtn{
+    from{transform:translateX(-100%)}
+    to{transform:translateX(100%)}
+  }
+  @keyframes waveCell{
+    0%,100%{opacity:.15;transform:scale(.85)}
+    50%{opacity:1;transform:scale(1)}
+  }
+
+  /* FOOTER */
+  .foot{margin-top:96px;text-align:center;padding:32px;border-top:1px solid rgba(255,52,120,.15)}
+  .foot p{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="head">
+    <div class="eyebrow">PIXORA · MODO CONCIERTO · PARTY MODE · CONCEPTOS</div>
+    <h1>Pixora <span class="live">LIVE</span></h1>
+    <p class="sub">
+      Convierte tu cel en un <b>accesorio de concierto</b>: marquesinas con texto épico
+      para gritar a tu artista favorito + linterna RGB con presets para cada vibra
+      (romántica, antro, cumbia, modo escuchar). <b>Diferenciador real</b> sin competencia
+      directa en el mercado de wallpapers.
+    </p>
+  </header>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1 — MARQUESINAS                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <div class="section-title">Marquesinas — 8 estilos</div>
+      <div class="section-desc">
+        Cel en landscape, texto del usuario, brillo al 100%. Para gritar tu mensaje
+        sin gritarlo.
+      </div>
+    </div>
+
+    <div class="phones">
+
+      <!-- M1 SCROLL -->
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">M1</div><div class="pc-name">Scroll</div></div>
+        <p class="pc-desc">Texto deslizándose horizontal tipo cinta LED de estadio. <b>Clásico imposible no leer.</b></p>
+        <div class="phone-l">
+          <div class="marquee-frame mq-scroll">
+            <div class="text">BAD BUNNY • TE AMO • UN VERANO SIN TI •</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- M2 BLINK -->
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">M2</div><div class="pc-name">Blink</div></div>
+        <p class="pc-desc">Encendido/apagado magenta. Imposible no notar desde lejos. <b>Para sacar tu cel en momentos clave.</b></p>
+        <div class="phone-l">
+          <div class="marquee-frame mq-blink">
+            <div class="text">¡OTRA!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- M3 GRADIENT FIRE -->
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">M3</div><div class="pc-name">Gradient Fire</div></div>
+        <p class="pc-desc">Texto en gradient amarillo→naranja→rojo tipo flama. <b>Para canciones intensas / metal / rock.</b></p>
+        <div class="phone-l">
+          <div class="marquee-frame mq-fire">
+            <div class="text">METALLICA</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- M4 NEON CYBER -->
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">M4</div><div class="pc-name">Neon Cyber</div></div>
+        <p class="pc-desc">Cyan brillante sobre grid cyberpunk. <b>Para electrónica, EDM, raves.</b></p>
+        <div class="phone-l">
+          <div class="marquee-frame mq-neon">
+            <div class="text">TECHNO</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- M5 GLITCH -->
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">M5</div><div class="pc-name">Glitch</div></div>
+        <p class="pc-desc">Texto con desfase RGB cyan/magenta. <b>Estética digital alternativa, indie, post-punk.</b></p>
+        <div class="phone-l">
+          <div class="marquee-frame mq-glitch">
+            <div class="text" data-text="ERROR 404">ERROR 404</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- M6 TYPEWRITER -->
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">M6</div><div class="pc-name">Typewriter</div></div>
+        <p class="pc-desc">Letra por letra estilo terminal verde fosforescente. <b>Para mensajes íntimos, declaraciones.</b></p>
+        <div class="phone-l">
+          <div class="marquee-frame mq-type">
+            <div class="text">SE MI VALENTIN_</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- M7 BREATHE -->
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">M7</div><div class="pc-name">Breathe</div></div>
+        <p class="pc-desc">Texto violeta que respira con la canción. <b>Para baladas, jazz, momentos lentos.</b></p>
+        <div class="phone-l">
+          <div class="marquee-frame mq-breathe">
+            <div class="text">te amo</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- M8 STARS -->
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">M8</div><div class="pc-name">Stars</div></div>
+        <p class="pc-desc">Texto pixel-art amarillo con estrellas. <b>Para K-pop, anime, retro gaming, festivales temáticos.</b></p>
+        <div class="phone-l">
+          <div class="marquee-frame mq-stars">
+            <div class="text">FOREVER</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2 — LINTERNA RGB                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <div class="section-title">Linterna RGB — 8 presets</div>
+      <div class="section-desc">
+        Pantalla al 100% con un color sólido / animado. La "linterna" la da la pantalla
+        (los flash de cel son blancos no-RGB).
+      </div>
+    </div>
+
+    <div class="phones">
+
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">T1</div><div class="pc-name">Romántica</div></div>
+        <p class="pc-desc"><b>Para canciones lentas.</b> Violeta/rosa pulsing suave. La favorita de las parejas.</p>
+        <div class="phone-p">
+          <div class="torch-screen t-romance">
+            <div class="torch-label">ROMÁNTICA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">T2</div><div class="pc-name">Antro</div></div>
+        <p class="pc-desc"><b>Cycle rápido magenta→cyan→yellow.</b> Para reggaetón, perreo, party.</p>
+        <div class="phone-p">
+          <div class="torch-screen t-antro">
+            <div class="torch-label">ANTRO</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">T3</div><div class="pc-name">Cumbia</div></div>
+        <p class="pc-desc"><b>Verde/amarillo cálido estático.</b> Tropical, sonoreros, tardeada.</p>
+        <div class="phone-p">
+          <div class="torch-screen t-cumbia">
+            <div class="torch-label">CUMBIA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">T4</div><div class="pc-name">Solo escuchar</div></div>
+        <p class="pc-desc"><b>Pantalla en negro absoluto.</b> Para esos momentos donde solo quieres oír al artista.</p>
+        <div class="phone-p">
+          <div class="torch-screen t-blackout">
+            <div class="torch-label">SHHH...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">T5</div><div class="pc-name">Normal</div></div>
+        <p class="pc-desc"><b>Blanco al 100%.</b> Como flashlight clásica de cualquier app, pero sin app extra.</p>
+        <div class="phone-p">
+          <div class="torch-screen t-white">
+            <div class="torch-label">NORMAL</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">T6</div><div class="pc-name">Atardecer</div></div>
+        <p class="pc-desc"><b>Naranja→coral→rojo.</b> Salsa, bachata, cuando se baja la intensidad.</p>
+        <div class="phone-p">
+          <div class="torch-screen t-sunset">
+            <div class="torch-label">ATARDECER</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">T7</div><div class="pc-name">Latido</div></div>
+        <p class="pc-desc"><b>Rojo pulsando a 60 BPM.</b> Conciertos íntimos, declaraciones de amor.</p>
+        <div class="phone-p">
+          <div class="torch-screen t-heartbeat">
+            <div class="torch-label">LATIDO</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-card">
+        <div class="pc-head"><div class="pc-tag">T8</div><div class="pc-name">AURA Reactive</div></div>
+        <p class="pc-desc"><b>Detecta beat con el mic + colores sync con la música.</b> Premium feature.</p>
+        <div class="phone-p">
+          <div class="torch-screen t-aura">
+            <div class="premium-pill">PREMIUM ◆</div>
+            <div class="torch-label">AURA REACTIVE</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3 — COMBO                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <div class="section-title">Combo: Marquesina + Linterna</div>
+      <div class="section-desc">
+        El usuario guarda sus presets favoritos como "setup" para reutilizar
+        canción tras canción.
+      </div>
+    </div>
+
+    <div class="combo">
+      <div class="combo-grid">
+        <div class="combo-info">
+          <h3>"Mi setup romántico"</h3>
+          <p>
+            Linterna <b>Romántica</b> (violeta pulsing) + marquesina <b>Breathe</b>
+            con mi texto. Brillo 100%, auto-rotate disabled, no notifs.
+            Un tap → todo activo.
+          </p>
+          <div class="tags">
+            <span class="tag">PRESET GUARDADO</span>
+            <span class="tag">1 TAP</span>
+            <span class="tag">SIN INTERRUPCIONES</span>
+          </div>
+        </div>
+        <div class="combo-phone">
+          <div class="combo-screen">
+            <div class="text">te amo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4 — ENTRY POINT                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">04</div>
+      <div class="section-title">Entrada al modo</div>
+      <div class="section-desc">
+        Botón grande en la home arriba del grid. Imposible no verlo,
+        el gradient animado lo destaca.
+      </div>
+    </div>
+
+    <div class="entry-wrap">
+      <div class="entry-phone">
+        <div class="ph-content">
+          <div class="ph-header">
+            <div class="ph-avatar"></div>
+            <div class="ph-title">Pixora</div>
+            <div class="ph-credits">◆ 315</div>
+          </div>
+          <div class="live-btn">
+            <div class="live-btn-title">PIXORA LIVE</div>
+            <div class="live-btn-sub">Modo Concierto</div>
+          </div>
+          <div class="cards">
+            <div class="ph-card"></div>
+            <div class="ph-card"></div>
+            <div class="ph-card"></div>
+            <div class="ph-card"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 5 — STADIUM WAVE (futuro)                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">05</div>
+      <div class="section-title">Stadium Wave — feature futuro</div>
+      <div class="section-desc">
+        Sync entre TODOS los cels con la app abierta en el estadio.
+        Ola visual sincronizada. Requiere backend mínimo (timestamp +
+        Coldplay wristband technique).
+      </div>
+    </div>
+
+    <div class="stadium-section">
+      <p style="font-family:'Inter',sans-serif;font-size:14px;line-height:1.7;color:rgba(255,255,255,.7);text-align:center;max-width:680px;margin:0 auto;">
+        Cuando el artista grita <b style="color:var(--rose-bright)">"prendan las luces"</b>,
+        los cels de TODOS los que tengan Pixora se sincronizan vía servidor
+        (timestamp + intervalo). La <b style="color:var(--rose-bright)">ola</b> recorre el estadio
+        en colores que el artista predefinió.
+      </p>
+      <div class="stadium-grid">
+        <!-- 30 cells (3 rows x 10) -->
+        <div class="stadium-cell" style="--col:1;--row:1"></div>
+        <div class="stadium-cell" style="--col:2;--row:1"></div>
+        <div class="stadium-cell" style="--col:3;--row:1"></div>
+        <div class="stadium-cell" style="--col:4;--row:1"></div>
+        <div class="stadium-cell" style="--col:5;--row:1"></div>
+        <div class="stadium-cell" style="--col:6;--row:1"></div>
+        <div class="stadium-cell" style="--col:7;--row:1"></div>
+        <div class="stadium-cell" style="--col:8;--row:1"></div>
+        <div class="stadium-cell" style="--col:9;--row:1"></div>
+        <div class="stadium-cell" style="--col:10;--row:1"></div>
+        <div class="stadium-cell" style="--col:1;--row:2"></div>
+        <div class="stadium-cell" style="--col:2;--row:2"></div>
+        <div class="stadium-cell" style="--col:3;--row:2"></div>
+        <div class="stadium-cell" style="--col:4;--row:2"></div>
+        <div class="stadium-cell" style="--col:5;--row:2"></div>
+        <div class="stadium-cell" style="--col:6;--row:2"></div>
+        <div class="stadium-cell" style="--col:7;--row:2"></div>
+        <div class="stadium-cell" style="--col:8;--row:2"></div>
+        <div class="stadium-cell" style="--col:9;--row:2"></div>
+        <div class="stadium-cell" style="--col:10;--row:2"></div>
+        <div class="stadium-cell" style="--col:1;--row:3"></div>
+        <div class="stadium-cell" style="--col:2;--row:3"></div>
+        <div class="stadium-cell" style="--col:3;--row:3"></div>
+        <div class="stadium-cell" style="--col:4;--row:3"></div>
+        <div class="stadium-cell" style="--col:5;--row:3"></div>
+        <div class="stadium-cell" style="--col:6;--row:3"></div>
+        <div class="stadium-cell" style="--col:7;--row:3"></div>
+        <div class="stadium-cell" style="--col:8;--row:3"></div>
+        <div class="stadium-cell" style="--col:9;--row:3"></div>
+        <div class="stadium-cell" style="--col:10;--row:3"></div>
+      </div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--rose);text-align:center;margin-top:24px;">
+        ◆ Feature de altísimo impacto viral · Requiere planning más cuidadoso
+      </p>
+    </div>
+  </section>
+
+
+  <footer class="foot">
+    <p>PIXORA LIVE · CONCEPTOS · 8 MARQUESINAS · 8 LINTERNAS · 2026-05-27</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
