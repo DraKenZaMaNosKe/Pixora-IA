@@ -598,18 +598,13 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
           ),
         ),
         const Spacer(),
-        InkWell(
+        // M06 — Heart Burst con partículas rosas al activar.
+        HeartBurstButton(
+          active: isFav,
           onTap: () =>
               ref.read(favoritesProvider.notifier).toggle(widget.wallpaper.id),
-          borderRadius: BorderRadius.circular(999),
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Icon(
-              isFav ? Icons.favorite : Icons.favorite_border,
-              color: isFav && isIos ? const Color(0xFFFF3B30) : accent,
-              size: 18,
-            ),
-          ),
+          size: 18,
+          color: isFav && isIos ? const Color(0xFFFF3B30) : accent,
         ),
       ],
     );
