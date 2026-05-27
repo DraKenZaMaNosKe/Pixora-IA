@@ -13,6 +13,7 @@ import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/widgets/codex_detail_layout.dart';
 import '../../../../core/widgets/loading_overlay.dart';
+import '../../../../core/widgets/microinteractions/heart_burst_button.dart';
 import '../../../../core/widgets/offline_badge.dart';
 import '../../../../core/widgets/offline_modal.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
