@@ -7,11 +7,14 @@ import '../../../../core/content/content_manager.dart';
 import '../../../../core/content/content_types.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/ad_service.dart';
+import '../../../../core/services/connectivity_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/widgets/codex_detail_layout.dart';
 import '../../../../core/widgets/loading_overlay.dart';
+import '../../../../core/widgets/offline_badge.dart';
+import '../../../../core/widgets/offline_modal.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -78,6 +81,19 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   }
 
   Future<void> _applyWallpaper(int target) async {
+    // Pre-check de conectividad: si está offline Y el archivo NO está en
+    // cache local, mostrar el modal Holographic Edge en vez de intentar y
+    // fallar. Si lo está, proceder normal (apply offline funciona).
+    if (!ConnectivityService.instance.isOnline) {
+      final cached = await ContentManager.instance
+          .isCached(widget.wallpaper.toContentItem());
+      if (!cached) {
+        if (!mounted) return;
+        final retried = await OfflineModal.show(context, isAutoRotate: false);
+        if (retried != true) return;
+      }
+    }
+
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
@@ -196,6 +212,20 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   }
 
   Future<void> _applyLiveWallpaper() async {
+    // Pre-check de conectividad para live wallpapers (mismo patrón que
+    // _applyWallpaper). Live wallpapers casi siempre necesitan red porque
+    // los videos son archivos nuevos; si está cacheado, dejar pasar.
+    if (!ConnectivityService.instance.isOnline) {
+      final isAdaptedLive = widget.wallpaper.customPreviewUrl != null;
+      final cached = await ContentManager.instance
+          .isCached(widget.wallpaper.toContentItem(asLive: isAdaptedLive));
+      if (!cached) {
+        if (!mounted) return;
+        final retried = await OfflineModal.show(context, isAutoRotate: false);
+        if (retried != true) return;
+      }
+    }
+
     setState(() {
       _isApplying = true;
       _downloadProgress = 0.0;
@@ -329,7 +359,6 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
     final hash = id.hashCode.abs() % 1000;
     return 'N° ${hash.toString().padLeft(3, '0')}';
   }
-
 
   void _showApplyOptions() {
     final isFree = AdService.instance.isNextActionFree;
@@ -979,6 +1008,9 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
 
   /// Cabinet of Curiosities CTA — chiseled Cinzel text on a dark stone /
   /// mahogany surface. The `CodexDetailLayout` wraps this in its brass frame.
+  /// Si está offline + wallpaper en cache, aparece arriba el badge
+  /// "Disponible offline" (Surface 3 · Glow Pill) educando que SÍ se puede
+  /// aplicar sin red.
   Widget _buildCta() {
     final h = context.hud;
     final isIos = h.isIosStyle;
@@ -993,6 +1025,21 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
             ? 'APLICANDO ${(_downloadProgress * 100).toInt()}%'
             : 'APLICANDO...')
         : (Platform.isIOS ? 'GUARDAR EN FOTOS' : 'APLICAR WALLPAPER');
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Surface 3 — Glow Pill. Solo visible cuando offline (badge
+        // self-gating). No agrega espacio cuando online.
+        const Padding(
+          padding: EdgeInsets.only(bottom: 8),
+          child: OfflineBadge(),
+        ),
+        _buildCtaButton(label, stoneBg, brassText),
+      ],
+    );
+  }
+
+  Widget _buildCtaButton(String label, Color stoneBg, Color brassText) {
     return InkWell(
       onTap: _isApplying ? null : _showApplyDialog,
       child: Container(

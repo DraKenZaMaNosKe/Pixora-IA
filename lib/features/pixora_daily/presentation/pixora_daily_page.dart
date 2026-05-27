@@ -1,14 +1,18 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../core/services/analytics_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/catalog_service.dart';
+import '../../../core/services/connectivity_service.dart';
 import '../../../core/services/wallpaper_engine_coordinator.dart';
 import '../../../core/utils/locale_helper.dart';
+import '../../../core/widgets/offline_modal.dart';
 import 'widgets/daily_activation_overlay.dart';
 
 /// Pixora Daily — Synthwave Daily layout (concept #03, Eduardo 2026-05-16).
@@ -96,6 +100,26 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
         _busy = false;
       });
     } else {
+      // Pre-check: si está offline + cache vacío, mostrar el Holographic
+      // modal en vez de fallar silenciosamente. Si está cached, dejar pasar
+      // (el primer tick puede recuperar desde el cache local).
+      if (!ConnectivityService.instance.isOnline) {
+        final cacheDir = await getApplicationDocumentsDirectory();
+        final autoRotateCache = Directory('${cacheDir.path}/auto_rotate_cache');
+        final cached = autoRotateCache.existsSync() &&
+            autoRotateCache
+                .listSync()
+                .whereType<File>()
+                .where((f) => !f.path.endsWith('.tmp') && f.lengthSync() > 0)
+                .isNotEmpty;
+        if (!cached) {
+          if (!mounted) return;
+          setState(() => _busy = false);
+          final retried = await OfflineModal.show(context, isAutoRotate: true);
+          if (retried != true) return;
+          setState(() => _busy = true);
+        }
+      }
       // Show the synthwave activation overlay BEFORE kicking off the
       // AutoRotateService.start(). The overlay auto-closes after 3s and
       // calls our onComplete callback, which then runs the real start +

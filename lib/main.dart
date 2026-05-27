@@ -12,7 +12,9 @@ import 'core/services/analytics_service.dart';
 import 'core/services/app_strings_service.dart';
 import 'core/services/catalog_cache_store.dart';
 import 'core/services/catalog_service.dart';
+import 'core/services/connectivity_service.dart';
 import 'core/services/credit_service.dart';
+import 'core/widgets/connectivity_toast.dart';
 import 'core/services/day_cycle_catalog_service.dart';
 import 'core/services/grace_pass_service.dart';
 import 'core/services/legal_service.dart';
@@ -111,6 +113,10 @@ Future<void> main() async {
     await CreditService.instance.init();
     await GracePassService.instance.init();
     await AuraPlayerService.instance.init();
+    // Connectivity — pasivo (cero datos). Detecta WiFi/datos/avión y
+    // expone isOnline + showRestoredToast con debouncing de 30s.
+    // Widgets escuchan vía ListenableBuilder.
+    unawaited(ConnectivityService.instance.init());
     // FCM push notifications — fire-and-forget so we don't block app
     // startup if Firebase/network is slow. Topic subscription happens
     // in the background; failures only log debug, never crash UI.
@@ -231,6 +237,11 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
           navigatorKey: pixoraNavigatorKey,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.forHud(ThemeService.instance.currentTheme),
+          // ConnectivityToastHost — escucha ConnectivityService y muestra
+          // el toast "Edge Gleam" cuando vuelve la conexión después de
+          // >30s offline. Cubre todas las rutas vía Overlay raíz.
+          builder: (context, child) =>
+              ConnectivityToastHost(child: child ?? const SizedBox.shrink()),
           home: ValueListenableBuilder<bool>(
             valueListenable: adShowingNotifier,
             builder: (context, isAdShowing, child) {

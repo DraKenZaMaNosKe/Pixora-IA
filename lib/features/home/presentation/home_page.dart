@@ -9,6 +9,7 @@ import '../../../core/design/hud_tokens.dart';
 import '../../../core/design/hud_widgets.dart';
 import '../../../core/services/analytics_service.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/widgets/offline_indicator.dart';
 import '../../../core/services/credit_service.dart';
 import '../../../core/services/subscription_service.dart';
 import '../../ai_generate/presentation/pages/ai_generate_page.dart';
@@ -1120,6 +1121,11 @@ class _HoloRibbonAppBarState extends State<_HoloRibbonAppBar>
                   controller: _foilCtrl,
                   child: widget.creditsBadge,
                 ),
+                // Offline indicator (Surface 1 · Cosmic Pulse) — solo
+                // visible cuando no hay conexión. Aparece con bounce-in,
+                // desaparece con sparkle-out. Cero espacio cuando online.
+                const SizedBox(width: 8),
+                const OfflineIndicator(),
                 const SizedBox(width: 10),
               ],
             ),
