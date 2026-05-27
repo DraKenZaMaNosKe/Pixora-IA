@@ -1040,37 +1040,52 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   }
 
   Widget _buildCtaButton(String label, Color stoneBg, Color brassText) {
-    return InkWell(
-      onTap: _isApplying ? null : _showApplyDialog,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: stoneBg,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.4),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-              spreadRadius: -1,
-            ),
-          ],
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.cinzel(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: brassText,
-            letterSpacing: 2.4,
-            shadows: [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.5),
+    // M08 — bounce + glow verde cuando llega a done. Mantiene el look
+    // Cinzel/mahogany pero comunica "✓ aplicado" sin cambiar la estética.
+    final isDone = _loadingPhase == LoadingPhase.done;
+    final accentGreen = isDone ? const Color(0xFF3DD68C) : null;
+    return AnimatedScale(
+      scale: isDone ? 1.04 : 1.0,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutBack,
+      child: InkWell(
+        onTap: _isApplying ? null : _showApplyDialog,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: stoneBg,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 4,
                 offset: const Offset(0, 1),
-                blurRadius: 1,
+                spreadRadius: -1,
               ),
+              if (accentGreen != null)
+                BoxShadow(
+                  color: accentGreen.withValues(alpha: 0.4),
+                  blurRadius: 16,
+                ),
             ],
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.cinzel(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: brassText,
+              letterSpacing: 2.4,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  offset: const Offset(0, 1),
+                  blurRadius: 1,
+                ),
+              ],
+            ),
           ),
         ),
       ),

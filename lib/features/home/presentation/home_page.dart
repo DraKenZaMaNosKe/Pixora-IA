@@ -504,12 +504,16 @@ class _HomePageState extends ConsumerState<HomePage> {
             children: [
               Icon(Icons.diamond, size: 14, color: isIos ? iosBlue : h.accent2),
               const SizedBox(width: 5),
-              Text('$credits',
-                  style: HudTokens.mono(
-                      size: 13,
-                      weight: FontWeight.w700,
-                      color: isIos ? iosBlue : h.text,
-                      letterSpacing: isIos ? 0.0 : 0.05)),
+              // M07 — Credit Count-Up animado cuando el balance sube
+              // (típicamente tras ver anuncio). Glow + bounce visible.
+              _AnimatedCreditNumber(
+                value: credits,
+                style: HudTokens.mono(
+                    size: 13,
+                    weight: FontWeight.w700,
+                    color: isIos ? iosBlue : h.text,
+                    letterSpacing: isIos ? 0.0 : 0.05),
+              ),
             ],
           ),
         );
@@ -1292,6 +1296,97 @@ class _PlusHaloAvatarState extends State<_PlusHaloAvatar>
               child: widget.child,
             );
           },
+        );
+      },
+    );
+  }
+}
+
+/// M07 — Credit Count-Up animado. Cuando el balance sube (típicamente
+/// después de ver anuncio), interpola el número y pulsa con glow. Bajadas
+/// (spend) se aplican directo sin animación.
+class _AnimatedCreditNumber extends StatefulWidget {
+  const _AnimatedCreditNumber({required this.value, required this.style});
+  final int value;
+  final TextStyle style;
+
+  @override
+  State<_AnimatedCreditNumber> createState() => _AnimatedCreditNumberState();
+}
+
+class _AnimatedCreditNumberState extends State<_AnimatedCreditNumber>
+    with SingleTickerProviderStateMixin {
+  late int _displayed;
+  late int _lastSeen;
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayed = widget.value;
+    _lastSeen = widget.value;
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedCreditNumber old) {
+    super.didUpdateWidget(old);
+    if (widget.value != _lastSeen) {
+      if (widget.value > _lastSeen) {
+        _ctrl.forward(from: 0);
+        _animateUp(_lastSeen, widget.value);
+      } else {
+        setState(() => _displayed = widget.value);
+      }
+      _lastSeen = widget.value;
+    }
+  }
+
+  Future<void> _animateUp(int from, int to) async {
+    final delta = to - from;
+    final steps = delta.clamp(1, 30);
+    for (var i = 1; i <= steps; i++) {
+      if (!mounted) return;
+      await Future<void>.delayed(const Duration(milliseconds: 35));
+      if (!mounted) return;
+      setState(() => _displayed = from + ((delta * i) ~/ steps));
+    }
+    if (mounted) setState(() => _displayed = to);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (context, _) {
+        final t = _ctrl.value;
+        final pulse = t < 0.5 ? t * 2 : (1 - t) * 2;
+        final scale = 1.0 + pulse * 0.18;
+        final glow = pulse * 0.6;
+        return Transform.scale(
+          scale: scale,
+          child: Text(
+            '$_displayed',
+            style: widget.style.copyWith(
+              shadows: glow > 0.05
+                  ? [
+                      Shadow(
+                        color: const Color(0xFFFFD66B).withValues(alpha: glow),
+                        blurRadius: 12 * pulse,
+                      ),
+                    ]
+                  : widget.style.shadows,
+            ),
+          ),
         );
       },
     );
