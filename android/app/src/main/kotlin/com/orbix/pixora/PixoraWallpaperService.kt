@@ -390,8 +390,11 @@ class PixoraWallpaperService : WallpaperService() {
             try {
                 val arPrefs = applicationContext
                     .getSharedPreferences("pixora_auto_rotate", Context.MODE_PRIVATE)
-                val mins = arPrefs.getInt("interval_minutes", 30).coerceAtLeast(1)
-                dailyIntervalMs = mins * 60_000L
+                // interval_minutes == 0 means "rotate on every unlock". We
+                // still apply a 20s floor so quick lock/unlock cycles don't
+                // trigger several rotations in a row.
+                val mins = arPrefs.getInt("interval_minutes", 30)
+                dailyIntervalMs = if (mins <= 0) 20_000L else mins * 60_000L
                 val livePrefs = applicationContext
                     .getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
                 dailyLastRotation = livePrefs.getLong("daily_last_rotation", 0L)

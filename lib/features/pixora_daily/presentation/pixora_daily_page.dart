@@ -209,17 +209,19 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
   }
 
   Future<void> _pickInterval() async {
+    // La rotación ocurre al desbloquear el cel (on-wake). El intervalo es el
+    // MÍNIMO de tiempo entre cambios: si desbloqueas antes de que pase, no
+    // rota; si ya pasó, el siguiente desbloqueo trae fondo nuevo.
     final v = await _showSynthSheet<int>(
-      title: LocaleHelper.pick(es: 'FRECUENCIA', en: 'FREQUENCY'),
-      items: const [
-        (5, '5 min'),
-        (15, '15 min'),
-        (30, '30 min'),
-        (60, '1 h'),
-        (120, '2 h'),
-        (360, '6 h'),
-        (720, '12 h'),
-        (1440, '24 h'),
+      title: LocaleHelper.pick(es: 'CAMBIAR CADA', en: 'CHANGE EVERY'),
+      items: [
+        (0, LocaleHelper.pick(es: 'Cada desbloqueo', en: 'Every unlock')),
+        (30, LocaleHelper.pick(es: '30 minutos', en: '30 minutes')),
+        (60, LocaleHelper.pick(es: '1 hora', en: '1 hour')),
+        (180, LocaleHelper.pick(es: '3 horas', en: '3 hours')),
+        (360, LocaleHelper.pick(es: '6 horas', en: '6 hours')),
+        (720, LocaleHelper.pick(es: '12 horas', en: '12 hours')),
+        (1440, LocaleHelper.pick(es: 'Una vez al día', en: 'Once a day')),
       ],
       current: _intervalMinutes,
       accent: _neonPink,
@@ -311,12 +313,14 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
   }
 
   String _intervalLabel(int m) {
+    if (m <= 0)
+      return LocaleHelper.pick(es: 'cada desbloqueo', en: 'every unlock');
     if (m < 60) return '$m min';
     if (m < 1440) {
       final h = m ~/ 60;
       return '$h h';
     }
-    return '24 h';
+    return LocaleHelper.pick(es: 'al día', en: 'a day');
   }
 
   String _targetLabel(int t) => switch (t) {
