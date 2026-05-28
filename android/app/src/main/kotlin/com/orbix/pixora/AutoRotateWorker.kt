@@ -12,185 +12,119 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 
 /**
- * AutoRotateWorker — periodically downloads and sets a random wallpaper.
+ * AutoRotateWorker — PRE-DOWNLOAD ONLY (Phase 2, 2026-05-27).
  *
- * Features:
- * - Picks a random wallpaper from the catalog (avoids repeating last 5)
- * - Downloads to temp file first, renames on success (crash-safe)
- * - Enforces max cache size (10 wallpapers, ~50MB)
- * - Checks available disk space before downloading
- * - Handles no internet gracefully (uses cached wallpaper)
- * - Pre-downloads next wallpaper for instant swap
+ * The actual wallpaper rotation now lives INSIDE PixoraWallpaperService
+ * (rotates on-wake among cached files — see §7.Z in the master doc and
+ * tech_pixora_daily_in_service_rotation memory). This worker no longer
+ * applies wallpapers; it only keeps `auto_rotate_cache/` stocked with fresh
+ * content so the in-service rotation always has material to rotate through.
+ *
+ * Why the split:
+ * - Rotation must NOT depend on WorkManager: Android's App Standby quota
+ *   throttles background jobs, so a rotation-via-Worker chain dies after
+ *   hours. Rotation belongs in the always-running wallpaper service.
+ * - This prefetch worker is best-effort: if Android throttles it, no harm —
+ *   the service simply rotates whatever is already cached.
+ * - Runs as a low-frequency PeriodicWork (6h) with a network constraint, so
+ *   it plays nicely with Doze instead of fighting it.
  */
 class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
 
     override fun doWork(): Result {
         val prefs = applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        if (!prefs.getBoolean("enabled", false)) {
+            Log.d(TAG, "Daily disabled — prefetch worker exits")
+            return Result.success()
+        }
+
         val catalogJson = prefs.getString("catalog_json", null)
-
         if (catalogJson.isNullOrEmpty()) {
-            Log.e(TAG, "No catalog data available")
-            return scheduleNextAndSucceed(prefs)
+            Log.d(TAG, "No catalog — nothing to prefetch")
+            return Result.success()
         }
-
-        // Parse catalog entries: "id|imageFile|glowColor" separated by newlines
         val entries = catalogJson.split("\n").filter { it.isNotEmpty() }
-        if (entries.isEmpty()) {
-            Log.e(TAG, "Empty catalog")
-            return scheduleNextAndSucceed(prefs)
-        }
+        if (entries.isEmpty()) return Result.success()
 
-        // Get recent history to avoid repeats
-        val history = prefs.getString("history", "")!!.split("|").filter { it.isNotEmpty() }
-        val maxHistory = minOf(5, entries.size - 1) // don't exclude all
-
-        // Pick a random entry not in recent history
-        val available = entries.filter { entry ->
-            val id = entry.split("|").firstOrNull() ?: ""
-            id !in history.takeLast(maxHistory)
-        }.ifEmpty { entries } // fallback to all if everything filtered
-
-        val chosen = available.random()
-        val parts = chosen.split("|")
-        if (parts.size < 3) {
-            Log.e(TAG, "Invalid catalog entry: $chosen")
-            return scheduleNextAndSucceed(prefs)
-        }
-
-        val wallpaperId = parts[0]
-        val imageFile = parts[1]
-        val glowColor = parts[2]
-
-        Log.d(TAG, "Selected wallpaper: $wallpaperId ($imageFile)")
-
-        // Check disk space (need at least 20MB free)
         if (!hasSufficientSpace(20L * 1024 * 1024)) {
-            Log.w(TAG, "Low disk space, cleaning cache...")
+            Log.w(TAG, "Low disk space — trimming cache, skipping prefetch")
             cleanOldCache(prefs, keepCount = 3)
-            if (!hasSufficientSpace(10L * 1024 * 1024)) {
-                Log.e(TAG, "Still not enough space, using cached wallpaper")
-                setFromCacheAndSchedule(prefs)
-                return scheduleNextAndSucceed(prefs)
-            }
+            return Result.success()
         }
 
-        // Enforce max cache size before downloading
+        prefetchToCache(entries)
         enforceMaxCache(prefs)
-
-        val cacheDir = getWallpaperCacheDir()
-        val targetFile = File(cacheDir, imageFile.replace("/", "_"))
-        val tempFile = File(cacheDir, "${targetFile.name}.tmp")
-
-        val success = if (targetFile.exists()) {
-            Log.d(TAG, "Using cached: ${targetFile.name}")
-            setWallpaper(targetFile.absolutePath, glowColor, prefs)
-        } else {
-            // Download to temp file first
-            val downloaded = downloadFile(
-                "${SUPABASE_STORAGE_BASE}/$imageFile",
-                tempFile
-            )
-            if (downloaded) {
-                tempFile.renameTo(targetFile)
-                setWallpaper(targetFile.absolutePath, glowColor, prefs)
-            } else {
-                Log.w(TAG, "Download failed, trying cached wallpaper")
-                setFromCacheAndSchedule(prefs)
-                return scheduleNextAndSucceed(prefs)
-            }
-        }
-
-        if (success) {
-            // Update history
-            val newHistory = (history + wallpaperId).takeLast(10).joinToString("|")
-            prefs.edit()
-                .putString("history", newHistory)
-                .putString("current_id", wallpaperId)
-                .putString("current_path", targetFile.absolutePath)
-                .putString("current_glow", glowColor)
-                .apply()
-
-            Log.d(TAG, "Wallpaper set: $wallpaperId")
-
-            // Pre-download next wallpaper in background
-            preDownloadNext(entries, history + wallpaperId)
-        }
-
-        return scheduleNextAndSucceed(prefs)
-    }
-
-    private fun scheduleNextAndSucceed(prefs: android.content.SharedPreferences): Result {
-        val intervalMinutes = prefs.getInt("interval_minutes", 5).toLong()
-        scheduleNext(applicationContext, intervalMinutes)
+        seedDailyIfNeeded()
+        Log.d(TAG, "Prefetch tick done")
         return Result.success()
     }
 
-    private fun setWallpaper(path: String, glowColor: String, prefs: android.content.SharedPreferences): Boolean {
-        return try {
-            // Update live wallpaper prefs — PixoraWallpaperService listens for changes
-            // and reloads the image with clock, equalizer, battery, system rings.
-            //
-            // Also clear scene_id + interactive on every rotation: AutoRotate uses
-            // plain panoramic/static images, never canvas scenes. If a previously
-            // selected wallpaper (Goku Genkidama, Mictlantecuhtli, etc.) left a
-            // scene_id behind, that scene overlays the rotated image and the user
-            // sees the old wallpaper forever even though the path keeps changing.
-            // Defensive cleanup here covers both the first rotation after start()
-            // and any later rotation if scene_id leaks back in somehow.
-            val livePrefs = applicationContext.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
-            livePrefs.edit()
-                .putString("wallpaper_path", path)
-                .putString("glow_color", glowColor)
-                .remove("scene_id")
-                .putBoolean("interactive", false)
-                .putLong("changed_at", System.currentTimeMillis()) // trigger listener
-                .apply()
+    /**
+     * Seed daily mode on first activation. The in-service rotation only kicks
+     * in when the current wallpaper_path lives in auto_rotate_cache/. On a
+     * fresh activation that path still points at whatever the user had before,
+     * so we do ONE soft apply (broadcast, never kill) to point it at a cached
+     * file. After this, PixoraWallpaperService takes over rotation on-wake.
+     * No-op if already seeded (path already in the cache).
+     */
+    private fun seedDailyIfNeeded() {
+        val livePrefs = applicationContext
+            .getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+        val currentPath = livePrefs.getString("wallpaper_path", "") ?: ""
+        if (currentPath.contains("auto_rotate_cache")) return // already seeded
 
-            // Notify :wallpaper process — SharedPreferences cache is stale across
-            // processes, see tech_sharedprefs_multi_process.md. The receiver
-            // re-applies the values from inside :wallpaper to sync its cache.
-            // clear_scene=true tells the receiver to also drop scene_id so a
-            // previous canvas wallpaper (e.g. goku_genkidama) doesn't overlay
-            // the rotated image.
-            val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
-                .setPackage(applicationContext.packageName)
-                .putExtra("wallpaper_path", path)
-                .putExtra("glow_color", glowColor)
-                .putExtra("clear_scene", true)
-            applicationContext.sendBroadcast(notify)
+        val cacheDir = getWallpaperCacheDir()
+        val first = cacheDir.listFiles()
+            ?.filter { it.extension != "tmp" && it.length() > 0 }
+            ?.randomOrNull() ?: return
 
-            // IMPORTANT: do NOT kill the :wallpaper process here. Killing the
-            // live wallpaper repeatedly from a background Worker (every tick)
-            // makes Samsung One UI treat the wallpaper as unstable and revert
-            // to the system ImageWallpaper — silently breaking Pixora Daily
-            // until the user re-activates manually. The broadcast above is the
-            // soft path: the running Engine's receiver picks up the new path.
-            // Instant respawn-on-kill only makes sense from the FOREGROUND
-            // (MainActivity), never from background. Regression introduced in
-            // 17667c5, removed here. The robust fix is in-service rotation
-            // (PixoraWallpaperService rotates itself on visibility change).
+        val now = System.currentTimeMillis()
+        livePrefs.edit()
+            .putString("wallpaper_path", first.absolutePath)
+            .remove("scene_id")
+            .putBoolean("interactive", false)
+            .putLong("changed_at", now)
+            .putLong("daily_last_rotation", now)
+            .apply()
 
-            Log.d(TAG, "Wallpaper prefs updated: $path, glow=$glowColor")
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to set wallpaper: ${e.message}")
-            false
-        }
+        val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
+            .setPackage(applicationContext.packageName)
+            .putExtra("wallpaper_path", first.absolutePath)
+            .putExtra("clear_scene", true)
+        applicationContext.sendBroadcast(notify)
+        Log.d(TAG, "Daily seeded with ${first.name}")
     }
 
-    private fun setFromCacheAndSchedule(prefs: android.content.SharedPreferences): Boolean {
+    /**
+     * Download up to [maxNew] catalog images that aren't cached yet, so the
+     * in-service rotation always has fresh material. No wallpaper apply here.
+     */
+    private fun prefetchToCache(entries: List<String>, maxNew: Int = 5) {
         val cacheDir = getWallpaperCacheDir()
-        val cached = cacheDir.listFiles()
-            ?.filter { it.extension != "tmp" && it.length() > 0 }
-            ?.randomOrNull()
+        val cachedNames = cacheDir.listFiles()
+            ?.filter { it.extension != "tmp" }
+            ?.map { it.name }
+            ?.toSet() ?: emptySet()
 
-        return if (cached != null) {
-            val glowColor = prefs.getString("current_glow", "#C9A650") ?: "#C9A650"
-            setWallpaper(cached.absolutePath, glowColor, prefs)
-        } else {
-            Log.w(TAG, "No cached wallpapers available")
-            false
+        var downloaded = 0
+        for (entry in entries.shuffled()) {
+            if (downloaded >= maxNew) break
+            val parts = entry.split("|")
+            if (parts.size < 2) continue
+            val imageFile = parts[1]
+            val targetName = imageFile.replace("/", "_")
+            if (targetName in cachedNames) continue // already cached
+
+            val targetFile = File(cacheDir, targetName)
+            val tempFile = File(cacheDir, "$targetName.tmp")
+            if (downloadFile("$SUPABASE_STORAGE_BASE/$imageFile", tempFile)) {
+                tempFile.renameTo(targetFile)
+                downloaded++
+                Log.d(TAG, "Prefetched: $targetName")
+            }
         }
+        Log.d(TAG, "Prefetch: $downloaded new images (cache had ${cachedNames.size})")
     }
 
     private fun downloadFile(url: String, target: File): Boolean {
@@ -222,34 +156,6 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
         }
     }
 
-    private fun preDownloadNext(entries: List<String>, currentHistory: List<String>) {
-        try {
-            val maxHistory = minOf(5, entries.size - 1)
-            val available = entries.filter { entry ->
-                val id = entry.split("|").firstOrNull() ?: ""
-                id !in currentHistory.takeLast(maxHistory)
-            }.ifEmpty { entries }
-
-            val next = available.random()
-            val parts = next.split("|")
-            if (parts.size < 2) return
-
-            val imageFile = parts[1]
-            val cacheDir = getWallpaperCacheDir()
-            val targetFile = File(cacheDir, imageFile.replace("/", "_"))
-
-            if (!targetFile.exists()) {
-                Log.d(TAG, "Pre-downloading next: ${parts[0]}")
-                val tempFile = File(cacheDir, "${targetFile.name}.tmp")
-                if (downloadFile("${SUPABASE_STORAGE_BASE}/$imageFile", tempFile)) {
-                    tempFile.renameTo(targetFile)
-                }
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Pre-download failed (non-critical): ${e.message}")
-        }
-    }
-
     private fun hasSufficientSpace(minBytes: Long): Boolean {
         return try {
             val stat = StatFs(Environment.getDataDirectory().path)
@@ -265,12 +171,20 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             ?.sortedBy { it.lastModified() } ?: return
 
         if (files.size > maxCached) {
-            val currentPath = prefs.getString("current_path", "")
+            // Protect BOTH the auto-rotate current_path AND the live wallpaper
+            // path — the in-service rotation may be showing a cached file right
+            // now, and deleting it would leave the wallpaper blank.
+            val protectedPaths = setOfNotNull(
+                prefs.getString("current_path", "")?.takeIf { it.isNotEmpty() },
+                applicationContext
+                    .getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+                    .getString("wallpaper_path", "")?.takeIf { it.isNotEmpty() },
+            )
             val toDelete = files.size - maxCached
             var deleted = 0
             for (file in files) {
                 if (deleted >= toDelete) break
-                if (file.absolutePath != currentPath) {
+                if (file.absolutePath !in protectedPaths) {
                     file.delete()
                     deleted++
                     Log.d(TAG, "Cache cleanup: deleted ${file.name}")
@@ -285,12 +199,17 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             ?.filter { it.extension != "tmp" }
             ?.sortedBy { it.lastModified() } ?: return
 
-        val currentPath = prefs.getString("current_path", "")
+        val protectedPaths = setOfNotNull(
+            prefs.getString("current_path", "")?.takeIf { it.isNotEmpty() },
+            applicationContext
+                .getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+                .getString("wallpaper_path", "")?.takeIf { it.isNotEmpty() },
+        )
         val toDelete = maxOf(0, files.size - keepCount)
         var deleted = 0
         for (file in files) {
             if (deleted >= toDelete) break
-            if (file.absolutePath != currentPath) {
+            if (file.absolutePath !in protectedPaths) {
                 file.delete()
                 deleted++
             }
@@ -305,31 +224,26 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
 
     companion object {
         private const val TAG = "PixoraAutoRotate"
-        const val WORK_NAME = "pixora_auto_rotate"
+        const val WORK_NAME = "pixora_auto_rotate"              // immediate one-shot prefetch
+        const val WORK_NAME_PERIODIC = "pixora_auto_rotate_periodic" // 6h refresh
         const val PREFS_NAME = "pixora_auto_rotate"
         private const val MAX_CACHED_WALLPAPERS = 10
+        private const val PREFETCH_PERIOD_HOURS = 6L
         private const val SUPABASE_STORAGE_BASE =
             "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images"
 
-        fun scheduleNext(context: Context, delayMinutes: Long) {
-            val request = OneTimeWorkRequestBuilder<AutoRotateWorker>()
-                .setInitialDelay(delayMinutes, TimeUnit.MINUTES)
-                .addTag(WORK_NAME)
-                .build()
-
-            WorkManager.getInstance(context)
-                .enqueueUniqueWork(
-                    WORK_NAME,
-                    ExistingWorkPolicy.REPLACE,
-                    request
-                )
-            Log.d(TAG, "Next rotation in ${delayMinutes}min")
-        }
+        private fun networkConstraints() = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
 
         /**
-         * Start auto-rotate with catalog data.
+         * Activate Pixora Daily. Stores the catalog + interval + enabled flag
+         * (the interval is read by PixoraWallpaperService for the actual
+         * rotation), fires an immediate prefetch so the cache is stocked, and
+         * schedules a 6h periodic prefetch to keep content fresh.
+         *
          * @param catalogData List of "id|imageFile|glowColor" strings
-         * @param intervalMinutes Minutes between wallpaper changes
+         * @param intervalMinutes Minutes between rotations (used by the SERVICE)
          * @param target 0=Home, 1=Lock, 2=Both
          */
         fun start(
@@ -349,27 +263,43 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             else editor.remove("category")
             editor.apply()
 
-            // Start immediately
-            val request = OneTimeWorkRequestBuilder<AutoRotateWorker>()
+            val wm = WorkManager.getInstance(context)
+
+            // Immediate prefetch — stock the cache for the first rotations.
+            val immediate = OneTimeWorkRequestBuilder<AutoRotateWorker>()
+                .setConstraints(networkConstraints())
                 .addTag(WORK_NAME)
                 .build()
+            wm.enqueueUniqueWork(WORK_NAME, ExistingWorkPolicy.REPLACE, immediate)
 
-            WorkManager.getInstance(context)
-                .enqueueUniqueWork(
-                    WORK_NAME,
-                    ExistingWorkPolicy.REPLACE,
-                    request
-                )
+            // Periodic prefetch every 6h — best-effort fresh content.
+            val periodic = PeriodicWorkRequestBuilder<AutoRotateWorker>(
+                PREFETCH_PERIOD_HOURS, TimeUnit.HOURS
+            )
+                .setConstraints(networkConstraints())
+                .addTag(WORK_NAME_PERIODIC)
+                .build()
+            wm.enqueueUniquePeriodicWork(
+                WORK_NAME_PERIODIC,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                periodic
+            )
 
-            Log.d(TAG, "Auto-rotate started: ${catalogData.size} wallpapers, ${intervalMinutes}min interval, target=$target")
+            Log.d(
+                TAG,
+                "Daily started: ${catalogData.size} wallpapers · rotation every " +
+                    "${intervalMinutes}min (in-service) · prefetch every ${PREFETCH_PERIOD_HOURS}h"
+            )
             return true
         }
 
         fun stop(context: Context): Boolean {
-            WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+            val wm = WorkManager.getInstance(context)
+            wm.cancelUniqueWork(WORK_NAME)
+            wm.cancelUniqueWork(WORK_NAME_PERIODIC)
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             prefs.edit().putBoolean("enabled", false).apply()
-            Log.d(TAG, "Auto-rotate stopped")
+            Log.d(TAG, "Daily stopped (prefetch cancelled)")
             return true
         }
 
