@@ -315,6 +315,21 @@ class MainActivity : AudioServiceActivity() {
                         AutoRotateWorker.clearCache(applicationContext)
                         result.success(true)
                     }
+                    // Phase 3 — detect if Pixora is still the active live
+                    // wallpaper component. Used by Pixora Daily to spot the case
+                    // where the user (or Samsung) reverted the wallpaper and the
+                    // in-service rotation can no longer run.
+                    "isPixoraLiveActive" -> {
+                        result.success(isPixoraActiveWallpaper())
+                    }
+                    // Phase 3 — re-open the live wallpaper picker pointed at
+                    // PixoraWallpaperService so the user can re-activate with one
+                    // tap. forceShowPicker=true: always show the picker (the
+                    // component was lost, so it must be re-set explicitly).
+                    "reactivateLiveWallpaper" -> {
+                        ensureLiveWallpaperActive(forceShowPicker = true)
+                        result.success(true)
+                    }
                     "startDayCycle" -> {
                         val themeId = call.argument<String>("themeId") ?: ""
                         val morningPath = call.argument<String>("morningPath") ?: ""

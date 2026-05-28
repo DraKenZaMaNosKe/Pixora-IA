@@ -29,7 +29,8 @@ class PixoraDailyPage extends StatefulWidget {
   State<PixoraDailyPage> createState() => _PixoraDailyPageState();
 }
 
-class _PixoraDailyPageState extends State<PixoraDailyPage> {
+class _PixoraDailyPageState extends State<PixoraDailyPage>
+    with WidgetsBindingObserver {
   // ── Synthwave palette ───────────────────────────────────────────
   static const _neonPink = Color(0xFFFF2BD6);
   static const _neonCyan = Color(0xFF00F0FF);
@@ -47,27 +48,60 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
   int _cachedCount = 0;
   String _cacheSize = '0.0';
   List<String> _previewUrls = const [];
+  // Fase 3 — true cuando Daily está habilitado pero Pixora YA NO es el live
+  // wallpaper activo (el usuario/Samsung lo revirtió). La rotación in-service
+  // no puede correr en ese estado; mostramos un banner para reactivar.
+  bool _componentLost = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     AnalyticsService.instance.track('pixora_daily_opened');
     _loadStatus();
     _loadPreviewSamples();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Al volver del picker de live wallpaper (Fase 3), recargar estado para
+    // que el banner de reactivación desaparezca si el componente ya volvió.
+    if (state == AppLifecycleState.resumed) {
+      _loadStatus();
+    }
+  }
+
   Future<void> _loadStatus() async {
     final status = await AutoRotateService.instance.getStatus();
+    final enabled = status['enabled'] == true;
+    // Si Daily está activo, verificar que Pixora siga siendo el live wallpaper.
+    // Si no lo es, el componente se perdió y la rotación no puede correr.
+    final componentLost = enabled
+        ? !(await AutoRotateService.instance.isPixoraLiveActive())
+        : false;
     if (!mounted) return;
     setState(() {
-      _enabled = status['enabled'] == true;
+      _enabled = enabled;
       _intervalMinutes = status['intervalMinutes'] as int? ?? 30;
       _target = status['target'] as int? ?? 2;
       _category = status['category'] as String?;
       _cachedCount = status['cachedCount'] as int? ?? 0;
       _cacheSize = status['cacheSizeMB'] as String? ?? '0.0';
+      _componentLost = componentLost;
       _loading = false;
     });
+  }
+
+  Future<void> _reactivate() async {
+    AnalyticsService.instance.track('pixora_daily_reactivate');
+    await AutoRotateService.instance.reactivateLiveWallpaper();
+    // El picker se abre; al volver a la app recargamos el estado.
   }
 
   Future<void> _loadPreviewSamples() async {
@@ -359,6 +393,10 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _buildHeader(),
+                        if (_componentLost) ...[
+                          const SizedBox(height: 12),
+                          _buildReactivateBanner(),
+                        ],
                         const SizedBox(height: 14),
                         _buildCarousel(),
                         const SizedBox(height: 20),
@@ -374,6 +412,83 @@ class _PixoraDailyPageState extends State<PixoraDailyPage> {
                   ),
                 ),
         ],
+      ),
+    );
+  }
+
+  /// Fase 3 — banner cuando Daily está activo pero Pixora dejó de ser el
+  /// live wallpaper (el usuario o el sistema lo revirtió). Un tap reactiva.
+  Widget _buildReactivateBanner() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: _neonPink.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _neonPink, width: 1),
+          boxShadow: [
+            BoxShadow(color: _neonPink.withValues(alpha: 0.3), blurRadius: 14),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: _neonPink, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    LocaleHelper.pick(
+                      es: 'Pixora Daily está en pausa',
+                      en: 'Pixora Daily is paused',
+                    ),
+                    style: GoogleFonts.orbitron(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    LocaleHelper.pick(
+                      es: 'Cambió tu fondo de pantalla. Toca para reactivar la rotación.',
+                      en: 'Your wallpaper changed. Tap to resume rotation.',
+                    ),
+                    style: GoogleFonts.inter(
+                      fontSize: 10.5,
+                      height: 1.4,
+                      color: Colors.white.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            GestureDetector(
+              onTap: _reactivate,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: _neonPink,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  LocaleHelper.pick(es: 'REACTIVAR', en: 'RESUME'),
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -142,4 +142,30 @@ class AutoRotateService {
       debugPrint('[AutoRotate] Clear cache error: $e');
     }
   }
+
+  /// True si Pixora sigue siendo el live wallpaper activo del sistema.
+  /// La rotación in-service (Pixora Daily) SOLO funciona si esto es true;
+  /// si el usuario o Samsung revirtió el wallpaper, la rotación no corre.
+  Future<bool> isPixoraLiveActive() async {
+    if (!Platform.isAndroid) return false;
+    try {
+      final active = await _channel.invokeMethod<bool>('isPixoraLiveActive');
+      return active ?? false;
+    } catch (e) {
+      debugPrint('[AutoRotate] isPixoraLiveActive error: $e');
+      return false;
+    }
+  }
+
+  /// Abre el picker del sistema para re-activar PixoraWallpaperService como
+  /// live wallpaper. Usado cuando se detecta que el componente se perdió pero
+  /// Daily sigue habilitado (red de seguridad — Fase 3).
+  Future<void> reactivateLiveWallpaper() async {
+    if (!Platform.isAndroid) return;
+    try {
+      await _channel.invokeMethod('reactivateLiveWallpaper');
+    } catch (e) {
+      debugPrint('[AutoRotate] reactivateLiveWallpaper error: $e');
+    }
+  }
 }
