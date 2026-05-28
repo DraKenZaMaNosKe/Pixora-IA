@@ -61,6 +61,16 @@ class PixoraWallpaperService : WallpaperService() {
         @Volatile private var lastScaledSurfaceW: Int = 0
         @Volatile private var lastScaledSurfaceH: Int = 0
 
+        // ── Pixora Daily — in-service rotation (robust architecture) ──────────
+        // The service rotates the wallpaper ITSELF on wake, instead of relying
+        // on a background Worker that Android throttles + a process-kill that
+        // Samsung punishes. We detect "daily mode" purely from our own state:
+        // if the current wallpaper_path lives in auto_rotate_cache/, we're in
+        // daily mode and rotate between the cached files when the interval has
+        // elapsed. No cross-process flag, no WorkManager dependency, no kill.
+        @Volatile private var dailyIntervalMs = 30 * 60 * 1000L // default 30 min
+        @Volatile private var dailyLastRotation = 0L
+
         // Panoramic scroll
         private var isPanoramic = false
         @Volatile private var panoramicBitmap: Bitmap? = null
@@ -366,7 +376,81 @@ class PixoraWallpaperService : WallpaperService() {
             registerOverlaySettingsReceiver()
             registerWallpaperPathReceiver()
             registerAdVisibilityReceiver()
+            loadDailyConfig()
             Log.d(TAG, "Engine onCreate")
+        }
+
+        /**
+         * Read Pixora Daily rotation config. Interval comes from the
+         * pixora_auto_rotate prefs (set when the user activates daily, read
+         * once here on a fresh process so the cross-process cache pitfall
+         * doesn't apply). lastRotation lives in our OWN pixora_live prefs.
+         */
+        private fun loadDailyConfig() {
+            try {
+                val arPrefs = applicationContext
+                    .getSharedPreferences("pixora_auto_rotate", Context.MODE_PRIVATE)
+                val mins = arPrefs.getInt("interval_minutes", 30).coerceAtLeast(1)
+                dailyIntervalMs = mins * 60_000L
+                val livePrefs = applicationContext
+                    .getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+                dailyLastRotation = livePrefs.getLong("daily_last_rotation", 0L)
+                // First time in daily mode (no timestamp yet): seed it to now so
+                // we don't rotate immediately on the first wake.
+                if (dailyLastRotation == 0L) {
+                    dailyLastRotation = System.currentTimeMillis()
+                    livePrefs.edit().putLong("daily_last_rotation", dailyLastRotation).apply()
+                }
+                Log.d(TAG, "Daily config: interval=${dailyIntervalMs / 60000}min lastRotation=$dailyLastRotation")
+            } catch (e: Exception) {
+                Log.w(TAG, "loadDailyConfig failed: ${e.message}")
+            }
+        }
+
+        /**
+         * Pixora Daily rotation — called on wake (onVisibilityChanged true).
+         * If we're in daily mode (current path lives in auto_rotate_cache/) AND
+         * the interval has elapsed, pick a new cached wallpaper and swap to it.
+         * The normal loadWallpaperImage() right after picks up the new path.
+         *
+         * Robust by design: no WorkManager, no process kill, no component touch.
+         * Rotates only when the user actually wakes the phone (battery friendly).
+         * Degrades gracefully: if no cache or <2 files, does nothing.
+         */
+        private fun maybeRotateDaily() {
+            try {
+                val livePrefs = applicationContext
+                    .getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+                val current = currentWallpaperPath
+                    ?: livePrefs.getString("wallpaper_path", null)
+                    ?: return
+                // Only rotate if we're showing a daily-rotated wallpaper.
+                if (!current.contains("auto_rotate_cache")) return
+
+                val now = System.currentTimeMillis()
+                if (now - dailyLastRotation < dailyIntervalMs) return
+
+                val cacheDir = File(applicationContext.filesDir, "auto_rotate_cache")
+                val files = cacheDir.listFiles()
+                    ?.filter { it.extension != "tmp" && it.length() > 0 }
+                    ?: return
+                if (files.size < 2) return // nothing to rotate to
+
+                val next = files.filter { it.absolutePath != current }.randomOrNull()
+                    ?: return
+
+                dailyLastRotation = now
+                livePrefs.edit()
+                    .putString("wallpaper_path", next.absolutePath)
+                    .putLong("daily_last_rotation", now)
+                    .remove("scene_id")
+                    .putBoolean("interactive", false)
+                    .apply()
+                currentWallpaperPath = next.absolutePath
+                Log.d(TAG, "Daily rotated → ${next.name} (interval ${dailyIntervalMs / 60000}min)")
+            } catch (e: Exception) {
+                Log.w(TAG, "maybeRotateDaily failed: ${e.message}")
+            }
         }
 
         private fun registerWallpaperPathReceiver() {
@@ -1234,6 +1318,11 @@ class PixoraWallpaperService : WallpaperService() {
                     }
                     return
                 }
+
+                // Pixora Daily — rotate to a fresh cached wallpaper if we're in
+                // daily mode and the interval elapsed. Mutates wallpaper_path in
+                // prefs so the loadWallpaperImage() below picks up the new one.
+                maybeRotateDaily()
 
                 // Reload wallpaper config — may need to restart video
                 loadWallpaperImage()
