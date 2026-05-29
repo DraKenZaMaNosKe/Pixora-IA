@@ -113,3 +113,4 @@ macos/Flutter/ephemeral/
 
 # Firebase service account (FCM admin)
 firebase-service-account.json
+/android/app/build/
