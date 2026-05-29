@@ -1,0 +1,27 @@
+R_DEF: Internal format may change without notice
+local
+array com_google_android_gms_fonts_certs
+array com_google_android_gms_fonts_certs_dev
+array com_google_android_gms_fonts_certs_prod
+color ic_launcher_background
+color launchBg
+color pixora_accent
+color pixora_cyan
+color pixora_dark
+color pixora_gold
+drawable ic_aura_notification
+drawable ic_launcher_foreground
+drawable launch_background
+drawable launch_logo
+mipmap ic_launcher
+string app_name
+string shader_wallpaper_description
+string shader_wallpaper_label
+string wallpaper_description
+string wallpaper_label
+style Theme.Pixora
+style Theme.Pixora.Splash
+xml file_paths
+xml live_wallpaper
+xml shader_wallpaper
+xml static_wallpaper

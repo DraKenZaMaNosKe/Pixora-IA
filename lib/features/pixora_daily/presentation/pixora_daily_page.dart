@@ -313,8 +313,9 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
   }
 
   String _intervalLabel(int m) {
-    if (m <= 0)
+    if (m <= 0) {
       return LocaleHelper.pick(es: 'cada desbloqueo', en: 'every unlock');
+    }
     if (m < 60) return '$m min';
     if (m < 1440) {
       final h = m ~/ 60;

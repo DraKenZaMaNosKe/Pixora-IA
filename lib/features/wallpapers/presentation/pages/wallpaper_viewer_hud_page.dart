@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../data/models/wallpaper.dart';
 import 'wallpaper_preview_page.dart';
@@ -290,11 +291,15 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
             ),
             Column(
               children: [
-                _HudHeader(
-                  category: widget.category,
-                  authorName: _currentWallpaper?.authorName ?? 'Pixora Studio',
-                  credits: 10, // TODO: wire CreditService.instance.balance
-                  onBack: () => Navigator.of(context).maybePop(),
+                ListenableBuilder(
+                  listenable: CreditService.instance,
+                  builder: (context, _) => _HudHeader(
+                    category: widget.category,
+                    authorName:
+                        _currentWallpaper?.authorName ?? 'Pixora Studio',
+                    credits: CreditService.instance.balance,
+                    onBack: () => Navigator.of(context).maybePop(),
+                  ),
                 ),
                 Expanded(
                   child: PageView.builder(

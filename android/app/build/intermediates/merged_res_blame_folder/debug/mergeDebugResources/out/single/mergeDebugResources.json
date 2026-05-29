@@ -1,0 +1,74 @@
+[
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/xml_static_wallpaper.xml.flat",
+        "source": "com.orbix.pixora.app-main-102:/xml/static_wallpaper.xml"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/xml_live_wallpaper.xml.flat",
+        "source": "com.orbix.pixora.app-main-102:/xml/live_wallpaper.xml"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/drawable-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/drawable-xxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/xml_file_paths.xml.flat",
+        "source": "com.orbix.pixora.app-main-102:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/drawable-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/drawable-xhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/xml_shader_wallpaper.xml.flat",
+        "source": "com.orbix.pixora.app-main-102:/xml/shader_wallpaper.xml"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/drawable-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/drawable-mdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.orbix.pixora.app-main-102:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/drawable-v21_launch_background.xml.flat",
+        "source": "com.orbix.pixora.app-main-102:/drawable-v21/launch_background.xml"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/drawable_launch_logo.xml.flat",
+        "source": "com.orbix.pixora.app-main-102:/drawable/launch_logo.xml"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/drawable_ic_aura_notification.xml.flat",
+        "source": "com.orbix.pixora.app-main-102:/drawable/ic_aura_notification.xml"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/drawable-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/drawable-xxxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/drawable-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/drawable-hdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.orbix.pixora.app-debug-100:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.orbix.pixora.app-main-102:/mipmap-mdpi/ic_launcher.png"
+    }
+]

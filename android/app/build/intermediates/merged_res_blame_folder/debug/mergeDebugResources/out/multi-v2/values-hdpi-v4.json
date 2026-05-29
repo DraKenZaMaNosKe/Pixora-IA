@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.orbix.pixora.app-mergeDebugResources-98:/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\lalo\\.gradle\\caches\\8.13\\transforms\\d1d5ee7a0b9a4af57e9d3472f85b554e\\transformed\\appcompat-1.7.0\\res\\values-hdpi-v4\\values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    }
+                }
+            ]
+        }
+    ]
+}
