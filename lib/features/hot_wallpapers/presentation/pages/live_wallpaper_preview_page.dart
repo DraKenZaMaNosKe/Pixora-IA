@@ -227,7 +227,19 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     final dir = await getApplicationDocumentsDirectory();
     final file =
         File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
-    return file.exists();
+    if (!await file.exists()) return false;
+    // Size-check guard: if the catalog publishes a re-encoded version of the
+    // SAME videoFile (same key, different bytes), the cached file becomes
+    // stale. Comparing byte count vs catalog's videoSize forces a fresh
+    // download instead of forever serving the old MP4. Cheap (stat call,
+    // microseconds) and self-healing for all future re-publishes. Tolerates
+    // 0-sized catalog entries (treat as "size unknown, accept cached file").
+    final expected = widget.wallpaper.videoSize;
+    if (expected > 0) {
+      final cachedSize = await file.length();
+      if (cachedSize != expected) return false;
+    }
+    return true;
   }
 
   Future<void> _deleteFromDevice() async {

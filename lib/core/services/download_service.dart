@@ -13,25 +13,45 @@ class DownloadService {
   static const _maxRetries = 3;
   static const _maxCacheMb = 500;
   static const _timeoutSeconds = 60;
+
   /// Minimum valid file size (bytes) — anything smaller is likely corrupt.
   static const _minValidBytes = 512;
 
   /// Download a wallpaper image with progress + retry.
   /// Returns local file path on success, null on failure.
   /// [onError] is called with a user-friendly message on failure.
+  ///
+  /// [expectedSize] (bytes from catalog) makes the cache self-healing on
+  /// content republish: if the on-disk file's size doesn't match, the cache
+  /// is dropped and the new bytes downloaded. Pass 0 / omit when unknown.
   Future<String?> downloadWallpaper(
     String filename, {
     void Function(double progress)? onProgress,
     void Function(String message)? onError,
+    int expectedSize = 0,
   }) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/wallpapers/$filename');
 
-      // Cache hit
+      // Cache hit — accept the on-disk file if it exists AND is bigger than
+      // the corrupt-file floor AND (when known) matches the expected byte
+      // count from the catalog. Size mismatch = catalog was re-published,
+      // drop the stale cache and download fresh.
       if (await file.exists() && await file.length() > _minValidBytes) {
-        onProgress?.call(1.0);
-        return file.path;
+        if (expectedSize > 0) {
+          final cachedSize = await file.length();
+          if (cachedSize == expectedSize) {
+            onProgress?.call(1.0);
+            return file.path;
+          }
+          debugPrint(
+              '[Pixora] cache size mismatch for $filename ($cachedSize vs $expectedSize) — re-downloading');
+          await file.delete();
+        } else {
+          onProgress?.call(1.0);
+          return file.path;
+        }
       }
 
       // Check connectivity before attempting download
@@ -71,6 +91,9 @@ class DownloadService {
   /// Generic file download with progress, timeout, and validation.
   /// Works for any URL → local file (videos, tones, images).
   /// Returns local path on success, null on failure.
+  ///
+  /// [expectedSize] (bytes from catalog) makes the cache self-healing on
+  /// content republish. Pass 0 / omit when unknown.
   Future<String?> downloadFile(
     String url,
     File destination, {
@@ -79,11 +102,23 @@ class DownloadService {
     int retries = 3,
     int timeoutSeconds = 120,
     int minBytes = 1000,
+    int expectedSize = 0,
   }) async {
-    // Cache hit
+    // Cache hit — see downloadWallpaper for size-mismatch rationale.
     if (await destination.exists() && await destination.length() > minBytes) {
-      onProgress?.call(1.0);
-      return destination.path;
+      if (expectedSize > 0) {
+        final cachedSize = await destination.length();
+        if (cachedSize == expectedSize) {
+          onProgress?.call(1.0);
+          return destination.path;
+        }
+        debugPrint(
+            '[Pixora] cache size mismatch ($cachedSize vs $expectedSize) — re-downloading');
+        await destination.delete();
+      } else {
+        onProgress?.call(1.0);
+        return destination.path;
+      }
     }
 
     if (!await Connectivity.hasInternet()) {
@@ -128,8 +163,8 @@ class DownloadService {
     try {
       final request = http.Request('GET', Uri.parse(url));
       final response = await client.send(request).timeout(
-        Duration(seconds: timeoutSeconds),
-      );
+            Duration(seconds: timeoutSeconds),
+          );
 
       if (response.statusCode != 200) {
         debugPrint('[Pixora] HTTP ${response.statusCode} for $url');
@@ -161,7 +196,8 @@ class DownloadService {
 
         // Verify size matches if server sent Content-Length
         if (totalBytes > 0 && fileSize != totalBytes) {
-          debugPrint('[Pixora] Size mismatch: expected $totalBytes, got $fileSize');
+          debugPrint(
+              '[Pixora] Size mismatch: expected $totalBytes, got $fileSize');
           await file.delete();
           return null;
         }
@@ -206,7 +242,8 @@ class DownloadService {
       const maxBytes = _maxCacheMb * 1024 * 1024;
       if (totalSize <= maxBytes) return;
 
-      files.sort((a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
+      files
+          .sort((a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
 
       for (final f in files) {
         if (totalSize <= maxBytes) break;

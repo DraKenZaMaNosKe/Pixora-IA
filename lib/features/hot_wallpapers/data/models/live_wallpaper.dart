@@ -146,6 +146,10 @@ class LiveWallpaper {
         'framesPath': framesPath,
         'exploreFile': exploreFile,
         'category': category,
+        // Pass video size so ContentCache invalidates a stale cached MP4
+        // when the catalog republishes the same videoFile with new bytes.
+        // Skip in explore mode (frame-by-frame download has its own logic).
+        if (!explore) 'expectedSize': videoSize,
       },
     );
   }

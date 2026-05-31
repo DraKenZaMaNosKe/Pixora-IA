@@ -54,4 +54,10 @@ class ContentItem {
   int get frameCount => meta<int>('frameCount') ?? 0;
   String? get framesPath => meta<String>('framesPath');
   String? get exploreFile => meta<String>('exploreFile');
+
+  /// Expected file size from the catalog (bytes). When > 0, the cache layer
+  /// treats a size mismatch as "stale" and re-downloads — makes content
+  /// republish (same remoteFile, different bytes) self-healing without
+  /// requiring users to update the app from Play Store.
+  int get expectedSize => meta<int>('expectedSize') ?? 0;
 }

@@ -216,6 +216,9 @@ class Wallpaper {
           'glowColor': glowColor,
           'category': category,
           'interactive': false,
+          // Self-healing cache: re-download if catalog publishes new bytes
+          // under the same key. See ContentCache.isCached for the check.
+          'expectedSize': imageSize,
         },
       );
     }
@@ -233,6 +236,7 @@ class Wallpaper {
         'glowColor': glowColor,
         'category': category,
         'interactive': false,
+        'expectedSize': imageSize,
       },
     );
   }

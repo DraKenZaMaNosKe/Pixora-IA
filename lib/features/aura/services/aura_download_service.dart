@@ -15,7 +15,37 @@ class AuraDownloadService {
       final auraDir = Directory('${dir.path}/aura');
       if (!await auraDir.exists()) await auraDir.create(recursive: true);
       final file = File('${auraDir.path}/${track.id}.mp3');
-      if (await file.exists()) return file;
+      // Cache hit only if cached size matches remote Content-Length. This
+      // makes the cache self-healing if the track is re-uploaded with new
+      // bytes (re-encode, master change). HEAD request is cheap (~1 KB)
+      // vs. re-downloading a multi-MB MP3 unnecessarily. If HEAD fails (no
+      // network, etc.) and the file exists, fall back to using the cache.
+      if (await file.exists()) {
+        final cachedSize = await file.length();
+        try {
+          final head = await http
+              .head(Uri.parse(track.audioUrl))
+              .timeout(const Duration(seconds: 8));
+          final remoteLen =
+              int.tryParse(head.headers['content-length'] ?? '') ?? 0;
+          if (head.statusCode == 200 &&
+              remoteLen > 0 &&
+              remoteLen == cachedSize) {
+            return file;
+          }
+          if (head.statusCode == 200 && remoteLen != cachedSize) {
+            debugPrint(
+                '[Pixora] AURA size mismatch ${track.id} ($cachedSize vs $remoteLen) — re-downloading');
+            // fall through to fresh download
+          } else {
+            // HEAD ambiguous (non-200, missing length) — trust the cache.
+            return file;
+          }
+        } catch (_) {
+          // HEAD failed → trust the cache (offline or transient).
+          return file;
+        }
+      }
       final r = await http
           .get(Uri.parse(track.audioUrl))
           .timeout(const Duration(seconds: 60));

@@ -42,10 +42,27 @@ class ContentCache {
   }
 
   /// Check if content is already cached and valid.
+  ///
+  /// Self-healing: if [item.expectedSize] is set (> 0) and the on-disk size
+  /// doesn't match, the cache file is deleted and `false` returned so the
+  /// caller re-downloads the fresh bytes. This makes content republish
+  /// transparent to clients — no Play Store update required.
   Future<bool> isCached(ContentItem item, {int minBytes = 512}) async {
     final path = await pathFor(item);
     final file = File(path);
-    return file.existsSync() && file.lengthSync() > minBytes;
+    if (!file.existsSync()) return false;
+    final size = file.lengthSync();
+    if (size <= minBytes) return false;
+    final expected = item.expectedSize;
+    if (expected > 0 && size != expected) {
+      debugPrint(
+          '[ContentCache] size mismatch ${item.id} ($size vs $expected) — invalidating');
+      try {
+        file.deleteSync();
+      } catch (_) {}
+      return false;
+    }
+    return true;
   }
 
   /// Get the local file for a content item (may not exist yet).
