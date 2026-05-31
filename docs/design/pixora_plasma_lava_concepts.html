@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora REALM · 5 Plasma + 5 Lava Lamp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&family=Audiowide&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --cyan:#00E5FF; --magenta:#FF00CC; --rose:#FF3478;
+    --rose-bright:#FF8FBE; --violet:#9D4EDD; --violet-bright:#C77DFF;
+    --gold:#FFD66B; --lava:#FF6B35;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#06081A 0%,#02020A 60%,#000 100%);
+    color:#eee;font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+  .wrap{max-width:1700px;margin:0 auto;padding:48px 24px 120px}
+  .head{text-align:center;margin-bottom:64px;position:relative}
+  .head::before{
+    content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+    width:380px;height:380px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,107,53,.22),transparent 60%);
+    z-index:-1;animation:pulseGlow 4s ease-in-out infinite;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;
+    color:var(--lava);text-transform:uppercase;margin-bottom:18px;font-weight:600;
+    opacity:0;animation:fade .8s .1s forwards;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(48px,8vw,84px);line-height:.95;letter-spacing:-.03em;
+    color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards;
+  }
+  h1 .accent{
+    font-family:'Audiowide',cursive;font-style:normal;font-weight:400;
+    background:linear-gradient(135deg,var(--lava),var(--rose) 50%,var(--violet-bright));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    letter-spacing:.02em;
+  }
+  .sub{
+    font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;
+    color:rgba(255,255,255,.65);max-width:760px;margin:0 auto 32px;
+    opacity:0;animation:fade .9s .5s forwards;
+  }
+  .sub b{
+    background:linear-gradient(135deg,var(--lava),var(--rose-bright));
+    -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:500;
+  }
+  .section{margin-top:80px}
+  .section-head{
+    display:flex;align-items:baseline;gap:18px;
+    max-width:1600px;margin:0 auto 32px;padding:0 8px;
+  }
+  .section-num{
+    font-family:'Audiowide',cursive;font-size:48px;font-weight:400;
+    color:var(--lava);opacity:.7;letter-spacing:-.04em;
+  }
+  .section-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:34px;color:#fff;letter-spacing:-.01em;
+  }
+  .section-desc{
+    font-family:'Inter',sans-serif;font-size:13px;color:rgba(255,255,255,.5);
+    margin-left:auto;max-width:380px;text-align:right;line-height:1.5;
+  }
+  .grid{display:grid;grid-template-columns:1fr;gap:32px;max-width:1600px;margin:0 auto}
+  @media (min-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media (min-width:1500px){.grid{grid-template-columns:repeat(5,1fr)}}
+  .card{
+    background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0));
+    border:1px solid rgba(255,255,255,.06);border-radius:22px;padding:20px;
+    transition:all .35s;display:flex;flex-direction:column;gap:14px;
+  }
+  .card:hover{
+    border-color:rgba(255,107,53,.4);transform:translateY(-3px);
+    box-shadow:0 16px 50px rgba(255,107,53,.10),0 4px 12px rgba(0,0,0,.5);
+  }
+  .card-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .card-tag{
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    letter-spacing:.3em;color:var(--lava);text-transform:uppercase;font-weight:700;
+  }
+  .card-name{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:20px;color:#fff;letter-spacing:-.005em;
+  }
+  .card-desc{
+    font-family:'Inter',sans-serif;font-size:11.5px;line-height:1.55;
+    color:rgba(255,255,255,.55);
+  }
+  .card-desc b{color:var(--lava);font-weight:500}
+  .phone{
+    position:relative;width:100%;aspect-ratio:9/19.5;background:#000;border-radius:28px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 24px 60px rgba(0,0,0,.6);
+    overflow:hidden;cursor:crosshair;touch-action:none;
+  }
+  .phone canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .touch-note{
+    display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;color:rgba(255,107,53,.85);text-transform:uppercase;
+    letter-spacing:.18em;padding-top:4px;border-top:1px solid rgba(255,255,255,.05);
+  }
+  .touch-note::before{
+    content:'';width:6px;height:6px;border-radius:50%;background:var(--lava);
+    box-shadow:0 0 8px var(--lava);flex-shrink:0;
+  }
+  @keyframes fade{to{opacity:1}}
+  @keyframes pulseGlow{
+    0%,100%{transform:translateX(-50%) scale(1);opacity:.5}
+    50%{transform:translateX(-50%) scale(1.15);opacity:.85}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="eyebrow">Pixora · REALM · Plasma + Lava Lab</div>
+    <h1>5 plasma · 5 <span class="accent">lava lamp</span></h1>
+    <p class="sub">
+      Mismo motor, dos sabores: <b>masas grandes fluidas</b> tipo plasma
+      cósmico, y <b>burbujas verticales</b> rising clásico lámpara de lava.
+      Mismo touch reactivo — tu dedo siempre afecta el flujo.
+    </p>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">P</span>
+      <span class="section-title">Plasma grande</span>
+      <span class="section-desc">Una masa fluida cubriendo gran parte de la pantalla, distorsión orgánica con noise, color cycle lento.</span>
+    </div>
+    <div class="grid" id="grid-plasma"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">L</span>
+      <span class="section-title">Lava lamp</span>
+      <span class="section-desc">Burbujas que suben de abajo (calientes) y bajan al enfriarse — slow, hipnótico, ASMR visual.</span>
+    </div>
+    <div class="grid" id="grid-lava"></div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+const VS = `attribute vec2 aPos; void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
+const HEAD = `
+precision highp float;
+uniform float uTime;
+uniform vec2  uResolution;
+uniform vec2  uMouse;
+uniform float uPressed;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f*f*(3.0 - 2.0*f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+float fbm(vec2 p){
+  float v = 0.0; float a = 0.5;
+  for (int i = 0; i < 4; i++){ v += a*noise(p); p *= 2.0; a *= 0.5; }
+  return v;
+}
+`;
+const TAU = '6.2831853';
+
+const PLASMA = [
+
+// ─── P1. COSMIC PLASMA ──────────────────────────────────────────
+{
+  tag: 'P1 · COSMIC', name: 'Cosmic Plasma',
+  desc: 'Masa <b>violeta-rosa</b> swirling con corrientes internas. Sentimiento cósmico, slow morph.',
+  touch: 'pulso de color sigue tu dedo',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  // Slow drifting center
+  vec2 center = vec2(sin(mod(t*0.12, ${TAU}))*0.10, cos(mod(t*0.15, ${TAU}))*0.08);
+  vec2 p = (uv - center)*vec2(aspect, 1.0);
+  // Distortion via fbm
+  float distortion = (fbm(p*2.5 + vec2(t*0.15, 0.0)) - 0.5) * 0.30;
+  float dist = length(p) + distortion;
+  // Big metaball
+  float field = smoothstep(0.50, 0.0, dist);
+  // Internal currents
+  float internal = fbm(p*7.0 + vec2(t*0.25, -t*0.20)) * field;
+  // Color: purple→pink cycle
+  float hue = 0.5 + 0.5*sin(mod(t*0.18, ${TAU}));
+  vec3 c = mix(vec3(0.6, 0.1, 0.8), vec3(1.0, 0.3, 0.7), hue);
+  vec3 col = vec3(0.02, 0.01, 0.04);
+  col += c * field * 0.85;
+  col += vec3(1.0, 0.8, 1.0) * internal * field * 0.5;
+  // Touch ripple
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  float md = length((uv-mp)*vec2(aspect, 1.0));
+  col += c * exp(-md*4.5) * uPressed * 0.7;
+  col = col / (1.0 + col*0.7);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── P2. LIQUID AURORA ──────────────────────────────────────────
+{
+  tag: 'P2 · AURORA', name: 'Liquid Aurora',
+  desc: 'Masa <b>verde-cyan</b> fluyendo como aurora boreal hecha líquido. Tonos eléctricos suaves.',
+  touch: 'la masa se atrae a tu dedo',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  vec2 baseCenter = vec2(sin(mod(t*0.08, ${TAU}))*0.05, cos(mod(t*0.10, ${TAU}))*0.05);
+  vec2 center = mix(baseCenter, mp, uPressed * 0.6);
+  vec2 p = (uv - center)*vec2(aspect, 1.0);
+  float distortion = (fbm(p*3.0 + vec2(-t*0.12, t*0.18)) - 0.5) * 0.35;
+  float dist = length(p) + distortion;
+  float field = smoothstep(0.55, 0.0, dist);
+  float internal = fbm(p*6.0 + vec2(t*0.30, t*0.10)) * field;
+  vec3 c1 = vec3(0.1, 1.0, 0.4);
+  vec3 c2 = vec3(0.0, 0.8, 1.0);
+  vec3 c3 = vec3(0.3, 0.6, 1.0);
+  float hue = 0.5 + 0.5*sin(mod(t*0.15, ${TAU}));
+  vec3 c = mix(c1, c2, hue);
+  c = mix(c, c3, internal * 0.5);
+  vec3 col = vec3(0.005, 0.02, 0.03);
+  col += c * field * 0.9;
+  col += vec3(0.8, 1.0, 0.9) * pow(internal, 2.0) * field * 0.6;
+  col = col / (1.0 + col*0.7);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── P3. SUNSET PLASMA ──────────────────────────────────────────
+{
+  tag: 'P3 · WARM', name: 'Sunset Plasma',
+  desc: 'Masa <b>naranja-rojo-magenta</b> cálida, tipo atardecer ardiente. Comfort feel.',
+  touch: 'calor irradia de tu dedo',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 center = vec2(sin(mod(t*0.10, ${TAU}))*0.08, cos(mod(t*0.13, ${TAU}))*0.06);
+  vec2 p = (uv - center)*vec2(aspect, 1.0);
+  float distortion = (fbm(p*2.3 + vec2(t*0.18, -t*0.12)) - 0.5) * 0.28;
+  float dist = length(p) + distortion;
+  float field = smoothstep(0.52, 0.0, dist);
+  float internal = fbm(p*5.5 + vec2(-t*0.20, t*0.25)) * field;
+  vec3 c1 = vec3(1.0, 0.4, 0.1);
+  vec3 c2 = vec3(1.0, 0.7, 0.2);
+  vec3 c3 = vec3(1.0, 0.15, 0.4);
+  float hue = 0.5 + 0.5*sin(mod(t*0.22, ${TAU}));
+  vec3 c = mix(c1, c2, hue);
+  c = mix(c, c3, internal * 0.6);
+  vec3 col = vec3(0.04, 0.01, 0.005);
+  col += c * field * 0.95;
+  col += vec3(1.0, 0.95, 0.7) * pow(internal, 3.0) * field * 0.7;
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  float md = length((uv-mp)*vec2(aspect, 1.0));
+  col += vec3(1.0, 0.5, 0.2) * exp(-md*3.5) * uPressed * 0.5;
+  col = col / (1.0 + col*0.6);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── P4. GALAXY SPIRAL PLASMA ───────────────────────────────────
+{
+  tag: 'P4 · SPIRAL', name: 'Galaxy Plasma',
+  desc: 'Masa con <b>distorsión espiral</b> interna — parece galaxia girando. Brazos visibles.',
+  touch: 'rotación se acelera',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 p = uv * vec2(aspect, 1.0);
+  // Apply spiral distortion
+  float r = length(p);
+  float ang = atan(p.y, p.x);
+  float swirl = 0.3 + uPressed * 0.4;
+  ang += r * 5.0 + mod(t*0.4, ${TAU}) * swirl;
+  vec2 swirled = vec2(cos(ang), sin(ang)) * r;
+  // Noise-distorted distance from center
+  float distortion = (fbm(swirled*4.0 + vec2(t*0.15, 0.0)) - 0.5) * 0.20;
+  float dist = r + distortion;
+  float field = smoothstep(0.55, 0.0, dist);
+  // Spiral arms visible via noise on swirled coords
+  float arms = fbm(swirled*6.0) * field;
+  // Galaxy color: purple core fading to pink edge
+  vec3 core = vec3(0.95, 0.85, 0.6);
+  vec3 mid = vec3(0.7, 0.3, 0.9);
+  vec3 edge = vec3(0.4, 0.1, 0.6);
+  vec3 c = mix(core, mid, smoothstep(0.0, 0.2, r));
+  c = mix(c, edge, smoothstep(0.2, 0.5, r));
+  vec3 col = vec3(0.005, 0.005, 0.015);
+  col += c * field;
+  col += vec3(1.0, 0.85, 1.0) * pow(arms, 2.0) * field * 0.7;
+  col = col / (1.0 + col*0.5);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── P5. CRYSTAL PLASMA ─────────────────────────────────────────
+{
+  tag: 'P5 · CRYSTAL', name: 'Crystal Plasma',
+  desc: 'Masa <b>ice-blue translúcida</b> con bordes más definidos. Frío premium tipo cristal vivo.',
+  touch: 'cristal pulsa donde tocas',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 center = vec2(sin(mod(t*0.07, ${TAU}))*0.05, cos(mod(t*0.09, ${TAU}))*0.04);
+  vec2 p = (uv - center)*vec2(aspect, 1.0);
+  float distortion = (fbm(p*3.5 + vec2(t*0.10, t*0.08)) - 0.5) * 0.22;
+  float dist = length(p) + distortion;
+  // Sharper edge for crystal feel
+  float field = smoothstep(0.48, 0.40, dist);
+  float halo = smoothstep(0.55, 0.0, dist) - field;
+  float internal = fbm(p*8.0 + vec2(-t*0.20, t*0.15)) * field;
+  vec3 ice = vec3(0.5, 0.85, 1.0);
+  vec3 highlight = vec3(0.92, 0.98, 1.0);
+  vec3 col = vec3(0.01, 0.02, 0.05);
+  col += ice * field * 0.7;
+  col += highlight * pow(internal, 3.0) * field * 1.2;
+  col += ice * halo * 0.25;
+  // Touch
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  float md = length((uv-mp)*vec2(aspect, 1.0));
+  col += highlight * exp(-md*5.0) * uPressed * 0.6;
+  col = col / (1.0 + col*0.5);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+];
+
+const LAVA = [
+
+// ─── L1. CLASSIC RED ────────────────────────────────────────────
+{
+  tag: 'L1 · CLASSIC', name: 'Classic Red',
+  desc: 'Lava <b>roja-naranja</b> rising en líquido cream-peach. El original arquetípico.',
+  touch: 'calientas → suben más rápido',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  float speed = 0.18 + uPressed * 0.4;
+  float field = 0.0;
+  vec3 lavaCol = vec3(0.0);
+  for (int i = 0; i < 6; i++){
+    float fi = float(i);
+    float seed = hash(vec2(fi, 0.0));
+    float cycle = mod(t*speed + fi*0.5 + seed*2.0, 3.0);
+    float y = -0.55 + cycle*0.36;  // rise from below to above
+    float x = (seed - 0.5)*0.5 + sin(mod(t*0.3+fi*1.5, ${TAU}))*0.08;
+    vec2 pos = vec2(x, y);
+    float r = 0.13 + sin(mod(t*0.5+fi, ${TAU}))*0.02;
+    float dist = length((uv-pos)*vec2(aspect, 1.0));
+    float contribution = r*r/(dist*dist + 0.002);
+    field += contribution;
+    // Color depends on Y (hot bottom, cool top)
+    float heat = smoothstep(-0.5, 0.5, y);
+    vec3 c = mix(vec3(1.0, 0.25, 0.08), vec3(1.0, 0.7, 0.25), heat);
+    lavaCol += c * contribution;
+  }
+  // Background — warm cream
+  vec3 bg = mix(vec3(0.35, 0.18, 0.10), vec3(0.50, 0.30, 0.15), uv.y + 0.5);
+  float surface = smoothstep(0.85, 1.3, field);
+  vec3 col = bg;
+  if (field > 0.85) col = mix(bg, lavaCol/max(field, 0.001), surface);
+  // Glow halo
+  float halo = smoothstep(0.5, 1.0, field) * 0.4;
+  col += vec3(1.0, 0.5, 0.2) * halo;
+  // Heat at touch
+  float md = length((uv-mp)*vec2(aspect, 1.0));
+  col += vec3(1.0, 0.4, 0.1) * exp(-md*4.0) * uPressed * 0.4;
+  col = col / (1.0 + col*0.4);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── L2. COOL BLUE ──────────────────────────────────────────────
+{
+  tag: 'L2 · COOL', name: 'Cool Blue Lava',
+  desc: 'Lava <b>azul-cyan</b> en vidrio oscuro nocturno. Vibe relajante de noche.',
+  touch: 'calientas zona',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  float speed = 0.16 + uPressed * 0.35;
+  float field = 0.0;
+  vec3 lavaCol = vec3(0.0);
+  for (int i = 0; i < 6; i++){
+    float fi = float(i);
+    float seed = hash(vec2(fi, 1.7));
+    float cycle = mod(t*speed + fi*0.55 + seed*1.8, 3.0);
+    float y = -0.55 + cycle*0.36;
+    float x = (seed - 0.5)*0.55 + sin(mod(t*0.25+fi*1.3, ${TAU}))*0.07;
+    vec2 pos = vec2(x, y);
+    float r = 0.12 + sin(mod(t*0.4+fi, ${TAU}))*0.025;
+    float dist = length((uv-pos)*vec2(aspect, 1.0));
+    float contribution = r*r/(dist*dist + 0.002);
+    field += contribution;
+    float heat = smoothstep(-0.5, 0.5, y);
+    vec3 c = mix(vec3(0.1, 0.4, 1.0), vec3(0.2, 0.95, 1.0), heat);
+    lavaCol += c * contribution;
+  }
+  vec3 bg = mix(vec3(0.02, 0.03, 0.10), vec3(0.05, 0.08, 0.18), uv.y + 0.5);
+  float surface = smoothstep(0.85, 1.3, field);
+  vec3 col = bg;
+  if (field > 0.85) col = mix(bg, lavaCol/max(field, 0.001), surface);
+  float halo = smoothstep(0.5, 1.0, field) * 0.4;
+  col += vec3(0.2, 0.7, 1.0) * halo;
+  float md = length((uv-mp)*vec2(aspect, 1.0));
+  col += vec3(0.3, 0.8, 1.0) * exp(-md*4.0) * uPressed * 0.4;
+  col = col / (1.0 + col*0.5);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── L3. TOXIC GREEN ────────────────────────────────────────────
+{
+  tag: 'L3 · TOXIC', name: 'Toxic Green',
+  desc: 'Slime <b>verde radioactivo</b> en vidrio oscuro. Hazard vibe, vidrioso con glow.',
+  touch: 'burbujas extra emergen',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  float field = 0.0;
+  vec3 lavaCol = vec3(0.0);
+  for (int i = 0; i < 7; i++){
+    float fi = float(i);
+    float seed = hash(vec2(fi, 3.1));
+    float cycle = mod(t*0.20 + fi*0.5 + seed*1.5, 3.0);
+    float y = -0.55 + cycle*0.36;
+    float x = (seed - 0.5)*0.55 + sin(mod(t*0.35+fi*1.7, ${TAU}))*0.06;
+    vec2 pos = vec2(x, y);
+    float r = 0.11 + sin(mod(t*0.6+fi, ${TAU}))*0.02;
+    float dist = length((uv-pos)*vec2(aspect, 1.0));
+    float contribution = r*r/(dist*dist + 0.002);
+    field += contribution;
+    lavaCol += vec3(0.2, 1.0, 0.3) * contribution;
+  }
+  // Touch adds a fresh bubble
+  vec2 tpos = mp + vec2(sin(t)*0.02, 0.0);
+  float tdist = length((uv-tpos)*vec2(aspect, 1.0));
+  float tcontribution = 0.018/(tdist*tdist + 0.002) * uPressed;
+  field += tcontribution;
+  lavaCol += vec3(0.5, 1.0, 0.6) * tcontribution;
+  vec3 bg = mix(vec3(0.02, 0.05, 0.02), vec3(0.04, 0.08, 0.04), uv.y + 0.5);
+  float surface = smoothstep(0.85, 1.3, field);
+  vec3 col = bg;
+  if (field > 0.85) col = mix(bg, lavaCol/max(field, 0.001), surface);
+  float halo = smoothstep(0.5, 1.0, field) * 0.5;
+  col += vec3(0.3, 1.0, 0.4) * halo;
+  col = col / (1.0 + col*0.5);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── L4. COSMIC LAVA ────────────────────────────────────────────
+{
+  tag: 'L4 · COSMIC', name: 'Cosmic Lava',
+  desc: 'Lava <b>violeta-rosa-azul</b> rising en oscuro cósmico. Galaxy-themed lava lamp.',
+  touch: 'estrella nace de tu dedo',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  float field = 0.0;
+  vec3 lavaCol = vec3(0.0);
+  for (int i = 0; i < 6; i++){
+    float fi = float(i);
+    float seed = hash(vec2(fi, 5.3));
+    float cycle = mod(t*0.18 + fi*0.45 + seed*2.0, 3.0);
+    float y = -0.55 + cycle*0.36;
+    float x = (seed - 0.5)*0.55 + sin(mod(t*0.32+fi*1.2, ${TAU}))*0.08;
+    vec2 pos = vec2(x, y);
+    float r = 0.13;
+    float dist = length((uv-pos)*vec2(aspect, 1.0));
+    float contribution = r*r/(dist*dist + 0.002);
+    field += contribution;
+    float heat = smoothstep(-0.5, 0.5, y);
+    vec3 c = mix(vec3(0.6, 0.2, 1.0), vec3(1.0, 0.4, 0.8), heat);
+    lavaCol += c * contribution;
+  }
+  // Touch: bright star
+  float md = length((uv-mp)*vec2(aspect, 1.0));
+  vec3 star = vec3(1.0, 0.95, 0.85) * exp(-md*15.0) * uPressed * 1.5;
+  star += vec3(0.9, 0.7, 1.0) * exp(-md*5.0) * uPressed * 0.5;
+  vec3 bg = mix(vec3(0.03, 0.01, 0.06), vec3(0.05, 0.03, 0.12), uv.y + 0.5);
+  // Stars in background
+  for (int i = 0; i < 3; i++){
+    vec2 sp = vec2(hash(vec2(float(i), 0.0))-0.5, hash(vec2(float(i), 1.0))-0.5) * 1.0;
+    bg += vec3(0.7, 0.8, 1.0) * smoothstep(0.005, 0.0, length(uv-sp)) * 0.8;
+  }
+  float surface = smoothstep(0.85, 1.3, field);
+  vec3 col = bg;
+  if (field > 0.85) col = mix(bg, lavaCol/max(field, 0.001), surface);
+  float halo = smoothstep(0.5, 1.0, field) * 0.4;
+  col += vec3(0.7, 0.4, 1.0) * halo;
+  col += star;
+  col = col / (1.0 + col*0.5);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── L5. PASTEL LAVA ────────────────────────────────────────────
+{
+  tag: 'L5 · PASTEL', name: 'Pastel Lava',
+  desc: 'Lava <b>rosa-lavanda-melocotón</b> en líquido crema pastel. Aesthetic kawaii / cottage core.',
+  touch: 'burbujas extra',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/uResolution.y;
+  float t = mod(uTime, 60.0);
+  float aspect = uResolution.x/uResolution.y;
+  vec2 mp = (uMouse*uResolution.xy - 0.5*uResolution.xy)/uResolution.y;
+  float field = 0.0;
+  vec3 lavaCol = vec3(0.0);
+  for (int i = 0; i < 6; i++){
+    float fi = float(i);
+    float seed = hash(vec2(fi, 7.1));
+    float cycle = mod(t*0.15 + fi*0.5 + seed*2.0, 3.0);
+    float y = -0.55 + cycle*0.36;
+    float x = (seed - 0.5)*0.55 + sin(mod(t*0.25+fi, ${TAU}))*0.07;
+    vec2 pos = vec2(x, y);
+    float r = 0.13;
+    float dist = length((uv-pos)*vec2(aspect, 1.0));
+    float contribution = r*r/(dist*dist + 0.002);
+    field += contribution;
+    // Pastel palette
+    float hueShift = fract(seed + t*0.02);
+    vec3 pinkA = vec3(1.0, 0.75, 0.85);
+    vec3 lavender = vec3(0.85, 0.75, 1.0);
+    vec3 peach = vec3(1.0, 0.85, 0.70);
+    vec3 c;
+    if (hueShift < 0.33) c = pinkA;
+    else if (hueShift < 0.66) c = lavender;
+    else c = peach;
+    lavaCol += c * contribution;
+  }
+  vec3 bg = mix(vec3(0.95, 0.92, 0.95), vec3(0.98, 0.95, 0.92), uv.y + 0.5);
+  float surface = smoothstep(0.85, 1.3, field);
+  vec3 col = bg;
+  if (field > 0.85) col = mix(bg, lavaCol/max(field, 0.001), surface);
+  float halo = smoothstep(0.5, 1.0, field) * 0.3;
+  col -= vec3(0.1, 0.1, 0.05) * halo;  // soft shadow under blobs
+  float md = length((uv-mp)*vec2(aspect, 1.0));
+  col = mix(col, vec3(1.0, 0.85, 0.95), exp(-md*4.0) * uPressed * 0.5);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+];
+
+class ShaderCanvas {
+  constructor(canvas, fragSrc){
+    this.canvas = canvas;
+    this.gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+    if (!this.gl) return;
+    this.startTime = performance.now();
+    this.mouse = [0.5, 0.5]; this.pressed = 0; this.targetPressed = 0;
+    this.compile(fragSrc); this.setupGeometry(); this.setupSize(); this.bindEvents();
+    this.running = false;
+  }
+  compile(fragSrc){
+    const gl = this.gl;
+    const vs = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(vs, VS); gl.compileShader(vs);
+    const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs, fragSrc); gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) console.error('FS:', gl.getShaderInfoLog(fs), '\n', fragSrc);
+    const p = gl.createProgram(); gl.attachShader(p, vs); gl.attachShader(p, fs); gl.linkProgram(p);
+    this.prog = p;
+    this.uTime = gl.getUniformLocation(p, 'uTime');
+    this.uRes = gl.getUniformLocation(p, 'uResolution');
+    this.uMouse = gl.getUniformLocation(p, 'uMouse');
+    this.uPressed = gl.getUniformLocation(p, 'uPressed');
+    this.aPos = gl.getAttribLocation(p, 'aPos');
+  }
+  setupGeometry(){
+    const gl = this.gl;
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(this.aPos);
+    gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
+  }
+  setupSize(){
+    const rect = this.canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.floor(rect.width * dpr);
+    this.canvas.height = Math.floor(rect.height * dpr);
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+  }
+  bindEvents(){
+    const setMouse = (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      let cx, cy;
+      if (e.touches && e.touches.length){ cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+      else { cx = e.clientX; cy = e.clientY; }
+      this.mouse[0] = Math.max(0, Math.min(1, (cx - rect.left) / rect.width));
+      this.mouse[1] = Math.max(0, Math.min(1, 1 - (cy - rect.top) / rect.height));
+    };
+    this.canvas.addEventListener('mousedown', e => { setMouse(e); this.targetPressed = 1; });
+    this.canvas.addEventListener('mousemove', setMouse);
+    window.addEventListener('mouseup', () => this.targetPressed = 0);
+    this.canvas.addEventListener('touchstart', e => { e.preventDefault(); setMouse(e); this.targetPressed = 1; }, { passive: false });
+    this.canvas.addEventListener('touchmove', e => { e.preventDefault(); setMouse(e); }, { passive: false });
+    this.canvas.addEventListener('touchend', () => this.targetPressed = 0);
+    window.addEventListener('resize', () => this.setupSize());
+  }
+  start(){
+    if (this.running) return; this.running = true;
+    const loop = () => { if (!this.running) return; this.draw(); this.rafId = requestAnimationFrame(loop); };
+    loop();
+  }
+  stop(){ this.running = false; if (this.rafId) cancelAnimationFrame(this.rafId); }
+  draw(){
+    const gl = this.gl;
+    this.pressed += (this.targetPressed - this.pressed) * 0.12;
+    const tSec = ((performance.now() - this.startTime) / 1000) % 60.0;
+    gl.useProgram(this.prog);
+    gl.uniform1f(this.uTime, tSec);
+    gl.uniform2f(this.uRes, this.canvas.width, this.canvas.height);
+    gl.uniform2f(this.uMouse, this.mouse[0], this.mouse[1]);
+    gl.uniform1f(this.uPressed, this.pressed);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+}
+
+const instances = [];
+function renderInto(parentId, list){
+  const grid = document.getElementById(parentId);
+  list.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-head">
+        <span class="card-tag">${s.tag}</span>
+        <span class="card-name">${s.name}</span>
+      </div>
+      <div class="phone"><canvas></canvas></div>
+      <p class="card-desc">${s.desc}</p>
+      <div class="touch-note">${s.touch}</div>
+    `;
+    grid.appendChild(card);
+    const canvas = card.querySelector('canvas');
+    requestAnimationFrame(() => {
+      const sc = new ShaderCanvas(canvas, s.fs);
+      instances.push(sc);
+      const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? sc.start() : sc.stop()), { threshold: 0.05 });
+      io.observe(canvas);
+    });
+  });
+}
+renderInto('grid-plasma', PLASMA);
+renderInto('grid-lava', LAVA);
+window.addEventListener('resize', () => instances.forEach(sc => sc.setupSize()));
+</script>
+</body>
+</html>
