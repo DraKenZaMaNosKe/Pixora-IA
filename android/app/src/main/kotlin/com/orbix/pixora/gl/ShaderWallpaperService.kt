@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.util.Log
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -21,7 +22,9 @@ import java.nio.FloatBuffer
  * Dedicated OpenGL ES 2.0 WallpaperService for shader-based live wallpapers.
  * Never uses Canvas — 100% GL rendering. No Surface conflicts.
  *
- * Time wraps every 600 seconds to prevent float precision loss.
+ * Time wraps every 60 seconds — keeps sin/cos arguments small enough that even
+ * mediump GPUs render without banding. All shaders MUST also wrap their own
+ * sin/cos args with mod(x, 6.2831853) for the same reason.
  */
 class ShaderWallpaperService : WallpaperService() {
 
@@ -29,7 +32,7 @@ class ShaderWallpaperService : WallpaperService() {
 
     inner class ShaderEngine : Engine() {
         private val TAG = "ShaderWP"
-        private val TIME_WRAP = 600.0f
+        private val TIME_WRAP = 60.0f
         private val FRAME_DELAY = 33L // ~30fps
         private val QUAD = floatArrayOf(-1f, -1f, 1f, -1f, -1f, 1f, 1f, 1f)
         private val VERT_SRC = "attribute vec2 aPosition; void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }"
@@ -42,12 +45,23 @@ class ShaderWallpaperService : WallpaperService() {
         private var vertBuf: FloatBuffer? = null
         private var uTime = -1
         private var uResolution = -1
+        private var uMouse = -1
+        private var uPressed = -1
+        private var uClockSec = -1
         private var startTime = System.nanoTime()
         private var width = 0
         private var height = 0
         private var running = false
         private var glReady = false
         private var currentShader = ""
+
+        // Touch state — mouseX/Y in [0..1] normalized, pressedTarget toggled by
+        // events, pressed smoothed toward target each frame so finger lift fades
+        // out instead of snapping.
+        private var mouseX = 0.5f
+        private var mouseY = 0.5f
+        private var pressed = 0.0f
+        private var pressedTarget = 0.0f
 
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
@@ -63,36 +77,32 @@ class ShaderWallpaperService : WallpaperService() {
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
             super.onCreate(surfaceHolder)
             Log.d(TAG, "Engine created")
+            // Most launchers consume taps on app icons but pass through empty-area
+            // touches to the wallpaper. Touch always works in the wallpaper preview.
+            setTouchEventsEnabled(true)
             registerPrefsListener()
         }
 
         override fun onSurfaceCreated(holder: SurfaceHolder?) {
             super.onSurfaceCreated(holder)
-            Log.d(TAG, "Surface created")
         }
 
         override fun onSurfaceChanged(holder: SurfaceHolder?, format: Int, w: Int, h: Int) {
             super.onSurfaceChanged(holder, format, w, h)
-            val orientationChanged = width != w || height != h
             width = w
             height = h
-            Log.d(TAG, "Surface changed: ${w}x${h} (orientation=${if (w > h) "LANDSCAPE" else "PORTRAIT"})")
+            Log.d(TAG, "Surface ${w}x${h} ${if (w > h) "LANDSCAPE" else "PORTRAIT"}")
 
             if (!glReady) {
                 initGL(holder!!)
                 loadCurrentShader()
             } else {
-                // Update viewport on rotation/resize
                 EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)
                 GLES20.glViewport(0, 0, w, h)
-                if (orientationChanged) {
-                    Log.d(TAG, "Viewport updated: ${w}x${h}")
-                }
             }
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
-            Log.d(TAG, "visibility=$visible glReady=$glReady")
             if (visible) {
                 if (glReady) {
                     running = true
@@ -119,12 +129,27 @@ class ShaderWallpaperService : WallpaperService() {
             super.onDestroy()
         }
 
+        // ── Touch ──────────────────────────────────────────────────
+        override fun onTouchEvent(event: MotionEvent) {
+            super.onTouchEvent(event)
+            if (width <= 0 || height <= 0) return
+            // Normalize to [0..1]. Y is flipped because Android Y=0 is top while
+            // shaders use gl_FragCoord with Y=0 at bottom.
+            mouseX = (event.x / width.toFloat()).coerceIn(0f, 1f)
+            mouseY = (1f - event.y / height.toFloat()).coerceIn(0f, 1f)
+            when (event.action) {
+                MotionEvent.ACTION_DOWN,
+                MotionEvent.ACTION_MOVE -> pressedTarget = 1.0f
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> pressedTarget = 0.0f
+            }
+        }
+
         // ── Prefs listener for shader changes ──────────────────────
         private fun registerPrefsListener() {
             val prefs = applicationContext.getSharedPreferences("pixora_shader", Context.MODE_PRIVATE)
             prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 if (key == "shader_name") {
-                    Log.d(TAG, "Shader changed, reloading")
                     handler.post { loadCurrentShader() }
                 }
             }
@@ -141,7 +166,7 @@ class ShaderWallpaperService : WallpaperService() {
 
         private fun loadCurrentShader() {
             val prefs = applicationContext.getSharedPreferences("pixora_shader", Context.MODE_PRIVATE)
-            val name = prefs.getString("shader_name", "aurora_borealis") ?: "aurora_borealis"
+            val name = prefs.getString("shader_name", "universe") ?: "universe"
             if (name != currentShader || program == 0) {
                 loadShader(name)
             }
@@ -167,7 +192,7 @@ class ShaderWallpaperService : WallpaperService() {
                 EGL14.eglChooseConfig(eglDisplay, configAttribs, 0, configs, 0, 1, numConfigs, 0)
 
                 if (numConfigs[0] == 0 || configs[0] == null) {
-                    Log.e(TAG, "eglChooseConfig failed: no valid configs")
+                    Log.e(TAG, "eglChooseConfig failed")
                     return
                 }
                 val eglConfig = configs[0]!!
@@ -186,7 +211,7 @@ class ShaderWallpaperService : WallpaperService() {
 
                 GLES20.glViewport(0, 0, width, height)
                 glReady = true
-                Log.d(TAG, "GL ready: ${width}x${height}")
+                Log.d(TAG, "GL ready ${width}x${height}")
             } catch (e: Exception) {
                 Log.e(TAG, "initGL failed: ${e.message}")
             }
@@ -208,7 +233,6 @@ class ShaderWallpaperService : WallpaperService() {
                 eglDisplay = EGL14.EGL_NO_DISPLAY
             }
             vertBuf = null
-            Log.d(TAG, "GL released")
         }
 
         // ── Shader compilation ─────────────────────────────────────
@@ -219,7 +243,7 @@ class ShaderWallpaperService : WallpaperService() {
 
                 // filesDir-first lookup: shaders are downloaded by ShaderDownloadService
                 // and cached at filesDir/shaders/<name>.glsl. Asset fallback kept for
-                // safety only — after v1.6.0 the APK no longer ships any .glsl.
+                // safety only — APK does not ship any .glsl since v1.6.0.
                 val cached = java.io.File(applicationContext.filesDir, "shaders/$name.glsl")
                 val source = if (cached.isFile) {
                     cached.readText()
@@ -249,18 +273,20 @@ class ShaderWallpaperService : WallpaperService() {
 
                 uTime = GLES20.glGetUniformLocation(program, "uTime")
                 uResolution = GLES20.glGetUniformLocation(program, "uResolution")
+                uMouse = GLES20.glGetUniformLocation(program, "uMouse")
+                uPressed = GLES20.glGetUniformLocation(program, "uPressed")
+                uClockSec = GLES20.glGetUniformLocation(program, "uClockSec")
                 currentShader = name
-                startTime = System.nanoTime() // Reset time on shader change
+                startTime = System.nanoTime()
 
-                Log.d(TAG, "Shader loaded: $name (uTime=$uTime, uRes=$uResolution)")
+                Log.d(TAG, "Shader loaded: $name")
 
-                // Start rendering if not already
                 if (!running) {
                     running = true
                     handler.post(renderRunnable)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "loadShader($name) failed: ${e.message}")
+                Log.e(TAG, "loadShader($name): ${e.message}")
             }
         }
 
@@ -284,12 +310,25 @@ class ShaderWallpaperService : WallpaperService() {
                 EGL14.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)
 
                 val time = ((System.nanoTime() - startTime) / 1_000_000_000.0f) % TIME_WRAP
+                // Smooth pressed toward target so finger lift fades out (~250ms).
+                pressed += (pressedTarget - pressed) * 0.12f
 
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                 GLES20.glUseProgram(program)
 
                 if (uTime >= 0) GLES20.glUniform1f(uTime, time)
                 if (uResolution >= 0) GLES20.glUniform2f(uResolution, width.toFloat(), height.toFloat())
+                if (uMouse >= 0) GLES20.glUniform2f(uMouse, mouseX, mouseY)
+                if (uPressed >= 0) GLES20.glUniform1f(uPressed, pressed)
+                if (uClockSec >= 0) {
+                    // Seconds since midnight in local time (fractional for smooth motion).
+                    val cal = java.util.Calendar.getInstance()
+                    val secOfDay = cal.get(java.util.Calendar.HOUR_OF_DAY) * 3600 +
+                                   cal.get(java.util.Calendar.MINUTE) * 60 +
+                                   cal.get(java.util.Calendar.SECOND) +
+                                   cal.get(java.util.Calendar.MILLISECOND) / 1000.0f
+                    GLES20.glUniform1f(uClockSec, secOfDay)
+                }
 
                 val pos = GLES20.glGetAttribLocation(program, "aPosition")
                 GLES20.glEnableVertexAttribArray(pos)

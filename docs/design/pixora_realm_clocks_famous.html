@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora REALM · 10 Famous Clock Styles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&family=Audiowide&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --cyan:#00E5FF; --magenta:#FF00CC; --rose:#FF3478;
+    --rose-bright:#FF8FBE; --violet:#9D4EDD; --violet-bright:#C77DFF;
+    --gold:#FFD66B;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#06081A 0%,#02020A 60%,#000 100%);
+    color:#eee;font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+  .wrap{max-width:1700px;margin:0 auto;padding:48px 24px 120px}
+  .head{text-align:center;margin-bottom:64px;position:relative}
+  .head::before{
+    content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+    width:380px;height:380px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,214,107,.20),transparent 60%);
+    z-index:-1;animation:pulseGlow 4s ease-in-out infinite;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;
+    color:var(--gold);text-transform:uppercase;margin-bottom:18px;font-weight:600;
+    opacity:0;animation:fade .8s .1s forwards;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(48px,8vw,84px);line-height:.95;letter-spacing:-.03em;
+    color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards;
+  }
+  h1 .accent{
+    font-family:'Audiowide',cursive;font-style:normal;font-weight:400;
+    background:linear-gradient(135deg,var(--gold),var(--rose) 50%,var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    letter-spacing:.02em;
+  }
+  .sub{
+    font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;
+    color:rgba(255,255,255,.65);max-width:760px;margin:0 auto 32px;
+    opacity:0;animation:fade .9s .5s forwards;
+  }
+  .sub b{
+    background:linear-gradient(135deg,var(--gold),var(--rose-bright));
+    -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:500;
+  }
+  .disclaimer{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:rgba(255,255,255,.4);max-width:680px;margin:0 auto 32px;
+    letter-spacing:.05em;line-height:1.5;
+  }
+  .grid{display:grid;grid-template-columns:1fr;gap:32px;max-width:1600px;margin:0 auto}
+  @media (min-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media (min-width:1500px){.grid{grid-template-columns:repeat(4,1fr)}}
+  .card{
+    background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0));
+    border:1px solid rgba(255,255,255,.06);border-radius:22px;padding:20px;
+    transition:all .35s;display:flex;flex-direction:column;gap:14px;
+  }
+  .card:hover{
+    border-color:rgba(255,214,107,.35);transform:translateY(-3px);
+    box-shadow:0 16px 50px rgba(255,214,107,.08),0 4px 12px rgba(0,0,0,.5);
+  }
+  .card-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .card-tag{
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    letter-spacing:.3em;color:var(--gold);text-transform:uppercase;font-weight:700;
+  }
+  .card-name{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:20px;color:#fff;letter-spacing:-.005em;
+  }
+  .card-desc{
+    font-family:'Inter',sans-serif;font-size:11.5px;line-height:1.55;
+    color:rgba(255,255,255,.55);
+  }
+  .card-desc b{color:var(--gold);font-weight:500}
+  .phone{
+    position:relative;width:100%;aspect-ratio:9/19.5;background:#000;border-radius:28px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 24px 60px rgba(0,0,0,.6);
+    overflow:hidden;cursor:crosshair;touch-action:none;
+  }
+  .phone canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .touch-note{
+    display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;color:rgba(255,214,107,.75);text-transform:uppercase;
+    letter-spacing:.18em;padding-top:4px;border-top:1px solid rgba(255,255,255,.05);
+  }
+  .touch-note::before{
+    content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 8px var(--gold);flex-shrink:0;
+  }
+  @keyframes fade{to{opacity:1}}
+  @keyframes pulseGlow{
+    0%,100%{transform:translateX(-50%) scale(1);opacity:.5}
+    50%{transform:translateX(-50%) scale(1.15);opacity:.85}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="eyebrow">Pixora · REALM · Iconic Watch Styles · 2026</div>
+    <h1>10 relojes <span class="accent">FAMOSOS</span></h1>
+    <p class="sub">
+      Diseños <b>inspirados</b> en relojes y marcas icónicas, renderizados al 100% en
+      GPU con la <b>hora real</b> de tu sistema. Toca y arrastra para sentir el efecto.
+    </p>
+    <p class="disclaimer">
+      ⚠️ Estos diseños son INSPIRACIÓN visual, no réplicas exactas. Antes de shipear cualquiera
+      a Play Store hay que revisar trademark — algunos nombres están registrados.
+    </p>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+</div>
+
+<script>
+'use strict';
+const VS = `attribute vec2 aPos; void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
+const HEAD = `
+precision highp float;
+uniform float uTime;
+uniform vec2  uResolution;
+uniform vec2  uMouse;
+uniform float uPressed;
+uniform float uClockSec;
+vec2 rot2(vec2 p, float a){ float c = cos(a), s = sin(a); return mat2(c,-s,s,c)*p; }
+float handD(vec2 p, float ang, float len){
+  vec2 rp = rot2(p, -ang); float ly = clamp(rp.y, 0.0, len);
+  return length(vec2(rp.x, rp.y - ly));
+}
+float bit(float v, float i){ return mod(floor(v / pow(2.0, i)), 2.0); }
+float segSDF(vec2 p, vec2 c, vec2 hs){ vec2 d = abs(p - c) - hs; return max(d.x, d.y); }
+`;
+const TAU = '6.2831853';
+
+// Helper for computing angles from time in each shader
+const TIME_VARS = `
+  float sec   = mod(uClockSec, 60.0);
+  float minF  = mod(uClockSec, 3600.0) / 60.0;
+  float hourF = mod(uClockSec, 43200.0) / 3600.0;
+  float angSec  = sec  / 60.0 * ${TAU};
+  float angMin  = minF / 60.0 * ${TAU};
+  float angHour = hourF / 12.0 * ${TAU};
+`;
+
+const SHADERS = [
+
+// ─── 1. PIXORA CLASSIC (the one shipped on device) ──────────────
+{
+  tag: '01 · PIXORA', name: 'Classic Elegance',
+  desc: 'El de la app. Glass azul + halo + segundero cyan-rosa pulsando.',
+  touch: 'halo en tu dedo',
+  fs: `${HEAD}
+void main(){
+  float minDim = min(uResolution.x, uResolution.y);
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/minDim;
+  float t = mod(uTime, 60.0);
+  ${TIME_VARS}
+  float r = length(uv);
+  float faceR = 0.42;
+  vec3 col = mix(vec3(0.04,0.05,0.12), vec3(0.01,0.01,0.04), r*1.2);
+  col += vec3(0.3,0.5,0.95) * exp(-(r-faceR)*8.0) * step(r, faceR+0.15) * 0.25;
+  col = mix(col, vec3(0.05,0.07,0.14), smoothstep(faceR, faceR-0.005, r)*0.9);
+  col += vec3(0.75,0.85,1.0) * smoothstep(0.006, 0.0, abs(r-faceR));
+  float pa = atan(uv.x, uv.y); if (pa<0.0) pa += ${TAU};
+  float t60 = mod(pa*60.0/${TAU}, 1.0); float minT = min(t60, 1.0-t60);
+  col += vec3(0.55,0.7,0.9)*smoothstep(0.1,0.0,minT)*smoothstep(faceR-0.01, faceR-0.025, r)*step(faceR-0.03, r)*0.55;
+  float t12 = mod(pa*12.0/${TAU}, 1.0); float hT = min(t12, 1.0-t12);
+  col += vec3(0.95,0.98,1.0)*smoothstep(0.12,0.0,hT)*smoothstep(faceR-0.005, faceR-0.055, r)*step(faceR-0.065, r)*1.2;
+  col = mix(col, vec3(0.92,0.96,1.0), smoothstep(0.013, 0.009, handD(uv, angHour, 0.20)));
+  col = mix(col, vec3(1.0), smoothstep(0.009, 0.005, handD(uv, angMin, 0.30)));
+  vec3 sc = mix(vec3(1.0,0.35,0.5), vec3(0.3,0.95,1.0), 0.5+0.5*sin(mod(t*0.6, ${TAU})));
+  col = mix(col, sc, smoothstep(0.0045, 0.0025, handD(uv, angSec, 0.35)));
+  col = mix(col, vec3(0.9,0.95,1.0), smoothstep(0.024, 0.020, r));
+  col = mix(col, sc*0.9, smoothstep(0.011, 0.008, r));
+  vec2 mU = (uMouse*uResolution.xy - 0.5*uResolution.xy)/minDim;
+  col += vec3(0.95,0.85,1.0)*exp(-length(uv-mU)*5.0)*uPressed*1.4;
+  col *= smoothstep(1.0, 0.15, r);
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 2. PLAYBOY BUNNY ──────────────────────────────────────────
+{
+  tag: '02 · ICONIC', name: 'Playboy Bunny',
+  desc: 'Silueta del <b>conejito</b> detrás del face. Negro, blanco y dorado. Bowtie clásico bajo el reloj.',
+  touch: 'el conejito hace blink',
+  fs: `${HEAD}
+// Bunny head silhouette using simple primitives:
+// - round head (circle)
+// - 2 long ears (rotated capsules)
+float capsule(vec2 p, vec2 a, vec2 b, float r){
+  vec2 pa = p - a, ba = b - a;
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h) - r;
+}
+void main(){
+  float minDim = min(uResolution.x, uResolution.y);
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/minDim;
+  float t = mod(uTime, 60.0);
+  ${TIME_VARS}
+  vec3 col = vec3(0.02);  // pure black bg
+  // Bunny silhouette behind clock — black on dark, subtle outline
+  // Head
+  float head = length(uv) - 0.36;
+  // Left ear (rotated capsule)
+  vec2 le1 = vec2(-0.14,  0.26);
+  vec2 le2 = vec2(-0.20,  0.78);
+  float lEar = capsule(uv, le1, le2, 0.08);
+  // Right ear
+  vec2 re1 = vec2( 0.14,  0.26);
+  vec2 re2 = vec2( 0.05,  0.80);
+  float rEar = capsule(uv, re1, re2, 0.08);
+  float bunny = min(min(head, lEar), rEar);
+  // Bunny fill (very dark gray) + glowing outline
+  col = mix(col, vec3(0.04, 0.03, 0.02), smoothstep(0.005, 0.0, bunny));
+  col += vec3(0.95, 0.85, 0.40) * smoothstep(0.008, 0.0, abs(bunny)) * 0.7;
+  // Clock face (over the bunny head)
+  float r = length(uv);
+  float faceR = 0.26;
+  col = mix(col, vec3(0.10, 0.08, 0.05), smoothstep(faceR, faceR-0.003, r));
+  // Gold rim
+  col += vec3(1.0, 0.85, 0.40) * smoothstep(0.005, 0.0, abs(r - faceR)) * 1.1;
+  // 12 hour marks (gold dots)
+  float pa = atan(uv.x, uv.y); if (pa<0.0) pa += ${TAU};
+  float t12 = mod(pa*12.0/${TAU}, 1.0); float hT = min(t12, 1.0-t12);
+  col += vec3(1.0, 0.9, 0.5) * smoothstep(0.07, 0.0, hT) * smoothstep(faceR-0.005, faceR-0.04, r) * step(faceR-0.045, r) * 1.3;
+  // Hands — white
+  col = mix(col, vec3(1.0), smoothstep(0.009, 0.006, handD(uv, angHour, 0.13)));
+  col = mix(col, vec3(1.0), smoothstep(0.007, 0.004, handD(uv, angMin, 0.20)));
+  // Second hand — gold
+  col = mix(col, vec3(1.0, 0.85, 0.40), smoothstep(0.004, 0.002, handD(uv, angSec, 0.22)));
+  // Center
+  col = mix(col, vec3(1.0, 0.85, 0.40), smoothstep(0.014, 0.010, r));
+  // Bowtie at bottom (small black bowtie under clock)
+  vec2 bp = uv - vec2(0.0, -0.42);
+  float lTri = max(bp.x - 0.06, max(-bp.x - 0.0, abs(bp.y) - 0.06));  // left tri
+  float rTri = max(-bp.x - 0.06, max(bp.x - 0.0, abs(bp.y) - 0.06));   // right tri
+  float bow = min(lTri, rTri);
+  col += vec3(0.95, 0.80, 0.30) * smoothstep(0.003, 0.0, bow) * 1.0;
+  // Touch: bunny "blink" — flash white briefly
+  col += vec3(1.0) * smoothstep(0.0, -0.005, bunny) * uPressed * 0.3;
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 3. ROLEX SUBMARINER (inspired) ─────────────────────────────
+{
+  tag: '03 · DIVE', name: 'Submariner',
+  desc: 'Inspirado en relojes de buceo. <b>Bezel rotativo verde</b> con minutos, manecillas Mercedes, dial negro mate.',
+  touch: 'el bezel rota un poco',
+  fs: `${HEAD}
+void main(){
+  float minDim = min(uResolution.x, uResolution.y);
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/minDim;
+  float t = mod(uTime, 60.0);
+  ${TIME_VARS}
+  float r = length(uv);
+  float faceR = 0.36;
+  float bezelR = 0.44;
+  vec3 col = vec3(0.05, 0.06, 0.08);
+  // Bezel — green ring
+  float bezelGap = smoothstep(bezelR, bezelR-0.003, r) - smoothstep(faceR, faceR-0.003, r);
+  col = mix(col, vec3(0.05, 0.30, 0.18), bezelGap);
+  // Bezel ticks (1-12 large + 60 small)
+  vec2 bezelUv = rot2(uv, uPressed * 0.3);  // touch rotates bezel
+  float pa = atan(bezelUv.x, bezelUv.y); if (pa<0.0) pa += ${TAU};
+  float t60b = mod(pa*60.0/${TAU}, 1.0); float t60T = min(t60b, 1.0-t60b);
+  float bMin = smoothstep(0.08, 0.0, t60T) * step(faceR + 0.01, r) * step(r, bezelR - 0.005);
+  col += vec3(0.9, 0.95, 0.85) * bMin * 0.6;
+  float t12b = mod(pa*12.0/${TAU}, 1.0); float t12T = min(t12b, 1.0-t12b);
+  float bH = smoothstep(0.08, 0.0, t12T) * step(faceR + 0.005, r) * step(r, bezelR - 0.005);
+  col += vec3(1.0, 1.0, 0.95) * bH * 1.0;
+  // Triangle at 12 on bezel
+  vec2 tri12 = vec2(uv.x, uv.y - (bezelR + faceR) * 0.5);
+  float triD = max(abs(tri12.x) - 0.025 * (1.0 - tri12.y * 12.0), -tri12.y * 12.0 - 0.05);
+  if (uv.y > faceR * 0.95 && uv.y < bezelR - 0.02) {
+    col += vec3(0.2, 0.9, 0.3) * smoothstep(0.005, 0.0, triD) * 1.2;
+  }
+  // Face — matte black
+  col = mix(col, vec3(0.02, 0.03, 0.04), smoothstep(faceR, faceR-0.003, r));
+  // Hour markers — large rectangles (luminous)
+  float paFace = atan(uv.x, uv.y); if (paFace<0.0) paFace += ${TAU};
+  for (int i = 0; i < 12; i++){
+    float angI = float(i) * ${TAU} / 12.0;
+    vec2 markP = vec2(sin(angI), cos(angI)) * 0.28;
+    float d = length(uv - markP);
+    col += vec3(0.7, 0.9, 0.7) * smoothstep(0.020, 0.014, d);
+  }
+  // Hands — Mercedes-style: circle on hour hand
+  // Hour hand with circular open feature near tip
+  float hourMain = smoothstep(0.018, 0.012, handD(uv, angHour, 0.18));
+  vec2 hourTipP = rot2(uv, -angHour) - vec2(0.0, 0.16);
+  float hourCircle = smoothstep(0.030, 0.025, length(hourTipP)) - smoothstep(0.022, 0.017, length(hourTipP));
+  col = mix(col, vec3(0.7, 0.95, 0.7), hourMain + hourCircle);
+  // Minute
+  col = mix(col, vec3(0.7, 0.95, 0.7), smoothstep(0.011, 0.007, handD(uv, angMin, 0.28)));
+  // Second — orange/red, thin
+  col = mix(col, vec3(1.0, 0.35, 0.15), smoothstep(0.004, 0.002, handD(uv, angSec, 0.32)));
+  // Center
+  col = mix(col, vec3(0.8, 0.95, 0.8), smoothstep(0.016, 0.012, r));
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 4. APPLE WATCH ULTRA (inspired) ────────────────────────────
+{
+  tag: '04 · SMART', name: 'Smart Sport',
+  desc: 'Inspirado en smartwatches deportivos. <b>Digital grande + analog small</b>. Acento naranja. Pantalla OLED negro.',
+  touch: 'el acento cambia de color',
+  fs: `${HEAD}
+float renderDig(vec2 p, float d){
+  float pat;
+  if (d < 0.5) pat = 126.0;
+  else if (d < 1.5) pat = 48.0;
+  else if (d < 2.5) pat = 109.0;
+  else if (d < 3.5) pat = 121.0;
+  else if (d < 4.5) pat = 51.0;
+  else if (d < 5.5) pat = 91.0;
+  else if (d < 6.5) pat = 95.0;
+  else if (d < 7.5) pat = 112.0;
+  else if (d < 8.5) pat = 127.0;
+  else pat = 123.0;
+  float thick = 0.10; float ds = 1e3;
+  if (bit(pat, 6.0) > 0.5) ds = min(ds, segSDF(p, vec2(0.0,  0.85), vec2(0.45, thick)));
+  if (bit(pat, 5.0) > 0.5) ds = min(ds, segSDF(p, vec2( 0.50, 0.45), vec2(thick, 0.35)));
+  if (bit(pat, 4.0) > 0.5) ds = min(ds, segSDF(p, vec2( 0.50,-0.45), vec2(thick, 0.35)));
+  if (bit(pat, 3.0) > 0.5) ds = min(ds, segSDF(p, vec2(0.0, -0.85), vec2(0.45, thick)));
+  if (bit(pat, 2.0) > 0.5) ds = min(ds, segSDF(p, vec2(-0.50,-0.45), vec2(thick, 0.35)));
+  if (bit(pat, 1.0) > 0.5) ds = min(ds, segSDF(p, vec2(-0.50, 0.45), vec2(thick, 0.35)));
+  if (bit(pat, 0.0) > 0.5) ds = min(ds, segSDF(p, vec2(0.0,  0.0 ), vec2(0.45, thick)));
+  return ds;
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  vec3 col = vec3(0.0);
+  // Time
+  float H = floor(mod(uClockSec, 86400.0)/3600.0);
+  float M = floor(mod(uClockSec, 3600.0)/60.0);
+  float S = mod(uClockSec, 60.0);
+  // Accent color (orange or touch-shifted)
+  vec3 accentBase = vec3(1.0, 0.45, 0.10);
+  vec3 accentTouch = vec3(0.10, 0.95, 1.0);
+  vec3 accent = mix(accentBase, accentTouch, uPressed);
+  // Top label "PIXORA SPORT"
+  // Simple bar to represent label
+  if (uv.y > 0.88 && uv.y < 0.92){
+    float lb = step(0.35, mod(uv.x*40.0, 1.0));
+    col += vec3(0.5) * lb * 0.4;
+  }
+  // Big HH MM in center
+  vec2 center = vec2(0.5, 0.55);
+  vec2 dp = (uv - center) * 7.0;
+  float dMin = 1e3;
+  // 4 digits
+  float digits[4];
+  digits[0] = floor(H/10.0); digits[1] = mod(H, 10.0);
+  digits[2] = floor(M/10.0); digits[3] = mod(M, 10.0);
+  for (int i = 0; i < 4; i++){
+    float xOff = (float(i) - 1.5) * 1.4 + (i >= 2 ? 0.3 : 0.0);
+    vec2 ddp = vec2(dp.x - xOff, dp.y);
+    if (abs(ddp.x) < 0.7 && abs(ddp.y) < 1.05)
+      dMin = min(dMin, renderDig(ddp, digits[i]));
+  }
+  // Colon
+  vec2 cp = vec2(dp.x - 0.15, dp.y);
+  dMin = min(dMin, length(cp - vec2(0.0,  0.4)) - 0.12);
+  dMin = min(dMin, length(cp - vec2(0.0, -0.4)) - 0.12);
+  // Digits as white
+  col += vec3(0.95) * smoothstep(0.05, 0.0, dMin);
+  col += accent * smoothstep(0.4, 0.0, dMin) * 0.15;
+  // Seconds bar at top
+  float secProg = mod(uClockSec, 60.0) / 60.0;
+  if (uv.y > 0.79 && uv.y < 0.81){
+    col += accent * step(uv.x, secProg) * step(0.05, uv.x);
+  }
+  // Mini analog dial at bottom right
+  vec2 mp = (uv - vec2(0.75, 0.18)) * 4.0;
+  float mr = length(mp);
+  if (mr < 0.5){
+    col = mix(col, vec3(0.10, 0.10, 0.10), step(mr, 0.5));
+    col += vec3(0.7, 0.7, 0.75) * smoothstep(0.020, 0.0, abs(mr - 0.5));
+    // Mini hands
+    float angSec2 = mod(uClockSec, 60.0) / 60.0 * ${TAU};
+    float angMin2 = mod(uClockSec, 3600.0) / 3600.0 * ${TAU};
+    col = mix(col, accent, smoothstep(0.012, 0.008, handD(mp, angSec2, 0.40)));
+    col = mix(col, vec3(0.9), smoothstep(0.018, 0.014, handD(mp, angMin2, 0.30)));
+    col = mix(col, accent, smoothstep(0.040, 0.030, mr));
+  }
+  // Date label (bottom left)
+  if (uv.y > 0.15 && uv.y < 0.20 && uv.x > 0.08 && uv.x < 0.40){
+    float dbar = step(0.6, mod(uv.x*45.0, 1.0));
+    col += vec3(0.4) * dbar * 0.5;
+  }
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 5. G-SHOCK (inspired) ──────────────────────────────────────
+{
+  tag: '05 · RUGGED', name: 'Rugged Digital',
+  desc: 'Estilo G-Shock. <b>LCD industrial</b> con bordes gruesos, números grandes, indicadores múltiples.',
+  touch: 'todos los pixels iluminan',
+  fs: `${HEAD}
+float renderDig(vec2 p, float d){
+  float pat;
+  if (d < 0.5) pat = 126.0;
+  else if (d < 1.5) pat = 48.0;
+  else if (d < 2.5) pat = 109.0;
+  else if (d < 3.5) pat = 121.0;
+  else if (d < 4.5) pat = 51.0;
+  else if (d < 5.5) pat = 91.0;
+  else if (d < 6.5) pat = 95.0;
+  else if (d < 7.5) pat = 112.0;
+  else if (d < 8.5) pat = 127.0;
+  else pat = 123.0;
+  float thick = 0.13; float ds = 1e3;
+  if (bit(pat, 6.0) > 0.5) ds = min(ds, segSDF(p, vec2(0.0,  0.85), vec2(0.42, thick)));
+  if (bit(pat, 5.0) > 0.5) ds = min(ds, segSDF(p, vec2( 0.48, 0.45), vec2(thick, 0.32)));
+  if (bit(pat, 4.0) > 0.5) ds = min(ds, segSDF(p, vec2( 0.48,-0.45), vec2(thick, 0.32)));
+  if (bit(pat, 3.0) > 0.5) ds = min(ds, segSDF(p, vec2(0.0, -0.85), vec2(0.42, thick)));
+  if (bit(pat, 2.0) > 0.5) ds = min(ds, segSDF(p, vec2(-0.48,-0.45), vec2(thick, 0.32)));
+  if (bit(pat, 1.0) > 0.5) ds = min(ds, segSDF(p, vec2(-0.48, 0.45), vec2(thick, 0.32)));
+  if (bit(pat, 0.0) > 0.5) ds = min(ds, segSDF(p, vec2(0.0,  0.0 ), vec2(0.42, thick)));
+  return ds;
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  // LCD area
+  vec3 lcdBg = vec3(0.55, 0.62, 0.55);  // greenish LCD
+  vec3 lcdOff = vec3(0.42, 0.48, 0.42);
+  vec3 col = vec3(0.10, 0.10, 0.10);   // black case
+  // LCD rectangle area
+  if (uv.x > 0.12 && uv.x < 0.88 && uv.y > 0.25 && uv.y < 0.75){
+    col = lcdBg;
+    // Faint grid
+    col -= vec3(0.04) * step(0.97, mod(uv.x*100.0, 1.0));
+    col -= vec3(0.04) * step(0.97, mod(uv.y*200.0, 1.0));
+    float H = floor(mod(uClockSec, 86400.0)/3600.0);
+    float M = floor(mod(uClockSec, 3600.0)/60.0);
+    float S = floor(mod(uClockSec, 60.0));
+    // Big time HH:MM
+    vec2 center = vec2(0.5, 0.55);
+    vec2 dp = (uv - center) * 12.0;
+    float dMin = 1e3;
+    float digits[4];
+    digits[0] = floor(H/10.0); digits[1] = mod(H, 10.0);
+    digits[2] = floor(M/10.0); digits[3] = mod(M, 10.0);
+    for (int i = 0; i < 4; i++){
+      float xOff = (float(i) - 1.5) * 1.3 + (i >= 2 ? 0.3 : 0.0);
+      vec2 ddp = vec2(dp.x - xOff, dp.y);
+      if (abs(ddp.x) < 0.7 && abs(ddp.y) < 1.05)
+        dMin = min(dMin, renderDig(ddp, digits[i]));
+    }
+    vec2 cp = vec2(dp.x - 0.15, dp.y);
+    if (step(0.5, mod(uClockSec, 1.0)) > 0.5){
+      dMin = min(dMin, length(cp - vec2(0.0,  0.35)) - 0.10);
+      dMin = min(dMin, length(cp - vec2(0.0, -0.35)) - 0.10);
+    }
+    // Small seconds
+    vec2 sc_pos = vec2(0.78, 0.30);
+    vec2 sdp = (uv - sc_pos) * 24.0;
+    float sdMin = 1e3;
+    float sd1 = floor(S/10.0), sd2 = mod(S, 10.0);
+    sdMin = min(sdMin, renderDig(vec2(sdp.x - 0.7, sdp.y), sd1));
+    sdMin = min(sdMin, renderDig(vec2(sdp.x + 0.7, sdp.y), sd2));
+    col = mix(col, vec3(0.08, 0.10, 0.08), smoothstep(0.05, 0.0, dMin));
+    col = mix(col, vec3(0.08, 0.10, 0.08), smoothstep(0.05, 0.0, sdMin));
+    // Touch — backlight on
+    if (uPressed > 0.01){
+      col = mix(col, vec3(0.55, 1.0, 0.45), uPressed * 0.4);
+    }
+  }
+  // Buttons around (decorative)
+  if ((uv.y > 0.78 || uv.y < 0.22) && (uv.x < 0.1 || uv.x > 0.9)){
+    col = vec3(0.15);
+  }
+  // Brand strip
+  if (uv.y > 0.18 && uv.y < 0.21){
+    float bb = step(0.5, mod(uv.x*50.0, 1.0));
+    col += vec3(0.6) * bb * 0.3;
+  }
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 6. CARTIER TANK (inspired) ─────────────────────────────────
+{
+  tag: '06 · ELEGANT', name: 'Tank Couture',
+  desc: 'Estilo Cartier Tank. <b>Caja rectangular</b>, numerales romanos, manecillas espada azul.',
+  touch: 'el cabuchón brilla',
+  fs: `${HEAD}
+// Approximate Roman numerals at 12,3,6,9 with abstract bars
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  ${TIME_VARS}
+  vec3 col = vec3(0.02);
+  // Rectangular case
+  vec2 caseHalfSize = vec2(0.32, 0.36);
+  vec2 caseUv = uv - vec2(0.5, 0.50);
+  float caseSDF = max(abs(caseUv.x) - caseHalfSize.x, abs(caseUv.y) - caseHalfSize.y);
+  // Outer case (silver)
+  col = mix(col, vec3(0.85, 0.85, 0.88), smoothstep(0.005, 0.0, caseSDF + 0.04));
+  // Inner case (gold edge)
+  col = mix(col, vec3(0.95, 0.80, 0.45), smoothstep(0.005, 0.0, caseSDF + 0.025));
+  // Dial (cream)
+  col = mix(col, vec3(0.95, 0.92, 0.85), smoothstep(0.005, 0.0, caseSDF + 0.015));
+  // Convert to centered uv for hands (scaled to dial size)
+  vec2 duv = caseUv;
+  // Roman numeral marks at 12/3/6/9 (use I, III, VI, IX as bars)
+  // 12 (XII): three thin vertical bars centered
+  if (duv.y > 0.24 && duv.y < 0.30 && abs(duv.x) < 0.06){
+    float bp = mod(duv.x + 0.04, 0.03);
+    col = mix(col, vec3(0.10), step(bp, 0.015) * step(0.005, bp));
+  }
+  // 6 (VI)
+  if (duv.y < -0.24 && duv.y > -0.30 && abs(duv.x) < 0.05){
+    float bp = mod(duv.x + 0.03, 0.025);
+    col = mix(col, vec3(0.10), step(bp, 0.012) * step(0.005, bp));
+  }
+  // 3 (III)
+  if (duv.x > 0.22 && duv.x < 0.28 && abs(duv.y) < 0.05){
+    float bp = mod(duv.y + 0.04, 0.022);
+    col = mix(col, vec3(0.10), step(bp, 0.011) * step(0.004, bp));
+  }
+  // 9 (IX)
+  if (duv.x < -0.22 && duv.x > -0.28 && abs(duv.y) < 0.05){
+    float bp = mod(duv.y + 0.04, 0.022);
+    col = mix(col, vec3(0.10), step(bp, 0.011) * step(0.004, bp));
+  }
+  // Inside dial
+  if (caseSDF < -0.02){
+    // Sword hands — diamond-shaped
+    float hourMain = smoothstep(0.015, 0.011, handD(duv, angHour, 0.16));
+    col = mix(col, vec3(0.10, 0.15, 0.45), hourMain);
+    float minMain = smoothstep(0.011, 0.008, handD(duv, angMin, 0.24));
+    col = mix(col, vec3(0.10, 0.15, 0.45), minMain);
+    // Second hand thin blue
+    col = mix(col, vec3(0.10, 0.20, 0.55), smoothstep(0.004, 0.002, handD(duv, angSec, 0.27)));
+    // Center
+    col = mix(col, vec3(0.10, 0.15, 0.45), smoothstep(0.018, 0.014, length(duv)));
+  }
+  // Crown with cabochon (blue gem) at right side
+  vec2 crownP = uv - vec2(0.5 + caseHalfSize.x + 0.02, 0.5);
+  float crownD = max(abs(crownP.x) - 0.02, abs(crownP.y) - 0.04);
+  col = mix(col, vec3(0.85, 0.78, 0.40), smoothstep(0.003, 0.0, crownD));
+  // Cabochon (blue)
+  float cabD = length(crownP - vec2(0.0, 0.0)) - 0.025;
+  if (cabD < 0.0){
+    vec3 cab = mix(vec3(0.1, 0.2, 0.7), vec3(0.4, 0.6, 1.0), 1.0 + cabD * 30.0);
+    col = mix(col, cab, smoothstep(0.005, -0.005, cabD));
+    col += vec3(1.0) * exp(-length(crownP - vec2(-0.007, 0.005)) * 60.0) * (0.4 + uPressed * 0.6);
+  }
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 7. TAG HEUER MONACO (inspired) ─────────────────────────────
+{
+  tag: '07 · RACING', name: 'Monaco Race',
+  desc: 'Inspirado en relojes de carreras. <b>Caja cuadrada</b>, subdiales chronograph, segundero rojo.',
+  touch: 'el subdial rojo pulsa',
+  fs: `${HEAD}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  ${TIME_VARS}
+  vec3 col = vec3(0.05, 0.05, 0.08);
+  // Square case
+  vec2 caseHalfSize = vec2(0.36, 0.36);
+  vec2 caseUv = uv - vec2(0.5, 0.50);
+  float caseSDF = max(abs(caseUv.x) - caseHalfSize.x, abs(caseUv.y) - caseHalfSize.y);
+  col = mix(col, vec3(0.15, 0.18, 0.30), smoothstep(0.005, 0.0, caseSDF + 0.03));
+  col = mix(col, vec3(0.10, 0.15, 0.42), smoothstep(0.005, 0.0, caseSDF + 0.020));
+  if (caseSDF < -0.020){
+    vec2 duv = caseUv;
+    // Hour ticks (rectangles)
+    for (int i = 0; i < 12; i++){
+      float ang = float(i) * ${TAU} / 12.0;
+      vec2 mp = vec2(sin(ang), cos(ang)) * 0.28;
+      float d = length(duv - mp);
+      col += vec3(1.0, 1.0, 0.95) * smoothstep(0.018, 0.012, d);
+    }
+    // Subdial left (running seconds — abstract)
+    vec2 sdL = duv - vec2(-0.16, 0.0);
+    float sdLR = length(sdL);
+    if (sdLR < 0.10){
+      col = mix(col, vec3(0.08, 0.10, 0.20), step(sdLR, 0.10));
+      col += vec3(0.5, 0.6, 0.8) * smoothstep(0.005, 0.0, abs(sdLR - 0.10)) * 0.8;
+      // mini second hand
+      float sAng2 = sec / 60.0 * ${TAU};
+      col = mix(col, vec3(1.0, 0.2, 0.2), smoothstep(0.006, 0.003, handD(sdL, sAng2, 0.08)));
+      col += vec3(1.0, 0.2, 0.2) * uPressed * smoothstep(0.10, 0.0, sdLR) * 0.5;
+    }
+    // Subdial right (minutes 30) — abstract
+    vec2 sdR = duv - vec2(0.16, 0.0);
+    float sdRR = length(sdR);
+    if (sdRR < 0.10){
+      col = mix(col, vec3(0.08, 0.10, 0.20), step(sdRR, 0.10));
+      col += vec3(0.5, 0.6, 0.8) * smoothstep(0.005, 0.0, abs(sdRR - 0.10)) * 0.8;
+      float mAng2 = minF / 60.0 * ${TAU};
+      col = mix(col, vec3(0.9), smoothstep(0.007, 0.004, handD(sdR, mAng2, 0.08)));
+    }
+    // Main hands
+    col = mix(col, vec3(0.9, 0.92, 0.95), smoothstep(0.013, 0.009, handD(duv, angHour, 0.18)));
+    col = mix(col, vec3(0.95, 0.97, 1.0), smoothstep(0.009, 0.006, handD(duv, angMin, 0.25)));
+    // Central second — red
+    col = mix(col, vec3(1.0, 0.15, 0.15), smoothstep(0.005, 0.003, handD(duv, angSec, 0.30)));
+    // Center
+    col = mix(col, vec3(0.9), smoothstep(0.015, 0.011, length(duv)));
+  }
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 8. BIG BEN (inspired) ──────────────────────────────────────
+{
+  tag: '08 · TOWER', name: 'Tower Clock',
+  desc: 'Estilo Big Ben. <b>Cuatro caras gigantes</b>, numerales romanos, hierro forjado, fondo gótico.',
+  touch: 'campanas (glow) suenan',
+  fs: `${HEAD}
+void main(){
+  float minDim = min(uResolution.x, uResolution.y);
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/minDim;
+  float t = mod(uTime, 60.0);
+  ${TIME_VARS}
+  // Night sky
+  vec3 col = mix(vec3(0.04, 0.04, 0.10), vec3(0.01, 0.01, 0.04), length(uv));
+  float r = length(uv);
+  float faceR = 0.42;
+  // Stone face (cream)
+  col = mix(col, vec3(0.85, 0.82, 0.68), smoothstep(faceR, faceR-0.005, r));
+  // Inner cream ring
+  col = mix(col, vec3(0.92, 0.88, 0.75), smoothstep(faceR-0.020, faceR-0.025, r));
+  // Black wrought-iron outer border
+  col = mix(col, vec3(0.05), smoothstep(faceR+0.025, faceR+0.020, r) - smoothstep(faceR+0.005, faceR, r));
+  // Gold ornamental ring
+  col = mix(col, vec3(0.95, 0.78, 0.30), smoothstep(faceR+0.005, faceR, r) - smoothstep(faceR, faceR-0.008, r));
+  // 12 ornate numerals positions
+  float pa = atan(uv.x, uv.y); if (pa<0.0) pa += ${TAU};
+  for (int i = 0; i < 12; i++){
+    float ang = float(i) * ${TAU} / 12.0;
+    vec2 mp = vec2(sin(ang), cos(ang)) * (faceR - 0.07);
+    // approximate numeral as a small dark square
+    float d = max(abs(uv.x - mp.x), abs(uv.y - mp.y));
+    col = mix(col, vec3(0.10, 0.05, 0.02), smoothstep(0.018, 0.012, d));
+  }
+  // 4 cardinal big marks
+  for (int i = 0; i < 4; i++){
+    float ang = float(i) * ${TAU} / 4.0;
+    vec2 mp = vec2(sin(ang), cos(ang)) * (faceR - 0.04);
+    float d = length(uv - mp);
+    col = mix(col, vec3(0.10), smoothstep(0.030, 0.022, d));
+  }
+  // Hands — ornate iron
+  float hourMain = smoothstep(0.018, 0.012, handD(uv, angHour, 0.18));
+  col = mix(col, vec3(0.05, 0.05, 0.05), hourMain);
+  float minMain = smoothstep(0.014, 0.009, handD(uv, angMin, 0.30));
+  col = mix(col, vec3(0.05, 0.05, 0.05), minMain);
+  // Center boss (gold)
+  col = mix(col, vec3(0.95, 0.78, 0.30), smoothstep(0.030, 0.024, r));
+  // Bell glow if minute > 58 (about to ring) or on touch
+  float bellGlow = uPressed + smoothstep(58.0, 60.0, minF);
+  col += vec3(1.0, 0.85, 0.40) * exp(-(r - faceR)*5.0) * step(r, faceR + 0.3) * bellGlow * 0.6;
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 9. MOVADO MUSEUM (inspired) ────────────────────────────────
+{
+  tag: '09 · MINIMAL', name: 'Museum Pure',
+  desc: 'Estilo Movado Museum. <b>Cero marcas + un solo punto dorado en el 12</b>. Cara negra. Hands negras. Pureza zen.',
+  touch: 'el punto pulsa más fuerte',
+  fs: `${HEAD}
+void main(){
+  float minDim = min(uResolution.x, uResolution.y);
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/minDim;
+  float t = mod(uTime, 60.0);
+  ${TIME_VARS}
+  float r = length(uv);
+  float faceR = 0.40;
+  vec3 col = vec3(0.06, 0.06, 0.08);
+  col = mix(col, vec3(0.02, 0.02, 0.03), smoothstep(faceR, faceR-0.003, r));
+  // Subtle silver rim
+  col += vec3(0.6, 0.6, 0.65) * smoothstep(0.004, 0.0, abs(r - faceR));
+  // The signature: SINGLE GOLD DOT at 12
+  vec2 dotP = vec2(0.0, faceR - 0.07);
+  float dotD = length(uv - dotP);
+  float dotPulse = 0.5 + 0.5 * sin(mod(t * 0.8, ${TAU}));
+  col += vec3(1.0, 0.85, 0.45) * smoothstep(0.020, 0.013, dotD) * (1.0 + uPressed * 0.4);
+  col += vec3(1.0, 0.78, 0.35) * smoothstep(0.040, 0.0, dotD) * 0.3 * (1.0 + dotPulse * 0.4 + uPressed * 0.5);
+  // Hands — black with silver outline for visibility
+  float hourMain = smoothstep(0.013, 0.009, handD(uv, angHour, 0.16));
+  col = mix(col, vec3(0.85, 0.85, 0.90), hourMain);
+  float minMain = smoothstep(0.009, 0.006, handD(uv, angMin, 0.26));
+  col = mix(col, vec3(0.92, 0.92, 0.95), minMain);
+  // No seconds — purity. (Movado Museum often has no second hand.)
+  // Center hub
+  col = mix(col, vec3(0.85, 0.85, 0.90), smoothstep(0.018, 0.014, r));
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+// ─── 10. MICKEY DISNEY (inspired) ───────────────────────────────
+{
+  tag: '10 · CARTOON', name: 'Cartoon Friend',
+  desc: 'Reloj infantil estilo Disney clásico. <b>Cara con orejas Mickey</b>, manecillas con guantitos, color cálido.',
+  touch: 'el personaje sonríe',
+  fs: `${HEAD}
+void main(){
+  float minDim = min(uResolution.x, uResolution.y);
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy)/minDim;
+  float t = mod(uTime, 60.0);
+  ${TIME_VARS}
+  vec3 col = mix(vec3(0.95, 0.55, 0.20), vec3(0.75, 0.30, 0.55), length(uv));  // sunset bg
+  float r = length(uv);
+  float faceR = 0.36;
+  // Two ears (small circles top-left and top-right)
+  vec2 leftEar = uv - vec2(-0.28, 0.32);
+  vec2 rightEar = uv - vec2( 0.28, 0.32);
+  float earL = length(leftEar) - 0.13;
+  float earR = length(rightEar) - 0.13;
+  col = mix(col, vec3(0.05), smoothstep(0.004, 0.0, earL));
+  col = mix(col, vec3(0.05), smoothstep(0.004, 0.0, earR));
+  // Face — cream/white
+  col = mix(col, vec3(0.98, 0.95, 0.85), smoothstep(faceR, faceR-0.004, r));
+  // Red outer rim
+  col += vec3(0.85, 0.10, 0.15) * smoothstep(0.010, 0.0, abs(r - faceR)) * 1.2;
+  // Hour ticks — colorful dots
+  for (int i = 0; i < 12; i++){
+    float ang = float(i) * ${TAU} / 12.0;
+    vec2 mp = vec2(sin(ang), cos(ang)) * (faceR - 0.05);
+    float d = length(uv - mp);
+    vec3 tickCol = vec3(0.5 + 0.5*sin(float(i)), 0.5 + 0.5*sin(float(i)*2.1), 0.5 + 0.5*sin(float(i)*3.3));
+    col += tickCol * smoothstep(0.018, 0.013, d);
+  }
+  // Hands with "gloved hand" at the tip (small circle)
+  // Hour
+  float hourMain = smoothstep(0.014, 0.010, handD(uv, angHour, 0.16));
+  col = mix(col, vec3(0.05), hourMain);
+  vec2 hourTip = rot2(uv, -angHour) - vec2(0.0, 0.16);
+  float hourGlove = smoothstep(0.028, 0.022, length(hourTip));
+  col = mix(col, vec3(0.98, 0.98, 0.95), hourGlove);
+  // Minute
+  float minMain = smoothstep(0.010, 0.007, handD(uv, angMin, 0.24));
+  col = mix(col, vec3(0.05), minMain);
+  vec2 minTip = rot2(uv, -angMin) - vec2(0.0, 0.24);
+  float minGlove = smoothstep(0.024, 0.018, length(minTip));
+  col = mix(col, vec3(0.98, 0.98, 0.95), minGlove);
+  // Second — yellow
+  col = mix(col, vec3(1.0, 0.85, 0.10), smoothstep(0.005, 0.003, handD(uv, angSec, 0.28)));
+  // Big central button
+  col = mix(col, vec3(0.85, 0.10, 0.15), smoothstep(0.022, 0.017, r));
+  col = mix(col, vec3(1.0, 0.95, 0.20), smoothstep(0.012, 0.008, r));
+  // Smile when touched (lower part of face)
+  if (uPressed > 0.05){
+    vec2 smP = uv - vec2(0.0, -0.10);
+    float smArc = abs(length(smP) - 0.12);
+    if (smP.y < 0.02){
+      col = mix(col, vec3(0.05), smoothstep(0.008, 0.004, smArc) * uPressed);
+    }
+  }
+  gl_FragColor = vec4(col, 1.0);
+}`
+},
+
+];
+
+class ShaderCanvas {
+  constructor(canvas, fragSrc){
+    this.canvas = canvas;
+    this.gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+    if (!this.gl) return;
+    this.startTime = performance.now();
+    this.mouse = [0.5, 0.5]; this.pressed = 0; this.targetPressed = 0;
+    this.compile(fragSrc); this.setupGeometry(); this.setupSize(); this.bindEvents();
+    this.running = false;
+  }
+  compile(fragSrc){
+    const gl = this.gl;
+    const vs = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(vs, VS); gl.compileShader(vs);
+    const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs, fragSrc); gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) console.error('FS:', gl.getShaderInfoLog(fs));
+    const p = gl.createProgram(); gl.attachShader(p, vs); gl.attachShader(p, fs); gl.linkProgram(p);
+    this.prog = p;
+    this.uTime = gl.getUniformLocation(p, 'uTime');
+    this.uRes = gl.getUniformLocation(p, 'uResolution');
+    this.uMouse = gl.getUniformLocation(p, 'uMouse');
+    this.uPressed = gl.getUniformLocation(p, 'uPressed');
+    this.uClockSec = gl.getUniformLocation(p, 'uClockSec');
+    this.aPos = gl.getAttribLocation(p, 'aPos');
+  }
+  setupGeometry(){
+    const gl = this.gl;
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(this.aPos);
+    gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
+  }
+  setupSize(){
+    const rect = this.canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.floor(rect.width * dpr);
+    this.canvas.height = Math.floor(rect.height * dpr);
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+  }
+  bindEvents(){
+    const setMouse = (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      let cx, cy;
+      if (e.touches && e.touches.length){ cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+      else { cx = e.clientX; cy = e.clientY; }
+      this.mouse[0] = Math.max(0, Math.min(1, (cx - rect.left) / rect.width));
+      this.mouse[1] = Math.max(0, Math.min(1, 1 - (cy - rect.top) / rect.height));
+    };
+    this.canvas.addEventListener('mousedown', e => { setMouse(e); this.targetPressed = 1; });
+    this.canvas.addEventListener('mousemove', setMouse);
+    window.addEventListener('mouseup', () => this.targetPressed = 0);
+    this.canvas.addEventListener('touchstart', e => { e.preventDefault(); setMouse(e); this.targetPressed = 1; }, { passive: false });
+    this.canvas.addEventListener('touchmove', e => { e.preventDefault(); setMouse(e); }, { passive: false });
+    this.canvas.addEventListener('touchend', () => this.targetPressed = 0);
+    window.addEventListener('resize', () => this.setupSize());
+  }
+  start(){
+    if (this.running) return; this.running = true;
+    const loop = () => { if (!this.running) return; this.draw(); this.rafId = requestAnimationFrame(loop); };
+    loop();
+  }
+  stop(){ this.running = false; if (this.rafId) cancelAnimationFrame(this.rafId); }
+  draw(){
+    const gl = this.gl;
+    this.pressed += (this.targetPressed - this.pressed) * 0.12;
+    const tSec = ((performance.now() - this.startTime) / 1000) % 60.0;
+    const now = new Date();
+    const clockSec = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds() + now.getMilliseconds()/1000;
+    gl.useProgram(this.prog);
+    gl.uniform1f(this.uTime, tSec);
+    gl.uniform2f(this.uRes, this.canvas.width, this.canvas.height);
+    gl.uniform2f(this.uMouse, this.mouse[0], this.mouse[1]);
+    gl.uniform1f(this.uPressed, this.pressed);
+    gl.uniform1f(this.uClockSec, clockSec);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+}
+
+const grid = document.getElementById('grid');
+const instances = [];
+SHADERS.forEach(s => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-head">
+      <span class="card-tag">${s.tag}</span>
+      <span class="card-name">${s.name}</span>
+    </div>
+    <div class="phone"><canvas></canvas></div>
+    <p class="card-desc">${s.desc}</p>
+    <div class="touch-note">${s.touch}</div>
+  `;
+  grid.appendChild(card);
+  const canvas = card.querySelector('canvas');
+  requestAnimationFrame(() => {
+    const sc = new ShaderCanvas(canvas, s.fs);
+    instances.push(sc);
+    const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? sc.start() : sc.stop()), { threshold: 0.05 });
+    io.observe(canvas);
+  });
+});
+window.addEventListener('resize', () => instances.forEach(sc => sc.setupSize()));
+</script>
+</body>
+</html>

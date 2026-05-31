@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora REALM · Shader Wallpapers · 10 Conceptos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&family=Audiowide&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#02050A;
+    --ink-2:#06101D;
+    --cyan:#00E5FF;
+    --cyan-dim:#0099BB;
+    --magenta:#FF00CC;
+    --rose:#FF3478;
+    --rose-bright:#FF8FBE;
+    --violet:#9D4EDD;
+    --violet-bright:#C77DFF;
+    --green:#33FF99;
+    --gold:#FFD66B;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#06081A 0%,#02020A 60%,#000 100%);
+    color:#eee;font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+  .wrap{max-width:1700px;margin:0 auto;padding:48px 24px 120px}
+
+  /* ─── HEADER ─── */
+  .head{text-align:center;margin-bottom:64px;position:relative}
+  .head::before{
+    content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+    width:380px;height:380px;border-radius:50%;
+    background:radial-gradient(circle,rgba(0,229,255,.15),transparent 60%);
+    z-index:-1;animation:pulseGlow 4s ease-in-out infinite;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;
+    color:var(--cyan);text-transform:uppercase;margin-bottom:18px;font-weight:600;
+    opacity:0;animation:fade .8s .1s forwards;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(48px,8vw,84px);line-height:.95;letter-spacing:-.03em;
+    color:#fff;margin-bottom:18px;opacity:0;animation:fade .9s .3s forwards;
+  }
+  h1 .realm{
+    font-family:'Audiowide',cursive;font-style:normal;font-weight:400;
+    background:linear-gradient(135deg,var(--cyan),var(--violet) 50%,var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    letter-spacing:.02em;
+  }
+  .sub{
+    font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;
+    color:rgba(255,255,255,.65);max-width:760px;margin:0 auto 32px;
+    opacity:0;animation:fade .9s .5s forwards;
+  }
+  .sub b{
+    background:linear-gradient(135deg,var(--cyan),var(--violet-bright));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-weight:500;
+  }
+  .meta-row{
+    display:flex;justify-content:center;gap:24px;flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:rgba(255,255,255,.45);letter-spacing:.2em;text-transform:uppercase;
+    opacity:0;animation:fade .9s .7s forwards;
+  }
+  .meta-row span{display:inline-flex;align-items:center;gap:6px}
+  .meta-row .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan)}
+
+  /* ─── GRID ─── */
+  .grid{
+    display:grid;grid-template-columns:1fr;gap:32px;
+    max-width:1600px;margin:0 auto;
+  }
+  @media (min-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media (min-width:1500px){.grid{grid-template-columns:repeat(4,1fr)}}
+
+  .card{
+    background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0));
+    border:1px solid rgba(255,255,255,.06);border-radius:22px;
+    padding:20px;
+    transition:all .35s;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .card:hover{
+    border-color:rgba(0,229,255,.3);
+    transform:translateY(-3px);
+    box-shadow:0 16px 50px rgba(0,229,255,.08),0 4px 12px rgba(0,0,0,.5);
+  }
+  .card-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .card-tag{
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    letter-spacing:.3em;color:var(--cyan);text-transform:uppercase;font-weight:700;
+  }
+  .card-name{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:20px;color:#fff;letter-spacing:-.005em;
+  }
+  .card-desc{
+    font-family:'Inter',sans-serif;font-size:11.5px;line-height:1.55;
+    color:rgba(255,255,255,.55);
+  }
+  .card-desc b{color:var(--cyan);font-weight:500}
+
+  /* PORTRAIT phone frame */
+  .phone{
+    position:relative;width:100%;aspect-ratio:9/19.5;
+    background:#000;border-radius:28px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 24px 60px rgba(0,0,0,.6);
+    overflow:hidden;cursor:crosshair;
+    touch-action:none;
+  }
+  .phone canvas{
+    position:absolute;inset:0;width:100%;height:100%;
+    display:block;
+  }
+  .phone::after{
+    content:'tap & drag';
+    position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+    font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.3em;
+    color:rgba(255,255,255,.35);text-transform:uppercase;
+    pointer-events:none;
+    text-shadow:0 0 8px rgba(0,0,0,.8);
+    opacity:1;transition:opacity .3s;
+  }
+  .phone.touched::after{opacity:0}
+
+  .touch-note{
+    display:flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;
+    color:rgba(0,229,255,.7);text-transform:uppercase;letter-spacing:.18em;
+    padding-top:4px;border-top:1px solid rgba(255,255,255,.05);
+  }
+  .touch-note::before{
+    content:'';width:6px;height:6px;border-radius:50%;
+    background:var(--cyan);box-shadow:0 0 8px var(--cyan);
+    flex-shrink:0;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer{
+    margin-top:96px;text-align:center;
+    padding-top:48px;border-top:1px solid rgba(255,255,255,.06);
+  }
+  .footer-title{
+    font-family:'Fraunces',serif;font-style:italic;font-size:24px;
+    color:rgba(255,255,255,.7);margin-bottom:12px;
+  }
+  .footer-desc{
+    font-family:'Inter',sans-serif;font-size:13px;line-height:1.7;
+    color:rgba(255,255,255,.4);max-width:680px;margin:0 auto 24px;
+  }
+  .specs{
+    display:inline-flex;gap:32px;flex-wrap:wrap;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:rgba(255,255,255,.45);letter-spacing:.2em;text-transform:uppercase;
+  }
+  .specs span{display:flex;align-items:center;gap:8px}
+  .specs .v{color:var(--cyan);font-weight:700}
+
+  /* animations */
+  @keyframes fade{to{opacity:1}}
+  @keyframes pulseGlow{
+    0%,100%{transform:translateX(-50%) scale(1);opacity:.5}
+    50%{transform:translateX(-50%) scale(1.15);opacity:.85}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="head">
+    <div class="eyebrow">Pixora · GPU Shader Wallpapers · 2026</div>
+    <h1>10 conceptos para <span class="realm">REALM</span></h1>
+    <p class="sub">
+      Wallpapers vivos renderizados al <b>100% en GPU</b> (OpenGL ES 2.0), pesan <b>2-10 KB cada uno</b>,
+      reaccionan a tu <b>toque y arrastre</b>, y se mantienen perfectos sin pixelarse aunque dejes el cel
+      prendido todo el día. Toca y arrastra cada preview para sentir el efecto.
+    </p>
+    <div class="meta-row">
+      <span><span class="dot"></span>HIGHP PRECISION</span>
+      <span><span class="dot"></span>TIME-WRAPPED</span>
+      <span><span class="dot"></span>TOUCH REACTIVE</span>
+      <span><span class="dot"></span>~2-10 KB EACH</span>
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid" id="grid"></div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-title">Reglas técnicas aplicadas a TODOS los shaders</div>
+    <p class="footer-desc">
+      <code>precision highp float;</code> previene banding por precisión baja ·
+      todo argumento de <code>sin/cos</code> wrappeado a <code>mod(x, 6.2831853)</code> antes de evaluar ·
+      tiempo global limitado a <code>60s</code> en Kotlin antes de pasarlo al shader ·
+      uniforms: <code>uTime</code>, <code>uResolution</code>, <code>uMouse</code>, <code>uPressed</code>.
+    </p>
+    <div class="specs">
+      <span>GPU <span class="v">OPENGL ES 2.0</span></span>
+      <span>FPS <span class="v">30</span></span>
+      <span>SHADERS <span class="v">10 · ~50 LOC EACH</span></span>
+      <span>TOTAL <span class="v">~60 KB</span></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════════════════════
+// VERTEX SHADER (shared by all)
+// ════════════════════════════════════════════════════════════════
+const VS = `
+attribute vec2 aPos;
+void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }
+`;
+
+// ════════════════════════════════════════════════════════════════
+// COMMON GLSL HEADER (precision + uniforms)
+// ════════════════════════════════════════════════════════════════
+const FS_HEADER = `
+precision highp float;
+uniform float uTime;
+uniform vec2  uResolution;
+uniform vec2  uMouse;     // 0..1 normalized
+uniform float uPressed;   // 0..1 smoothed
+`;
+
+const TAU = '6.2831853';
+
+// ════════════════════════════════════════════════════════════════
+// SHARED GLSL HELPERS (hash, noise, palette)
+// ════════════════════════════════════════════════════════════════
+const FS_HELPERS = `
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float hash11(float p){ return fract(sin(p * 78.233) * 43758.5453); }
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f*f*(3.0 - 2.0*f);
+  float a = hash(i),
+        b = hash(i + vec2(1.0, 0.0)),
+        c = hash(i + vec2(0.0, 1.0)),
+        d = hash(i + vec2(1.0, 1.0));
+  return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);
+}
+vec2 rot2(vec2 p, float a){ float c = cos(a), s = sin(a); return mat2(c,-s,s,c) * p; }
+`;
+
+// ════════════════════════════════════════════════════════════════
+// 10 FRAGMENT SHADERS
+// ════════════════════════════════════════════════════════════════
+const SHADERS = [
+
+  // ─────────────────────────────────────────────────────────────
+  // 1 · UNIVERSE — Starfield with stellar-temperature colors
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '01 · COSMOS',
+    name: 'Universe',
+    desc: 'Estrellas con colores según su <b>temperatura estelar</b> — rojas frías hasta azules calientes. Tres capas de profundidad, parpadeo individual, ocasional cometa.',
+    touch: 'tu dedo deja una estela de cometa',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+vec3 starColor(float h){
+  if (h < 0.20) return vec3(1.0, 0.35, 0.20);
+  if (h < 0.40) return vec3(1.0, 0.65, 0.25);
+  if (h < 0.65) return vec3(1.0, 0.95, 0.60);
+  if (h < 0.85) return vec3(0.92, 0.95, 1.0);
+  return vec3(0.55, 0.75, 1.0);
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  vec3 col = vec3(0.005, 0.008, 0.015) * (1.0 - uv.y * 0.5);
+  for (int layer = 0; layer < 3; layer++){
+    float scale = 22.0 + float(layer) * 35.0;
+    vec2 gridUV = uv * scale;
+    vec2 id = floor(gridUV);
+    vec2 cellUV = fract(gridUV) - 0.5;
+    float h = hash(id + float(layer)*17.0);
+    if (h > 0.95) {
+      float starSize = 0.04 + (h - 0.95) * 1.4;
+      float dist = length(cellUV);
+      float twinkleArg = mod(t * (0.8 + h * 2.5) + h * ${TAU}, ${TAU});
+      float twinkle = 0.5 + 0.5 * sin(twinkleArg);
+      float core = smoothstep(starSize, 0.0, dist);
+      float halo = smoothstep(starSize * 4.0, 0.0, dist) * 0.25;
+      vec3 c = starColor(hash(id - 7.3));
+      col += c * (core + halo) * (0.4 + twinkle * 0.6) * (1.0 - float(layer) * 0.18);
+    }
+  }
+  // shooting star
+  float shootT = mod(t * 0.4, 1.0);
+  vec2 shootStart = vec2(hash(vec2(floor(t * 0.4), 1.0)), 1.0);
+  vec2 shootEnd   = vec2(shootStart.x + 0.35, 0.45);
+  vec2 sp = mix(shootStart, shootEnd, shootT);
+  float sd = length(uv - sp);
+  vec2 dir = normalize(shootEnd - shootStart);
+  float along = dot(uv - sp, -dir);
+  float trail = exp(-sd * 50.0) * smoothstep(0.0, 0.12, along) * exp(-along * 6.0);
+  col += vec3(0.9, 0.95, 1.0) * trail * 2.0;
+  // comet from touch
+  vec2 m = uMouse;
+  float md = length(uv - m);
+  float comet = exp(-md * 7.0) * uPressed;
+  col += vec3(0.7, 0.9, 1.0) * comet * 1.2;
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 2 · HONEYCOMB — Hexagonal neon grid with traveling wave
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '02 · GEOMETRIC',
+    name: 'Honeycomb',
+    desc: 'Grid de <b>hexágonos neón</b>. Una onda de brillo cruza la pantalla iluminando cada hex que pasa. Cyan + violet futurista.',
+    touch: 'hexes cerca de tu dedo se incendian',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+vec2 hexCoord(vec2 p, out vec2 id){
+  vec2 s = vec2(1.0, 1.7320508);
+  vec4 hC = floor(vec4(p, p - vec2(0.5, 1.0)) / s.xyxy) + 0.5;
+  vec4 h  = vec4(p - hC.xy * s, p - (hC.zw + 0.5) * s);
+  vec4 winner = dot(h.xy, h.xy) < dot(h.zw, h.zw) ? vec4(h.xy, hC.xy) : vec4(h.zw, hC.zw + 0.5);
+  id = winner.zw;
+  return winner.xy;
+}
+float hexDist(vec2 p){
+  p = abs(p);
+  return max(dot(p, normalize(vec2(1.0, 1.7320508))), p.x);
+}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float t = mod(uTime, 60.0);
+  vec2 id;
+  vec2 hp = hexCoord(uv * 6.0, id);
+  float edge = hexDist(hp);
+  float cellGlow = smoothstep(0.50, 0.45, edge);
+  float border = smoothstep(0.50, 0.49, edge) - smoothstep(0.47, 0.46, edge);
+  // wave traveling diagonally
+  float wave = sin(mod((id.x + id.y) * 0.6 - t * 1.8, ${TAU}));
+  float pulse = smoothstep(0.4, 1.0, wave);
+  // base color by position
+  vec3 cyan = vec3(0.0, 0.9, 1.0);
+  vec3 violet = vec3(0.6, 0.2, 1.0);
+  vec3 base = mix(violet, cyan, 0.5 + 0.5 * sin(mod(id.x * 0.3 + id.y * 0.5 + t * 0.3, ${TAU})));
+  // touch effect
+  vec2 mouseUv = (uMouse * uResolution.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float md = length(uv - mouseUv);
+  float touchGlow = exp(-md * 4.5) * uPressed;
+  vec3 col = vec3(0.02, 0.03, 0.08);
+  col += base * cellGlow * 0.15;
+  col += base * border * 0.6;
+  col += base * pulse * 1.4 * cellGlow;
+  col += vec3(1.0, 0.6, 1.0) * touchGlow * 1.8 * cellGlow;
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 3 · NEON TRIANGLES — Tessellated breathing triangles
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '03 · GEOMETRIC',
+    name: 'Neon Triangles',
+    desc: 'Pantalla teselada en triángulos. Cada uno respira con su propio color neón. Subtle morphing constante.',
+    touch: 'ripple cruza la teselación desde tu dedo',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float t = mod(uTime, 60.0);
+  vec2 tri = vec2(1.0, 1.7320508);
+  vec2 grid = uv * 5.0;
+  vec2 cellId = floor(vec2(grid.x + grid.y * 0.5, grid.y));
+  vec2 cellUV = vec2(fract(grid.x + grid.y * 0.5), fract(grid.y));
+  bool upper = cellUV.x + cellUV.y > 1.0;
+  vec2 triId = cellId + (upper ? vec2(1.0, 0.0) : vec2(0.0, 0.0));
+  if (upper) triId += vec2(0.0, 0.5); else triId += vec2(0.0, 0.0);
+  // distance to triangle center (approx)
+  vec2 triCenter = vec2(cellId.x + (upper ? 0.66 : 0.33), cellId.y + (upper ? 0.66 : 0.33));
+  float dCenter = length(grid - triCenter);
+  // edge distance (cheap)
+  float edge = upper ? (1.0 - cellUV.x - cellUV.y) : min(cellUV.x, cellUV.y);
+  float fill = smoothstep(0.02, 0.10, edge);
+  // color per triangle
+  float h1 = hash(triId);
+  float h2 = hash(triId + 17.0);
+  vec3 paletteA = vec3(1.0, 0.0, 0.8);   // magenta
+  vec3 paletteB = vec3(0.0, 1.0, 0.9);   // cyan
+  vec3 paletteC = vec3(0.6, 0.2, 1.0);   // violet
+  vec3 paletteD = vec3(0.3, 1.0, 0.5);   // lime
+  vec3 base = h1 < 0.25 ? paletteA :
+              h1 < 0.50 ? paletteB :
+              h1 < 0.75 ? paletteC : paletteD;
+  // breathing
+  float breatheArg = mod(t * 0.8 + h2 * ${TAU}, ${TAU});
+  float breathe = 0.4 + 0.6 * (0.5 + 0.5 * sin(breatheArg));
+  // touch ripple
+  vec2 mouseUv = (uMouse * uResolution.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float md = length(uv - mouseUv);
+  float ripple = exp(-md * 2.5) * uPressed * (0.7 + 0.3 * sin(md * 18.0 - t * 6.0));
+  vec3 col = base * breathe * fill * 0.8;
+  col += base * 0.2 * (1.0 - fill); // softer edges
+  col += vec3(1.0, 1.0, 1.0) * ripple * fill;
+  col *= 0.9;
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 4 · SACRED GEOMETRY — Flower of Life rotating
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '04 · MYSTIC',
+    name: 'Sacred Geometry',
+    desc: 'Flor de la vida rotando lento sobre fondo profundo. Líneas doradas y violeta. Pulso de luz cruza las geometrías.',
+    touch: 'la flor se acelera + halo radial brota de tu dedo',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+float circleOutline(vec2 p, vec2 c, float r, float w){
+  return smoothstep(w, 0.0, abs(length(p - c) - r));
+}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float t = mod(uTime, 60.0);
+  float rotSpeed = 0.15 + uPressed * 0.8;
+  uv = rot2(uv, t * rotSpeed);
+  vec3 col = vec3(0.04, 0.02, 0.08);
+  // central + 6 around (Flower of Life seed pattern)
+  float r = 0.18;
+  float w = 0.005;
+  float glow = 0.0;
+  for (int i = 0; i < 7; i++){
+    float ang = float(i) * ${TAU} / 6.0;
+    vec2 c = i == 0 ? vec2(0.0) : vec2(cos(ang), sin(ang)) * r;
+    glow += circleOutline(uv, c, r, w);
+  }
+  // outer ring of 6
+  for (int i = 0; i < 6; i++){
+    float ang = float(i) * ${TAU} / 6.0 + 3.1415 / 6.0;
+    vec2 c = vec2(cos(ang), sin(ang)) * r * 1.7320508;
+    glow += circleOutline(uv, c, r, w) * 0.7;
+  }
+  // pulse traveling outward
+  float pulseR = mod(t * 0.25, 1.0);
+  float pulse = exp(-abs(length(uv) - pulseR) * 25.0) * 0.7;
+  vec3 gold = vec3(1.0, 0.85, 0.45);
+  vec3 violetCol = vec3(0.7, 0.4, 1.0);
+  vec3 tint = mix(gold, violetCol, 0.5 + 0.5 * sin(mod(t * 0.4, ${TAU})));
+  col += tint * glow * 1.4;
+  col += tint * pulse * 0.6;
+  // touch halo
+  vec2 mouseUv = (uMouse * uResolution.xy - 0.5 * uResolution.xy) / uResolution.y;
+  // un-rotate mouse position to match
+  mouseUv = rot2(mouseUv, t * rotSpeed);
+  float md = length(uv - mouseUv);
+  float halo = exp(-md * 4.0) * uPressed * 1.5;
+  col += vec3(1.0, 0.9, 0.6) * halo;
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 5 · DIGITAL RAIN — Matrix-style cascading streams
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '05 · CYBER',
+    name: 'Digital Rain',
+    desc: 'Caracteres cayendo en columnas a velocidades distintas. Brillo intenso en la cabeza de cada cascada. Glitches rojos ocasionales.',
+    touch: 'columnas cerca de tu dedo se aceleran y se vuelven rojas',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  float cols = 22.0;
+  float colIdx = floor(uv.x * cols);
+  float colSeed = hash11(colIdx * 7.13);
+  float speed = 0.3 + colSeed * 0.8;
+  float headY = 1.0 - mod(t * speed + colSeed * 2.0, 1.4);
+  // glyph rows
+  float rows = 36.0;
+  float rowIdx = floor(uv.y * rows);
+  float glyphSeed = hash(vec2(colIdx, rowIdx + floor(t * speed * rows * 0.5)));
+  float glyph = step(0.55, glyphSeed);
+  // brightness curve along column (head = bright, fading down)
+  float dy = uv.y - headY;
+  float trail = 0.0;
+  if (dy < 0.0) trail = exp(dy * 4.5);
+  // head highlight
+  float head = exp(-abs(dy) * 60.0) * 1.5;
+  // touch acceleration / red shift
+  vec2 mouseUv = uMouse;
+  float colDist = abs(uv.x - mouseUv.x);
+  float touchInfluence = exp(-colDist * 15.0) * uPressed;
+  vec3 green = vec3(0.15, 1.0, 0.45);
+  vec3 red   = vec3(1.0, 0.15, 0.25);
+  vec3 colChar = mix(green, red, touchInfluence);
+  float bright = (trail + head) * glyph;
+  // background fade
+  vec3 col = vec3(0.0, 0.02, 0.01);
+  col += colChar * bright;
+  col += vec3(1.0) * head * glyph * 0.4;  // white at the very head
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 6 · SYNTHWAVE GRID — Retro 80s perspective floor + sun
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '06 · RETRO',
+    name: 'Synthwave Grid',
+    desc: 'Rejilla rosa retrocediendo al horizonte. Sol cuadriculado naranja/cyan saliendo. Pure Outrun aesthetic.',
+    touch: 'rayos eléctricos cruzan el cielo desde tu dedo',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  vec3 col;
+  float horizon = 0.5;
+  if (uv.y > horizon){
+    // sky with sun
+    vec3 skyTop = vec3(0.04, 0.02, 0.12);
+    vec3 skyMid = vec3(0.45, 0.10, 0.50);
+    float skyT = (uv.y - horizon) / (1.0 - horizon);
+    col = mix(skyMid, skyTop, skyT);
+    // sun
+    vec2 sunC = vec2(0.5, horizon + 0.15);
+    float sd = length((uv - sunC) * vec2(1.0, 1.4));
+    float sun = smoothstep(0.20, 0.18, sd);
+    // sun stripes (horizontal bars)
+    float bars = step(0.5, fract((uv.y - sunC.y) * 20.0 - 0.5));
+    float sunMask = max(0.0, sun - bars * smoothstep(sunC.y - 0.0, sunC.y + 0.12, uv.y));
+    vec3 sunCol = mix(vec3(1.0, 0.85, 0.25), vec3(1.0, 0.25, 0.55), (uv.y - sunC.y) * 3.0 + 0.5);
+    col = mix(col, sunCol, sunMask);
+    // sun glow
+    col += vec3(1.0, 0.45, 0.55) * smoothstep(0.45, 0.0, sd) * 0.4;
+  } else {
+    // floor with perspective grid
+    float fp = (horizon - uv.y) / horizon;
+    float depth = 1.0 / max(fp, 0.01);
+    float z = depth * 0.15 + t * 0.6;
+    float gx = abs(fract((uv.x - 0.5) * depth * 2.0) - 0.5);
+    float gz = abs(fract(z) - 0.5);
+    float lineX = smoothstep(0.05, 0.0, gx) * smoothstep(1.0, 0.3, fp * 2.0);
+    float lineZ = smoothstep(0.05, 0.0, gz);
+    vec3 floorBase = mix(vec3(0.10, 0.04, 0.18), vec3(0.04, 0.02, 0.08), fp);
+    vec3 gridCol = vec3(1.0, 0.30, 0.60);
+    col = floorBase + gridCol * (lineX + lineZ) * 0.8;
+  }
+  // lightning from touch (only in sky)
+  if (uPressed > 0.01 && uv.y > horizon){
+    vec2 mouseUv = uMouse;
+    float distToBolt = abs(uv.x - mouseUv.x - sin(uv.y * 30.0 + t * 20.0) * 0.04);
+    float bolt = exp(-distToBolt * 80.0) * uPressed * step(uv.y, mouseUv.y);
+    col += vec3(0.6, 0.9, 1.0) * bolt * 2.0;
+  }
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 7 · PLASMA ORBS — Floating colored orbs that blend
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '07 · ORGANIC',
+    name: 'Plasma Orbs',
+    desc: 'Esferas de luz flotando en órbitas suaves. Donde se cruzan los colores se mezclan tipo lava lamp moderno.',
+    touch: 'una nueva orb sigue tu dedo y se integra al flujo',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  vec3 col = vec3(0.02, 0.01, 0.05);
+  // 4 orbs orbiting
+  vec2 orbs[4];
+  vec3 colors[4];
+  orbs[0] = vec2(0.5 + 0.30 * cos(mod(t * 0.45, ${TAU})), 0.5 + 0.30 * sin(mod(t * 0.45, ${TAU})));
+  orbs[1] = vec2(0.5 + 0.25 * cos(mod(t * -0.62 + 2.0, ${TAU})), 0.5 + 0.32 * sin(mod(t * -0.62 + 2.0, ${TAU})));
+  orbs[2] = vec2(0.5 + 0.28 * cos(mod(t * 0.38 + 4.0, ${TAU})), 0.5 + 0.20 * sin(mod(t * 0.78 + 4.0, ${TAU})));
+  orbs[3] = vec2(0.5 + 0.22 * cos(mod(t * -0.50 + 1.0, ${TAU})), 0.5 + 0.28 * sin(mod(t * -0.50 + 1.0, ${TAU})));
+  colors[0] = vec3(1.0, 0.2, 0.6);   // pink
+  colors[1] = vec3(0.2, 0.9, 1.0);   // cyan
+  colors[2] = vec3(0.8, 0.3, 1.0);   // violet
+  colors[3] = vec3(1.0, 0.7, 0.2);   // gold
+  for (int i = 0; i < 4; i++){
+    float d = length((uv - orbs[i]) * vec2(uResolution.x / uResolution.y, 1.0));
+    float intensity = exp(-d * 4.5);
+    col += colors[i] * intensity * 0.9;
+  }
+  // touch orb
+  vec2 mouseUv = uMouse;
+  float md = length((uv - mouseUv) * vec2(uResolution.x / uResolution.y, 1.0));
+  float touchOrb = exp(-md * 5.5) * uPressed * 1.3;
+  col += vec3(1.0, 1.0, 0.95) * touchOrb;
+  // tonemap
+  col = col / (1.0 + col);
+  col = pow(col, vec3(0.85));
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 8 · KALEIDOSCOPE — 6-fold mirrored pattern
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '08 · PSYCHEDELIC',
+    name: 'Kaleidoscope',
+    desc: 'Patrón en 6 ejes mirrored. Mandalas infinitos siempre distintos. Paleta que cambia con tiempo.',
+    touch: 'rotación se acelera + centro se mueve a tu dedo',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float t = mod(uTime, 60.0);
+  vec2 mouseUv = (uMouse * uResolution.xy - 0.5 * uResolution.xy) / uResolution.y;
+  vec2 center = mix(vec2(0.0), mouseUv * 0.5, uPressed);
+  uv -= center;
+  // polar coords
+  float r = length(uv);
+  float a = atan(uv.y, uv.x);
+  // 6-fold symmetry
+  float seg = ${TAU} / 6.0;
+  a = mod(a, seg);
+  a = abs(a - seg * 0.5);
+  // rotate over time
+  float rotSpeed = 0.4 + uPressed * 1.5;
+  a += t * rotSpeed * 0.3;
+  // back to cartesian
+  vec2 sampUV = vec2(cos(a), sin(a)) * r * 4.0;
+  // moving noise pattern
+  vec2 p = sampUV + vec2(t * 0.3, t * 0.2);
+  float n1 = noise(p);
+  float n2 = noise(p * 2.0 + 1.0);
+  float n3 = noise(p * 4.0 - 2.0);
+  float pat = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
+  // color cycling
+  float hue = mod(t * 0.15 + pat * 2.0, 1.0);
+  vec3 col = 0.5 + 0.5 * cos(${TAU} * (hue + vec3(0.0, 0.33, 0.67)));
+  col *= smoothstep(0.0, 0.2, pat) * 1.1;
+  // dark vignette toward edge
+  col *= smoothstep(1.2, 0.2, r);
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 9 · METABALLS — Fluid merging blobs
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '09 · FLUID',
+    name: 'Metaballs',
+    desc: 'Gotas líquidas grandes que se fusionan y separan suavemente. Lámpara de lava cyber. Movimiento orgánico hipnótico.',
+    touch: 'una nueva gota nace donde tocas y se integra',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float t = mod(uTime, 60.0);
+  vec2 b1 = vec2(0.30 * cos(mod(t * 0.5, ${TAU})), 0.30 * sin(mod(t * 0.7, ${TAU})));
+  vec2 b2 = vec2(0.25 * cos(mod(t * -0.6 + 1.5, ${TAU})), 0.25 * sin(mod(t * 0.45 + 1.5, ${TAU})));
+  vec2 b3 = vec2(0.20 * cos(mod(t * 0.4 + 3.0, ${TAU})), 0.35 * sin(mod(t * -0.55 + 3.0, ${TAU})));
+  float r1 = 0.18, r2 = 0.16, r3 = 0.14;
+  float f = (r1 * r1) / dot(uv - b1, uv - b1)
+          + (r2 * r2) / dot(uv - b2, uv - b2)
+          + (r3 * r3) / dot(uv - b3, uv - b3);
+  // touch blob
+  vec2 mouseUv = (uMouse * uResolution.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float rT = 0.15;
+  f += (rT * rT) / dot(uv - mouseUv, uv - mouseUv) * uPressed;
+  // surface threshold
+  float surface = smoothstep(0.8, 1.4, f);
+  // color cycling
+  vec3 cA = vec3(0.10, 0.90, 1.0);
+  vec3 cB = vec3(1.00, 0.20, 0.85);
+  vec3 cC = vec3(0.50, 0.30, 1.0);
+  vec3 col = mix(cA, cB, 0.5 + 0.5 * sin(mod(t * 0.4, ${TAU})));
+  col = mix(col, cC, 0.5 + 0.5 * sin(mod(t * 0.27 + 2.0, ${TAU})));
+  // glow halo
+  float halo = smoothstep(0.4, 1.0, f) * 0.4;
+  vec3 final = vec3(0.02, 0.02, 0.06);
+  final += col * surface * 1.1;
+  final += col * halo * 0.5;
+  gl_FragColor = vec4(final, 1.0);
+}
+`
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 10 · CIRCUIT CITY — Glowing PCB with traveling pulses
+  // ─────────────────────────────────────────────────────────────
+  {
+    tag: '10 · TECH',
+    name: 'Circuit City',
+    desc: 'Vista aérea de circuito electrónico glowing. Pulsos de luz viajan por los "cables". Tron + cyberpunk aesthetic.',
+    touch: 'pulso de luz nace en tu dedo y viaja por el circuito',
+    fs: `
+${FS_HEADER}
+${FS_HELPERS}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+  float t = mod(uTime, 60.0);
+  float ar = uResolution.x / uResolution.y;
+  vec2 grid = vec2(uv.x * ar, uv.y) * 12.0;
+  vec2 id = floor(grid);
+  vec2 f = fract(grid);
+  // determine direction per cell
+  float dir = step(0.5, hash(id));  // 0 = horizontal, 1 = vertical
+  // line thickness
+  float lineDist = dir > 0.5 ? abs(f.x - 0.5) : abs(f.y - 0.5);
+  float line = smoothstep(0.07, 0.05, lineDist);
+  // junction (small square in the middle)
+  float junctionDist = max(abs(f.x - 0.5), abs(f.y - 0.5));
+  float junction = smoothstep(0.10, 0.08, junctionDist) - smoothstep(0.08, 0.06, junctionDist);
+  // node circles at occasional cells
+  float nodeMask = step(0.8, hash(id + 5.0));
+  float node = nodeMask * smoothstep(0.18, 0.12, length(f - 0.5));
+  // traveling pulse along line
+  float pulsePos = dir > 0.5 ? f.x : f.y;
+  float pulseT = mod(t * 0.7 + hash(id) * 3.0, 1.0);
+  float pulseGlow = exp(-abs(pulsePos - pulseT) * 12.0) * line;
+  // touch pulse (radial expanding from mouse)
+  vec2 mouseUv = uMouse;
+  float md = length((uv - mouseUv) * vec2(ar, 1.0));
+  float touchPulseR = mod(uTime * 0.8, 1.5) * uPressed;
+  float touchPulse = exp(-abs(md - touchPulseR) * 18.0) * uPressed * line;
+  // color
+  vec3 cyan = vec3(0.0, 0.95, 1.0);
+  vec3 blue = vec3(0.2, 0.4, 1.0);
+  vec3 col = vec3(0.005, 0.01, 0.02);
+  col += cyan * line * 0.25;
+  col += blue * junction * 1.2;
+  col += cyan * node * 1.0;
+  col += vec3(0.5, 1.0, 1.0) * pulseGlow * 1.5;
+  col += vec3(1.0, 0.95, 0.6) * touchPulse * 2.0;
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+  },
+
+];
+
+// ════════════════════════════════════════════════════════════════
+// WEBGL HELPER — single class manages each canvas
+// ════════════════════════════════════════════════════════════════
+class ShaderCanvas {
+  constructor(canvas, fragSrc){
+    this.canvas = canvas;
+    this.gl = canvas.getContext('webgl', { antialias: false, alpha: false, premultipliedAlpha: false });
+    if (!this.gl) { console.warn('WebGL not available'); return; }
+    this.startTime = performance.now();
+    this.mouse = [0.5, 0.5];
+    this.pressed = 0;
+    this.targetPressed = 0;
+    this.compile(fragSrc);
+    this.setupGeometry();
+    this.setupSize();
+    this.bindEvents();
+    this.running = false;
+  }
+  compile(fragSrc){
+    const gl = this.gl;
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, VS); gl.compileShader(vs);
+    if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) console.error('VS:', gl.getShaderInfoLog(vs));
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fs, fragSrc); gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) console.error('FS:', gl.getShaderInfoLog(fs), '\n', fragSrc);
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) console.error('LINK:', gl.getProgramInfoLog(prog));
+    this.prog = prog;
+    this.uTime = gl.getUniformLocation(prog, 'uTime');
+    this.uRes = gl.getUniformLocation(prog, 'uResolution');
+    this.uMouse = gl.getUniformLocation(prog, 'uMouse');
+    this.uPressed = gl.getUniformLocation(prog, 'uPressed');
+    this.aPos = gl.getAttribLocation(prog, 'aPos');
+  }
+  setupGeometry(){
+    const gl = this.gl;
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(this.aPos);
+    gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
+  }
+  setupSize(){
+    const rect = this.canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.floor(rect.width * dpr);
+    this.canvas.height = Math.floor(rect.height * dpr);
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+  }
+  bindEvents(){
+    const setMouse = (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      let clientX, clientY;
+      if (e.touches && e.touches.length) {
+        clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX; clientY = e.clientY;
+      }
+      this.mouse[0] = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      this.mouse[1] = Math.max(0, Math.min(1, 1 - (clientY - rect.top) / rect.height));
+    };
+    this.canvas.addEventListener('mousedown', (e) => { setMouse(e); this.targetPressed = 1; this.canvas.parentElement.classList.add('touched'); });
+    this.canvas.addEventListener('mousemove', (e) => { setMouse(e); });
+    window.addEventListener('mouseup', () => { this.targetPressed = 0; });
+    this.canvas.addEventListener('touchstart', (e) => { e.preventDefault(); setMouse(e); this.targetPressed = 1; this.canvas.parentElement.classList.add('touched'); }, { passive: false });
+    this.canvas.addEventListener('touchmove', (e) => { e.preventDefault(); setMouse(e); }, { passive: false });
+    this.canvas.addEventListener('touchend', () => { this.targetPressed = 0; });
+    window.addEventListener('resize', () => this.setupSize());
+  }
+  start(){
+    if (this.running) return;
+    this.running = true;
+    const loop = () => {
+      if (!this.running) return;
+      this.draw();
+      this.rafId = requestAnimationFrame(loop);
+    };
+    loop();
+  }
+  stop(){
+    this.running = false;
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+  }
+  draw(){
+    const gl = this.gl;
+    // smooth pressed
+    this.pressed += (this.targetPressed - this.pressed) * 0.12;
+    const tSec = ((performance.now() - this.startTime) / 1000) % 60.0;
+    gl.useProgram(this.prog);
+    gl.uniform1f(this.uTime, tSec);
+    gl.uniform2f(this.uRes, this.canvas.width, this.canvas.height);
+    gl.uniform2f(this.uMouse, this.mouse[0], this.mouse[1]);
+    gl.uniform1f(this.uPressed, this.pressed);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// BUILD CARDS + INSTANTIATE
+// ════════════════════════════════════════════════════════════════
+const grid = document.getElementById('grid');
+const instances = [];
+
+SHADERS.forEach((s, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-head">
+      <span class="card-tag">${s.tag}</span>
+      <span class="card-name">${s.name}</span>
+    </div>
+    <div class="phone">
+      <canvas></canvas>
+    </div>
+    <p class="card-desc">${s.desc}</p>
+    <div class="touch-note">${s.touch}</div>
+  `;
+  grid.appendChild(card);
+  const canvas = card.querySelector('canvas');
+  // Slight delay to ensure layout settled before measuring
+  requestAnimationFrame(() => {
+    const sc = new ShaderCanvas(canvas, s.fs);
+    instances.push(sc);
+    // use IntersectionObserver to only render when visible
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        if (en.isIntersecting) sc.start();
+        else sc.stop();
+      });
+    }, { threshold: 0.05 });
+    io.observe(canvas);
+  });
+});
+
+// Recompute sizes on resize
+window.addEventListener('resize', () => {
+  instances.forEach(sc => sc.setupSize());
+});
+</script>
+</body>
+</html>

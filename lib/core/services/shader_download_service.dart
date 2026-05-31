@@ -19,10 +19,19 @@ class ShaderDownloadService {
   static const _baseUrl = '${SupabaseConfig.storageBase}/$_bucket';
 
   /// Names of shaders that should always be available offline (after first
-  /// successful download). Tiny GLSL files — total ~7 KB.
+  /// successful download). REALM v1 catalog — 10 designs, ~16 KB total.
   static const _bootstrap = <String>[
-    'aurora_borealis',
-    'volcano_dragon',
+    'universe',
+    'honeycomb',
+    'neon_triangles',
+    'sacred_geometry',
+    'digital_rain',
+    'synthwave_grid',
+    'plasma_orbs',
+    'kaleidoscope',
+    'metaballs',
+    'circuit_city',
+    'clock',
   ];
 
   Future<Directory> _shadersDir() async {
