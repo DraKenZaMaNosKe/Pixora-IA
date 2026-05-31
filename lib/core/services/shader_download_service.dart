@@ -32,6 +32,13 @@ class ShaderDownloadService {
     'metaballs',
     'circuit_city',
     'clock',
+    // Plasma + lava lamp pack (Eduardo's pick 2026-05-31)
+    'cosmic_plasma',
+    'liquid_aurora',
+    'galaxy_plasma',
+    'lava_red',
+    'lava_blue',
+    'lava_pastel',
   ];
 
   Future<Directory> _shadersDir() async {
@@ -44,7 +51,29 @@ class ShaderDownloadService {
   Future<bool> _isCached(String name) async {
     final dir = await _shadersDir();
     final f = File('${dir.path}/$name.glsl');
-    return f.existsSync() && f.lengthSync() > 50;
+    if (!f.existsSync() || f.lengthSync() <= 50) return false;
+    // Self-healing: HEAD-check Content-Length against cached size. If the
+    // bucket has a re-uploaded version (same name, different bytes), drop
+    // the stale file so the next ensureShader downloads fresh. Mirrors
+    // the AURA download service pattern. HEAD failures fall back to using
+    // the cache (offline, transient errors).
+    try {
+      final r = await http
+          .head(Uri.parse('$_baseUrl/$name.glsl'))
+          .timeout(const Duration(seconds: 6));
+      final remoteLen = int.tryParse(r.headers['content-length'] ?? '') ?? 0;
+      if (r.statusCode == 200 && remoteLen > 0 && remoteLen != f.lengthSync()) {
+        debugPrint('[Pixora] Shader size mismatch $name '
+            '(${f.lengthSync()} vs $remoteLen) — re-downloading');
+        try {
+          await f.delete();
+        } catch (_) {}
+        return false;
+      }
+    } catch (_) {
+      // HEAD failed — trust the cache.
+    }
+    return true;
   }
 
   /// Download one shader by name. Returns true on success or if already cached.

@@ -9,6 +9,7 @@ import '../../../../core/services/app_strings_service.dart';
 import '../../../../core/services/live_wallpaper_catalog_service.dart';
 import '../../../../core/widgets/aurora_waves_loading.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
+import '../../../realm/presentation/widgets/realm_grid_section.dart';
 import '../../../wallpapers/data/wallpaper_adapter.dart';
 import '../../../wallpapers/presentation/pages/wallpaper_viewer_hud_page.dart';
 import '../../../wallpapers/presentation/widgets/category_chip_hud.dart';
@@ -16,40 +17,131 @@ import '../../data/models/live_wallpaper.dart';
 import '../../providers/live_wallpaper_providers.dart';
 import 'live_wallpaper_preview_page.dart';
 
-class HotWallpapersPage extends ConsumerWidget {
+/// Sub-section selector inside the LIVE tab. VIDEOS keeps the existing
+/// catalog flow; SHADERS / CLOCKS render the static RealmCatalog grid
+/// (Eduardo's pick 2026-05-31 — sub-sections instead of a 9th bottom nav).
+enum _LiveSubTab { videos, shaders, clocks }
+
+class HotWallpapersPage extends ConsumerStatefulWidget {
   const HotWallpapersPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final catalogAsync = ref.watch(liveWallpaperCatalogProvider);
+  ConsumerState<HotWallpapersPage> createState() => _HotWallpapersPageState();
+}
 
-    return catalogAsync.when(
-      loading: () => const _ShimmerLoading(),
-      error: (e, _) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline, color: context.hud.accent, size: 48),
-            const SizedBox(height: 12),
-            Text('Failed to load live wallpapers',
-                style: TextStyle(color: context.hud.textDim)),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => ref.invalidate(liveWallpaperCatalogProvider),
-              child: const Text('Retry'),
+class _HotWallpapersPageState extends ConsumerState<HotWallpapersPage> {
+  _LiveSubTab _subTab = _LiveSubTab.videos;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _SubTabBar(
+          current: _subTab,
+          onChanged: (t) => setState(() => _subTab = t),
+        ),
+        Expanded(child: _buildBody()),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    switch (_subTab) {
+      case _LiveSubTab.shaders:
+        return const RealmGridSection(clocksOnly: false);
+      case _LiveSubTab.clocks:
+        return const RealmGridSection(clocksOnly: true);
+      case _LiveSubTab.videos:
+        final catalogAsync = ref.watch(liveWallpaperCatalogProvider);
+        return catalogAsync.when(
+          loading: () => const _ShimmerLoading(),
+          error: (e, _) => Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.error_outline, color: context.hud.accent, size: 48),
+                const SizedBox(height: 12),
+                Text('Failed to load live wallpapers',
+                    style: TextStyle(color: context.hud.textDim)),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => ref.invalidate(liveWallpaperCatalogProvider),
+                  child: const Text('Retry'),
+                ),
+              ],
             ),
-          ],
+          ),
+          data: (items) {
+            if (items.isEmpty) {
+              return Center(
+                child: Text('Coming soon!',
+                    style: TextStyle(color: context.hud.textDim, fontSize: 16)),
+              );
+            }
+            return _HotContent(items: items);
+          },
+        );
+    }
+  }
+}
+
+/// 3-segment toggle at the top of the LIVE tab. Pure visual — no Riverpod,
+/// state lives in `_HotWallpapersPageState` so it resets when the user
+/// switches bottom-nav tabs and comes back (intentional: each visit is
+/// fresh, no stale sub-section memory across navigations).
+class _SubTabBar extends StatelessWidget {
+  final _LiveSubTab current;
+  final ValueChanged<_LiveSubTab> onChanged;
+
+  const _SubTabBar({required this.current, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      child: Row(
+        children: [
+          _segment(context, _LiveSubTab.videos, 'VIDEOS'),
+          const SizedBox(width: 6),
+          _segment(context, _LiveSubTab.shaders, 'SHADERS'),
+          const SizedBox(width: 6),
+          _segment(context, _LiveSubTab.clocks, 'CLOCKS'),
+        ],
+      ),
+    );
+  }
+
+  Widget _segment(BuildContext context, _LiveSubTab tab, String label) {
+    final h = context.hud;
+    final selected = tab == current;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onChanged(tab),
+        child: Container(
+          height: 36,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? h.accent : Colors.transparent,
+            border: Border.all(
+              color: selected ? h.accent : Colors.white.withValues(alpha: 0.15),
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'JetBrainsMono',
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.6,
+              color: selected
+                  ? Colors.black
+                  : Colors.white.withValues(alpha: 0.75),
+            ),
+          ),
         ),
       ),
-      data: (items) {
-        if (items.isEmpty) {
-          return Center(
-            child: Text('Coming soon!',
-                style: TextStyle(color: context.hud.textDim, fontSize: 16)),
-          );
-        }
-        return _HotContent(items: items);
-      },
     );
   }
 }
