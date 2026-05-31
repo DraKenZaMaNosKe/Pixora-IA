@@ -246,11 +246,22 @@ class MainActivity : AudioServiceActivity() {
                     "setShaderWallpaper" -> {
                         val shaderName = call.argument<String>("shaderName")
                         if (shaderName != null) {
-                            // Save shader name for ShaderWallpaperService to read
+                            // Persist shader_name SYNCHRONOUSLY so the disk file is
+                            // updated before the :wallpaper process re-reads. apply()
+                            // is async and races the picker launch below.
                             val prefs = getSharedPreferences("pixora_shader", 0)
                             prefs.edit()
                                 .putString("shader_name", shaderName)
-                                .apply()
+                                .commit()
+
+                            // Kill the :wallpaper process so its in-memory
+                            // SharedPreferences cache is dropped. Without this, the
+                            // new preview engine still reads the OLD cached value
+                            // (SharedPreferences is NOT multi-process aware — see
+                            // tech_sharedprefs_multi_process memory). The picker
+                            // re-spawns the engine fresh and reads the new value
+                            // from disk on next loadCurrentShader().
+                            killWallpaperProcess()
 
                             // Launch shader wallpaper picker (uses ShaderWallpaperService)
                             val intent = android.content.Intent(android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
