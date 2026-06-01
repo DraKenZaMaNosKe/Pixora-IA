@@ -184,6 +184,18 @@ class RealmCatalog {
       badge: 'NEW',
     ),
 
+    // ── Hybrid texture lamps (real lamp body + animated blobs) ──
+    RealmShader(
+      id: 'lava_hot_pink',
+      name: 'Hot Pink Lamp',
+      description:
+          'Lámpara real con burbujas rosa-magenta fluyendo dentro del tubo. Combina foto premium + blobs animados en tiempo real.',
+      category: RealmCategory.abstract_,
+      glowColor: '#FF3478',
+      previewKey: 'realm_previews/lava_hot_pink.webp',
+      badge: 'NEW',
+    ),
+
     // ── Clocks ────────────────────────────────────────────────────
     RealmShader(
       id: 'clock',

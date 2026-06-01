@@ -39,6 +39,8 @@ class ShaderDownloadService {
     'lava_red',
     'lava_blue',
     'lava_pastel',
+    // Hybrid texture-shader lamps (Eduardo's pick 2026-05-31)
+    'lava_hot_pink',
   ];
 
   Future<Directory> _shadersDir() async {
@@ -77,8 +79,17 @@ class ShaderDownloadService {
   }
 
   /// Download one shader by name. Returns true on success or if already cached.
+  /// Also fetches optional companion texture (<name>.png) from
+  /// wallpaper-images/realm_textures/<name>.png so hybrid shaders (e.g. lava
+  /// lamps with a photo body + animated blobs inside) get both files together.
   Future<bool> ensureShader(String name) async {
-    if (await _isCached(name)) return true;
+    final cached = await _isCached(name);
+    if (cached) {
+      // Even if the .glsl is cached, the companion .png might not be yet
+      // (added later or first run after the texture pipeline shipped).
+      await _ensureCompanionTexture(name);
+      return true;
+    }
     if (!await Connectivity.hasInternet()) return false;
     try {
       final url = '$_baseUrl/$name.glsl';
@@ -88,6 +99,7 @@ class ShaderDownloadService {
         final dir = await _shadersDir();
         await File('${dir.path}/$name.glsl').writeAsBytes(r.bodyBytes);
         debugPrint('[Pixora] Shader cached: $name (${r.bodyBytes.length} B)');
+        await _ensureCompanionTexture(name);
         return true;
       }
       debugPrint('[Pixora] Shader download HTTP ${r.statusCode}: $name');
@@ -95,6 +107,49 @@ class ShaderDownloadService {
       debugPrint('[Pixora] Shader download failed: $name → $e');
     }
     return false;
+  }
+
+  /// Try to download <name>.png from realm_textures/. Companion textures are
+  /// optional — most shaders are pure-procedural and don't have one. HEAD-check
+  /// first so we don't waste bandwidth on shaders without skins. Silent on
+  /// missing texture (HTTP 404) since that's the common case.
+  Future<void> _ensureCompanionTexture(String name) async {
+    try {
+      final dir = await _shadersDir();
+      final pngFile = File('${dir.path}/$name.png');
+      const texBase =
+          '${SupabaseConfig.storageBase}/wallpaper-images/realm_textures';
+      final url = '$texBase/$name.png';
+      // If cached, HEAD-check size for self-healing (same pattern as .glsl).
+      if (pngFile.existsSync() && pngFile.lengthSync() > 1024) {
+        try {
+          final head = await http
+              .head(Uri.parse(url))
+              .timeout(const Duration(seconds: 6));
+          final remoteLen =
+              int.tryParse(head.headers['content-length'] ?? '') ?? 0;
+          if (head.statusCode == 200 &&
+              remoteLen > 0 &&
+              remoteLen == pngFile.lengthSync()) {
+            return; // cache matches remote
+          }
+          if (head.statusCode == 404) return; // no companion, that's fine
+        } catch (_) {
+          return; // HEAD failed — trust cache
+        }
+      }
+      if (!await Connectivity.hasInternet()) return;
+      final r =
+          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 30));
+      if (r.statusCode == 200 && r.bodyBytes.length > 1024) {
+        await pngFile.writeAsBytes(r.bodyBytes);
+        debugPrint(
+            '[Pixora] Shader texture cached: $name (${r.bodyBytes.length} B)');
+      }
+    } catch (e) {
+      // Companion is optional — never block .glsl flow on PNG fetch errors.
+      debugPrint('[Pixora] Texture fetch for $name: $e');
+    }
   }
 
   /// Pre-download all bootstrap shaders so they're ready offline. Safe to

@@ -3,13 +3,11 @@ uniform float uTime;
 uniform vec2  uResolution;
 uniform vec2  uMouse;       // unused
 uniform float uPressed;     // unused
-uniform sampler2D uSkin;    // optional companion texture (lava lamp body)
-uniform float uHasSkin;     // > 0.5 when uSkin is bound (float for GPU portability)
+uniform sampler2D uSkin;    // lava lamp body texture
+uniform float uHasSkin;     // > 0.5 when uSkin is bound
 
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
-// Render the lava-blob field at `uv` (centered coords). Returns a color with
-// amber tonemap baked in — caller drops it straight into gl_FragColor.
 vec3 renderBlobs(vec2 uv, float t, float aspect, bool useDarkBg){
   float field = 0.0;
   vec3 lavaCol = vec3(0.0);
@@ -28,18 +26,19 @@ vec3 renderBlobs(vec2 uv, float t, float aspect, bool useDarkBg){
     float contribution = rRad * rRad / (dist * dist + 0.002);
     field += contribution;
     float heat = y + 0.5;
-    vec3 c = mix(vec3(1.0, 0.20, 0.05), vec3(1.0, 0.85, 0.30), heat);
+    // Hot-pink palette: deep magenta at bottom → bright pink at top
+    vec3 hot  = vec3(0.85, 0.05, 0.45);
+    vec3 cool = vec3(1.0,  0.65, 0.85);
+    vec3 c = mix(hot, cool, heat);
     lavaCol += c * contribution;
   }
-  // Tube bg color — saturated amber when inside lamp (skin mode),
-  // gradient amber when no skin (pure-shader fallback).
   vec3 bg = useDarkBg
-      ? mix(vec3(0.32, 0.10, 0.04), vec3(0.50, 0.25, 0.08), uv.y + 0.5)
-      : vec3(0.55, 0.20, 0.05);
+      ? mix(vec3(0.20, 0.04, 0.12), vec3(0.35, 0.10, 0.20), uv.y + 0.5)
+      : vec3(0.45, 0.08, 0.25);
   float surface = smoothstep(0.85, 1.30, field);
   vec3 col = mix(bg, lavaCol / max(field, 0.001), surface);
   float halo = smoothstep(0.40, 0.85, field) * 0.45;
-  col += vec3(1.0, 0.55, 0.20) * halo;
+  col += vec3(1.0, 0.45, 0.70) * halo;
   return col / (1.0 + col * 0.30);
 }
 
@@ -49,10 +48,6 @@ void main(){
   float t = mod(uTime, 60.0);
   float aspect = uResolution.x / uResolution.y;
 
-  // Single decision point: do we have a skin texture loaded?
-  // - YES → sample texture; if magenta, render blobs IN that pixel; otherwise
-  //         show the texture pixel (lamp body, glass rim, base, black bg).
-  // - NO  → full-screen procedural fallback (the original pure-shader lava).
   if (uHasSkin > 0.5) {
     vec3 skinCol = texture2D(uSkin, vec2(fragUv.x, 1.0 - fragUv.y)).rgb;
     bool insideTube =
@@ -60,9 +55,6 @@ void main(){
     if (insideTube) {
       gl_FragColor = vec4(renderBlobs(uv, t, aspect, false), 1.0);
     } else {
-      // Show the texture pixel — cap, base, glass rim, OR black background
-      // around the lamp. We do NOT switch to procedural for black pixels
-      // (that was the bug — black bg pixels were rendering blobs).
       gl_FragColor = vec4(skinCol, 1.0);
     }
   } else {

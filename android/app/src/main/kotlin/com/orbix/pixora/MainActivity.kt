@@ -263,14 +263,31 @@ class MainActivity : AudioServiceActivity() {
                             // from disk on next loadCurrentShader().
                             killWallpaperProcess()
 
-                            // Launch shader wallpaper picker (uses ShaderWallpaperService)
-                            val intent = android.content.Intent(android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
-                            intent.putExtra(
-                                android.app.WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                android.content.ComponentName(applicationContext, com.orbix.pixora.gl.ShaderWallpaperService::class.java)
-                            )
-                            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                            startActivity(intent)
+                            // Samsung One UI bug workaround: switching between live
+                            // wallpapers without rebooting leaves SurfaceFlinger in
+                            // a half-broken state where buffers flow but nothing is
+                            // composited (home shows black). Empirically observed
+                            // 2026-05-31. Defense in three layers:
+                            //   1) WallpaperManager.clear() resets the wallpaper layer
+                            //   2) 400ms delay lets SystemUI/SF finish teardown before
+                            //      we trigger a new bind — prevents compositor race
+                            //   3) System.gc() hints JVM to free old engine state
+                            try {
+                                android.app.WallpaperManager.getInstance(applicationContext).clear()
+                            } catch (e: Exception) {
+                                android.util.Log.w("PixoraEQ", "wallpaper clear: ${e.message}")
+                            }
+                            System.gc()
+
+                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                                val intent = android.content.Intent(android.app.WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+                                intent.putExtra(
+                                    android.app.WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                                    android.content.ComponentName(applicationContext, com.orbix.pixora.gl.ShaderWallpaperService::class.java)
+                                )
+                                intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                startActivity(intent)
+                            }, 400)
                             result.success(true)
                         } else {
                             result.error("INVALID_ARG", "shaderName required", null)

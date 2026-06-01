@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pixora REALM · Lava Lamp Collection · 8 lamps × 2 colors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..900;1,9..144,200..900&family=JetBrains+Mono:wght@300..700&family=Inter:wght@300..900&family=Audiowide&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --cyan:#00E5FF; --magenta:#FF00CC; --rose:#FF3478;
+    --rose-bright:#FF8FBE; --violet:#9D4EDD; --violet-bright:#C77DFF;
+    --gold:#FFD66B; --lava:#FF6B35;
+  }
+  html,body{
+    background:radial-gradient(ellipse at top,#06081A 0%,#02020A 60%,#000 100%);
+    color:#eee;font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden;
+  }
+  .wrap{max-width:1700px;margin:0 auto;padding:48px 24px 120px}
+  .head{text-align:center;margin-bottom:48px;position:relative}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;
+    color:var(--lava);text-transform:uppercase;margin-bottom:18px;font-weight:600;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(40px,7vw,72px);line-height:.95;letter-spacing:-.03em;
+    color:#fff;margin-bottom:18px;
+  }
+  h1 .accent{
+    font-family:'Audiowide',cursive;font-style:normal;
+    background:linear-gradient(135deg,var(--lava),var(--rose) 50%,var(--violet-bright));
+    -webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.02em;
+  }
+  .sub{
+    font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;
+    color:rgba(255,255,255,.65);max-width:760px;margin:0 auto 16px;
+  }
+  .sub b{
+    background:linear-gradient(135deg,var(--lava),var(--rose-bright));
+    -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:500;
+  }
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));
+    gap:32px;max-width:1600px;margin:0 auto;
+  }
+  .lamp-card{
+    background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0));
+    border:1px solid rgba(255,255,255,.06);border-radius:22px;padding:18px;
+    transition:all .35s;display:flex;flex-direction:column;gap:14px;
+  }
+  .lamp-card:hover{
+    border-color:rgba(255,107,53,.4);
+    transform:translateY(-3px);
+    box-shadow:0 16px 50px rgba(255,107,53,.10),0 4px 12px rgba(0,0,0,.5);
+  }
+  .lamp-title{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:22px;color:#fff;
+  }
+  .lamp-tag{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.3em;color:var(--lava);text-transform:uppercase;font-weight:700;
+    margin-bottom:4px;
+  }
+  .variants{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;
+  }
+  .variant{
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .lamp-frame{
+    position:relative;
+    aspect-ratio:768/1360;
+    background:#000;border-radius:14px;overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,0,0,.5);
+  }
+  .lamp-bg{
+    position:absolute;inset:0;
+    width:100%;height:100%;object-fit:cover;
+    display:block;
+  }
+  .lamp-overlay{
+    position:absolute;
+    display:block;
+  }
+  .variant-label{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;
+    color:rgba(255,255,255,.7);text-transform:uppercase;
+    letter-spacing:.2em;text-align:center;
+    padding:6px 4px;border:1px solid rgba(255,255,255,.06);border-radius:8px;
+  }
+  .variant-label .color-name{color:var(--lava);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="eyebrow">Pixora · REALM · Lava Lamp Atlas</div>
+    <h1>8 lámparas · 16 <span class="accent">designs</span></h1>
+    <p class="sub">
+      Cada lámpara generada en Grok + <b>blobs animados</b> overlay sobre la
+      zona del tube. 2 esquemas de color por lampara para que elijas cuáles
+      mandar a producción. Texturas usan la imagen real, los blobs son shader puro.
+    </p>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+'use strict';
+
+// ─── Lamp configuration ────────────────────────────────────────
+// roi: tube interior bounds in % of image [x1, y1, x2, y2]
+const LAMPS = [
+  {
+    id: 'classic_v2',
+    title: 'Classic Magenta',
+    tag: '01 · CLASSIC',
+    image: 'lamp_mockups/classic_v2.webp',
+    roi: [33, 16, 67, 75],
+    variants: [
+      { label: 'Hot Pink Glow', hot: [1.0, 0.20, 0.50], cool: [1.0, 0.65, 0.80], bg: [0.35, 0.05, 0.20] },
+      { label: 'Cyan Frost',    hot: [0.10, 0.50, 1.0], cool: [0.40, 0.95, 1.0], bg: [0.05, 0.15, 0.30] },
+    ],
+  },
+  {
+    id: 'classic_magenta',
+    title: 'Classic Modelo 00',
+    tag: '02 · CLASSIC',
+    image: 'lamp_mockups/classic_magenta.webp',
+    roi: [33, 16, 67, 75],
+    variants: [
+      { label: 'Red Lava',      hot: [1.0, 0.20, 0.05], cool: [1.0, 0.75, 0.25], bg: [0.30, 0.08, 0.04] },
+      { label: 'Gold Honey',    hot: [1.0, 0.55, 0.10], cool: [1.0, 0.90, 0.55], bg: [0.30, 0.18, 0.05] },
+    ],
+  },
+  {
+    id: 'zerg',
+    title: 'Zerg Bio Hive',
+    tag: '03 · ALIEN',
+    image: 'lamp_mockups/zerg.webp',
+    roi: [25, 22, 75, 75],
+    variants: [
+      { label: 'Toxic Acid',    hot: [0.30, 1.0, 0.10], cool: [0.85, 1.0, 0.50], bg: [0.05, 0.20, 0.05] },
+      { label: 'Blood Plasma',  hot: [0.90, 0.05, 0.15], cool: [1.0, 0.40, 0.50], bg: [0.25, 0.02, 0.05] },
+    ],
+  },
+  {
+    id: 'dragonball',
+    title: 'Dragon Ball Tower',
+    tag: '04 · ANIME',
+    image: 'lamp_mockups/dragonball.webp',
+    roi: [33, 22, 67, 78],
+    variants: [
+      { label: 'Saiyan Ki',     hot: [1.0, 0.55, 0.05], cool: [1.0, 0.95, 0.35], bg: [0.30, 0.10, 0.02] },
+      { label: 'Super Blue',    hot: [0.05, 0.40, 1.0], cool: [0.50, 0.85, 1.0], bg: [0.04, 0.10, 0.30] },
+    ],
+  },
+  {
+    id: 'transformer_filled',
+    title: 'Transformer Core',
+    tag: '05 · CYBER',
+    image: 'lamp_mockups/transformer_filled.webp',
+    roi: [30, 23, 70, 73],
+    variants: [
+      { label: 'Electric Cyan', hot: [0.05, 0.65, 1.0], cool: [0.40, 1.0, 1.0],  bg: [0.05, 0.10, 0.25] },
+      { label: 'Magma Red',     hot: [1.0, 0.15, 0.05], cool: [1.0, 0.65, 0.25], bg: [0.30, 0.05, 0.02] },
+    ],
+  },
+  {
+    id: 'transformer_glass',
+    title: 'Transformer Glass',
+    tag: '06 · CYBER',
+    image: 'lamp_mockups/transformer_glass.webp',
+    roi: [28, 23, 72, 75],
+    variants: [
+      { label: 'Orange Forge',  hot: [1.0, 0.30, 0.05], cool: [1.0, 0.80, 0.20], bg: [0.20, 0.06, 0.02] },
+      { label: 'Plasma Violet', hot: [0.60, 0.10, 1.0], cool: [0.90, 0.45, 1.0], bg: [0.15, 0.05, 0.25] },
+    ],
+  },
+  {
+    id: 'geometric_rainbow',
+    title: 'Rainbow Rocket',
+    tag: '07 · GEOMETRIC',
+    image: 'lamp_mockups/geometric_rainbow.webp',
+    roi: [38, 12, 62, 72],
+    variants: [
+      { label: 'Rainbow Cycle', hot: [1.0, 0.30, 0.80], cool: [0.30, 1.0, 0.50], bg: [0.10, 0.05, 0.15], rainbow: true },
+      { label: 'Pearl White',   hot: [0.95, 0.85, 1.0], cool: [1.0, 1.0, 0.95],  bg: [0.30, 0.30, 0.40] },
+    ],
+  },
+  {
+    id: 'dark_purple_throne',
+    title: 'Dark Throne',
+    tag: '08 · GOTHIC',
+    image: 'lamp_mockups/dark_purple_throne.webp',
+    roi: [32, 28, 68, 75],
+    variants: [
+      { label: 'Witch Violet',  hot: [0.55, 0.05, 0.95], cool: [0.85, 0.40, 1.0], bg: [0.10, 0.03, 0.20] },
+      { label: 'Wine Crimson',  hot: [0.65, 0.05, 0.15], cool: [0.95, 0.30, 0.40], bg: [0.20, 0.02, 0.05] },
+    ],
+  },
+];
+
+// ─── WebGL blob shader ────────────────────────────────────────
+const VS = `attribute vec2 aPos; void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
+const FS = `
+precision highp float;
+uniform float uTime;
+uniform vec2  uResolution;
+uniform vec3  uColorHot;
+uniform vec3  uColorCool;
+uniform vec3  uBgColor;
+uniform float uRainbow;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+vec3 hueCycle(float t){
+  return 0.5 + 0.5 * cos(mod(6.2831853*(t + vec3(0.0, 0.33, 0.67)), 6.2831853));
+}
+void main(){
+  // Normalize by SHORT dimension so blob coords always fit. Tall narrow
+  // canvases (lamp tube overlays) would otherwise crop blobs off the sides.
+  float minDim = min(uResolution.x, uResolution.y);
+  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy) / minDim;
+  float t = mod(uTime, 60.0);
+  float field = 0.0;
+  vec3 lavaCol = vec3(0.0);
+  // Vertical reach scales with canvas height so blobs travel full tube
+  float vScale = uResolution.y / minDim;  // > 1 for tall narrow canvas
+  for (int i = 0; i < 6; i++){
+    float fi = float(i);
+    float seed = hash(vec2(fi, 0.0));
+    float cycle = mod(t * 0.08 + fi * 2.3, 6.0);
+    float ramp = 1.0 - abs(cycle - 3.0)/3.0;
+    ramp = smoothstep(0.0, 1.0, ramp);
+    // y spans the full tube height (scaled by vScale)
+    float y = (-0.45 + ramp * 0.90) * vScale;
+    // x stays within ±0.35 (fits horizontal canvas range)
+    float x = (seed - 0.5) * 0.35 + sin(mod(t*0.20+fi*1.3, 6.2831853))*0.04;
+    vec2 pos = vec2(x, y);
+    float rRad = 0.12 + seed * 0.05;
+    float dist = length(uv - pos);
+    float contribution = rRad * rRad / (dist * dist + 0.002);
+    field += contribution;
+    float heat = (y / vScale) + 0.5;  // normalize back to 0..1 for color
+    vec3 c;
+    if (uRainbow > 0.5) {
+      c = hueCycle(seed + t * 0.1);
+    } else {
+      c = mix(uColorHot, uColorCool, heat);
+    }
+    lavaCol += c * contribution;
+  }
+  float surface = smoothstep(0.80, 1.20, field);
+  vec3 col = mix(uBgColor, lavaCol / max(field, 0.001), surface);
+  float halo = smoothstep(0.40, 0.85, field) * 0.45;
+  col += (uColorHot + uColorCool) * 0.5 * halo;
+  col = col / (1.0 + col * 0.30);
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+class LampOverlay {
+  constructor(canvas, variant) {
+    this.canvas = canvas;
+    this.variant = variant;
+    this.gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+    if (!this.gl) return;
+    this.startTime = performance.now();
+    this.compile();
+    this.setupGeo();
+    this.setupSize();
+    this.running = false;
+  }
+  compile() {
+    const gl = this.gl;
+    const vs = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(vs, VS); gl.compileShader(vs);
+    const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs, FS); gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) console.error('FS:', gl.getShaderInfoLog(fs));
+    const p = gl.createProgram(); gl.attachShader(p, vs); gl.attachShader(p, fs); gl.linkProgram(p);
+    this.prog = p;
+    this.uTime = gl.getUniformLocation(p, 'uTime');
+    this.uRes = gl.getUniformLocation(p, 'uResolution');
+    this.uHot = gl.getUniformLocation(p, 'uColorHot');
+    this.uCool = gl.getUniformLocation(p, 'uColorCool');
+    this.uBg = gl.getUniformLocation(p, 'uBgColor');
+    this.uRainbow = gl.getUniformLocation(p, 'uRainbow');
+    this.aPos = gl.getAttribLocation(p, 'aPos');
+  }
+  setupGeo() {
+    const gl = this.gl;
+    const b = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, b);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(this.aPos);
+    gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
+  }
+  setupSize() {
+    const r = this.canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.floor(r.width * dpr);
+    this.canvas.height = Math.floor(r.height * dpr);
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+  }
+  start() {
+    if (this.running) return; this.running = true;
+    const loop = () => { if (!this.running) return; this.draw(); this.raf = requestAnimationFrame(loop); };
+    loop();
+  }
+  stop() { this.running = false; if (this.raf) cancelAnimationFrame(this.raf); }
+  draw() {
+    const gl = this.gl;
+    const t = ((performance.now() - this.startTime) / 1000) % 60;
+    gl.useProgram(this.prog);
+    gl.uniform1f(this.uTime, t);
+    gl.uniform2f(this.uRes, this.canvas.width, this.canvas.height);
+    gl.uniform3fv(this.uHot, this.variant.hot);
+    gl.uniform3fv(this.uCool, this.variant.cool);
+    gl.uniform3fv(this.uBg, this.variant.bg);
+    gl.uniform1f(this.uRainbow, this.variant.rainbow ? 1.0 : 0.0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+}
+
+const grid = document.getElementById('grid');
+const instances = [];
+
+LAMPS.forEach(lamp => {
+  const card = document.createElement('div');
+  card.className = 'lamp-card';
+  card.innerHTML = `
+    <div>
+      <div class="lamp-tag">${lamp.tag}</div>
+      <div class="lamp-title">${lamp.title}</div>
+    </div>
+    <div class="variants">
+      ${lamp.variants.map((v, i) => `
+        <div class="variant">
+          <div class="lamp-frame">
+            <img class="lamp-bg" src="${lamp.image}" alt="${lamp.title}" />
+            <canvas class="lamp-overlay"
+                    data-roi="${lamp.roi.join(',')}"
+                    data-variant="${i}"></canvas>
+          </div>
+          <div class="variant-label">
+            V${i+1} · <span class="color-name">${v.label}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  grid.appendChild(card);
+
+  card.querySelectorAll('.lamp-overlay').forEach(canvas => {
+    const roi = canvas.dataset.roi.split(',').map(Number);
+    const variantIdx = +canvas.dataset.variant;
+    // Position the canvas over the tube ROI
+    canvas.style.left = roi[0] + '%';
+    canvas.style.top  = roi[1] + '%';
+    canvas.style.width  = (roi[2] - roi[0]) + '%';
+    canvas.style.height = (roi[3] - roi[1]) + '%';
+
+    requestAnimationFrame(() => {
+      const ov = new LampOverlay(canvas, lamp.variants[variantIdx]);
+      instances.push(ov);
+      const io = new IntersectionObserver(entries =>
+        entries.forEach(e => e.isIntersecting ? ov.start() : ov.stop()),
+        { threshold: 0.05 }
+      );
+      io.observe(canvas);
+    });
+  });
+});
+
+window.addEventListener('resize', () => instances.forEach(i => i.setupSize()));
+</script>
+</body>
+</html>
