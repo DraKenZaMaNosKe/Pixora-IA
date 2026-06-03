@@ -88,8 +88,18 @@ class AdService {
   /// quedando AdMob completamente dormant del lado del cliente.
   ///
   /// History: v1.7.2 tuvo el bug opuesto (true left over) que costó revenue
-  /// real. Ahora es intencional y documentado, no leftover.
-  static bool get _debugDisableAds => true;
+  /// real. 2026-06-03: re-enabled — Samsung RF8X903KZ3K is in _testDeviceIds
+  /// so this device gets TEST ads only (safe, no suspension risk). Real users
+  /// get real ads and we restore revenue. Keep ALL test devices in
+  /// _testDeviceIds before flipping this back on a new dev machine.
+  static bool get _debugDisableAds => false;
+
+  /// True when ads should be globally suppressed for this user — either the
+  /// debug flag is on or they have an active subscription. Both interstitial
+  /// and native ad surfaces should consult this so the sub bypass + dev kill
+  /// switch behave identically everywhere.
+  static bool get adsDisabledForUser =>
+      _debugDisableAds || SubscriptionService.instance.hasAccess;
 
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;

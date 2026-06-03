@@ -6,6 +6,13 @@ import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
+import 'native_ad_card.dart';
+
+/// One native ad card injected every [_kAdEvery] wallpaper cards in the
+/// carousel. 6 is the industry sweet spot (similar to Instagram / Pinterest
+/// feed density) — high enough revenue, low enough that the feed still feels
+/// like content rather than ad reel.
+const int _kAdEvery = 6;
 
 class WallpaperCarouselRow extends StatefulWidget {
   const WallpaperCarouselRow({
@@ -90,7 +97,10 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                     controller: _scrollController,
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemCount: widget.items.length,
+                    // Expand by one slot for every block of [_kAdEvery] cards.
+                    // Layout: [W W W W W W AD W W W W W W AD W W ...]
+                    itemCount: widget.items.length +
+                        (widget.items.length ~/ _kAdEvery),
                     // ignore: deprecated_member_use
                     cacheExtent: 150,
                     // Aggressive memory: drop offscreen cards from the
@@ -109,18 +119,33 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                       final cardScale = 0.85 +
                           0.15 * Curves.easeOutBack.transform(cardProgress);
 
-                      final wp = widget.items[index];
+                      // Every (_kAdEvery + 1)th slot is an ad — index 6, 13,
+                      // 20, ... in 0-based. The wallpaper index strips out
+                      // the ad slots: wpIdx = index - (index ~/ (_kAdEvery+1))
+                      const stride = _kAdEvery + 1;
+                      final isAd = (index + 1) % stride == 0;
+                      final Widget child;
+                      if (isAd) {
+                        child = NativeAdCard(height: widget.cardHeight);
+                      } else {
+                        final wpIdx = index - (index ~/ stride);
+                        if (wpIdx >= widget.items.length) {
+                          return const SizedBox.shrink();
+                        }
+                        final wp = widget.items[wpIdx];
+                        child = _ParallaxCarouselCard(
+                          wallpaper: wp,
+                          width: widget.cardWidth,
+                          height: widget.cardHeight,
+                          scrollController: _scrollController,
+                          index: wpIdx,
+                        );
+                      }
                       return Opacity(
                         opacity: cardFade,
                         child: Transform.scale(
                           scale: cardScale,
-                          child: _ParallaxCarouselCard(
-                            wallpaper: wp,
-                            width: widget.cardWidth,
-                            height: widget.cardHeight,
-                            scrollController: _scrollController,
-                            index: index,
-                          ),
+                          child: child,
                         ),
                       );
                     },
