@@ -40,7 +40,13 @@ class MainActivity : AudioServiceActivity() {
      * to keep going on whatever Pixora-rendered surface they already had.
      */
     private fun ensureLiveWallpaperActive(forceShowPicker: Boolean = true) {
-        if (!forceShowPicker && isPixoraActiveWallpaper()) {
+        // Use component-specific check — packageName alone matches both
+        // PixoraWallpaperService AND ShaderWallpaperService since they share
+        // the com.orbix.pixora package. If the user has a shader lamp active
+        // (e.g. lava_red) and enables Pixora Daily, the package check would
+        // incorrectly skip the picker and Daily rotation would silently fail
+        // because the rotation logic only runs inside PixoraWallpaperService.
+        if (!forceShowPicker && isPixoraLiveWallpaperActive()) {
             android.util.Log.d("PixoraEQ", "ensureLiveWallpaperActive: already active, skipping picker")
             return
         }
@@ -52,16 +58,6 @@ class MainActivity : AudioServiceActivity() {
         startActivity(intent)
     }
 
-    /** True when Pixora is currently set as the system live wallpaper. */
-    private fun isPixoraActiveWallpaper(): Boolean {
-        return try {
-            val wm = WallpaperManager.getInstance(this)
-            val info = wm.wallpaperInfo
-            info?.packageName == applicationContext.packageName
-        } catch (_: Exception) {
-            false
-        }
-    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -348,7 +344,7 @@ class MainActivity : AudioServiceActivity() {
                     // where the user (or Samsung) reverted the wallpaper and the
                     // in-service rotation can no longer run.
                     "isPixoraLiveActive" -> {
-                        result.success(isPixoraActiveWallpaper())
+                        result.success(isPixoraLiveWallpaperActive())
                     }
                     // Phase 3 — re-open the live wallpaper picker pointed at
                     // PixoraWallpaperService so the user can re-activate with one

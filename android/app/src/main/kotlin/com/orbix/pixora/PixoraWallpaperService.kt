@@ -589,7 +589,29 @@ class PixoraWallpaperService : WallpaperService() {
         private fun loadWallpaperImage() {
             try {
                 val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
-                val path = prefs.getString("wallpaper_path", null)
+                var path = prefs.getString("wallpaper_path", null)
+
+                // Pixora Daily self-healing: if wallpaper_path points to a file
+                // in auto_rotate_cache/ that no longer exists (stale prefs from
+                // a previous session, cleanup race with the prefetch worker, or
+                // first-activation when Worker wrote a path before cache was
+                // populated), redirect to any existing cached file BEFORE
+                // proceeding. Without this, the engine renders black forever
+                // because every code path below depends on a valid path.
+                if (path != null && path.contains("auto_rotate_cache")
+                    && !File(path).exists()) {
+                    val cacheDir = File(applicationContext.filesDir, "auto_rotate_cache")
+                    val fallback = cacheDir.listFiles()
+                        ?.filter { it.extension != "tmp" && it.length() > 0 }
+                        ?.firstOrNull()
+                    if (fallback != null) {
+                        Log.w(TAG, "Self-heal: stale wallpaper_path redirected to ${fallback.name}")
+                        path = fallback.absolutePath
+                        prefs.edit().putString("wallpaper_path", path).apply()
+                    } else {
+                        Log.w(TAG, "Self-heal: stale path but cache is empty — nothing to do")
+                    }
+                }
                 val color = prefs.getString("glow_color", "#C9A650")
                 val caption = prefs.getString("caption", null)
                 isInteractive = prefs.getBoolean("interactive", false)
