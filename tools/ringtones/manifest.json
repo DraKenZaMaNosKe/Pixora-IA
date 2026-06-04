@@ -10,8 +10,10 @@
       "previewImage": "ringtone_animals_preview.webp",
       "new_pack": true,
       "tones": [
-        { "id": "ani_cat_meow_short",   "name": "Cat Meow Short",     "freesound_query": "meow",           "target_sec": 2, "suggestedType": "notification" },
-        { "id": "ani_cat_meow_demand", "name": "Cat Demand",          "freesound_query": "cat angry meow", "target_sec": 3, "suggestedType": "notification" },
+        { "id": "ani_cat_meow_short",   "name": "Kitten Meow",        "freesound_query": "kitten meow",     "target_sec": 2, "suggestedType": "notification" },
+        { "id": "ani_cat_meow_demand", "name": "Cat Trill",           "freesound_query": "cat trill chirp", "target_sec": 2, "suggestedType": "notification" },
+        { "id": "ani_cat_happy",       "name": "Happy Cat",           "freesound_query": "kitty meow cute", "target_sec": 2, "suggestedType": "notification" },
+        { "id": "ani_cat_baby_short",  "name": "Baby Cat Squeak",     "freesound_query": "tiny kitten",     "target_sec": 1, "suggestedType": "notification" },
         { "id": "ani_cat_purring",     "name": "Cat Purring Loop",     "freesound_query": "cat purring close", "target_sec": 8, "suggestedType": "ringtone" },
         { "id": "ani_dog_bark",        "name": "Friendly Dog Bark",   "freesound_query": "dog bark friendly small", "target_sec": 2, "suggestedType": "notification" },
         { "id": "ani_puppy_whimper",   "name": "Puppy Whimper",       "freesound_query": "puppy",          "target_sec": 3, "suggestedType": "notification" },
@@ -74,6 +76,31 @@
         { "id": "off_microwave",       "name": "Microwave Done",      "freesound_query": "microwave beep",   "target_sec": 2, "suggestedType": "notification" },
         { "id": "off_got_mail",        "name": "You Got Mail",        "freesound_query": "email notification",  "target_sec": 2, "suggestedType": "notification" },
         { "id": "off_doorbell",        "name": "Door Bell",           "freesound_query": "doorbell",         "target_sec": 2, "suggestedType": "notification" }
+      ]
+    },
+    {
+      "id": "cartoons_movies_pack",
+      "name": "Caricaturas y Cine",
+      "category": "CARTOONS_MOVIES",
+      "description": "Tonos que evocan tus caricaturas y películas favoritas. Estilo Looney Tunes, Disney, Marvel, sci-fi clásico.",
+      "glowColor": "#FF9F1C",
+      "previewImage": "ringtone_cartoons_preview.webp",
+      "new_pack": true,
+      "tones": [
+        { "id": "cart_boing",          "name": "Cartoon Boing",      "freesound_query": "cartoon boing",       "target_sec": 2, "suggestedType": "notification" },
+        { "id": "cart_pop",            "name": "Bubble Pop",         "freesound_query": "cartoon pop",         "target_sec": 1, "suggestedType": "notification" },
+        { "id": "cart_slide_whistle",  "name": "Slide Whistle Up",   "freesound_query": "slide whistle up",    "target_sec": 2, "suggestedType": "notification" },
+        { "id": "cart_falling",        "name": "Cartoon Falling",    "freesound_query": "cartoon falling whistle", "target_sec": 3, "suggestedType": "notification" },
+        { "id": "cart_coin",           "name": "Coin Pickup",        "freesound_query": "coin pickup retro",   "target_sec": 1, "suggestedType": "notification" },
+        { "id": "cart_magic_sparkle",  "name": "Magic Sparkle",      "freesound_query": "magic chime sparkle", "target_sec": 2, "suggestedType": "notification" },
+        { "id": "cart_pow",            "name": "Cartoon Pow",        "freesound_query": "cartoon punch hit",   "target_sec": 1, "suggestedType": "notification" },
+        { "id": "cart_epic_whoosh",    "name": "Epic Trailer Whoosh","freesound_query": "epic whoosh trailer", "target_sec": 3, "suggestedType": "notification" },
+        { "id": "cart_cinema_boom",    "name": "Cinema Boom",        "freesound_query": "cinematic boom impact","target_sec": 3, "suggestedType": "notification" },
+        { "id": "cart_dramatic_horn",  "name": "Dramatic Horn",      "freesound_query": "trailer horn dramatic","target_sec": 3, "suggestedType": "notification" },
+        { "id": "cart_magic_spell",    "name": "Magic Spell",        "freesound_query": "magic spell wand",    "target_sec": 2, "suggestedType": "notification" },
+        { "id": "cart_western_wind",   "name": "Western Desert",     "freesound_query": "western wind tumbleweed","target_sec": 4, "suggestedType": "ringtone" },
+        { "id": "cart_horror_creak",   "name": "Haunted House",      "freesound_query": "haunted creak door",  "target_sec": 3, "suggestedType": "notification" },
+        { "id": "cart_drumroll",       "name": "Drumroll",           "freesound_query": "drumroll suspense",   "target_sec": 4, "suggestedType": "ringtone" }
       ]
     },
     {
