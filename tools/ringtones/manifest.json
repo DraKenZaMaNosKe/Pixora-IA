@@ -1,0 +1,102 @@
+{
+  "_comment": "Ringtones to fetch from Freesound (CC0 only). Each pack maps to a section in ringtones_catalog.json. Existing packs are extended; new packs are created. Duration spec is target after processing — fetch.py downloads preview, process.py trims to target.",
+  "packs": [
+    {
+      "id": "animals_pack",
+      "name": "Animales y Mascotas",
+      "category": "ANIMALS",
+      "description": "Ronroneos, ladridos, maullidos y sonidos de la naturaleza. Perfectos para notificaciones y alarmas alegres.",
+      "glowColor": "#FFB6D9",
+      "previewImage": "ringtone_animals_preview.webp",
+      "new_pack": true,
+      "tones": [
+        { "id": "ani_cat_meow_short",   "name": "Cat Meow Short",     "freesound_query": "meow",           "target_sec": 2, "suggestedType": "notification" },
+        { "id": "ani_cat_meow_demand", "name": "Cat Demand",          "freesound_query": "cat angry meow", "target_sec": 3, "suggestedType": "notification" },
+        { "id": "ani_cat_purring",     "name": "Cat Purring Loop",     "freesound_query": "cat purring close", "target_sec": 8, "suggestedType": "ringtone" },
+        { "id": "ani_dog_bark",        "name": "Friendly Dog Bark",   "freesound_query": "dog bark friendly small", "target_sec": 2, "suggestedType": "notification" },
+        { "id": "ani_puppy_whimper",   "name": "Puppy Whimper",       "freesound_query": "puppy",          "target_sec": 3, "suggestedType": "notification" },
+        { "id": "ani_bird_tweet",      "name": "Pleasant Bird Tweet", "freesound_query": "bird tweet melodic short", "target_sec": 2, "suggestedType": "notification" },
+        { "id": "ani_owl_hoot",        "name": "Owl Hoot",            "freesound_query": "owl hoot night short", "target_sec": 3, "suggestedType": "notification" },
+        { "id": "ani_cricket_chirp",   "name": "Cricket Chirp",       "freesound_query": "cricket chirp single", "target_sec": 2, "suggestedType": "notification" }
+      ]
+    },
+    {
+      "id": "memes_pack",
+      "name": "Memes Virales",
+      "category": "MEMES",
+      "description": "Los sonidos que se han vuelto virales en redes. Para que tu teléfono tenga personalidad.",
+      "glowColor": "#FFD23F",
+      "previewImage": "ringtone_memes_preview.webp",
+      "new_pack": true,
+      "tones": [
+        { "id": "meme_vine_boom",      "name": "Boom Bass Drop",      "freesound_query": "boom bass drop",   "target_sec": 2, "suggestedType": "notification" },
+        { "id": "meme_bruh",           "name": "Disappointed Hmm",    "freesound_query": "male voice hmm",   "target_sec": 2, "suggestedType": "notification" },
+        { "id": "meme_anime_nani",     "name": "Shock Gasp",          "freesound_query": "gasp shock",       "target_sec": 2, "suggestedType": "notification" },
+        { "id": "meme_mamamia",        "name": "Yippee",              "freesound_query": "yippee yay cheer", "target_sec": 2, "suggestedType": "notification" },
+        { "id": "meme_oof",            "name": "Fall Oof",            "freesound_query": "oof",              "target_sec": 1, "suggestedType": "notification" },
+        { "id": "meme_sad_violin",     "name": "Sad Violin",          "freesound_query": "violin sad",       "target_sec": 4, "suggestedType": "notification" },
+        { "id": "meme_among_us",       "name": "Sus Alert",           "freesound_query": "alert beep sus",   "target_sec": 3, "suggestedType": "notification" },
+        { "id": "meme_sad_trombone",   "name": "Sad Trombone",        "freesound_query": "trombone",         "target_sec": 3, "suggestedType": "notification" },
+        { "id": "meme_tada",           "name": "Tada Celebration",    "freesound_query": "fanfare tada",     "target_sec": 2, "suggestedType": "notification" }
+      ]
+    },
+    {
+      "id": "scifi_pack",
+      "name": "Sci-Fi y Tecnología",
+      "category": "SCIFI_TECH",
+      "description": "Sonidos del futuro: lightsabers, comunicadores, alertas cyberpunk y drones.",
+      "glowColor": "#00E5FF",
+      "previewImage": "ringtone_scifi_preview.webp",
+      "new_pack": true,
+      "tones": [
+        { "id": "sf_lightsaber_on",    "name": "Laser Sword",         "freesound_query": "laser sword",      "target_sec": 2, "suggestedType": "notification" },
+        { "id": "sf_r2d2_beeps",       "name": "Robot Beeps",         "freesound_query": "robot beep",       "target_sec": 3, "suggestedType": "notification" },
+        { "id": "sf_communicator",     "name": "Communicator",        "freesound_query": "communicator beep", "target_sec": 2, "suggestedType": "notification" },
+        { "id": "sf_transporter",      "name": "Transporter Beam",    "freesound_query": "teleport",         "target_sec": 4, "suggestedType": "ringtone" },
+        { "id": "sf_cyber_alert",      "name": "Cyber Alert",         "freesound_query": "alarm glitch",     "target_sec": 2, "suggestedType": "notification" },
+        { "id": "sf_computer_boot",    "name": "Computer Boot",       "freesound_query": "startup sound",    "target_sec": 3, "suggestedType": "notification" },
+        { "id": "sf_synthwave_drop",   "name": "Synthwave Drop",      "freesound_query": "synthwave",        "target_sec": 5, "suggestedType": "ringtone" },
+        { "id": "sf_shield",           "name": "Shield Activate",     "freesound_query": "shield hum",       "target_sec": 2, "suggestedType": "notification" }
+      ]
+    },
+    {
+      "id": "boss_office_pack",
+      "name": "Boss y Office",
+      "category": "OFFICE",
+      "description": "Clásicos del trabajo y la oficina. Nostalgia analógica.",
+      "glowColor": "#B08968",
+      "previewImage": "ringtone_office_preview.webp",
+      "new_pack": true,
+      "tones": [
+        { "id": "off_old_phone",       "name": "Old Telephone",       "freesound_query": "telephone ring",   "target_sec": 4, "suggestedType": "ringtone" },
+        { "id": "off_typewriter_ding", "name": "Typewriter Ding",     "freesound_query": "typewriter bell",  "target_sec": 1, "suggestedType": "notification" },
+        { "id": "off_elevator_ding",   "name": "Elevator Arrival",    "freesound_query": "elevator ding",    "target_sec": 2, "suggestedType": "notification" },
+        { "id": "off_microwave",       "name": "Microwave Done",      "freesound_query": "microwave beep",   "target_sec": 2, "suggestedType": "notification" },
+        { "id": "off_got_mail",        "name": "You Got Mail",        "freesound_query": "email notification",  "target_sec": 2, "suggestedType": "notification" },
+        { "id": "off_doorbell",        "name": "Door Bell",           "freesound_query": "doorbell",         "target_sec": 2, "suggestedType": "notification" }
+      ]
+    },
+    {
+      "id": "anime_tv_pack",
+      "name": "Anime & TV",
+      "category": "ANIME_TV",
+      "description": "Expansión: sonidos icónicos de anime que todo otaku reconoce.",
+      "glowColor": "#FF3478",
+      "previewImage": "anime_tv_preview.webp",
+      "new_pack": false,
+      "_note": "Pack existente — estos 10 tones se AGREGAN a los 11 existentes",
+      "tones": [
+        { "id": "anime_kunai_throw",    "name": "Blade Throw",        "freesound_query": "knife throw whoosh",  "target_sec": 2, "suggestedType": "notification" },
+        { "id": "anime_power_up",       "name": "Power Up",           "freesound_query": "power up charge",     "target_sec": 4, "suggestedType": "ringtone" },
+        { "id": "anime_chidori",        "name": "Lightning",          "freesound_query": "electric zap",        "target_sec": 3, "suggestedType": "notification" },
+        { "id": "anime_adventure_horn", "name": "Adventure Horn",     "freesound_query": "ship horn",           "target_sec": 3, "suggestedType": "notification" },
+        { "id": "anime_salute",         "name": "Metal Clank",        "freesound_query": "metal armor clank",   "target_sec": 2, "suggestedType": "notification" },
+        { "id": "anime_breath_in",      "name": "Deep Inhale",        "freesound_query": "deep breath",         "target_sec": 2, "suggestedType": "notification" },
+        { "id": "anime_domain_expand",  "name": "Magic Whoosh",       "freesound_query": "magic whoosh",        "target_sec": 4, "suggestedType": "ringtone" },
+        { "id": "anime_sailor_transform","name": "Magic Sparkle",     "freesound_query": "magic sparkle chime", "target_sec": 5, "suggestedType": "ringtone" },
+        { "id": "anime_kya_cute",       "name": "Cute Squeak",        "freesound_query": "cute squeak",         "target_sec": 1, "suggestedType": "notification" },
+        { "id": "anime_sword_unsheathe","name": "Sword Unsheathe",    "freesound_query": "katana sword draw",   "target_sec": 2, "suggestedType": "notification" }
+      ]
+    }
+  ]
+}

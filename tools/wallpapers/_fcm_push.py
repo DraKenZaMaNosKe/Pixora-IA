@@ -128,6 +128,7 @@ VALID_CATALOG_SCOPES = {
     "day_cycle",
     "ringtones",
     "events",
+    "aura",
     "all",
 }
 

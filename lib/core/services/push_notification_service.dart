@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../../features/aura/data/repositories/aura_repository.dart';
 import '../../features/events/data/events_service.dart';
 import 'app_strings_service.dart';
 import 'catalog_service.dart';
@@ -166,7 +167,7 @@ class PushNotificationService {
 
   /// Dispatches a `catalog_invalidate` push to the right service(s).
   /// Scope can be a single catalog (`'wallpapers'`, `'live'`, `'stories'`,
-  /// `'day_cycle'`, `'ringtones'`, `'events'`) or `'all'`.
+  /// `'day_cycle'`, `'ringtones'`, `'events'`, `'aura'`) or `'all'`.
   /// Unknown scopes are treated as no-ops with a debug log.
   Future<void> _handleCatalogInvalidate(String scope) async {
     // Cada clearCache puede fallar (Hive box no abierto, disk full, etc.).
@@ -193,6 +194,8 @@ class PushNotificationService {
         safeClear('ringtones', () => RingtoneService.instance.clearCache());
     Future<void> events() =>
         safeClear('events', () => EventsService.instance.clearCache());
+    Future<void> aura() =>
+        safeClear('aura', () => AuraRepository.instance.clearCache());
 
     switch (scope) {
       case 'wallpapers':
@@ -213,6 +216,9 @@ class PushNotificationService {
       case 'events':
         await events();
         break;
+      case 'aura':
+        await aura();
+        break;
       case 'all':
         await Future.wait([
           wallpapers(),
@@ -221,6 +227,7 @@ class PushNotificationService {
           dayCycle(),
           ringtones(),
           events(),
+          aura(),
         ]);
         break;
       default:

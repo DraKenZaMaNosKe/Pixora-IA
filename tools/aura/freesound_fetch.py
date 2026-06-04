@@ -64,6 +64,11 @@ def main() -> None:
             print(f"-- skip {t['id']} (locally generated)")
             continue
         q = t["freesound_query"]
+        dest = RAW_DIR / f"{t['id']}.mp3"
+        if dest.exists() and dest.stat().st_size > 1024:
+            print(f"-- skip {t['id']} (raw already present)")
+            log.append({"id": t["id"], "status": "cached", "query": q})
+            continue
         print(f">> search '{q}' for {t['id']}")
         hit = search(token, q)
         if not hit:

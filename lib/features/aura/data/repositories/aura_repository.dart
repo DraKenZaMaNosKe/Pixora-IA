@@ -38,6 +38,15 @@ class AuraRepository {
     }
   }
 
+  /// Drop in-memory catalog cache so the next [fetchCatalog] call hits
+  /// Postgres fresh. Called by [PushNotificationService] when an FCM
+  /// `catalog_invalidate` push with scope `'aura'` arrives, after Eduardo
+  /// adds/removes a track from the dashboard or backend script.
+  Future<void> clearCache() async {
+    _cache = null;
+    _lastFetch = null;
+  }
+
   List<AuraTrack> filterFrequencies(List<AuraTrack> all) =>
       all.where((t) => t.category == AuraCategory.frequency).toList();
 

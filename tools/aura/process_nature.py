@@ -32,6 +32,11 @@ def process(track: dict) -> None:
     if not raw.exists():
         print(f"!! missing raw for {track['id']}")
         return
+    # Idempotent: if out already exists and is full-length (~10 min worth ≈ 14 MB),
+    # skip re-encoding. Saves ~1 min per cached track. Force rebuild by deleting out/.
+    if out.exists() and out.stat().st_size > 5_000_000:
+        print(f"-- skip {track['id']} (out cached, {out.stat().st_size//1024} KB)")
+        return
 
     dur = ffprobe_duration(raw)
     loops = max(1, int(TARGET_SECONDS // dur) + 1)
