@@ -24,7 +24,21 @@ class ClockRenderer {
     private val typefaceLight = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
     private val typefaceBoldBold = Typeface.create(Typeface.SERIF, Typeface.BOLD_ITALIC)
 
+    // Modern Mono preset typefaces — sans-serif ultra-light (Roboto Thin weight 100
+    // on API 28+; falls back to regular sans-serif on older). Approximates Manrope
+    // without needing to bundle a font asset.
+    private val typefaceModernTime: Typeface = if (android.os.Build.VERSION.SDK_INT >= 28) {
+        Typeface.create(Typeface.SANS_SERIF, 100, false)
+    } else {
+        Typeface.SANS_SERIF
+    }
+    private val typefaceModernMono: Typeface = Typeface.MONOSPACE
+
     var clockStyle = 0
+    /** Active HUD preset. SACRED uses the original 4 serif styles + arc + dots;
+     *  any other preset uses a generic "preset-driven" layout that reads the
+     *  font/color/size/glow from [HudPreset]. */
+    var currentPreset: HudPreset = HudPreset.SACRED
     private var lastMinute = -1
     private var lastHour = -1
     private var hourFlashAlpha = 0f
@@ -58,6 +72,15 @@ class ClockRenderer {
         val monthName = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) ?: ""
         val dayNum = cal.get(Calendar.DAY_OF_MONTH)
         val dateStr = "${dayName.replaceFirstChar { it.uppercase() }}, $dayNum $monthName"
+
+        // Non-Sacred preset → simpler preset-driven layout. SACRED falls through
+        // to the original arc + breath + dots + 4 serif styles below.
+        if (currentPreset != HudPreset.SACRED) {
+            drawWithPreset(canvas, timeStr, secStr, dayName, dayNum, monthName)
+            lastHour = hour
+            lastMinute = minute
+            return
+        }
 
         val centerX = surfaceWidth / 2f
         val timeY = surfaceHeight * 0.15f
@@ -253,5 +276,71 @@ class ClockRenderer {
         canvas.drawText(displayDate, centerX, dateY, clockDatePaint)
 
         lastMinute = minute
+    }
+
+    /** Preset-driven clock layout — uses font/color/size/glow from [HudPreset].
+     *  Time centered top, date row below. No arc, no breath, no ms dots (those
+     *  are SACRED-specific embellishments). Each preset's typography + glow
+     *  creates its distinct identity. */
+    private fun drawWithPreset(
+        canvas: Canvas,
+        timeStr: String,
+        secStr: String,
+        dayName: String,
+        dayNum: Int,
+        monthName: String,
+    ) {
+        val preset = currentPreset
+        val centerX = surfaceWidth / 2f
+        val timeY = surfaceHeight * 0.18f
+        val timeSize = surfaceWidth * preset.clockSizeMult
+
+        clockTimePaint.apply {
+            color = preset.clockColor
+            textSize = timeSize
+            typeface = preset.clockFont
+            textAlign = Paint.Align.CENTER
+            letterSpacing = preset.clockLetterSpacing
+            alpha = 255
+            shader = null
+            if (preset.clockGlowRadius > 0) {
+                setShadowLayer(preset.clockGlowRadius, 0f, 4f, preset.clockGlowColor)
+            } else {
+                setShadowLayer(0f, 0f, 0f, 0)
+            }
+        }
+        canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
+
+        // Cyber Glitch — draw RGB-split copies behind the main time text
+        if (preset == HudPreset.CYBER) {
+            val splitOff = timeSize * 0.04f
+            clockTimePaint.apply {
+                color = Color.parseColor("#FF003C")
+                setShadowLayer(0f, 0f, 0f, 0)
+            }
+            canvas.drawText(timeStr, centerX + splitOff, timeY, clockTimePaint)
+            clockTimePaint.color = Color.parseColor("#00FFEA")
+            canvas.drawText(timeStr, centerX - splitOff, timeY, clockTimePaint)
+            clockTimePaint.color = preset.clockColor
+            clockTimePaint.setShadowLayer(preset.clockGlowRadius, 0f, 4f, preset.clockGlowColor)
+            canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
+        }
+
+        // Date row — small monospace below
+        val dateShort = "${dayName.take(3).uppercase()} ${"%02d".format(dayNum)} ${monthName.take(3).uppercase()}"
+        val dateSize = surfaceWidth * 0.028f
+        val dateY = timeY + surfaceHeight * 0.05f
+        clockDatePaint.apply {
+            color = Color.argb(190,
+                Color.red(preset.clockColor), Color.green(preset.clockColor), Color.blue(preset.clockColor))
+            textSize = dateSize
+            typeface = Typeface.MONOSPACE
+            textAlign = Paint.Align.CENTER
+            letterSpacing = 0.18f
+            shader = null
+            setShadowLayer(4f, 0f, 1f, Color.argb(140, 0, 0, 0))
+        }
+        val dateText = "$dateShort   :$secStr"
+        canvas.drawText(dateText, centerX, dateY, clockDatePaint)
     }
 }

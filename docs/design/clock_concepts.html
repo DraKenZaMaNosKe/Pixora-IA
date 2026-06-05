@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · 5 diseños de reloj (Winamp EQ base)</title>
+<meta name="viewport" content="width=1500">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@300;400&family=Italiana&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@100;200;300;500;700&family=Orbitron:wght@500;700;800&family=Playfair+Display:wght@400;700;900&family=Rajdhani:wght@300;500;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root { --pix-gold: #E6B655; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #08080c; color: #e8e6dc; font-family: 'Manrope', sans-serif; }
+body { min-height: 100vh; padding: 32px 24px 96px; }
+
+.topbar {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  max-width: 1500px; margin: 0 auto 28px; padding-bottom: 18px;
+  border-bottom: 1px solid rgba(230,182,85,0.25);
+}
+.topbar h1 {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 24px;
+  letter-spacing: 4px; color: var(--pix-gold);
+}
+.topbar h1 small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 12px; letter-spacing: 2px; color: #bfb39e; margin-top: 6px; font-weight: 300;
+}
+.counter {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--pix-gold); padding: 8px 14px;
+  border: 1px solid rgba(230,182,85,0.4); border-radius: 999px;
+  background: rgba(230,182,85,0.06);
+}
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px; max-width: 1500px; margin: 0 auto;
+}
+.card {
+  background: #0d0d12; border: 1px solid rgba(230,182,85,0.18);
+  border-radius: 14px; overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+  display: flex; flex-direction: column;
+}
+.card.selected {
+  border-color: var(--pix-gold);
+  box-shadow: 0 0 0 1px var(--pix-gold), 0 8px 28px rgba(230,182,85,0.25);
+}
+.phone {
+  position: relative; width: 100%; aspect-ratio: 9 / 19.5;
+  background: radial-gradient(ellipse at 50% 30%, #6a4528 0%, #2c1810 60%, #0e0e13 100%);
+  overflow: hidden;
+}
+.meta { padding: 14px 16px; }
+.meta .title {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 16px;
+  letter-spacing: 2px; color: #f6e9c8;
+}
+.meta .title small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 11px; color: #8d8470; margin-top: 3px;
+  font-weight: 300; letter-spacing: 0.5px;
+}
+.meta .pitch {
+  font-size: 12px; line-height: 1.4; color: #c9c1ad; margin-top: 6px;
+  font-family: 'Manrope', sans-serif; font-weight: 300;
+}
+.pick {
+  margin-top: 10px; width: 100%;
+  padding: 7px 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 2px; background: transparent; color: var(--pix-gold);
+  border: 1px solid var(--pix-gold); border-radius: 6px; cursor: pointer;
+  transition: all .2s;
+}
+.pick:hover { background: rgba(230,182,85,0.1); }
+.card.selected .pick { background: var(--pix-gold); color: #000; }
+.card.selected .pick::before { content: '✓ '; }
+
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 22px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 14px 0; font-size: 9px; color: rgba(255,255,255,0.85);
+  z-index: 100; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.mini-hud {
+  position: absolute; top: 30px; right: 12px; z-index: 25;
+  display: flex; flex-direction: column; gap: 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: rgba(255,255,255,0.85);
+  text-align: right;
+}
+.mini-hud .row {
+  display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.mini-hud .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #00FF41; box-shadow: 0 0 4px #00FF41;
+}
+
+/* ═════════════ CLOCK STYLES ═════════════ */
+.clock { position: absolute; left: 0; right: 0; z-index: 20; }
+
+/* C1 · PIXORA ROYAL — Cinzel serif gold */
+.c1 .clock { top: 70px; text-align: center; }
+.c1 .clock .time {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 80px;
+  color: var(--pix-gold); line-height: 1; letter-spacing: 4px;
+  text-shadow: 0 0 24px rgba(230,182,85,0.5), 0 2px 8px rgba(0,0,0,0.6);
+}
+.c1 .clock .sec {
+  font-family: 'Cinzel', serif; font-size: 22px; color: rgba(230,182,85,0.6);
+  vertical-align: top; margin-left: 6px;
+}
+.c1 .clock .date {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px;
+  color: #C9A650; letter-spacing: 6px; margin-top: 8px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+.c1 .ornament {
+  width: 60px; height: 1px; margin: 12px auto;
+  background: linear-gradient(90deg, transparent, var(--pix-gold), transparent);
+  position: relative;
+}
+.c1 .ornament::before {
+  content: '◆'; position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
+  color: var(--pix-gold); font-size: 10px; background: transparent;
+}
+
+/* C2 · MODERN MONO — Manrope ultra-light huge */
+.c2 .clock { top: 110px; text-align: center; }
+.c2 .clock .time {
+  font-family: 'Manrope', sans-serif; font-weight: 100; font-size: 120px;
+  color: #fff; line-height: 0.9; letter-spacing: -6px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.7);
+}
+.c2 .clock .meta-row {
+  display: flex; justify-content: center; gap: 24px; margin-top: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: rgba(255,255,255,0.7); letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.c2 .clock .meta-row .sep {
+  width: 1px; background: rgba(255,255,255,0.3); display: inline-block;
+}
+
+/* C3 · CYBER NEON — Orbitron glowing */
+.c3 .clock { top: 80px; text-align: center; }
+.c3 .clock .time {
+  font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 60px;
+  color: #FCEE0A; line-height: 1; letter-spacing: 4px;
+  text-shadow:
+    2px 2px 0 #FF003C,
+    -2px -2px 0 #00FFEA,
+    0 0 24px rgba(252,238,10,0.6);
+}
+.c3 .clock .date {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+  color: #00FFEA; letter-spacing: 6px; margin-top: 12px;
+  text-shadow: 0 0 8px rgba(0,255,234,0.5);
+}
+.c3 .clock .frame {
+  display: inline-block; padding: 14px 28px; margin-top: 12px;
+  border: 1px solid #FCEE0A; position: relative;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  background: rgba(0,0,0,0.3);
+}
+.c3 .clock .frame .label {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  color: #FCEE0A; letter-spacing: 3px;
+  position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
+  background: #2c1810; padding: 0 8px;
+}
+
+/* C4 · BOUTIQUE ITALIANA — elegant serif, magazine-style */
+.c4 .clock { top: 80px; text-align: center; }
+.c4 .clock .time {
+  font-family: 'Italiana', serif; font-weight: 400; font-size: 100px;
+  color: #fff; line-height: 0.9; letter-spacing: 6px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.7);
+}
+.c4 .clock .colon {
+  display: inline-block; animation: blink 1.5s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: 0.2; } }
+.c4 .clock .date {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 12px;
+  color: rgba(255,255,255,0.7); letter-spacing: 10px; margin-top: 20px;
+}
+.c4 .clock .accent {
+  display: flex; justify-content: center; align-items: center; gap: 12px;
+  margin-top: 24px;
+  font-family: 'Italiana', serif; font-size: 11px;
+  color: rgba(255,255,255,0.5); letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.c4 .clock .accent::before, .c4 .clock .accent::after {
+  content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.3);
+}
+
+/* C5 · RETRO CRT — VT323 / Winamp era */
+.c5 .clock { top: 70px; text-align: center; }
+.c5 .clock .time {
+  font-family: 'VT323', monospace; font-size: 100px;
+  color: #00FF41; line-height: 1; letter-spacing: 6px;
+  text-shadow: 0 0 14px #00FF41, 0 0 28px rgba(0,255,65,0.5);
+}
+.c5 .clock .date {
+  font-family: 'VT323', monospace; font-size: 22px;
+  color: #00FF41; letter-spacing: 6px; margin-top: 6px;
+  text-shadow: 0 0 10px rgba(0,255,65,0.5);
+}
+.c5 .clock .terminal {
+  display: inline-block; margin-top: 16px; padding: 4px 14px;
+  border: 1px solid rgba(0,255,65,0.4);
+  font-family: 'VT323', monospace; font-size: 14px; color: #88FF88;
+  letter-spacing: 1px;
+}
+.c5 .clock .cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: #00FF41; margin-left: 4px; vertical-align: middle;
+  animation: blink 1s steps(2) infinite;
+}
+
+/* ═════════════ WINAMP EQ (shared) ═════════════ */
+.eq-stage {
+  position: absolute; left: 0; right: 0; bottom: 88px; height: 170px;
+  z-index: 15; padding: 0 14px;
+}
+.eq-stage canvas { width: 100%; height: 100%; }
+
+.dock {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+  z-index: 80; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+}
+.dock .ico {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  border: 0.5px solid rgba(255,255,255,0.12);
+}
+.navbar {
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 22px;
+  z-index: 90; display: flex; justify-content: space-around; align-items: center;
+  font-size: 11px; color: rgba(255,255,255,0.55);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>PIXORA · 5 DISEÑOS DE RELOJ
+    <small>EQ Winamp Classic abajo (ya elegido) · varias tipografías / posiciones / tratamientos · escoge tu reloj favorito</small>
+  </h1>
+  <div class="counter">FAVORITOS · <span class="n" id="sel-count">0</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const DESIGNS = [
+  { id: 'c1', title: 'PIXORA ROYAL', sub: 'Cinzel serif dorado · brand nativo',
+    pitch: 'Tu paleta brand pura. Cinzel 700 dorado con glow sutil + segundos pequeños arriba + fecha en Cormorant cursiva. Ornamento ◆ separador. Premium boutique, regio.' },
+  { id: 'c2', title: 'MODERN MONO', sub: 'Manrope 100 ultra-light gigante',
+    pitch: 'iOS / Samsung Lock screen style. Tipografía Manrope thin (peso 100) en 120px, segundos + fecha en row mono pequeño. Limpio extremo, deja respirar el wallpaper.' },
+  { id: 'c3', title: 'CYBER NEON', sub: 'Orbitron amarillo · glitch RGB · frame hex',
+    pitch: 'Cyberpunk 2077 vibe. Orbitron 800 amarillo nuclear con RGB shift (rojo + cyan). Fecha en cyan dentro de frame con clip-path hexagonal y label "// TIME //" arriba.' },
+  { id: 'c4', title: 'BOUTIQUE ITALIANA', sub: 'Italiana serif · magazine couture',
+    pitch: 'Estilo revista Vogue. Italiana 100px elegante con spacing letterspacing 6px. Colon parpadea suave. Líneas finas decorativas en accent. Premium editorial.' },
+  { id: 'c5', title: 'RETRO CRT', sub: 'VT323 verde fósforo · terminal hacker',
+    pitch: 'Match perfecto con tu EQ Winamp. VT323 verde fósforo con glow CRT. Caja terminal con cursor parpadeante. Pure 90s hacker nostalgia.' },
+];
+
+const grid = document.getElementById('grid');
+const selCount = document.getElementById('sel-count');
+const selected = new Set();
+
+DESIGNS.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = d.id;
+  card.innerHTML = `
+    <div class="phone ${d.id}">
+      <div class="statusbar"><span>9:41 · Pixora</span><span>📶 📶 🔋 84%</span></div>
+      <div class="mini-hud">
+        <div class="row"><span data-bat>--</span>%<div class="dot"></div></div>
+        <div class="row"><span data-ram>--</span>%<div class="dot"></div></div>
+        <div class="row"><span data-dsk>--</span>%<div class="dot"></div></div>
+      </div>
+      ${getClockHTML(d.id)}
+      <div class="eq-stage"><canvas data-eq></canvas></div>
+      <div class="dock">
+        <div class="ico"></div><div class="ico"></div><div class="ico"></div><div class="ico"></div>
+      </div>
+      <div class="navbar">‖ ◯ ◁</div>
+    </div>
+    <div class="meta">
+      <div class="title">${d.title}<small>${d.sub}</small></div>
+      <div class="pitch">${d.pitch}</div>
+      <button class="pick">SELECCIONAR</button>
+    </div>`;
+  grid.appendChild(card);
+  card.querySelector('.pick').addEventListener('click', () => {
+    card.classList.toggle('selected');
+    if (card.classList.contains('selected')) selected.add(d.id);
+    else selected.delete(d.id);
+    selCount.textContent = selected.size;
+  });
+});
+
+function getClockHTML(id) {
+  switch(id) {
+    case 'c1': return `
+      <div class="clock">
+        <div class="time"><span data-time>--:--</span><span class="sec" data-sec>00</span></div>
+        <div class="ornament"></div>
+        <div class="date" data-date></div>
+      </div>`;
+    case 'c2': return `
+      <div class="clock">
+        <div class="time" data-time>--:--</div>
+        <div class="meta-row">
+          <span data-date></span>
+          <span class="sep" style="width:1px; height:14px"></span>
+          <span data-sec></span>"
+        </div>
+      </div>`;
+    case 'c3': return `
+      <div class="clock">
+        <div class="time" data-time>--:--</div>
+        <div class="frame">
+          <div class="label">// TIME //</div>
+          <div class="date" data-date></div>
+        </div>
+      </div>`;
+    case 'c4': return `
+      <div class="clock">
+        <div class="time"><span data-h>--</span><span class="colon">:</span><span data-m>--</span></div>
+        <div class="date" data-date></div>
+        <div class="accent" data-sec></div>
+      </div>`;
+    case 'c5': return `
+      <div class="clock">
+        <div class="time" data-time>--:--</div>
+        <div class="date" data-date></div>
+        <div class="terminal">root@pixora:~$<span class="cursor"></span></div>
+      </div>`;
+  }
+  return '';
+}
+
+// ─── Audio sim ───
+function fakeAudio(i, t, total) {
+  const norm = i / total;
+  const bass = Math.max(0, Math.sin(t * 2 + norm * 8) * 0.8 + Math.sin(t * 0.7) * 0.4);
+  const mid = Math.max(0, Math.sin(t * 4.5 + norm * 12) * 0.6);
+  const treble = Math.max(0, Math.sin(t * 9 + norm * 20) * 0.4);
+  const env = 0.5 + 0.5 * Math.cos(norm * Math.PI - Math.PI/2);
+  const v = (bass * (1-norm) + mid * env + treble * norm) / 1.5;
+  return Math.max(0.04, Math.min(1, v));
+}
+
+// ─── Winamp peak tracker ───
+const peaks = new Map();
+function trackPeak(id, i, v) {
+  const k = `${id}-${i}`;
+  const p = peaks.get(k) || { y: 0, fall: 0 };
+  if (v > p.y) { p.y = v; p.fall = 0; }
+  else { p.fall += 0.012; p.y = Math.max(v, p.y - p.fall); }
+  peaks.set(k, p);
+  return p.y;
+}
+
+function drawWinampEQ(canvas, t) {
+  const cssW = canvas.offsetWidth, cssH = canvas.offsetHeight;
+  if (canvas.width !== cssW * 2) { canvas.width = cssW * 2; canvas.height = cssH * 2; }
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const N = 32, midY = H/2;
+  const bw = W/N - 3;
+  for (let i = 0; i < N; i++) {
+    const v = fakeAudio(i, t, N);
+    const peak = trackPeak('winamp', i, v);
+    const topH = v * H * 0.46, botH = v * H * 0.4;
+    const x = i * (bw + 3);
+    // Top — segmented (Winamp 90s block style)
+    const segH = 5;
+    const nSeg = Math.floor(topH / segH);
+    for (let s = 0; s < nSeg; s++) {
+      const segNorm = s / Math.max(1, nSeg);
+      // green at top (bottom of bar growing up), yellow middle, red top
+      let color;
+      if (segNorm < 0.5) color = '#00FF41';
+      else if (segNorm < 0.8) color = '#FFFF00';
+      else color = '#FF1500';
+      ctx.fillStyle = color;
+      ctx.fillRect(x, midY - (s+1)*segH + 1, bw, segH - 2);
+    }
+    // Peak indicator floating
+    const peakY = midY - peak * H * 0.46;
+    ctx.fillStyle = '#FFFF00';
+    ctx.fillRect(x, peakY - 2, bw, 2);
+    // Mirror bottom — segments fading
+    const nSegB = Math.floor(botH / segH);
+    for (let s = 0; s < nSegB; s++) {
+      ctx.fillStyle = `rgba(0,255,65,${0.6 * (1 - s/nSegB)})`;
+      ctx.fillRect(x, midY + s*segH + 1, bw, segH - 2);
+    }
+  }
+}
+
+// ─── Tick ───
+function pad(n) { return n<10?'0'+n:''+n; }
+const DAYS = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const DAYS_LONG = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO'];
+const MONTHS = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+const states = new Map();
+DESIGNS.forEach(d => states.set(d.id, { bat: 84, ram: 54, dsk: 71, batT: 84, ramT: 54, dskT: 71 }));
+
+let frame = 0;
+function tick() {
+  frame++;
+  const t = performance.now() / 500;
+  const now = new Date();
+  const hh = pad(now.getHours()), mm = pad(now.getMinutes()), ss = pad(now.getSeconds());
+  const timeStr = `${hh}:${mm}`;
+  const dayShort = DAYS[now.getDay()];
+  const dayLong = DAYS_LONG[now.getDay()];
+  const dateShort = `${dayShort} ${pad(now.getDate())} ${MONTHS[now.getMonth()]}`;
+  const dateLong = `${dayLong} · ${pad(now.getDate())} ${MONTHS[now.getMonth()]}`;
+  const dateSpaced = `${pad(now.getDate())} · ${MONTHS[now.getMonth()]} · ${now.getFullYear()}`;
+  const dateRet = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;
+
+  document.querySelectorAll('.phone').forEach((phone, idx) => {
+    const id = DESIGNS[idx].id;
+    const state = states.get(id);
+    if (frame % 90 === idx % 90) state.ramT = 35 + Math.random()*45;
+    if (frame % 150 === idx % 150) state.dskT = 50 + Math.random()*40;
+    state.ram += (state.ramT - state.ram) * 0.04;
+    state.dsk += (state.dskT - state.dsk) * 0.04;
+    phone.querySelector('[data-bat]').textContent = Math.round(state.bat);
+    phone.querySelector('[data-ram]').textContent = Math.round(state.ram);
+    phone.querySelector('[data-dsk]').textContent = Math.round(state.dsk);
+
+    // Per-design clock updates
+    const setEl = (sel, val) => { const el = phone.querySelector(sel); if (el) el.textContent = val; };
+    if (id === 'c1') {
+      setEl('[data-time]', timeStr);
+      setEl('[data-sec]', ss);
+      setEl('[data-date]', dateLong);
+    }
+    if (id === 'c2') {
+      setEl('[data-time]', timeStr);
+      setEl('[data-date]', dateShort);
+      setEl('[data-sec]', `:${ss}`);
+    }
+    if (id === 'c3') {
+      setEl('[data-time]', timeStr);
+      setEl('[data-date]', dateSpaced);
+    }
+    if (id === 'c4') {
+      setEl('[data-h]', hh);
+      setEl('[data-m]', mm);
+      setEl('[data-date]', dateShort);
+      setEl('[data-sec]', `:${ss}`);
+    }
+    if (id === 'c5') {
+      setEl('[data-time]', timeStr);
+      setEl('[data-date]', dateRet);
+    }
+
+    // EQ
+    const canvas = phone.querySelector('[data-eq]');
+    if (canvas) drawWinampEQ(canvas, t);
+  });
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

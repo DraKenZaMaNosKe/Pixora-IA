@@ -127,6 +127,9 @@ class PixoraWallpaperService : WallpaperService() {
         private val rainRenderer = RainEffectRenderer()
         private val batteryIndicator = BatteryIndicator(applicationContext)
         private val systemRings = SystemRingsRenderer(applicationContext)
+        private val hudRenderer = HudRenderer(applicationContext)
+        private var currentPreset: com.orbix.pixora.renderers.HudPreset =
+            com.orbix.pixora.renderers.HudPreset.SACRED
         private val captionOverlay = CaptionOverlay()
         private val aquariumRenderer = AquariumRenderer(applicationContext)
         private val bubbleRenderer = BubbleRenderer()
@@ -317,6 +320,17 @@ class PixoraWallpaperService : WallpaperService() {
             showEqualizer = prefs.getBoolean("show_equalizer", true)
             systemRings.showRam = prefs.getBoolean("show_ram", true)
             systemRings.showStorage = prefs.getBoolean("show_storage", true)
+            hudRenderer.showRam = systemRings.showRam
+            hudRenderer.showStorage = systemRings.showStorage
+            // HUD preset — 1 of 10 selectable themes. Defaults to SACRED
+            // (the original Pixora gold rings + serif clock) so existing
+            // users see no change until they actively pick from Settings.
+            val presetKey = prefs.getString("hud_preset", "sacred") ?: "sacred"
+            currentPreset = com.orbix.pixora.renderers.HudPreset.fromKey(presetKey)
+            clockRenderer.currentPreset = currentPreset
+            equalizerRenderer.currentPreset = currentPreset
+            hudRenderer.hudStyle = currentPreset.hudStyle
+            hudRenderer.accentColor = currentPreset.hudAccent
             // Touch trail style picker — reload on broadcast too, not just on
             // wallpaper switch, so the change is instant from Settings.
             val trailStyle = prefs.getString(
@@ -1254,6 +1268,9 @@ class PixoraWallpaperService : WallpaperService() {
             systemRings.surfaceHeight = surfaceHeight
             systemRings.glowColor = glowColor
 
+            hudRenderer.surfaceWidth = surfaceWidth
+            hudRenderer.surfaceHeight = surfaceHeight
+
             captionOverlay.surfaceWidth = surfaceWidth
             captionOverlay.surfaceHeight = surfaceHeight
             captionOverlay.glowColor = glowColor
@@ -1557,8 +1574,14 @@ class PixoraWallpaperService : WallpaperService() {
                     batteryIndicator.draw(canvas)
                 }
                 if (!isLocked) {
-                    // SystemRings internally respects its own showRam/showStorage flags.
-                    systemRings.draw(canvas)
+                    // GOLD_RINGS uses the original SystemRingsRenderer (rich
+                    // breathing rings + arc per slice). All other styles use
+                    // the generic HudRenderer that branches on HudStyle.
+                    if (currentPreset.hudStyle == com.orbix.pixora.renderers.HudStyle.GOLD_RINGS) {
+                        systemRings.draw(canvas)
+                    } else {
+                        hudRenderer.draw(canvas)
+                    }
                 }
                 if (showEqualizer) {
                     equalizerRenderer.draw(canvas)
@@ -1692,7 +1715,7 @@ class PixoraWallpaperService : WallpaperService() {
 
     companion object {
         private const val TAG = "PixoraEQ"
-        const val BAR_COUNT = 6
+        const val BAR_COUNT = 32  // bumped from 6 (2026-06-04) — thinner bars + more detail
         const val FRAME_DELAY = 33L // ~30fps
         const val IDLE_FRAME_DELAY = 1000L
         const val SILENCE_THRESHOLD = 0.05f

@@ -1234,7 +1234,7 @@ button { white-space: nowrap; }
   <!-- ─── ADS & REVENUE ────────────────────────────────────────────────── -->
   <div class="section-title" style="margin-top: 8px">
     <span>Ingresos publicitarios · revenue por placement</span>
-    <span class="dim mono" style="font-size:10px">interstitial $2.50 · rewarded $8.00 · banner $0.60 USD eCPM LATAM</span>
+    <span class="dim mono" style="font-size:10px" id="ad-rates-display">eCPM rates · cargando...</span>
   </div>
   <div class="kpi-grid">
     <div class="kpi green">
@@ -2048,7 +2048,23 @@ function statBox(label, value) {
 }
 
 // ─── ADS ──────────────────────────────────────────────────────────────────
+async function loadAdRates() {
+  // Read live eCPM rates from ad_network_rates table (migrated 2026-06-05).
+  // Was previously hardcoded text — now reflects whatever Eduardo sets.
+  try {
+    const rates = await api('/api/ad-rates');
+    if (Array.isArray(rates) && rates.length) {
+      const txt = rates.map(r => `${r.ad_kind} $${(+r.ecpm_usd).toFixed(2)}`).join(' · ');
+      const region = rates[0]?.region || 'LATAM';
+      $('#ad-rates-display').textContent = `${txt} USD eCPM · ${region}`;
+    }
+  } catch (e) {
+    $('#ad-rates-display').textContent = 'eCPM rates · error';
+  }
+}
+
 async function loadAdStats() {
+  loadAdRates();  // fire-and-forget, doesn't block stats
   const data = await api('/api/ad-stats');
   const s = Array.isArray(data) ? data[0] : data;
   if (!s) return;

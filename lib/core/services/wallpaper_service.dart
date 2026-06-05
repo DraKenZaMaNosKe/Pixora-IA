@@ -208,6 +208,46 @@ class WallpaperService {
     }
   }
 
+  /// All 10 selectable HUD presets, keyed by native [HudPreset.key] enum value.
+  /// Order matters — this is the order shown in the Settings picker.
+  static const List<({String key, String name, String sub})> hudPresets = [
+    (key: 'sacred', name: 'Pixora Sacred', sub: 'Brand · dorado cósmico'),
+    (key: 'modern', name: 'Modern Mono', sub: 'iOS · Winamp mirror'),
+    (key: 'gemini', name: 'Gemini Pulse', sub: 'Google AI · dots'),
+    (key: 'grok', name: 'Grok Spectrum', sub: 'Bars vivos multi-color'),
+    (key: 'crt', name: 'CRT Terminal', sub: 'Sci-fi cyan · scanlines'),
+    (key: 'retro', name: 'Retro CRT', sub: 'VT323 verde · hacker'),
+    (key: 'flame', name: 'Flame Wisps', sub: 'Llamas · primal'),
+    (key: 'aurora', name: 'Aurora Boreal', sub: 'Cintas · cielo estrellado'),
+    (key: 'cyber', name: 'Cyber Glitch', sub: 'Amarillo · RGB split'),
+    (key: 'crystal', name: 'Light Crystal', sub: 'Theme claro · prisma'),
+  ];
+
+  /// Read the user's current HUD preset ('classic' default).
+  Future<String> getHudPreset() async {
+    if (!Platform.isAndroid) return 'classic';
+    try {
+      final r = await _channel.invokeMethod<String>('getHudPreset');
+      return r ?? 'classic';
+    } catch (e) {
+      debugPrint('[WallpaperService] getHudPreset error: $e');
+      return 'classic';
+    }
+  }
+
+  /// Set the HUD preset and broadcast to :wallpaper for instant reload.
+  Future<bool> setHudPreset(String preset) async {
+    if (!Platform.isAndroid) return false;
+    try {
+      final r =
+          await _channel.invokeMethod<bool>('setHudPreset', {'preset': preset});
+      return r ?? false;
+    } catch (e) {
+      debugPrint('[WallpaperService] setHudPreset error: $e');
+      return false;
+    }
+  }
+
   /// Toggle a single overlay. Writes to prefs and broadcasts to the :wallpaper
   /// process so the change is reflected immediately, no app restart needed.
   Future<bool> setOverlayVisibility(String key, bool value) async {

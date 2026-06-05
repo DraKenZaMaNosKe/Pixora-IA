@@ -459,6 +459,19 @@ class MainActivity : AudioServiceActivity() {
                         sendBroadcast(intent)
                         result.success(true)
                     }
+                    "getHudPreset" -> {
+                        val prefs = getSharedPreferences("pixora_live", 0)
+                        result.success(prefs.getString("hud_preset", "sacred"))
+                    }
+                    "setHudPreset" -> {
+                        val preset = call.argument<String>("preset") ?: "sacred"
+                        val prefs = getSharedPreferences("pixora_live", 0)
+                        prefs.edit().putString("hud_preset", preset).apply()
+                        val intent = Intent("com.orbix.pixora.OVERLAY_SETTINGS_CHANGED")
+                            .setPackage(packageName)
+                        sendBroadcast(intent)
+                        result.success(true)
+                    }
                     "setRingtone" -> {
                         val path = call.argument<String>("path") ?: ""
                         val title = call.argument<String>("title") ?: "Pixora Ringtone"

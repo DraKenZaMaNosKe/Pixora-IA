@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · 10 HUD presets finalistas</title>
+<meta name="viewport" content="width=1500">
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Bebas+Neue&family=Black+Ops+One&family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:wght@300;400;500;700&family=Italiana&family=JetBrains+Mono:wght@500;700;800&family=Major+Mono+Display&family=Manrope:wght@100;200;300;500;700&family=Orbitron:wght@500;700;800&family=Playfair+Display:wght@700&family=Rajdhani:wght@300;500;700&family=Syncopate:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root { --pix-gold: #E6B655; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #08080c; color: #e8e6dc; font-family: 'Manrope', sans-serif; }
+body { min-height: 100vh; padding: 32px 24px 96px; }
+
+.topbar {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  max-width: 1500px; margin: 0 auto 28px; padding-bottom: 18px;
+  border-bottom: 1px solid rgba(230,182,85,0.25);
+}
+.topbar h1 {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 24px;
+  letter-spacing: 4px; color: var(--pix-gold);
+}
+.topbar h1 small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 12px; letter-spacing: 2px; color: #bfb39e; margin-top: 6px; font-weight: 300;
+}
+.counter {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--pix-gold); padding: 8px 14px;
+  border: 1px solid rgba(230,182,85,0.4); border-radius: 999px;
+  background: rgba(230,182,85,0.06);
+}
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 24px; max-width: 1500px; margin: 0 auto;
+}
+.card {
+  background: #0d0d12; border: 1px solid rgba(230,182,85,0.18);
+  border-radius: 14px; overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+  display: flex; flex-direction: column;
+}
+.card.selected {
+  border-color: var(--pix-gold);
+  box-shadow: 0 0 0 1px var(--pix-gold), 0 8px 28px rgba(230,182,85,0.25);
+}
+.phone {
+  position: relative; width: 100%; aspect-ratio: 9 / 19.5;
+  background: #000; overflow: hidden;
+}
+.meta { padding: 14px 16px; }
+.meta .title {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 15px;
+  letter-spacing: 2px; color: #f6e9c8;
+}
+.meta .title small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 10.5px; color: #8d8470; margin-top: 2px;
+  font-weight: 300; letter-spacing: 0.5px;
+}
+.meta .pitch {
+  font-size: 11.5px; line-height: 1.4; color: #c9c1ad; margin-top: 6px;
+  font-family: 'Manrope', sans-serif; font-weight: 300;
+}
+.pick {
+  margin-top: 10px; width: 100%;
+  padding: 7px 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 2px; background: transparent; color: var(--pix-gold);
+  border: 1px solid var(--pix-gold); border-radius: 6px; cursor: pointer;
+  transition: all .2s;
+}
+.pick:hover { background: rgba(230,182,85,0.1); }
+.card.selected .pick { background: var(--pix-gold); color: #000; }
+.card.selected .pick::before { content: '✓ '; }
+
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 22px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 14px 0; font-size: 9px; color: rgba(255,255,255,0.85);
+  z-index: 100; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.dock {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+  z-index: 80; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+}
+.dock .ico {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  border: 0.5px solid rgba(255,255,255,0.12);
+}
+.navbar {
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 22px;
+  z-index: 90; display: flex; justify-content: space-around; align-items: center;
+  font-size: 11px; color: rgba(255,255,255,0.55);
+}
+
+/* Wallpapers */
+.wp-warm { background: radial-gradient(ellipse at 60% 35%, #b3937a 0%, #6a4528 35%, #2c1810 100%); }
+.wp-cool { background: radial-gradient(ellipse at 50% 50%, #284a5e 0%, #0e1c2a 60%, #050a14 100%); }
+.wp-night { background: radial-gradient(ellipse at 40% 50%, #1a3a5e 0%, #0a1a2a 60%, #050810 100%); }
+.wp-violet { background: radial-gradient(ellipse at 50% 60%, #5a4a8a 0%, #2a2050 50%, #0a0820 100%); }
+.wp-ember { background: radial-gradient(ellipse at 60% 70%, #b85a3a 0%, #5a1a0a 40%, #1a0805 100%); }
+.wp-deep { background: radial-gradient(ellipse at 50% 40%, #6a4528 0%, #2c1810 60%, #0e0e13 100%); }
+.wp-aurora { background: linear-gradient(180deg, #05122a 0%, #14253e 50%, #0a1626 100%); }
+.wp-cyber { background: radial-gradient(ellipse at 30% 70%, #4e3a6a 0%, #1a1230 50%, #050410 100%); }
+.wp-light { background: linear-gradient(180deg, #c9d4e2 0%, #8a9aae 60%, #4a5466 100%); }
+.wp-forest { background: radial-gradient(ellipse at 70% 60%, #4a6a4e 0%, #1a2a1e 60%, #050a05 100%); }
+
+/* Canvas always fills its parent div — without this it defaults to inline 300x150
+ * which renders as a weird white box. Critical for all .eq-canvas instances. */
+.eq-canvas { width: 100%; height: 100%; display: block; background: transparent; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>PIXORA · 10 HUD PRESETS FINALISTAS
+    <small>Cada uno = combo coherente de clock + EQ + monitors · pulido al máximo · todos seleccionables desde Settings</small>
+  </h1>
+  <div class="counter">FAVORITOS · <span class="n" id="sel-count">0</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const PRESETS = [
+  { id: 'sacred',  title: '01 · PIXORA SACRED', sub: 'Brand puro · dorado cósmico',
+    pitch: 'Tu identidad nativa pulida. Reloj Cinzel dorado con glow + mandala girando atrás + glyphs circulares para HUD con anillo dashed rotando. EQ barras gold con shadow.',
+    wp: 'wp-deep' },
+  { id: 'modern',  title: '02 · MODERN MONO', sub: 'iOS minimal + Winamp mirror',
+    pitch: 'Manrope ultra-light gigante centrado · meta-row mono debajo. EQ Winamp green/yellow/red con MIRROR REFLECTION abajo + peak indicators amarillos. Mini-pills derecha.',
+    wp: 'wp-warm' },
+  { id: 'gemini',  title: '03 · GEMINI PULSE', sub: 'Google AI · dots respirando',
+    pitch: 'Reloj Manrope thin minimal. EQ son 5 esferas Google colors (azul, rojo, amarillo, verde) pulsando con audio. Pills flotantes con dots por color.',
+    wp: 'wp-violet' },
+  { id: 'grok',    title: '04 · GROK SPECTRUM', sub: 'Bars vivos multi-color',
+    pitch: 'Reloj Syncopate bold a la izquierda. EQ barras gradient cyan→verde→amarillo→naranja con mirror cyan fade abajo. Horizontal meters bold tech.',
+    wp: 'wp-cool' },
+  { id: 'crt',     title: '05 · CRT TERMINAL', sub: 'Sci-fi cyan + scanlines',
+    pitch: 'Reloj Orbitron 800 cyan con glow. EQ bars cyan + onda sinusoidal overlay arriba. Hexágonos cyan para monitors. Scanlines CRT. Star Citizen vibe.',
+    wp: 'wp-night' },
+  { id: 'retro',   title: '06 · RETRO CRT', sub: 'VT323 verde fósforo · hacker',
+    pitch: 'Reloj VT323 verde fósforo con glow + caja terminal con cursor parpadeando. EQ Winamp green/yellow/red segmentado + mirror. ASCII bars para monitors. Pure 90s.',
+    wp: 'wp-warm' },
+  { id: 'flame',   title: '07 · FLAME WISPS', sub: 'Llamas titilando · primal',
+    pitch: 'Reloj Cinzel rojo-dorado con glow fuego. EQ tipo llamas tapered (taller en centro, flicker random). Embers glow flickering para monitors. Heavy metal vibe.',
+    wp: 'wp-ember' },
+  { id: 'aurora',  title: '08 · AURORA BOREAL', sub: 'Cintas etéreas · cielo estrellado',
+    pitch: 'Cielo nocturno con auroras animadas atrás. Reloj Cormorant fina con glow verde-violeta. EQ barras como cintas de aurora con gradient verde→cyan→violeta. Arcos para HUD.',
+    wp: 'wp-aurora' },
+  { id: 'cyber',   title: '09 · CYBER GLITCH', sub: 'Amarillo nuclear · RGB split',
+    pitch: 'Reloj Orbitron 800 amarillo con RGB shift (rojo + cyan offset). EQ bars amarillo con RGB split en peaks. Hexágonos LED amarillos para monitors. Cyberpunk 2077.',
+    wp: 'wp-cyber' },
+  { id: 'crystal', title: '10 · LIGHT CRYSTAL', sub: 'Tema CLARO · refracción prismática',
+    pitch: 'Único theme LIGHT. Reloj Italiana 100px elegante con chromatic aberration sutil. EQ barras como shards de cristal con prismatic refraction. Glass shards para HUD. Boutique premium.',
+    wp: 'wp-light' },
+];
+
+// ─── HUD HTML templates per preset (declared BEFORE forEach to avoid TDZ) ───
+const HUDS = {};
+HUDS.sacred = `
+  <style>.sacred-clock { font-family: 'Cinzel', serif; font-weight: 700; color: #E6B655; }</style>
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:200px; height:200px; background:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Cg fill=%22none%22 stroke=%22%23E6B655%22 stroke-width=%220.3%22 opacity=%220.4%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22/%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2235%22/%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2225%22/%3E%3Cpath d=%22M50 5 L50 95 M5 50 L95 50%22/%3E%3C/g%3E%3C/svg%3E') center/contain no-repeat; animation:spin 25s linear infinite;"></div>
+  <style>@keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }</style>
+  <div style="position:absolute; top:50px; left:0; right:0; text-align:center; z-index:10;">
+    <div class="sacred-clock" style="font-size:62px; letter-spacing:3px; text-shadow:0 0 18px rgba(230,182,85,0.5);" data-time>--:--</div>
+    <div style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:11px; color:#C9A650; letter-spacing:5px; margin-top:6px;" data-date>--</div>
+  </div>
+  <div style="position:absolute; top:34px; left:14px; display:flex; flex-direction:column; gap:10px; z-index:10;">
+    ${['BAT','RAM','DSK'].map(l=>`<div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(230,182,85,0.5); border-radius:50%; background:radial-gradient(circle,rgba(230,182,85,0.12),transparent); position:relative;"><div style="position:absolute; inset:-4px; border:0.5px dashed rgba(230,182,85,0.4); border-radius:50%; animation:spin 18s linear infinite;"></div><div style="font-family:'Cinzel',serif; font-weight:700; font-size:11px; color:#E6B655;" data-${l.toLowerCase()}>--</div></div>`).join('')}
+  </div>
+  <div class="eq-sacred" style="position:absolute; left:14px; right:14px; bottom:90px; height:60px; display:flex; gap:2px; align-items:flex-end; z-index:5;">${'<div class="bar"></div>'.repeat(28)}</div>
+  <style>.eq-sacred .bar { flex:1; background:linear-gradient(0deg, rgba(230,182,85,0.15), #E6B655 50%, #FFD23F); border-radius:999px 999px 1px 1px; box-shadow:0 0 6px rgba(230,182,85,0.6); transition:height 80ms; }</style>`;
+
+HUDS.modern = `
+  <div style="position:absolute; top:100px; left:0; right:0; text-align:center; z-index:10;">
+    <div style="font-family:'Manrope',sans-serif; font-weight:100; font-size:110px; color:#fff; letter-spacing:-6px; line-height:0.88; text-shadow:0 4px 20px rgba(0,0,0,0.7);" data-time>--:--</div>
+    <div style="display:flex; justify-content:center; align-items:center; gap:18px; margin-top:14px; font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.75); letter-spacing:2.5px; text-transform:uppercase;">
+      <span data-date>--</span>
+      <span style="width:1px; height:12px; background:rgba(255,255,255,0.3);"></span>
+      <span data-sec>:00</span>
+    </div>
+  </div>
+  <div style="position:absolute; top:32px; right:12px; display:flex; flex-direction:column; gap:5px; font-family:'JetBrains Mono',monospace; font-size:9.5px; color:rgba(255,255,255,0.85); text-align:right; z-index:10;">
+    <div style="display:flex; align-items:center; gap:4px; justify-content:flex-end;"><span data-bat>--</span>%<div style="width:6px; height:6px; border-radius:50%; background:#00FF41; box-shadow:0 0 4px #00FF41;"></div></div>
+    <div style="display:flex; align-items:center; gap:4px; justify-content:flex-end;"><span data-ram>--</span>%<div style="width:6px; height:6px; border-radius:50%; background:#00FF41; box-shadow:0 0 4px #00FF41;"></div></div>
+    <div style="display:flex; align-items:center; gap:4px; justify-content:flex-end;"><span data-dsk>--</span>%<div style="width:6px; height:6px; border-radius:50%; background:#00FF41; box-shadow:0 0 4px #00FF41;"></div></div>
+  </div>
+  <div style="position:absolute; left:0; right:0; bottom:80px; height:180px; z-index:5; padding:0 14px;"><canvas class="eq-canvas" data-eq="winamp-mirror"></canvas></div>`;
+
+HUDS.gemini = `
+  <div style="position:absolute; top:60px; left:0; right:0; text-align:center; z-index:10;">
+    <div style="font-family:'Manrope',sans-serif; font-weight:200; font-size:72px; color:#fff; letter-spacing:-3px; line-height:1; text-shadow:0 4px 24px rgba(0,0,0,0.6);" data-time>--:--</div>
+    <div style="font-family:'Manrope',sans-serif; font-size:12px; font-weight:300; color:rgba(255,255,255,0.85); letter-spacing:3px; margin-top:8px; text-transform:uppercase;" data-date>--</div>
+  </div>
+  <div style="position:absolute; top:28px; right:12px; display:flex; flex-direction:column; gap:6px; z-index:10;">
+    ${[['bat','#34A853'],['ram','#4285F4'],['dsk','#EA4335']].map(([k,c])=>`<div style="display:flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,0.1); backdrop-filter:blur(20px); border:0.5px solid rgba(255,255,255,0.2);"><div style="width:7px; height:7px; border-radius:50%; background:${c};"></div><span style="font-family:'Manrope',sans-serif; font-size:10px; color:rgba(255,255,255,0.95);"><span data-${k}>--</span>%</span></div>`).join('')}
+  </div>
+  <div class="eq-gemini" style="position:absolute; left:0; right:0; bottom:96px; display:flex; justify-content:center; gap:14px; z-index:5;">
+    <div class="gem" style="background:#4285F4"></div><div class="gem" style="background:#EA4335"></div><div class="gem" style="background:#FBBC04"></div><div class="gem" style="background:#34A853"></div><div class="gem" style="background:#4285F4"></div>
+  </div>
+  <style>.eq-gemini .gem { width:18px; height:18px; border-radius:50%; transition:transform .12s ease-out; box-shadow:0 0 12px currentColor; }</style>`;
+
+HUDS.grok = `
+  <div style="position:absolute; top:40px; left:18px; z-index:10;">
+    <div style="font-family:'Syncopate',sans-serif; font-weight:700; font-size:50px; color:#fff; line-height:1; letter-spacing:-2px; text-shadow:0 2px 12px rgba(0,0,0,0.6);" data-time>--:--</div>
+    <div style="font-family:'Rajdhani',sans-serif; font-size:11px; font-weight:500; color:#9adfff; letter-spacing:3px; margin-top:4px; text-transform:uppercase;" data-date>--</div>
+  </div>
+  <div style="position:absolute; top:46px; right:14px; display:flex; flex-direction:column; gap:7px; z-index:10;">
+    ${['bat','ram','dsk'].map((k,i)=>`<div style="display:flex; align-items:center; gap:6px;"><div style="font-family:'Rajdhani',sans-serif; font-size:9px; font-weight:700; color:rgba(255,255,255,0.7); letter-spacing:2px; min-width:22px;">${k.toUpperCase()}</div><div style="width:50px; height:4px; background:rgba(255,255,255,0.18); border-radius:2px; position:relative; overflow:hidden;"><div data-meter-${k} style="position:absolute; inset:0; width:50%; background:linear-gradient(90deg,#00E5FF,#00FF85,#FFFB00,#FF6B35); border-radius:2px; transition:width .3s;"></div></div><div style="font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; color:#fff;"><span data-${k}>--</span>%</div></div>`).join('')}
+  </div>
+  <div style="position:absolute; left:14px; right:14px; bottom:90px; height:140px; z-index:5;"><canvas class="eq-canvas" data-eq="grok-mirror"></canvas></div>`;
+
+HUDS.crt = `
+  <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,229,255,0.04) 2px 3px); z-index:6;"></div>
+  <div style="position:absolute; top:50px; left:0; right:0; text-align:center; z-index:10;">
+    <div style="font-family:'Orbitron',sans-serif; font-weight:800; font-size:50px; color:#00E5FF; line-height:1; letter-spacing:4px; text-shadow:0 0 14px rgba(0,229,255,0.8), 0 0 30px rgba(0,229,255,0.4);" data-time>--:--</div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:rgba(0,229,255,0.75); letter-spacing:5px; margin-top:6px;" data-date>--</div>
+  </div>
+  <div style="position:absolute; top:32px; left:14px; right:14px; display:flex; justify-content:space-between; z-index:10;">
+    ${['bat','ram','dsk'].map(k=>`<div style="width:52px; height:58px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;"><div style="position:absolute; inset:0; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); background:linear-gradient(135deg,rgba(0,229,255,0.18),rgba(0,229,255,0.02)); border:1px solid #00E5FF;"></div><div style="position:relative; font-family:'Orbitron',sans-serif; font-weight:800; font-size:13px; color:#00E5FF; text-shadow:0 0 4px rgba(0,229,255,0.7);"><span data-${k}>--</span></div><div style="position:relative; font-family:'JetBrains Mono',monospace; font-size:7px; color:rgba(0,229,255,0.7); letter-spacing:1px;">${k.toUpperCase()}</div></div>`).join('')}
+  </div>
+  <div style="position:absolute; left:14px; right:14px; bottom:90px; height:140px; z-index:5;"><canvas class="eq-canvas" data-eq="crt"></canvas></div>`;
+
+HUDS.retro = `
+  <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,255,65,0.04) 2px 3px); z-index:6;"></div>
+  <div style="position:absolute; top:60px; left:0; right:0; text-align:center; z-index:10;">
+    <div style="font-family:'VT323',monospace; font-size:90px; color:#00FF41; line-height:1; letter-spacing:6px; text-shadow:0 0 14px #00FF41, 0 0 28px rgba(0,255,65,0.5);" data-time>--:--</div>
+    <div style="font-family:'VT323',monospace; font-size:20px; color:#00FF41; letter-spacing:5px; margin-top:4px; text-shadow:0 0 10px rgba(0,255,65,0.5);" data-date>--</div>
+    <div style="display:inline-block; margin-top:14px; padding:3px 12px; border:1px solid rgba(0,255,65,0.4); font-family:'VT323',monospace; font-size:13px; color:#88FF88;">root@pixora:~$<span style="display:inline-block; width:7px; height:13px; background:#00FF41; margin-left:3px; vertical-align:middle; animation:blink 1s steps(2) infinite;"></span></div>
+  </div>
+  <style>@keyframes blink { 50% { opacity: 0; } }</style>
+  <div style="position:absolute; top:32px; right:12px; display:flex; flex-direction:column; gap:4px; font-family:'VT323',monospace; font-size:14px; color:#00FF41; text-align:right; z-index:10;">
+    <div><span style="color:#88FF88;">BAT</span> [<span data-bat>--</span>%]</div>
+    <div><span style="color:#88FF88;">RAM</span> [<span data-ram>--</span>%]</div>
+    <div><span style="color:#88FF88;">DSK</span> [<span data-dsk>--</span>%]</div>
+  </div>
+  <div style="position:absolute; left:14px; right:14px; bottom:90px; height:140px; z-index:5;"><canvas class="eq-canvas" data-eq="winamp-mirror"></canvas></div>`;
+
+HUDS.flame = `
+  <div style="position:absolute; inset:0; background-image:radial-gradient(2px 2px at 20% 80%, #FF8C00, transparent),radial-gradient(2px 2px at 80% 60%, #FF4500, transparent),radial-gradient(1.5px 1.5px at 50% 90%, #FFD700, transparent); animation:rise 4s linear infinite; pointer-events:none; z-index:3;"></div>
+  <style>@keyframes rise { to { transform:translateY(-50px); opacity:0.5; } }</style>
+  <div style="position:absolute; top:50px; left:0; right:0; text-align:center; z-index:10;">
+    <div style="font-family:'Cinzel',serif; font-weight:700; font-size:56px; color:#FFD700; line-height:1; letter-spacing:4px; text-shadow:0 0 24px #FF4500, 0 0 60px rgba(255,69,0,0.5);" data-time>--:--</div>
+    <div style="font-family:'Black Ops One',sans-serif; font-size:10px; color:#FF8C00; letter-spacing:4px; margin-top:8px; text-transform:uppercase;" data-date>--</div>
+  </div>
+  <div style="position:absolute; top:28px; right:14px; display:flex; flex-direction:column; gap:6px; z-index:10;">
+    ${['bat','ram','dsk'].map(k=>`<div style="display:flex; align-items:center; gap:7px; padding:4px 9px 4px 4px; border-radius:999px; background:rgba(0,0,0,0.45); backdrop-filter:blur(8px); border:0.5px solid rgba(255,140,0,0.3);"><div style="width:18px; height:18px; border-radius:50%; background:radial-gradient(circle,#FFD700,#FF4500 60%,transparent); box-shadow:0 0 8px #FF4500; animation:flicker 1.5s ease-in-out infinite;"></div><div style="font-family:'Black Ops One',sans-serif; font-size:11px; color:#FFD700;"><span data-${k}>--</span>%</div></div>`).join('')}
+  </div>
+  <style>@keyframes flicker { 50% { opacity:0.7; transform:scale(0.9); } }</style>
+  <div style="position:absolute; left:14px; right:14px; bottom:90px; height:140px; z-index:5;"><canvas class="eq-canvas" data-eq="flame"></canvas></div>`;
+
+HUDS.aurora = `
+  <div style="position:absolute; left:-20%; right:-20%; top:25%; height:45%; background:radial-gradient(ellipse at 30% 50%,rgba(0,255,170,0.45),transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(184,59,203,0.4),transparent 55%); filter:blur(22px); animation:ripple 12s ease-in-out infinite;"></div>
+  <style>@keyframes ripple { 0%,100% { transform:translateX(-5%) scaleY(1); } 50% { transform:translateX(5%) scaleY(1.15); } }</style>
+  <div style="position:absolute; inset:0; background-image:radial-gradient(1px 1px at 12% 18%, #fff, transparent),radial-gradient(1px 1px at 25% 38%, rgba(255,255,255,0.6), transparent),radial-gradient(1.5px 1.5px at 50% 8%, #fff, transparent),radial-gradient(1px 1px at 85% 45%, #fff, transparent);"></div>
+  <div style="position:absolute; top:70px; left:0; right:0; text-align:center; z-index:10;">
+    <div style="font-family:'Cormorant Garamond',serif; font-weight:300; font-size:64px; color:#fff; text-shadow:0 0 30px rgba(0,255,170,0.6); letter-spacing:4px; line-height:1;" data-time>--:--</div>
+    <div style="font-family:'Forum',serif; font-size:11px; color:#aff5d8; letter-spacing:6px; margin-top:6px;" data-date>--</div>
+  </div>
+  <div style="position:absolute; top:30px; right:14px; display:flex; flex-direction:column; gap:8px; z-index:10;">
+    ${['bat','ram','dsk'].map(k=>`<div style="width:50px; height:50px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;"><svg style="position:absolute; inset:0; transform:rotate(-90deg);" viewBox="0 0 50 50"><circle cx="25" cy="25" r="22" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5"/><circle cx="25" cy="25" r="22" fill="none" stroke="#00FFAA" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="69" data-arc-${k}/></svg><div style="font-family:'Forum',serif; color:#fff; font-size:13px;"><span data-${k}>--</span></div><div style="font-family:'Forum',serif; font-size:8px; color:#aff5d8; letter-spacing:2px;">${k.toUpperCase()}</div></div>`).join('')}
+  </div>
+  <div style="position:absolute; left:14px; right:14px; bottom:90px; height:140px; z-index:5;"><canvas class="eq-canvas" data-eq="aurora"></canvas></div>`;
+
+HUDS.cyber = `
+  <div style="position:absolute; top:50px; left:0; right:0; text-align:center; z-index:10;">
+    <div style="font-family:'Orbitron',sans-serif; font-weight:800; font-size:54px; color:#FCEE0A; line-height:1; letter-spacing:4px; text-shadow:2px 2px 0 #FF003C,-2px -2px 0 #00FFEA,0 0 22px rgba(252,238,10,0.6);" data-time>--:--</div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:#00FFEA; letter-spacing:5px; margin-top:10px; text-shadow:0 0 8px rgba(0,255,234,0.5);" data-date>--</div>
+  </div>
+  <div style="position:absolute; top:32px; left:14px; right:14px; display:flex; justify-content:space-between; z-index:10;">
+    ${['bat','ram','dsk'].map(k=>`<div style="width:50px; height:54px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;"><div style="position:absolute; inset:0; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); background:linear-gradient(135deg,rgba(252,238,10,0.18),rgba(252,238,10,0.02)); border:1px solid #FCEE0A;"></div><div style="position:relative; font-family:'Orbitron',sans-serif; font-weight:800; font-size:13px; color:#FCEE0A; text-shadow:0 0 4px #FCEE0A;"><span data-${k}>--</span></div><div style="position:relative; font-family:'JetBrains Mono',monospace; font-size:7px; color:rgba(252,238,10,0.8); letter-spacing:1px;">${k.toUpperCase()}</div></div>`).join('')}
+  </div>
+  <div style="position:absolute; left:14px; right:14px; bottom:90px; height:140px; z-index:5;"><canvas class="eq-canvas" data-eq="cyber"></canvas></div>`;
+
+HUDS.crystal = `
+  <style>.preset-crystal .statusbar { color:rgba(42,53,72,0.85)!important; }</style>
+  <div style="position:absolute; top:60px; left:0; right:0; text-align:center; z-index:10;">
+    <div style="font-family:'Italiana',serif; font-weight:400; font-size:70px; color:#2A3548; line-height:1; letter-spacing:4px; text-shadow:1px 0 rgba(255,100,150,0.4),-1px 0 rgba(100,200,255,0.4);" data-time>--:--</div>
+    <div style="font-family:'Forum',serif; font-size:11px; color:#5A6878; letter-spacing:6px; margin-top:8px;" data-date>--</div>
+  </div>
+  <div style="position:absolute; top:32px; right:12px; display:flex; flex-direction:column; gap:6px; z-index:10;">
+    ${['bat','ram','dsk'].map(k=>`<div style="width:54px; padding:5px 6px; text-align:center; background:linear-gradient(135deg,rgba(255,255,255,0.85),rgba(220,230,250,0.55)); border:0.5px solid rgba(255,255,255,0.95); backdrop-filter:blur(10px); clip-path:polygon(15% 0,85% 0,100% 100%,0 100%);"><div style="font-family:'Italiana',serif; font-size:14px; color:#2A3548;"><span data-${k}>--</span>%</div><div style="font-family:'Forum',serif; font-size:7px; color:#5A6878; letter-spacing:2px;">${k.toUpperCase()}</div></div>`).join('')}
+  </div>
+  <div style="position:absolute; left:14px; right:14px; bottom:90px; height:140px; z-index:5;"><canvas class="eq-canvas" data-eq="crystal"></canvas></div>`;
+
+// ─── Build cards (now HUDS is fully populated) ───
+const grid = document.getElementById('grid');
+const selCount = document.getElementById('sel-count');
+const selected = new Set();
+
+PRESETS.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = p.id;
+  card.innerHTML = `
+    <div class="phone preset-${p.id} ${p.wp}">
+      <div class="statusbar"><span>9:41 · Pixora</span><span>🔋 84%</span></div>
+      ${HUDS[p.id]}
+      <div class="dock">
+        <div class="ico"></div><div class="ico"></div><div class="ico"></div><div class="ico"></div>
+      </div>
+      <div class="navbar">‖ ◯ ◁</div>
+    </div>
+    <div class="meta">
+      <div class="title">${p.title}<small>${p.sub}</small></div>
+      <div class="pitch">${p.pitch}</div>
+      <button class="pick">SELECCIONAR</button>
+    </div>`;
+  grid.appendChild(card);
+  card.querySelector('.pick').addEventListener('click', () => {
+    card.classList.toggle('selected');
+    if (card.classList.contains('selected')) selected.add(p.id);
+    else selected.delete(p.id);
+    selCount.textContent = selected.size;
+  });
+});
+
+// ─── Audio sim + EQ renderers ───
+function fakeAudio(i, t, total) {
+  const norm = i / total;
+  const bass = Math.max(0, Math.sin(t * 2 + norm * 8) * 0.8 + Math.sin(t * 0.7) * 0.4);
+  const mid = Math.max(0, Math.sin(t * 4.5 + norm * 12) * 0.6);
+  const treble = Math.max(0, Math.sin(t * 9 + norm * 20) * 0.4);
+  const env = 0.5 + 0.5 * Math.cos(norm * Math.PI - Math.PI/2);
+  const v = (bass * (1-norm) + mid * env + treble * norm) / 1.5;
+  return Math.max(0.05, Math.min(1, v));
+}
+function roundRect(ctx, x, y, w, h, r) {
+  if (h <= 0 || w <= 0) return;
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath(); ctx.fill();
+}
+
+const peakStore = new Map();
+function getPeak(key, i, v) {
+  const k = `${key}-${i}`;
+  let p = peakStore.get(k);
+  if (!p) { p = {y:0, fall:0}; peakStore.set(k, p); }
+  if (v > p.y) { p.y = v; p.fall = 0; } else { p.fall += 0.012; p.y = Math.max(v, p.y - p.fall); }
+  return p.y;
+}
+
+const EQ_RENDERERS = {
+  'winamp-mirror'(ctx, W, H, t) {
+    ctx.clearRect(0,0,W,H);
+    const N=32, midY=H/2, bw=W/N-3;
+    for (let i=0;i<N;i++) {
+      const v=fakeAudio(i,t,N);
+      const peak=getPeak('wm',i,v);
+      const topH=v*H*0.46, botH=v*H*0.4;
+      const x=i*(bw+3);
+      const segH=5, nSeg=Math.floor(topH/segH);
+      for (let s=0;s<nSeg;s++) {
+        const sn=s/Math.max(1,nSeg);
+        ctx.fillStyle = sn<0.5?'#00FF41':sn<0.8?'#FFFF00':'#FF1500';
+        ctx.fillRect(x, midY-(s+1)*segH+1, bw, segH-2);
+      }
+      const peakY = midY - peak*H*0.46;
+      ctx.fillStyle='#FFFF00'; ctx.fillRect(x, peakY-2, bw, 2);
+      const nSegB=Math.floor(botH/segH);
+      for (let s=0;s<nSegB;s++) {
+        ctx.fillStyle=`rgba(0,255,65,${0.6*(1-s/nSegB)})`;
+        ctx.fillRect(x, midY+s*segH+1, bw, segH-2);
+      }
+    }
+  },
+  'grok-mirror'(ctx,W,H,t) {
+    ctx.clearRect(0,0,W,H);
+    const N=32, midY=H/2, bw=W/N-2;
+    for (let i=0;i<N;i++) {
+      const v=fakeAudio(i,t,N);
+      const topH=v*H*0.45, botH=v*H*0.35;
+      const x=i*(bw+2);
+      const g=ctx.createLinearGradient(0,midY-topH,0,midY);
+      g.addColorStop(0,'#FF6B35'); g.addColorStop(0.4,'#FFFB00');
+      g.addColorStop(0.8,'#00FF85'); g.addColorStop(1,'#00E5FF');
+      ctx.fillStyle=g;
+      roundRect(ctx, x, midY-topH, bw, topH, bw/2);
+      const g2=ctx.createLinearGradient(0,midY,0,midY+botH);
+      g2.addColorStop(0,'rgba(0,229,255,0.7)'); g2.addColorStop(1,'rgba(0,229,255,0)');
+      ctx.fillStyle=g2;
+      roundRect(ctx, x, midY, bw, botH, bw/2);
+    }
+  },
+  'crt'(ctx,W,H,t) {
+    ctx.clearRect(0,0,W,H);
+    const N=30, bw=W/N-4;
+    for (let i=0;i<N;i++) {
+      const v=fakeAudio(i,t,N);
+      const h=v*H*0.85;
+      const x=i*(bw+4);
+      const g=ctx.createLinearGradient(x,H-h,x,H);
+      g.addColorStop(0,'#00E5FF'); g.addColorStop(1,'rgba(0,229,255,0.1)');
+      ctx.fillStyle=g; ctx.fillRect(x,H-h,bw,h);
+      ctx.fillStyle='#00FFFF'; ctx.fillRect(x,H-h,bw,3);
+    }
+    ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5; ctx.beginPath();
+    for (let x=0;x<=W;x+=2) {
+      const y=H/2+Math.sin(t*3+x*0.04)*H*0.15;
+      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  },
+  'flame'(ctx,W,H,t) {
+    ctx.clearRect(0,0,W,H);
+    const N=28, bw=W/N-2;
+    for (let i=0;i<N;i++) {
+      let v=fakeAudio(i,t,N);
+      const cb=1-Math.abs((i/(N-1))-0.5)*1.4;
+      v *= Math.max(0.3,cb)*(0.85+Math.random()*0.3);
+      const h=v*H*0.92, x=i*(bw+2);
+      const g=ctx.createLinearGradient(x,H-h,x,H);
+      g.addColorStop(0,'#FFD700'); g.addColorStop(0.4,'#FF8C00');
+      g.addColorStop(0.8,'#FF4500'); g.addColorStop(1,'rgba(139,0,0,0.3)');
+      ctx.fillStyle=g;
+      ctx.beginPath();
+      ctx.moveTo(x+bw*0.3,H);
+      ctx.quadraticCurveTo(x,H-h*0.5,x+bw*0.4,H-h);
+      ctx.quadraticCurveTo(x+bw*0.5,H-h*1.05,x+bw*0.6,H-h);
+      ctx.quadraticCurveTo(x+bw,H-h*0.5,x+bw*0.7,H);
+      ctx.closePath(); ctx.fill();
+    }
+  },
+  'aurora'(ctx,W,H,t) {
+    ctx.clearRect(0,0,W,H);
+    const N=32, midY=H/2, bw=W/N-1;
+    for (let i=0;i<N;i++) {
+      const v=fakeAudio(i,t,N);
+      const topH=v*H*0.46, botH=v*H*0.42;
+      const x=i*(bw+1);
+      const g=ctx.createLinearGradient(0,midY-topH,0,midY);
+      g.addColorStop(0,'#B83BCB'); g.addColorStop(0.5,'#00C2FF'); g.addColorStop(1,'#00FFAA');
+      ctx.fillStyle=g;
+      ctx.shadowColor='#00FFAA'; ctx.shadowBlur=14;
+      roundRect(ctx,x,midY-topH,bw,topH,bw);
+      const g2=ctx.createLinearGradient(0,midY,0,midY+botH);
+      g2.addColorStop(0,'rgba(0,255,170,0.6)'); g2.addColorStop(1,'rgba(184,59,203,0)');
+      ctx.fillStyle=g2;
+      roundRect(ctx,x,midY,bw,botH,bw);
+    }
+    ctx.shadowBlur=0;
+  },
+  'cyber'(ctx,W,H,t) {
+    ctx.clearRect(0,0,W,H);
+    const N=32, midY=H/2, bw=W/N-2;
+    for (let i=0;i<N;i++) {
+      const v=fakeAudio(i,t,N);
+      const topH=v*H*0.45, botH=v*H*0.4;
+      const x=i*(bw+2);
+      const peakBoost = v>0.7?1:0;
+      const off=peakBoost*2;
+      ctx.fillStyle='#FF003C'; ctx.fillRect(x-off,midY-topH,bw,topH);
+      ctx.fillStyle='rgba(255,0,60,0.3)'; ctx.fillRect(x-off,midY,bw,botH);
+      ctx.fillStyle='#00FFEA'; ctx.fillRect(x+off,midY-topH,bw,topH);
+      ctx.fillStyle='rgba(0,255,234,0.3)'; ctx.fillRect(x+off,midY,bw,botH);
+      ctx.fillStyle='#FCEE0A'; ctx.fillRect(x,midY-topH,bw,topH);
+      ctx.fillStyle='rgba(252,238,10,0.5)'; ctx.fillRect(x,midY,bw,botH);
+    }
+  },
+  'crystal'(ctx,W,H,t) {
+    ctx.clearRect(0,0,W,H);
+    const N=32, midY=H/2, bw=W/N-3;
+    for (let i=0;i<N;i++) {
+      const v=fakeAudio(i,t,N);
+      const topH=v*H*0.45, botH=v*H*0.4;
+      const x=i*(bw+3);
+      const g=ctx.createLinearGradient(x,0,x+bw,0);
+      g.addColorStop(0,'rgba(255,100,150,0.55)');
+      g.addColorStop(0.5,'rgba(150,200,255,0.65)');
+      g.addColorStop(1,'rgba(255,200,255,0.55)');
+      ctx.fillStyle=g;
+      ctx.strokeStyle='rgba(255,255,255,0.85)'; ctx.lineWidth=0.5;
+      roundRect(ctx,x,midY-topH,bw,topH,2);
+      ctx.strokeRect(x,midY-topH,bw,topH);
+      ctx.globalAlpha=0.5;
+      roundRect(ctx,x,midY,bw,botH,2);
+      ctx.globalAlpha=1;
+    }
+  },
+};
+
+// ─── Tick ───
+function pad(n) { return n<10?'0'+n:''+n; }
+const DAYS=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const MONTHS=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+const states = new Map();
+PRESETS.forEach(p => states.set(p.id, { bat:84, ram:54, dsk:71, batT:84, ramT:54, dskT:71 }));
+
+// Mark cards as visible/hidden using IntersectionObserver so off-screen
+// canvases don't burn CPU. Critical with 10 simultaneous Canvas-based EQs.
+const visibleCards = new Set();
+const io = new IntersectionObserver(entries => {
+  for (const e of entries) {
+    if (e.isIntersecting) visibleCards.add(e.target);
+    else visibleCards.delete(e.target);
+  }
+}, { rootMargin: '100px' });
+const phonesCache = Array.from(document.querySelectorAll('.phone'));
+phonesCache.forEach(p => io.observe(p));
+
+// Pre-cache common selectors per phone (DOM querying per-frame is expensive
+// when multiplied by 10 cards × 5 selectors).
+const phoneCache = phonesCache.map(phone => ({
+  el: phone,
+  timeEls: phone.querySelectorAll('[data-time]'),
+  dateEls: phone.querySelectorAll('[data-date]'),
+  secEls: phone.querySelectorAll('[data-sec]'),
+  batEls: phone.querySelectorAll('[data-bat]'),
+  ramEls: phone.querySelectorAll('[data-ram]'),
+  dskEls: phone.querySelectorAll('[data-dsk]'),
+  canvas: phone.querySelector('.eq-canvas'),
+  gems: phone.querySelectorAll('.eq-gemini .gem'),
+  sacredBars: phone.querySelectorAll('.eq-sacred .bar'),
+  meters: {
+    bat: phone.querySelector('[data-meter-bat]'),
+    ram: phone.querySelector('[data-meter-ram]'),
+    dsk: phone.querySelector('[data-meter-dsk]'),
+  },
+  arcs: {
+    bat: phone.querySelector('[data-arc-bat]'),
+    ram: phone.querySelector('[data-arc-ram]'),
+    dsk: phone.querySelector('[data-arc-dsk]'),
+  },
+}));
+
+let frame = 0;
+function tick() {
+  frame++;
+  // 30fps throttle — skip every other frame. Halves CPU at imperceptible
+  // visual cost for static-looking EQs.
+  if (frame % 2 !== 0) { requestAnimationFrame(tick); return; }
+  const t = performance.now() / 500;
+  const now = new Date();
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const dateStr = `${DAYS[now.getDay()]} ${pad(now.getDate())} ${MONTHS[now.getMonth()]}`;
+  const ss = pad(now.getSeconds());
+
+  phoneCache.forEach((pc, idx) => {
+    const id = PRESETS[idx].id;
+    const st = states.get(id);
+    const isVisible = visibleCards.has(pc.el);
+    if (frame % 90 === idx%90) st.ramT = 35 + Math.random()*45;
+    if (frame % 150 === idx%150) st.dskT = 50 + Math.random()*40;
+    st.ram += (st.ramT - st.ram) * 0.04;
+    st.dsk += (st.dskT - st.dsk) * 0.04;
+    const batP=Math.round(st.bat), ramP=Math.round(st.ram), dskP=Math.round(st.dsk);
+
+    pc.timeEls.forEach(e => e.textContent = timeStr);
+    pc.dateEls.forEach(e => e.textContent = dateStr);
+    pc.secEls.forEach(e => e.textContent = `:${ss}`);
+    pc.batEls.forEach(e => e.textContent = batP);
+    pc.ramEls.forEach(e => e.textContent = ramP);
+    pc.dskEls.forEach(e => e.textContent = dskP);
+
+    // Skip heavy canvas/animation only — text values above always update
+    // so off-screen cards show correct time when scrolled into view.
+    if (!isVisible) return;
+
+    if (id === 'gemini') {
+      pc.gems.forEach((g, i) => {
+        const v = fakeAudio(i*4, t, 20);
+        g.style.transform = `scale(${0.6 + v * 1.5})`;
+      });
+    }
+    if (id === 'sacred') {
+      pc.sacredBars.forEach((b, i) => {
+        const v = fakeAudio(i, t, pc.sacredBars.length);
+        b.style.height = (v * 60) + 'px';
+      });
+    }
+    if (id === 'grok') {
+      if (pc.meters.bat) pc.meters.bat.style.width = batP + '%';
+      if (pc.meters.ram) pc.meters.ram.style.width = ramP + '%';
+      if (pc.meters.dsk) pc.meters.dsk.style.width = dskP + '%';
+    }
+    if (id === 'aurora') {
+      const circ = 138.2;
+      if (pc.arcs.bat) pc.arcs.bat.setAttribute('stroke-dashoffset', circ - circ*batP/100);
+      if (pc.arcs.ram) pc.arcs.ram.setAttribute('stroke-dashoffset', circ - circ*ramP/100);
+      if (pc.arcs.dsk) pc.arcs.dsk.setAttribute('stroke-dashoffset', circ - circ*dskP/100);
+    }
+
+    if (pc.canvas) {
+      const cssW = pc.canvas.offsetWidth, cssH = pc.canvas.offsetHeight;
+      if (pc.canvas.width !== cssW * 2) { pc.canvas.width = cssW * 2; pc.canvas.height = cssH * 2; }
+      const mode = pc.canvas.dataset.eq;
+      const renderer = EQ_RENDERERS[mode];
+      if (renderer) renderer(pc.canvas.getContext('2d'), pc.canvas.width, pc.canvas.height, t);
+    }
+  });
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

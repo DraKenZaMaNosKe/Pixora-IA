@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · combo final · Modern Mono + Winamp + Mini HUD</title>
+<meta name="viewport" content="width=900">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Manrope:wght@100;200;300;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<style>
+:root { --pix-gold: #E6B655; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #08080c; color: #e8e6dc; font-family: 'Manrope', sans-serif; min-height: 100vh; }
+body { padding: 32px 24px 64px; }
+
+.wrap { max-width: 900px; margin: 0 auto; }
+
+.title {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 24px;
+  letter-spacing: 4px; color: var(--pix-gold);
+  text-align: center; margin-bottom: 6px;
+}
+.subtitle {
+  text-align: center; font-size: 13px; color: #bfb39e;
+  letter-spacing: 2px; margin-bottom: 32px; font-weight: 300;
+}
+
+.layout {
+  display: grid; grid-template-columns: 320px 1fr;
+  gap: 40px; align-items: start;
+}
+
+.phone {
+  position: relative; width: 320px; aspect-ratio: 9 / 19.5;
+  background: radial-gradient(ellipse at 50% 30%, #6a4528 0%, #2c1810 60%, #0e0e13 100%);
+  border-radius: 36px; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.05);
+}
+
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 30px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 22px 0; font-size: 11px; color: rgba(255,255,255,0.95);
+  z-index: 100; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.clock {
+  position: absolute; top: 110px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.clock .time {
+  font-family: 'Manrope', sans-serif; font-weight: 100; font-size: 132px;
+  color: #fff; line-height: 0.88; letter-spacing: -7px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.7);
+}
+.clock .meta-row {
+  display: flex; justify-content: center; align-items: center; gap: 22px;
+  margin-top: 18px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: rgba(255,255,255,0.75); letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.clock .meta-row .sep {
+  width: 1px; height: 14px; background: rgba(255,255,255,0.3);
+}
+
+.mini-hud {
+  position: absolute; top: 38px; right: 14px; z-index: 25;
+  display: flex; flex-direction: column; gap: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: rgba(255,255,255,0.85);
+}
+.mini-hud .row {
+  display: flex; align-items: center; gap: 5px; justify-content: flex-end;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.mini-hud .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #00FF41; box-shadow: 0 0 4px #00FF41;
+}
+
+.eq-stage {
+  position: absolute; left: 0; right: 0; bottom: 100px; height: 170px;
+  z-index: 15; padding: 0 16px;
+}
+.eq-stage canvas { width: 100%; height: 100%; }
+
+.dock {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 72px;
+  z-index: 80; padding: 0 22px; display: flex; align-items: center; justify-content: space-between;
+}
+.dock .ico {
+  width: 42px; height: 42px; border-radius: 11px;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  border: 0.5px solid rgba(255,255,255,0.12);
+}
+.navbar {
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 26px;
+  z-index: 90; display: flex; justify-content: space-around; align-items: center;
+  font-size: 14px; color: rgba(255,255,255,0.55);
+}
+
+/* ─── Spec panel ─── */
+.spec h2 {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 18px;
+  color: var(--pix-gold); letter-spacing: 3px; margin-bottom: 14px;
+}
+.spec section {
+  margin-bottom: 26px; padding: 18px 20px;
+  background: #11111a; border-radius: 10px;
+  border-left: 3px solid var(--pix-gold);
+}
+.spec h3 {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--pix-gold); letter-spacing: 3px; margin-bottom: 8px;
+}
+.spec dl { display: grid; grid-template-columns: 110px 1fr; gap: 6px 16px; font-size: 13px; }
+.spec dt { color: #8d8470; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.spec dd { color: #d8c98e; }
+.spec dd code {
+  background: rgba(230,182,85,0.1); padding: 1px 6px; border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--pix-gold);
+}
+
+.legend {
+  margin-top: 20px; padding: 14px 18px;
+  background: rgba(0,255,65,0.05);
+  border: 1px solid rgba(0,255,65,0.2); border-radius: 8px;
+  font-size: 12px; color: #b0e0b0; line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">PIXORA · COMBO FINAL</div>
+  <div class="subtitle">Modern Mono clock · Winamp Classic EQ · Mini-HUD pills</div>
+
+  <div class="layout">
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>📶 📶 🔋 84%</span></div>
+      <div class="clock">
+        <div class="time" id="time">--:--</div>
+        <div class="meta-row">
+          <span id="date"></span>
+          <span class="sep"></span>
+          <span id="sec">:00</span>
+        </div>
+      </div>
+      <div class="mini-hud">
+        <div class="row"><span id="bat">--</span>%<div class="dot"></div></div>
+        <div class="row"><span id="ram">--</span>%<div class="dot"></div></div>
+        <div class="row"><span id="dsk">--</span>%<div class="dot"></div></div>
+      </div>
+      <div class="eq-stage"><canvas id="eq"></canvas></div>
+      <div class="dock">
+        <div class="ico"></div><div class="ico"></div><div class="ico"></div><div class="ico"></div>
+      </div>
+      <div class="navbar">‖ ◯ ◁</div>
+    </div>
+
+    <div class="spec">
+      <h2>SPECS DE IMPLEMENTACIÓN</h2>
+
+      <section>
+        <h3>🕐 CLOCK · Modern Mono</h3>
+        <dl>
+          <dt>Font</dt><dd>Manrope (Variable, weight <code>100</code>) — bundled como asset</dd>
+          <dt>Size</dt><dd>Hora: <code>132px</code> · meta-row: <code>11px JetBrains Mono</code></dd>
+          <dt>Letter-spacing</dt><dd>Hora: <code>-7px</code> (super tight) · meta: <code>3px</code></dd>
+          <dt>Position</dt><dd>Centro horizontal · top <code>110px</code></dd>
+          <dt>Color</dt><dd>Blanco puro · shadow <code>0 4px 20px black</code></dd>
+          <dt>Meta-row</dt><dd>"JUE 04 JUN" · separator vertical · ":00" segundos</dd>
+        </dl>
+      </section>
+
+      <section>
+        <h3>🎵 EQ · Winamp Classic Mirror</h3>
+        <dl>
+          <dt>Bars</dt><dd><code>32</code> · width auto · gap <code>3px</code></dd>
+          <dt>Top segments</dt><dd>5px alto · verde <code>#00FF41</code> → amarillo <code>#FFFF00</code> → rojo <code>#FF1500</code></dd>
+          <dt>Peak indicator</dt><dd>Línea amarilla <code>#FFFF00</code> 2px que flota arriba y cae con gravity</dd>
+          <dt>Mirror bottom</dt><dd>Segmentos verdes fade <code>rgba(0,255,65,0.6→0)</code></dd>
+          <dt>Position</dt><dd>Bottom <code>100px</code> · height <code>170px</code> · midline en centro</dd>
+        </dl>
+      </section>
+
+      <section>
+        <h3>📊 MINI HUD · Pills derecha</h3>
+        <dl>
+          <dt>Position</dt><dd>Top <code>38px</code> · right <code>14px</code></dd>
+          <dt>Layout</dt><dd>Vertical column · 3 rows · gap 6px</dd>
+          <dt>Font</dt><dd>JetBrains Mono <code>10px</code></dd>
+          <dt>Format</dt><dd><code>84% ●</code> · número + % + dot verde</dd>
+          <dt>Dot</dt><dd>7px verde <code>#00FF41</code> con glow</dd>
+          <dt>Orden</dt><dd>Battery → RAM → Disk</dd>
+        </dl>
+      </section>
+
+      <div class="legend">
+        ✅ <b>Lo que YA existe:</b> Winamp peak tracking (EqualizerRenderer.kt) + ClockRenderer base (4 estilos serif).<br>
+        🔨 <b>Lo que falta:</b> agregar clockStyle 5 (Modern Mono) · bundle Manrope variable font · refactor mini-HUD position/style · activar EQ mirror reflection si no está.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function pad(n) { return n<10?'0'+n:''+n; }
+const DAYS = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const MONTHS = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+function fakeAudio(i, t, total) {
+  const norm = i / total;
+  const bass = Math.max(0, Math.sin(t * 2 + norm * 8) * 0.8 + Math.sin(t * 0.7) * 0.4);
+  const mid = Math.max(0, Math.sin(t * 4.5 + norm * 12) * 0.6);
+  const treble = Math.max(0, Math.sin(t * 9 + norm * 20) * 0.4);
+  const env = 0.5 + 0.5 * Math.cos(norm * Math.PI - Math.PI/2);
+  const v = (bass * (1-norm) + mid * env + treble * norm) / 1.5;
+  return Math.max(0.04, Math.min(1, v));
+}
+
+const peaks = new Array(32).fill(null).map(() => ({y:0, fall:0}));
+
+function drawWinamp(ctx, W, H, t) {
+  ctx.clearRect(0, 0, W, H);
+  const N = 32, midY = H/2;
+  const bw = W/N - 3;
+  for (let i = 0; i < N; i++) {
+    const v = fakeAudio(i, t, N);
+    const p = peaks[i];
+    if (v > p.y) { p.y = v; p.fall = 0; } else { p.fall += 0.012; p.y = Math.max(v, p.y - p.fall); }
+    const topH = v * H * 0.46, botH = v * H * 0.4;
+    const x = i * (bw + 3);
+    const segH = 5;
+    const nSeg = Math.floor(topH / segH);
+    for (let s = 0; s < nSeg; s++) {
+      const segNorm = s / Math.max(1, nSeg);
+      let color = segNorm < 0.5 ? '#00FF41' : segNorm < 0.8 ? '#FFFF00' : '#FF1500';
+      ctx.fillStyle = color;
+      ctx.fillRect(x, midY - (s+1)*segH + 1, bw, segH - 2);
+    }
+    const peakY = midY - p.y * H * 0.46;
+    ctx.fillStyle = '#FFFF00';
+    ctx.fillRect(x, peakY - 2, bw, 2);
+    const nSegB = Math.floor(botH / segH);
+    for (let s = 0; s < nSegB; s++) {
+      ctx.fillStyle = `rgba(0,255,65,${0.6 * (1 - s/nSegB)})`;
+      ctx.fillRect(x, midY + s*segH + 1, bw, segH - 2);
+    }
+  }
+}
+
+let state = { bat: 84, ram: 54, dsk: 71, batT: 84, ramT: 54, dskT: 71 };
+let frame = 0;
+
+function tick() {
+  frame++;
+  const t = performance.now() / 500;
+  const now = new Date();
+  document.getElementById('time').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  document.getElementById('date').textContent = `${DAYS[now.getDay()]} ${pad(now.getDate())} ${MONTHS[now.getMonth()]}`;
+  document.getElementById('sec').textContent = `:${pad(now.getSeconds())}`;
+
+  if (frame % 90 === 0) state.ramT = 35 + Math.random()*45;
+  if (frame % 150 === 0) state.dskT = 50 + Math.random()*40;
+  state.ram += (state.ramT - state.ram) * 0.04;
+  state.dsk += (state.dskT - state.dsk) * 0.04;
+  document.getElementById('bat').textContent = Math.round(state.bat);
+  document.getElementById('ram').textContent = Math.round(state.ram);
+  document.getElementById('dsk').textContent = Math.round(state.dsk);
+
+  const canvas = document.getElementById('eq');
+  const cssW = canvas.offsetWidth, cssH = canvas.offsetHeight;
+  if (canvas.width !== cssW * 2) { canvas.width = cssW * 2; canvas.height = cssH * 2; }
+  const ctx = canvas.getContext('2d');
+  drawWinamp(ctx, canvas.width, canvas.height, t);
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

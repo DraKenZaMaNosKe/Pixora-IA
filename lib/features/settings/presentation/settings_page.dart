@@ -33,6 +33,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   // User-picked touch trail style (gold dust, aurora, lightning, etc.)
   String _touchTrail = 'aurora';
+  // HUD preset — controls clock typography, EQ style, and monitor layout.
+  String _hudPreset = 'sacred';
 
   @override
   void initState() {
@@ -40,6 +42,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     _loadVersion();
     _loadOverlays();
     _loadTouchTrail();
+    _loadHudPreset();
+  }
+
+  Future<void> _loadHudPreset() async {
+    final v = await WallpaperService.instance.getHudPreset();
+    if (!mounted) return;
+    setState(() => _hudPreset = v);
+  }
+
+  Future<void> _setHudPreset(String preset) async {
+    setState(() => _hudPreset = preset);
+    final ok = await WallpaperService.instance.setHudPreset(preset);
+    if (!ok && mounted) {
+      final actual = await WallpaperService.instance.getHudPreset();
+      if (mounted) setState(() => _hudPreset = actual);
+    }
   }
 
   Future<void> _loadTouchTrail() async {
@@ -107,6 +125,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const _HudSectionHeader('SYSTEM', 'ACCOUNT'),
               _buildAccountSection(),
               const SizedBox(height: 14),
+              const _HudDivider(),
+              _HudSectionHeader('PRESENTATION',
+                  LocaleHelper.pick(es: 'HUD_STYLE', en: 'HUD_STYLE')),
+              _buildHudPresetSection(),
               const _HudDivider(),
               _HudSectionHeader('PRESENTATION',
                   LocaleHelper.pick(es: 'TOUCH_EFFECT', en: 'TOUCH_EFFECT')),
@@ -257,6 +279,133 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         backgroundColor: HudTokens.goldDeep,
       ));
     }
+  }
+
+  Widget _buildHudPresetSection() {
+    final presets = WallpaperService.hudPresets;
+    final current = presets.firstWhere(
+      (p) => p.key == _hudPreset,
+      orElse: () => presets.first,
+    );
+    return _SettingsTile(
+      icon: Icons.dashboard_customize_outlined,
+      iconColor: context.hud.accent,
+      title: current.name,
+      subtitle: current.sub,
+      onTap: _showHudPresetPicker,
+    );
+  }
+
+  Future<void> _showHudPresetPicker() async {
+    final h = context.hud;
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: h.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final ch = ctx.hud;
+        final maxH = MediaQuery.of(ctx).size.height * 0.75;
+        return SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxH),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: ch.divider,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    LocaleHelper.pick(es: 'ESTILO DE HUD', en: 'HUD STYLE'),
+                    style: TextStyle(
+                      color: ch.accent,
+                      fontSize: 12,
+                      letterSpacing: 3,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    LocaleHelper.pick(
+                        es: 'Cambia reloj + EQ + monitores',
+                        en: 'Changes clock + EQ + monitors'),
+                    style: TextStyle(
+                      color: ch.textDim,
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: WallpaperService.hudPresets.length,
+                      separatorBuilder: (_, __) => Divider(
+                        height: 1,
+                        color: ch.divider.withValues(alpha: 0.3),
+                      ),
+                      itemBuilder: (lc, i) {
+                        final p = WallpaperService.hudPresets[i];
+                        final selected = _hudPreset == p.key;
+                        return ListTile(
+                          dense: false,
+                          leading: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: selected ? ch.accent : ch.divider,
+                                width: selected ? 1.5 : 1,
+                              ),
+                              color: selected
+                                  ? ch.accent.withValues(alpha: 0.12)
+                                  : Colors.transparent,
+                            ),
+                            child: Icon(
+                              selected ? Icons.check : Icons.circle_outlined,
+                              color: selected ? ch.accent : ch.textDim,
+                              size: selected ? 18 : 12,
+                            ),
+                          ),
+                          title: Text(
+                            p.name,
+                            style: TextStyle(
+                              color: selected ? ch.accent : ch.text,
+                              fontWeight:
+                                  selected ? FontWeight.w700 : FontWeight.w500,
+                              fontSize: 15,
+                            ),
+                          ),
+                          subtitle: Text(
+                            p.sub,
+                            style: TextStyle(color: ch.textDim, fontSize: 12),
+                          ),
+                          onTap: () {
+                            _setHudPreset(p.key);
+                            Navigator.of(lc).pop();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildTouchTrailSection() {

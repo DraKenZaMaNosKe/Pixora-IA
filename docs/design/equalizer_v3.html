@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · EQ v3 · 10 estilos refinados</title>
+<meta name="viewport" content="width=1500">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500;700&family=Italiana&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@200;300;500;700&family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;700&family=Share+Tech+Mono&family=Syncopate:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root { --pix-gold: #E6B655; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #08080c; color: #e8e6dc; font-family: 'Manrope', sans-serif; }
+body { min-height: 100vh; padding: 32px 24px 96px; }
+
+.topbar {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  max-width: 1500px; margin: 0 auto 28px; padding-bottom: 18px;
+  border-bottom: 1px solid rgba(230,182,85,0.25);
+}
+.topbar h1 {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 24px;
+  letter-spacing: 4px; color: var(--pix-gold);
+}
+.topbar h1 small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 12px; letter-spacing: 2px; color: #bfb39e; margin-top: 6px; font-weight: 300;
+}
+.counter {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--pix-gold); padding: 8px 14px;
+  border: 1px solid rgba(230,182,85,0.4); border-radius: 999px;
+  background: rgba(230,182,85,0.06);
+}
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 22px; max-width: 1500px; margin: 0 auto;
+}
+.card {
+  background: #0d0d12; border: 1px solid rgba(230,182,85,0.18);
+  border-radius: 14px; overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+  display: flex; flex-direction: column;
+}
+.card.selected {
+  border-color: var(--pix-gold);
+  box-shadow: 0 0 0 1px var(--pix-gold), 0 8px 28px rgba(230,182,85,0.25);
+}
+.phone {
+  position: relative; width: 100%; aspect-ratio: 9 / 19.5;
+  background: #000; overflow: hidden;
+}
+.meta { padding: 12px 14px; }
+.meta .title {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 14px;
+  letter-spacing: 2px; color: #f6e9c8;
+}
+.meta .title small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 10px; color: #8d8470; margin-top: 2px;
+  font-weight: 300; letter-spacing: 0.5px;
+}
+.pick {
+  margin-top: 8px; width: 100%;
+  padding: 6px 14px; font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 2px; background: transparent; color: var(--pix-gold);
+  border: 1px solid var(--pix-gold); border-radius: 5px; cursor: pointer;
+  transition: all .2s;
+}
+.pick:hover { background: rgba(230,182,85,0.1); }
+.card.selected .pick { background: var(--pix-gold); color: #000; }
+.card.selected .pick::before { content: '✓ '; }
+
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 22px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 14px 0; font-size: 9px; color: rgba(255,255,255,0.85);
+  z-index: 100; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.clock {
+  position: absolute; top: 30px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.clock .time {
+  font-family: var(--cf, 'Cinzel'), serif;
+  font-weight: var(--cw, 700); font-size: 48px;
+  color: var(--cc, #fff); line-height: 1; letter-spacing: var(--cls, -1px);
+  text-shadow: var(--cs, 0 2px 8px rgba(0,0,0,0.6));
+}
+.clock .date {
+  font-family: var(--df, 'Manrope'), sans-serif;
+  font-size: 10px; font-weight: 300;
+  color: var(--dc, rgba(255,255,255,0.8)); letter-spacing: 3px; margin-top: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.mini-hud {
+  position: absolute; top: 28px; right: 12px; z-index: 25;
+  display: flex; flex-direction: column; gap: 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--mhc, rgba(255,255,255,0.85));
+  text-align: right;
+}
+.mini-hud .row {
+  display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.mini-hud .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--dotc, var(--pix-gold));
+  box-shadow: 0 0 4px var(--dotc, var(--pix-gold));
+}
+
+.eq-stage {
+  position: absolute; left: 0; right: 0; bottom: 86px; height: 200px;
+  z-index: 15; padding: 0 14px;
+}
+.eq-stage canvas { width: 100%; height: 100%; }
+
+.dock {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+  z-index: 80; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+}
+.dock .ico {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  border: 0.5px solid rgba(255,255,255,0.12);
+}
+.navbar {
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 22px;
+  z-index: 90; display: flex; justify-content: space-around; align-items: center;
+  font-size: 11px; color: rgba(255,255,255,0.55);
+}
+
+/* Wallpaper backgrounds */
+.wp-1 { background: radial-gradient(ellipse at 60% 35%, #b3937a 0%, #6a4528 35%, #2c1810 100%); }
+.wp-2 { background: radial-gradient(ellipse at 30% 70%, #4e3a6a 0%, #1a1230 50%, #050410 100%); }
+.wp-3 { background: radial-gradient(ellipse at 50% 50%, #284a5e 0%, #0e1c2a 60%, #050a14 100%); }
+.wp-4 { background: radial-gradient(ellipse at 30% 30%, #c47b56 0%, #6a3a1f 40%, #1a0b04 100%); }
+.wp-5 { background: radial-gradient(ellipse at 70% 60%, #4a6a4e 0%, #1a2a1e 60%, #050a05 100%); }
+.wp-6 { background: radial-gradient(ellipse at 50% 60%, #5a4a8a 0%, #2a2050 50%, #0a0820 100%); }
+.wp-7 { background: radial-gradient(ellipse at 40% 50%, #1a3a5e 0%, #0a1a2a 60%, #050810 100%); }
+.wp-8 { background: radial-gradient(ellipse at 50% 40%, #6a4528 0%, #2c1810 60%, #0e0e13 100%); }
+.wp-9 { background: radial-gradient(ellipse at 60% 70%, #b85a3a 0%, #5a1a0a 40%, #1a0805 100%); }
+.wp-10 { background: linear-gradient(180deg, #c9d4e2 0%, #8a9aae 60%, #4a5466 100%); }
+
+/* Per-design clock typography */
+.eq01 .clock { --cf: 'Share Tech Mono'; --cw: 700; --cc: #00FF41; --cs: 0 0 10px #00FF41; }
+.eq02 .clock { --cf: 'DM Sans'; --cw: 400; --cc: #fff; --cls: -2px; }
+.eq03 .clock { --cf: 'Manrope'; --cw: 200; font-size: 64px !important; --cc: #fff; }
+.eq04 .clock { --cf: 'DM Sans'; --cw: 700; --cc: #fff; }
+.eq05 .clock { --cf: 'Italiana'; --cw: 400; --cc: #fff; --cls: 4px; }
+.eq06 .clock { --cf: 'Bebas Neue'; --cc: #FF7700; --cls: 2px; --cs: 0 0 12px rgba(255,119,0,0.5); }
+.eq07 .clock { --cf: 'Cormorant Garamond'; --cw: 300; --cc: #f0e8d4; --cls: 2px; font-size: 56px !important; }
+.eq08 .clock { --cf: 'Orbitron'; --cw: 500; --cc: #fff; --cls: 2px; }
+.eq09 .clock { --cf: 'DM Sans'; --cw: 300; --cc: #FFB6D9; --cls: -1px; --cs: 0 0 14px rgba(255,182,217,0.4); }
+.eq10 .clock { --cf: 'Manrope'; --cw: 200; font-size: 64px !important; --cc: #fff; --cls: -2px; }
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>PIXORA · EQ v3 · 10 ESTILOS REFINADOS
+    <small>Mirror effect + variedad de tonalidades · clásicos (Winamp, Spotify, Apple, iTunes, Tidal) + elegantes minimalistas</small>
+  </h1>
+  <div class="counter">FAVORITOS · <span class="n" id="sel-count">0</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const DESIGNS = [
+  { id: 'eq01', title: 'WINAMP CLASSIC', sub: 'Verde→amarillo→rojo · peak indicators · nostalgia 90s',
+    wp: 'wp-3', dot: '#00FF41' },
+  { id: 'eq02', title: 'SPOTIFY MINIMAL', sub: 'Pill blancas finas · pulse suave · clean',
+    wp: 'wp-5', dot: '#1DB954' },
+  { id: 'eq03', title: 'APPLE MUSIC TRIO', sub: '3 barras gradiente bold · ícono Now Playing',
+    wp: 'wp-9', dot: '#FA243C' },
+  { id: 'eq04', title: 'TIDAL PRISTINE', sub: 'Blanco puro chromatic edge · audiofilo',
+    wp: 'wp-7', dot: '#fff' },
+  { id: 'eq05', title: 'iTunes VISUALIZER', sub: 'Onda sinusoidal suave mirror · orgánico',
+    wp: 'wp-6', dot: '#A2D5F2' },
+  { id: 'eq06', title: 'SOUNDCLOUD WAVE', sub: 'Naranja signature · forma de onda',
+    wp: 'wp-4', dot: '#FF7700' },
+  { id: 'eq07', title: 'VU METER VINTAGE', sub: 'Analógico cálido · cremas y dorados',
+    wp: 'wp-1', dot: '#D4A574' },
+  { id: 'eq08', title: 'DAW STUDIO PRO', sub: 'FL Studio style · técnico preciso',
+    wp: 'wp-3', dot: '#FF003C' },
+  { id: 'eq09', title: 'PASTEL BUBBLE', sub: 'Burbujas rosadas suaves · cute kawaii',
+    wp: 'wp-6', dot: '#FFB6D9' },
+  { id: 'eq10', title: 'MONOCHROME MINIMAL', sub: 'Blanco puro ultra-elegante · zen',
+    wp: 'wp-7', dot: '#fff' },
+];
+
+const grid = document.getElementById('grid');
+const selCount = document.getElementById('sel-count');
+const selected = new Set();
+
+DESIGNS.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = d.id;
+  card.innerHTML = `
+    <div class="phone ${d.id} ${d.wp}">
+      <div class="statusbar"><span>9:41 · Pixora</span><span>📶 📶 🔋</span></div>
+      <div class="clock" style="--dotc:${d.dot}">
+        <div class="time" data-time></div><div class="date" data-date></div>
+      </div>
+      <div class="mini-hud" style="--dotc:${d.dot}">
+        <div class="row"><span data-bat>--</span>%<div class="dot"></div></div>
+        <div class="row"><span data-ram>--</span>%<div class="dot"></div></div>
+        <div class="row"><span data-dsk>--</span>%<div class="dot"></div></div>
+      </div>
+      <div class="eq-stage"><canvas data-eq></canvas></div>
+      <div class="dock">
+        <div class="ico"></div><div class="ico"></div><div class="ico"></div><div class="ico"></div>
+      </div>
+      <div class="navbar">‖ ◯ ◁</div>
+    </div>
+    <div class="meta">
+      <div class="title">${d.title}<small>${d.sub}</small></div>
+      <button class="pick">SELECCIONAR</button>
+    </div>`;
+  grid.appendChild(card);
+  card.querySelector('.pick').addEventListener('click', () => {
+    card.classList.toggle('selected');
+    if (card.classList.contains('selected')) selected.add(d.id);
+    else selected.delete(d.id);
+    selCount.textContent = selected.size;
+  });
+});
+
+function fakeAudio(i, t, total) {
+  const norm = i / total;
+  const bass = Math.max(0, Math.sin(t * 2 + norm * 8) * 0.8 + Math.sin(t * 0.7) * 0.4);
+  const mid = Math.max(0, Math.sin(t * 4.5 + norm * 12) * 0.6);
+  const treble = Math.max(0, Math.sin(t * 9 + norm * 20) * 0.4);
+  const env = 0.5 + 0.5 * Math.cos(norm * Math.PI - Math.PI/2);
+  const v = (bass * (1-norm) + mid * env + treble * norm) / 1.5;
+  return Math.max(0.04, Math.min(1, v));
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  if (h <= 0 || w <= 0) return;
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath(); ctx.fill();
+}
+
+// ─── Peak tracker (Winamp & DAW) ───────────────────────────
+const peaks = new Map();
+function trackPeak(key, i, v) {
+  const id = `${key}-${i}`;
+  const p = peaks.get(id) || { y: 0, fall: 0 };
+  if (v > p.y) { p.y = v; p.fall = 0; }
+  else { p.fall += 0.012; p.y = Math.max(v, p.y - p.fall); }
+  peaks.set(id, p);
+  return p.y;
+}
+
+const RENDERERS = {
+  // ── 01 · WINAMP CLASSIC — green→yellow→red bars + peak ─────
+  eq01(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 3, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const peak = trackPeak('eq01', i, v);
+      const topH = v * H * 0.46, botH = v * H * 0.4;
+      const x = i * (bw + 3);
+      // Top — classic Winamp gradient (green at base, yellow middle, red top)
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#FF1500'); g.addColorStop(0.3, '#FF8800');
+      g.addColorStop(0.6, '#FFFF00'); g.addColorStop(1, '#00FF41');
+      ctx.fillStyle = g;
+      // Block style — 8px segments stacked, like 90s
+      const segH = 4;
+      const nSeg = Math.floor(topH / segH);
+      for (let s = 0; s < nSeg; s++) {
+        ctx.fillRect(x, midY - (s+1)*segH + 1, bw, segH - 2);
+      }
+      // Peak indicator — small horizontal line above
+      const peakY = midY - peak * H * 0.46;
+      ctx.fillStyle = '#FFFF00';
+      ctx.fillRect(x, peakY - 2, bw, 2);
+      // Bottom mirror — segments fading
+      const nSegB = Math.floor(botH / segH);
+      for (let s = 0; s < nSegB; s++) {
+        ctx.fillStyle = `rgba(0,255,65,${0.6 * (1 - s/nSegB)})`;
+        ctx.fillRect(x, midY + s*segH + 1, bw, segH - 2);
+      }
+    }
+  },
+
+  // ── 02 · SPOTIFY MINIMAL — thin white pills ─────────────────
+  eq02(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 4, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.4, botH = v * H * 0.32;
+      const x = i * (bw + 4);
+      // Soft glow
+      ctx.shadowColor = '#1DB954'; ctx.shadowBlur = 6;
+      ctx.fillStyle = '#fff';
+      roundRect(ctx, x, midY-topH, bw, topH, bw/2);
+      ctx.shadowBlur = 0;
+      // Mirror — softer
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      roundRect(ctx, x, midY, bw, botH, bw/2);
+    }
+  },
+
+  // ── 03 · APPLE MUSIC TRIO — 4 thick bars (Now Playing) ─────
+  eq03(ctx, W, H, t, A) {
+    const N = 4, midY = H/2;
+    const totalW = W * 0.6, startX = (W - totalW) / 2;
+    const bw = totalW / N - 8;
+    for (let i = 0; i < N; i++) {
+      const audioIdx = Math.floor(i / N * A.length);
+      const v = A[audioIdx];
+      const topH = (0.4 + v * 0.55) * H * 0.45;
+      const botH = topH * 0.85;
+      const x = startX + i * (bw + 8);
+      // Apple Music gradient (red→pink)
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#FA243C'); g.addColorStop(1, '#FF80A0');
+      ctx.fillStyle = g;
+      roundRect(ctx, x, midY-topH, bw, topH, 6);
+      // Mirror
+      const g2 = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      g2.addColorStop(0, 'rgba(255,128,160,0.6)'); g2.addColorStop(1, 'rgba(250,36,60,0)');
+      ctx.fillStyle = g2;
+      roundRect(ctx, x, midY, bw, botH, 6);
+    }
+  },
+
+  // ── 04 · TIDAL PRISTINE — pristine white + chromatic edge ──
+  eq04(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.46, botH = v * H * 0.4;
+      const x = i * (bw + 2);
+      // RGB chromatic edge
+      ctx.fillStyle = 'rgba(0,200,255,0.4)';
+      ctx.fillRect(x-1, midY-topH, bw, topH);
+      ctx.fillStyle = 'rgba(255,100,150,0.4)';
+      ctx.fillRect(x+1, midY-topH, bw, topH);
+      // White center
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Mirror chromatic
+      ctx.fillStyle = 'rgba(0,200,255,0.2)';
+      ctx.fillRect(x-1, midY, bw, botH);
+      ctx.fillStyle = 'rgba(255,100,150,0.2)';
+      ctx.fillRect(x+1, midY, bw, botH);
+      // White center fade
+      const g = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      g.addColorStop(0, '#fff'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(x, midY, bw, botH);
+    }
+  },
+
+  // ── 05 · iTunes VISUALIZER — smooth sine wave mirror ────────
+  eq05(ctx, W, H, t, A) {
+    const midY = H/2;
+    // Top wave
+    ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    const gradStroke = ctx.createLinearGradient(0, 0, W, 0);
+    gradStroke.addColorStop(0, '#FF80E5'); gradStroke.addColorStop(0.5, '#80FFFF');
+    gradStroke.addColorStop(1, '#FFE680');
+    ctx.strokeStyle = gradStroke;
+    ctx.shadowColor = '#80FFFF'; ctx.shadowBlur = 10;
+    // Top
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 3) {
+      const phase = (x / W) * Math.PI * 5 + t * 1.5;
+      const audioIdx = Math.floor(x/W * A.length);
+      const amp = A[audioIdx] * H * 0.4;
+      const y = midY - Math.abs(Math.sin(phase)) * amp;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // Bottom mirror (faded)
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 3) {
+      const phase = (x / W) * Math.PI * 5 + t * 1.5;
+      const audioIdx = Math.floor(x/W * A.length);
+      const amp = A[audioIdx] * H * 0.35;
+      const y = midY + Math.abs(Math.sin(phase)) * amp;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    // Fill area under top wave for richness
+    ctx.fillStyle = 'rgba(128,255,255,0.1)';
+    ctx.beginPath();
+    ctx.moveTo(0, midY);
+    for (let x = 0; x <= W; x += 3) {
+      const phase = (x / W) * Math.PI * 5 + t * 1.5;
+      const audioIdx = Math.floor(x/W * A.length);
+      const amp = A[audioIdx] * H * 0.4;
+      ctx.lineTo(x, midY - Math.abs(Math.sin(phase)) * amp);
+    }
+    ctx.lineTo(W, midY); ctx.closePath(); ctx.fill();
+  },
+
+  // ── 06 · SOUNDCLOUD WAVE — orange signature ─────────────────
+  eq06(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 1, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.46, botH = v * H * 0.42;
+      const x = i * (bw + 1);
+      // Top orange gradient
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#FFD580'); g.addColorStop(0.5, '#FF7700'); g.addColorStop(1, '#E64A00');
+      ctx.fillStyle = g;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Mirror — darker shade
+      const g2 = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      g2.addColorStop(0, 'rgba(255,119,0,0.7)'); g2.addColorStop(1, 'rgba(102,51,0,0.1)');
+      ctx.fillStyle = g2;
+      ctx.fillRect(x, midY, bw, botH);
+    }
+  },
+
+  // ── 07 · VU METER VINTAGE — analog warm cream + brass ──────
+  eq07(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.44, botH = v * H * 0.4;
+      const x = i * (bw + 2);
+      // Cream/brass gradient with vintage feel
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#8B6914'); g.addColorStop(0.4, '#D4A574');
+      g.addColorStop(0.8, '#F4E4BC'); g.addColorStop(1, '#FFF8DC');
+      ctx.fillStyle = g;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Brass shimmer line
+      ctx.fillStyle = 'rgba(255,248,220,0.7)';
+      ctx.fillRect(x + bw*0.3, midY-topH, 1, topH);
+      // Mirror — wood/leather
+      const g2 = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      g2.addColorStop(0, '#D4A574'); g2.addColorStop(1, 'rgba(74,42,20,0.3)');
+      ctx.fillStyle = g2;
+      ctx.fillRect(x, midY, bw, botH);
+    }
+    // Vintage horizon line (brass strip)
+    const lineGrad = ctx.createLinearGradient(0, midY-2, 0, midY+2);
+    lineGrad.addColorStop(0, '#FFD700'); lineGrad.addColorStop(1, '#8B6914');
+    ctx.fillStyle = lineGrad;
+    ctx.fillRect(0, midY-1, W, 2);
+  },
+
+  // ── 08 · DAW STUDIO PRO — FL Studio style ──────────────────
+  eq08(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const peak = trackPeak('eq08', i, v);
+      const topH = v * H * 0.46, botH = v * H * 0.42;
+      const x = i * (bw + 2);
+      // Top — green→yellow→red (professional VU)
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#FF003C'); g.addColorStop(0.3, '#FFAA00');
+      g.addColorStop(0.6, '#FFFF00'); g.addColorStop(1, '#00FF41');
+      ctx.fillStyle = g;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Peak line
+      const peakY = midY - peak * H * 0.46;
+      ctx.fillStyle = '#fff'; ctx.fillRect(x, peakY-1, bw, 1.5);
+      // Mirror — dark dim
+      ctx.fillStyle = 'rgba(0,255,65,0.5)';
+      ctx.fillRect(x, midY, bw, botH * 0.5);
+    }
+    // dB reference lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 0.5;
+    [-12, -6, -3].forEach(db => {
+      const y = midY + db * 2;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    });
+  },
+
+  // ── 09 · PASTEL BUBBLE — soft kawaii pink bubbles ─────────
+  eq09(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 3, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.4, botH = v * H * 0.36;
+      const x = i * (bw + 3);
+      // Top — pastel pink-purple
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#FFE5F1'); g.addColorStop(0.5, '#FFB6D9'); g.addColorStop(1, '#D8B7E0');
+      ctx.fillStyle = g;
+      ctx.shadowColor = '#FFB6D9'; ctx.shadowBlur = 8;
+      roundRect(ctx, x, midY-topH, bw, topH, bw/1.5);
+      ctx.shadowBlur = 0;
+      // Mirror — softer pastel
+      ctx.globalAlpha = 0.4;
+      const g2 = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      g2.addColorStop(0, '#FFB6D9'); g2.addColorStop(1, 'rgba(216,183,224,0)');
+      ctx.fillStyle = g2;
+      roundRect(ctx, x, midY, bw, botH, bw/1.5);
+      ctx.globalAlpha = 1;
+      // Small sparkle bubble at top occasionally
+      if (Math.random() < 0.04 && v > 0.5) {
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.beginPath();
+        ctx.arc(x + bw/2, midY-topH - 4, 1.5, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+  },
+
+  // ── 10 · MONOCHROME MINIMAL — pure white thin elegant ─────
+  eq10(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 5, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.44, botH = v * H * 0.35;
+      const x = i * (bw + 5);
+      // Top — just white with subtle alpha at bottom
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(1, 'rgba(255,255,255,0.4)');
+      ctx.fillStyle = g;
+      roundRect(ctx, x, midY-topH, bw, topH, bw/2);
+      // Mirror — ultra subtle
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      roundRect(ctx, x, midY, bw, botH, bw/2);
+    }
+    // Subtle center line
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+  },
+};
+
+function pad(n) { return n<10?'0'+n:''+n; }
+const DAYS = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const MONTHS = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+const states = new Map();
+DESIGNS.forEach(d => states.set(d.id, { bat: 84, ram: 54, dsk: 71, batT: 84, ramT: 54, dskT: 71 }));
+
+let frame = 0;
+function tick() {
+  frame++;
+  const t = performance.now() / 500;
+  const now = new Date();
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const dateStr = `${DAYS[now.getDay()]} ${pad(now.getDate())} ${MONTHS[now.getMonth()]}`;
+
+  document.querySelectorAll('.phone').forEach((phone, idx) => {
+    const id = DESIGNS[idx].id;
+    const state = states.get(id);
+    if (frame % 90 === idx % 90) state.ramT = 35 + Math.random()*45;
+    if (frame % 150 === idx % 150) state.dskT = 50 + Math.random()*40;
+    state.ram += (state.ramT - state.ram) * 0.04;
+    state.dsk += (state.dskT - state.dsk) * 0.04;
+
+    phone.querySelector('[data-time]').textContent = timeStr;
+    phone.querySelector('[data-date]').textContent = dateStr;
+    phone.querySelector('[data-bat]').textContent = Math.round(state.bat);
+    phone.querySelector('[data-ram]').textContent = Math.round(state.ram);
+    phone.querySelector('[data-dsk]').textContent = Math.round(state.dsk);
+
+    const canvas = phone.querySelector('[data-eq]');
+    if (canvas) {
+      const cssW = canvas.offsetWidth, cssH = canvas.offsetHeight;
+      if (canvas.width !== cssW * 2) { canvas.width = cssW * 2; canvas.height = cssH * 2; }
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const N = id === 'eq03' ? 4 : 32;
+      const audio = Array.from({length: N}, (_, i) => fakeAudio(i, t, N));
+      RENDERERS[id](ctx, canvas.width, canvas.height, t, audio);
+    }
+  });
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

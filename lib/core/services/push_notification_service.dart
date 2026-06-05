@@ -9,6 +9,7 @@ import 'app_strings_service.dart';
 import 'catalog_service.dart';
 import 'day_cycle_catalog_service.dart';
 import 'live_wallpaper_catalog_service.dart';
+import 'realm_catalog_service.dart';
 import 'ringtone_service.dart';
 import 'story_catalog_service.dart';
 
@@ -196,6 +197,8 @@ class PushNotificationService {
         safeClear('events', () => EventsService.instance.clearCache());
     Future<void> aura() =>
         safeClear('aura', () => AuraRepository.instance.clearCache());
+    Future<void> realm() =>
+        safeClear('realm', () => RealmCatalogService.instance.clearCache());
 
     switch (scope) {
       case 'wallpapers':
@@ -219,6 +222,9 @@ class PushNotificationService {
       case 'aura':
         await aura();
         break;
+      case 'realm':
+        await realm();
+        break;
       case 'all':
         await Future.wait([
           wallpapers(),
@@ -228,6 +234,7 @@ class PushNotificationService {
           ringtones(),
           events(),
           aura(),
+          realm(),
         ]);
         break;
       default:

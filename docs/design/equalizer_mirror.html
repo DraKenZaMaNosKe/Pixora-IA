@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · 20 EQ Mirror designs</title>
+<meta name="viewport" content="width=1500">
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Bebas+Neue&family=Cinzel:wght@400;700&family=JetBrains+Mono:wght@500;700&family=Major+Mono+Display&family=Manrope:wght@300;500;700&family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;700&family=Syncopate:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root { --pix-gold: #E6B655; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #08080c; color: #e8e6dc; font-family: 'Manrope', sans-serif; }
+body { min-height: 100vh; padding: 32px 24px 96px; }
+
+.topbar {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  max-width: 1500px; margin: 0 auto 28px; padding-bottom: 18px;
+  border-bottom: 1px solid rgba(230,182,85,0.25);
+}
+.topbar h1 {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 24px;
+  letter-spacing: 4px; color: var(--pix-gold);
+}
+.topbar h1 small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 12px; letter-spacing: 2px; color: #bfb39e; margin-top: 6px;
+  font-weight: 300;
+}
+.counter {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--pix-gold); padding: 8px 14px;
+  border: 1px solid rgba(230,182,85,0.4); border-radius: 999px;
+  background: rgba(230,182,85,0.06);
+}
+.counter .n { font-weight: 800; }
+
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 22px; max-width: 1500px; margin: 0 auto;
+}
+
+.card {
+  background: #0d0d12;
+  border: 1px solid rgba(230,182,85,0.18);
+  border-radius: 14px; overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+  display: flex; flex-direction: column;
+}
+.card.selected {
+  border-color: var(--pix-gold);
+  box-shadow: 0 0 0 1px var(--pix-gold), 0 8px 28px rgba(230,182,85,0.25);
+}
+.phone {
+  position: relative; width: 100%; aspect-ratio: 9 / 19.5;
+  background: #000; overflow: hidden;
+}
+.meta { padding: 12px 14px; }
+.meta .title {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 14px;
+  letter-spacing: 2px; color: #f6e9c8;
+}
+.meta .title small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 10px; color: #8d8470; margin-top: 2px;
+  font-weight: 300; letter-spacing: 0.5px;
+}
+.pick {
+  margin-top: 8px; width: 100%;
+  padding: 6px 14px; font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 2px; background: transparent; color: var(--pix-gold);
+  border: 1px solid var(--pix-gold); border-radius: 5px; cursor: pointer;
+  transition: all .2s;
+}
+.pick:hover { background: rgba(230,182,85,0.1); }
+.card.selected .pick { background: var(--pix-gold); color: #000; }
+.card.selected .pick::before { content: '✓ '; }
+
+/* ─── PHONE SHELL ─────────────────────────────────────── */
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 22px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 14px 0; font-size: 9px; color: rgba(255,255,255,0.85);
+  z-index: 100; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.clock {
+  position: absolute; top: 30px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.clock .time {
+  font-family: var(--clock-font, 'Cinzel'), serif;
+  font-weight: var(--clock-w, 700); font-size: 48px;
+  color: var(--clock-c, #fff); line-height: 1; letter-spacing: var(--clock-ls, -1px);
+  text-shadow: var(--clock-shadow, 0 2px 8px rgba(0,0,0,0.6));
+}
+.clock .date {
+  font-family: var(--date-font, 'Manrope'), sans-serif;
+  font-size: 10px; font-weight: 300;
+  color: var(--date-c, rgba(255,255,255,0.8)); letter-spacing: 3px; margin-top: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.mini-hud {
+  position: absolute; top: 28px; right: 12px; z-index: 25;
+  display: flex; flex-direction: column; gap: 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--hud-c, rgba(255,255,255,0.85));
+  text-align: right;
+}
+.mini-hud .row {
+  display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.mini-hud .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--dot-c, var(--pix-gold));
+  box-shadow: 0 0 4px var(--dot-c, var(--pix-gold));
+}
+
+.eq-stage {
+  position: absolute; left: 0; right: 0; bottom: 88px; height: 200px;
+  z-index: 15; padding: 0 12px;
+}
+.eq-stage canvas {
+  width: 100%; height: 100%;
+}
+
+.center-line {
+  position: absolute; left: 12px; right: 12px;
+  top: 50%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line-c, rgba(255,255,255,0.15)), transparent);
+  pointer-events: none;
+}
+
+.dock {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+  z-index: 80; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+}
+.dock .ico {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  border: 0.5px solid rgba(255,255,255,0.12);
+}
+.navbar {
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 22px;
+  z-index: 90; display: flex; justify-content: space-around; align-items: center;
+  font-size: 11px; color: rgba(255,255,255,0.55);
+}
+
+/* ─── WALLPAPER BACKGROUNDS ───────────────────────────── */
+.wp-1 { background: radial-gradient(ellipse at 60% 35%, #b3937a 0%, #6a4528 35%, #2c1810 100%); }
+.wp-2 { background: radial-gradient(ellipse at 30% 70%, #4e3a6a 0%, #1a1230 50%, #050410 100%); }
+.wp-3 { background: radial-gradient(ellipse at 50% 50%, #284a5e 0%, #0e1c2a 60%, #050a14 100%); }
+.wp-4 { background: radial-gradient(ellipse at 30% 30%, #c47b56 0%, #6a3a1f 40%, #1a0b04 100%); }
+.wp-5 { background: radial-gradient(ellipse at 70% 60%, #4a6a4e 0%, #1a2a1e 60%, #050a05 100%); }
+.wp-6 { background: radial-gradient(ellipse at 50% 60%, #5a4a8a 0%, #2a2050 50%, #0a0820 100%); }
+.wp-7 { background: radial-gradient(ellipse at 40% 50%, #1a3a5e 0%, #0a1a2a 60%, #050810 100%); }
+.wp-8 { background: radial-gradient(ellipse at 50% 40%, #6a4528 0%, #2c1810 60%, #0e0e13 100%); }
+.wp-9 { background: radial-gradient(ellipse at 60% 70%, #b85a3a 0%, #5a1a0a 40%, #1a0805 100%); }
+.wp-10 { background: linear-gradient(180deg, #c9d4e2 0%, #8a9aae 60%, #4a5466 100%); }
+
+/* Per-design clock overrides (compact) */
+.eq01 .clock { --clock-font: 'Syncopate'; --clock-w: 700; --clock-c: #fff; }
+.eq02 .clock { --clock-font: 'Orbitron'; --clock-w: 700; --clock-c: #00FFFF; --clock-shadow: 0 0 12px #00FFFF; }
+.eq03 .clock { --clock-font: 'Cormorant Garamond'; --clock-w: 300; --clock-c: #fff; }
+.eq04 .clock { --clock-font: 'Cinzel'; --clock-w: 700; --clock-c: #FFD700; --clock-shadow: 0 0 16px #FF4500; }
+.eq05 .clock { --clock-font: 'Italiana'; --clock-w: 400; --clock-c: #2A3548;
+               --clock-shadow: 1px 0 rgba(255,100,150,0.4), -1px 0 rgba(100,200,255,0.4); }
+.eq05 .statusbar { color: rgba(42,53,72,0.85); }
+.eq05 .mini-hud { --hud-c: rgba(42,53,72,0.85); --dot-c: #6A4BFF; }
+.eq06 .clock { --clock-font: 'Audiowide'; --clock-c: #9D00FF; --clock-shadow: 0 0 14px #9D00FF; }
+.eq07 .clock { --clock-font: 'Major Mono Display'; --clock-c: #fff; --clock-shadow: 0 0 20px rgba(255,255,255,0.3); }
+.eq08 .clock { --clock-font: 'VT323'; --clock-c: #00FF41; --clock-shadow: 0 0 10px #00FF41; font-size: 60px; }
+.eq09 .clock { --clock-font: 'Rajdhani'; --clock-w: 700; --clock-c: #fff; }
+.eq10 .clock { --clock-font: 'Cinzel'; --clock-w: 700; --clock-c: var(--pix-gold);
+               --clock-shadow: 0 0 18px rgba(230,182,85,0.5); }
+.eq11 .clock { --clock-font: 'Bebas Neue'; --clock-c: #fff; letter-spacing: 4px !important; }
+.eq12 .clock { --clock-font: 'Manrope'; --clock-w: 200; font-size: 60px !important; --clock-c: #E0E0E0; }
+.eq13 .clock { --clock-font: 'Orbitron'; --clock-w: 800; --clock-c: #FF69B4;
+               --clock-shadow: 0 0 12px #FF69B4, 0 0 24px rgba(138,43,226,0.6); }
+.eq14 .clock { --clock-font: 'Audiowide'; --clock-c: #00FFFF; --clock-shadow: 0 0 16px #00FFFF; }
+.eq15 .clock { --clock-font: 'Rajdhani'; --clock-w: 500; --clock-c: #F7B801; }
+.eq16 .clock { --clock-font: 'Orbitron'; --clock-w: 800; --clock-c: #FCEE0A;
+               --clock-shadow: 2px 0 #FF003C, -2px 0 #00FFEA; }
+.eq17 .clock { --clock-font: 'Major Mono Display'; --clock-c: #FF71CE; }
+.eq18 .clock { --clock-font: 'Cinzel'; --clock-w: 400; --clock-c: #C0C0C0;
+               --clock-shadow: 0 0 18px rgba(192,192,192,0.6); }
+.eq19 .clock { --clock-font: 'Cinzel'; --clock-w: 700; --clock-c: #D2691E; }
+.eq20 .clock { --clock-font: 'Cormorant Garamond'; --clock-w: 300; --clock-c: #fff;
+               --clock-shadow: 0 0 24px rgba(255,255,255,0.5); }
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>PIXORA · 20 EQ MIRROR DESIGNS
+    <small>Cada barra crece arriba y abajo desde una línea central · reflexión animada en piso · selecciona favoritos</small>
+  </h1>
+  <div class="counter">FAVORITOS · <span class="n" id="sel-count">0</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const DESIGNS = [
+  { id: 'eq01', title: 'GROK SPECTRUM MIRROR', sub: 'cyan→verde→amarillo→naranja',
+    wp: 'wp-3', dot: '#00E5FF' },
+  { id: 'eq02', title: 'NEON TUBE', sub: 'tubos de neón cyan/magenta con bloom',
+    wp: 'wp-2', dot: '#FF00EA' },
+  { id: 'eq03', title: 'AURORA MIRROR', sub: 'cintas etéreas verde-violeta',
+    wp: 'wp-7', dot: '#00FFAA' },
+  { id: 'eq04', title: 'FUEGO Y AGUA', sub: 'llamas arriba · agua reflejando abajo',
+    wp: 'wp-9', dot: '#FF4500' },
+  { id: 'eq05', title: 'GLASS PILLARS', sub: 'theme claro · cristal prismático',
+    wp: 'wp-10', dot: '#6A4BFF' },
+  { id: 'eq06', title: 'PLASMA ARC', sub: 'arcos eléctricos entre barras',
+    wp: 'wp-2', dot: '#9D00FF' },
+  { id: 'eq07', title: 'DIAMOND FACETS', sub: 'shards facetados prismáticos',
+    wp: 'wp-5', dot: '#FF80E5' },
+  { id: 'eq08', title: 'MATRIX RAIN', sub: 'caracteres digitales cayendo',
+    wp: 'wp-3', dot: '#00FF41' },
+  { id: 'eq09', title: 'SUNSET MIRROR', sub: 'atardecer sobre el mar',
+    wp: 'wp-4', dot: '#FFE66D' },
+  { id: 'eq10', title: 'GOLD MARBLE', sub: 'pilares romanos dorados',
+    wp: 'wp-1', dot: '#E6B655' },
+  { id: 'eq11', title: 'CYBER GLITCH', sub: 'amarillo nuclear · RGB split en peaks',
+    wp: 'wp-2', dot: '#FCEE0A' },
+  { id: 'eq12', title: 'SMOKE BREATH', sub: 'sólido arriba · humo reflejado abajo',
+    wp: 'wp-6', dot: '#E0E0E0' },
+  { id: 'eq13', title: 'GALACTIC DUST', sub: 'estrellas dentro de barras cósmicas',
+    wp: 'wp-6', dot: '#FF69B4' },
+  { id: 'eq14', title: 'SOUNDWAVE PRO', sub: 'thick arriba · thin lines abajo',
+    wp: 'wp-7', dot: '#00FFFF' },
+  { id: 'eq15', title: 'HEX PIXEL', sub: 'celdas hexagonales encendidas',
+    wp: 'wp-1', dot: '#F7B801' },
+  { id: 'eq16', title: 'LIGHTNING BOLTS', sub: 'cada barra es un rayo eléctrico',
+    wp: 'wp-3', dot: '#FCEE0A' },
+  { id: 'eq17', title: 'VAPOR DREAM', sub: 'rosa-violeta-cyan VHS',
+    wp: 'wp-6', dot: '#FF71CE' },
+  { id: 'eq18', title: 'LIQUID METAL', sub: 'mercurio · cromo reflective',
+    wp: 'wp-3', dot: '#C0C0C0' },
+  { id: 'eq19', title: 'TRIBAL DRUM', sub: 'ocre terroso · primal',
+    wp: 'wp-4', dot: '#D2691E' },
+  { id: 'eq20', title: 'MOONLIGHT PETALS', sub: 'pétalos blancos suaves · luna',
+    wp: 'wp-7', dot: '#F0E68C' },
+];
+
+// ─── BUILD CARDS ──────────────────────────────────────────
+const grid = document.getElementById('grid');
+const selCount = document.getElementById('sel-count');
+const selected = new Set();
+
+DESIGNS.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = d.id;
+  card.innerHTML = `
+    <div class="phone ${d.id} ${d.wp}">
+      <div class="statusbar"><span>9:41 · Pixora</span><span>📶 📶 🔋</span></div>
+      <div class="clock" style="--dot-c:${d.dot}">
+        <div class="time" data-time></div>
+        <div class="date" data-date></div>
+      </div>
+      <div class="mini-hud" style="--dot-c:${d.dot}">
+        <div class="row"><span data-bat>--</span>%<div class="dot"></div></div>
+        <div class="row"><span data-ram>--</span>%<div class="dot"></div></div>
+        <div class="row"><span data-dsk>--</span>%<div class="dot"></div></div>
+      </div>
+      <div class="eq-stage">
+        <div class="center-line"></div>
+        <canvas data-eq></canvas>
+      </div>
+      <div class="dock">
+        <div class="ico"></div><div class="ico"></div><div class="ico"></div><div class="ico"></div>
+      </div>
+      <div class="navbar">‖ ◯ ◁</div>
+    </div>
+    <div class="meta">
+      <div class="title">${d.title}<small>${d.sub}</small></div>
+      <button class="pick">SELECCIONAR</button>
+    </div>`;
+  grid.appendChild(card);
+  card.querySelector('.pick').addEventListener('click', () => {
+    card.classList.toggle('selected');
+    if (card.classList.contains('selected')) selected.add(d.id);
+    else selected.delete(d.id);
+    selCount.textContent = selected.size;
+  });
+});
+
+// ─── AUDIO SIM ────────────────────────────────────────────
+function fakeAudio(i, t, total) {
+  const norm = i / total;
+  const bass = Math.max(0, Math.sin(t * 2 + norm * 8) * 0.8 + Math.sin(t * 0.7) * 0.4);
+  const mid = Math.max(0, Math.sin(t * 4.5 + norm * 12) * 0.6);
+  const treble = Math.max(0, Math.sin(t * 9 + norm * 20) * 0.4);
+  const env = 0.5 + 0.5 * Math.cos(norm * Math.PI - Math.PI/2);
+  const v = (bass * (1-norm) + mid * env + treble * norm) / 1.5;
+  return Math.max(0.04, Math.min(1, v));
+}
+
+// ─── EQ RENDERERS (Canvas) ────────────────────────────────
+// Each takes (ctx, W, H, t, audio[]) and draws bars mirror style
+// W,H = pixel dims of canvas. midY = H/2.
+
+const RENDERERS = {
+  // 01 — Grok spectrum mirror
+  eq01(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.35;
+      const x = i * (bw + 2);
+      // Top — full saturation
+      const gTop = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      gTop.addColorStop(0, '#FF6B35'); gTop.addColorStop(0.4, '#FFFB00');
+      gTop.addColorStop(0.8, '#00FF85'); gTop.addColorStop(1, '#00E5FF');
+      ctx.fillStyle = gTop;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Bottom — reflection (faded)
+      const gBot = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      gBot.addColorStop(0, 'rgba(0,229,255,0.7)'); gBot.addColorStop(1, 'rgba(0,229,255,0)');
+      ctx.fillStyle = gBot;
+      ctx.fillRect(x, midY, bw, botH);
+    }
+  },
+
+  // 02 — Neon tube
+  eq02(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 4, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.4;
+      const x = i * (bw + 4);
+      const hue = (i / N) * 240 + 280; // cyan→magenta
+      ctx.fillStyle = `hsl(${hue}, 100%, 65%)`;
+      ctx.shadowColor = `hsl(${hue}, 100%, 65%)`;
+      ctx.shadowBlur = 12;
+      // Top
+      roundRect(ctx, x, midY-topH, bw, topH, bw/2);
+      // Bottom (mirror with low alpha)
+      ctx.globalAlpha = 0.4;
+      roundRect(ctx, x, midY, bw, botH, bw/2);
+      ctx.globalAlpha = 1;
+    }
+    ctx.shadowBlur = 0;
+  },
+
+  // 03 — Aurora ribbons
+  eq03(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 1, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.46, botH = v * H * 0.42;
+      const x = i * (bw + 1);
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#B83BCB'); g.addColorStop(0.5, '#00C2FF'); g.addColorStop(1, '#00FFAA');
+      ctx.fillStyle = g;
+      ctx.shadowColor = '#00FFAA'; ctx.shadowBlur = 16;
+      roundRect(ctx, x, midY-topH, bw, topH, bw);
+      // Mirror
+      const g2 = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      g2.addColorStop(0, 'rgba(0,255,170,0.6)'); g2.addColorStop(1, 'rgba(184,59,203,0)');
+      ctx.fillStyle = g2;
+      roundRect(ctx, x, midY, bw, botH, bw);
+    }
+    ctx.shadowBlur = 0;
+  },
+
+  // 04 — Fuego y Agua
+  eq04(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i] * (0.85 + Math.random()*0.3); // flicker
+      const topH = v * H * 0.48, botH = v * H * 0.4;
+      const x = i * (bw + 2);
+      // Top fire
+      const gFire = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      gFire.addColorStop(0, '#FFD700'); gFire.addColorStop(0.5, '#FF8C00'); gFire.addColorStop(1, '#FF4500');
+      ctx.fillStyle = gFire;
+      // tapered flame
+      ctx.beginPath();
+      ctx.moveTo(x + bw*0.2, midY);
+      ctx.quadraticCurveTo(x, midY-topH*0.4, x + bw*0.3, midY-topH);
+      ctx.quadraticCurveTo(x + bw*0.5, midY-topH*1.05, x + bw*0.7, midY-topH);
+      ctx.quadraticCurveTo(x + bw, midY-topH*0.4, x + bw*0.8, midY);
+      ctx.closePath(); ctx.fill();
+      // Bottom water (mirror, blue)
+      const gW = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      gW.addColorStop(0, '#00BFFF'); gW.addColorStop(0.6, 'rgba(70,130,180,0.5)'); gW.addColorStop(1, 'rgba(25,25,112,0)');
+      ctx.fillStyle = gW;
+      ctx.fillRect(x, midY, bw, botH);
+      // Water ripple line
+      ctx.strokeStyle = 'rgba(135,206,250,0.8)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, midY+1); ctx.lineTo(x+bw, midY+1); ctx.stroke();
+    }
+  },
+
+  // 05 — Glass pillars (light theme)
+  eq05(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 3, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.4;
+      const x = i * (bw + 3);
+      // Top: clear glass
+      const g = ctx.createLinearGradient(x, 0, x+bw, 0);
+      g.addColorStop(0, 'rgba(255,100,150,0.5)');
+      g.addColorStop(0.5, 'rgba(150,200,255,0.6)');
+      g.addColorStop(1, 'rgba(255,200,255,0.5)');
+      ctx.fillStyle = g;
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 0.5;
+      roundRect(ctx, x, midY-topH, bw, topH, 2);
+      ctx.strokeRect(x, midY-topH, bw, topH);
+      // Mirror — softer
+      ctx.globalAlpha = 0.5;
+      roundRect(ctx, x, midY, bw, botH, 2);
+      ctx.globalAlpha = 1;
+    }
+  },
+
+  // 06 — Plasma arc
+  eq06(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    // Bars first
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.42, botH = v * H * 0.35;
+      const x = i * (bw + 2);
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY+botH);
+      g.addColorStop(0, '#9D00FF'); g.addColorStop(0.5, '#fff'); g.addColorStop(1, '#00FFFF');
+      ctx.fillStyle = g;
+      ctx.shadowColor = '#9D00FF'; ctx.shadowBlur = 8;
+      ctx.fillRect(x, midY-topH, bw, topH+botH);
+    }
+    ctx.shadowBlur = 0;
+    // Electric arcs between top tips occasionally
+    if (Math.sin(t*3) > 0.85) {
+      for (let i = 0; i < N-1; i++) {
+        if (Math.random() < 0.3) {
+          const v1 = A[i], v2 = A[i+1];
+          const x1 = i*(bw+2)+bw/2, y1 = midY - v1*H*0.42;
+          const x2 = (i+1)*(bw+2)+bw/2, y2 = midY - v2*H*0.42;
+          ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+          ctx.shadowColor = '#00FFFF'; ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.quadraticCurveTo((x1+x2)/2 + (Math.random()-0.5)*10, Math.min(y1,y2) - 8, x2, y2);
+          ctx.stroke();
+        }
+      }
+      ctx.shadowBlur = 0;
+    }
+  },
+
+  // 07 — Diamond facets
+  eq07(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.42, botH = v * H * 0.35;
+      const x = i * (bw + 2);
+      const hue = (i / N) * 60 + 280; // pink→cyan
+      // Top diamond (taper at top)
+      const gT = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      gT.addColorStop(0, `hsl(${hue},100%,80%)`); gT.addColorStop(1, `hsl(${hue+30},100%,60%)`);
+      ctx.fillStyle = gT;
+      ctx.beginPath();
+      ctx.moveTo(x + bw*0.5, midY-topH);
+      ctx.lineTo(x + bw, midY-topH*0.3);
+      ctx.lineTo(x + bw, midY);
+      ctx.lineTo(x, midY);
+      ctx.lineTo(x, midY-topH*0.3);
+      ctx.closePath(); ctx.fill();
+      // Bottom (mirror, taper at bottom)
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(x, midY);
+      ctx.lineTo(x + bw, midY);
+      ctx.lineTo(x + bw, midY+botH*0.3);
+      ctx.lineTo(x + bw*0.5, midY+botH);
+      ctx.lineTo(x, midY+botH*0.3);
+      ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  },
+
+  // 08 — Matrix rain
+  eq08(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    const charSize = 7;
+    ctx.font = `${charSize}px 'VT323', monospace`;
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.42;
+      const x = i * (bw + 2) + bw/2;
+      // Top — solid green bar BG
+      ctx.fillStyle = 'rgba(0,255,65,0.25)';
+      ctx.fillRect(x - bw/2, midY-topH, bw, topH);
+      // Char stream top
+      const nChars = Math.floor(topH / charSize);
+      for (let c = 0; c < nChars; c++) {
+        const ch = String.fromCharCode(0x30A0 + Math.floor(Math.random()*96));
+        const brightness = c === 0 ? '#CCFFCC' : (c < 3 ? '#00FF41' : '#008822');
+        ctx.fillStyle = brightness;
+        ctx.fillText(ch, x, midY - c*charSize - charSize/2);
+      }
+      // Bottom mirror, fade
+      ctx.fillStyle = 'rgba(0,255,65,0.12)';
+      ctx.fillRect(x - bw/2, midY, bw, botH);
+      const nB = Math.floor(botH / charSize);
+      for (let c = 0; c < nB; c++) {
+        const ch = String.fromCharCode(0x30A0 + Math.floor(Math.random()*96));
+        ctx.fillStyle = `rgba(0,255,65,${0.5 * (1 - c/nB)})`;
+        ctx.fillText(ch, x, midY + c*charSize + charSize/2);
+      }
+    }
+  },
+
+  // 09 — Sunset mirror (sky + sea)
+  eq09(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.46, botH = v * H * 0.4;
+      const x = i * (bw + 2);
+      // Top — sun/sky
+      const gT = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      gT.addColorStop(0, '#FFE66D'); gT.addColorStop(0.4, '#FF8E72');
+      gT.addColorStop(0.8, '#FF6B6B'); gT.addColorStop(1, '#A24DA6');
+      ctx.fillStyle = gT;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Bottom — sea (cool)
+      const gB = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      gB.addColorStop(0, '#4ECDC4'); gB.addColorStop(0.5, 'rgba(78,205,196,0.5)'); gB.addColorStop(1, 'rgba(50,100,140,0)');
+      ctx.fillStyle = gB;
+      ctx.fillRect(x, midY, bw, botH);
+    }
+    // Horizon shimmer
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillRect(0, midY-0.5, W, 1);
+  },
+
+  // 10 — Gold marble pillars
+  eq10(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 3, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.46, botH = v * H * 0.4;
+      const x = i * (bw + 3);
+      // Pillar — marble white with gold edges
+      const gP = ctx.createLinearGradient(x, 0, x+bw, 0);
+      gP.addColorStop(0, '#E6B655'); gP.addColorStop(0.2, '#FFF8DC');
+      gP.addColorStop(0.5, '#FFFFFF'); gP.addColorStop(0.8, '#FFF8DC');
+      gP.addColorStop(1, '#E6B655');
+      ctx.fillStyle = gP;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Gold mirror
+      const gM = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      gM.addColorStop(0, '#FFD700'); gM.addColorStop(1, 'rgba(230,182,85,0)');
+      ctx.fillStyle = gM;
+      ctx.fillRect(x, midY, bw, botH);
+    }
+  },
+
+  // 11 — Cyber glitch
+  eq11(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.4;
+      const x = i * (bw + 2);
+      const peakBoost = v > 0.7 ? 1 : 0;
+      // RGB split offset on peaks
+      const off = peakBoost * 2;
+      // Red
+      ctx.fillStyle = '#FF003C';
+      ctx.fillRect(x-off, midY-topH, bw, topH);
+      ctx.fillStyle = 'rgba(255,0,60,0.3)';
+      ctx.fillRect(x-off, midY, bw, botH);
+      // Cyan
+      ctx.fillStyle = '#00FFEA';
+      ctx.fillRect(x+off, midY-topH, bw, topH);
+      ctx.fillStyle = 'rgba(0,255,234,0.3)';
+      ctx.fillRect(x+off, midY, bw, botH);
+      // Yellow center
+      ctx.fillStyle = '#FCEE0A';
+      ctx.fillRect(x, midY-topH, bw, topH);
+      ctx.fillStyle = 'rgba(252,238,10,0.5)';
+      ctx.fillRect(x, midY, bw, botH);
+    }
+  },
+
+  // 12 — Smoke breath
+  eq12(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.42, botH = v * H * 0.45;
+      const x = i * (bw + 2);
+      // Solid top
+      const gT = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      gT.addColorStop(0, '#FFFFFF'); gT.addColorStop(1, '#888888');
+      ctx.fillStyle = gT;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Smoke mirror — wider, faded, blurred feel
+      const gB = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      gB.addColorStop(0, 'rgba(180,180,200,0.4)');
+      gB.addColorStop(0.5, 'rgba(120,120,160,0.2)');
+      gB.addColorStop(1, 'rgba(60,60,100,0)');
+      ctx.fillStyle = gB;
+      ctx.beginPath();
+      ctx.moveTo(x-2, midY);
+      ctx.lineTo(x+bw+2, midY);
+      ctx.lineTo(x+bw+4, midY+botH);
+      ctx.lineTo(x-4, midY+botH);
+      ctx.closePath(); ctx.fill();
+    }
+  },
+
+  // 13 — Galactic dust
+  eq13(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.4;
+      const x = i * (bw + 2);
+      const hue = (i / N) * 120 + 270; // violet→pink→cyan
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY+botH);
+      g.addColorStop(0, `hsl(${hue},100%,70%)`);
+      g.addColorStop(0.5, `hsl(${hue+30},100%,55%)`);
+      g.addColorStop(1, `hsla(${hue+60},100%,50%,0.3)`);
+      ctx.fillStyle = g;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Mirror with stars
+      ctx.fillStyle = `hsla(${hue},100%,50%,0.5)`;
+      ctx.fillRect(x, midY, bw, botH);
+      // Stars in bars (random twinkle)
+      for (let s = 0; s < 3; s++) {
+        if (Math.random() < 0.3) {
+          ctx.fillStyle = 'rgba(255,255,255,0.9)';
+          const sx = x + Math.random()*bw;
+          const sy = midY - topH + Math.random()*topH;
+          ctx.fillRect(sx, sy, 1, 1);
+        }
+      }
+    }
+  },
+
+  // 14 — Soundwave pro (thick top, thin mirror)
+  eq14(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 1, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.42;
+      const x = i * (bw + 1);
+      // Thick top bar
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#00FFFF'); g.addColorStop(1, '#0080FF');
+      ctx.fillStyle = g;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Thin line mirror
+      ctx.fillStyle = 'rgba(0,255,255,0.6)';
+      ctx.fillRect(x + bw*0.3, midY, bw*0.4, botH);
+    }
+  },
+
+  // 15 — Hex pixel
+  eq15(ctx, W, H, t, A) {
+    const N = A.length, midY = H/2;
+    const cell = Math.min(W/N - 1, 12);
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const x = i * (cell + 1);
+      const cells = Math.floor(v * H * 0.45 / cell);
+      // Top cells
+      for (let c = 0; c < cells; c++) {
+        const y = midY - (c+1)*cell;
+        const intensity = 1 - c/cells*0.5;
+        const hue = c < 3 ? 60 : (c < 6 ? 30 : 0); // yellow→orange→red
+        ctx.fillStyle = `hsla(${hue},100%,${50+intensity*20}%,${intensity})`;
+        hexagonAt(ctx, x + cell/2, y + cell/2, cell*0.45);
+      }
+      // Bottom mirror cells
+      const cellsB = Math.floor(v * H * 0.4 / cell);
+      for (let c = 0; c < cellsB; c++) {
+        const y = midY + c*cell;
+        const intensity = 0.5 * (1 - c/cellsB);
+        ctx.fillStyle = `hsla(60,100%,50%,${intensity})`;
+        hexagonAt(ctx, x + cell/2, y + cell/2, cell*0.45);
+      }
+    }
+  },
+
+  // 16 — Lightning bolts
+  eq16(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 3, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.46, botH = v * H * 0.4;
+      const x = i * (bw + 3) + bw/2;
+      // Top zigzag
+      ctx.strokeStyle = '#FCEE0A';
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = '#FCEE0A'; ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.moveTo(x, midY);
+      const segs = 4;
+      for (let s = 1; s <= segs; s++) {
+        const sy = midY - (topH * s/segs);
+        const sx = x + (Math.random()-0.5) * bw;
+        ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
+      // Bottom mirror (softer)
+      ctx.strokeStyle = 'rgba(252,238,10,0.5)';
+      ctx.beginPath();
+      ctx.moveTo(x, midY);
+      for (let s = 1; s <= segs; s++) {
+        const sy = midY + (botH * s/segs);
+        const sx = x + (Math.random()-0.5) * bw;
+        ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+  },
+
+  // 17 — Vapor dream
+  eq17(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 1, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.46, botH = v * H * 0.42;
+      const x = i * (bw + 1);
+      const g = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      g.addColorStop(0, '#FF71CE'); g.addColorStop(0.5, '#B967FF'); g.addColorStop(1, '#01CDFE');
+      ctx.fillStyle = g;
+      roundRect(ctx, x, midY-topH, bw, topH, bw/2);
+      // Mirror (fade)
+      const g2 = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      g2.addColorStop(0, 'rgba(1,205,254,0.7)'); g2.addColorStop(1, 'rgba(255,113,206,0)');
+      ctx.fillStyle = g2;
+      roundRect(ctx, x, midY, bw, botH, bw/2);
+    }
+  },
+
+  // 18 — Liquid metal
+  eq18(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.4;
+      const x = i * (bw + 2);
+      // Chrome top
+      const gT = ctx.createLinearGradient(x, 0, x+bw, 0);
+      gT.addColorStop(0, '#808080'); gT.addColorStop(0.3, '#FFFFFF');
+      gT.addColorStop(0.5, '#C0C0C0'); gT.addColorStop(0.7, '#FFFFFF'); gT.addColorStop(1, '#808080');
+      ctx.fillStyle = gT;
+      ctx.fillRect(x, midY-topH, bw, topH);
+      // Bright highlight line
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x + bw*0.3, midY-topH, 1, topH);
+      // Mirror chrome
+      const gB = ctx.createLinearGradient(x, 0, x+bw, 0);
+      gB.addColorStop(0, 'rgba(128,128,128,0.7)'); gB.addColorStop(0.5, 'rgba(255,255,255,0.7)');
+      gB.addColorStop(1, 'rgba(128,128,128,0.7)');
+      ctx.fillStyle = gB;
+      ctx.fillRect(x, midY, bw, botH);
+    }
+  },
+
+  // 19 — Tribal drum
+  eq19(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 3, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.45, botH = v * H * 0.4;
+      const x = i * (bw + 3);
+      // Earthy top
+      const gT = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      gT.addColorStop(0, '#FFD700'); gT.addColorStop(0.5, '#D2691E'); gT.addColorStop(1, '#8B4513');
+      ctx.fillStyle = gT;
+      // Slightly tapered
+      ctx.beginPath();
+      ctx.moveTo(x + 1, midY-topH);
+      ctx.lineTo(x + bw - 1, midY-topH);
+      ctx.lineTo(x + bw, midY);
+      ctx.lineTo(x, midY);
+      ctx.closePath(); ctx.fill();
+      // Mirror tribal
+      const gB = ctx.createLinearGradient(0, midY, 0, midY+botH);
+      gB.addColorStop(0, 'rgba(210,105,30,0.7)'); gB.addColorStop(1, 'rgba(139,69,19,0)');
+      ctx.fillStyle = gB;
+      ctx.beginPath();
+      ctx.moveTo(x, midY);
+      ctx.lineTo(x + bw, midY);
+      ctx.lineTo(x + bw - 1, midY+botH);
+      ctx.lineTo(x + 1, midY+botH);
+      ctx.closePath(); ctx.fill();
+    }
+  },
+
+  // 20 — Moonlight petals
+  eq20(ctx, W, H, t, A) {
+    const N = A.length, bw = W/N - 2, midY = H/2;
+    for (let i = 0; i < N; i++) {
+      const v = A[i];
+      const topH = v * H * 0.46, botH = v * H * 0.4;
+      const x = i * (bw + 2);
+      // Soft petal top
+      const gT = ctx.createLinearGradient(0, midY-topH, 0, midY);
+      gT.addColorStop(0, 'rgba(255,255,255,0.95)');
+      gT.addColorStop(0.5, 'rgba(240,230,140,0.7)');
+      gT.addColorStop(1, 'rgba(221,160,221,0.5)');
+      ctx.fillStyle = gT;
+      ctx.shadowColor = 'rgba(255,255,255,0.6)'; ctx.shadowBlur = 8;
+      // Rounded leaf shape
+      ctx.beginPath();
+      ctx.ellipse(x + bw/2, midY - topH/2, bw/2, topH/2, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Mirror (softer petal)
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.beginPath();
+      ctx.ellipse(x + bw/2, midY + botH/2, bw/2.2, botH/2, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+  },
+};
+
+function roundRect(ctx, x, y, w, h, r) {
+  if (h <= 0 || w <= 0) return;
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath(); ctx.fill();
+}
+
+function hexagonAt(ctx, cx, cy, r) {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI/3 - Math.PI/2;
+    const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.closePath(); ctx.fill();
+}
+
+// ─── ANIMATION ───────────────────────────────────────────
+function pad(n) { return n<10?'0'+n:''+n; }
+const DAYS = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const MONTHS = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+const states = new Map();
+DESIGNS.forEach(d => states.set(d.id, { bat: 84, ram: 54, dsk: 71, batT: 84, ramT: 54, dskT: 71 }));
+
+let frame = 0;
+function tick() {
+  frame++;
+  const t = performance.now() / 500;
+  const now = new Date();
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const dateStr = `${DAYS[now.getDay()]} ${pad(now.getDate())} ${MONTHS[now.getMonth()]}`;
+
+  document.querySelectorAll('.phone').forEach((phone, idx) => {
+    const id = DESIGNS[idx].id;
+    const state = states.get(id);
+    if (frame % 90 === idx % 90) state.ramT = 35 + Math.random()*45;
+    if (frame % 150 === idx % 150) state.dskT = 50 + Math.random()*40;
+    state.ram += (state.ramT - state.ram) * 0.04;
+    state.dsk += (state.dskT - state.dsk) * 0.04;
+
+    phone.querySelector('[data-time]').textContent = timeStr;
+    phone.querySelector('[data-date]').textContent = dateStr;
+    phone.querySelector('[data-bat]').textContent = Math.round(state.bat);
+    phone.querySelector('[data-ram]').textContent = Math.round(state.ram);
+    phone.querySelector('[data-dsk]').textContent = Math.round(state.dsk);
+
+    // EQ render
+    const canvas = phone.querySelector('[data-eq]');
+    if (canvas) {
+      const cssW = canvas.offsetWidth, cssH = canvas.offsetHeight;
+      if (canvas.width !== cssW * 2) { canvas.width = cssW * 2; canvas.height = cssH * 2; }
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const N = 32;
+      const audio = Array.from({length: N}, (_, i) => fakeAudio(i, t, N));
+      RENDERERS[id](ctx, canvas.width, canvas.height, t, audio);
+    }
+  });
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

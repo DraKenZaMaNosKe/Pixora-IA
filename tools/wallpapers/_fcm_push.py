@@ -129,6 +129,7 @@ VALID_CATALOG_SCOPES = {
     "ringtones",
     "events",
     "aura",
+    "realm",
     "all",
 }
 

@@ -545,6 +545,15 @@ class Handler(BaseHTTPRequestHandler):
             data, status = self._proxy("rpc/wp_ad_stats", "POST", b"{}")
             return self._send_json(data, status)
 
+        # eCPM rates per ad kind — now sourced from ad_network_rates table
+        # (migrated 2026-06-05). Dashboard displays the actual rates instead
+        # of the hardcoded text subtitle that used to drift from reality.
+        if path == "/api/ad-rates":
+            data, status = self._proxy(
+                "ad_network_rates?select=ad_kind,ecpm_usd,region,updated_at&order=ad_kind"
+            )
+            return self._send_json(data, status)
+
         if path == "/api/ad-revenue-daily":
             limit = int(query.get("days", ["30"])[0])
             data, status = self._proxy(f"admin_ad_revenue_daily?limit={limit}")

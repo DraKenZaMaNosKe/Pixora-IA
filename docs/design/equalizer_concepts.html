@@ -1,0 +1,1095 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora · HUD + EQ Redesign · 10 mockups full-phone</title>
+<meta name="viewport" content="width=1500">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Bebas+Neue&family=Black+Ops+One&family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:wght@300;400;500;700&family=Forum&family=Italiana&family=JetBrains+Mono:wght@500;700;800&family=Major+Mono+Display&family=Manrope:wght@200;300;500;700&family=Orbitron:wght@400;500;700;800&family=Playfair+Display:wght@400;700;900&family=Rajdhani:wght@300;500;700&family=Space+Grotesk:wght@300;500;700&family=Syncopate:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pix-gold: #E6B655;
+  --pix-deep: #0E0E13;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #08080c; color: #e8e6dc; font-family: 'Manrope', sans-serif; }
+body { min-height: 100vh; padding: 32px 24px 96px; }
+
+.topbar {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  max-width: 1440px; margin: 0 auto 28px; padding-bottom: 18px;
+  border-bottom: 1px solid rgba(230,182,85,0.25);
+}
+.topbar h1 {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 24px;
+  letter-spacing: 4px; color: var(--pix-gold);
+}
+.topbar h1 small {
+  display: block; font-family: 'Manrope', sans-serif;
+  font-size: 12px; letter-spacing: 2px; color: #bfb39e; margin-top: 6px;
+  font-weight: 300;
+}
+.counter {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--pix-gold); padding: 8px 14px;
+  border: 1px solid rgba(230,182,85,0.4); border-radius: 999px;
+  background: rgba(230,182,85,0.06);
+}
+.counter .n { font-weight: 800; }
+
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px; max-width: 1440px; margin: 0 auto;
+}
+
+.card {
+  background: #0d0d12;
+  border: 1px solid rgba(230,182,85,0.18);
+  border-radius: 16px; overflow: hidden;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+  display: flex; flex-direction: column;
+}
+.card.selected {
+  border-color: var(--pix-gold);
+  box-shadow: 0 0 0 1px var(--pix-gold), 0 12px 40px rgba(230,182,85,0.25);
+}
+.phone {
+  position: relative;
+  width: 100%; aspect-ratio: 9 / 19.5;
+  background: #000; overflow: hidden;
+}
+.meta { padding: 14px 16px; }
+.meta .title {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 15px;
+  letter-spacing: 2px; color: #f6e9c8;
+}
+.meta .title small {
+  display: block; font-family: 'Manrope', sans-serif; font-style: italic;
+  font-size: 11px; color: #8d8470; letter-spacing: 1px; margin-top: 2px;
+  font-weight: 300; letter-spacing: 0.5px;
+}
+.meta .pitch {
+  font-size: 12px; line-height: 1.4; color: #c9c1ad; margin-top: 6px;
+  font-family: 'Manrope', sans-serif; font-weight: 300;
+}
+.meta .traits {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;
+}
+.trait {
+  font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+  padding: 2px 6px; border-radius: 3px; letter-spacing: 1px;
+  background: rgba(230,182,85,0.08); color: var(--pix-gold);
+  border: 1px solid rgba(230,182,85,0.2);
+}
+.pick {
+  margin-top: 10px; width: 100%;
+  padding: 7px 16px; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 2px; background: transparent; color: var(--pix-gold);
+  border: 1px solid var(--pix-gold); border-radius: 6px; cursor: pointer;
+  transition: all .2s;
+}
+.pick:hover { background: rgba(230,182,85,0.1); }
+.card.selected .pick { background: var(--pix-gold); color: #000; }
+.card.selected .pick::before { content: '✓ '; }
+
+/* ─── REAL PHONE SHELL ──────────────────────────────────── */
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 22px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 14px 0; font-size: 10px; color: rgba(255,255,255,0.85);
+  z-index: 100; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.statusbar .left { display: flex; align-items: center; gap: 4px; }
+.statusbar .right { display: flex; align-items: center; gap: 3px; font-size: 8px; }
+.dock {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+  z-index: 80; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+}
+.dock .ico {
+  width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  background: linear-gradient(160deg, rgba(0,0,0,0.35), rgba(0,0,0,0.25));
+  backdrop-filter: blur(8px); border: 0.5px solid rgba(255,255,255,0.12);
+}
+.navbar {
+  position: absolute; bottom: -1px; left: 0; right: 0; height: 24px;
+  z-index: 90; display: flex; justify-content: space-around; align-items: center;
+  font-size: 12px; color: rgba(255,255,255,0.6);
+}
+
+/* ─── Wallpaper backgrounds (per design) ─────────────────── */
+.wp-1 { background:
+  radial-gradient(ellipse at 60% 35%, #b3937a 0%, #6a4528 35%, #2c1810 100%); }
+.wp-2 { background:
+  radial-gradient(ellipse at 30% 70%, #4e3a6a 0%, #1a1230 50%, #050410 100%); }
+.wp-3 { background:
+  radial-gradient(ellipse at 50% 50%, #284a5e 0%, #0e1c2a 60%, #050a14 100%); }
+.wp-4 { background:
+  radial-gradient(ellipse at 30% 30%, #c47b56 0%, #6a3a1f 40%, #1a0b04 100%); }
+.wp-5 { background:
+  radial-gradient(ellipse at 70% 60%, #4a6a4e 0%, #1a2a1e 60%, #050a05 100%); }
+.wp-6 { background:
+  radial-gradient(ellipse at 50% 60%, #5a4a8a 0%, #2a2050 50%, #0a0820 100%); }
+.wp-7 { background:
+  radial-gradient(ellipse at 40% 50%, #1a3a5e 0%, #0a1a2a 60%, #050810 100%); }
+.wp-8 { background:
+  radial-gradient(ellipse at 50% 40%, #6a4528 0%, #2c1810 60%, #0e0e13 100%); }
+.wp-9 { background:
+  radial-gradient(ellipse at 60% 70%, #b85a3a 0%, #5a1a0a 40%, #1a0805 100%); }
+.wp-10 { background:
+  linear-gradient(180deg, #c9d4e2 0%, #8a9aae 60%, #4a5466 100%); }
+
+/* ═══════════════════════════════════════════════════════ */
+/*               DESIGN 1 · PIXORA CURRENT++              */
+/* ═══════════════════════════════════════════════════════ */
+.d1 .clock {
+  position: absolute; top: 36px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.d1 .clock .time {
+  font-family: 'Cinzel', serif; font-weight: 400; font-size: 64px;
+  color: #fff; line-height: 1; letter-spacing: -2px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.5), 0 0 24px rgba(255,255,255,0.2);
+}
+.d1 .clock .time .small {
+  font-size: 22px; color: #c9c1ad; vertical-align: top; margin-left: 8px;
+}
+.d1 .clock .date {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 12px;
+  color: #d8c98e; letter-spacing: 6px; margin-top: 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+.d1 .monitors {
+  position: absolute; top: 80px; left: 10px; z-index: 25;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.d1 .ring {
+  width: 44px; height: 44px; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.d1 .ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.d1 .ring svg circle { fill: none; stroke-width: 2.5; }
+.d1 .ring svg .bg { stroke: rgba(255,255,255,0.18); }
+.d1 .ring svg .fg { stroke: var(--pix-gold); stroke-linecap: round; transition: stroke-dashoffset .3s; }
+.d1 .ring .lab {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+}
+.d1 .ring::after {
+  content: attr(data-lab); position: absolute; left: 50px; top: 50%; transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #d8c98e;
+  letter-spacing: 1px; opacity: 0.7;
+}
+.d1 .eq {
+  position: absolute; left: 16px; right: 16px; bottom: 90px; height: 60px;
+  display: flex; gap: 2px; align-items: flex-end; z-index: 15;
+}
+.d1 .bar {
+  flex: 1; background: linear-gradient(0deg, transparent, var(--pix-gold));
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(230,182,85,0.6);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*       DESIGN 2 · GEMINI PULSE — dots that breathe     */
+/* ═══════════════════════════════════════════════════════ */
+.d2 .clock {
+  position: absolute; top: 50px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.d2 .clock .time {
+  font-family: 'Manrope', sans-serif; font-weight: 200; font-size: 80px;
+  color: #fff; line-height: 1; letter-spacing: -3px;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+.d2 .clock .date {
+  font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 300;
+  color: rgba(255,255,255,0.85); letter-spacing: 3px; margin-top: 8px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+.d2 .monitors {
+  position: absolute; top: 24px; right: 14px; z-index: 25;
+  display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+}
+.d2 .pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 11px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+  border: 0.5px solid rgba(255,255,255,0.18);
+}
+.d2 .pill .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.d2 .pill[data-kind="bat"] .dot { background: #34A853; }
+.d2 .pill[data-kind="ram"] .dot { background: #4285F4; }
+.d2 .pill[data-kind="dsk"] .dot { background: #EA4335; }
+.d2 .pill .v {
+  font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 500;
+  color: rgba(255,255,255,0.95);
+}
+.d2 .eq {
+  position: absolute; left: 0; right: 0; bottom: 86px;
+  display: flex; justify-content: center; gap: 14px; z-index: 15;
+}
+.d2 .gem {
+  width: 16px; height: 16px; border-radius: 50%;
+  transition: transform .12s ease-out;
+}
+.d2 .gem:nth-child(1) { background: #4285F4; }
+.d2 .gem:nth-child(2) { background: #EA4335; }
+.d2 .gem:nth-child(3) { background: #FBBC04; }
+.d2 .gem:nth-child(4) { background: #34A853; }
+.d2 .gem:nth-child(5) { background: #4285F4; }
+
+/* ═══════════════════════════════════════════════════════ */
+/*    DESIGN 3 · GROK SPECTRUM — vivid vertical bars     */
+/* ═══════════════════════════════════════════════════════ */
+.d3 .clock {
+  position: absolute; top: 40px; left: 20px; z-index: 20;
+}
+.d3 .clock .time {
+  font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 56px;
+  color: #fff; line-height: 1; letter-spacing: -2px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+.d3 .clock .date {
+  font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 500;
+  color: #d8c98e; letter-spacing: 4px; margin-top: 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  text-transform: uppercase;
+}
+.d3 .monitors {
+  position: absolute; top: 40px; right: 14px; z-index: 25;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.d3 .bar-h {
+  display: flex; align-items: center; gap: 6px; padding: 4px 0;
+}
+.d3 .bar-h .lab {
+  font-family: 'Rajdhani', sans-serif; font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,0.7); letter-spacing: 2px; min-width: 24px;
+}
+.d3 .bar-h .meter {
+  width: 50px; height: 4px; background: rgba(255,255,255,0.18); border-radius: 2px;
+  position: relative; overflow: hidden;
+}
+.d3 .bar-h .meter::after {
+  content: ''; position: absolute; inset: 0;
+  width: var(--w, 50%);
+  background: linear-gradient(90deg, #00E5FF, #00FF85, #FFFB00, #FF6B35);
+  border-radius: 2px;
+  transition: width .3s;
+}
+.d3 .bar-h .v {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  color: #fff;
+}
+.d3 .eq {
+  position: absolute; left: 14px; right: 14px; bottom: 90px; height: 80px;
+  display: flex; gap: 3px; align-items: flex-end; z-index: 15;
+}
+.d3 .bar {
+  flex: 1; min-height: 2px;
+  background: linear-gradient(0deg, #00E5FF 0%, #00FF85 30%, #FFFB00 70%, #FF6B35 100%);
+  background-size: 100% 80px;
+  background-position: 0 100%;
+  border-radius: 2px;
+  filter: drop-shadow(0 0 4px rgba(0,229,255,0.6));
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*   DESIGN 4 · SIRI WAVE — flowing ribbon, sine flow    */
+/* ═══════════════════════════════════════════════════════ */
+.d4 .clock {
+  position: absolute; top: 60px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.d4 .clock .time {
+  font-family: 'Italiana', serif; font-weight: 400; font-size: 88px;
+  color: #fff; line-height: 1; letter-spacing: 4px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.7);
+}
+.d4 .clock .date {
+  font-family: 'Forum', serif; font-size: 11px;
+  color: rgba(255,255,255,0.7); letter-spacing: 8px; margin-top: 10px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+.d4 .monitors {
+  position: absolute; top: 28px; left: 14px; right: 14px; z-index: 25;
+  display: flex; justify-content: space-between; gap: 6px;
+}
+.d4 .lozenge {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; padding: 4px 6px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  backdrop-filter: blur(10px);
+  border: 0.5px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+}
+.d4 .lozenge .v {
+  font-family: 'Italiana', serif; font-size: 14px; color: #fff; line-height: 1;
+}
+.d4 .lozenge .lab {
+  font-family: 'Forum', serif; font-size: 7px; color: rgba(255,255,255,0.6);
+  letter-spacing: 2px; margin-top: 2px;
+}
+.d4 .eq {
+  position: absolute; left: 0; right: 0; bottom: 88px; height: 80px;
+  z-index: 15; display: flex; align-items: center; justify-content: center;
+}
+.d4 .eq canvas { width: 100%; height: 100%; }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  DESIGN 5 · CHATGPT RINGS — concentric expanding rings */
+/* ═══════════════════════════════════════════════════════ */
+.d5 .clock {
+  position: absolute; top: 50px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.d5 .clock .time {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 300; font-size: 72px;
+  color: #fff; line-height: 1; letter-spacing: -2px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+}
+.d5 .clock .date {
+  font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 500;
+  color: rgba(255,255,255,0.7); letter-spacing: 4px; margin-top: 6px;
+  text-transform: uppercase;
+}
+.d5 .monitors {
+  position: absolute; top: 28px; left: 14px; z-index: 25;
+  display: flex; gap: 6px;
+}
+.d5 .chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 999px;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+  border: 0.5px solid rgba(255,255,255,0.15);
+}
+.d5 .chip .ico {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #10A37F; box-shadow: 0 0 4px #10A37F;
+}
+.d5 .chip[data-kind="ram"] .ico { background: #6E59A5; box-shadow: 0 0 4px #6E59A5; }
+.d5 .chip[data-kind="dsk"] .ico { background: #ED4E5C; box-shadow: 0 0 4px #ED4E5C; }
+.d5 .chip .v {
+  font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 500;
+  color: rgba(255,255,255,0.95);
+}
+.d5 .eq {
+  position: absolute; left: 0; right: 0; bottom: 84px; height: 100px;
+  z-index: 15; display: flex; align-items: center; justify-content: center;
+}
+.d5 .eq canvas { width: 100px; height: 100px; }
+
+/* ═══════════════════════════════════════════════════════ */
+/*   DESIGN 6 · LIQUID MERCURY — morphing blob shapes    */
+/* ═══════════════════════════════════════════════════════ */
+.d6 .clock {
+  position: absolute; top: 30px; right: 18px; z-index: 20; text-align: right;
+}
+.d6 .clock .time {
+  font-family: 'Bebas Neue', sans-serif; font-size: 56px;
+  color: #fff; line-height: 0.9; letter-spacing: 2px;
+  background: linear-gradient(180deg, #fff 0%, #c9c1ad 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.d6 .clock .date {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 500;
+  color: rgba(255,255,255,0.7); letter-spacing: 3px; margin-top: 2px;
+}
+.d6 .monitors {
+  position: absolute; top: 70px; left: 14px; z-index: 25;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.d6 .liq {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 10px 5px 5px; border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04));
+  backdrop-filter: blur(14px);
+  border: 0.5px solid rgba(255,255,255,0.25);
+  box-shadow: inset 0 0 8px rgba(255,255,255,0.1);
+}
+.d6 .liq .drop {
+  width: 20px; height: 20px; border-radius: 50% 50% 50% 50%;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), inset 1px 1px 3px rgba(255,255,255,0.5);
+  animation: morph 6s ease-in-out infinite;
+}
+@keyframes morph {
+  0%,100% { border-radius: 60% 40% 50% 50%; transform: rotate(0deg); }
+  50% { border-radius: 40% 60% 60% 40%; transform: rotate(180deg); }
+}
+.d6 .liq[data-kind="bat"] { --c1: #66ffb0; --c2: #00a86b; }
+.d6 .liq[data-kind="ram"] { --c1: #b8a4ff; --c2: #6a4bff; }
+.d6 .liq[data-kind="dsk"] { --c1: #ffcb87; --c2: #ff7a00; }
+.d6 .liq .v {
+  font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,0.95);
+}
+.d6 .eq {
+  position: absolute; left: 12px; right: 12px; bottom: 86px; height: 70px;
+  z-index: 15; display: flex; align-items: center; justify-content: center;
+}
+.d6 .eq canvas { width: 100%; height: 100%; }
+
+/* ═══════════════════════════════════════════════════════ */
+/*    DESIGN 7 · CRT WAVE — orbitron sci-fi terminal     */
+/* ═══════════════════════════════════════════════════════ */
+.d7 .scan {
+  position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,255,255,0.03) 2px 3px);
+}
+.d7 .clock {
+  position: absolute; top: 42px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.d7 .clock .time {
+  font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 56px;
+  color: #00E5FF; line-height: 1; letter-spacing: 4px;
+  text-shadow: 0 0 12px rgba(0,229,255,0.7), 0 0 30px rgba(0,229,255,0.4);
+}
+.d7 .clock .date {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  color: rgba(0,229,255,0.7); letter-spacing: 5px; margin-top: 4px;
+}
+.d7 .monitors {
+  position: absolute; top: 24px; left: 14px; right: 14px; z-index: 25;
+  display: flex; justify-content: space-between;
+}
+.d7 .hex {
+  width: 50px; height: 56px; position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+}
+.d7 .hex::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    linear-gradient(135deg, rgba(0,229,255,0.18), rgba(0,229,255,0.02));
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  border: 1px solid #00E5FF;
+}
+.d7 .hex::after {
+  content: ''; position: absolute; inset: 0;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background:
+    linear-gradient(135deg, transparent, rgba(0,229,255,0.04));
+  border: 0.5px solid rgba(0,229,255,0.3);
+}
+.d7 .hex .v {
+  position: relative; z-index: 1;
+  font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 12px;
+  color: #00E5FF;
+  text-shadow: 0 0 4px rgba(0,229,255,0.7);
+}
+.d7 .hex .lab {
+  position: relative; z-index: 1;
+  font-family: 'JetBrains Mono', monospace; font-size: 7px;
+  color: rgba(0,229,255,0.7); letter-spacing: 1px;
+}
+.d7 .eq {
+  position: absolute; left: 14px; right: 14px; bottom: 90px; height: 80px;
+  z-index: 15;
+}
+.d7 .eq canvas { width: 100%; height: 100%; }
+
+/* ═══════════════════════════════════════════════════════ */
+/* DESIGN 8 · PIXORA SACRED — your brand, refined HUD    */
+/* ═══════════════════════════════════════════════════════ */
+.d8 .clock {
+  position: absolute; top: 38px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.d8 .clock .time {
+  font-family: 'Cinzel', serif; font-weight: 500; font-size: 70px;
+  color: var(--pix-gold); line-height: 1; letter-spacing: 4px;
+  text-shadow: 0 0 20px rgba(230,182,85,0.5), 0 2px 8px rgba(0,0,0,0.6);
+}
+.d8 .clock .date {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 11px;
+  color: #C9A650; letter-spacing: 6px; margin-top: 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+.d8 .monitors {
+  position: absolute; top: 30px; left: 12px; z-index: 25;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.d8 .glyph {
+  width: 36px; height: 36px; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.d8 .glyph::before {
+  content: ''; position: absolute; inset: 0;
+  border-radius: 50%; border: 1px solid var(--pix-gold);
+  background: radial-gradient(circle, rgba(230,182,85,0.12), transparent);
+}
+.d8 .glyph::after {
+  content: ''; position: absolute; inset: -4px;
+  border-radius: 50%; border: 0.5px dashed rgba(230,182,85,0.4);
+  animation: rotate 20s linear infinite;
+}
+@keyframes rotate { to { transform: rotate(360deg); } }
+.d8 .glyph .v {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 12px;
+  color: var(--pix-gold); position: relative; z-index: 1;
+  text-shadow: 0 0 4px rgba(230,182,85,0.5);
+}
+.d8 .eq {
+  position: absolute; left: 16px; right: 16px; bottom: 90px; height: 70px;
+  display: flex; gap: 2px; align-items: flex-end; z-index: 15;
+}
+.d8 .bar {
+  flex: 1;
+  background: linear-gradient(0deg, rgba(230,182,85,0.1) 0%, var(--pix-gold) 50%, #FFD23F 100%);
+  border-radius: 999px 999px 1px 1px;
+  filter: drop-shadow(0 0 6px rgba(230,182,85,0.6));
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  DESIGN 9 · FLAME EQ — bars as flickering fire wisps  */
+/* ═══════════════════════════════════════════════════════ */
+.d9 .clock {
+  position: absolute; top: 30px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.d9 .clock .time {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 64px;
+  color: #FFD700; line-height: 1; letter-spacing: 2px;
+  text-shadow: 0 0 24px #FF4500, 0 0 60px rgba(255,69,0,0.4);
+}
+.d9 .clock .date {
+  font-family: 'Black Ops One', sans-serif; font-size: 10px;
+  color: #FF8C00; letter-spacing: 4px; margin-top: 6px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+.d9 .monitors {
+  position: absolute; top: 26px; right: 14px; z-index: 25;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.d9 .ember {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 8px 4px 4px; border-radius: 999px;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  border: 0.5px solid rgba(255,140,0,0.3);
+}
+.d9 .ember .glow {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: radial-gradient(circle, #FFD700 0%, #FF4500 60%, transparent 100%);
+  box-shadow: 0 0 8px #FF4500;
+  animation: flicker 1.5s ease-in-out infinite;
+}
+@keyframes flicker {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.9); }
+}
+.d9 .ember .v {
+  font-family: 'Black Ops One', sans-serif; font-size: 11px;
+  color: #FFD700;
+}
+.d9 .eq {
+  position: absolute; left: 14px; right: 14px; bottom: 88px; height: 80px;
+  z-index: 15;
+}
+.d9 .eq canvas { width: 100%; height: 100%; }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  DESIGN 10 · LIGHT CRYSTAL — light theme, prismatic   */
+/* ═══════════════════════════════════════════════════════ */
+.d10 .clock {
+  position: absolute; top: 50px; left: 0; right: 0; text-align: center; z-index: 20;
+}
+.d10 .clock .time {
+  font-family: 'Italiana', serif; font-weight: 400; font-size: 80px;
+  color: #2A3548; line-height: 1; letter-spacing: 4px;
+  text-shadow: 1px 0 rgba(255,100,150,0.4), -1px 0 rgba(100,200,255,0.4);
+}
+.d10 .clock .date {
+  font-family: 'Forum', serif; font-size: 11px;
+  color: #5A6878; letter-spacing: 6px; margin-top: 6px;
+}
+.d10 .statusbar { color: rgba(42,53,72,0.85); }
+.d10 .monitors {
+  position: absolute; top: 28px; left: 14px; right: 14px; z-index: 25;
+  display: flex; justify-content: space-between;
+}
+.d10 .shard {
+  width: 48px; padding: 5px 6px; text-align: center;
+  background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(220,230,250,0.5));
+  border: 0.5px solid rgba(255,255,255,0.9);
+  backdrop-filter: blur(10px);
+  clip-path: polygon(15% 0, 85% 0, 100% 100%, 0 100%);
+}
+.d10 .shard .v {
+  font-family: 'Italiana', serif; font-size: 16px; color: #2A3548;
+}
+.d10 .shard .lab {
+  font-family: 'Forum', serif; font-size: 7px; color: #5A6878; letter-spacing: 2px;
+}
+.d10 .eq {
+  position: absolute; left: 16px; right: 16px; bottom: 90px; height: 70px;
+  display: flex; gap: 2px; align-items: flex-end; z-index: 15;
+}
+.d10 .bar {
+  flex: 1;
+  background: linear-gradient(180deg,
+    rgba(255,100,150,0.6) 0%,
+    rgba(150,200,255,0.7) 50%,
+    rgba(255,255,255,0.9) 100%);
+  border: 0.5px solid rgba(255,255,255,0.9);
+  clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0 100%);
+  backdrop-filter: blur(4px);
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="gauge-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD23F"/>
+      <stop offset="100%" stop-color="#E6B655"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <h1>PIXORA · HUD + EQ REDESIGN
+    <small>10 mockups full-phone · cada uno con tu home + clock + monitors + EQ animado</small>
+  </h1>
+  <div class="counter">FAVORITOS · <span class="n" id="sel-count">0</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const DESIGNS = [
+  { id: 'd1', title: 'PIXORA CURRENT++', sub: 'Tu estilo actual · refinado',
+    pitch: 'Reloj Cinzel grande arriba, 3 rings dorados verticales a la izquierda con label sutil al lado, ecualizador horizontal abajo. Es lo que ya tienes, pulido a detalle: rings más limpios, mejor tipografía, EQ con shadow correcto.',
+    traits: ['BRAND', 'FAMILIAR', 'GOLD', 'CIRCULAR'], wp: 'wp-1' },
+  { id: 'd2', title: 'GEMINI PULSE', sub: 'Dots respirando · Google AI',
+    pitch: 'Inspirado en Gemini Live: 5 esferas de colores Google (azul, rojo, amarillo, verde) pulsando con el audio. Monitores como pills flotantes arriba derecha con backdrop blur. Reloj Manrope extra-light gigante.',
+    traits: ['AI', 'PULSE', 'COLOR', 'MODERN'], wp: 'wp-2' },
+  { id: 'd3', title: 'GROK SPECTRUM', sub: 'Barras vivas multi-color',
+    pitch: 'Barras verticales tipo Grok con gradiente cyan→verde→amarillo→naranja, glow sutil. Reloj Syncopate bold a la izquierda. Monitores como horizontal-meters con valor mono. Bold, tech, vibrante.',
+    traits: ['VIVID', 'SPECTRUM', 'TECH', 'BOLD'], wp: 'wp-3' },
+  { id: 'd4', title: 'SIRI WAVE', sub: 'Cinta sinusoidal suave',
+    pitch: 'Reloj Italiana enorme tipo iOS, monitores como lozenges horizontales arriba en fila. EQ es una sola onda sinusoidal flotante con gradiente, suave y elegante. Mínimo absoluto.',
+    traits: ['ELEGANT', 'WAVE', 'MINIMAL', 'IOS'], wp: 'wp-4' },
+  { id: 'd5', title: 'CHATGPT RINGS', sub: 'Anillos concéntricos expandiéndose',
+    pitch: 'EQ son anillos concéntricos que se expanden con el audio (ChatGPT Voice style). Reloj Space Grotesk light. Chips redondeadas para monitors con dots de colores. Producto IA premium.',
+    traits: ['AI', 'RINGS', 'CLEAN', 'PREMIUM'], wp: 'wp-5' },
+  { id: 'd6', title: 'LIQUID MERCURY', sub: 'Morphing blobs / drops',
+    pitch: 'Monitores como gotas líquidas que morphing constantemente (border-radius animado). Reloj Bebas Neue gradiente plata. EQ son curvas suaves rellenas tipo waveform. Orgánico.',
+    traits: ['LIQUID', 'MORPH', 'ORGANIC', 'SMOOTH'], wp: 'wp-6' },
+  { id: 'd7', title: 'CRT TERMINAL', sub: 'Cyan sci-fi tech / scanlines',
+    pitch: 'Hexágonos cyan con valores en Orbitron para monitors. Reloj Orbitron 800 con glow cyan. EQ con bars cyan + onda overlay. Scanlines CRT sutiles. Mass Effect / Star Citizen vibe.',
+    traits: ['SCIFI', 'HEX', 'CYAN', 'TECH'], wp: 'wp-7' },
+  { id: 'd8', title: 'PIXORA SACRED', sub: 'Brand puro · glyph dorados',
+    pitch: 'Tu paleta brand cosmica. Monitores como glyphs circulares con anillo dashed rotando. Reloj Cinzel con glow dorado. EQ barras gold con shadow. Sacred geometry feel.',
+    traits: ['BRAND', 'SACRED', 'GOLD', 'NATIVE'], wp: 'wp-8' },
+  { id: 'd9', title: 'FLAME WISPS', sub: 'Bars como llamas titilando',
+    pitch: 'EQ tipo llamas (taller en centro, flicker random). Embers con glow flickering para monitors. Reloj Cinzel rojo-dorado con glow fuego. Cálido, primal, heavy metal vibe.',
+    traits: ['FIRE', 'WARM', 'FLICKER', 'PRIMAL'], wp: 'wp-9' },
+  { id: 'd10', title: 'LIGHT CRYSTAL', sub: 'Tema CLARO · refracción prismática',
+    pitch: 'Único tema light: blanco helado + refracción rosa/cyan. Bars como shards triangulares clip-path. Reloj Italiana con aberración cromática. Monitors como facetas de cristal.',
+    traits: ['LIGHT', 'PRISM', 'CRYSTAL', 'BOUTIQUE'], wp: 'wp-10' },
+];
+
+const grid = document.getElementById('grid');
+const selCount = document.getElementById('sel-count');
+const selected = new Set();
+
+function phoneHTML(d) {
+  // Status bar contents same on all (mimics Samsung)
+  const sb = `
+    <div class="statusbar">
+      <div class="left">9:41 · Pixora Daily</div>
+      <div class="right">📶 📶 🔋</div>
+    </div>`;
+  const dock = `
+    <div class="dock">
+      <div class="ico" style="background:linear-gradient(160deg,#25D366,#128C7E)">📞</div>
+      <div class="ico" style="background:linear-gradient(160deg,#4A90E2,#357ABD)">💬</div>
+      <div class="ico" style="background:linear-gradient(160deg,#FFB400,#FF8C00)">📷</div>
+      <div class="ico" style="background:linear-gradient(160deg,#6E59A5,#473769)">⊞</div>
+    </div>
+    <div class="navbar">‖ ◯ ◁</div>`;
+
+  // Per-design HUD body
+  let body = '';
+  switch (d.id) {
+    case 'd1':
+      body = `
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="monitors">
+          ${['BAT','RAM','DSK'].map(l => `
+            <div class="ring" data-lab="${l}"><svg viewBox="0 0 44 44"><circle class="bg" cx="22" cy="22" r="18"/><circle class="fg" cx="22" cy="22" r="18" stroke-dasharray="113.1" stroke-dashoffset="56" data-fg/></svg><div class="lab" data-${l.toLowerCase()}>--</div></div>`).join('')}
+        </div>
+        <div class="eq" data-eq>${'<div class="bar"></div>'.repeat(32)}</div>`;
+      break;
+    case 'd2':
+      body = `
+        <div class="monitors">
+          <div class="pill" data-kind="bat"><div class="dot"></div><div class="v"><span data-bat>--</span>%</div></div>
+          <div class="pill" data-kind="ram"><div class="dot"></div><div class="v"><span data-ram>--</span>%</div></div>
+          <div class="pill" data-kind="dsk"><div class="dot"></div><div class="v"><span data-dsk>--</span>%</div></div>
+        </div>
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="eq" data-gem>${'<div class="gem"></div>'.repeat(5)}</div>`;
+      break;
+    case 'd3':
+      body = `
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="monitors">
+          ${['bat','ram','dsk'].map(l => `
+            <div class="bar-h"><div class="lab">${l.toUpperCase()}</div><div class="meter" data-meter-${l}></div><div class="v"><span data-${l}>--</span>%</div></div>`).join('')}
+        </div>
+        <div class="eq" data-eq>${'<div class="bar"></div>'.repeat(36)}</div>`;
+      break;
+    case 'd4':
+      body = `
+        <div class="monitors">
+          <div class="lozenge"><div class="v"><span data-bat>--</span>%</div><div class="lab">BAT</div></div>
+          <div class="lozenge"><div class="v"><span data-ram>--</span>%</div><div class="lab">RAM</div></div>
+          <div class="lozenge"><div class="v"><span data-dsk>--</span>%</div><div class="lab">DSK</div></div>
+        </div>
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="eq"><canvas data-siri-wave></canvas></div>`;
+      break;
+    case 'd5':
+      body = `
+        <div class="monitors">
+          <div class="chip" data-kind="bat"><div class="ico"></div><div class="v"><span data-bat>--</span>%</div></div>
+          <div class="chip" data-kind="ram"><div class="ico"></div><div class="v"><span data-ram>--</span>%</div></div>
+          <div class="chip" data-kind="dsk"><div class="ico"></div><div class="v"><span data-dsk>--</span>%</div></div>
+        </div>
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="eq"><canvas data-gpt-rings></canvas></div>`;
+      break;
+    case 'd6':
+      body = `
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="monitors">
+          <div class="liq" data-kind="bat"><div class="drop"></div><div class="v"><span data-bat>--</span>%</div></div>
+          <div class="liq" data-kind="ram"><div class="drop"></div><div class="v"><span data-ram>--</span>%</div></div>
+          <div class="liq" data-kind="dsk"><div class="drop"></div><div class="v"><span data-dsk>--</span>%</div></div>
+        </div>
+        <div class="eq"><canvas data-mercury></canvas></div>`;
+      break;
+    case 'd7':
+      body = `
+        <div class="scan"></div>
+        <div class="monitors">
+          <div class="hex"><div class="v"><span data-bat>--</span></div><div class="lab">BAT</div></div>
+          <div class="hex"><div class="v"><span data-ram>--</span></div><div class="lab">RAM</div></div>
+          <div class="hex"><div class="v"><span data-dsk>--</span></div><div class="lab">DSK</div></div>
+        </div>
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="eq"><canvas data-crt></canvas></div>`;
+      break;
+    case 'd8':
+      body = `
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="monitors">
+          <div class="glyph"><div class="v"><span data-bat>--</span></div></div>
+          <div class="glyph"><div class="v"><span data-ram>--</span></div></div>
+          <div class="glyph"><div class="v"><span data-dsk>--</span></div></div>
+        </div>
+        <div class="eq" data-eq>${'<div class="bar"></div>'.repeat(28)}</div>`;
+      break;
+    case 'd9':
+      body = `
+        <div class="monitors">
+          <div class="ember"><div class="glow"></div><div class="v"><span data-bat>--</span>%</div></div>
+          <div class="ember"><div class="glow"></div><div class="v"><span data-ram>--</span>%</div></div>
+          <div class="ember"><div class="glow"></div><div class="v"><span data-dsk>--</span>%</div></div>
+        </div>
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="eq"><canvas data-flame></canvas></div>`;
+      break;
+    case 'd10':
+      body = `
+        <div class="monitors">
+          <div class="shard"><div class="v"><span data-bat>--</span>%</div><div class="lab">BAT</div></div>
+          <div class="shard"><div class="v"><span data-ram>--</span>%</div><div class="lab">RAM</div></div>
+          <div class="shard"><div class="v"><span data-dsk>--</span>%</div><div class="lab">DSK</div></div>
+        </div>
+        <div class="clock"><div class="time" data-time></div><div class="date" data-date></div></div>
+        <div class="eq" data-eq>${'<div class="bar"></div>'.repeat(30)}</div>`;
+      break;
+  }
+  return `<div class="phone ${d.id} ${d.wp}">${sb}${body}${dock}</div>`;
+}
+
+DESIGNS.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = d.id;
+  card.innerHTML = `
+    ${phoneHTML(d)}
+    <div class="meta">
+      <div class="title">${d.title}<small>${d.sub}</small></div>
+      <div class="pitch">${d.pitch}</div>
+      <div class="traits">${d.traits.map(t => `<span class="trait">${t}</span>`).join('')}</div>
+      <button class="pick">SELECCIONAR</button>
+    </div>`;
+  grid.appendChild(card);
+  card.querySelector('.pick').addEventListener('click', () => {
+    card.classList.toggle('selected');
+    if (card.classList.contains('selected')) selected.add(d.id);
+    else selected.delete(d.id);
+    selCount.textContent = selected.size;
+  });
+});
+
+// ─── Animation ─────────────────────────────────────────────
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+const DAYS = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const MONTHS = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+function fakeAudio(i, t, total) {
+  const norm = i / total;
+  const bass = Math.max(0, Math.sin(t * 2 + norm * 8) * 0.8 + Math.sin(t * 0.7) * 0.4);
+  const mid = Math.max(0, Math.sin(t * 4.5 + norm * 12) * 0.6);
+  const treble = Math.max(0, Math.sin(t * 9 + norm * 20) * 0.4);
+  const env = 0.5 + 0.5 * Math.cos(norm * Math.PI - Math.PI/2);
+  const v = (bass * (1-norm) + mid * env + treble * norm) / 1.5;
+  return Math.max(0.05, Math.min(1, v));
+}
+
+const states = new Map();
+DESIGNS.forEach(d => states.set(d.id, {
+  bat: 84, ram: 54, dsk: 71,
+  batT: 84, ramT: 54, dskT: 71,
+}));
+
+function drawSiriWave(canvas, t) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = canvas.offsetHeight * 2;
+  ctx.scale(1, 1);
+  ctx.clearRect(0, 0, W, H);
+  // 3 sin waves stacked, gradient
+  const colors = ['rgba(180,200,255,0.7)', 'rgba(140,180,255,0.5)', 'rgba(220,240,255,0.4)'];
+  for (let layer = 0; layer < 3; layer++) {
+    ctx.beginPath();
+    for (let x = 0; x < W; x += 2) {
+      const phase = (x / W) * Math.PI * 6 + t * (1.5 - layer * 0.3);
+      const amp = (H * 0.18) * (0.4 + Math.sin(t * 0.6 + layer) * 0.3 + Math.sin(t * 1.3 + x * 0.02) * 0.2);
+      const y = H/2 + Math.sin(phase) * amp;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = colors[layer]; ctx.lineWidth = 3 - layer * 0.5; ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+}
+
+function drawGPTRings(canvas, t) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = canvas.offsetHeight * 2;
+  ctx.clearRect(0, 0, W, H);
+  const cx = W/2, cy = H/2;
+  // Center black solid disc + 4 expanding rings
+  const baseR = 18;
+  ctx.fillStyle = '#10A37F';
+  ctx.beginPath(); ctx.arc(cx, cy, baseR + Math.sin(t*4)*2, 0, Math.PI*2); ctx.fill();
+  for (let i = 0; i < 4; i++) {
+    const phase = (t * 0.8 + i * 0.5) % 2;
+    const r = baseR + 8 + phase * 60;
+    const alpha = Math.max(0, 0.6 * (1 - phase / 2));
+    ctx.strokeStyle = `rgba(16,163,127,${alpha})`;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+  }
+}
+
+function drawMercury(canvas, t) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = canvas.offsetHeight * 2;
+  ctx.clearRect(0, 0, W, H);
+  // Smooth filled waveform (silver/mercury)
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(220,225,235,0.9)');
+  grad.addColorStop(0.5, 'rgba(160,170,195,0.7)');
+  grad.addColorStop(1, 'rgba(80,90,115,0.4)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  for (let x = 0; x <= W; x += 3) {
+    const v = fakeAudio(x/W * 30, t, 30);
+    const y = H - v * H * 0.8;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+  // Highlight line on top
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  for (let x = 0; x <= W; x += 3) {
+    const v = fakeAudio(x/W * 30, t, 30);
+    const y = H - v * H * 0.8;
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function drawCRT(canvas, t) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = canvas.offsetHeight * 2;
+  ctx.clearRect(0, 0, W, H);
+  // Sci-fi: bars with overlay wave
+  const N = 30;
+  const bw = W / N - 4;
+  for (let i = 0; i < N; i++) {
+    const v = fakeAudio(i, t, N);
+    const h = v * H * 0.85;
+    const x = i * (bw + 4);
+    const grad = ctx.createLinearGradient(x, H-h, x, H);
+    grad.addColorStop(0, '#00E5FF');
+    grad.addColorStop(1, 'rgba(0,229,255,0.1)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, H-h, bw, h);
+    ctx.fillStyle = '#00FFFF';
+    ctx.fillRect(x, H-h, bw, 3);
+  }
+  // Overlay wave
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5; ctx.beginPath();
+  for (let x = 0; x <= W; x += 2) {
+    const y = H/2 + Math.sin(t*3 + x*0.04) * H * 0.15;
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
+function drawFlame(canvas, t) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = canvas.offsetHeight * 2;
+  ctx.clearRect(0, 0, W, H);
+  const N = 28;
+  const bw = W / N - 2;
+  for (let i = 0; i < N; i++) {
+    let v = fakeAudio(i, t, N);
+    // taller in middle, flicker
+    const centerBoost = 1 - Math.abs((i / (N-1)) - 0.5) * 1.4;
+    v *= Math.max(0.3, centerBoost) * (0.85 + Math.random() * 0.3);
+    const h = v * H * 0.95;
+    const x = i * (bw + 2);
+    const grad = ctx.createLinearGradient(x, H-h, x, H);
+    grad.addColorStop(0, '#FFD700');
+    grad.addColorStop(0.4, '#FF8C00');
+    grad.addColorStop(0.8, '#FF4500');
+    grad.addColorStop(1, 'rgba(139,0,0,0.3)');
+    ctx.fillStyle = grad;
+    // tapered (flame shape) using path
+    ctx.beginPath();
+    ctx.moveTo(x + bw*0.3, H);
+    ctx.quadraticCurveTo(x, H-h*0.5, x + bw*0.4, H-h);
+    ctx.quadraticCurveTo(x + bw*0.5, H-h*1.05, x + bw*0.6, H-h);
+    ctx.quadraticCurveTo(x + bw, H-h*0.5, x + bw*0.7, H);
+    ctx.closePath(); ctx.fill();
+  }
+}
+
+let frame = 0;
+function tick() {
+  frame++;
+  const t = performance.now() / 500;
+  const now = new Date();
+  const hh = pad(now.getHours()), mm = pad(now.getMinutes()), ss = pad(now.getSeconds());
+  const dateStr = `${DAYS[now.getDay()]} ${pad(now.getDate())} ${MONTHS[now.getMonth()]}`;
+
+  document.querySelectorAll('.phone').forEach((card, idx) => {
+    const id = DESIGNS[idx].id;
+    const state = states.get(id);
+
+    // Drift HUD values
+    if (frame % 90 === idx) state.ramT = 35 + Math.random()*45;
+    if (frame % 150 === idx) state.dskT = 50 + Math.random()*40;
+    if (frame % 300 === idx) state.batT = Math.max(20, state.bat - Math.random()*2);
+    state.ram += (state.ramT - state.ram) * 0.04;
+    state.dsk += (state.dskT - state.dsk) * 0.04;
+    state.bat += (state.batT - state.bat) * 0.01;
+    const batP = Math.round(state.bat), ramP = Math.round(state.ram), dskP = Math.round(state.dsk);
+
+    const tEl = card.querySelector('[data-time]');
+    const dEl = card.querySelector('[data-date]');
+    if (tEl) tEl.textContent = `${hh}:${mm}`;
+    if (dEl) dEl.textContent = dateStr;
+
+    card.querySelectorAll('[data-bat]').forEach(el => el.textContent = batP);
+    card.querySelectorAll('[data-ram]').forEach(el => el.textContent = ramP);
+    card.querySelectorAll('[data-dsk]').forEach(el => el.textContent = dskP);
+
+    // D1 — bar EQ + circle dasharray
+    const bars = card.querySelectorAll('[data-eq] .bar');
+    if (bars.length) {
+      bars.forEach((b, i) => {
+        const v = fakeAudio(i, t, bars.length);
+        b.style.height = (v * 60) + 'px';
+      });
+    }
+    // D1 specific: update circle dashoffset
+    if (id === 'd1') {
+      const circ = 113.1;
+      const fgs = card.querySelectorAll('[data-fg]');
+      [batP, ramP, dskP].forEach((p, i) => {
+        if (fgs[i]) fgs[i].setAttribute('stroke-dashoffset', circ - circ * p / 100);
+      });
+    }
+    // D3 specific: meter widths
+    if (id === 'd3') {
+      const m1 = card.querySelector('[data-meter-bat]');
+      const m2 = card.querySelector('[data-meter-ram]');
+      const m3 = card.querySelector('[data-meter-dsk]');
+      if (m1) m1.style.setProperty('--w', batP + '%');
+      if (m2) m2.style.setProperty('--w', ramP + '%');
+      if (m3) m3.style.setProperty('--w', dskP + '%');
+      // bars too
+      const eb = card.querySelectorAll('[data-eq] .bar');
+      eb.forEach((b, i) => {
+        const v = fakeAudio(i, t, eb.length);
+        b.style.height = (v * 80) + 'px';
+      });
+    }
+    if (id === 'd8') {
+      const eb = card.querySelectorAll('[data-eq] .bar');
+      eb.forEach((b, i) => {
+        const v = fakeAudio(i, t, eb.length);
+        b.style.height = (v * 70) + 'px';
+      });
+    }
+    if (id === 'd10') {
+      const eb = card.querySelectorAll('[data-eq] .bar');
+      eb.forEach((b, i) => {
+        const v = fakeAudio(i, t, eb.length);
+        b.style.height = (v * 70) + 'px';
+      });
+    }
+    // D2 Gemini gems
+    if (id === 'd2') {
+      const gems = card.querySelectorAll('[data-gem] .gem');
+      gems.forEach((g, i) => {
+        const v = fakeAudio(i*4, t, 20);
+        const sc = 0.6 + v * 1.6;
+        g.style.transform = `scale(${sc})`;
+      });
+    }
+    // D4 SIRI WAVE canvas
+    if (id === 'd4') drawSiriWave(card.querySelector('[data-siri-wave]'), t);
+    if (id === 'd5') drawGPTRings(card.querySelector('[data-gpt-rings]'), t);
+    if (id === 'd6') drawMercury(card.querySelector('[data-mercury]'), t);
+    if (id === 'd7') drawCRT(card.querySelector('[data-crt]'), t);
+    if (id === 'd9') drawFlame(card.querySelector('[data-flame]'), t);
+  });
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

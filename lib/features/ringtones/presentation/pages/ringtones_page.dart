@@ -323,38 +323,57 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
               ),
             ),
           ),
-          packsAsync.when(
-            loading: () => const _ShimmerLoading(),
-            error: (e, _) => Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline, color: _neonPink, size: 48),
-                  const SizedBox(height: 12),
-                  Text('Failed to load tones',
-                      style: GoogleFonts.inter(
-                          color: _cream.withValues(alpha: 0.6))),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () => ref.invalidate(ringtonePacksProvider),
-                    child: Text('Retry',
-                        style: GoogleFonts.inter(color: _neonCyan)),
-                  ),
-                ],
-              ),
-            ),
-            data: (packs) {
-              if (packs.isEmpty) {
-                return Center(
-                  child: Text(
-                    'No tones available yet',
-                    style:
-                        GoogleFonts.inter(color: _cream.withValues(alpha: 0.6)),
-                  ),
-                );
-              }
-              return _buildDiscoveryView(packs);
+          RefreshIndicator(
+            color: _neonPink,
+            backgroundColor: _bgBot,
+            onRefresh: () async {
+              // Pull-to-refresh — drop the in-memory + Hive cache so newly
+              // shipped packs/tones from Supabase show up without waiting for
+              // the 6h TTL or the FCM `ringtones` invalidate push.
+              await RingtoneService.instance.clearCache();
+              ref.invalidate(ringtonePacksProvider);
+              await ref.read(ringtonePacksProvider.future);
             },
+            child: packsAsync.when(
+              loading: () => const _ShimmerLoading(),
+              error: (e, _) => ListView(children: [
+                const SizedBox(height: 120),
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline,
+                          color: _neonPink, size: 48),
+                      const SizedBox(height: 12),
+                      Text('Failed to load tones',
+                          style: GoogleFonts.inter(
+                              color: _cream.withValues(alpha: 0.6))),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () => ref.invalidate(ringtonePacksProvider),
+                        child: Text('Retry',
+                            style: GoogleFonts.inter(color: _neonCyan)),
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
+              data: (packs) {
+                if (packs.isEmpty) {
+                  return ListView(children: [
+                    const SizedBox(height: 160),
+                    Center(
+                      child: Text(
+                        'No tones available yet',
+                        style: GoogleFonts.inter(
+                            color: _cream.withValues(alpha: 0.6)),
+                      ),
+                    ),
+                  ]);
+                }
+                return _buildDiscoveryView(packs);
+              },
+            ),
           ),
         ],
       ),
@@ -405,6 +424,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     }
 
     return SingleChildScrollView(
+      // AlwaysScrollable required so RefreshIndicator can pull even when the
+      // content is shorter than the viewport (otherwise the swipe is eaten
+      // by the non-scrollable child).
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(bottom: 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

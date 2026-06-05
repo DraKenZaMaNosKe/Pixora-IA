@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/services/story_catalog_service.dart';
 import '../../../../core/utils/locale_helper.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
 import '../../data/models/story.dart';
@@ -29,70 +30,90 @@ class StoriesPage extends ConsumerWidget {
       child: Stack(
         children: [
           const Positioned.fill(child: _HalftoneBg()),
-          catalogAsync.when(
-            loading: () => const Center(
-              child: CircularProgressIndicator(color: HudTokens.gold),
-            ),
-            error: (e, _) => _EmptyState(
-              icon: Icons.error_outline,
-              title: LocaleHelper.pick(
-                  es: 'Error al cargar', en: 'Failed to load'),
-              onRetry: () => ref.invalidate(storyCatalogProvider),
-            ),
-            data: (stories) {
-              if (stories.isEmpty) {
-                return _EmptyState(
-                  icon: Icons.auto_stories,
+          RefreshIndicator(
+            color: HudTokens.gold,
+            backgroundColor: const Color(0xFF070710),
+            onRefresh: () async {
+              // Pull-to-refresh — drop in-memory cache + invalidate provider so
+              // newly published stories appear without waiting for the 6h TTL
+              // or for the FCM `stories` invalidation push.
+              StoryCatalogService.instance.clearCache();
+              ref.invalidate(storyCatalogProvider);
+              await ref.read(storyCatalogProvider.future);
+            },
+            child: catalogAsync.when(
+              loading: () => ListView(children: const [
+                SizedBox(height: 240),
+                Center(child: CircularProgressIndicator(color: HudTokens.gold)),
+              ]),
+              error: (e, _) => ListView(children: [
+                SizedBox(height: 80),
+                _EmptyState(
+                  icon: Icons.error_outline,
                   title: LocaleHelper.pick(
-                      es: '¡Pronto vienen historias!',
-                      en: 'Stories coming soon!'),
-                  subtitle: LocaleHelper.pick(
-                      es: 'Wallpapers que cuentan una historia',
-                      en: 'Wallpapers that tell a story'),
-                );
-              }
-              final featured = stories.first;
-              final rest = stories.skip(1).toList();
-              return ListView(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
-                children: [
-                  _ComicHeroPanel(
-                    story: featured,
-                    isActive: activeId == featured.id,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => StoryDetailPage(story: featured),
-                      ),
+                      es: 'Error al cargar', en: 'Failed to load'),
+                  onRetry: () => ref.invalidate(storyCatalogProvider),
+                ),
+              ]),
+              data: (stories) {
+                if (stories.isEmpty) {
+                  return ListView(children: [
+                    SizedBox(height: 80),
+                    _EmptyState(
+                      icon: Icons.auto_stories,
+                      title: LocaleHelper.pick(
+                          es: '¡Pronto vienen historias!',
+                          en: 'Stories coming soon!'),
+                      subtitle: LocaleHelper.pick(
+                          es: 'Wallpapers que cuentan una historia',
+                          en: 'Wallpapers that tell a story'),
                     ),
-                  ),
-                  if (rest.isNotEmpty) ...[
-                    const SizedBox(height: 22),
-                    _SectionHeader(
-                      text: LocaleHelper.pick(
-                        es: 'PRÓXIMOS CAPÍTULOS',
-                        en: 'NEXT CHAPTERS',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    for (var i = 0; i < rest.length; i++) ...[
-                      _ChapterCard(
-                        story: rest[i],
-                        chapterNumber: i + 2,
-                        isActive: activeId == rest[i].id,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => StoryDetailPage(story: rest[i]),
-                          ),
+                  ]);
+                }
+                final featured = stories.first;
+                final rest = stories.skip(1).toList();
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
+                  children: [
+                    _ComicHeroPanel(
+                      story: featured,
+                      isActive: activeId == featured.id,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => StoryDetailPage(story: featured),
                         ),
                       ),
-                      const SizedBox(height: 10),
+                    ),
+                    if (rest.isNotEmpty) ...[
+                      const SizedBox(height: 22),
+                      _SectionHeader(
+                        text: LocaleHelper.pick(
+                          es: 'PRÓXIMOS CAPÍTULOS',
+                          en: 'NEXT CHAPTERS',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      for (var i = 0; i < rest.length; i++) ...[
+                        _ChapterCard(
+                          story: rest[i],
+                          chapterNumber: i + 2,
+                          isActive: activeId == rest[i].id,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => StoryDetailPage(story: rest[i]),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ],
                   ],
-                ],
-              );
-            },
+                );
+              },
+            ),
           ),
         ],
       ),
