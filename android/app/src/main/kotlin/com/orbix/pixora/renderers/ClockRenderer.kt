@@ -38,12 +38,38 @@ class ClockRenderer {
     /** Active HUD preset. SACRED uses the original 4 serif styles + arc + dots;
      *  any other preset uses a generic "preset-driven" layout that reads the
      *  font/color/size/glow from [HudPreset]. */
-    var currentPreset: HudPreset = HudPreset.SACRED
+    var currentPreset: HudPreset = HudPreset.CLASICO
+
+    /** Device performance tier — controls shadow radius via [DeviceTier.shadowMultiplier].
+     *  Set by [com.orbix.pixora.PixoraWallpaperService] on engine creation.
+     *  Default MID is safe for unknown devices. See DeviceTier.kt for why. */
+    var tier: DeviceTier = DeviceTier.MID
+
+    /** Scaled shadow radius helper — applies tier multiplier so a 50px blur
+     *  becomes ~8px on LOW, ~20px on MID, full 50px on HIGH. */
+    private fun Float.scaledShadow(): Float = this * tier.shadowMultiplier
     private var lastMinute = -1
     private var lastHour = -1
     private var hourFlashAlpha = 0f
     private var cachedGradientShader: LinearGradient? = null
     private var cachedGradientGlowColor = 0
+
+    // ── HH:MM Bitmap cache (2026-06-06 perf overhaul) ──────────────────────
+    // The Sacred clock renders serif italic text with a 50px shadowLayer per
+    // frame. setShadowLayer on TextPaint is the single most expensive paint
+    // op on Mali GPUs (forces software rendering for that draw call). HH:MM
+    // only changes once per minute, so we pre-render to a Bitmap when the
+    // minute ticks and blit it every frame (free on hardware Canvas).
+    // Re-render triggers: minute change · style change · surface resize ·
+    // shadow multiplier change (tier flip).
+    private var cachedTimeBitmap: Bitmap? = null
+    private var cachedTimeMinute: Int = -1
+    private var cachedTimeStyle: Int = -1
+    private var cachedTimeSize: Float = -1f
+    private var cachedTimeStr: String = ""
+    private var cachedTimeShadowMul: Float = -1f
+    private var cachedTimeAscent: Float = 0f
+    private val cachedTimePad: Float = 80f  // halo padding so 50px blur fits
 
     var surfaceWidth = 0
     var surfaceHeight = 0
@@ -75,7 +101,7 @@ class ClockRenderer {
 
         // Non-Sacred preset → simpler preset-driven layout. SACRED falls through
         // to the original arc + breath + dots + 4 serif styles below.
-        if (currentPreset != HudPreset.SACRED) {
+        if (currentPreset != HudPreset.CLASICO) {
             drawWithPreset(canvas, timeStr, secStr, dayName, dayNum, monthName)
             lastHour = hour
             lastMinute = minute
@@ -133,7 +159,23 @@ class ClockRenderer {
         // --- Time text with countdown blink ---
         val timeAlpha = if (isCountdown) (countdownPulse * 105 + 150).toInt() else 255
 
-        when (clockStyle) {
+        // PERF (2026-06-06): on tier MID/LOW, blit pre-rendered HH:MM bitmap
+        // instead of running the heavy shadowLayer text path each frame. Only
+        // skip cache during countdown (last 10s of each minute) when alpha
+        // pulses per frame. ~83% of frames save the expensive render.
+        if (tier.useClockTextCache && !isCountdown) {
+            val bmp = ensureTimeCache(timeStr, timeSize, clockStyle)
+            // Blit so the text baseline lands exactly on timeY. The cache
+            // bitmap draws its baseline at row (pad - ascent), so the bitmap
+            // top-left Y is: timeY - (pad - ascent) = timeY - pad + ascent.
+            // ascent is negative so this naturally goes above timeY.
+            canvas.drawBitmap(
+                bmp,
+                centerX - bmp.width / 2f,
+                timeY - cachedTimePad + cachedTimeAscent,
+                null
+            )
+        } else when (clockStyle) {
             0 -> { // Neon Glow
                 clockShadowPaint.apply {
                     color = glowColor
@@ -142,7 +184,7 @@ class ClockRenderer {
                     textAlign = Paint.Align.CENTER
                     letterSpacing = 0.08f
                     alpha = 80
-                    setShadowLayer(50f, 0f, 0f, glowColor)
+                    setShadowLayer(50f.scaledShadow(), 0f, 0f, glowColor)
                 }
                 canvas.drawText(timeStr, centerX, timeY, clockShadowPaint)
                 clockTimePaint.apply {
@@ -153,7 +195,7 @@ class ClockRenderer {
                     letterSpacing = 0.08f
                     alpha = timeAlpha
                     shader = null
-                    setShadowLayer(30f, 0f, 0f, glowColor)
+                    setShadowLayer(30f.scaledShadow(), 0f, 0f, glowColor)
                 }
                 canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
             }
@@ -166,7 +208,7 @@ class ClockRenderer {
                     letterSpacing = 0.12f
                     alpha = timeAlpha
                     shader = null
-                    setShadowLayer(8f, 0f, 2f, Color.argb(100, 0, 0, 0))
+                    setShadowLayer(8f.scaledShadow(), 0f, 2f, Color.argb(100, 0, 0, 0))
                 }
                 canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
             }
@@ -209,62 +251,72 @@ class ClockRenderer {
                     letterSpacing = 0.06f
                     alpha = timeAlpha
                     shader = cachedGradientShader
-                    setShadowLayer(15f, 0f, 0f, Color.argb(100, 0, 0, 0))
+                    setShadowLayer(15f.scaledShadow(), 0f, 0f, Color.argb(100, 0, 0, 0))
                 }
                 canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
                 clockTimePaint.shader = null
             }
         }
 
-        // --- Seconds with color cycle effect ---
-        val secHue = (second / 60f) * 360f
-        val secColor = Color.HSVToColor(200, floatArrayOf(secHue, 0.6f, 1f))
-        val secGlowColor = Color.HSVToColor(100, floatArrayOf(secHue, 0.8f, 1f))
+        // --- Seconds — SACRED v2 (2026-06-05) ---
+        // Previously cycled colors HSV-style (disconnected from brand);
+        // now a refined gold integrated with the time text.
+        val secColor = glowColor
+        val secGlowColor = Color.argb(100, Color.red(glowColor), Color.green(glowColor), Color.blue(glowColor))
 
-        // Seconds text - right of time with breathing glow
+        // Seconds text - right of time with subtle breathing glow
         val timeWidth = clockTimePaint.measureText(timeStr)
-        val secX = centerX + timeWidth / 2 + surfaceWidth * 0.04f
+        val secX = centerX + timeWidth / 2 + surfaceWidth * 0.025f
 
         clockSecPaint.apply {
             color = secColor
-            textSize = secSize
+            textSize = secSize * 0.85f
             typeface = typefaceBoldBold
             textAlign = Paint.Align.LEFT
-            letterSpacing = 0.05f
-            val breathe = sin(animationPhase * 2.0).toFloat() * 8f + 12f
-            setShadowLayer(breathe, 0f, 0f, secGlowColor)
+            letterSpacing = 0.03f
+            val breathe = sin(animationPhase * 1.5).toFloat() * 4f + 6f
+            setShadowLayer(breathe.scaledShadow(), 0f, 0f, secGlowColor)
         }
         canvas.drawText(secStr, secX, timeY, clockSecPaint)
 
-        // --- Milliseconds as tiny dots (3 dots that fade in sequence) ---
-        val msProgress = millis / 1000f
-        val dotSpacing = surfaceWidth * 0.012f
-        val dotY = timeY + surfaceHeight * 0.012f
-        val dotBaseX = secX + clockSecPaint.measureText(secStr) + dotSpacing
-
-        for (d in 0 until 3) {
-            val dotProgress = ((msProgress * 3f) - d).coerceIn(0f, 1f)
-            val dotAlpha = (dotProgress * 200).toInt()
-            val dotRadius = 2.5f + dotProgress * 1.5f
-            clockArcPaint.apply {
-                style = Paint.Style.FILL
-                color = secColor
-                alpha = dotAlpha
-                shader = null
-            }
-            canvas.drawCircle(dotBaseX + d * dotSpacing, dotY, dotRadius, clockArcPaint)
-        }
-
-        // --- Date ---
-        clockDatePaint.apply {
-            textSize = dateSize
-            textAlign = Paint.Align.CENTER
-            letterSpacing = 0.15f
+        // --- Sacred divider ◆ — gold line + diamond between time and date ---
+        val dividerY = timeY + surfaceHeight * 0.022f
+        val dividerHalf = surfaceWidth * 0.07f
+        clockArcPaint.apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 0.8f
+            color = glowColor
+            alpha = 130
             shader = null
-            setShadowLayer(6f, 0f, 0f, Color.argb(80, 0, 0, 0))
+            setShadowLayer(0f, 0f, 0f, 0)
+        }
+        // Two gradient fade lines on either side of the diamond
+        clockArcPaint.alpha = 90
+        canvas.drawLine(centerX - dividerHalf, dividerY, centerX - dividerHalf * 0.18f, dividerY, clockArcPaint)
+        canvas.drawLine(centerX + dividerHalf * 0.18f, dividerY, centerX + dividerHalf, dividerY, clockArcPaint)
+        // Diamond ◆ filled at center
+        clockArcPaint.apply { style = Paint.Style.FILL; alpha = 180 }
+        val diamondR = surfaceWidth * 0.008f
+        val diamondPath = android.graphics.Path().apply {
+            moveTo(centerX, dividerY - diamondR)
+            lineTo(centerX + diamondR, dividerY)
+            lineTo(centerX, dividerY + diamondR)
+            lineTo(centerX - diamondR, dividerY)
+            close()
+        }
+        canvas.drawPath(diamondPath, clockArcPaint)
+
+        // --- Date — SACRED v2: bigger Cormorant italic gold ---
+        clockDatePaint.apply {
+            textSize = dateSize * 1.25f
+            textAlign = Paint.Align.CENTER
+            letterSpacing = 0.20f
+            typeface = typefaceLight
+            shader = null
+            setShadowLayer(6f.scaledShadow(), 0f, 0f, Color.argb(80, 0, 0, 0))
             color = when (clockStyle) {
                 0 -> { // Neon: glow colored date
-                    setShadowLayer(10f, 0f, 0f, glowColor)
+                    setShadowLayer(10f.scaledShadow(), 0f, 0f, glowColor)
                     glowColor
                 }
                 2 -> Color.WHITE // Bold: white date
@@ -290,6 +342,11 @@ class ClockRenderer {
         dayNum: Int,
         monthName: String,
     ) {
+        // Defensive reset — clockShadowPaint may still carry a 50f shadow
+        // radius from the SACRED Neon Glow path if the user toggled presets
+        // mid-session. Drawing with stale shadow state would leak a halo
+        // around any future text that uses this paint.
+        clockShadowPaint.setShadowLayer(0f, 0f, 0f, 0)
         val preset = currentPreset
         val centerX = surfaceWidth / 2f
         val timeY = surfaceHeight * 0.18f
@@ -304,7 +361,7 @@ class ClockRenderer {
             alpha = 255
             shader = null
             if (preset.clockGlowRadius > 0) {
-                setShadowLayer(preset.clockGlowRadius, 0f, 4f, preset.clockGlowColor)
+                setShadowLayer(preset.clockGlowRadius.scaledShadow(), 0f, 4f, preset.clockGlowColor)
             } else {
                 setShadowLayer(0f, 0f, 0f, 0)
             }
@@ -322,7 +379,7 @@ class ClockRenderer {
             clockTimePaint.color = Color.parseColor("#00FFEA")
             canvas.drawText(timeStr, centerX - splitOff, timeY, clockTimePaint)
             clockTimePaint.color = preset.clockColor
-            clockTimePaint.setShadowLayer(preset.clockGlowRadius, 0f, 4f, preset.clockGlowColor)
+            clockTimePaint.setShadowLayer(preset.clockGlowRadius.scaledShadow(), 0f, 4f, preset.clockGlowColor)
             canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
         }
 
@@ -338,9 +395,127 @@ class ClockRenderer {
             textAlign = Paint.Align.CENTER
             letterSpacing = 0.18f
             shader = null
-            setShadowLayer(4f, 0f, 1f, Color.argb(140, 0, 0, 0))
+            setShadowLayer(4f.scaledShadow(), 0f, 1f, Color.argb(140, 0, 0, 0))
         }
         val dateText = "$dateShort   :$secStr"
         canvas.drawText(dateText, centerX, dateY, clockDatePaint)
+    }
+
+    /**
+     * Pre-renders HH:MM (with its style-specific shadow halo) to a Bitmap and
+     * returns it. Subsequent frames within the same minute can blit the bitmap
+     * in O(1) instead of re-running serif text + 50px shadowLayer (the single
+     * biggest paint cost on Mali GPUs).
+     *
+     * Cache key: minute + clockStyle + timeSize + shadowMultiplier + timeStr.
+     * If any changes, regenerate. Also stores text width + ascent so the
+     * caller can position the bitmap precisely and position the :SS digit
+     * to the right of it.
+     */
+    private fun ensureTimeCache(timeStr: String, timeSize: Float, style: Int): Bitmap {
+        val minute = Calendar.getInstance().get(Calendar.MINUTE)
+        val mul = tier.shadowMultiplier
+        val existing = cachedTimeBitmap
+        if (existing != null
+            && !existing.isRecycled
+            && cachedTimeMinute == minute
+            && cachedTimeStyle == style
+            && cachedTimeSize == timeSize
+            && cachedTimeStr == timeStr
+            && cachedTimeShadowMul == mul) {
+            return existing
+        }
+
+        // Configure paint with this style's typeface + size FIRST so we can
+        // measure the text and compute the bitmap dimensions.
+        val (tf, ls, ss) = when (style) {
+            0 -> Triple(typefaceBold, 0.08f, 1.00f)   // Neon Glow
+            1 -> Triple(typefaceLight, 0.12f, 0.90f)  // Clean Minimal
+            2 -> Triple(typefaceBold, 0.02f, 1.05f)   // Bold Shadow
+            3 -> Triple(typefaceBold, 0.06f, 1.00f)   // Gradient Fade
+            else -> Triple(typefaceBold, 0.05f, 1.00f)
+        }
+        clockTimePaint.typeface = tf
+        clockTimePaint.textSize = timeSize * ss
+        clockTimePaint.letterSpacing = ls
+        clockTimePaint.textAlign = Paint.Align.CENTER
+        clockTimePaint.shader = null
+        clockTimePaint.setShadowLayer(0f, 0f, 0f, 0)
+        val textWidth = clockTimePaint.measureText(timeStr)
+        val fm = clockTimePaint.fontMetrics
+        val textHeight = fm.descent - fm.ascent
+        // Padding = max shadow radius for this style (≤50f × shadowMul). Add
+        // a 6px safety so bordering anti-alias never clips.
+        val w = (textWidth + cachedTimePad * 2 + 6f).toInt().coerceAtLeast(1)
+        val h = (textHeight + cachedTimePad * 2 + 6f).toInt().coerceAtLeast(1)
+
+        existing?.recycle()
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val bc = Canvas(bmp)
+        val bcx = w / 2f
+        val bcy = cachedTimePad - fm.ascent  // baseline inside bitmap
+
+        // Re-render the style — identical to the inline path. We avoid sharing
+        // the inline code (extracting + branching) because the inline path
+        // sometimes draws TWO text passes (shadow underlay + bright fill)
+        // which both must hit the bitmap.
+        when (style) {
+            0 -> { // Neon Glow — shadow underlay + WHITE fill with 30px halo
+                clockShadowPaint.apply {
+                    color = glowColor; textSize = timeSize; typeface = typefaceBold
+                    textAlign = Paint.Align.CENTER; letterSpacing = 0.08f; alpha = 80
+                    setShadowLayer(50f.scaledShadow(), 0f, 0f, glowColor)
+                }
+                bc.drawText(timeStr, bcx, bcy, clockShadowPaint)
+                clockTimePaint.apply {
+                    color = Color.WHITE; alpha = 255; shader = null
+                    setShadowLayer(30f.scaledShadow(), 0f, 0f, glowColor)
+                }
+                bc.drawText(timeStr, bcx, bcy, clockTimePaint)
+            }
+            1 -> { // Clean Minimal — single pass with subtle drop shadow
+                clockTimePaint.apply {
+                    color = Color.WHITE; alpha = 255; shader = null
+                    setShadowLayer(8f.scaledShadow(), 0f, 2f, Color.argb(100, 0, 0, 0))
+                }
+                bc.drawText(timeStr, bcx, bcy, clockTimePaint)
+            }
+            2 -> { // Bold Shadow — solid gold offset behind + white in front
+                clockShadowPaint.apply {
+                    color = glowColor; textSize = timeSize * 1.05f
+                    typeface = typefaceBold; textAlign = Paint.Align.CENTER
+                    letterSpacing = 0.02f; alpha = 150
+                    setShadowLayer(0f, 0f, 0f, 0)
+                }
+                bc.drawText(timeStr, bcx + 4f, bcy + 4f, clockShadowPaint)
+                clockTimePaint.apply {
+                    color = Color.WHITE; alpha = 255; shader = null
+                    setShadowLayer(0f, 0f, 0f, 0)
+                }
+                bc.drawText(timeStr, bcx, bcy, clockTimePaint)
+            }
+            3 -> { // Gradient Fade — gradient shader applied to text
+                val grad = LinearGradient(
+                    bcx - timeSize, bcy - timeSize * 0.8f,
+                    bcx + timeSize, bcy,
+                    intArrayOf(Color.WHITE, glowColor), null, Shader.TileMode.CLAMP
+                )
+                clockTimePaint.apply {
+                    alpha = 255; shader = grad
+                    setShadowLayer(15f.scaledShadow(), 0f, 0f, Color.argb(100, 0, 0, 0))
+                }
+                bc.drawText(timeStr, bcx, bcy, clockTimePaint)
+                clockTimePaint.shader = null
+            }
+        }
+
+        cachedTimeBitmap = bmp
+        cachedTimeMinute = minute
+        cachedTimeStyle = style
+        cachedTimeSize = timeSize
+        cachedTimeStr = timeStr
+        cachedTimeShadowMul = mul
+        cachedTimeAscent = fm.ascent  // negative; used by drawBitmap offset calc
+        return bmp
     }
 }

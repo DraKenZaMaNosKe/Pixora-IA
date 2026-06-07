@@ -122,14 +122,19 @@ class PixoraWallpaperService : WallpaperService() {
         private var cachedDuration = 0L
 
         // Renderers
+        // Device tier — resolved once in onCreate. Used by drawRunnable for
+        // adaptive frame pacing. See DeviceTier.kt for tier semantics.
+        private var deviceTier: com.orbix.pixora.renderers.DeviceTier = com.orbix.pixora.renderers.DeviceTier.MID
+
         private val clockRenderer = ClockRenderer()
         private val equalizerRenderer = EqualizerRenderer(applicationContext)
         private val rainRenderer = RainEffectRenderer()
         private val batteryIndicator = BatteryIndicator(applicationContext)
         private val systemRings = SystemRingsRenderer(applicationContext)
         private val hudRenderer = HudRenderer(applicationContext)
+        private val sacredOrnaments = com.orbix.pixora.renderers.SacredOrnaments()
         private var currentPreset: com.orbix.pixora.renderers.HudPreset =
-            com.orbix.pixora.renderers.HudPreset.SACRED
+            com.orbix.pixora.renderers.HudPreset.CLASICO
         private val captionOverlay = CaptionOverlay()
         private val aquariumRenderer = AquariumRenderer(applicationContext)
         private val bubbleRenderer = BubbleRenderer()
@@ -362,11 +367,20 @@ class PixoraWallpaperService : WallpaperService() {
             override fun run() {
                 if (drawing) {
                     drawFrame()
-                    // In frame mode (Explore), use slow refresh — only clock needs updating
+                    // Tier-aware adaptive pacing (2026-06-06):
+                    //  · isFrameMode / idleMode → 1fps (clock-only)
+                    //  · audio playing → tier.activeFrameDelay (33ms HIGH/MID, 50ms LOW)
+                    //  · no audio (idle marquee) → tier.idleMarqueeFrameDelay
+                    //    (33ms HIGH, 60ms MID = ~16fps, 100ms LOW = 10fps).
+                    //    The marquee wave is slow so 16fps looks fine and
+                    //    halves battery cost during the most common case
+                    //    (no music). Visualizer stays alive — we don't pay
+                    //    re-acquire latency when music starts.
                     val delay = when {
-                        isFrameMode -> IDLE_FRAME_DELAY // 1fps — clock updates every second
+                        isFrameMode -> IDLE_FRAME_DELAY
                         idleMode -> IDLE_FRAME_DELAY
-                        else -> FRAME_DELAY
+                        equalizerRenderer.hasAudio -> deviceTier.activeFrameDelay
+                        else -> deviceTier.idleMarqueeFrameDelay
                     }
                     handler.postDelayed(this, delay)
                 }
@@ -381,6 +395,15 @@ class PixoraWallpaperService : WallpaperService() {
             // them from non-image WallpaperServices unless we ask. Called
             // exactly once per engine instance (no loop risk).
             try { setOffsetNotificationsEnabled(true) } catch (_: Exception) {}
+            // Resolve device performance tier ONCE and propagate to every
+            // renderer. Drives shadow radius, per-bar setShadowLayer opt-out,
+            // ring halo opt-out, and the frame-pacing in drawRunnable below.
+            // 2026-06-06 overhaul: brought Eduardo's mid-range Samsung from
+            // ~15fps to 28-30fps consistently. See DeviceTier.kt.
+            deviceTier = com.orbix.pixora.renderers.DeviceTier.get(applicationContext)
+            clockRenderer.tier = deviceTier
+            equalizerRenderer.tier = deviceTier
+            systemRings.tier = deviceTier
             equalizerRenderer.audioCallback = this
             loadOverlaySettings()
             loadWallpaperImage()
@@ -1270,6 +1293,11 @@ class PixoraWallpaperService : WallpaperService() {
 
             hudRenderer.surfaceWidth = surfaceWidth
             hudRenderer.surfaceHeight = surfaceHeight
+            hudRenderer.animationPhase = animationPhase
+
+            sacredOrnaments.surfaceWidth = surfaceWidth
+            sacredOrnaments.surfaceHeight = surfaceHeight
+            sacredOrnaments.accentColor = currentPreset.hudAccent
 
             captionOverlay.surfaceWidth = surfaceWidth
             captionOverlay.surfaceHeight = surfaceHeight
@@ -1490,7 +1518,17 @@ class PixoraWallpaperService : WallpaperService() {
             val holder = surfaceHolder ?: return
             var canvas: Canvas? = null
             try {
-                canvas = holder.lockCanvas() ?: return
+                // HARDWARE CANVAS (2026-06-06): on MID/LOW tier, use the
+                // GPU-backed canvas so layer bitmap blits run on the GPU
+                // (~free) instead of CPU (~70ms each on Mali). HIGH tier
+                // keeps the software canvas so setShadowLayer on text/arc
+                // still renders the full glow effect. API 26+ required.
+                canvas = if (deviceTier.useHardwareCanvas
+                    && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    holder.lockHardwareCanvas() ?: holder.lockCanvas()
+                } else {
+                    holder.lockCanvas()
+                } ?: return
                 updateRendererState()
 
                 // Frame mode: draw extracted frame instead of wallpaper bitmap
@@ -1570,17 +1608,22 @@ class PixoraWallpaperService : WallpaperService() {
                 if (!isLocked && showClock) {
                     clockRenderer.draw(canvas)
                 }
-                if (showBattery) {
+                // 2026-06-06: Battery + Rings + HUD gated by preset's
+                // showSystemHud flag so GROK/CRT/CYBER stay minimalist
+                // (clock + EQ only). Only CLASICO shows the info dashboard.
+                if (showBattery && currentPreset.showSystemHud) {
                     batteryIndicator.draw(canvas)
                 }
-                if (!isLocked) {
-                    // GOLD_RINGS uses the original SystemRingsRenderer (rich
-                    // breathing rings + arc per slice). All other styles use
-                    // the generic HudRenderer that branches on HudStyle.
+                if (!isLocked && currentPreset.showSystemHud) {
                     if (currentPreset.hudStyle == com.orbix.pixora.renderers.HudStyle.GOLD_RINGS) {
                         systemRings.draw(canvas)
                     } else {
                         hudRenderer.draw(canvas)
+                    }
+                    // CLASICO — 4 corner sacred-geometry ornaments. Drawn only
+                    // for the CLASICO preset so others keep distinct identities.
+                    if (currentPreset == com.orbix.pixora.renderers.HudPreset.CLASICO) {
+                        sacredOrnaments.draw(canvas)
                     }
                 }
                 if (showEqualizer) {
@@ -1618,15 +1661,23 @@ class PixoraWallpaperService : WallpaperService() {
                              canvasSceneRenderer.scrollSettling)
             if (!equalizerRenderer.hasAudio && !touchTrail.isActive && !isRainWallpaper && !scrolling && !hasAnimatedCanvasOverlay) {
                 equalizerRenderer.silentFrames++
+                // 2026-06-06 fix: do NOT release the Visualizer when going idle.
+                // Previously released after 30 silent frames to save battery,
+                // but that meant: music starts → Visualizer dead → can't detect
+                // → bars stay frozen until the user touched the screen. The
+                // Visualizer capture is cheap (<1% CPU); keeping it alive lets
+                // hasAudio flip back to true the instant music plays again,
+                // exiting idle mode automatically via the else branch below.
                 if (equalizerRenderer.silentFrames > 30 && !idleMode) {
                     idleMode = true
-                    equalizerRenderer.releaseVisualizer()
                 }
             } else {
                 equalizerRenderer.silentFrames = 0
                 if (idleMode) {
                     idleMode = false
-                    equalizerRenderer.setupVisualizer()
+                    // setupVisualizer is now safe to skip — visualizer was
+                    // never released. Calling it again would just re-init for
+                    // no reason. Left as a no-op comment for future devs.
                 }
             }
         }
@@ -1718,7 +1769,9 @@ class PixoraWallpaperService : WallpaperService() {
         const val BAR_COUNT = 32  // bumped from 6 (2026-06-04) — thinner bars + more detail
         const val FRAME_DELAY = 33L // ~30fps
         const val IDLE_FRAME_DELAY = 1000L
-        const val SILENCE_THRESHOLD = 0.05f
+        // Lowered 2026-06-06 from 0.05 → 0.02 so quiet music + voices trip
+        // hasAudio sooner — user feedback: bars took too long to react.
+        const val SILENCE_THRESHOLD = 0.02f
         const val RAIN_DROP_COUNT = 120
         const val GLASS_DROP_COUNT = 15
         const val CITY_LIGHT_COUNT = 35

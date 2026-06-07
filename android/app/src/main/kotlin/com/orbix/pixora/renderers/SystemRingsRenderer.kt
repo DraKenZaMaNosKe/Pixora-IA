@@ -23,6 +23,9 @@ class SystemRingsRenderer(private val context: Context) {
     private val ringRect = RectF()
     private val typefaceCondensedBold = Typeface.create("sans-serif-condensed", Typeface.BOLD)
     private val typefaceLight = Typeface.create("sans-serif-light", Typeface.NORMAL)
+    // Cached at class init — was previously allocated every frame in drawMiniRing,
+    // creating ~60 native objects/sec and GC churn on low-RAM devices.
+    private val sacredDashEffect = android.graphics.DashPathEffect(floatArrayOf(4f, 3f), 0f)
 
     var surfaceWidth = 0
     var surfaceHeight = 0
@@ -31,6 +34,11 @@ class SystemRingsRenderer(private val context: Context) {
     // User-controlled toggles (set by PixoraWallpaperService from SharedPreferences).
     var showRam = true
     var showStorage = true
+
+    /** Device performance tier — controls halo fill + shadow radius on the
+     *  ring arc. On LOW we skip the halo glow entirely (still draw arc +
+     *  dashed circle). See DeviceTier.kt. */
+    var tier: DeviceTier = DeviceTier.MID
 
     private fun readSystemInfo() {
         val now = System.currentTimeMillis()
@@ -120,6 +128,26 @@ class SystemRingsRenderer(private val context: Context) {
     ) {
         val strokeWidth = radius * 0.25f
 
+        // SACRED v2 (2026-06-05): dashed rotating circle OUTSIDE the ring —
+        // adds sacred-geometry motion. Outer circle at +6dp, dashed pattern
+        // 4dp on / 3dp off, rotated by animationPhase (slow). Cached
+        // DashPathEffect — see class init.
+        // SCOPING NOTE: this renderer is currently only invoked when the
+        // active HudPreset is SACRED (GOLD_RINGS style). If a future preset
+        // reuses SystemRingsRenderer for a different identity, gate this
+        // dashed-circle block behind a `var isSacred: Boolean = true` flag.
+        val dashRadius = radius + strokeWidth * 1.6f
+        systemRingBgPaint.style = Paint.Style.STROKE
+        systemRingBgPaint.strokeWidth = 1f
+        systemRingBgPaint.color = color
+        systemRingBgPaint.alpha = 110
+        systemRingBgPaint.pathEffect = sacredDashEffect
+        canvas.save()
+        canvas.rotate(systemPulsePhase * 4f, cx, cy)
+        canvas.drawCircle(cx, cy, dashRadius, systemRingBgPaint)
+        canvas.restore()
+        systemRingBgPaint.pathEffect = null
+
         // Background ring
         systemRingBgPaint.style = Paint.Style.STROKE
         systemRingBgPaint.strokeWidth = strokeWidth
@@ -128,6 +156,15 @@ class SystemRingsRenderer(private val context: Context) {
         ringRect.set(cx - radius, cy - radius, cx + radius, cy + radius)
         canvas.drawArc(ringRect, -90f, 360f, false, systemRingBgPaint)
 
+        // Halo glow — soft radial fill behind the ring. Cheap-ish but adds up
+        // when both RAM + DISK rings draw. Skip on LOW tier.
+        if (tier.useRingHaloFill) {
+            systemRingBgPaint.style = Paint.Style.FILL
+            systemRingBgPaint.color = Color.argb((30 * breathe).toInt(),
+                Color.red(color), Color.green(color), Color.blue(color))
+            canvas.drawCircle(cx, cy, dashRadius * 0.95f, systemRingBgPaint)
+        }
+
         // Colored arc
         val sweep = usedPct * 3.6f
         systemRingPaint.style = Paint.Style.STROKE
@@ -135,7 +172,10 @@ class SystemRingsRenderer(private val context: Context) {
         systemRingPaint.strokeCap = Paint.Cap.ROUND
         systemRingPaint.color = color
         systemRingPaint.alpha = (255 * breathe).toInt()
-        systemRingPaint.setShadowLayer(radius * 0.4f, 0f, 0f, color)
+        // Shadow on the arc — tier-scaled. On MID this drops from radius*0.4
+        // to radius*0.16 (~60% cheaper). On LOW it's ~radius*0.06 (basically
+        // off but still hints depth).
+        systemRingPaint.setShadowLayer((radius * 0.4f) * tier.shadowMultiplier, 0f, 0f, color)
         canvas.drawArc(ringRect, -90f, sweep, false, systemRingPaint)
         systemRingPaint.clearShadowLayer()
 

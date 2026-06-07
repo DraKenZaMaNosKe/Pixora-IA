@@ -13,7 +13,9 @@
     "anime",
     "spirit_bomb",
     "live",
-    "animated"
+    "animated",
+    "3d",
+    "parallax"
   ],
   "category": "anime",
   "featured": true,
@@ -22,6 +24,21 @@
     "preview_url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_goku_genkidama_preview.webp",
     "scroll": false
   },
+  "image_layers": [
+    {
+      "key": "sky",
+      "z": 0,
+      "parallax_factor": 0.4,
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_goku_genkidama_sky.webp"
+    },
+    {
+      "key": "goku",
+      "z": 1,
+      "parallax_factor": 0.85,
+      "url": "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/pixora_goku_genkidama_goku.webp",
+      "scale": 0.65
+    }
+  ],
   "sprites": [
     {
       "name": "orb",
@@ -29,10 +46,11 @@
       "behavior": "static",
       "frame_skip": 2,
       "params": {
-        "x": 0.488,
-        "y": 0.3603,
-        "scale": 0.00038,
-        "alpha": 255
+        "x": 0.4717,
+        "y": 0.15,
+        "scale": 0.0025,
+        "alpha": 255,
+        "parallax_factor": 0.85
       }
     }
   ],

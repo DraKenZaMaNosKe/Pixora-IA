@@ -208,19 +208,15 @@ class WallpaperService {
     }
   }
 
-  /// All 10 selectable HUD presets, keyed by native [HudPreset.key] enum value.
+  /// Selectable HUD presets, keyed by native [HudPreset.key] enum value.
   /// Order matters — this is the order shown in the Settings picker.
+  /// Slimmed 2026-06-06 from 10 → 4 (legacy "sacred" auto-migrates to
+  /// "classic" on the native side via HudPreset.fromKey).
   static const List<({String key, String name, String sub})> hudPresets = [
-    (key: 'sacred', name: 'Pixora Sacred', sub: 'Brand · dorado cósmico'),
-    (key: 'modern', name: 'Modern Mono', sub: 'iOS · Winamp mirror'),
-    (key: 'gemini', name: 'Gemini Pulse', sub: 'Google AI · dots'),
+    (key: 'classic', name: 'Clásico', sub: 'Brand · dorado cósmico'),
     (key: 'grok', name: 'Grok Spectrum', sub: 'Bars vivos multi-color'),
     (key: 'crt', name: 'CRT Terminal', sub: 'Sci-fi cyan · scanlines'),
-    (key: 'retro', name: 'Retro CRT', sub: 'VT323 verde · hacker'),
-    (key: 'flame', name: 'Flame Wisps', sub: 'Llamas · primal'),
-    (key: 'aurora', name: 'Aurora Boreal', sub: 'Cintas · cielo estrellado'),
     (key: 'cyber', name: 'Cyber Glitch', sub: 'Amarillo · RGB split'),
-    (key: 'crystal', name: 'Light Crystal', sub: 'Theme claro · prisma'),
   ];
 
   /// Read the user's current HUD preset ('classic' default).

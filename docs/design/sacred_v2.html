@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pixora Sacred · before / after</title>
+<meta name="viewport" content="width=1200">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:wght@300;400;500;700&family=JetBrains+Mono:wght@500;700&family=Manrope:wght@200;300;500&display=swap" rel="stylesheet">
+<style>
+:root { --gold: #E6B655; --gold-deep: #8B6914; --gold-bright: #FFD23F; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #08080c; color: #e8e6dc; font-family: 'Manrope', sans-serif; }
+body { padding: 32px 24px; min-height: 100vh; }
+.wrap { max-width: 1100px; margin: 0 auto; }
+.title { font-family: 'Cinzel', serif; font-weight: 700; font-size: 24px; letter-spacing: 4px; color: var(--gold); text-align: center; }
+.subtitle { font-size: 12px; letter-spacing: 2px; color: #8d8470; text-align: center; margin-top: 6px; margin-bottom: 24px; }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--gold); text-align: center; margin-bottom: 8px; padding: 6px 14px; border: 1px solid rgba(230,182,85,0.4); border-radius: 999px; display: inline-block; }
+.label-row { text-align: center; margin-bottom: 12px; }
+.label.before { color: #c97373; border-color: rgba(201,115,115,0.4); }
+
+.phone {
+  position: relative; width: 100%; aspect-ratio: 9 / 19.5;
+  background: radial-gradient(ellipse at 50% 30%, #4a3a6a 0%, #2a1f4a 60%, #0e0e13 100%);
+  border-radius: 28px; overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.phone::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(120,140,255,0.18), transparent 60%); }
+
+.statusbar { position: absolute; top: 0; left: 0; right: 0; height: 22px; display: flex; justify-content: space-between; align-items: center; padding: 4px 14px 0; font-size: 10px; color: rgba(255,255,255,0.85); z-index: 100; font-family: 'JetBrains Mono', monospace; }
+.dock { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; z-index: 80; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; }
+.dock .ico { width: 34px; height: 34px; border-radius: 9px; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); border: 0.5px solid rgba(255,255,255,0.12); }
+.navbar { position: absolute; bottom: 0; left: 0; right: 0; height: 20px; display: flex; justify-content: space-around; align-items: center; font-size: 11px; color: rgba(255,255,255,0.55); }
+
+/* ─── CURRENT (before) ─── */
+.before .clock { position: absolute; top: 60px; left: 0; right: 0; text-align: center; z-index: 10; }
+.before .clock .time { font-family: 'Cinzel', serif; font-style: italic; font-weight: 700; font-size: 80px; color: #fff; line-height: 1; letter-spacing: -2px; text-shadow: 0 0 30px rgba(230,182,85,0.5); }
+.before .clock .sec { position: absolute; top: 16px; right: 22%; font-family: 'Cinzel', serif; font-style: italic; font-weight: 700; font-size: 18px; color: hsl(120, 80%, 60%); }
+.before .clock .date { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 4px; letter-spacing: 1px; }
+.before .rings { position: absolute; top: 80px; left: 14px; display: flex; flex-direction: column; gap: 8px; z-index: 15; }
+.before .ring { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 11px; color: #fff; }
+.before .eq { position: absolute; left: 30%; right: 30%; bottom: 14px; height: 30px; display: flex; gap: 2px; align-items: flex-end; z-index: 70; }
+.before .eq .bar { flex: 1; background: linear-gradient(0deg, var(--gold-deep), var(--gold)); min-height: 2px; }
+
+/* ─── PROPOSED v2 (after) ─── */
+.after .corner-top-l, .after .corner-top-r, .after .corner-bot-l, .after .corner-bot-r {
+  position: absolute; width: 28px; height: 28px; z-index: 60;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cg fill='none' stroke='%23E6B655' stroke-width='0.7' opacity='0.55'%3E%3Cpath d='M0 8 L0 0 L8 0'/%3E%3Ccircle cx='14' cy='14' r='3.5'/%3E%3Cpath d='M14 0 L14 6 M0 14 L6 14'/%3E%3C/g%3E%3C/svg%3E");
+}
+.after .corner-top-l { top: 26px; left: 8px; }
+.after .corner-top-r { top: 26px; right: 8px; transform: scaleX(-1); }
+.after .corner-bot-l { bottom: 76px; left: 8px; transform: scaleY(-1); }
+.after .corner-bot-r { bottom: 76px; right: 8px; transform: scale(-1,-1); }
+
+.after .clock { position: absolute; top: 64px; left: 0; right: 0; text-align: center; z-index: 10; }
+.after .clock .time {
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 84px;
+  color: #fff; line-height: 1; letter-spacing: -2px;
+  text-shadow: 0 0 30px rgba(230,182,85,0.6), 0 4px 12px rgba(0,0,0,0.6);
+}
+.after .clock .sec {
+  display: inline-block; vertical-align: top; margin-left: 4px; margin-top: 4px;
+  font-family: 'Cinzel', serif; font-weight: 500; font-size: 22px;
+  color: var(--gold); letter-spacing: 0.5px;
+  text-shadow: 0 0 8px rgba(230,182,85,0.6);
+}
+.after .clock .divider {
+  display: block; width: 48px; height: 1px; margin: 12px auto 8px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  position: relative;
+}
+.after .clock .divider::before {
+  content: '◆'; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  color: var(--gold); font-size: 9px; background: #2a1f4a; padding: 0 6px;
+}
+.after .clock .date {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px;
+  color: var(--gold); letter-spacing: 3px;
+}
+.after .rings { position: absolute; top: 76px; left: 12px; display: flex; flex-direction: column; gap: 12px; z-index: 15; }
+.after .ring {
+  width: 40px; height: 40px; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.after .ring::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: radial-gradient(circle, rgba(230,182,85,0.10), transparent);
+  box-shadow: 0 0 16px rgba(230,182,85,0.25);
+}
+.after .ring::after {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  border: 0.5px dashed rgba(230,182,85,0.4);
+  animation: rot 22s linear infinite;
+}
+@keyframes rot { to { transform: rotate(360deg); } }
+.after .ring .val { position: relative; z-index: 1; font-family: 'Cinzel', serif; font-weight: 700; font-size: 12px; color: var(--gold); text-shadow: 0 0 6px rgba(230,182,85,0.4); }
+.after .ring .lab { position: absolute; left: 50px; top: 50%; transform: translateY(-50%); font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(230,182,85,0.7); letter-spacing: 2px; }
+.after .eq-stage { position: absolute; left: 0; right: 0; bottom: 72px; height: 70px; z-index: 30; padding: 0 16px; }
+.after .eq-stage canvas { width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">PIXORA SACRED · v1 vs v2</div>
+  <div class="subtitle">Mejoras propuestas: EQ arriba del dock · sec gold integrado · ornamentos sacred · rings con halo</div>
+
+  <div class="row">
+    <div>
+      <div class="label-row"><span class="label before">ACTUAL · BEFORE</span></div>
+      <div class="phone before">
+        <div class="statusbar"><span>9:41 · Pixora</span><span>🔋 84%</span></div>
+        <div class="clock"><div class="time">23:37<span class="sec">14</span></div><div class="date">Viernes, 5 jun</div></div>
+        <div class="rings">
+          <div class="ring">48</div>
+          <div class="ring">0.7</div>
+          <div class="ring">26</div>
+        </div>
+        <div class="eq" id="eq-before"></div>
+        <div class="dock"><div class="ico"></div><div class="ico"></div><div class="ico"></div><div class="ico"></div></div>
+        <div class="navbar">‖ ◯ ◁</div>
+      </div>
+    </div>
+    <div>
+      <div class="label-row"><span class="label">PROPUESTO · AFTER v2</span></div>
+      <div class="phone after">
+        <div class="corner-top-l"></div><div class="corner-top-r"></div>
+        <div class="corner-bot-l"></div><div class="corner-bot-r"></div>
+        <div class="statusbar"><span>9:41 · Pixora</span><span>🔋 84%</span></div>
+        <div class="clock">
+          <div class="time">23:37<span class="sec">14</span></div>
+          <span class="divider"></span>
+          <div class="date">VIERNES · 05 JUN</div>
+        </div>
+        <div class="rings">
+          <div class="ring"><span class="val">48</span><span class="lab">BAT</span></div>
+          <div class="ring"><span class="val">61</span><span class="lab">RAM</span></div>
+          <div class="ring"><span class="val">26</span><span class="lab">DSK</span></div>
+        </div>
+        <div class="eq-stage"><canvas id="eq-after"></canvas></div>
+        <div class="dock"><div class="ico"></div><div class="ico"></div><div class="ico"></div><div class="ico"></div></div>
+        <div class="navbar">‖ ◯ ◁</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:780px; margin:32px auto; padding:18px 22px; background:#11111a; border-left:3px solid var(--gold); border-radius:8px;">
+    <h3 style="font-family:'Cinzel',serif; color:var(--gold); font-size:14px; letter-spacing:3px; margin-bottom:10px;">CAMBIOS CONCRETOS A IMPLEMENTAR</h3>
+    <ul style="list-style:none; font-size:13px; line-height:1.7; color:#d8c98e;">
+      <li>✅ <strong>EQ posición</strong> · de bottom 4% (dentro del dock) → bottom 72px (arriba del dock)</li>
+      <li>✅ <strong>EQ bars</strong> · BAR_COUNT 6 → 32 (ya hecho global pero el GOLD_SEGMENTED debe respetar nueva posición)</li>
+      <li>✅ <strong>Mirror reflection</strong> · opcional para SACRED (10% opacity para mantener premium feel)</li>
+      <li>✅ <strong>Segundos</strong> · de verde HSV separado → gold pequeño junto al clock</li>
+      <li>✅ <strong>Date</strong> · 11px gris → 14px gold cursiva con letter-spacing</li>
+      <li>✅ <strong>Divider</strong> · línea gold + ◆ diamond entre time y date</li>
+      <li>✅ <strong>Rings</strong> · agregar dashed circle rotando + halo glow + label BAT/RAM/DSK al lado</li>
+      <li>✅ <strong>Corner ornaments</strong> · 4 esquinas con sacred geometry sutil (8% opacity)</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function fakeAudio(i, t, total) {
+  const norm = i/total;
+  const bass = Math.max(0, Math.sin(t*2 + norm*8)*0.8 + Math.sin(t*0.7)*0.4);
+  const mid = Math.max(0, Math.sin(t*4.5 + norm*12)*0.6);
+  const treble = Math.max(0, Math.sin(t*9 + norm*20)*0.4);
+  const env = 0.5 + 0.5*Math.cos(norm*Math.PI - Math.PI/2);
+  return Math.max(0.05, Math.min(1, (bass*(1-norm) + mid*env + treble*norm)/1.5));
+}
+
+// BEFORE — small clustered gold bars at very bottom (overlapping dock)
+const beforeEq = document.getElementById('eq-before');
+beforeEq.innerHTML = '<div class="bar"></div>'.repeat(8);
+
+// AFTER — 32 bars on canvas above the dock
+const afterCanvas = document.getElementById('eq-after');
+
+function tick() {
+  const t = performance.now()/500;
+  // before
+  beforeEq.querySelectorAll('.bar').forEach((b,i) => {
+    b.style.height = (fakeAudio(i, t, 8) * 30) + 'px';
+  });
+  // after
+  const cw = afterCanvas.offsetWidth*2, ch = afterCanvas.offsetHeight*2;
+  if (afterCanvas.width !== cw) { afterCanvas.width = cw; afterCanvas.height = ch; }
+  const ctx = afterCanvas.getContext('2d');
+  ctx.clearRect(0,0,cw,ch);
+  const N = 32, mid = ch * 0.7;
+  const bw = cw/N - 4;
+  for (let i = 0; i < N; i++) {
+    const v = fakeAudio(i, t, N);
+    const h = v * ch * 0.65;
+    const x = i * (bw+4);
+    // top — gold gradient
+    const g = ctx.createLinearGradient(0, mid-h, 0, mid);
+    g.addColorStop(0, '#FFD23F');
+    g.addColorStop(0.5, '#E6B655');
+    g.addColorStop(1, '#8B6914');
+    ctx.fillStyle = g;
+    ctx.shadowColor = '#E6B655'; ctx.shadowBlur = 8;
+    ctx.fillRect(x, mid-h, bw, h);
+    ctx.shadowBlur = 0;
+    // mirror reflection — 10% opacity
+    const g2 = ctx.createLinearGradient(0, mid, 0, mid + h*0.5);
+    g2.addColorStop(0, 'rgba(230,182,85,0.35)');
+    g2.addColorStop(1, 'rgba(230,182,85,0)');
+    ctx.fillStyle = g2;
+    ctx.fillRect(x, mid, bw, h*0.5);
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

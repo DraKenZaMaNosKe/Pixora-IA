@@ -371,90 +371,94 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
       ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Text('— ',
-                      style: _serif(13,
-                          color: context.hud.accent, s: FontStyle.italic)),
-                  Text(
-                    'aplicar pieza',
-                    style: _serif(15,
-                        color: context.hud.accent,
-                        s: FontStyle.italic,
-                        w: FontWeight.w500),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: context.hud.accent, width: 1),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Text('— ',
+                        style: _serif(13,
+                            color: context.hud.accent, s: FontStyle.italic)),
+                    Text(
+                      'aplicar pieza',
+                      style: _serif(15,
+                          color: context.hud.accent,
+                          s: FontStyle.italic,
+                          w: FontWeight.w500),
                     ),
-                    child: Text(
-                      isFree ? 'SIN AD' : 'CON AD',
-                      style: _meta(9, color: context.hud.accent, ls: 0.2),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: context.hud.accent, width: 1),
+                      ),
+                      child: Text(
+                        isFree ? 'SIN AD' : 'CON AD',
+                        style: _meta(9, color: context.hud.accent, ls: 0.2),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Diamonds line
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.diamond, color: context.hud.accent, size: 13),
-                  const SizedBox(width: 5),
-                  Text('$credits diamantes',
-                      style: _meta(11, color: context.hud.textDim, ls: 0.15)),
-                  const SizedBox(width: 12),
-                  Text('·', style: _meta(11, color: context.hud.textDim)),
-                  const SizedBox(width: 12),
-                  Text(
-                    isFree
-                        ? 'próximo sin cobro'
-                        : '+${CreditService.creditsPerAd} por ver',
-                    style: _meta(11, color: context.hud.textDim, ls: 0.05),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              _buildOption(
-                  Icons.home_outlined, 'Pantalla principal', 'home screen', () {
-                Navigator.pop(context);
-                _applyWallpaper(0);
-              }),
-              _buildOption(
-                  Icons.lock_outline, 'Pantalla de bloqueo', 'lock screen', () {
-                Navigator.pop(context);
-                _applyWallpaper(1);
-              }),
-              _buildOption(
-                  Icons.phone_android_outlined, 'Ambas pantallas', 'both', () {
-                Navigator.pop(context);
-                _applyWallpaper(2);
-              }),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                height: 1,
-                color: context.hud.divider,
-              ),
-              _buildOption(Icons.auto_awesome_outlined,
-                  'Live wallpaper (con efectos)', 'live + touch', () {
-                Navigator.pop(context);
-                _applyLiveWallpaper();
-              }),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Diamonds line
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.diamond, color: context.hud.accent, size: 13),
+                    const SizedBox(width: 5),
+                    Text('$credits diamantes',
+                        style: _meta(11, color: context.hud.textDim, ls: 0.15)),
+                    const SizedBox(width: 12),
+                    Text('·', style: _meta(11, color: context.hud.textDim)),
+                    const SizedBox(width: 12),
+                    Text(
+                      isFree
+                          ? 'próximo sin cobro'
+                          : '+${CreditService.creditsPerAd} por ver',
+                      style: _meta(11, color: context.hud.textDim, ls: 0.05),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _buildOption(
+                    Icons.home_outlined, 'Pantalla principal', 'home screen',
+                    () {
+                  Navigator.pop(context);
+                  _applyWallpaper(0);
+                }),
+                _buildOption(
+                    Icons.lock_outline, 'Pantalla de bloqueo', 'lock screen',
+                    () {
+                  Navigator.pop(context);
+                  _applyWallpaper(1);
+                }),
+                _buildOption(
+                    Icons.phone_android_outlined, 'Ambas pantallas', 'both',
+                    () {
+                  Navigator.pop(context);
+                  _applyWallpaper(2);
+                }),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  height: 1,
+                  color: context.hud.divider,
+                ),
+                _buildLiveFoilOption(() {
+                  Navigator.pop(context);
+                  _applyLiveWallpaper();
+                }),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -487,6 +491,116 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
             Icon(Icons.chevron_right,
                 color: context.hud.accent.withValues(alpha: 0.5)),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Featured "Live wallpaper" CTA with holographic foil shimmer.
+  /// Designed to draw attention to the LIVE option over the static apply
+  /// targets (Home / Lock / Both). Visual recipe:
+  ///   - Tinted gold background (subtle, 8-14% alpha)
+  ///   - 1px gold border + rounded corners (6px)
+  ///   - Diagonal foil sweep (gold→cyan→magenta) animates L→R every 3.5s
+  ///     using the existing [_holoSweep] controller (free — already ticking
+  ///     for the card holo shine, no extra ticker needed)
+  ///   - Icon + label in gold-pale (#F0DD9E) so they stand out vs the
+  ///     regular options' white text
+  Widget _buildLiveFoilOption(VoidCallback onTap) {
+    const goldPale = Color(0xFFF0DD9E);
+    const gold = Color(0xFFE6B655);
+    final radius = BorderRadius.circular(6);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: radius,
+      child: ClipRRect(
+        borderRadius: radius,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                gold.withValues(alpha: 0.06),
+                gold.withValues(alpha: 0.12),
+                gold.withValues(alpha: 0.06),
+              ],
+            ),
+            border: Border.all(color: gold.withValues(alpha: 0.30), width: 1),
+            borderRadius: radius,
+          ),
+          child: Stack(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.auto_awesome_outlined,
+                        color: goldPale, size: 22),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Live wallpaper (con efectos)',
+                              style: _display(15,
+                                  color: goldPale,
+                                  w: FontWeight.w700,
+                                  ls: -0.01)),
+                          const SizedBox(height: 2),
+                          Text('— live + touch',
+                              style: _serif(12,
+                                  color: context.hud.textDim,
+                                  s: FontStyle.italic)),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right,
+                        color: goldPale.withValues(alpha: 0.85)),
+                  ],
+                ),
+              ),
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: AnimatedBuilder(
+                    animation: _holoSweep,
+                    builder: (ctx, _) {
+                      return LayoutBuilder(builder: (ctx, c) {
+                        final w = c.maxWidth;
+                        // Slide a translucent diagonal band from off-screen
+                        // left (-w) to off-screen right (+2w) so the cycle
+                        // travels its full width PLUS one band width.
+                        final dx = -w + _holoSweep.value * (w * 3);
+                        return Stack(children: [
+                          Positioned(
+                            left: dx,
+                            top: 0,
+                            bottom: 0,
+                            width: w,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment(-0.6, -1),
+                                  end: Alignment(0.6, 1),
+                                  colors: [
+                                    Color(0x00000000),
+                                    Color(0x73FFEBAA), // 45% pale gold
+                                    Color(0x5978DCFF), // 35% cyan
+                                    Color(0x66FF96E6), // 40% magenta
+                                    Color(0x00000000),
+                                  ],
+                                  stops: [0.30, 0.45, 0.50, 0.55, 0.70],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]);
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

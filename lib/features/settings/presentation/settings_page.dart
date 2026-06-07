@@ -34,7 +34,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // User-picked touch trail style (gold dust, aurora, lightning, etc.)
   String _touchTrail = 'aurora';
   // HUD preset — controls clock typography, EQ style, and monitor layout.
-  String _hudPreset = 'sacred';
+  String _hudPreset = 'classic';
 
   @override
   void initState() {
@@ -46,9 +46,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _loadHudPreset() async {
-    final v = await WallpaperService.instance.getHudPreset();
+    final raw = await WallpaperService.instance.getHudPreset();
+    // Migrate legacy keys ('sacred' + 6 deleted presets) to 'classic' so the
+    // picker shows a valid selection. Native side does the same in fromKey.
+    final validKeys = WallpaperService.hudPresets.map((p) => p.key).toSet();
+    final v = validKeys.contains(raw) ? raw : 'classic';
     if (!mounted) return;
     setState(() => _hudPreset = v);
+    // Persist the migrated value if it changed, so SharedPrefs stays clean.
+    if (v != raw) {
+      await WallpaperService.instance.setHudPreset(v);
+    }
   }
 
   Future<void> _setHudPreset(String preset) async {

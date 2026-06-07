@@ -120,6 +120,11 @@ data class ImageLayerDef(
     val parallaxFactor: Float,   // gyro tilt depth (0=static, 1=full tilt)
     val scrollFactor: Float,     // home-page swipe pan (0=fixed, 1=full panoramic)
     val z: Int,
+    /** Layer zoom relative to cover-fit. 1.0 = fill the surface (default).
+     *  <1.0 shrinks the layer so it occupies LESS of the surface, leaving
+     *  the layer(s) beneath it visible around the edges. Used to "step back"
+     *  a foreground subject (e.g. Goku) without re-cropping the asset. */
+    val scale: Float,
 ) {
     companion object {
         fun parse(j: JSONObject): ImageLayerDef? = try {
@@ -133,6 +138,7 @@ data class ImageLayerDef(
                 // a sky layer wants scroll=1.0 (panoramic) but parallax=0.05 (deep).
                 scrollFactor = j.f("scroll_factor", pf),
                 z = j.optInt("z", 0),
+                scale = j.f("scale", 1f),
             )
         } catch (e: Exception) { null }
     }

@@ -39,7 +39,7 @@ class HudRenderer(private val context: Context) {
     var surfaceHeight = 0
     var animationPhase = 0f
 
-    var hudStyle: HudStyle = HudStyle.MINI_PILLS
+    var hudStyle: HudStyle = HudStyle.HORIZONTAL_METERS
     var accentColor: Int = Color.rgb(0x00, 0xFF, 0x41)
     var showRam = true
     var showStorage = true
@@ -83,14 +83,14 @@ class HudRenderer(private val context: Context) {
             if (showRam) add(Triple("RAM", ramUsedPct, usageColor(ramUsedPct)))
             if (showStorage) add(Triple("DSK", diskUsedPct, usageColor(diskUsedPct)))
         }
+        // 2026-06-06: slimmed to the only styles still in use after preset
+        // cleanup. CLASICO uses GOLD_RINGS via SystemRingsRenderer (not us).
+        // GROK/CRT/CYBER have showSystemHud=false so this draw() never runs
+        // for them currently — kept here for future re-enable + the
+        // GOLD_RINGS branch to remain a no-op if mis-routed.
         when (hudStyle) {
-            HudStyle.MINI_PILLS, HudStyle.EMBER_PILLS -> drawMiniPills(canvas, rows)
-            HudStyle.PILLS_COLORED -> drawPillsColored(canvas, rows)
             HudStyle.HORIZONTAL_METERS -> drawHorizontalMeters(canvas, rows)
             HudStyle.HEX_LEDS -> drawHexLeds(canvas, rows)
-            HudStyle.ASCII_LINES -> drawAsciiLines(canvas, rows)
-            HudStyle.ARC_GAUGES -> drawArcGauges(canvas, rows)
-            HudStyle.GLASS_SHARDS -> drawGlassShards(canvas, rows)
             HudStyle.GOLD_RINGS -> { /* not drawn here — SystemRingsRenderer */ }
         }
     }

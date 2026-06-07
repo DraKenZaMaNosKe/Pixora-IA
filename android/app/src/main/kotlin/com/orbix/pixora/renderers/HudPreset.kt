@@ -4,12 +4,23 @@ import android.graphics.Color
 import android.graphics.Typeface
 
 /**
- * One of 10 selectable HUD presets. Each defines a coherent identity:
- * clock typography + color, EQ style, and which monitor layout to draw
- * (gold rings, mini pills, hex LEDs, ascii lines, arc gauges, glass shards).
+ * Selectable HUD preset. Slimmed 2026-06-06 from 10 → 4 presets so we can
+ * polish + perf-tune each one deeply instead of spreading thin. The 4 kept
+ * cover distinct visual identities:
+ *
+ *  - CLASICO (was SACRED) → brand gold + segmented bars + system rings
+ *  - GROK    → vivid multi-color spectrum bars (cyan/green/orange)
+ *  - CRT     → sci-fi cyan bars with horizontal scanline wave overlay
+ *  - CYBER   → glitchy yellow bars with RGB-split offset on peaks
  *
  * The picker in Settings stores the string key in `pixora_live.hud_preset`;
- * default is "sacred" (the original Pixora gold rings + serif clock).
+ * default is "classic" (the original Pixora gold rings + serif clock).
+ * Migration: legacy "sacred" string maps to CLASICO via [fromKey].
+ *
+ * @property showSystemHud when false, the wallpaper engine SKIPS drawing
+ *   the battery indicator, system rings (RAM/disk), and HUD overlays. Only
+ *   the clock + equalizer remain. Lets each preset commit to a focused look:
+ *   CLASICO is the "info-dense" preset; the others are minimalist.
  */
 enum class HudPreset(
     val key: String,
@@ -27,10 +38,11 @@ enum class HudPreset(
     val eqTertiary: Int,            // optional 3rd gradient stop, or 0
     val hudStyle: HudStyle,
     val hudAccent: Int,
+    val showSystemHud: Boolean,
 ) {
-    SACRED(
-        key = "sacred",
-        displayName = "Pixora Sacred",
+    CLASICO(
+        key = "classic",
+        displayName = "Clásico",
         displaySub = "Brand · dorado cósmico",
         clockFont = Typeface.create(Typeface.SERIF, Typeface.ITALIC),
         clockColor = Color.parseColor("#E6B655"),
@@ -44,44 +56,7 @@ enum class HudPreset(
         eqTertiary = 0,
         hudStyle = HudStyle.GOLD_RINGS,
         hudAccent = Color.parseColor("#E6B655"),
-    ),
-    MODERN(
-        key = "modern",
-        displayName = "Modern Mono",
-        displaySub = "iOS · Winamp mirror",
-        clockFont = if (android.os.Build.VERSION.SDK_INT >= 28)
-            Typeface.create(Typeface.SANS_SERIF, 100, false)
-        else Typeface.SANS_SERIF,
-        clockColor = Color.WHITE,
-        clockSizeMult = 0.26f,
-        clockLetterSpacing = -0.055f,
-        clockGlowColor = Color.BLACK,
-        clockGlowRadius = 20f,
-        eqStyle = EqStyle.WINAMP_MIRROR,
-        eqPrimary = Color.rgb(0x00, 0xFF, 0x41),
-        eqSecondary = Color.rgb(0xFF, 0xFF, 0x00),
-        eqTertiary = Color.rgb(0xFF, 0x15, 0x00),
-        hudStyle = HudStyle.MINI_PILLS,
-        hudAccent = Color.rgb(0x00, 0xFF, 0x41),
-    ),
-    GEMINI(
-        key = "gemini",
-        displayName = "Gemini Pulse",
-        displaySub = "Google AI · dots",
-        clockFont = if (android.os.Build.VERSION.SDK_INT >= 28)
-            Typeface.create(Typeface.SANS_SERIF, 200, false)
-        else Typeface.SANS_SERIF,
-        clockColor = Color.WHITE,
-        clockSizeMult = 0.20f,
-        clockLetterSpacing = -0.03f,
-        clockGlowColor = Color.BLACK,
-        clockGlowRadius = 16f,
-        eqStyle = EqStyle.GEMINI_DOTS,
-        eqPrimary = Color.parseColor("#4285F4"),
-        eqSecondary = Color.parseColor("#EA4335"),
-        eqTertiary = Color.parseColor("#FBBC04"),
-        hudStyle = HudStyle.PILLS_COLORED,
-        hudAccent = Color.parseColor("#4285F4"),
+        showSystemHud = true,
     ),
     GROK(
         key = "grok",
@@ -99,6 +74,7 @@ enum class HudPreset(
         eqTertiary = Color.parseColor("#FF6B35"),
         hudStyle = HudStyle.HORIZONTAL_METERS,
         hudAccent = Color.parseColor("#00E5FF"),
+        showSystemHud = false,
     ),
     CRT(
         key = "crt",
@@ -116,59 +92,7 @@ enum class HudPreset(
         eqTertiary = 0,
         hudStyle = HudStyle.HEX_LEDS,
         hudAccent = Color.parseColor("#00E5FF"),
-    ),
-    RETRO(
-        key = "retro",
-        displayName = "Retro CRT",
-        displaySub = "VT323 verde · hacker",
-        clockFont = Typeface.MONOSPACE,
-        clockColor = Color.rgb(0x00, 0xFF, 0x41),
-        clockSizeMult = 0.22f,
-        clockLetterSpacing = 0.18f,
-        clockGlowColor = Color.rgb(0x00, 0xFF, 0x41),
-        clockGlowRadius = 18f,
-        eqStyle = EqStyle.WINAMP_MIRROR,
-        eqPrimary = Color.rgb(0x00, 0xFF, 0x41),
-        eqSecondary = Color.rgb(0xFF, 0xFF, 0x00),
-        eqTertiary = Color.rgb(0xFF, 0x15, 0x00),
-        hudStyle = HudStyle.ASCII_LINES,
-        hudAccent = Color.rgb(0x00, 0xFF, 0x41),
-    ),
-    FLAME(
-        key = "flame",
-        displayName = "Flame Wisps",
-        displaySub = "Llamas · primal",
-        clockFont = Typeface.create(Typeface.SERIF, Typeface.BOLD),
-        clockColor = Color.parseColor("#FFD700"),
-        clockSizeMult = 0.18f,
-        clockLetterSpacing = 0.06f,
-        clockGlowColor = Color.parseColor("#FF4500"),
-        clockGlowRadius = 30f,
-        eqStyle = EqStyle.FLAME,
-        eqPrimary = Color.parseColor("#FFD700"),
-        eqSecondary = Color.parseColor("#FF8C00"),
-        eqTertiary = Color.parseColor("#FF4500"),
-        hudStyle = HudStyle.EMBER_PILLS,
-        hudAccent = Color.parseColor("#FF8C00"),
-    ),
-    AURORA(
-        key = "aurora",
-        displayName = "Aurora Boreal",
-        displaySub = "Cintas · cielo estrellado",
-        clockFont = if (android.os.Build.VERSION.SDK_INT >= 28)
-            Typeface.create(Typeface.SERIF, 300, false)
-        else Typeface.SERIF,
-        clockColor = Color.WHITE,
-        clockSizeMult = 0.20f,
-        clockLetterSpacing = 0.10f,
-        clockGlowColor = Color.parseColor("#00FFAA"),
-        clockGlowRadius = 28f,
-        eqStyle = EqStyle.AURORA_RIBBONS,
-        eqPrimary = Color.parseColor("#00FFAA"),
-        eqSecondary = Color.parseColor("#00C2FF"),
-        eqTertiary = Color.parseColor("#B83BCB"),
-        hudStyle = HudStyle.ARC_GAUGES,
-        hudAccent = Color.parseColor("#00FFAA"),
+        showSystemHud = false,
     ),
     CYBER(
         key = "cyber",
@@ -186,55 +110,32 @@ enum class HudPreset(
         eqTertiary = Color.parseColor("#00FFEA"),
         hudStyle = HudStyle.HEX_LEDS,
         hudAccent = Color.parseColor("#FCEE0A"),
-    ),
-    CRYSTAL(
-        key = "crystal",
-        displayName = "Light Crystal",
-        displaySub = "Theme claro · prisma",
-        clockFont = if (android.os.Build.VERSION.SDK_INT >= 28)
-            Typeface.create(Typeface.SERIF, 300, false)
-        else Typeface.SERIF,
-        clockColor = Color.parseColor("#2A3548"),
-        clockSizeMult = 0.22f,
-        clockLetterSpacing = 0.10f,
-        clockGlowColor = Color.parseColor("#FF6496"),
-        clockGlowRadius = 8f,
-        eqStyle = EqStyle.CRYSTAL_SHARDS,
-        eqPrimary = Color.parseColor("#FF6496"),
-        eqSecondary = Color.parseColor("#96C8FF"),
-        eqTertiary = Color.WHITE,
-        hudStyle = HudStyle.GLASS_SHARDS,
-        hudAccent = Color.parseColor("#FF6496"),
+        showSystemHud = false,
     );
 
     companion object {
+        /**
+         * Resolve a preset by its stored key. Accepts legacy "sacred" string
+         * (pre-2026-06-06 rename) and routes it to [CLASICO]. Unknown keys
+         * fall back to [CLASICO] silently.
+         */
         fun fromKey(key: String?): HudPreset {
-            if (key == null) return SACRED
-            return entries.firstOrNull { it.key == key } ?: SACRED
+            if (key == null) return CLASICO
+            if (key == "sacred") return CLASICO  // migration
+            return entries.firstOrNull { it.key == key } ?: CLASICO
         }
     }
 }
 
 enum class EqStyle {
-    GOLD_SEGMENTED,    // current Pixora gold (existing implementation)
-    WINAMP_MIRROR,     // green/yellow/red segments + mirror reflection below
-    GEMINI_DOTS,       // 5 colored circles that pulse (no bars)
-    GROK_SPECTRUM,     // gradient bars cyan→green→yellow→orange + mirror
-    CRT_BARS,          // cyan bars + horizontal wave overlay
-    FLAME,             // tapered bars like flames, taller in center, flicker
-    AURORA_RIBBONS,    // soft glowing pill-shaped bars with aurora gradient
-    CYBER_GLITCH,      // yellow bars with red/cyan RGB offset on peaks
-    CRYSTAL_SHARDS,    // translucent prismatic bars with chromatic edges
+    GOLD_SEGMENTED,    // CLASICO — segmented gold bars + gold mirror
+    GROK_SPECTRUM,     // GROK — gradient bars cyan→green→yellow→orange + mirror
+    CRT_BARS,          // CRT — cyan bars + horizontal sine wave overlay
+    CYBER_GLITCH,      // CYBER — yellow bars with red/cyan RGB offset on peaks
 }
 
 enum class HudStyle {
-    GOLD_RINGS,        // existing SystemRingsRenderer 3 circles vertical left
-    MINI_PILLS,        // mini-pills top-right with green dots (MiniHudRenderer)
-    PILLS_COLORED,     // pills with Google color dots
-    HORIZONTAL_METERS, // bars + values stacked top-right
-    HEX_LEDS,          // hexagonal LED cells with value inside
-    ASCII_LINES,       // text "RAM [████░░] 67%" terminal-style
-    EMBER_PILLS,       // glowing ember dots with fire colors
-    ARC_GAUGES,        // small arc gauges with percentage in center
-    GLASS_SHARDS,      // trapezoidal glass shards (light theme)
+    GOLD_RINGS,        // CLASICO — SystemRingsRenderer (3 rings vertical left)
+    HORIZONTAL_METERS, // GROK — bars + values stacked top-right
+    HEX_LEDS,          // CRT + CYBER — hexagonal LED cells with value inside
 }
