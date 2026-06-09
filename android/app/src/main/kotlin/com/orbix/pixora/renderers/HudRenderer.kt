@@ -91,7 +91,86 @@ class HudRenderer(private val context: Context) {
         when (hudStyle) {
             HudStyle.HORIZONTAL_METERS -> drawHorizontalMeters(canvas, rows)
             HudStyle.HEX_LEDS -> drawHexLeds(canvas, rows)
+            HudStyle.PILLAR_STACK -> drawPillarStack(canvas, rows)
             HudStyle.GOLD_RINGS -> { /* not drawn here — SystemRingsRenderer */ }
+        }
+    }
+
+    // ── Vertical capacitor pillars — used by CRT Terminal preset. Three
+    //    narrow vertical bars top-right; each fills from bottom proportional
+    //    to its metric. Value label above, metric label below. Cyan glow.
+    private fun drawPillarStack(canvas: Canvas, rows: List<Triple<String, Int, Int>>) {
+        val pillarW = surfaceWidth * 0.026f       // ~28px on 1080
+        val pillarH = surfaceHeight * 0.07f       // ~164px on 2340
+        val gap = surfaceWidth * 0.015f
+        val totalW = rows.size * pillarW + (rows.size - 1) * gap
+        val rightMargin = surfaceWidth * 0.04f
+        val startX = surfaceWidth - rightMargin - totalW
+        val topY = surfaceHeight * 0.08f
+        val valueSize = surfaceWidth * 0.022f
+        val labelSize = surfaceWidth * 0.020f
+
+        // Value paint (top of pillar)
+        textPaint.apply {
+            color = accentColor
+            this.textSize = valueSize
+            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+            textAlign = Paint.Align.CENTER
+            letterSpacing = 0.04f
+            shader = null
+            setShadowLayer(4f, 0f, 0f, accentColor)
+        }
+        labelPaint.apply {
+            color = Color.argb(180, Color.red(accentColor), Color.green(accentColor), Color.blue(accentColor))
+            this.textSize = labelSize * 0.7f
+            typeface = Typeface.MONOSPACE
+            textAlign = Paint.Align.CENTER
+            letterSpacing = 0.18f
+            shader = null
+            setShadowLayer(2f, 0f, 1f, Color.argb(120, 0, 0, 0))
+        }
+
+        for ((idx, row) in rows.withIndex()) {
+            val (label, pct, color) = row
+            val cx = startX + pillarW / 2 + idx * (pillarW + gap)
+            val pillarLeft = cx - pillarW / 2
+            val pillarRight = cx + pillarW / 2
+            val pillarTop = topY
+            val pillarBottom = topY + pillarH
+
+            // Pillar shell — dark background + cyan border
+            shapePaint.apply {
+                this.color = Color.argb(180, 6, 18, 28)
+                style = Paint.Style.FILL
+                setShadowLayer(0f, 0f, 0f, 0)
+            }
+            canvas.drawRoundRect(pillarLeft, pillarTop, pillarRight, pillarBottom, 3f, 3f, shapePaint)
+            strokePaint.apply {
+                this.color = Color.argb(110, Color.red(accentColor), Color.green(accentColor), Color.blue(accentColor))
+                strokeWidth = 1f
+                style = Paint.Style.STROKE
+            }
+            canvas.drawRoundRect(pillarLeft, pillarTop, pillarRight, pillarBottom, 3f, 3f, strokePaint)
+
+            // Fill from bottom — color tinted to the metric's status (color)
+            val fillH = pillarH * (pct.coerceIn(0, 100) / 100f)
+            shapePaint.apply {
+                this.color = color
+                alpha = 220
+                style = Paint.Style.FILL
+                setShadowLayer(6f, 0f, 0f, color)
+            }
+            canvas.drawRoundRect(
+                pillarLeft + 2f, pillarBottom - fillH,
+                pillarRight - 2f, pillarBottom - 2f,
+                2f, 2f, shapePaint,
+            )
+            shapePaint.clearShadowLayer()
+
+            // Value text ABOVE pillar
+            canvas.drawText("$pct", cx, pillarTop - 6f, textPaint)
+            // Label text BELOW pillar
+            canvas.drawText(label, cx, pillarBottom + labelSize, labelPaint)
         }
     }
 

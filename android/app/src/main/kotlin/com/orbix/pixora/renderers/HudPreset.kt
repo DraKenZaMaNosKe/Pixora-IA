@@ -101,9 +101,9 @@ enum class HudPreset(
         eqPrimary = Color.parseColor("#00E5FF"),
         eqSecondary = Color.parseColor("#00FFFF"),
         eqTertiary = 0,
-        hudStyle = HudStyle.HEX_LEDS,
+        hudStyle = HudStyle.PILLAR_STACK,
         hudAccent = Color.parseColor("#00E5FF"),
-        showSystemHud = false,
+        showSystemHud = true,
     ),
     CYBER(
         key = "cyber",
@@ -121,7 +121,7 @@ enum class HudPreset(
         eqTertiary = Color.parseColor("#00FFEA"),
         hudStyle = HudStyle.HEX_LEDS,
         hudAccent = Color.parseColor("#FCEE0A"),
-        showSystemHud = false,
+        showSystemHud = true,
     );
 
     companion object {
@@ -148,5 +148,6 @@ enum class EqStyle {
 enum class HudStyle {
     GOLD_RINGS,        // CLASICO — SystemRingsRenderer (3 rings vertical left)
     HORIZONTAL_METERS, // GROK — bars + values stacked top-right
-    HEX_LEDS,          // CRT + CYBER — hexagonal LED cells with value inside
+    HEX_LEDS,          // CYBER — hexagonal LED cells with value inside
+    PILLAR_STACK,      // CRT — 3 vertical capacitor-style pillars top-right
 }

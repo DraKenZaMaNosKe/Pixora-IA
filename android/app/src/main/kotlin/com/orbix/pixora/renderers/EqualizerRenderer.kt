@@ -762,15 +762,9 @@ class EqualizerRenderer(private val context: Context? = null) {
             barPaint.color = Color.parseColor("#00FFFF")
             canvas.drawRect(x, l.centerY + l.maxHalfHeight - h, x + l.barWidth, l.centerY + l.maxHalfHeight - h + 3f, barPaint)
         }
-        // Sine wave overlay
-        peakPaint.apply { color = Color.argb(140, 255, 255, 255); strokeWidth = 1.5f; style = Paint.Style.STROKE; setShadowLayer(0f, 0f, 0f, 0) }
-        val path = Path()
-        for (x in 0..surfaceWidth step 4) {
-            val y = l.centerY + sin((animationPhase * 3f + x * 0.04f).toDouble()).toFloat() * l.maxHalfHeight * 0.4f
-            if (x == 0) path.moveTo(x.toFloat(), y) else path.lineTo(x.toFloat(), y)
-        }
-        canvas.drawPath(path, peakPaint)
-        peakPaint.style = Paint.Style.FILL
+        // Sine wave overlay removed 2026-06-08 per user request — was the
+        // faint white wave drawn over the cyan bars. The bars alone read
+        // cleaner as a CRT visualizer.
     }
 
     // ── 07 · FLAME — tapered bars like flames, taller in center, flicker ──

@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixora · Cyber Glitch · EQ + HUD Finalists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Manrope:wght@200;300;500;700&family=Share+Tech+Mono&family=Orbitron:wght@500;700;900&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page-bg:       #050505;
+    --card-border:   rgba(252,238,10,.10);
+    --y:             #FCEE0A;
+    --r:             #FF003C;
+    --c:             #00FFEA;
+    --text:          #f5f5f7;
+    --text-dim:      #93939a;
+    --text-mute:     #5f5f66;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(252,238,10,.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(255,0,60,.04) 0%, transparent 50%),
+      var(--page-bg);
+    color: var(--text);
+    font-family: 'Manrope', system-ui, sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 .9 0 0 0 0 .05 0 0 0 .05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    pointer-events: none; z-index: 999; mix-blend-mode: overlay; opacity: .22;
+  }
+
+  header { padding: 56px 32px 12px; text-align: center; }
+  .eyebrow {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 12px; letter-spacing: .35em; color: var(--y);
+    text-transform: lowercase;
+    text-shadow: 1px 0 0 var(--r), -1px 0 0 var(--c);
+  }
+  h1 {
+    margin: 14px 0 12px; font-weight: 200;
+    font-size: clamp(34px, 5vw, 54px); line-height: 1.05; letter-spacing: -.025em;
+  }
+  h1 .accent {
+    font-family: 'Orbitron', sans-serif; font-weight: 900;
+    color: var(--y);
+    text-shadow: 2px 0 0 var(--r), -2px 0 0 var(--c);
+  }
+  .lead {
+    max-width: 700px; margin: 0 auto; color: var(--text-dim);
+    font-size: 14.5px; line-height: 1.55;
+  }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 26px; padding: 30px max(20px, 3vw) 80px;
+    max-width: 1700px; margin: 0 auto;
+  }
+  .card { position: relative; transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+  .card:hover { transform: translateY(-5px); }
+  .card-head {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 0 6px; margin-bottom: 12px;
+  }
+  .card-num {
+    font-family: 'Major Mono Display', monospace;
+    color: var(--y); font-size: 22px; letter-spacing: -.04em;
+  }
+  .card-title { font-weight: 700; font-size: 17px; color: var(--text); }
+  .card-tag {
+    margin-left: auto; font-family: 'Major Mono Display', monospace;
+    font-size: 9px; letter-spacing: .22em; color: var(--text-mute);
+    border: 1px solid var(--card-border); padding: 4px 8px; border-radius: 2px;
+    text-transform: lowercase;
+  }
+  .card-desc {
+    padding: 0 6px; margin: 0 0 14px;
+    color: var(--text-dim); font-size: 12.5px; line-height: 1.5;
+  }
+
+  .phone {
+    position: relative;
+    background: radial-gradient(140% 90% at 50% -10%, #1a1505 0%, #0d0a05 55%, #060503 100%);
+    border-radius: 36px; padding: 10px 10px 0;
+    box-shadow:
+      inset 0 0 0 1px rgba(252,238,10,.08),
+      0 25px 70px -20px rgba(0,0,0,.7);
+    overflow: hidden; aspect-ratio: 9/16;
+  }
+  .wp {
+    position: absolute; inset: 10px 10px 0;
+    border-radius: 30px; overflow: hidden;
+    background: radial-gradient(120% 80% at 30% 20%, #1a0d05 0%, #0a0604 60%, #050302 100%);
+  }
+  .status-bar {
+    position: absolute; top: 18px; left: 28px; right: 28px;
+    display: flex; justify-content: space-between;
+    color: rgba(252,238,10,.55); font-size: 10px;
+    letter-spacing: .05em; font-weight: 500; z-index: 4;
+    font-family: 'Major Mono Display', monospace;
+  }
+  /* Cyber clock — yellow Orbitron with RGB split */
+  .clock-wrap {
+    position: absolute; top: 84px; left: 0; right: 0;
+    text-align: center; z-index: 6; line-height: 1;
+  }
+  .clock {
+    display: inline-block; position: relative;
+    color: var(--y); font-family: 'Orbitron', sans-serif; font-weight: 900;
+    font-size: 60px; letter-spacing: .04em;
+  }
+  .clock::before, .clock::after {
+    content: attr(data-time); position: absolute; left: 0; top: 0; width: 100%;
+    pointer-events: none;
+  }
+  .clock::before { color: var(--r); transform: translate(-2px, 0); opacity: .85; mix-blend-mode: screen; }
+  .clock::after  { color: var(--c); transform: translate(2px, 0);  opacity: .85; mix-blend-mode: screen; }
+  .date {
+    position: absolute; top: 154px; left: 0; right: 0;
+    text-align: center; color: rgba(252,238,10,.65);
+    font-family: 'Share Tech Mono', monospace; font-size: 12px;
+    letter-spacing: .35em; z-index: 6;
+  }
+  .dock {
+    position: absolute; bottom: 22px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 22px; z-index: 6;
+  }
+  .dock-icon {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.05);
+  }
+
+  /* HUD slot */
+  .hud-slot { position: absolute; top: 50px; left: 0; right: 0; z-index: 7; }
+  /* EQ slot */
+  .eq-slot {
+    position: absolute; left: 22px; right: 22px; bottom: 86px;
+    height: 100px; z-index: 5;
+  }
+
+  /* ─────────────────────────────────────────────────────────
+   *  VARIANT 01 — YELLOW NUCLEAR (current style polished)
+   * ───────────────────────────────────────────────────────── */
+  .v1 .hud-slot { display: flex; justify-content: center; gap: 8px; padding: 0 24px; }
+  .v1 .hex {
+    position: relative; width: 50px; height: 58px;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: linear-gradient(180deg, rgba(252,238,10,.20), rgba(252,238,10,.05));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .v1 .hex::before {
+    content: ""; position: absolute; inset: 1px;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: linear-gradient(180deg, #1a1505, #0a0803);
+  }
+  .v1 .hex .val {
+    position: relative; z-index: 2;
+    font-family: 'Orbitron', sans-serif; font-weight: 700;
+    font-size: 16px; color: var(--y);
+    text-shadow: 1px 0 0 var(--r), -1px 0 0 var(--c);
+  }
+  .v1 .hex .lbl {
+    position: relative; z-index: 2;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px; color: rgba(252,238,10,.6);
+    letter-spacing: .18em; margin-top: 1px;
+  }
+  .v1 .eq-slot { display: flex; align-items: flex-end; gap: 2px; }
+  .v1 .eq-bar {
+    flex: 1; height: 70%;
+    background: var(--y);
+    position: relative;
+    box-shadow: 2px 0 0 var(--r), -2px 0 0 var(--c);
+  }
+
+  /* ─────────────────────────────────────────────────────────
+   *  VARIANT 02 — TRIPLE RGB GHOST
+   * ───────────────────────────────────────────────────────── */
+  .v2 .hud-slot { display: flex; justify-content: center; gap: 10px; padding: 0 24px; }
+  .v2 .ghost-pill {
+    position: relative; width: 60px;
+    font-family: 'Orbitron', sans-serif; font-weight: 700;
+    font-size: 14px; text-align: center;
+    padding: 8px 6px;
+    color: var(--y);
+    background: rgba(0,0,0,.45);
+    border: 1px solid var(--y);
+    border-radius: 2px;
+  }
+  .v2 .ghost-pill::before, .v2 .ghost-pill::after {
+    content: attr(data-v); position: absolute; left: 0; right: 0; top: 8px;
+    text-align: center; pointer-events: none;
+  }
+  .v2 .ghost-pill::before { color: var(--r); transform: translate(-3px,0); opacity: .8; mix-blend-mode: screen; }
+  .v2 .ghost-pill::after  { color: var(--c); transform: translate(3px,0);  opacity: .8; mix-blend-mode: screen; }
+  .v2 .ghost-pill .l {
+    position: absolute; bottom: -14px; left: 0; right: 0; text-align: center;
+    font-family: 'Share Tech Mono', monospace; font-size: 8px;
+    color: rgba(252,238,10,.7); letter-spacing: .15em;
+  }
+  .v2 .eq-slot { display: flex; align-items: flex-end; gap: 2px; }
+  .v2 .eq-bar {
+    flex: 1; height: 80%; background: var(--y);
+    position: relative;
+  }
+  .v2 .eq-bar::before, .v2 .eq-bar::after {
+    content: ""; position: absolute; inset: 0;
+    background: inherit;
+  }
+  .v2 .eq-bar::before { background: var(--r); transform: translateX(-3px); opacity: .5; mix-blend-mode: screen; }
+  .v2 .eq-bar::after  { background: var(--c); transform: translateX(3px);  opacity: .5; mix-blend-mode: screen; }
+
+  /* ─────────────────────────────────────────────────────────
+   *  VARIANT 03 — MATRIX RAIN
+   * ───────────────────────────────────────────────────────── */
+  .v3 .hud-slot { display: flex; justify-content: flex-end; padding: 4px 22px 0; }
+  .v3 .terminal {
+    background: rgba(20,15,2,.55);
+    border: 1px solid var(--y);
+    border-radius: 2px;
+    padding: 6px 10px;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: var(--y);
+    text-shadow: 0 0 4px rgba(252,238,10,.5);
+    line-height: 1.3;
+    letter-spacing: .04em;
+  }
+  .v3 .terminal .head { color: var(--c); font-size: 9px; letter-spacing: .15em; margin-bottom: 3px; }
+  .v3 .terminal .row { display: flex; gap: 6px; }
+  .v3 .terminal .row .k { color: var(--y); opacity: .8; width: 28px; }
+  .v3 .terminal .row .v { color: var(--y); width: 30px; text-align: right; }
+  .v3 .eq-slot {
+    display: flex; align-items: flex-end; gap: 3px;
+    font-family: 'VT323', monospace;
+    color: var(--y);
+    line-height: 1;
+    font-size: 18px;
+  }
+  .v3 .eq-col {
+    flex: 1; height: 100%;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    text-align: center;
+    overflow: hidden;
+  }
+  .v3 .eq-col span {
+    opacity: 0;
+    text-shadow: 0 0 3px var(--y);
+  }
+  .v3 .eq-col span.on { opacity: 1; }
+
+  /* ─────────────────────────────────────────────────────────
+   *  VARIANT 04 — CYBER GRID (bars + wireframe overlay)
+   * ───────────────────────────────────────────────────────── */
+  .v4 .hud-slot {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 4px 22px 0; align-items: flex-end;
+  }
+  .v4 .card-meta {
+    background: linear-gradient(135deg, rgba(252,238,10,.12), rgba(0,255,234,.05));
+    border: 1px solid var(--y);
+    padding: 4px 10px;
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    position: relative;
+  }
+  .v4 .card-meta::before {
+    content: ""; position: absolute; left: -4px; top: 50%;
+    width: 4px; height: 8px; transform: translateY(-50%);
+    background: var(--y);
+  }
+  .v4 .card-meta .k { color: var(--c); letter-spacing: .18em; }
+  .v4 .card-meta .v { color: var(--y); font-weight: 700; width: 32px; text-align: right; }
+  .v4 .eq-slot { display: flex; align-items: flex-end; gap: 2px; position: relative; }
+  .v4 .eq-slot::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(to bottom, rgba(0,255,234,.2) 0, rgba(0,255,234,.2) 1px, transparent 1px, transparent 12px),
+      repeating-linear-gradient(to right,  rgba(0,255,234,.1) 0, rgba(0,255,234,.1) 1px, transparent 1px, transparent 14px);
+  }
+  .v4 .eq-bar {
+    flex: 1; height: 75%; background: var(--y);
+    box-shadow: 0 0 6px rgba(252,238,10,.5);
+  }
+
+  /* ─────────────────────────────────────────────────────────
+   *  VARIANT 05 — DIAMOND ROW (rhombus bars + diamond meters)
+   * ───────────────────────────────────────────────────────── */
+  .v5 .hud-slot { display: flex; justify-content: center; gap: 14px; padding: 0 24px; }
+  .v5 .diamond {
+    width: 52px; height: 52px;
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, rgba(252,238,10,.18), rgba(255,0,60,.06));
+    border: 1px solid var(--y);
+    position: relative;
+  }
+  .v5 .diamond .inner {
+    position: absolute; inset: 0;
+    transform: rotate(-45deg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .v5 .diamond .val {
+    font-family: 'Orbitron', sans-serif; font-weight: 700;
+    font-size: 14px; color: var(--y);
+    text-shadow: 0 0 4px rgba(252,238,10,.5);
+  }
+  .v5 .diamond .lbl {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 7px; color: rgba(252,238,10,.7);
+    letter-spacing: .15em; margin-top: 2px;
+  }
+  .v5 .eq-slot { display: flex; align-items: flex-end; gap: 4px; }
+  .v5 .eq-bar {
+    flex: 1; height: 70%; background: linear-gradient(180deg, var(--y), rgba(252,238,10,.4));
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  }
+
+  .pick {
+    margin-top: 14px; display: block; width: 100%;
+    background: transparent; border: 1px solid var(--card-border);
+    color: var(--text-dim);
+    font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 11px;
+    letter-spacing: .22em; text-transform: uppercase;
+    padding: 12px; cursor: pointer; transition: all .2s; border-radius: 2px;
+  }
+  .pick:hover { border-color: var(--y); color: var(--y); }
+  .card.picked .pick { background: var(--y); color: #0a0a0a; border-color: var(--y); }
+  .card.picked .phone {
+    box-shadow:
+      inset 0 0 0 1px var(--y),
+      0 0 0 3px rgba(252,238,10,.22),
+      0 25px 70px -20px rgba(0,0,0,.7);
+  }
+
+  footer {
+    text-align: center; padding: 12px 32px 60px;
+    color: var(--text-mute); font-size: 11px; letter-spacing: .25em;
+    text-transform: uppercase; font-family: 'Major Mono Display', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">// cyber glitch · eq + hud combos</div>
+  <h1>5 looks <span class="accent">CYBERPUNK</span></h1>
+  <p class="lead">
+    Cada variante es un combo coherente de EQ + HUD bajo la identidad Cyber Glitch (amarillo nuclear + RGB split). Distintos sabores: cyberpunk crudo, matrix code, wireframe grid, holo, diamond cuts.
+  </p>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<footer>Pixora · Cyber Glitch · 2026-06-08</footer>
+
+<template id="phone-tpl">
+  <div class="card" data-id="">
+    <div class="card-head">
+      <span class="card-num"></span>
+      <span class="card-title"></span>
+      <span class="card-tag"></span>
+    </div>
+    <p class="card-desc"></p>
+    <div class="phone">
+      <div class="wp"></div>
+      <div class="status-bar"><span>9:41 · PIXORA</span><span>● 84%</span></div>
+      <div class="hud-slot"></div>
+      <div class="clock-wrap"><span class="clock" data-time="23:48">23:48</span></div>
+      <div class="date">LUN 08 JUN · :12</div>
+      <div class="eq-slot"></div>
+      <div class="dock">
+        <div class="dock-icon"></div><div class="dock-icon"></div>
+        <div class="dock-icon"></div><div class="dock-icon"></div>
+      </div>
+    </div>
+    <button class="pick">Escoger este combo</button>
+  </div>
+</template>
+
+<script>
+// Build EQ bars helper
+function eqBars(n, varied) {
+  const heights = ['35%','55%','70%','85%','90%','75%','60%','80%','65%','50%','70%','85%','60%','45%','75%','60%','80%','55%'];
+  let html = '';
+  for (let i = 0; i < n; i++) {
+    const h = heights[i % heights.length];
+    html += `<div class="eq-bar" style="height:${h}"></div>`;
+  }
+  return html;
+}
+// Matrix rain columns helper
+function matrixCols(n) {
+  const chars = ['0','1','#','$','*','+','%','&','?','=','<','>'];
+  let html = '';
+  for (let i = 0; i < n; i++) {
+    let col = '';
+    const lit = 3 + Math.floor(Math.random() * 5);
+    for (let j = 0; j < 8; j++) {
+      const c = chars[Math.floor(Math.random() * chars.length)];
+      const on = j < lit ? 'on' : '';
+      col += `<span class="${on}">${c}</span>`;
+    }
+    html += `<div class="eq-col">${col}</div>`;
+  }
+  return html;
+}
+
+const VARIANTS = [
+  {
+    id: 1, num: '01', title: 'Yellow Nuclear', tag: 'cyber',
+    cls: 'v1',
+    desc: 'Style refinada del actual. Hex shields amarillos + bars amarillas con RGB split lateral (rojo izq, cyan der). Cyberpunk crudo.',
+    hud: `
+      <div class="hex"><span class="val">84</span><span class="lbl">BAT</span></div>
+      <div class="hex"><span class="val">54</span><span class="lbl">RAM</span></div>
+      <div class="hex"><span class="val">71</span><span class="lbl">DSK</span></div>
+    `,
+    eq: eqBars(18),
+  },
+  {
+    id: 2, num: '02', title: 'Triple RGB Ghost', tag: 'glitch',
+    cls: 'v2',
+    desc: 'Pills cuadrados con triple-color ghost (rojo+cyan offset detrás del amarillo). Las barras tienen el mismo glitch RGB en cada una. Máximo CRT defect.',
+    hud: `
+      <div class="ghost-pill" data-v="84">84<span class="l">BAT</span></div>
+      <div class="ghost-pill" data-v="54">54<span class="l">RAM</span></div>
+      <div class="ghost-pill" data-v="71">71<span class="l">DSK</span></div>
+    `,
+    eq: eqBars(18),
+  },
+  {
+    id: 3, num: '03', title: 'Matrix Rain', tag: 'code',
+    cls: 'v3',
+    desc: 'EQ son columnas de caracteres "0 1 # $" cayendo (más altos = más caracteres lit). HUD es bloque terminal VT323 con $ stat output.',
+    hud: `
+      <div class="terminal">
+        <div class="head">// system.log</div>
+        <div class="row"><span class="k">BAT</span><span class="v">84%</span></div>
+        <div class="row"><span class="k">RAM</span><span class="v">54%</span></div>
+        <div class="row"><span class="k">DSK</span><span class="v">71%</span></div>
+      </div>
+    `,
+    eq: matrixCols(18),
+  },
+  {
+    id: 4, num: '04', title: 'Cyber Grid', tag: 'wireframe',
+    cls: 'v4',
+    desc: 'Barras amarillas con overlay de grid wireframe cyan sobre ellas (líneas horizontales+verticales). HUD son card-meta con bracket lateral cyan + valor.',
+    hud: `
+      <div class="card-meta"><span class="k">BAT</span><span class="v">84%</span></div>
+      <div class="card-meta"><span class="k">RAM</span><span class="v">54%</span></div>
+      <div class="card-meta"><span class="k">DSK</span><span class="v">71%</span></div>
+    `,
+    eq: eqBars(18),
+  },
+  {
+    id: 5, num: '05', title: 'Diamond Cut', tag: 'cut',
+    cls: 'v5',
+    desc: 'Barras en forma de diamante (rhombus). HUD son 3 diamantes rotados 45° con valor + label adentro. Vibe más refinado, joya cibernética.',
+    hud: `
+      <div class="diamond"><div class="inner"><span class="val">84</span><span class="lbl">BAT</span></div></div>
+      <div class="diamond"><div class="inner"><span class="val">54</span><span class="lbl">RAM</span></div></div>
+      <div class="diamond"><div class="inner"><span class="val">71</span><span class="lbl">DSK</span></div></div>
+    `,
+    eq: eqBars(14),
+  },
+];
+
+const grid = document.getElementById('grid');
+const tpl = document.getElementById('phone-tpl');
+
+VARIANTS.forEach(v => {
+  const node = tpl.content.firstElementChild.cloneNode(true);
+  node.dataset.id = v.id;
+  node.classList.add(v.cls);
+  node.querySelector('.card-num').textContent = v.num;
+  node.querySelector('.card-title').textContent = v.title;
+  node.querySelector('.card-tag').textContent = v.tag;
+  node.querySelector('.card-desc').textContent = v.desc;
+  node.querySelector('.hud-slot').innerHTML = v.hud;
+  node.querySelector('.eq-slot').innerHTML = v.eq;
+  node.querySelector('.pick').addEventListener('click', () => {
+    document.querySelectorAll('.card.picked').forEach(c => c.classList.remove('picked'));
+    node.classList.add('picked');
+    node.querySelector('.pick').textContent = '✓ Implementar combo #' + v.num;
+  });
+  grid.appendChild(node);
+});
+</script>
+</body>
+</html>
