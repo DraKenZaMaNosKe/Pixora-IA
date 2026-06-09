@@ -371,90 +371,110 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
       ),
+      // 2026-06-07 FIX: AdMob keeps the system nav bar hidden during the
+      // interstitial; ~1.3s after dismiss Android restores it and
+      // MediaQuery.padding.bottom flips 0→48dp. SafeArea then rebuilds the
+      // sheet at a different height, which the user perceives as a "flash"
+      // or duplicated render. removeBottom strips that padding from the
+      // sheet's local MediaQuery so the SafeArea below has no bottom inset
+      // to react to. We add the 16dp bottom margin manually inside the
+      // Padding instead, so the sheet still clears the gesture bar.
       builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header
-                Row(
-                  children: [
-                    Text('— ',
-                        style: _serif(13,
-                            color: context.hud.accent, s: FontStyle.italic)),
-                    Text(
-                      'aplicar pieza',
-                      style: _serif(15,
-                          color: context.hud.accent,
-                          s: FontStyle.italic,
-                          w: FontWeight.w500),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: context.hud.accent, width: 1),
+        return MediaQuery.removePadding(
+          context: context,
+          removeBottom: true,
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                24,
+                20,
+                24,
+                20 + MediaQuery.of(context).viewPadding.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header
+                  Row(
+                    children: [
+                      Text('— ',
+                          style: _serif(13,
+                              color: context.hud.accent, s: FontStyle.italic)),
+                      Text(
+                        'aplicar pieza',
+                        style: _serif(15,
+                            color: context.hud.accent,
+                            s: FontStyle.italic,
+                            w: FontWeight.w500),
                       ),
-                      child: Text(
-                        isFree ? 'SIN AD' : 'CON AD',
-                        style: _meta(9, color: context.hud.accent, ls: 0.2),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(color: context.hud.accent, width: 1),
+                        ),
+                        child: Text(
+                          isFree ? 'SIN AD' : 'CON AD',
+                          style: _meta(9, color: context.hud.accent, ls: 0.2),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Diamonds line
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.diamond, color: context.hud.accent, size: 13),
-                    const SizedBox(width: 5),
-                    Text('$credits diamantes',
-                        style: _meta(11, color: context.hud.textDim, ls: 0.15)),
-                    const SizedBox(width: 12),
-                    Text('·', style: _meta(11, color: context.hud.textDim)),
-                    const SizedBox(width: 12),
-                    Text(
-                      isFree
-                          ? 'próximo sin cobro'
-                          : '+${CreditService.creditsPerAd} por ver',
-                      style: _meta(11, color: context.hud.textDim, ls: 0.05),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _buildOption(
-                    Icons.home_outlined, 'Pantalla principal', 'home screen',
-                    () {
-                  Navigator.pop(context);
-                  _applyWallpaper(0);
-                }),
-                _buildOption(
-                    Icons.lock_outline, 'Pantalla de bloqueo', 'lock screen',
-                    () {
-                  Navigator.pop(context);
-                  _applyWallpaper(1);
-                }),
-                _buildOption(
-                    Icons.phone_android_outlined, 'Ambas pantallas', 'both',
-                    () {
-                  Navigator.pop(context);
-                  _applyWallpaper(2);
-                }),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  height: 1,
-                  color: context.hud.divider,
-                ),
-                _buildLiveFoilOption(() {
-                  Navigator.pop(context);
-                  _applyLiveWallpaper();
-                }),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Diamonds line
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.diamond, color: context.hud.accent, size: 13),
+                      const SizedBox(width: 5),
+                      Text('$credits diamantes',
+                          style:
+                              _meta(11, color: context.hud.textDim, ls: 0.15)),
+                      const SizedBox(width: 12),
+                      Text('·', style: _meta(11, color: context.hud.textDim)),
+                      const SizedBox(width: 12),
+                      Text(
+                        isFree
+                            ? 'próximo sin cobro'
+                            : '+${CreditService.creditsPerAd} por ver',
+                        style: _meta(11, color: context.hud.textDim, ls: 0.05),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _buildOption(
+                      Icons.home_outlined, 'Pantalla principal', 'home screen',
+                      () {
+                    Navigator.pop(context);
+                    _applyWallpaper(0);
+                  }),
+                  _buildOption(
+                      Icons.lock_outline, 'Pantalla de bloqueo', 'lock screen',
+                      () {
+                    Navigator.pop(context);
+                    _applyWallpaper(1);
+                  }),
+                  _buildOption(
+                      Icons.phone_android_outlined, 'Ambas pantallas', 'both',
+                      () {
+                    Navigator.pop(context);
+                    _applyWallpaper(2);
+                  }),
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    height: 1,
+                    color: context.hud.divider,
+                  ),
+                  _buildLiveFoilOption(() {
+                    Navigator.pop(context);
+                    _applyLiveWallpaper();
+                  }),
+                ],
+              ),
             ),
           ),
         );

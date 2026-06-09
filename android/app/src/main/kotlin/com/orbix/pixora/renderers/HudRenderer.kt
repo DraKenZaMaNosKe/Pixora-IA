@@ -179,28 +179,45 @@ class HudRenderer(private val context: Context) {
         }
     }
 
-    // ── Bar-meter style: "BAT [████████░░] 84%" ────────────────────
+    // ── Bar-meter style — compact block on top-right matching mockup #75:
+    //    LABEL | gradient bar | VALUE%   stacked vertically per metric.
+    //    All three pieces sit adjacent on the right side; no longer split
+    //    across the full screen width (previous version had label on far
+    //    left + bar/value on far right, looked disconnected).
     private fun drawHorizontalMeters(canvas: Canvas, rows: List<Triple<String, Int, Int>>) {
-        val textSize = surfaceWidth * 0.025f
+        val textSize = surfaceWidth * 0.026f
         val right = surfaceWidth - surfaceWidth * 0.04f
-        val top = surfaceHeight * 0.06f
-        val rowGap = textSize * 2.2f
-        val barW = surfaceWidth * 0.16f
-        val barH = textSize * 0.32f
+        // top pushed down so HUD clears the Android status bar (where carrier
+        // icons + system clock sit). Was 0.06 — overlapped on devices with a
+        // tall status bar. 0.08 = ~64px on 2340-tall surface, safely below.
+        val top = surfaceHeight * 0.08f
+        val rowGap = textSize * 1.9f
+        val barW = surfaceWidth * 0.13f
+        val barH = textSize * 0.42f
+        val labelW = textSize * 2.1f      // reserved width for "BAT/RAM/DSK"
+        val gap = textSize * 0.4f         // gap between label/bar/value
+        val valueW = textSize * 1.8f      // reserved width for "XX%"
+
+        // Anchor: value column right-aligned at `right`. Bar to the left of it,
+        // then label further left. Layout: [LABEL]  [====bar====]  [VAL%]
+        val valueRightX = right
+        val barRightX = valueRightX - valueW
+        val barLeftX = barRightX - barW
+        val labelLeftX = barLeftX - gap - labelW
 
         labelPaint.apply {
-            color = Color.argb(180, 255, 255, 255)
-            this.textSize = textSize * 0.85f
+            color = Color.argb(210, 255, 255, 255)
+            this.textSize = textSize * 0.78f
             typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
             textAlign = Paint.Align.LEFT
-            letterSpacing = 0.12f
+            letterSpacing = 0.18f
             shader = null
-            setShadowLayer(2f, 0f, 1f, Color.argb(120, 0, 0, 0))
+            setShadowLayer(2f, 0f, 1f, Color.argb(140, 0, 0, 0))
         }
         textPaint.apply {
             color = Color.WHITE
-            this.textSize = textSize
-            typeface = Typeface.MONOSPACE
+            this.textSize = textSize * 0.88f
+            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
             textAlign = Paint.Align.RIGHT
             letterSpacing = 0.04f
             setShadowLayer(3f, 0f, 1f, Color.argb(160, 0, 0, 0))
@@ -208,20 +225,26 @@ class HudRenderer(private val context: Context) {
         for ((idx, row) in rows.withIndex()) {
             val (label, pct, color) = row
             val cy = top + idx * rowGap
-            val valueText = "$pct%"
-            val valueW = textPaint.measureText(valueText)
-            // Value (right)
-            canvas.drawText(valueText, right, cy + textSize * 0.36f, textPaint)
-            // Bar
-            val barRight = right - valueW - 6f
-            val barLeft = barRight - barW
-            val barTop = cy + textSize * 0.36f - barH * 1.4f
-            shapePaint.apply { this.color = Color.argb(70, 255, 255, 255); style = Paint.Style.FILL; setShadowLayer(0f, 0f, 0f, 0) }
-            canvas.drawRoundRect(barLeft, barTop, barRight, barTop + barH, 2f, 2f, shapePaint)
+            val baseY = cy + textSize * 0.36f
+            // LABEL — left
+            canvas.drawText(label, labelLeftX, baseY, labelPaint)
+            // BAR background (dim white)
+            val barTop = baseY - barH * 1.1f
+            shapePaint.apply {
+                this.color = Color.argb(60, 255, 255, 255)
+                style = Paint.Style.FILL
+                setShadowLayer(0f, 0f, 0f, 0)
+            }
+            canvas.drawRoundRect(barLeftX, barTop, barRightX, barTop + barH, 2f, 2f, shapePaint)
+            // BAR fill — gradient from the metric's accent color
             shapePaint.color = color
-            canvas.drawRoundRect(barLeft, barTop, barLeft + barW * pct / 100f, barTop + barH, 2f, 2f, shapePaint)
-            // Label (left of bar)
-            canvas.drawText(label, surfaceWidth * 0.04f, cy + textSize * 0.36f, labelPaint)
+            canvas.drawRoundRect(
+                barLeftX, barTop,
+                barLeftX + barW * pct / 100f, barTop + barH,
+                2f, 2f, shapePaint,
+            )
+            // VALUE — right
+            canvas.drawText("$pct%", valueRightX, baseY, textPaint)
         }
     }
 

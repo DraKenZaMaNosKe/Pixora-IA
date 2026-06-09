@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixora · Clásico · Clock + HUD Finalists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Major+Mono+Display&family=Manrope:wght@200;300;500;700&family=Oswald:wght@500;700&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,500&family=DSEG7+Classic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* page surface */
+    --page-bg:       #050505;
+    --page-bg-warm:  #0d0a07;
+    --card-bg:       #0e0e0e;
+    --card-border:   rgba(255,255,255,.08);
+    /* winamp palette */
+    --w-green:       #00FF41;
+    --w-yellow:      #FFFF00;
+    --w-red:         #FF1500;
+    --w-peak-yellow: #FFE600;
+    --w-phosphor:    #18FF6C;
+    /* type */
+    --text:          #f5f5f7;
+    --text-dim:      #93939a;
+    --text-mute:     #5f5f66;
+    --gold:          #C9A650;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html,body { margin:0; padding:0; }
+  body {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(0,255,65,.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(255,255,0,.04) 0%, transparent 50%),
+      var(--page-bg);
+    color: var(--text);
+    font-family: 'Manrope', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* grain */
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .6 0 0 0 0 1 0 0 0 0 .35 0 0 0 .06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    pointer-events: none; z-index: 999; mix-blend-mode: overlay; opacity: .25;
+  }
+
+  /* ============== HEADER ============== */
+  header {
+    padding: 56px 32px 16px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 12px;
+    letter-spacing: .35em;
+    color: var(--w-green);
+    text-transform: lowercase;
+    opacity: .9;
+  }
+  h1 {
+    margin: 14px 0 12px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 200;
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -.025em;
+  }
+  h1 .accent {
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--w-green), var(--w-yellow) 55%, var(--w-red));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .lead {
+    max-width: 680px;
+    margin: 0 auto;
+    color: var(--text-dim);
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+  .glyph-row {
+    margin: 26px auto 0;
+    display: flex; gap: 18px; justify-content: center; align-items: center;
+    color: var(--w-green); opacity: .55; font-size: 12px;
+    font-family: 'Major Mono Display', monospace;
+    letter-spacing: .25em;
+  }
+  .glyph-row .dot { width:4px; height:4px; border-radius:50%; background: var(--w-green); }
+
+  /* ============== GRID ============== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 28px;
+    padding: 36px max(20px, 3vw) 80px;
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+
+  /* ============== CARD ============== */
+  .card {
+    position: relative;
+    transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .card:hover { transform: translateY(-5px); }
+  .card-head {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 0 6px; margin-bottom: 14px;
+  }
+  .card-num {
+    font-family: 'Major Mono Display', monospace;
+    color: var(--w-green);
+    font-size: 22px;
+    letter-spacing: -.04em;
+  }
+  .card-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--text);
+    letter-spacing: -.005em;
+  }
+  .card-tag {
+    margin-left: auto;
+    font-family: 'Major Mono Display', monospace;
+    font-size: 9px;
+    letter-spacing: .22em;
+    color: var(--text-mute);
+    border: 1px solid var(--card-border);
+    padding: 4px 8px;
+    border-radius: 2px;
+    text-transform: lowercase;
+  }
+  .card-desc {
+    padding: 0 6px; margin: 0 0 14px;
+    color: var(--text-dim);
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  /* ============== PHONE FRAME ============== */
+  .phone {
+    position: relative;
+    background:
+      radial-gradient(140% 90% at 50% -10%, #1f1f23 0%, #0d0d10 55%, #060607 100%);
+    border-radius: 36px;
+    padding: 10px 10px 0;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.06),
+      0 25px 70px -20px rgba(0,0,0,.7),
+      0 12px 30px -10px rgba(0,0,0,.5);
+    overflow: hidden;
+    aspect-ratio: 9/16;
+  }
+  .wp {
+    position: absolute;
+    inset: 10px 10px 0;
+    border-radius: 30px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 80% at 30% 20%, #1d2433 0%, #0a0d18 60%, #060810 100%);
+  }
+  .wp::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,.45) 100%);
+  }
+  /* abstract wallpaper shapes */
+  .wp-art {
+    position: absolute; inset: 0;
+    opacity: .85;
+  }
+  .wp-art svg { width: 100%; height: 100%; display: block; }
+  .status-bar {
+    position: absolute; top: 18px; left: 28px; right: 28px;
+    display: flex; justify-content: space-between;
+    color: rgba(255,255,255,.55);
+    font-size: 10px; letter-spacing: .05em; font-weight: 500;
+    z-index: 4;
+  }
+  .dock {
+    position: absolute; bottom: 22px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 22px;
+    z-index: 6;
+  }
+  .dock-icon {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  /* ============== WINAMP EQ (universal — every phone) ============== */
+  .eq-band {
+    position: absolute;
+    left: 22px; right: 22px;
+    bottom: 86px;
+    height: 100px;
+    z-index: 5;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    overflow: hidden;
+  }
+  .eq-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .eq-seg {
+    flex: 0 0 4px;
+    background: var(--w-green);
+    transition: opacity .12s linear;
+    border-radius: 1px;
+  }
+  .eq-seg.y { background: var(--w-yellow); }
+  .eq-seg.r { background: var(--w-red); }
+  .eq-mirror {
+    position: absolute;
+    left: 22px; right: 22px;
+    bottom: 78px;
+    height: 30px;
+    background: linear-gradient(180deg, rgba(0,255,65,.55) 0%, transparent 100%);
+    -webkit-mask: linear-gradient(180deg, black, transparent);
+            mask: linear-gradient(180deg, black, transparent);
+    pointer-events: none;
+    z-index: 4;
+    border-radius: 0 0 6px 6px;
+    opacity: .35;
+  }
+
+  /* ===========================================================
+   *  VARIANT 1 — TERMINAL HACKER (verde fósforo)
+   * =========================================================== */
+  .v1 .v1-clock {
+    position: absolute;
+    top: 56px; left: 0; right: 0;
+    text-align: center;
+    color: var(--w-phosphor);
+    font-family: 'VT323', monospace;
+    font-size: 76px;
+    letter-spacing: .02em;
+    text-shadow:
+      0 0 8px rgba(24,255,108,.7),
+      0 0 22px rgba(24,255,108,.35);
+    line-height: 1;
+    z-index: 5;
+  }
+  .v1 .v1-clock .cursor {
+    display: inline-block;
+    width: .35em; height: .8em;
+    background: var(--w-phosphor);
+    margin-left: 6px;
+    vertical-align: middle;
+    transform: translateY(-4px);
+    animation: blink 1s steps(2, end) infinite;
+  }
+  .v1 .v1-date {
+    position: absolute;
+    top: 142px; left: 0; right: 0;
+    text-align: center;
+    color: var(--w-phosphor);
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: .25em;
+    opacity: .8;
+    z-index: 5;
+  }
+  .v1 .v1-hud {
+    position: absolute;
+    top: 180px; left: 50%;
+    transform: translateX(-50%);
+    color: var(--w-phosphor);
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    line-height: 1.3;
+    text-align: left;
+    z-index: 5;
+    text-shadow: 0 0 6px rgba(24,255,108,.5);
+  }
+  .v1 .v1-hud .row { display: flex; gap: 10px; }
+  .v1 .v1-hud .lbl { opacity: .8; width: 32px; }
+  .v1 .v1-hud .val { width: 36px; text-align: right; opacity: .9; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* scanline overlay (very subtle) */
+  .v1 .wp::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(24,255,108,.04) 0,
+      rgba(24,255,108,.04) 1px,
+      transparent 1px,
+      transparent 3px);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ===========================================================
+   *  VARIANT 2 — CASSETTE COUNTER (LED amber)
+   * =========================================================== */
+  .v2 .v2-deck {
+    position: absolute;
+    top: 56px; left: 22px; right: 22px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0b0b0b 100%);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 4px;
+    padding: 18px 16px 14px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.06),
+      inset 0 -1px 0 rgba(0,0,0,.4);
+    z-index: 5;
+  }
+  .v2 .v2-deck-row {
+    display: flex; align-items: center; gap: 12px;
+    color: #ffae00;
+  }
+  .v2 .v2-clock {
+    font-family: 'DSEG7 Classic', monospace;
+    font-weight: 700;
+    font-size: 48px;
+    letter-spacing: .02em;
+    color: #ffae00;
+    text-shadow:
+      0 0 6px rgba(255,174,0,.7),
+      0 0 18px rgba(255,174,0,.3);
+    line-height: 1;
+    /* fallback look if DSEG fails to load */
+    font-feature-settings: "tnum" 1;
+  }
+  .v2 .v2-rec {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Major Mono Display', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,.55);
+    letter-spacing: .18em;
+  }
+  .v2 .v2-rec .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #ff2a2a; box-shadow: 0 0 8px #ff2a2a;
+    animation: pulse-red 1.8s ease-in-out infinite;
+  }
+  .v2 .v2-deck-meta {
+    margin-top: 6px;
+    display: flex; gap: 18px;
+    font-family: 'Major Mono Display', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,.50);
+    letter-spacing: .18em;
+  }
+  .v2 .v2-counters {
+    position: absolute;
+    top: 168px; left: 22px; right: 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    z-index: 5;
+  }
+  .v2 .v2-counter {
+    background: linear-gradient(180deg, #131313, #0a0a0a);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 3px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .v2 .v2-counter .label {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,.40);
+    letter-spacing: .25em;
+    margin-bottom: 3px;
+  }
+  .v2 .v2-counter .val {
+    font-family: 'DSEG7 Classic', monospace;
+    font-size: 18px;
+    color: #ffae00;
+    text-shadow: 0 0 4px rgba(255,174,0,.5);
+    font-feature-settings: "tnum" 1;
+  }
+  @keyframes pulse-red {
+    0%, 100% { opacity: .35; }
+    50%      { opacity: 1; }
+  }
+
+  /* ===========================================================
+   *  VARIANT 3 — GLASS NEON (Manrope thin + green glow + pills)
+   * =========================================================== */
+  .v3 .v3-clock {
+    position: absolute;
+    top: 70px; left: 0; right: 0;
+    text-align: center;
+    color: white;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 200;
+    font-size: 76px;
+    letter-spacing: -.06em;
+    line-height: 1;
+    text-shadow:
+      0 0 18px rgba(0,255,65,.45),
+      0 0 38px rgba(0,255,65,.18);
+    z-index: 5;
+  }
+  .v3 .v3-date {
+    position: absolute;
+    top: 162px; left: 0; right: 0;
+    text-align: center;
+    color: rgba(255,255,255,.55);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: .14em;
+    z-index: 5;
+  }
+  .v3 .v3-pills {
+    position: absolute;
+    top: 200px; right: 24px;
+    display: flex; flex-direction: column; gap: 6px;
+    z-index: 5;
+  }
+  .v3 .v3-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 999px;
+    padding: 5px 10px 5px 7px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .v3 .v3-pill .led {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--w-green);
+    box-shadow: 0 0 6px var(--w-green);
+  }
+  .v3 .v3-pill .lbl {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 9px;
+    color: rgba(255,255,255,.55);
+    letter-spacing: .18em;
+  }
+  .v3 .v3-pill .val {
+    margin-left: auto;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    color: white;
+    letter-spacing: 0;
+  }
+
+  /* ===========================================================
+   *  VARIANT 4 — ANALOG MINI (sans bold + 3 VU gauges)
+   * =========================================================== */
+  .v4 .v4-clock {
+    position: absolute;
+    top: 70px; left: 24px;
+    color: white;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 64px;
+    letter-spacing: -.03em;
+    line-height: 1;
+    z-index: 5;
+  }
+  .v4 .v4-clock .sec {
+    font-size: 22px;
+    color: var(--w-green);
+    margin-left: 4px;
+    vertical-align: top;
+    font-weight: 500;
+  }
+  .v4 .v4-date {
+    position: absolute;
+    top: 144px; left: 24px;
+    color: rgba(255,255,255,.45);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: .25em;
+    z-index: 5;
+  }
+  .v4 .v4-gauges {
+    position: absolute;
+    top: 82px; right: 22px;
+    display: flex;
+    gap: 6px;
+    z-index: 5;
+  }
+  .v4 .v4-gauge {
+    width: 52px; height: 38px;
+    background: linear-gradient(180deg, #0e0e0e 0%, #050505 100%);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 4px;
+    padding: 4px 4px 2px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .v4 .v4-gauge svg { width: 100%; height: 20px; display: block; }
+  .v4 .v4-gauge .arc-bg { fill: none; stroke: rgba(255,255,255,.12); stroke-width: 2; }
+  .v4 .v4-gauge .arc-fg { fill: none; stroke: var(--w-green); stroke-width: 2; stroke-linecap: round; transition: stroke-dashoffset .5s ease; }
+  .v4 .v4-gauge .needle { stroke: white; stroke-width: 1.2; transform-origin: 25px 18px; transition: transform .5s cubic-bezier(.2,.7,.4,1); }
+  .v4 .v4-gauge .lbl {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 7.5px;
+    color: rgba(255,255,255,.55);
+    letter-spacing: .18em;
+    margin-top: 1px;
+  }
+
+  /* ===========================================================
+   *  VARIANT 5 — MINIMAL WHISPER (ultra-thin huge + dots)
+   * =========================================================== */
+  .v5 .v5-clock {
+    position: absolute;
+    top: 80px; left: 0; right: 0;
+    text-align: center;
+    color: white;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: 124px;
+    letter-spacing: -.04em;
+    line-height: .85;
+    z-index: 5;
+  }
+  .v5 .v5-date {
+    position: absolute;
+    top: 218px; left: 0; right: 0;
+    text-align: center;
+    color: rgba(255,255,255,.35);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 200;
+    font-size: 10px;
+    letter-spacing: .55em;
+    text-transform: uppercase;
+    z-index: 5;
+  }
+  .v5 .v5-dots {
+    position: absolute;
+    top: 30px; right: 26px;
+    display: flex; flex-direction: column; gap: 10px;
+    z-index: 5;
+  }
+  .v5 .v5-dot {
+    display: flex; align-items: center; gap: 7px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 400;
+    font-size: 10px;
+    color: rgba(255,255,255,.65);
+    letter-spacing: .04em;
+  }
+  .v5 .v5-dot .pip {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--w-green);
+    box-shadow: 0 0 5px var(--w-green);
+    animation: pip-pulse 2.4s ease-in-out infinite;
+  }
+  .v5 .v5-dot:nth-child(2) .pip { animation-delay: .8s; }
+  .v5 .v5-dot:nth-child(3) .pip { animation-delay: 1.6s; }
+  @keyframes pip-pulse {
+    0%, 100% { opacity: .35; transform: scale(.85); }
+    50%      { opacity: 1; transform: scale(1.15); }
+  }
+
+  /* ============== PICK BUTTON ============== */
+  .pick {
+    margin-top: 14px;
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-dim);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    padding: 12px;
+    cursor: pointer;
+    transition: all .2s;
+    border-radius: 2px;
+  }
+  .pick:hover {
+    border-color: var(--w-green);
+    color: var(--w-green);
+  }
+  .card.picked .pick {
+    background: var(--w-green);
+    color: #0a0a0a;
+    border-color: var(--w-green);
+  }
+  .card.picked .phone {
+    box-shadow:
+      inset 0 0 0 1px var(--w-green),
+      0 0 0 3px rgba(0,255,65,.22),
+      0 25px 70px -20px rgba(0,0,0,.7);
+  }
+
+  /* footer */
+  footer {
+    text-align: center;
+    padding: 12px 32px 60px;
+    color: var(--text-mute);
+    font-size: 11px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    font-family: 'Major Mono Display', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">// clásico · winamp eq base</div>
+  <h1>5 identidades para el <span class="accent">reloj y HUD</span></h1>
+  <p class="lead">
+    El ecualizador Winamp (verde / amarillo / rojo + mirror) ya está fijo. Cambia el reloj y los tres indicadores BAT / RAM / DSK arriba. Cada variante usa solo texto y formas básicas — cero bitmaps grandes, mínimo costo de memoria.
+  </p>
+  <div class="glyph-row">
+    <span class="dot"></span>
+    <span>type · shape · light</span>
+    <span class="dot"></span>
+  </div>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<footer>
+  Pixora · Clásico Identity · 2026-06-07
+</footer>
+
+<template id="phone-tpl">
+  <div class="card" data-id="">
+    <div class="card-head">
+      <span class="card-num"></span>
+      <span class="card-title"></span>
+      <span class="card-tag"></span>
+    </div>
+    <p class="card-desc"></p>
+    <div class="phone">
+      <div class="wp">
+        <div class="wp-art">
+          <svg viewBox="0 0 200 350" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="ga" cx="35%" cy="22%">
+                <stop offset="0%" stop-color="#2a3550" stop-opacity=".5"/>
+                <stop offset="60%" stop-color="#0a0d18" stop-opacity=".3"/>
+                <stop offset="100%" stop-color="#060810" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="200" height="350" fill="url(#ga)"/>
+            <g stroke="rgba(255,255,255,.04)" stroke-width=".4" fill="none">
+              <path d="M0,260 Q100,240 200,260"/>
+              <path d="M0,280 Q100,255 200,280"/>
+              <path d="M0,300 Q100,275 200,300"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="status-bar">
+        <span>9:41 · Pixora</span>
+        <span>● 84%</span>
+      </div>
+      <!-- variant slot -->
+      <div class="variant"></div>
+      <!-- mirror under bars -->
+      <div class="eq-mirror"></div>
+      <!-- winamp eq bars -->
+      <div class="eq-band"></div>
+      <div class="dock">
+        <div class="dock-icon"></div>
+        <div class="dock-icon"></div>
+        <div class="dock-icon"></div>
+        <div class="dock-icon"></div>
+      </div>
+    </div>
+    <button class="pick">Escoger este diseño</button>
+  </div>
+</template>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  Variants definition — each one renders into the .variant
+//  slot of a phone-tpl clone.
+// ─────────────────────────────────────────────────────────────
+const VARIANTS = [
+  {
+    id: 1, num: '01', title: 'Terminal Hacker', tag: 'phosphor',
+    cls: 'v1',
+    desc: 'VT323 verde fósforo, ASCII bars, cursor parpadeante. Vibe VT100 / 90s hacker. Cero bitmaps.',
+    html: t => `
+      <div class="v1-clock">${t.hhmm}<span class="cursor"></span></div>
+      <div class="v1-date">// ${t.dateLine} //</div>
+      <div class="v1-hud">
+        <div class="row"><span class="lbl">BAT</span><span>[████████░░]</span><span class="val">84%</span></div>
+        <div class="row"><span class="lbl">RAM</span><span>[█████░░░░░]</span><span class="val">54%</span></div>
+        <div class="row"><span class="lbl">DSK</span><span>[███████░░░]</span><span class="val">71%</span></div>
+      </div>
+    `,
+  },
+  {
+    id: 2, num: '02', title: 'Cassette Counter', tag: 'led amber',
+    cls: 'v2',
+    desc: '7-seg LED amber dentro de un deck oscuro + REC dot parpadeando. Tres counters BAT/RAM/DSK debajo.',
+    html: t => `
+      <div class="v2-deck">
+        <div class="v2-deck-row">
+          <div class="v2-clock">${t.hhmm}</div>
+          <div class="v2-rec"><span class="dot"></span>REC</div>
+        </div>
+        <div class="v2-deck-meta">
+          <span>${t.dateMono}</span>
+          <span>· :${t.ss}</span>
+          <span>· deck a</span>
+        </div>
+      </div>
+      <div class="v2-counters">
+        <div class="v2-counter"><div class="label">BAT</div><div class="val">084</div></div>
+        <div class="v2-counter"><div class="label">RAM</div><div class="val">054</div></div>
+        <div class="v2-counter"><div class="label">DSK</div><div class="val">071</div></div>
+      </div>
+    `,
+  },
+  {
+    id: 3, num: '03', title: 'Glass Neon', tag: 'refined',
+    cls: 'v3',
+    desc: 'Manrope thin gigante con glow verde, fecha Cormorant italic, 3 glass pills con LED verde top-right.',
+    html: t => `
+      <div class="v3-clock">${t.hhmm}</div>
+      <div class="v3-date">${t.dateLine}</div>
+      <div class="v3-pills">
+        <div class="v3-pill"><span class="led"></span><span class="lbl">BAT</span><span class="val">84%</span></div>
+        <div class="v3-pill"><span class="led"></span><span class="lbl">RAM</span><span class="val">54%</span></div>
+        <div class="v3-pill"><span class="led"></span><span class="lbl">DSK</span><span class="val">71%</span></div>
+      </div>
+    `,
+  },
+  {
+    id: 4, num: '04', title: 'Analog Mini', tag: 'hi-fi',
+    cls: 'v4',
+    desc: 'Oswald bold para el reloj a la izquierda + 3 mini VU gauges con aguja arriba derecha. Vintage hi-fi.',
+    html: t => {
+      const gauge = (label, pct) => {
+        const dash = 60.0;
+        const off = dash * (1 - pct / 100);
+        const angle = -90 + (pct / 100) * 180;
+        return `
+          <div class="v4-gauge">
+            <svg viewBox="0 0 50 22">
+              <path class="arc-bg" d="M5,20 A20,20 0 0 1 45,20"/>
+              <path class="arc-fg" d="M5,20 A20,20 0 0 1 45,20" stroke-dasharray="${dash}" stroke-dashoffset="${off.toFixed(1)}"/>
+              <line class="needle" x1="25" y1="20" x2="25" y2="6" transform="rotate(${angle.toFixed(0)} 25 20)"/>
+            </svg>
+            <div class="lbl">${label}</div>
+          </div>
+        `;
+      };
+      return `
+        <div class="v4-clock">${t.hhmm}<span class="sec">${t.ss}</span></div>
+        <div class="v4-date">${t.dateLine}</div>
+        <div class="v4-gauges">
+          ${gauge('BAT', 84)}
+          ${gauge('RAM', 54)}
+          ${gauge('DSK', 71)}
+        </div>
+      `;
+    },
+  },
+  {
+    id: 5, num: '05', title: 'Minimal Whisper', tag: 'silent',
+    cls: 'v5',
+    desc: 'Cormorant italic light gigantesco centrado + 3 dots verdes pulsando con % a la derecha. Máxima restraint.',
+    html: t => `
+      <div class="v5-clock">${t.hhmm}</div>
+      <div class="v5-date">${t.dateLine}</div>
+      <div class="v5-dots">
+        <div class="v5-dot"><span class="pip"></span>BAT 84%</div>
+        <div class="v5-dot"><span class="pip"></span>RAM 54%</div>
+        <div class="v5-dot"><span class="pip"></span>DSK 71%</div>
+      </div>
+    `,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────
+//  Time helpers
+// ─────────────────────────────────────────────────────────────
+function nowParts() {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  const months = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  const dow = ['DOM','LUN','MAR','MIE','JUE','VIE','SAB'];
+  const dateLine = `${dow[d.getDay()]} ${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]}`;
+  const dateMono = `${dow[d.getDay()]}-${String(d.getDate()).padStart(2,'0')}-${months[d.getMonth()]}`;
+  return { hhmm: `${hh}:${mm}`, ss, dateLine, dateMono };
+}
+
+// ─────────────────────────────────────────────────────────────
+//  EQ — render winamp-style bars and animate
+//  Each phone has its own EQ instance with its own random phase
+// ─────────────────────────────────────────────────────────────
+const EQ_BARS = 28;
+const EQ_SEGS = 16; // segments per bar (vertical)
+
+function buildEq(container) {
+  container.innerHTML = '';
+  for (let b = 0; b < EQ_BARS; b++) {
+    const bar = document.createElement('div');
+    bar.className = 'eq-bar';
+    bar.dataset.phase = (Math.random() * Math.PI * 2).toFixed(3);
+    for (let s = 0; s < EQ_SEGS; s++) {
+      const seg = document.createElement('div');
+      seg.className = 'eq-seg';
+      const fr = s / (EQ_SEGS - 1);
+      if (fr > 0.85) seg.classList.add('r');
+      else if (fr > 0.60) seg.classList.add('y');
+      bar.appendChild(seg);
+    }
+    container.appendChild(bar);
+  }
+}
+
+let eqFrame = 0;
+function tickEq(now) {
+  document.querySelectorAll('.eq-band').forEach((band, bandIdx) => {
+    const bars = band.children;
+    for (let b = 0; b < bars.length; b++) {
+      const phase = parseFloat(bars[b].dataset.phase) + bandIdx * 0.7;
+      // multi-sine for "musical" look
+      const v = 0.5 + 0.35 * Math.sin(now * 0.0028 + phase + b * 0.18)
+                  + 0.15 * Math.sin(now * 0.0011 - phase * 1.3 + b * 0.07);
+      const lit = Math.max(0, Math.min(EQ_SEGS, Math.round(v * EQ_SEGS)));
+      const segs = bars[b].children;
+      for (let s = 0; s < segs.length; s++) {
+        segs[s].style.opacity = (s < lit) ? '1' : '0.05';
+      }
+    }
+  });
+}
+
+function eqLoop(now) {
+  eqFrame++;
+  if (eqFrame % 2 === 0) tickEq(now); // throttle to ~30fps
+  requestAnimationFrame(eqLoop);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Build cards
+// ─────────────────────────────────────────────────────────────
+const grid = document.getElementById('grid');
+const tpl  = document.getElementById('phone-tpl');
+
+VARIANTS.forEach(v => {
+  const node = tpl.content.firstElementChild.cloneNode(true);
+  node.dataset.id = v.id;
+  node.classList.add(v.cls);
+  node.querySelector('.card-num').textContent   = v.num;
+  node.querySelector('.card-title').textContent = v.title;
+  node.querySelector('.card-tag').textContent   = v.tag;
+  node.querySelector('.card-desc').textContent  = v.desc;
+  const variantSlot = node.querySelector('.variant');
+  // initial render
+  variantSlot.innerHTML = v.html(nowParts());
+  // EQ
+  buildEq(node.querySelector('.eq-band'));
+  // pick
+  node.querySelector('.pick').addEventListener('click', () => {
+    document.querySelectorAll('.card.picked').forEach(c => c.classList.remove('picked'));
+    node.classList.add('picked');
+    node.querySelector('.pick').textContent = '✓ Escogido — implementar #' + v.num;
+  });
+  // store ref so we can re-render the clock each second
+  node._variant = v;
+  node._slot = variantSlot;
+  grid.appendChild(node);
+});
+
+// Clock tick (every second — refresh all variants' time)
+function clockTick() {
+  const t = nowParts();
+  document.querySelectorAll('.card').forEach(card => {
+    if (!card._variant) return;
+    card._slot.innerHTML = card._variant.html(t);
+  });
+}
+setInterval(clockTick, 1000);
+
+// Start EQ
+requestAnimationFrame(eqLoop);
+</script>
+</body>
+</html>

@@ -48,6 +48,55 @@ class EqualizerRenderer(private val context: Context? = null) {
     // with contention on the render thread.
     private val flameRandom = java.util.Random(42L)
 
+    // ── CLASICO Violet Mist plasma wisps (2026-06-07 v3) ───────────────
+    // Replaces the old multi-color spark eruption. ANY bar that peaks past
+    // the threshold launches a single purple-magenta plasma WISP — an
+    // elongated soft blob that floats upward with a fading trail of past
+    // positions. PorterDuff.Mode.ADD blending makes overlapping wisps glow
+    // brighter (additive plasma feel). Uses a pre-rendered soft-circle
+    // bitmap tinted per particle — no per-frame shader allocation.
+    private data class Wisp(
+        var x: Float, var y: Float,
+        var vx: Float, var vy: Float,
+        val baseR: Float,
+        // TWO independent hue phases per particle — outer halo cycles
+        // through one set of colors while the mid glow shimmers a DIFFERENT
+        // hue at the same moment. Combined with random per-particle offsets,
+        // every wisp shows a 2-color blend (cyan+pink, magenta+gold, etc),
+        // matching the multi-color refraction of a real diamond.
+        val colorPhase1: Float,   // outer halo hue
+        val colorPhase2: Float,   // mid glow hue (offset from phase1)
+        var lifeMs: Long,
+        val initialLifeMs: Long,
+    )
+    private val wisps = ArrayList<Wisp>(96)
+    private val lastSparkAtMsPerBar = LongArray(PixoraWallpaperService.BAR_COUNT)
+    private var lastSparkFrameMs = 0L
+    private val sparkRandom = java.util.Random(1337L)
+    // Pre-rendered soft circle (radial gradient white → transparent). Tinted
+    // per-frame via ColorFilter — no Shader allocations during draw.
+    // 64×64 ARGB_8888 = 16 KB one-time, lazy-init.
+    private val softCircleBitmap: Bitmap by lazy {
+        val size = 64
+        val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = RadialGradient(
+                size / 2f, size / 2f, size / 2f,
+                intArrayOf(Color.WHITE, Color.argb(180, 255, 255, 255), Color.TRANSPARENT),
+                floatArrayOf(0f, 0.55f, 1f),
+                Shader.TileMode.CLAMP,
+            )
+        }
+        c.drawCircle(size / 2f, size / 2f, size / 2f, p)
+        bmp
+    }
+    private val wispPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.ADD)
+    }
+    private val wispDst = android.graphics.RectF()
+    private val hsvTmp = FloatArray(3)
+
     var surfaceWidth = 0
     var surfaceHeight = 0
     var glowColor = Color.parseColor("#C9A650")
@@ -122,7 +171,14 @@ class EqualizerRenderer(private val context: Context? = null) {
 
             var magnitude = 0f
             var count = 0
-            for (bin in startBin until min(endBin, n)) {
+            // BUG FIX 2026-06-07: with the log-spaced mapBarToFFTBin and
+            // BAR_COUNT=32 over n=512 bins, bars 0..2 all map to the SAME
+            // startBin (1), so startBin == endBin → loop body never runs →
+            // those bars stay invisibly at zero. Confirmed by user seeing
+            // "missing leftmost bars" + bass-spark spawn at the empty slots.
+            // Fix: guarantee at least 1 bin per bar by forcing endBin > startBin.
+            val effEnd = kotlin.math.max(endBin, startBin + 1).coerceAtMost(n)
+            for (bin in startBin until effEnd) {
                 val idx = bin * 2
                 if (idx + 1 >= fft.size) break
                 val real = fft[idx].toFloat()
@@ -223,6 +279,29 @@ class EqualizerRenderer(private val context: Context? = null) {
         val mirrorMaxHeight = surfaceHeight * 0.05f
         val segmentHeight = (maxBarHeight - segmentGap * (totalSegments - 1)) / totalSegments
 
+        // GHOST GRID — draw ALL segments at ~10% alpha BEFORE the lit ones.
+        // Gives the iconic Winamp "full LED panel" look where unlit segments
+        // are still visible as a faint backdrop. Same color computation as
+        // lit segments so they align visually.
+        barPaint.shader = null
+        for (i in 0 until drawnBars) {
+            val x = eqStartX + i * (barWidth + barSpacing)
+            for (seg in 0 until totalSegments) {
+                val segBottom = bottomY - seg * (segmentHeight + segmentGap)
+                val segTop = segBottom - segmentHeight
+                val fraction = seg.toFloat() / (totalSegments - 1)
+                val ghostColor = when {
+                    fraction < 0.60f -> Color.rgb(0x00, 0xFF, 0x41)
+                    fraction < 0.85f -> Color.rgb(0xFF, 0xFF, 0x00)
+                    else -> Color.rgb(0xFF, 0x15, 0x00)
+                }
+                barPaint.color = ghostColor
+                barPaint.alpha = 22    // ~9% — visible grid, doesn't compete
+                canvas.drawRect(x, segTop, x + barWidth, segBottom, barPaint)
+            }
+        }
+        barPaint.alpha = 255  // reset for the lit loop below
+
         for (i in 0 until drawnBars) {
             // Sample the FFT band centered for this visible bar. With 32 bands
             // and N=20 visible, bar 10 reads band 16, etc. Spread is roughly
@@ -248,22 +327,13 @@ class EqualizerRenderer(private val context: Context? = null) {
                 val segTop = segBottom - segmentHeight
                 val fraction = seg.toFloat() / (totalSegments - 1)
 
-                // gold-deep → gold → gold-bright (replaces Winamp green→yellow→red).
+                // CLASICO 2026-06-07: Winamp 90s gradient — green base for the
+                // bottom 60% of each bar, yellow mid 60-85%, red top 85-100%.
+                // Matches mockup #81 exactly (the iconic Winamp visualizer).
                 val color = when {
-                    fraction < 0.5f -> {
-                        val t = fraction / 0.5f
-                        val r = (0x8A + (0xC9 - 0x8A) * t).toInt()
-                        val g = (0x6F + (0xA6 - 0x6F) * t).toInt()
-                        val b = (0x33 + (0x50 - 0x33) * t).toInt()
-                        Color.rgb(r, g, b)
-                    }
-                    else -> {
-                        val t = (fraction - 0.5f) / 0.5f
-                        val r = (0xC9 + (0xF0 - 0xC9) * t).toInt()
-                        val g = (0xA6 + (0xDD - 0xA6) * t).toInt()
-                        val b = (0x50 + (0x9E - 0x50) * t).toInt()
-                        Color.rgb(r, g, b)
-                    }
+                    fraction < 0.60f -> Color.rgb(0x00, 0xFF, 0x41) // green base
+                    fraction < 0.85f -> Color.rgb(0xFF, 0xFF, 0x00) // yellow mid
+                    else -> Color.rgb(0xFF, 0x15, 0x00)             // red top
                 }
 
                 barPaint.shader = null
@@ -271,9 +341,9 @@ class EqualizerRenderer(private val context: Context? = null) {
                 canvas.drawRect(x, segTop, x + barWidth, segBottom, barPaint)
             }
 
-            // Gold mirror reflection below the baseline — fades from gold-30%
-            // alpha at the line to fully transparent at the bottom. Adds depth
-            // without visual noise (premium feel). Gradient cached, see slot 4.
+            // Green mirror reflection below the baseline — fades from green
+            // at the line to fully transparent at the bottom (Winamp style,
+            // mockup #81). Gradient cached in slot 4.
             val mirrorHeight = effectiveLevel * mirrorMaxHeight
             if (mirrorHeight > 1f) {
                 ensureGradientCache(bottomY, mirrorMaxHeight)
@@ -282,21 +352,199 @@ class EqualizerRenderer(private val context: Context? = null) {
                 barPaint.shader = null
             }
 
-            // Peak segment (floating cap) — read from srcIdx so it tracks the
-            // same FFT band as the bar's level.
+            // Peak segment (floating cap) — Winamp peak is solid yellow line
+            // that floats above the top lit segment. Fixed color, no glow
+            // pulse needed (the iconic Winamp look is flat yellow, not gold).
             if (peakLevels[srcIdx] > 0.05f) {
                 val peakSeg = (peakLevels[srcIdx] * totalSegments).toInt().coerceIn(0, totalSegments - 1)
                 val peakBottom = bottomY - peakSeg * (segmentHeight + segmentGap)
                 val peakTop = peakBottom - segmentHeight
-                val pulse = (sin((animationPhase * 3f + i).toDouble()).toFloat() * 0.15f + 0.85f)
-                val pr = min(255, (Color.red(glowColor) * pulse + 40).toInt())
-                val pg = min(255, (Color.green(glowColor) * pulse + 40).toInt())
-                val pb = min(255, (Color.blue(glowColor) * pulse + 40).toInt())
                 peakPaint.shader = null
-                peakPaint.color = Color.rgb(pr, pg, pb)
+                peakPaint.color = Color.rgb(0xFF, 0xFF, 0x00)
                 canvas.drawRect(x, peakTop, x + barWidth, peakBottom, peakPaint)
             }
         }
+
+        // VIOLET MIST PLASMA — wisps spawn from any peaking bar, float up
+        // with a fading trail. Additive blending so overlaps glow brighter.
+        val nowMs = System.currentTimeMillis()
+        maybeTriggerWispSpawns(nowMs, bottomY, maxBarHeight, eqStartX, barWidth, barSpacing)
+        updateAndDrawWisps(canvas, nowMs)
+    }
+
+    /** Detect a bass-kick event and spawn a fresh spark burst. Bass energy
+     *  in FFT actually lives in bins 2-5 (kick drum fundamental ~60-150 Hz),
+     *  not bins 0-1 (sub-bass <40 Hz which most music doesn't carry).
+     *  Bars 0-1 are visually leftmost but often empty due to the logarithmic
+     *  bar-to-bin mapping mapping them to the same FFT bin. We detect on the
+     *  bass-rich bands (2..5) and pick the max. Cooldown prevents spam. */
+    private fun maybeTriggerWispSpawns(
+        nowMs: Long,
+        bottomY: Float,
+        maxBarHeight: Float,
+        eqStartX: Float,
+        barWidth: Float,
+        barSpacing: Float,
+    ) {
+        if (!hasAudio) return
+        if (wisps.size > 70) return
+        val threshold = 0.62f
+        val cooldown = 380L
+        val totalBars = PixoraWallpaperService.BAR_COUNT
+        for (barIdx in 0 until totalBars) {
+            val barPower = smoothLevels[barIdx]
+            if (barPower < threshold) continue
+            if (nowMs - lastSparkAtMsPerBar[barIdx] < cooldown) continue
+            val barCenterX = eqStartX + barIdx * (barWidth + barSpacing) + barWidth / 2f
+            val barTopY = bottomY - barPower * maxBarHeight - 3f
+            spawnWisp(barCenterX, barTopY, barWidth, barPower)
+            lastSparkAtMsPerBar[barIdx] = nowMs
+        }
+    }
+
+    /** Spawn ONE diamond pulse at the given position. Each particle gets a
+     *  random [Wisp.colorPhase] (0..1) that drives both its hue cycle (slow
+     *  prismatic rotation) and its pulse offset (so coexisting wisps don't
+     *  pulse in unison — they breathe independently). */
+    private fun spawnWisp(spawnX: Float, spawnY: Float, barWidth: Float, barPower: Float) {
+        if (wisps.size > 80) return
+        val xJ = (sparkRandom.nextFloat() - 0.5f) * barWidth * 0.6f
+        val vx = (sparkRandom.nextFloat() - 0.5f) * 22f
+        val vy = -(surfaceWidth * (0.10f + sparkRandom.nextFloat() * 0.10f)) *
+                (0.85f + barPower * 0.40f)
+        val r = surfaceWidth * (0.011f + sparkRandom.nextFloat() * 0.007f)  // 11..18px on 1080
+        val life = 1300L + sparkRandom.nextInt(500).toLong()
+        val phase1 = sparkRandom.nextFloat()
+        // Phase 2 offset by 0.30..0.65 from phase 1 → guarantees a contrast.
+        // 0.30 ≈ ~108° hue gap (e.g. cyan + pink), 0.65 ≈ ~234° (e.g. blue + gold).
+        val phase2 = (phase1 + 0.30f + sparkRandom.nextFloat() * 0.35f) % 1f
+        wisps.add(Wisp(
+            x = spawnX + xJ, y = spawnY,
+            vx = vx, vy = vy,
+            baseR = r,
+            colorPhase1 = phase1,
+            colorPhase2 = phase2,
+            lifeMs = life, initialLifeMs = life,
+        ))
+    }
+
+    /** HSV → ARGB. h is 0..1 (will be * 360 internally), s and v 0..1.
+     *  Uses a shared FloatArray to avoid allocations on the render path. */
+    private fun hsvColor(h: Float, s: Float, v: Float): Int {
+        var hf = h
+        if (hf < 0) hf = (hf % 1f) + 1f
+        if (hf >= 1f) hf %= 1f
+        hsvTmp[0] = hf * 360f
+        hsvTmp[1] = s
+        hsvTmp[2] = v
+        return Color.HSVToColor(hsvTmp)
+    }
+
+    private fun updateAndDrawWisps(canvas: Canvas, nowMs: Long) {
+        if (wisps.isEmpty()) {
+            lastSparkFrameMs = nowMs
+            return
+        }
+        val dt = if (lastSparkFrameMs == 0L) 0.016f
+                 else ((nowMs - lastSparkFrameMs).toFloat() / 1000f).coerceAtMost(0.1f)
+        lastSparkFrameMs = nowMs
+        val gravity = surfaceHeight * 0.04f   // barely-there drift downward
+        val floorY = surfaceHeight * 0.85f
+        val bmp = softCircleBitmap
+
+        for (w in wisps) {
+            w.lifeMs -= (dt * 1000).toLong()
+            w.vy += gravity * dt
+            w.x += w.vx * dt
+            w.y += w.vy * dt
+        }
+        wisps.removeAll { it.lifeMs <= 0 || it.y > floorY }
+
+        // DIAMOND PULSE v2 — 3-layer multi-color gem:
+        //   outer halo (hue1) → prismatic tint, low alpha, large radius
+        //   mid glow  (hue2) → DIFFERENT hue, brighter, medium radius
+        //   bright core      → pure white, small radius (gem facet)
+        // Each wisp shows a 2-color blend at any moment + cycles slowly.
+        // Different wisps at different phases = the scene has many color
+        // pairs simultaneously, like a diamond catching light from many angles.
+        val timeSec = nowMs / 1000f
+        val cycleSpeed = 0.18f   // ~5.5 sec for a full hue rotation
+        for (w in wisps) {
+            val lifeFrac = w.lifeMs.toFloat() / w.initialLifeMs.toFloat()
+            val pulse = 1f + kotlin.math.sin(
+                (nowMs * 0.018f + w.colorPhase1 * 6.2831f).toDouble()
+            ).toFloat() * 0.22f
+            // Cool-only hue range — cyan(180°) → blue → purple → magenta →
+            // pink (350°). Skips red, orange, yellow, green entirely.
+            // Matches the user's diamond reference: pink/magenta/purple/blue
+            // dominant, NO red/warm tones (those break the gem feel).
+            // Raw cycle [0,1] is remapped to [0.50, 0.97] of the HSV wheel.
+            // Hue mapping FAVORS cyan(0.50) and hot-pink(0.92) — the two
+            // dominant colors in the user's diamond reference. Uses a
+            // squaring curve to compress the middle range (purple) and
+            // spend more time at the bright extremes.
+            val rawHue1 = (w.colorPhase1 + timeSec * cycleSpeed) % 1f
+            val rawHue2 = (w.colorPhase2 + timeSec * cycleSpeed) % 1f
+            // S-curve via 2 * x * (1-x): output [0,1] biased toward extremes.
+            // For x in [0, 1], pull toward 0 or 1 not 0.5.
+            val biased1 = if (rawHue1 < 0.5f) rawHue1 * rawHue1 * 2f
+                          else 1f - (1f - rawHue1) * (1f - rawHue1) * 2f
+            val biased2 = if (rawHue2 < 0.5f) rawHue2 * rawHue2 * 2f
+                          else 1f - (1f - rawHue2) * (1f - rawHue2) * 2f
+            val hue1 = 0.50f + biased1 * 0.42f   // 0.50..0.92 (cyan..hot pink)
+            val hue2 = 0.50f + biased2 * 0.42f
+            // Saturation cranked to 0.95 = nearly fully saturated bright
+            // colors (matches the vivid diamond reference). Value 1.0 keeps
+            // them at max brightness for the additive blend to glow.
+            val outerColor = hsvColor(hue1, 0.95f, 1f)
+            val midColor   = hsvColor(hue2, 0.92f, 1f)
+            val r = w.baseR * pulse
+            val baseAlpha = lifeFrac * 255f
+
+            // Outer halo — hue1, large + soft (refraction). Higher alpha
+            // (0.45) so the cool color tones actually READ in the scene
+            // instead of being washed out by the wallpaper underneath.
+            drawTintedSoftCircle(
+                canvas, bmp, w.x, w.y, r * 2.4f,
+                Color.red(outerColor), Color.green(outerColor), Color.blue(outerColor),
+                (baseAlpha * 0.45f).toInt().coerceIn(0, 255),
+            )
+            // Mid glow — hue2, different color, much brighter (0.72) so the
+            // SECOND color is clearly visible alongside the outer halo's hue.
+            drawTintedSoftCircle(
+                canvas, bmp, w.x, w.y, r * 1.3f,
+                Color.red(midColor), Color.green(midColor), Color.blue(midColor),
+                (baseAlpha * 0.72f).toInt().coerceIn(0, 255),
+            )
+            // Bright white core — shrunk slightly (0.55 → 0.45) so the
+            // colored halos dominate the visual instead of getting washed
+            // out by the white center.
+            drawTintedSoftCircle(
+                canvas, bmp, w.x, w.y, r * 0.45f,
+                255, 255, 255,
+                (baseAlpha * 0.90f).toInt().coerceIn(0, 255),
+            )
+        }
+    }
+
+    /** Draws the pre-rendered soft-circle bitmap tinted to (r,g,b) at the
+     *  given position with the given radius and overall alpha. Uses the
+     *  ADD xfermode on wispPaint for additive plasma glow when wisps overlap. */
+    private fun drawTintedSoftCircle(
+        canvas: Canvas, bmp: Bitmap,
+        x: Float, y: Float, radius: Float,
+        r: Int, g: Int, b: Int, alpha: Int,
+    ) {
+        if (alpha <= 0 || radius <= 0.5f) return
+        // MULTIPLY filter tints the white bitmap to the wisp color while
+        // preserving the bitmap's own alpha gradient (soft edge).
+        wispPaint.colorFilter = android.graphics.PorterDuffColorFilter(
+            Color.rgb(r, g, b),
+            android.graphics.PorterDuff.Mode.MULTIPLY,
+        )
+        wispPaint.alpha = alpha
+        wispDst.set(x - radius, y - radius, x + radius, y + radius)
+        canvas.drawBitmap(bmp, null, wispDst, wispPaint)
     }
 
     /** Modern Mono / Winamp classic mirror — segmented bars rising UP from the
@@ -414,10 +662,12 @@ class EqualizerRenderer(private val context: Context? = null) {
             intArrayOf(Color.parseColor("#FFD700"), Color.parseColor("#FF8C00"),
                 Color.parseColor("#FF4500"), Color.argb(80, 139, 0, 0)),
             floatArrayOf(0f, 0.4f, 0.85f, 1f), Shader.TileMode.CLAMP)
-        // Slot 4 — Sacred gold mirror
+        // Slot 4 — CLASICO Winamp mirror (was gold). Green fade matches the
+        // 90s Winamp visualizer where the mirror below the baseline is the
+        // same green as the bar base, fading to transparent.
         gradBotCache[4] = LinearGradient(0f, centerY, 0f, centerY + surfaceHeight * 0.05f,
-            Color.argb(110, 0xE6, 0xB6, 0x55),
-            Color.argb(0, 0xE6, 0xB6, 0x55), Shader.TileMode.CLAMP)
+            Color.argb(140, 0x00, 0xFF, 0x41),
+            Color.argb(0, 0x00, 0xFF, 0x41), Shader.TileMode.CLAMP)
     }
 
     // ── Helper: standard mirror layout shared by several presets ──────────
@@ -636,5 +886,6 @@ class EqualizerRenderer(private val context: Context? = null) {
 
     companion object {
         private const val TAG = "PixoraEQ"
+        private const val TRAIL_LEN = 6
     }
 }

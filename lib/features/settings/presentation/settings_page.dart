@@ -290,7 +290,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Widget _buildHudPresetSection() {
-    final presets = WallpaperService.hudPresets;
+    const presets = WallpaperService.hudPresets;
     final current = presets.firstWhere(
       (p) => p.key == _hudPreset,
       orElse: () => presets.first,

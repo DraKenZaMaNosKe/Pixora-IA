@@ -1608,10 +1608,13 @@ class PixoraWallpaperService : WallpaperService() {
                 if (!isLocked && showClock) {
                     clockRenderer.draw(canvas)
                 }
-                // 2026-06-06: Battery + Rings + HUD gated by preset's
-                // showSystemHud flag so GROK/CRT/CYBER stay minimalist
-                // (clock + EQ only). Only CLASICO shows the info dashboard.
-                if (showBattery && currentPreset.showSystemHud) {
+                // 2026-06-07: BatteryIndicator (small gold circle on left)
+                // is CLASICO-only — other presets include BAT inside their
+                // HUD (horizontal_meters/hex_leds/etc) so the standalone
+                // indicator would duplicate. Gated on hudStyle == GOLD_RINGS
+                // (only CLASICO has that style).
+                if (showBattery && currentPreset.hudStyle ==
+                        com.orbix.pixora.renderers.HudStyle.GOLD_RINGS) {
                     batteryIndicator.draw(canvas)
                 }
                 if (!isLocked && currentPreset.showSystemHud) {

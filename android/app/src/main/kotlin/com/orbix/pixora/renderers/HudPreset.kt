@@ -39,6 +39,14 @@ enum class HudPreset(
     val hudStyle: HudStyle,
     val hudAccent: Int,
     val showSystemHud: Boolean,
+    /** Clock horizontal alignment within drawWithPreset (non-CLASICO path).
+     *  CENTER = drawn at surface centerX (CLASICO behavior).
+     *  LEFT   = anchored to left margin (Grok mockup style).
+     *  RIGHT  = anchored to right margin. */
+    val clockAlign: android.graphics.Paint.Align = android.graphics.Paint.Align.CENTER,
+    /** Fractional Y position of the clock baseline (0..1 of surface height).
+     *  CLASICO uses 0.18; Grok mockup is higher at 0.12. */
+    val clockYFrac: Float = 0.18f,
 ) {
     CLASICO(
         key = "classic",
@@ -62,19 +70,22 @@ enum class HudPreset(
         key = "grok",
         displayName = "Grok Spectrum",
         displaySub = "Bars vivos multi-color",
-        clockFont = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD),
+        // Approximates Syncopate (techy condensed bold) without bundling a TTF.
+        clockFont = Typeface.create("sans-serif-condensed", Typeface.BOLD),
         clockColor = Color.WHITE,
-        clockSizeMult = 0.16f,
-        clockLetterSpacing = -0.04f,
+        clockSizeMult = 0.24f,            // bumped from 0.16 to match mockup #72
+        clockLetterSpacing = -0.02f,
         clockGlowColor = Color.BLACK,
-        clockGlowRadius = 10f,
+        clockGlowRadius = 8f,
         eqStyle = EqStyle.GROK_SPECTRUM,
         eqPrimary = Color.parseColor("#00E5FF"),
         eqSecondary = Color.parseColor("#00FF85"),
         eqTertiary = Color.parseColor("#FF6B35"),
         hudStyle = HudStyle.HORIZONTAL_METERS,
         hudAccent = Color.parseColor("#00E5FF"),
-        showSystemHud = false,
+        showSystemHud = true,             // re-enabled — user wants bars visible
+        clockAlign = android.graphics.Paint.Align.LEFT,
+        clockYFrac = 0.16f,               // pushed down to clear Android status bar
     ),
     CRT(
         key = "crt",

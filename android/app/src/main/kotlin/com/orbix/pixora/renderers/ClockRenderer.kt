@@ -348,15 +348,23 @@ class ClockRenderer {
         // around any future text that uses this paint.
         clockShadowPaint.setShadowLayer(0f, 0f, 0f, 0)
         val preset = currentPreset
-        val centerX = surfaceWidth / 2f
-        val timeY = surfaceHeight * 0.18f
+        val timeY = surfaceHeight * preset.clockYFrac
         val timeSize = surfaceWidth * preset.clockSizeMult
+        // Anchor X depends on the preset's alignment. Symmetric 4% margin from
+        // the chosen side — gives the clock breathing room from the screen edge
+        // without bumping into status bar / nav bar safe zones.
+        val margin = surfaceWidth * 0.04f
+        val anchorX = when (preset.clockAlign) {
+            Paint.Align.LEFT -> margin
+            Paint.Align.RIGHT -> surfaceWidth - margin
+            else -> surfaceWidth / 2f
+        }
 
         clockTimePaint.apply {
             color = preset.clockColor
             textSize = timeSize
             typeface = preset.clockFont
-            textAlign = Paint.Align.CENTER
+            textAlign = preset.clockAlign
             letterSpacing = preset.clockLetterSpacing
             alpha = 255
             shader = null
@@ -366,7 +374,7 @@ class ClockRenderer {
                 setShadowLayer(0f, 0f, 0f, 0)
             }
         }
-        canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
+        canvas.drawText(timeStr, anchorX, timeY, clockTimePaint)
 
         // Cyber Glitch — draw RGB-split copies behind the main time text
         if (preset == HudPreset.CYBER) {
@@ -375,30 +383,30 @@ class ClockRenderer {
                 color = Color.parseColor("#FF003C")
                 setShadowLayer(0f, 0f, 0f, 0)
             }
-            canvas.drawText(timeStr, centerX + splitOff, timeY, clockTimePaint)
+            canvas.drawText(timeStr, anchorX + splitOff, timeY, clockTimePaint)
             clockTimePaint.color = Color.parseColor("#00FFEA")
-            canvas.drawText(timeStr, centerX - splitOff, timeY, clockTimePaint)
+            canvas.drawText(timeStr, anchorX - splitOff, timeY, clockTimePaint)
             clockTimePaint.color = preset.clockColor
             clockTimePaint.setShadowLayer(preset.clockGlowRadius.scaledShadow(), 0f, 4f, preset.clockGlowColor)
-            canvas.drawText(timeStr, centerX, timeY, clockTimePaint)
+            canvas.drawText(timeStr, anchorX, timeY, clockTimePaint)
         }
 
         // Date row — small monospace below
         val dateShort = "${dayName.take(3).uppercase()} ${"%02d".format(dayNum)} ${monthName.take(3).uppercase()}"
         val dateSize = surfaceWidth * 0.028f
-        val dateY = timeY + surfaceHeight * 0.05f
+        val dateY = timeY + surfaceHeight * 0.04f
         clockDatePaint.apply {
             color = Color.argb(190,
                 Color.red(preset.clockColor), Color.green(preset.clockColor), Color.blue(preset.clockColor))
             textSize = dateSize
             typeface = Typeface.MONOSPACE
-            textAlign = Paint.Align.CENTER
+            textAlign = preset.clockAlign  // match clock alignment for visual harmony
             letterSpacing = 0.18f
             shader = null
             setShadowLayer(4f.scaledShadow(), 0f, 1f, Color.argb(140, 0, 0, 0))
         }
         val dateText = "$dateShort   :$secStr"
-        canvas.drawText(dateText, centerX, dateY, clockDatePaint)
+        canvas.drawText(dateText, anchorX, dateY, clockDatePaint)
     }
 
     /**
