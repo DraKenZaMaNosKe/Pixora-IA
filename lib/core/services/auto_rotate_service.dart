@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'catalog_service.dart';
+import 'live_wallpaper_catalog_service.dart';
 import 'wallpaper_engine_coordinator.dart';
 
 /// Service for auto-rotating wallpapers at configurable intervals.
@@ -58,31 +59,54 @@ class AutoRotateService {
         context: category,
       );
 
-      // Fetch catalog and build compact data for native
+      // Fetch BOTH static + live catalogs (Phase 4 — 2026-06-09):
+      // user spec: "los wallpapers panoramicos y live se incluyen también en daily".
+      // Panoramic is detected at runtime by aspect ratio so it's just static
+      // with a wider image — no special handling here. Live is a separate
+      // model (LiveWallpaper.videoFile) that needs the wallpaper-videos bucket
+      // and a self-kill on transition (see PixoraWallpaperService.maybeRotateDaily).
       final catalog = await CatalogService.instance.fetchCatalog();
-      if (catalog.isEmpty) {
-        debugPrint('[AutoRotate] No wallpapers in catalog');
+      List<dynamic> liveCatalog = const [];
+      try {
+        liveCatalog = await LiveWallpaperCatalogService.instance.fetchCatalog();
+      } catch (e) {
+        debugPrint(
+            '[AutoRotate] Live catalog fetch failed (continuing without live): $e');
+      }
+      if (catalog.isEmpty && liveCatalog.isEmpty) {
+        debugPrint('[AutoRotate] No wallpapers in either catalog');
         return false;
       }
 
-      // Filter by category. Caso especial: 'DAILY' no es una categoría
-      // real (aunque exista en el enum), es un FLAG. Filtramos por el
-      // boolean daily_eligible para que el wallpaper conserve su categoría
-      // natural (ANIME, GAMING, etc.) pero rote en Pixora Daily curado.
+      // Filter by category. 'DAILY' = flag for curated daily set (uses
+      // per-wallpaper dailyEligible boolean instead of a real category).
       final filtered = category == 'DAILY'
           ? catalog.where((w) => w.dailyEligible).toList()
           : (category != null
               ? catalog.where((w) => w.category == category).toList()
               : catalog);
 
-      if (filtered.isEmpty) {
+      // For live wallpapers we don't have a daily_eligible column yet, so
+      // either include ALL when no specific category filter, or NONE when
+      // user wants a curated/category-specific subset. Future: add
+      // daily_eligible to live_wallpapers table for parity.
+      final includeLive = category == null || category == 'DAILY';
+      final filteredLive = includeLive ? liveCatalog : const [];
+
+      if (filtered.isEmpty && filteredLive.isEmpty) {
         debugPrint('[AutoRotate] No wallpapers for category: $category');
         return false;
       }
 
-      // Build compact catalog: "id|imageFile|glowColor" per entry
-      final catalogData =
-          filtered.map((w) => '${w.id}|${w.imageFile}|${w.glowColor}').toList();
+      // Wire format: "id|file|glowColor|type" where type ∈ static|live.
+      // Backward compat: the native worker treats a missing 4th field as
+      // static. Panoramic stays as `static` (the renderer auto-detects via
+      // aspect ratio at draw time).
+      final staticEntries =
+          filtered.map((w) => '${w.id}|${w.imageFile}|${w.glowColor}|static');
+      final liveEntries =
+          filteredLive.map((l) => '${l.id}|${l.videoFile}|${l.glowColor}|live');
+      final catalogData = [...staticEntries, ...liveEntries].toList();
 
       final result = await _channel.invokeMethod<bool>(
         'startAutoRotate',
@@ -117,6 +141,78 @@ class AutoRotateService {
       return result ?? false;
     } catch (e) {
       debugPrint('[AutoRotate] Stop error: $e');
+      return false;
+    }
+  }
+
+  /// Future-proofing: re-fetch the static + live catalogs and push them to
+  /// native if Daily is currently active. Lets new wallpapers added to the
+  /// Supabase catalogs flow into the user's Daily rotation without the user
+  /// having to toggle it off/on. Call from app cold-start (main.dart) and
+  /// optionally on resume after a long pause.
+  ///
+  /// Cheap no-op if Daily isn't running. Idempotent — running twice in a row
+  /// just re-syncs the same catalog snapshot.
+  ///
+  /// 2026-06-10 bug fix: MUST use the silent `updateAutoRotateCatalog` native
+  /// path, NOT `start()`. If Android tumbled Pixora out of being the live
+  /// wallpaper (e.g. after a `:wallpaper` process crash), `start()` re-runs
+  /// `ensureLiveWallpaperActive()` which detects "Pixora not active" and
+  /// shows the system live-wallpaper picker on every single cold start —
+  /// confusing the user with a forced picker they never asked for. The
+  /// silent path only refreshes the catalog prefs the prefetch worker reads,
+  /// without touching the wallpaper component or surfaces.
+  Future<bool> refreshIfRunning() async {
+    if (!Platform.isAndroid) return false;
+    try {
+      final status = await getStatus();
+      if (status['enabled'] != true) return false;
+      final intervalMinutes = (status['intervalMinutes'] as int?) ?? 5;
+      final target = (status['target'] as int?) ?? 2;
+      final category = status['category'] as String?;
+
+      // Build the same catalog data start() would, but DON'T call start().
+      final catalog = await CatalogService.instance.fetchCatalog();
+      List<dynamic> liveCatalog = const [];
+      try {
+        liveCatalog = await LiveWallpaperCatalogService.instance.fetchCatalog();
+      } catch (e) {
+        debugPrint('[AutoRotate] Refresh live catalog fetch failed: $e');
+      }
+
+      final filtered = category == 'DAILY'
+          ? catalog.where((w) => w.dailyEligible).toList()
+          : (category != null
+              ? catalog.where((w) => w.category == category).toList()
+              : catalog);
+      final includeLive = category == null || category == 'DAILY';
+      final filteredLive = includeLive ? liveCatalog : const [];
+
+      if (filtered.isEmpty && filteredLive.isEmpty) {
+        debugPrint('[AutoRotate] Refresh: empty filtered catalog, skipping');
+        return false;
+      }
+
+      final staticEntries =
+          filtered.map((w) => '${w.id}|${w.imageFile}|${w.glowColor}|static');
+      final liveEntries =
+          filteredLive.map((l) => '${l.id}|${l.videoFile}|${l.glowColor}|live');
+      final catalogData = [...staticEntries, ...liveEntries].toList();
+
+      debugPrint(
+          '[AutoRotate] Refresh: silent catalog update (${catalogData.length} entries, cat=$category)');
+      final result = await _channel.invokeMethod<bool>(
+        'updateAutoRotateCatalog',
+        {
+          'catalogData': catalogData,
+          'intervalMinutes': intervalMinutes,
+          'target': target,
+          if (category != null) 'category': category,
+        },
+      );
+      return result ?? false;
+    } catch (e) {
+      debugPrint('[AutoRotate] refreshIfRunning error: $e');
       return false;
     }
   }

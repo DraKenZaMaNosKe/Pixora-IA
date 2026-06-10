@@ -52,6 +52,15 @@ class PixoraWallpaperService : WallpaperService() {
         @Volatile private var lastDecodedSurfaceW: Int = 0
         @Volatile private var lastDecodedSurfaceH: Int = 0
 
+        // 2026-06-10 — loadWallpaperImage early-return key. Holds a compact
+        // string of every pref that influences the load result (path, scene,
+        // interactive, color, caption, trail). When onVisibilityChanged +
+        // onSurfaceChanged + the debounced prefs reload fire back-to-back
+        // with identical state (the common case), we skip the entire body —
+        // recycler reset, sprite loads, mode flag flips, decode-bounds probe.
+        // Roughly 15-25ms saved per redundant call on MID tier.
+        @Volatile private var lastLoadedConfigKey: String? = null
+
         // Scaling idempotency guard — same idea for createScaledBitmap(). The
         // versioning counter above protects against applying stale results, but
         // the underlying Bitmap.createScaledBitmap() work (up to ~44 MB alloc
@@ -476,18 +485,137 @@ class PixoraWallpaperService : WallpaperService() {
                     ?: return
                 if (files.size < 2) return // nothing to rotate to
 
-                val next = files.filter { it.absolutePath != current }.randomOrNull()
-                    ?: return
+                // ── Seen tracking (2026-06-09) ─────────────────────────────
+                // BUG FIX: previous logic used `files.filter{..}.randomOrNull()`
+                // with no memory of past picks. With a typical cache of ~20
+                // images, birthday-paradox math made obvious repeats within
+                // ~5 rotations. Users reported "siempre son las mismas".
+                // Fix: persist seen filenames; pick from un-seen only;
+                // when every cached file has been shown, reset (cycle complete).
+                val seenKey = "daily_seen_names"
+                val seen = livePrefs.getStringSet(seenKey, null)?.toMutableSet()
+                    ?: mutableSetOf()
 
+                // 2026-06-10 — prune ghost entries.
+                // The AutoRotateWorker (background prefetch) cleans up old
+                // cache files via LRU when files.size > MAX_CACHED_WALLPAPERS,
+                // but it lives in a different SharedPreferences and CANNOT
+                // touch our `daily_seen_names` set. Without this prune step,
+                // seen accumulates names of files that were deleted by the
+                // worker. Symptom: "seen 26/25", "seen 27/25" in logcat — and
+                // eventually the rotation stalls because most of `seen`
+                // points at ghosts so the un-seen pool shrinks faster than
+                // files do, and the cycle-complete reset (`seen.clear`)
+                // never fires because there's always some genuinely-new file.
+                val currentFilenames = files.mapTo(HashSet()) { it.name }
+                val beforePrune = seen.size
+                seen.removeAll { it !in currentFilenames }
+                if (seen.size != beforePrune) {
+                    Log.d(TAG, "Daily: pruned ${beforePrune - seen.size} ghost names from seen set (worker deleted them)")
+                }
+
+                // Mark the OUTGOING file as seen (it's about to be replaced).
+                seen.add(File(current).name)
+
+                // Type-weighted selection (Phase 4 — 2026-06-09):
+                // user spec → "cada 10, uno live, y que sea aleatorio".
+                // Roll once per rotation: 10% chance to prefer LIVE pool,
+                // 90% chance to prefer STATIC/panoramic. Within the chosen
+                // pool we still filter by !seen. If preferred pool is dry,
+                // fall back to the other (don't waste a rotation). If both
+                // dry → cycle complete → reset.
+                val isLiveFile: (java.io.File) -> Boolean = { f ->
+                    f.name.endsWith(".mp4", ignoreCase = true)
+                }
+                val liveFiles = files.filter(isLiveFile)
+                val staticFiles = files.filterNot(isLiveFile)
+                val preferLive = liveFiles.isNotEmpty() &&
+                    java.util.Random().nextInt(10) == 0
+                val primaryPool = if (preferLive) liveFiles else staticFiles
+                val fallbackPool = if (preferLive) staticFiles else liveFiles
+
+                fun unseen(pool: List<java.io.File>) = pool.filter {
+                    it.name !in seen && it.absolutePath != current
+                }
+                var candidates = unseen(primaryPool)
+                if (candidates.isEmpty()) candidates = unseen(fallbackPool)
+
+                // Both pools exhausted — every cached file shown. Full reset
+                // per user spec ("ya que vio todos, pues reset completo").
+                if (candidates.isEmpty()) {
+                    Log.d(TAG, "Daily cycle complete (${seen.size} files seen) — resetting seen set")
+                    seen.clear()
+                    seen.add(File(current).name)  // keep outgoing so we don't pick it next
+                    // After reset, honor type preference again
+                    candidates = unseen(primaryPool)
+                    if (candidates.isEmpty()) candidates = unseen(fallbackPool)
+                    if (candidates.isEmpty()) {
+                        candidates = files.filter { it.absolutePath != current }
+                    }
+                }
+
+                val next = candidates.randomOrNull() ?: return
                 dailyLastRotation = now
-                livePrefs.edit()
+
+                // ── Cache cleanup ─────────────────────────────────────────
+                // Cap disk footprint at DAILY_DISK_MAX files. When exceeded,
+                // delete the oldest already-seen files (LRU on mtime).
+                if (files.size > DAILY_DISK_MAX) {
+                    val toDelete = files
+                        .filter { it.name in seen && it.absolutePath != next.absolutePath }
+                        .sortedBy { it.lastModified() }
+                        .take(files.size - DAILY_DISK_MAX)
+                    var deleted = 0
+                    for (f in toDelete) {
+                        if (f.delete()) {
+                            seen.remove(f.name)
+                            deleted++
+                        }
+                    }
+                    if (deleted > 0) {
+                        Log.d(TAG, "Daily cleanup: deleted $deleted oldest-seen files")
+                    }
+                }
+
+                // ── Type-aware transition (Phase 4 — 2026-06-09) ─────────
+                // Detect canvas↔video mode change via .mp4 extension.
+                // Same-mode (static→static OR live→live within same Surface
+                // producer): soft transition via prefs broadcast — instant.
+                // Cross-mode (static↔live): MUST kill self so Android respawns
+                // the engine with a clean Surface. The Canvas producer's
+                // touch state survives unlockCanvasAndPost(), so a fresh
+                // MediaPlayer.setSurface() on the same Engine would fail
+                // with -22 (EINVAL). See CLAUDE.md pitfall A + commit history.
+                val wasLive = current.endsWith(".mp4", ignoreCase = true)
+                val nextIsLive = next.name.endsWith(".mp4", ignoreCase = true)
+                val typeTransition = wasLive != nextIsLive
+
+                val editor = livePrefs.edit()
                     .putString("wallpaper_path", next.absolutePath)
                     .putLong("daily_last_rotation", now)
                     .remove("scene_id")
                     .putBoolean("interactive", false)
-                    .apply()
+                    .putStringSet(seenKey, seen)
+
+                if (typeTransition) {
+                    // CRITICAL: commit() (synchronous) is REQUIRED before
+                    // self-kill. With .apply() the daily_last_rotation write
+                    // is async and gets dropped when killProcess fires before
+                    // disk flush — the respawned engine then reads the STALE
+                    // timestamp, sees enough time has passed, rotates AGAIN,
+                    // self-kills AGAIN. Android falls back to ImageWallpaper
+                    // after 2-3 rapid kills (saw this on 2026-06-10).
+                    editor.commit()
+                    currentWallpaperPath = next.absolutePath
+                    Log.d(TAG, "Daily TYPE transition (canvas↔video) — self-kill so Surface resets cleanly → ${next.name}")
+                    android.os.Process.killProcess(android.os.Process.myPid())
+                    return
+                }
+
+                // Same-type rotation: apply() (async) is fine and faster.
+                editor.apply()
                 currentWallpaperPath = next.absolutePath
-                Log.d(TAG, "Daily rotated → ${next.name} (interval ${dailyIntervalMs / 60000}min)")
+                Log.d(TAG, "Daily rotated → ${next.name} (seen ${seen.size}/${files.size}, interval ${dailyIntervalMs / 60000}min)")
             } catch (e: Exception) {
                 Log.w(TAG, "maybeRotateDaily failed: ${e.message}")
             }
@@ -658,6 +786,29 @@ class PixoraWallpaperService : WallpaperService() {
                     com.orbix.pixora.touch.TouchTrailRegistry.PREF_KEY,
                     com.orbix.pixora.touch.TouchTrailRegistry.DEFAULT_ID,
                 ) ?: com.orbix.pixora.touch.TouchTrailRegistry.DEFAULT_ID
+
+                // 2026-06-10 — early-return guard. onVisibilityChanged +
+                // onSurfaceChanged + the prefs-changed debounce dispatcher
+                // all funnel into loadWallpaperImage(), often 3-4 times per
+                // rotation with identical state. If nothing meaningful
+                // changed since the last successful load AND the bitmap (or
+                // MediaPlayer for video) is still alive, skip the entire
+                // body — no renderer recycles, no sprite loads, no decode.
+                val sceneIdEarly = prefs.getString("scene_id", null)
+                val configKey =
+                    "$path|$sceneIdEarly|$isInteractive|$color|$caption|$trailStyle"
+                if (configKey == lastLoadedConfigKey) {
+                    val hasLiveBitmap = wallpaperBitmap?.let { !it.isRecycled } == true
+                    val hasLiveVideo = isVideoWallpaper && mediaPlayer != null
+                    if (hasLiveBitmap || hasLiveVideo) {
+                        // Cheap consistency: keep currentWallpaperPath in sync
+                        // since callers (rotation, broadcast) rely on it.
+                        currentWallpaperPath = path
+                        return
+                    }
+                }
+                lastLoadedConfigKey = configKey
+
                 if (touchTrail.id != trailStyle) {
                     touchTrail.reset()
                     touchTrail = com.orbix.pixora.touch.TouchTrailRegistry.create(trailStyle)
@@ -960,8 +1111,25 @@ class PixoraWallpaperService : WallpaperService() {
         private val MAX_VIDEO_RETRIES = 10
 
         private fun startVideoWallpaper(path: String) {
+            // 2026-06-10 fix — idempotency guard.
+            // loadWallpaperImage() can fire 4-6 times per video transition
+            // (onSurfaceChanged + onVisibilityChanged + prefs reload debounce +
+            // engine attach). Without this guard, each fires a fresh
+            // startVideoWallpaper, each races to .setSurface(player), and
+            // some of them leave the HWUI CanvasContext in an inconsistent
+            // state — surfacing later as 'drawRenderNode called on a context
+            // with no surface' SIGABRT on the next visibility change. If we
+            // already have a MediaPlayer playing this exact path, do nothing.
             synchronized(videoLock) {
-                if (videoStarting) return
+                if (isVideoWallpaper && currentWallpaperPath == path &&
+                    mediaPlayer != null) {
+                    Log.d(TAG, "startVideoWallpaper: already playing $path — skip")
+                    return
+                }
+                if (videoStarting) {
+                    Log.d(TAG, "startVideoWallpaper: another start in flight — skip")
+                    return
+                }
                 videoStarting = true
             }
             Log.d(TAG, "Starting video: $path")
@@ -976,7 +1144,25 @@ class PixoraWallpaperService : WallpaperService() {
                 wallpaperBitmap = null
             }
 
-            stopVideoWallpaper()
+            // 2026-06-10 fix — do NOT call stopVideoWallpaper() here.
+            // That helper resets videoStarting=false and isVideoWallpaper=false,
+            // re-opening the guard above for any parallel callers and undoing
+            // the state we just claimed. Instead, release any existing player
+            // inline while preserving our in-flight flags.
+            val prevPlayer: MediaPlayer?
+            synchronized(videoLock) {
+                prevPlayer = mediaPlayer
+                mediaPlayer = null
+            }
+            if (prevPlayer != null) {
+                releaseMediaPlayerSafely(prevPlayer)
+                Log.d(TAG, "Released previous MediaPlayer before starting new one")
+            }
+            handler.removeCallbacks(frameScrubUpdateRunnable)
+            frameScrubRenderer.release()
+            isFrameMode = false
+            cachedDuration = 0L
+            videoRetryCount = 0
             isVideoWallpaper = true
 
             // Explore mode: load pre-downloaded frames (no codec needed).
@@ -1007,6 +1193,23 @@ class PixoraWallpaperService : WallpaperService() {
                 Log.w(TAG, "interactive=true but path is not a directory ($path); falling back to MediaPlayer")
             }
 
+            // 2026-06-10 fix — HWUI RenderThread drain delay.
+            // When the :wallpaper process respawns after a kill (canvas↔video
+            // transition), the new Engine instance may have already enqueued a
+            // first canvas frame via lockHardwareCanvas() before this code
+            // runs. With SkiaOpenGL pipeline (API 26+, MID/LOW tier), that
+            // frame is processed ASYNCHRONOUSLY on the system RenderThread.
+            // If we call MediaPlayer.setSurface(surface) before the
+            // RenderThread finishes that frame, the RenderThread crashes with
+            // a SIGABRT at SkiaOpenGLPipeline::getFrame because the surface
+            // it expected to draw into has been claimed by the MediaPlayer.
+            // A short delay drains the in-flight frame.
+            // See logcat from 2026-06-10 00:37:02: "F ixora:wallpaper
+            //   runtime.cc: SkiaOpenGLPipeline::getFrame+48".
+            handler.postDelayed({ continueVideoStart(path) }, 120)
+        }
+
+        private fun continueVideoStart(path: String) {
             // Auto Play: use MediaPlayer — wait for valid surface
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
@@ -1055,6 +1258,10 @@ class PixoraWallpaperService : WallpaperService() {
                     synchronized(videoLock) {
                         mediaPlayer = player
                         videoStarting = false
+                        // Track the path that's actively playing so the
+                        // idempotency guard at the top of startVideoWallpaper
+                        // can short-circuit re-entrant calls for the same video.
+                        currentWallpaperPath = path
                     }
                     try { player.start() } catch (e: Exception) { Log.e(TAG, "start failed: ${e.message}") }
                 }
@@ -1515,6 +1722,14 @@ class PixoraWallpaperService : WallpaperService() {
 
         private fun drawFrame() {
             if (!drawing) return
+            // 2026-06-10 — second line of defense against the canvas↔video
+            // race that crashed the RenderThread (see continueVideoStart for
+            // the full story). If somehow a stale drawRunnable fires after
+            // we flipped to video mode, refuse to lock the Surface.
+            // MediaPlayer owns it now; lockCanvas() here would push another
+            // HWUI frame into the system RenderThread and re-trigger the
+            // SkiaOpenGLPipeline::getFrame SIGABRT.
+            if (isVideoWallpaper) return
             val holder = surfaceHolder ?: return
             var canvas: Canvas? = null
             try {
@@ -1778,5 +1993,9 @@ class PixoraWallpaperService : WallpaperService() {
         const val RAIN_DROP_COUNT = 120
         const val GLASS_DROP_COUNT = 15
         const val CITY_LIGHT_COUNT = 35
+        // Daily rotation: hard cap on cached files. When the auto_rotate
+        // cache exceeds this, oldest already-seen files are deleted.
+        // 25 × ~150 KB = ~4 MB upper bound. See maybeRotateDaily().
+        const val DAILY_DISK_MAX = 25
     }
 }

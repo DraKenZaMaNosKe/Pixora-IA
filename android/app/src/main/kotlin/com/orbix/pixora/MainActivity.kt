@@ -331,6 +331,22 @@ class MainActivity : AudioServiceActivity() {
                         val success = AutoRotateWorker.stop(applicationContext)
                         result.success(success)
                     }
+                    // 2026-06-10 fix — silent catalog refresh from Flutter cold
+                    // start. MUST NOT call ensureLiveWallpaperActive(). If
+                    // Android tumbled Pixora out of being the live wallpaper
+                    // (post-crash safety fallback), startAutoRotate would
+                    // trigger the system picker every cold start. This path
+                    // only updates prefs the prefetch worker reads.
+                    "updateAutoRotateCatalog" -> {
+                        val catalogData = call.argument<List<String>>("catalogData") ?: emptyList()
+                        val intervalMinutes = call.argument<Int>("intervalMinutes")
+                        val target = call.argument<Int>("target")
+                        val category = call.argument<String>("category")
+                        val success = AutoRotateWorker.updateCatalog(
+                            applicationContext, catalogData, intervalMinutes, target, category
+                        )
+                        result.success(success)
+                    }
                     "getAutoRotateStatus" -> {
                         val status = AutoRotateWorker.getStatus(applicationContext)
                         result.success(status)

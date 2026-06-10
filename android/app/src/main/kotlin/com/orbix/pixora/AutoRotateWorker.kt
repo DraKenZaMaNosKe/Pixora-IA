@@ -100,7 +100,10 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
      * Download up to [maxNew] catalog images that aren't cached yet, so the
      * in-service rotation always has fresh material. No wallpaper apply here.
      */
-    private fun prefetchToCache(entries: List<String>, maxNew: Int = 5) {
+    // Bumped maxNew default 5 → 10 (2026-06-09) so the cache fills up to
+    // MAX_CACHED_WALLPAPERS (25) in 2-3 worker runs instead of 5+. Catch-up
+    // is faster when user activates Daily or when new catalog items appear.
+    private fun prefetchToCache(entries: List<String>, maxNew: Int = 10) {
         val cacheDir = getWallpaperCacheDir()
         val cachedNames = cacheDir.listFiles()
             ?.filter { it.extension != "tmp" }
@@ -112,19 +115,25 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             if (downloaded >= maxNew) break
             val parts = entry.split("|")
             if (parts.size < 2) continue
-            val imageFile = parts[1]
-            val targetName = imageFile.replace("/", "_")
+            val file = parts[1]
+            // Type tag added 2026-06-09 (Phase 4 — live wallpaper support).
+            // Format: "id|file|glow|type". Missing 4th field = "static"
+            // for back-compat with older catalog wire from before this commit.
+            val type = parts.getOrNull(3) ?: "static"
+            val bucket = if (type == "live") BUCKET_VIDEOS else BUCKET_IMAGES
+            val targetName = file.replace("/", "_")
             if (targetName in cachedNames) continue // already cached
 
             val targetFile = File(cacheDir, targetName)
             val tempFile = File(cacheDir, "$targetName.tmp")
-            if (downloadFile("$SUPABASE_STORAGE_BASE/$imageFile", tempFile)) {
+            val url = "$SUPABASE_BUCKET_BASE/$bucket/$file"
+            if (downloadFile(url, tempFile)) {
                 tempFile.renameTo(targetFile)
                 downloaded++
-                Log.d(TAG, "Prefetched: $targetName")
+                Log.d(TAG, "Prefetched [$type]: $targetName")
             }
         }
-        Log.d(TAG, "Prefetch: $downloaded new images (cache had ${cachedNames.size})")
+        Log.d(TAG, "Prefetch: $downloaded new files (cache had ${cachedNames.size})")
     }
 
     private fun downloadFile(url: String, target: File): Boolean {
@@ -227,10 +236,22 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
         const val WORK_NAME = "pixora_auto_rotate"              // immediate one-shot prefetch
         const val WORK_NAME_PERIODIC = "pixora_auto_rotate_periodic" // 6h refresh
         const val PREFS_NAME = "pixora_auto_rotate"
-        private const val MAX_CACHED_WALLPAPERS = 10
+        // 2026-06-09 (Phase 4 — live + static + panoramic):
+        // Bumped from 10 → 25 to match DAILY_DISK_MAX in the wallpaper
+        // service. With 10% live ratio and a typical mix of static +
+        // panoramic + live, 25 gives 2-3× more variety per cycle so the
+        // seen-set reset is less frequent (better perceived randomness).
+        // Disk impact: 25 × avg 250 KB = ~6 MB (live videos pull avg up
+        // to ~1 MB each, but they're rare).
+        private const val MAX_CACHED_WALLPAPERS = 25
         private const val PREFETCH_PERIOD_HOURS = 6L
+        private const val SUPABASE_BUCKET_BASE =
+            "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public"
+        private const val BUCKET_IMAGES = "wallpaper-images"
+        private const val BUCKET_VIDEOS = "wallpaper-videos"
+        // Back-compat alias used by entries that don't carry a type field.
         private const val SUPABASE_STORAGE_BASE =
-            "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images"
+            "$SUPABASE_BUCKET_BASE/$BUCKET_IMAGES"
 
         private fun networkConstraints() = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -290,6 +311,43 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
                 "Daily started: ${catalogData.size} wallpapers · rotation every " +
                     "${intervalMinutes}min (in-service) · prefetch every ${PREFETCH_PERIOD_HOURS}h"
             )
+            return true
+        }
+
+        /**
+         * Refresh the catalog data WITHOUT touching the wallpaper component,
+         * killing the :wallpaper process, or showing the live wallpaper
+         * picker. Used by the Flutter cold-start `refreshIfRunning()` flow so
+         * new wallpapers in Supabase flow into the active Daily rotation
+         * without the user having to toggle Daily off/on.
+         *
+         * Critical: must NOT call ensureLiveWallpaperActive(). If Pixora was
+         * tumbled out of being the live wallpaper (Android safety fallback
+         * after a crash), calling start() would trigger the system picker on
+         * every cold start — exactly the bug we're fixing here.
+         *
+         * No-op if Daily isn't enabled.
+         */
+        fun updateCatalog(
+            context: Context,
+            catalogData: List<String>,
+            intervalMinutes: Int? = null,
+            target: Int? = null,
+            category: String? = null
+        ): Boolean {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            if (!prefs.getBoolean("enabled", false)) {
+                Log.d(TAG, "updateCatalog skipped — Daily not enabled")
+                return false
+            }
+            val editor = prefs.edit()
+                .putString("catalog_json", catalogData.joinToString("\n"))
+            if (intervalMinutes != null) editor.putInt("interval_minutes", intervalMinutes)
+            if (target != null) editor.putInt("target", target)
+            // category null is meaningful (all-categories), so we don't touch
+            // it here — the previous value stays.
+            editor.apply()
+            Log.d(TAG, "Catalog updated: ${catalogData.size} entries (no picker, no kill)")
             return true
         }
 

@@ -8,6 +8,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
+import 'core/services/auto_rotate_service.dart';
 import 'core/services/analytics_service.dart';
 import 'core/services/app_strings_service.dart';
 import 'core/services/catalog_cache_store.dart';
@@ -181,6 +182,16 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
         debugPrint('[Pixora] Skia GPU cache capped at 64 MB');
       }).catchError((Object e) {
         debugPrint('[Pixora] Skia cap error: $e');
+      });
+
+      // 2026-06-09 Phase 4 future-proofing: if Pixora Daily is active,
+      // re-fetch both catalogs (static + live) and push the fresh snapshot
+      // to native. This means new wallpapers added to either catalog
+      // automatically flow into the user's rotation on the next app open —
+      // no need for the user to toggle Daily off/on.
+      AutoRotateService.instance.refreshIfRunning().catchError((Object e) {
+        debugPrint('[Pixora] Daily catalog refresh skipped: $e');
+        return false;
       });
     });
   }
