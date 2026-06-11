@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'catalog_service.dart';
-import 'live_wallpaper_catalog_service.dart';
 import 'wallpaper_engine_coordinator.dart';
 
 /// Service for auto-rotating wallpapers at configurable intervals.
@@ -59,22 +58,28 @@ class AutoRotateService {
         context: category,
       );
 
-      // Fetch BOTH static + live catalogs (Phase 4 — 2026-06-09):
-      // user spec: "los wallpapers panoramicos y live se incluyen también en daily".
-      // Panoramic is detected at runtime by aspect ratio so it's just static
-      // with a wider image — no special handling here. Live is a separate
-      // model (LiveWallpaper.videoFile) that needs the wallpaper-videos bucket
-      // and a self-kill on transition (see PixoraWallpaperService.maybeRotateDaily).
+      // 2026-06-10 product decision (Eduardo) — Daily ONLY rotates static
+      // and panoramic wallpapers. Live videos are excluded by design:
+      //
+      // 1. Stability — the 3 critical crashes shipped in v1.7.19 (HWUI
+      //    RenderThread SIGABRT, startVideoWallpaper race, self-kill loop
+      //    on commit-vs-apply) ALL stem from the canvas↔video Surface
+      //    producer transition. If Daily never touches videos, those
+      //    transitions never happen → that entire class of bugs is gone.
+      //
+      // 2. Monetization — live wallpapers are the premium experience.
+      //    Forcing users to apply them MANUALLY routes every live install
+      //    through AdService.showInterstitialAd, which is more ad views
+      //    than a silent background rotation could ever produce.
+      //
+      // 3. UX coherence — Daily reads as "passive rotation", Live reads
+      //    as "deliberate premium choice". Mixing them confused both.
+      //
+      // Panoramic stays IN — it's just a wider static image, no Surface
+      // producer change needed (Canvas handles both).
       final catalog = await CatalogService.instance.fetchCatalog();
-      List<dynamic> liveCatalog = const [];
-      try {
-        liveCatalog = await LiveWallpaperCatalogService.instance.fetchCatalog();
-      } catch (e) {
-        debugPrint(
-            '[AutoRotate] Live catalog fetch failed (continuing without live): $e');
-      }
-      if (catalog.isEmpty && liveCatalog.isEmpty) {
-        debugPrint('[AutoRotate] No wallpapers in either catalog');
+      if (catalog.isEmpty) {
+        debugPrint('[AutoRotate] No wallpapers in static catalog');
         return false;
       }
 
@@ -86,27 +91,19 @@ class AutoRotateService {
               ? catalog.where((w) => w.category == category).toList()
               : catalog);
 
-      // For live wallpapers we don't have a daily_eligible column yet, so
-      // either include ALL when no specific category filter, or NONE when
-      // user wants a curated/category-specific subset. Future: add
-      // daily_eligible to live_wallpapers table for parity.
-      final includeLive = category == null || category == 'DAILY';
-      final filteredLive = includeLive ? liveCatalog : const [];
-
-      if (filtered.isEmpty && filteredLive.isEmpty) {
+      if (filtered.isEmpty) {
         debugPrint('[AutoRotate] No wallpapers for category: $category');
         return false;
       }
 
-      // Wire format: "id|file|glowColor|type" where type ∈ static|live.
-      // Backward compat: the native worker treats a missing 4th field as
-      // static. Panoramic stays as `static` (the renderer auto-detects via
-      // aspect ratio at draw time).
-      final staticEntries =
-          filtered.map((w) => '${w.id}|${w.imageFile}|${w.glowColor}|static');
-      final liveEntries =
-          filteredLive.map((l) => '${l.id}|${l.videoFile}|${l.glowColor}|live');
-      final catalogData = [...staticEntries, ...liveEntries].toList();
+      // Wire format: "id|file|glowColor|type" — type is always `static` here
+      // (the native worker treats panoramic as static too — aspect ratio is
+      // detected at draw time, not in the catalog). The `type` field is
+      // kept for backward compat with the worker's parser and as a future
+      // hook in case live is re-introduced via a different code path.
+      final catalogData = filtered
+          .map((w) => '${w.id}|${w.imageFile}|${w.glowColor}|static')
+          .toList();
 
       final result = await _channel.invokeMethod<bool>(
         'startAutoRotate',
@@ -172,32 +169,22 @@ class AutoRotateService {
       final category = status['category'] as String?;
 
       // Build the same catalog data start() would, but DON'T call start().
+      // Static-only per the 2026-06-10 decision (see comment in start()).
       final catalog = await CatalogService.instance.fetchCatalog();
-      List<dynamic> liveCatalog = const [];
-      try {
-        liveCatalog = await LiveWallpaperCatalogService.instance.fetchCatalog();
-      } catch (e) {
-        debugPrint('[AutoRotate] Refresh live catalog fetch failed: $e');
-      }
-
       final filtered = category == 'DAILY'
           ? catalog.where((w) => w.dailyEligible).toList()
           : (category != null
               ? catalog.where((w) => w.category == category).toList()
               : catalog);
-      final includeLive = category == null || category == 'DAILY';
-      final filteredLive = includeLive ? liveCatalog : const [];
 
-      if (filtered.isEmpty && filteredLive.isEmpty) {
+      if (filtered.isEmpty) {
         debugPrint('[AutoRotate] Refresh: empty filtered catalog, skipping');
         return false;
       }
 
-      final staticEntries =
-          filtered.map((w) => '${w.id}|${w.imageFile}|${w.glowColor}|static');
-      final liveEntries =
-          filteredLive.map((l) => '${l.id}|${l.videoFile}|${l.glowColor}|live');
-      final catalogData = [...staticEntries, ...liveEntries].toList();
+      final catalogData = filtered
+          .map((w) => '${w.id}|${w.imageFile}|${w.glowColor}|static')
+          .toList();
 
       debugPrint(
           '[AutoRotate] Refresh: silent catalog update (${catalogData.length} entries, cat=$category)');

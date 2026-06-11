@@ -480,8 +480,18 @@ class PixoraWallpaperService : WallpaperService() {
                 if (now - dailyLastRotation < dailyIntervalMs) return
 
                 val cacheDir = File(applicationContext.filesDir, "auto_rotate_cache")
+                // 2026-06-10 (Eduardo) — Daily ONLY rotates static + panoramic
+                // wallpapers, NEVER live videos. See AutoRotateService.start
+                // comment for the full rationale. The filter here is DEFENSIVE:
+                // if a stale .mp4 lingers in the cache from a prior version
+                // (or some edge case future-prefetch leaks one in), we ignore
+                // it instead of risking the canvas↔video transition crash.
                 val files = cacheDir.listFiles()
-                    ?.filter { it.extension != "tmp" && it.length() > 0 }
+                    ?.filter {
+                        it.extension != "tmp" &&
+                        it.length() > 0 &&
+                        !it.name.endsWith(".mp4", ignoreCase = true)
+                    }
                     ?: return
                 if (files.size < 2) return // nothing to rotate to
 
@@ -517,38 +527,21 @@ class PixoraWallpaperService : WallpaperService() {
                 // Mark the OUTGOING file as seen (it's about to be replaced).
                 seen.add(File(current).name)
 
-                // Type-weighted selection (Phase 4 — 2026-06-09):
-                // user spec → "cada 10, uno live, y que sea aleatorio".
-                // Roll once per rotation: 10% chance to prefer LIVE pool,
-                // 90% chance to prefer STATIC/panoramic. Within the chosen
-                // pool we still filter by !seen. If preferred pool is dry,
-                // fall back to the other (don't waste a rotation). If both
-                // dry → cycle complete → reset.
-                val isLiveFile: (java.io.File) -> Boolean = { f ->
-                    f.name.endsWith(".mp4", ignoreCase = true)
-                }
-                val liveFiles = files.filter(isLiveFile)
-                val staticFiles = files.filterNot(isLiveFile)
-                val preferLive = liveFiles.isNotEmpty() &&
-                    java.util.Random().nextInt(10) == 0
-                val primaryPool = if (preferLive) liveFiles else staticFiles
-                val fallbackPool = if (preferLive) staticFiles else liveFiles
-
+                // Selection — static + panoramic only (2026-06-10 decision).
+                // Live was removed from the pool above. Pick a random un-seen
+                // file; when the set is exhausted, reset (cycle complete).
                 fun unseen(pool: List<java.io.File>) = pool.filter {
                     it.name !in seen && it.absolutePath != current
                 }
-                var candidates = unseen(primaryPool)
-                if (candidates.isEmpty()) candidates = unseen(fallbackPool)
+                var candidates = unseen(files)
 
-                // Both pools exhausted — every cached file shown. Full reset
-                // per user spec ("ya que vio todos, pues reset completo").
+                // Every cached file shown → reset per user spec
+                // ("ya que vio todos, pues reset completo").
                 if (candidates.isEmpty()) {
                     Log.d(TAG, "Daily cycle complete (${seen.size} files seen) — resetting seen set")
                     seen.clear()
                     seen.add(File(current).name)  // keep outgoing so we don't pick it next
-                    // After reset, honor type preference again
-                    candidates = unseen(primaryPool)
-                    if (candidates.isEmpty()) candidates = unseen(fallbackPool)
+                    candidates = unseen(files)
                     if (candidates.isEmpty()) {
                         candidates = files.filter { it.absolutePath != current }
                     }

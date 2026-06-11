@@ -116,21 +116,24 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             val parts = entry.split("|")
             if (parts.size < 2) continue
             val file = parts[1]
-            // Type tag added 2026-06-09 (Phase 4 — live wallpaper support).
-            // Format: "id|file|glow|type". Missing 4th field = "static"
-            // for back-compat with older catalog wire from before this commit.
+            // Type tag — format: "id|file|glow|type". Missing 4th = static.
             val type = parts.getOrNull(3) ?: "static"
-            val bucket = if (type == "live") BUCKET_VIDEOS else BUCKET_IMAGES
+            // 2026-06-10 — skip live entries. Daily no longer rotates videos
+            // (product decision: live = manual + ad). Belt-and-suspenders:
+            // even if the Dart layer accidentally sent a "live" entry, we
+            // refuse to download it so the on-device cache stays mp4-free
+            // and the maybeRotateDaily filter has nothing to defend against.
+            if (type == "live") continue
             val targetName = file.replace("/", "_")
             if (targetName in cachedNames) continue // already cached
 
             val targetFile = File(cacheDir, targetName)
             val tempFile = File(cacheDir, "$targetName.tmp")
-            val url = "$SUPABASE_BUCKET_BASE/$bucket/$file"
+            val url = "$SUPABASE_BUCKET_BASE/$BUCKET_IMAGES/$file"
             if (downloadFile(url, tempFile)) {
                 tempFile.renameTo(targetFile)
                 downloaded++
-                Log.d(TAG, "Prefetched [$type]: $targetName")
+                Log.d(TAG, "Prefetched: $targetName")
             }
         }
         Log.d(TAG, "Prefetch: $downloaded new files (cache had ${cachedNames.size})")
