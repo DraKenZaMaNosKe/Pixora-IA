@@ -363,11 +363,24 @@ class PixoraWallpaperService : WallpaperService() {
         // Everything else defers to KeyguardManager.isKeyguardLocked.
         @Volatile private var forceHideOverlays = false
 
+        // 2026-06-10 — track when the user actually unlocked the device.
+        // ACTION_USER_PRESENT fires ONLY on a real lockscreen → home unlock.
+        // We use this to gate the "every unlock" rotation mode so that
+        // returning from WhatsApp / switching apps (which also fires
+        // onVisibilityChanged(true)) does NOT trigger a rotation.
+        // 5-second window matches the natural gap between USER_PRESENT
+        // and onVisibilityChanged(true) on Samsung One UI, even with slow
+        // biometric paths.
+        @Volatile private var lastUserPresentAt = 0L
+
         // Broadcast receiver only forces a redraw on screen events — doesn't own state.
         // This way a missed ACTION_USER_PRESENT (which happens on some Samsung configs
         // with fast biometric unlock) doesn't leave overlays permanently hidden.
         private val keyguardReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == Intent.ACTION_USER_PRESENT) {
+                    lastUserPresentAt = System.currentTimeMillis()
+                }
                 if (drawing) handler.post { drawFrame() }
             }
         }
@@ -477,7 +490,31 @@ class PixoraWallpaperService : WallpaperService() {
                 if (!current.contains("auto_rotate_cache")) return
 
                 val now = System.currentTimeMillis()
-                if (now - dailyLastRotation < dailyIntervalMs) return
+
+                // 2026-06-10 — "every unlock" mode (intervalMinutes=0) must
+                // only fire on a REAL device unlock, not on any visibility
+                // change. Returning from WhatsApp / switching apps also
+                // triggers onVisibilityChanged(true) but does NOT fire
+                // ACTION_USER_PRESENT. Gate the rotation on a recent
+                // USER_PRESENT broadcast (5s window covers Samsung One UI
+                // biometric paths). Without this gate, the wallpaper changed
+                // every time the user came back to home from another app.
+                if (dailyIntervalMs == 0L) {
+                    val sincePresent = now - lastUserPresentAt
+                    if (sincePresent > 5000L) {
+                        // visibility=true without a real unlock — ignore
+                        return
+                    }
+                    // Prevent double-rotation in the same unlock event.
+                    // Samsung One UI fires onVisibilityChanged(true) multiple
+                    // times within ~1s of a single unlock. If we already
+                    // rotated AFTER this USER_PRESENT, skip.
+                    if (dailyLastRotation > lastUserPresentAt) {
+                        return
+                    }
+                } else if (now - dailyLastRotation < dailyIntervalMs) {
+                    return
+                }
 
                 val cacheDir = File(applicationContext.filesDir, "auto_rotate_cache")
                 // 2026-06-10 (Eduardo) — Daily ONLY rotates static + panoramic

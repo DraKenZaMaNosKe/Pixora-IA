@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../features/aura/data/repositories/aura_repository.dart';
 import '../../features/events/data/events_service.dart';
 import 'app_strings_service.dart';
+import 'auto_rotate_service.dart';
 import 'catalog_service.dart';
 import 'day_cycle_catalog_service.dart';
 import 'live_wallpaper_catalog_service.dart';
@@ -183,8 +184,20 @@ class PushNotificationService {
       }
     }
 
-    Future<void> wallpapers() =>
-        safeClear('wallpapers', () => CatalogService.instance.clearCache());
+    // 2026-06-10 — after clearing the wallpapers cache, also nudge the
+    // Pixora Daily worker so the on-device catalog snapshot picks up the
+    // new content immediately. Without this, Daily only re-syncs on next
+    // cold-start or after the 6h periodic prefetch. refreshIfRunning is a
+    // cheap no-op when Daily is disabled. Errors are swallowed because
+    // catalog invalidation must not block the other scopes.
+    Future<void> wallpapers() async {
+      await safeClear('wallpapers', () => CatalogService.instance.clearCache());
+      await safeClear(
+        'daily-refresh',
+        () => AutoRotateService.instance.refreshIfRunning().then((_) {}),
+      );
+    }
+
     Future<void> live() => safeClear(
         'live', () => LiveWallpaperCatalogService.instance.clearCache());
     Future<void> stories() =>

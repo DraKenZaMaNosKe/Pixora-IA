@@ -216,6 +216,9 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
       title: LocaleHelper.pick(es: 'CAMBIAR CADA', en: 'CHANGE EVERY'),
       items: [
         (0, LocaleHelper.pick(es: 'Cada desbloqueo', en: 'Every unlock')),
+        (5, LocaleHelper.pick(es: '5 minutos', en: '5 minutes')),
+        (10, LocaleHelper.pick(es: '10 minutos', en: '10 minutes')),
+        (15, LocaleHelper.pick(es: '15 minutos', en: '15 minutes')),
         (30, LocaleHelper.pick(es: '30 minutos', en: '30 minutes')),
         (60, LocaleHelper.pick(es: '1 hora', en: '1 hour')),
         (180, LocaleHelper.pick(es: '3 horas', en: '3 hours')),
@@ -267,6 +270,7 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
           LocaleHelper.pick(es: 'Solo panorámicos', en: 'Panoramic only'),
         ),
         ('NATURE', LocaleHelper.pick(es: 'Naturaleza', en: 'Nature')),
+        ('PAISAJES', LocaleHelper.pick(es: 'Paisajes', en: 'Landscapes')),
         ('ANIME', 'Anime'),
         ('GAMING', 'Gaming'),
         ('SCIFI', 'Sci-Fi'),
@@ -335,6 +339,7 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
     return switch (c) {
       'PANORAMIC' => LocaleHelper.pick(es: 'Panorámicos', en: 'Panoramic'),
       'NATURE' => LocaleHelper.pick(es: 'Naturaleza', en: 'Nature'),
+      'PAISAJES' => LocaleHelper.pick(es: 'Paisajes', en: 'Landscapes'),
       'ANIME' => 'Anime',
       'GAMING' => 'Gaming',
       'SCIFI' => 'Sci-Fi',
