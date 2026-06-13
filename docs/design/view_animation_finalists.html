@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · View Animation Finalists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Share+Tech+Mono&family=DM+Serif+Display:ital@0;1&family=Audiowide&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep:      #0A001A;
+  --bg-mid:       #1A0033;
+  --bg-card:      #2A0050;
+  --neon-cyan:    #00F0FF;
+  --neon-cyan-soft: #66E0FF;
+  --neon-pink:    #FF2BD6;
+  --neon-yellow:  #FFE44D;
+  --gold:         #E6B655;
+  --gold-pale:    #F0DD9E;
+  --gold-deep:    #C9A650;
+  --like-red:     #FF3B5C;
+  --view-cyan:    #00D4FF;
+  --text:         #E8E0FF;
+  --text-dim:     #8678A8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { background: var(--bg-deep); color: var(--text); font-family:'Share Tech Mono', monospace; min-height:100vh; }
+
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,240,255,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,255,0.06), transparent 60%),
+    var(--bg-deep);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,240,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,240,255,0.025) 1px, transparent 1px);
+  background-size: 64px 64px; pointer-events:none; z-index:0;
+}
+
+main { position:relative; z-index:2; padding: 40px 24px 80px; max-width: 1400px; margin: 0 auto; }
+
+header { text-align:center; margin-bottom: 32px; }
+.eyebrow {
+  display:inline-block;
+  font-family:'Share Tech Mono', monospace;
+  color: var(--view-cyan);
+  font-size: 11px; letter-spacing: 4px; margin-bottom: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--view-cyan);
+  border-radius: 999px;
+  background: rgba(0,212,255,0.05);
+  text-shadow: 0 0 12px var(--view-cyan);
+}
+h1 {
+  font-family:'Audiowide', sans-serif;
+  font-size: clamp(28px, 5vw, 48px);
+  letter-spacing: 0.04em;
+  color: var(--text);
+  text-shadow: 0 0 24px rgba(0,240,255,0.4), 1px 1px 0 var(--bg-mid);
+  margin-bottom: 14px;
+}
+h1 .accent { color: var(--view-cyan); text-shadow: 2px 0 var(--view-cyan), -2px 0 var(--neon-pink); }
+header p {
+  color: var(--text-dim);
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 15px;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+.philosophy {
+  margin: 16px auto 0;
+  max-width: 580px;
+  padding: 12px 16px;
+  background: rgba(0,212,255,0.05);
+  border-left: 2px solid var(--view-cyan);
+  font-family:'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--neon-cyan-soft);
+  text-align: left;
+  letter-spacing: 0.04em;
+}
+.philosophy strong { color: var(--view-cyan); }
+
+/* Design section */
+.design-section {
+  margin-bottom: 56px;
+  padding: 28px;
+  background: rgba(20, 0, 42, 0.4);
+  border: 1px solid rgba(0,212,255,0.12);
+  border-radius: 18px;
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+.design-section.chosen {
+  border-color: var(--view-cyan);
+  box-shadow: 0 0 60px rgba(0,212,255,0.25);
+}
+.design-section.chosen::before {
+  content: '★ SELECTED';
+  position: absolute;
+  top: -12px; right: 28px;
+  background: var(--view-cyan);
+  color: var(--bg-deep);
+  font-family:'Goldman', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  padding: 4px 14px;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0,212,255,0.4);
+}
+
+.section-head {
+  display:flex; flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.section-title { display:flex; align-items:center; gap: 12px; }
+.section-num {
+  font-family:'Audiowide', sans-serif;
+  font-size: 28px;
+  color: var(--view-cyan);
+  text-shadow: 0 0 16px var(--view-cyan);
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--view-cyan);
+  padding: 2px 12px;
+  border-radius: 6px;
+  min-width: 50px; text-align:center;
+}
+.section-title h2 {
+  font-family:'Goldman', sans-serif;
+  font-size: 20px;
+  color: var(--text);
+  letter-spacing: 0.06em;
+}
+.section-title h2 .sub {
+  display:block;
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 400;
+  letter-spacing: 0;
+  margin-top: 2px;
+}
+
+.section-controls { display:flex; gap: 8px; flex-wrap:wrap; }
+
+/* Phone strip */
+.phone-strip {
+  background: linear-gradient(180deg, #08001A 0%, #14002A 100%);
+  border-radius: 18px;
+  padding: 14px;
+  margin: 0 auto;
+  max-width: 380px;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
+}
+.section-header-mini {
+  display:flex; align-items:center; gap:8px;
+  font-family:'Goldman', sans-serif;
+  font-size:11px;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  background: rgba(230,182,85,0.06);
+  border: 1px solid rgba(230,182,85,0.3);
+  border-radius: 4px;
+  width: fit-content;
+}
+.section-header-mini::before { content: '★'; color: var(--gold-pale); }
+
+.grid-strip {
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  position: relative;
+}
+
+/* Cards (reused from grid mockup) */
+.gcard {
+  background: linear-gradient(180deg, #200044 0%, #100025 100%);
+  border: 1px solid var(--gold-deep);
+  border-radius: 6px;
+  padding: 4px;
+  position:relative;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform 0.25s, border-color 0.25s;
+}
+.gcard:hover { border-color: var(--gold-pale); }
+.gcard-rare {
+  position: absolute; top: 6px; left: 6px;
+  background: rgba(0,0,0,0.7); color: var(--gold-pale);
+  font-family:'Goldman', sans-serif; font-size: 7px; letter-spacing: 0.18em;
+  padding: 2px 5px; border: 1px solid var(--gold-deep); border-radius: 2px; z-index: 4;
+}
+.gcard-num {
+  position: absolute; top: 6px; right: 6px;
+  font-family:'Share Tech Mono', monospace; font-size: 8px; color: var(--gold-pale); z-index: 4;
+}
+.gcard-img {
+  height: 200px; border-radius: 4px;
+  background-size: cover; background-position: center;
+  position: relative; overflow: hidden;
+}
+.gcard-img.img-1 { background-image: radial-gradient(circle at 50% 40%, #4A90E2 0%, transparent 50%), radial-gradient(circle at 30% 70%, #FF6600 0%, transparent 40%), linear-gradient(135deg, #1A0080 0%, #0A0033 100%); }
+.gcard-img.img-2 { background-image: radial-gradient(circle at 40% 50%, #00FF66 0%, transparent 40%), radial-gradient(circle at 70% 30%, #FFE44D 0%, transparent 30%), linear-gradient(135deg, #003322 0%, #001A11 100%); }
+.gcard-img.img-3 { background-image: radial-gradient(circle at 50% 30%, #FFE44D 0%, transparent 40%), radial-gradient(circle at 30% 80%, #FF2BD6 0%, transparent 40%), linear-gradient(135deg, #4A0066 0%, #1A0033 100%); }
+
+.gcard-type-badge {
+  position: absolute; top: 4px; left: 4px;
+  background: rgba(0,0,0,0.85); color: var(--view-cyan);
+  font-family:'Goldman', sans-serif; font-size: 7px; font-weight:700;
+  padding: 2px 5px; letter-spacing: 0.1em; border-radius: 2px;
+  border: 1px solid var(--view-cyan); z-index: 5;
+}
+.gcard-type-badge.live { color: var(--like-red); border-color: var(--like-red); }
+.gcard-type-badge.threed { color: var(--neon-yellow); border-color: var(--neon-yellow); }
+
+.gcard-rings {
+  position: absolute; bottom: 6px; left: 0; right: 0;
+  display: flex; justify-content: center; gap: 6px; z-index: 3;
+}
+.miniring {
+  width: 32px; height: 32px; position: relative;
+  background: rgba(0,0,0,0.6); border-radius: 50%;
+  display:flex; align-items:center; justify-content:center;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.miniring svg { position:absolute; inset:0; transform: rotate(-90deg); }
+.miniring .mr-bg { fill:none; stroke: rgba(255,255,255,0.1); stroke-width: 2; }
+.miniring .mr-fg {
+  fill:none; stroke-width: 2; stroke-linecap: round;
+  stroke-dasharray: 87.96; stroke-dashoffset: 60;
+  transition: stroke-dashoffset 0.5s, stroke 0.3s, filter 0.3s;
+}
+.miniring.likes .mr-fg { stroke: var(--like-red); }
+.miniring.views .mr-fg { stroke: var(--view-cyan); stroke-dashoffset: 30; }
+.miniring.downloads .mr-fg { stroke: var(--neon-yellow); stroke-dashoffset: 40; }
+.miniring .mr-val {
+  font-family:'Share Tech Mono', monospace; font-size: 10px; font-weight: 700;
+  z-index: 2; position: relative;
+  transition: transform 0.3s, color 0.3s, text-shadow 0.3s;
+}
+.miniring.likes .mr-val { color: var(--like-red); }
+.miniring.views .mr-val { color: var(--view-cyan); }
+.miniring.downloads .mr-val { color: var(--neon-yellow); }
+
+/* Buttons */
+.btn {
+  font-family:'Goldman', sans-serif; font-weight: 700; font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 9px 14px; border-radius: 6px;
+  border: 1px solid var(--view-cyan);
+  background: rgba(0,212,255,0.08); color: var(--view-cyan);
+  cursor: pointer; transition: all 0.2s;
+}
+.btn:hover { background: rgba(0,212,255,0.18); box-shadow: 0 0 16px rgba(0,212,255,0.3); }
+.btn:active { transform: scale(0.98); }
+.btn.secondary { border-color: var(--neon-pink); background: rgba(255,43,214,0.08); color: var(--neon-pink); }
+.btn.secondary:hover { background: rgba(255,43,214,0.18); box-shadow: 0 0 16px rgba(255,43,214,0.3); }
+.btn.choose { border-color: var(--view-cyan); background: linear-gradient(180deg, rgba(0,212,255,0.18), rgba(0,212,255,0.08)); color: var(--view-cyan); }
+.btn.choose:hover { background: var(--view-cyan); color: var(--bg-deep); box-shadow: 0 0 24px rgba(0,212,255,0.4); }
+
+/* ─────────── ANIMATION 1: SCAN LINE ─────────── */
+.scan-line {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--view-cyan), transparent);
+  box-shadow: 0 0 12px var(--view-cyan), 0 0 24px var(--view-cyan);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+}
+.scan-line.go { animation: scanDown 900ms ease-out forwards; }
+@keyframes scanDown {
+  0%   { top: 0; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.miniring.views.scanned .mr-fg {
+  filter: drop-shadow(0 0 6px var(--view-cyan));
+}
+.miniring.views.scanned .mr-val {
+  text-shadow: 0 0 8px var(--view-cyan);
+}
+
+/* ─────────── ANIMATION 2: EYE BLINK ─────────── */
+.eye-icon {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 36px; height: 36px;
+  background: rgba(0,0,0,0.8);
+  border: 1px solid var(--view-cyan);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--view-cyan);
+  font-size: 18px;
+  z-index: 11;
+  pointer-events: none;
+  box-shadow: 0 0 16px var(--view-cyan);
+  opacity: 0;
+}
+.eye-icon.go { animation: eyeBlink 1200ms ease forwards; }
+@keyframes eyeBlink {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+  15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  30%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  /* blink */
+  40%  { opacity: 1; transform: translate(-50%, -50%) scale(1) scaleY(0.1); }
+  50%  { opacity: 1; transform: translate(-50%, -50%) scale(1) scaleY(1); }
+  85%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+}
+.miniring.views.eyed .mr-val {
+  animation: countTick 600ms ease;
+}
+@keyframes countTick {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.3); color: var(--view-cyan); text-shadow: 0 0 12px var(--view-cyan); }
+}
+
+/* ─────────── ANIMATION 3: VIEWPORT CORNERS ─────────── */
+.viewport-corner {
+  position: absolute;
+  width: 16px; height: 16px;
+  border: 2px solid var(--view-cyan);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  box-shadow: 0 0 8px var(--view-cyan);
+}
+.viewport-corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+.viewport-corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+.viewport-corner.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+.viewport-corner.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+.viewport-corner.go { animation: viewportSnap 1100ms ease forwards; }
+@keyframes viewportSnap {
+  0%   { opacity: 0; transform: scale(2); }
+  20%  { opacity: 1; transform: scale(1); }
+  70%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.5); }
+}
+
+/* ─────────── ANIMATION 4: GHOST SHIMMER ─────────── */
+.ghost-shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 8;
+  border-radius: 4px;
+}
+.ghost-shimmer::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -100%;
+  width: 60%;
+  height: 200%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(0,212,255,0.0) 40%,
+    rgba(0,212,255,0.35) 50%,
+    rgba(0,240,255,0.0) 60%,
+    transparent 100%
+  );
+  filter: blur(6px);
+  transform: rotate(8deg);
+}
+.ghost-shimmer.go::before { animation: ghostSweep 1.2s ease-in-out forwards; }
+@keyframes ghostSweep {
+  0%   { left: -120%; }
+  100% { left: 220%; }
+}
+.miniring.views.ghosted .mr-fg {
+  animation: viewRingPulse 1.2s ease;
+}
+@keyframes viewRingPulse {
+  0%   { stroke: var(--view-cyan); filter: none; }
+  50%  { stroke: var(--neon-cyan-soft); filter: drop-shadow(0 0 12px var(--neon-cyan-soft)); }
+  100% { stroke: var(--view-cyan); filter: none; }
+}
+
+/* ─────────── ANIMATION 5: NUMBER ASCEND + TRAIL ─────────── */
+.ascend-trail {
+  position: absolute;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--view-cyan), transparent);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  box-shadow: 0 0 6px var(--view-cyan);
+}
+.ascend-trail.go { animation: trailRise 1200ms ease-out forwards; }
+@keyframes trailRise {
+  0%   { height: 0; opacity: 0; bottom: 30px; }
+  20%  { opacity: 1; }
+  100% { height: 100px; opacity: 0; bottom: 80px; }
+}
+.ascend-number {
+  position: absolute;
+  bottom: 70px;
+  font-family:'Audiowide', sans-serif;
+  font-size: 13px;
+  color: var(--view-cyan);
+  text-shadow: 0 0 12px var(--view-cyan);
+  pointer-events: none;
+  z-index: 11;
+  opacity: 0;
+}
+.ascend-number.go { animation: ascendUp 1400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+@keyframes ascendUp {
+  0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.5); }
+  20%  { opacity: 1; transform: translate(-50%, -8px) scale(1.1); }
+  70%  { opacity: 1; transform: translate(-50%, -32px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -64px) scale(0.8); }
+}
+
+/* Footer */
+footer {
+  margin: 64px auto 0;
+  max-width: 720px;
+  text-align: center;
+  color: var(--text-dim);
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  padding: 24px;
+  border-top: 1px solid rgba(0,212,255,0.15);
+}
+footer .chosen-label {
+  font-family:'Goldman', sans-serif;
+  font-style: normal;
+  color: var(--view-cyan);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  display:block;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 600px) {
+  main { padding: 24px 12px; }
+  h1 { font-size: 28px; }
+  .section-head { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<main>
+  <header>
+    <span class="eyebrow">▌ PIXORA · VIEW INTERACTIONS</span>
+    <h1>WHEN SOMEONE <span class="accent">VIEWS</span></h1>
+    <p>Cuando un wallpaper recibe vista (alguien lo abre y pasa por él), un efecto sutil en su card cyan que comunica "este wallpaper está siendo visto ahora". Las cards muestran tipo: 📷 estático, 🎬 live, 🧊 3D.</p>
+    <div class="philosophy">
+      <strong>FILOSOFÍA:</strong> las vistas pasan ~10x más seguido que los likes. Si fueran tan ruidosas como un like, satura la UI. Estos 5 estilos son <strong>SUTILES, CYAN, BREVES</strong> (&lt;1.2s) — sentir vida sin distraer.
+    </div>
+  </header>
+
+  <!-- ─────────── #1 SCAN LINE ─────────── -->
+  <section class="design-section" data-design="1">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">01</span>
+        <h2>SCAN LINE
+          <span class="sub">— línea cyan baja escaneando, como cámara de seguridad</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(1, 0)">▶ VIEW CARD 1</button>
+        <button class="btn" onclick="trigger(1, 1)">▶ VIEW CARD 2</button>
+        <button class="btn" onclick="trigger(1, 2)">▶ VIEW CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(1)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(1)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-1"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── #2 EYE BLINK ─────────── -->
+  <section class="design-section" data-design="2">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">02</span>
+        <h2>EYE BLINK
+          <span class="sub">— mini ojo cyan aparece, parpadea, contador hace tick</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(2, 0)">▶ VIEW CARD 1</button>
+        <button class="btn" onclick="trigger(2, 1)">▶ VIEW CARD 2</button>
+        <button class="btn" onclick="trigger(2, 2)">▶ VIEW CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(2)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(2)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-2"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── #3 VIEWPORT CORNERS ─────────── -->
+  <section class="design-section" data-design="3">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">03</span>
+        <h2>VIEWPORT CORNERS
+          <span class="sub">— 4 esquinas cyan aparecen como camera focus / target lock</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(3, 0)">▶ VIEW CARD 1</button>
+        <button class="btn" onclick="trigger(3, 1)">▶ VIEW CARD 2</button>
+        <button class="btn" onclick="trigger(3, 2)">▶ VIEW CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(3)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(3)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-3"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── #4 GHOST SHIMMER ─────────── -->
+  <section class="design-section" data-design="4">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">04</span>
+        <h2>GHOST SHIMMER
+          <span class="sub">— shimmer cyan suave pasa por la card como un fantasma</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(4, 0)">▶ VIEW CARD 1</button>
+        <button class="btn" onclick="trigger(4, 1)">▶ VIEW CARD 2</button>
+        <button class="btn" onclick="trigger(4, 2)">▶ VIEW CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(4)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(4)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-4"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── #5 NUMBER ASCEND + TRAIL ─────────── -->
+  <section class="design-section" data-design="5">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">05</span>
+        <h2>NUMBER ASCEND
+          <span class="sub">— "+1" cyan sube con trail vertical, contador real hace count-up</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(5, 0)">▶ VIEW CARD 1</button>
+        <button class="btn" onclick="trigger(5, 1)">▶ VIEW CARD 2</button>
+        <button class="btn" onclick="trigger(5, 2)">▶ VIEW CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(5)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(5)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-5"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="chosen-label">▌ DECISIÓN VIEW ANIMATION</span>
+    <span id="footer-msg">Activa los triggers (las vistas son MUCHO más frecuentes que likes — verifica que se siente bien con broadcast).</span>
+  </footer>
+</main>
+
+<script>
+const CARDS_DATA = [
+  { rare: 'RARE',   num: 'N° 326', type: 'STATIC', typeClass: '',       img: 'img-1', likes: 4,  views: 91, dl: 73 },
+  { rare: 'EPIC',   num: 'N° 717', type: 'LIVE',   typeClass: 'live',   img: 'img-2', likes: 7,  views: 48, dl: 26 },
+  { rare: 'COMMON', num: 'N° 528', type: '3D',     typeClass: 'threed', img: 'img-3', likes: 11, views: 14, dl: 9 },
+];
+
+const state = {};
+[1,2,3,4,5].forEach(d => { state[d] = CARDS_DATA.map(c => ({...c})); });
+
+function buildCard(cardData, designId, cardIdx) {
+  const el = document.createElement('div');
+  el.className = 'gcard';
+  el.dataset.design = designId;
+  el.dataset.card = cardIdx;
+
+  const rare = document.createElement('span');
+  rare.className = 'gcard-rare';
+  rare.textContent = '★ ' + cardData.rare;
+  const num = document.createElement('span');
+  num.className = 'gcard-num';
+  num.textContent = cardData.num;
+  el.appendChild(rare); el.appendChild(num);
+
+  const img = document.createElement('div');
+  img.className = 'gcard-img ' + cardData.img;
+
+  const typeBadge = document.createElement('span');
+  typeBadge.className = 'gcard-type-badge ' + cardData.typeClass;
+  typeBadge.textContent = cardData.type;
+  img.appendChild(typeBadge);
+
+  const rings = document.createElement('div');
+  rings.className = 'gcard-rings';
+  ['likes','views','downloads'].forEach((type) => {
+    const r = document.createElement('div'); r.className = 'miniring ' + type;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 32 32');
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    bg.setAttribute('cx','16'); bg.setAttribute('cy','16'); bg.setAttribute('r','14'); bg.setAttribute('class','mr-bg');
+    const fg = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    fg.setAttribute('cx','16'); fg.setAttribute('cy','16'); fg.setAttribute('r','14'); fg.setAttribute('class','mr-fg');
+    svg.appendChild(bg); svg.appendChild(fg);
+    const v = document.createElement('span'); v.className = 'mr-val';
+    v.textContent = cardData[type === 'downloads' ? 'dl' : type];
+    r.appendChild(svg); r.appendChild(v);
+    rings.appendChild(r);
+  });
+  img.appendChild(rings);
+  el.appendChild(img);
+
+  return el;
+}
+
+[1,2,3,4,5].forEach(d => {
+  const grid = document.getElementById('grid-' + d);
+  state[d].forEach((c, i) => grid.appendChild(buildCard(c, d, i)));
+});
+
+function trigger(designId, cardIdx) {
+  const grid = document.getElementById('grid-' + designId);
+  const card = grid.querySelectorAll('.gcard')[cardIdx];
+  if (!card) return;
+
+  state[designId][cardIdx].views++;
+  const viewsEl = card.querySelector('.miniring.views .mr-val');
+  viewsEl.textContent = state[designId][cardIdx].views;
+
+  animations[designId](card, grid, cardIdx);
+}
+
+function broadcast(designId) {
+  [0,1,2].forEach(i => setTimeout(() => trigger(designId, i), i * 200));
+}
+
+function choose(designId) {
+  document.querySelectorAll('.design-section').forEach(s => s.classList.remove('chosen'));
+  document.querySelector(`.design-section[data-design="${designId}"]`).classList.add('chosen');
+  const names = {
+    1:'SCAN LINE', 2:'EYE BLINK', 3:'VIEWPORT CORNERS',
+    4:'GHOST SHIMMER', 5:'NUMBER ASCEND'
+  };
+  document.getElementById('footer-msg').textContent = `View animation elegida: ${names[designId]}`;
+}
+
+const animations = {};
+
+// 1. Scan line
+animations[1] = (card) => {
+  const img = card.querySelector('.gcard-img');
+  const line = document.createElement('div');
+  line.className = 'scan-line';
+  img.appendChild(line);
+  requestAnimationFrame(() => line.classList.add('go'));
+  setTimeout(() => line.remove(), 950);
+  const ring = card.querySelector('.miniring.views');
+  ring.classList.remove('scanned'); void ring.offsetWidth;
+  ring.classList.add('scanned');
+  setTimeout(() => ring.classList.remove('scanned'), 1200);
+};
+
+// 2. Eye blink
+animations[2] = (card) => {
+  const eye = document.createElement('div');
+  eye.className = 'eye-icon';
+  eye.textContent = '👁';
+  card.appendChild(eye);
+  requestAnimationFrame(() => eye.classList.add('go'));
+  setTimeout(() => eye.remove(), 1300);
+  const ring = card.querySelector('.miniring.views');
+  setTimeout(() => {
+    ring.classList.remove('eyed'); void ring.offsetWidth;
+    ring.classList.add('eyed');
+    setTimeout(() => ring.classList.remove('eyed'), 700);
+  }, 400);
+};
+
+// 3. Viewport corners
+animations[3] = (card) => {
+  ['tl','tr','bl','br'].forEach((pos, i) => {
+    const c = document.createElement('div');
+    c.className = 'viewport-corner ' + pos;
+    card.appendChild(c);
+    setTimeout(() => c.classList.add('go'), i * 60);
+    setTimeout(() => c.remove(), 1200 + i * 60);
+  });
+  const ring = card.querySelector('.miniring.views');
+  setTimeout(() => {
+    ring.classList.remove('eyed'); void ring.offsetWidth;
+    ring.classList.add('eyed');
+    setTimeout(() => ring.classList.remove('eyed'), 700);
+  }, 300);
+};
+
+// 4. Ghost shimmer
+animations[4] = (card) => {
+  const img = card.querySelector('.gcard-img');
+  let shimmer = img.querySelector('.ghost-shimmer');
+  if (!shimmer) {
+    shimmer = document.createElement('div');
+    shimmer.className = 'ghost-shimmer';
+    img.appendChild(shimmer);
+  }
+  shimmer.classList.remove('go'); void shimmer.offsetWidth;
+  shimmer.classList.add('go');
+  const ring = card.querySelector('.miniring.views');
+  ring.classList.remove('ghosted'); void ring.offsetWidth;
+  ring.classList.add('ghosted');
+  setTimeout(() => ring.classList.remove('ghosted'), 1300);
+};
+
+// 5. Number ascend + trail
+animations[5] = (card, grid, cardIdx) => {
+  const ring = card.querySelector('.miniring.views');
+  const ringRect = ring.getBoundingClientRect();
+  const cardRect = card.getBoundingClientRect();
+  const tx = ringRect.left + ringRect.width/2 - cardRect.left;
+
+  // vertical trail
+  const trail = document.createElement('div');
+  trail.className = 'ascend-trail';
+  trail.style.left = tx + 'px';
+  trail.style.transform = 'translateX(-50%)';
+  card.appendChild(trail);
+  requestAnimationFrame(() => trail.classList.add('go'));
+  setTimeout(() => trail.remove(), 1300);
+
+  // ascending +1 number
+  const plus = document.createElement('div');
+  plus.className = 'ascend-number';
+  plus.textContent = '+1';
+  plus.style.left = tx + 'px';
+  card.appendChild(plus);
+  requestAnimationFrame(() => plus.classList.add('go'));
+  setTimeout(() => plus.remove(), 1500);
+
+  // ring count-up tick
+  setTimeout(() => {
+    ring.classList.remove('eyed'); void ring.offsetWidth;
+    ring.classList.add('eyed');
+    setTimeout(() => ring.classList.remove('eyed'), 700);
+  }, 300);
+};
+</script>
+
+</body>
+</html>

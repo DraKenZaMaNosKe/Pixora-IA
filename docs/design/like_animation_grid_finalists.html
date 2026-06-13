@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Grid Like Animations · 5 Finalists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Share+Tech+Mono&family=DM+Serif+Display:ital@0;1&family=Audiowide&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep:      #0A001A;
+  --bg-mid:       #1A0033;
+  --bg-card:      #2A0050;
+  --neon-cyan:    #00F0FF;
+  --neon-pink:    #FF2BD6;
+  --neon-yellow:  #FFE44D;
+  --neon-green:   #5EFF8A;
+  --gold:         #E6B655;
+  --gold-pale:    #F0DD9E;
+  --gold-deep:    #C9A650;
+  --like-red:     #FF3B5C;
+  --text:         #E8E0FF;
+  --text-dim:     #8678A8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { background: var(--bg-deep); color: var(--text); font-family:'Share Tech Mono', monospace; min-height:100vh; }
+
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,43,214,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(0,240,255,0.08), transparent 60%),
+    var(--bg-deep);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,240,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,240,255,0.025) 1px, transparent 1px);
+  background-size: 64px 64px; pointer-events:none; z-index:0;
+}
+
+main { position:relative; z-index:2; padding: 40px 24px 80px; max-width: 1400px; margin: 0 auto; }
+
+header { text-align:center; margin-bottom: 48px; }
+.eyebrow {
+  display:inline-block;
+  font-family:'Share Tech Mono', monospace;
+  color: var(--neon-cyan);
+  font-size: 11px; letter-spacing: 4px; margin-bottom: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--neon-cyan);
+  border-radius: 999px;
+  background: rgba(0,240,255,0.05);
+  text-shadow: 0 0 12px var(--neon-cyan);
+}
+h1 {
+  font-family:'Audiowide', sans-serif;
+  font-size: clamp(28px, 5vw, 48px);
+  letter-spacing: 0.04em;
+  color: var(--gold-pale);
+  text-shadow: 0 0 24px rgba(230,182,85,0.4), 1px 1px 0 var(--bg-mid);
+  margin-bottom: 14px;
+}
+h1 .accent { color: var(--neon-pink); text-shadow: 2px 0 var(--neon-cyan), -2px 0 var(--neon-pink); }
+header p {
+  color: var(--text-dim);
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 15px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Each design = one section */
+.design-section {
+  margin-bottom: 64px;
+  padding: 28px;
+  background: rgba(20, 0, 42, 0.4);
+  border: 1px solid rgba(0,240,255,0.1);
+  border-radius: 18px;
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+.design-section.chosen {
+  border-color: var(--gold-pale);
+  box-shadow: 0 0 60px rgba(230,182,85,0.25);
+}
+.design-section.chosen::before {
+  content: '★ WINNER';
+  position: absolute;
+  top: -12px; right: 28px;
+  background: linear-gradient(180deg, var(--gold-pale), var(--gold-deep));
+  color: var(--bg-mid);
+  font-family:'Goldman', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  padding: 4px 14px;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(230,182,85,0.4);
+}
+
+.section-head {
+  display:flex; flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.section-title {
+  display:flex;
+  align-items:center;
+  gap: 12px;
+}
+.section-num {
+  font-family:'Audiowide', sans-serif;
+  font-size: 28px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 16px var(--neon-cyan);
+  background: rgba(0,240,255,0.08);
+  border: 1px solid var(--neon-cyan);
+  padding: 2px 12px;
+  border-radius: 6px;
+  min-width: 50px; text-align:center;
+}
+.section-title h2 {
+  font-family:'Goldman', sans-serif;
+  font-size: 20px;
+  color: var(--gold-pale);
+  letter-spacing: 0.06em;
+}
+.section-title h2 .sub {
+  display:block;
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 400;
+  letter-spacing: 0;
+  margin-top: 2px;
+}
+
+.section-controls {
+  display:flex; gap: 8px; flex-wrap:wrap;
+}
+
+/* Phone frame containing the grid */
+.phone-strip {
+  background: linear-gradient(180deg, #08001A 0%, #14002A 100%);
+  border-radius: 18px;
+  padding: 14px;
+  margin: 0 auto;
+  max-width: 380px;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
+}
+.section-header-mini {
+  display:flex; align-items:center; gap:8px;
+  font-family:'Goldman', sans-serif;
+  font-size:11px;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  background: rgba(230,182,85,0.06);
+  border: 1px solid rgba(230,182,85,0.3);
+  border-radius: 4px;
+  width: fit-content;
+}
+.section-header-mini::before { content: '★'; color: var(--gold-pale); }
+
+.grid-strip {
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  position: relative;
+}
+
+/* Single card in grid */
+.gcard {
+  background: linear-gradient(180deg, #200044 0%, #100025 100%);
+  border: 1px solid var(--gold-deep);
+  border-radius: 6px;
+  padding: 4px;
+  position:relative;
+  overflow:hidden;
+  cursor: pointer;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.gcard:hover {
+  border-color: var(--gold-pale);
+  transform: translateY(-2px);
+}
+.gcard-rare {
+  position: absolute;
+  top: 6px; left: 6px;
+  background: rgba(0,0,0,0.7);
+  color: var(--gold-pale);
+  font-family:'Goldman', sans-serif;
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  padding: 2px 5px;
+  border: 1px solid var(--gold-deep);
+  border-radius: 2px;
+  z-index: 4;
+}
+.gcard-num {
+  position: absolute;
+  top: 6px; right: 6px;
+  font-family:'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: var(--gold-pale);
+  z-index: 4;
+}
+.gcard-img {
+  height: 200px;
+  border-radius: 4px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.gcard-new {
+  position: absolute;
+  top: 4px; left: 4px;
+  background: var(--neon-yellow);
+  color: var(--bg-mid);
+  font-family:'Goldman', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 6px;
+  letter-spacing: 0.1em;
+  border-radius: 2px;
+  z-index: 5;
+}
+.gcard-img.img-1 { background-image: radial-gradient(circle at 50% 40%, #4A90E2 0%, transparent 50%), radial-gradient(circle at 30% 70%, #FF6600 0%, transparent 40%), linear-gradient(135deg, #1A0080 0%, #0A0033 100%); }
+.gcard-img.img-2 { background-image: radial-gradient(circle at 40% 50%, #00FF66 0%, transparent 40%), radial-gradient(circle at 70% 30%, #FFE44D 0%, transparent 30%), linear-gradient(135deg, #003322 0%, #001A11 100%); }
+.gcard-img.img-3 { background-image: radial-gradient(circle at 50% 30%, #FFE44D 0%, transparent 40%), radial-gradient(circle at 30% 80%, #FF2BD6 0%, transparent 40%), linear-gradient(135deg, #4A0066 0%, #1A0033 100%); }
+
+/* 3 mini rings at bottom (likes / views / downloads) */
+.gcard-rings {
+  position: absolute;
+  bottom: 6px;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  z-index: 3;
+}
+.miniring {
+  width: 32px; height: 32px;
+  position: relative;
+  background: rgba(0,0,0,0.6);
+  border-radius: 50%;
+  display:flex; align-items:center; justify-content:center;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.miniring svg { position:absolute; inset:0; transform: rotate(-90deg); }
+.miniring .mr-bg { fill:none; stroke: rgba(255,255,255,0.1); stroke-width: 2; }
+.miniring .mr-fg { fill:none; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 87.96; stroke-dashoffset: 60; transition: stroke-dashoffset 0.5s, stroke 0.3s; }
+.miniring.likes .mr-fg { stroke: var(--like-red); }
+.miniring.views .mr-fg { stroke: var(--neon-cyan); stroke-dashoffset: 30; }
+.miniring.downloads .mr-fg { stroke: var(--neon-yellow); stroke-dashoffset: 40; }
+.miniring .mr-val {
+  font-family:'Share Tech Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  z-index: 2;
+  position: relative;
+}
+.miniring.likes .mr-val { color: var(--like-red); }
+.miniring.views .mr-val { color: var(--neon-cyan); }
+.miniring.downloads .mr-val { color: var(--neon-yellow); }
+.gcard-rings-labels {
+  position: absolute;
+  bottom: -2px;
+  left: 0; right: 0;
+  display:flex; justify-content:center; gap: 10px;
+  font-family:'Share Tech Mono', monospace;
+  font-size: 7px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  z-index: 2;
+}
+
+/* Buttons */
+.btn {
+  font-family:'Goldman', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 9px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--neon-cyan);
+  background: rgba(0,240,255,0.08);
+  color: var(--neon-cyan);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn:hover {
+  background: rgba(0,240,255,0.18);
+  box-shadow: 0 0 16px rgba(0,240,255,0.3);
+}
+.btn:active { transform: scale(0.98); }
+.btn.secondary { border-color: var(--neon-pink); background: rgba(255,43,214,0.08); color: var(--neon-pink); }
+.btn.secondary:hover { background: rgba(255,43,214,0.18); box-shadow: 0 0 16px rgba(255,43,214,0.3); }
+.btn.choose { border-color: var(--gold); background: linear-gradient(180deg, rgba(230,182,85,0.18), rgba(230,182,85,0.08)); color: var(--gold-pale); }
+.btn.choose:hover { background: linear-gradient(180deg, var(--gold-pale), var(--gold-deep)); color: var(--bg-mid); box-shadow: 0 0 24px rgba(230,182,85,0.4); }
+
+/* ─────────── ANIMATION 1: PULSE BORDER + FLOAT +1 ─────────── */
+.gcard.pulse-border {
+  animation: borderPulse 1200ms ease;
+}
+@keyframes borderPulse {
+  0%   { border-color: var(--gold-deep); box-shadow: 0 0 0 transparent; }
+  25%  { border-color: var(--neon-cyan); box-shadow: 0 0 24px var(--neon-cyan), inset 0 0 12px rgba(0,240,255,0.4); }
+  60%  { border-color: var(--neon-pink); box-shadow: 0 0 24px var(--neon-pink), inset 0 0 12px rgba(255,43,214,0.4); }
+  100% { border-color: var(--gold-deep); box-shadow: 0 0 0 transparent; }
+}
+.plus-one {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family:'Audiowide', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--like-red);
+  text-shadow: 0 0 20px var(--like-red), 0 0 40px var(--like-red);
+  z-index: 12;
+  pointer-events: none;
+  opacity: 0;
+}
+.plus-one.go {
+  animation: plusOneFloat 1400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes plusOneFloat {
+  0%   { opacity: 0; transform: translate(-50%, 10px) scale(0.5); }
+  20%  { opacity: 1; transform: translate(-50%, -10px) scale(1.2); }
+  60%  { opacity: 1; transform: translate(-50%, -40px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -80px) scale(0.8); }
+}
+
+/* ─────────── ANIMATION 2: HEART RAIN (TikTok-style) ─────────── */
+.float-heart {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  font-size: 18px;
+  color: var(--like-red);
+  text-shadow: 0 0 12px var(--like-red);
+  pointer-events: none;
+  z-index: 11;
+  opacity: 0;
+}
+@keyframes heartFloat {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.5) rotate(var(--rot, 0deg)); }
+  15%  { opacity: 1; transform: translate(calc(-50% + var(--drift, 0px)), -30px) scale(1.1) rotate(var(--rot, 0deg)); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--drift, 0px) * 2), -200px) scale(0.8) rotate(var(--rot, 0deg)); }
+}
+
+/* ─────────── ANIMATION 3: MAGNETIC ATTRACT ─────────── */
+.spark {
+  position: absolute;
+  width: 4px; height: 4px;
+  background: var(--neon-yellow);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--neon-yellow);
+  pointer-events: none;
+  z-index: 10;
+}
+.miniring.likes.attract .mr-val {
+  animation: ringPunch 600ms ease;
+}
+@keyframes ringPunch {
+  0%, 100% { transform: scale(1); color: var(--like-red); }
+  50%      { transform: scale(1.4); color: var(--neon-yellow); text-shadow: 0 0 12px var(--neon-yellow); }
+}
+
+/* ─────────── ANIMATION 4: LIGHTNING STRIKE ─────────── */
+.lightning {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 6px;
+  height: 0;
+  background: linear-gradient(180deg, transparent, var(--neon-cyan), white, var(--neon-cyan), transparent);
+  pointer-events: none;
+  z-index: 11;
+  transform: translateX(-50%);
+  box-shadow: 0 0 24px var(--neon-cyan), 0 0 60px var(--neon-pink);
+  filter: blur(0.5px);
+  opacity: 0;
+}
+.lightning.strike {
+  animation: lightningStrike 600ms ease-out forwards;
+}
+@keyframes lightningStrike {
+  0%   { height: 0; opacity: 0; }
+  10%  { opacity: 1; }
+  40%  { height: calc(100% - 30px); opacity: 1; }
+  60%  { opacity: 0.6; transform: translateX(-50%) translateX(-2px); }
+  70%  { opacity: 1; transform: translateX(-50%) translateX(2px); }
+  100% { opacity: 0; height: calc(100% - 30px); }
+}
+.miniring.likes.electric {
+  animation: electricShake 400ms ease;
+}
+@keyframes electricShake {
+  0%, 100% { transform: translate(0,0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); box-shadow: 0 0 24px var(--neon-cyan); }
+  75% { transform: translate(-1px, 2px); }
+}
+.gcard.electric-flash {
+  animation: cardFlash 600ms ease;
+}
+@keyframes cardFlash {
+  0%, 100% { filter: brightness(1); }
+  10%      { filter: brightness(2) saturate(2); }
+  20%      { filter: brightness(1.2); }
+  30%      { filter: brightness(1.8); }
+}
+
+/* ─────────── ANIMATION 5: WAVE CASCADE ─────────── */
+.gcard.wave-origin { animation: waveOrigin 800ms ease; }
+.gcard.wave-neighbor { animation: waveNeighbor 800ms ease 150ms; }
+@keyframes waveOrigin {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.05); box-shadow: 0 0 32px var(--like-red); border-color: var(--like-red); }
+  100% { transform: scale(1); }
+}
+@keyframes waveNeighbor {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); box-shadow: 0 0 16px var(--neon-cyan); border-color: var(--neon-cyan); }
+}
+
+.wave-ripple {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 40px; height: 40px;
+  border: 2px solid var(--like-red);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+  z-index: 9;
+  opacity: 0;
+}
+.wave-ripple.go {
+  animation: rippleExpand 1000ms ease-out forwards;
+}
+@keyframes rippleExpand {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.8; border-width: 3px; }
+  100% { transform: translate(-50%, -50%) scale(6); opacity: 0; border-width: 1px; }
+}
+
+/* Footer */
+footer {
+  margin: 64px auto 0;
+  max-width: 720px;
+  text-align: center;
+  color: var(--text-dim);
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  padding: 24px;
+  border-top: 1px solid rgba(0,240,255,0.1);
+}
+footer .chosen-label {
+  font-family:'Goldman', sans-serif;
+  font-style: normal;
+  color: var(--gold-pale);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  display:block;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 600px) {
+  main { padding: 24px 12px; }
+  h1 { font-size: 28px; }
+  .section-head { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<main>
+  <header>
+    <span class="eyebrow">▌ PIXORA · GRID INTERACTIONS</span>
+    <h1>LIKES IN <span class="accent">GRID VIEW</span></h1>
+    <p>Cuando estás viendo el grid de wallpapers (TRENDING, ARTE, NEW...) y otro usuario en otro device le da like a uno de los wallpapers visibles, debe pasar ALGO que comunique vida y conectividad. Cinco enfoques, cada uno con su propio mood. Pruébalos en cards reales del grid.</p>
+  </header>
+
+  <!-- ─────────── #1 PULSE BORDER + FLOAT +1 ─────────── -->
+  <section class="design-section" data-design="1">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">01</span>
+        <h2>PULSE BORDER + FLOAT
+          <span class="sub">— card border respira cyan→pink, +1 flota arriba</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(1, 0)">▶ LIKE CARD 1</button>
+        <button class="btn" onclick="trigger(1, 1)">▶ LIKE CARD 2</button>
+        <button class="btn" onclick="trigger(1, 2)">▶ LIKE CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(1)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(1)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-1">
+        <!-- 3 cards generadas por JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── #2 HEART RAIN (TIKTOK STYLE) ─────────── -->
+  <section class="design-section" data-design="2">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">02</span>
+        <h2>HEART RAIN
+          <span class="sub">— corazones flotan subiendo del card como en TikTok Live</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(2, 0)">▶ LIKE CARD 1</button>
+        <button class="btn" onclick="trigger(2, 1)">▶ LIKE CARD 2</button>
+        <button class="btn" onclick="trigger(2, 2)">▶ LIKE CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(2)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(2)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-2"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── #3 MAGNETIC ATTRACT ─────────── -->
+  <section class="design-section" data-design="3">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">03</span>
+        <h2>MAGNETIC ATTRACT
+          <span class="sub">— sparks doradas son atraídas al ring de likes, ring hace punch</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(3, 0)">▶ LIKE CARD 1</button>
+        <button class="btn" onclick="trigger(3, 1)">▶ LIKE CARD 2</button>
+        <button class="btn" onclick="trigger(3, 2)">▶ LIKE CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(3)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(3)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-3"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── #4 LIGHTNING STRIKE ─────────── -->
+  <section class="design-section" data-design="4">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">04</span>
+        <h2>LIGHTNING STRIKE
+          <span class="sub">— rayo cyan baja del cielo, golpea el ring, card hace flash</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(4, 0)">▶ LIKE CARD 1</button>
+        <button class="btn" onclick="trigger(4, 1)">▶ LIKE CARD 2</button>
+        <button class="btn" onclick="trigger(4, 2)">▶ LIKE CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(4)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(4)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-4"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── #5 WAVE CASCADE ─────────── -->
+  <section class="design-section" data-design="5">
+    <div class="section-head">
+      <div class="section-title">
+        <span class="section-num">05</span>
+        <h2>WAVE CASCADE
+          <span class="sub">— ripple sale del card likeado, vecinos pulsan (efecto comunidad)</span>
+        </h2>
+      </div>
+      <div class="section-controls">
+        <button class="btn" onclick="trigger(5, 0)">▶ LIKE CARD 1</button>
+        <button class="btn" onclick="trigger(5, 1)">▶ LIKE CARD 2</button>
+        <button class="btn" onclick="trigger(5, 2)">▶ LIKE CARD 3</button>
+        <button class="btn secondary" onclick="broadcast(5)">★ BROADCAST ALL</button>
+        <button class="btn choose" onclick="choose(5)">★ CHOOSE</button>
+      </div>
+    </div>
+    <div class="phone-strip">
+      <div class="section-header-mini">TRENDING</div>
+      <div class="grid-strip" id="grid-5"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="chosen-label">▌ DECISIÓN FINAL</span>
+    <span id="footer-msg">Prueba con BROADCAST ALL para sentir cómo se ve cuando 3 cards reciben likes al mismo tiempo.</span>
+  </footer>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// GRID LIKE ANIMATIONS — Pixora Grid View
+// ─────────────────────────────────────────────────────────────
+
+const CARDS_DATA = [
+  { rare: 'RARE', num: 'N° 326', label: 'GOKU SUPER',  img: 'img-1', likes: 4,  views: 91, dl: 73 },
+  { rare: 'EPIC', num: 'N° 717', label: 'JUNGLE TEMPLE', img: 'img-2', likes: 7,  views: 48, dl: 26 },
+  { rare: 'COMMON', num: 'N° 528', label: 'AKUMA BG', img: 'img-3', likes: 11, views: 14, dl: 9 },
+];
+
+// Counters per design + per card
+const state = {};
+[1,2,3,4,5].forEach(d => {
+  state[d] = CARDS_DATA.map(c => ({...c}));
+});
+
+function buildCard(cardData, designId, cardIdx) {
+  const el = document.createElement('div');
+  el.className = 'gcard';
+  el.dataset.design = designId;
+  el.dataset.card = cardIdx;
+
+  // Top labels
+  const rare = document.createElement('span'); rare.className = 'gcard-rare'; rare.textContent = '★ ' + cardData.rare;
+  const num = document.createElement('span'); num.className = 'gcard-num'; num.textContent = cardData.num;
+  el.appendChild(rare); el.appendChild(num);
+
+  // Image
+  const img = document.createElement('div'); img.className = 'gcard-img ' + cardData.img;
+  const newBadge = document.createElement('span'); newBadge.className = 'gcard-new'; newBadge.textContent = 'NEW';
+  img.appendChild(newBadge);
+
+  // 3 mini rings
+  const rings = document.createElement('div'); rings.className = 'gcard-rings';
+  ['likes','views','downloads'].forEach((type, i) => {
+    const r = document.createElement('div'); r.className = 'miniring ' + type;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 32 32');
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    bg.setAttribute('cx','16'); bg.setAttribute('cy','16'); bg.setAttribute('r','14'); bg.setAttribute('class','mr-bg');
+    const fg = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    fg.setAttribute('cx','16'); fg.setAttribute('cy','16'); fg.setAttribute('r','14'); fg.setAttribute('class','mr-fg');
+    svg.appendChild(bg); svg.appendChild(fg);
+    const v = document.createElement('span'); v.className = 'mr-val';
+    v.textContent = cardData[type === 'downloads' ? 'dl' : type];
+    r.appendChild(svg); r.appendChild(v);
+    rings.appendChild(r);
+  });
+  img.appendChild(rings);
+  el.appendChild(img);
+
+  return el;
+}
+
+// Populate all 5 grids
+[1,2,3,4,5].forEach(d => {
+  const grid = document.getElementById('grid-' + d);
+  state[d].forEach((c, i) => grid.appendChild(buildCard(c, d, i)));
+});
+
+// ─── Universal trigger ──────────────────────────────────────
+function trigger(designId, cardIdx) {
+  const grid = document.getElementById('grid-' + designId);
+  const card = grid.querySelectorAll('.gcard')[cardIdx];
+  if (!card) return;
+
+  // Increment local counter for that card
+  state[designId][cardIdx].likes++;
+  const likesEl = card.querySelector('.miniring.likes .mr-val');
+  likesEl.textContent = state[designId][cardIdx].likes;
+
+  // Run the design-specific animation
+  animations[designId](card, grid, cardIdx);
+}
+
+function broadcast(designId) {
+  [0,1,2].forEach(i => setTimeout(() => trigger(designId, i), i * 250));
+}
+
+function choose(designId) {
+  document.querySelectorAll('.design-section').forEach(s => s.classList.remove('chosen'));
+  document.querySelector(`.design-section[data-design="${designId}"]`).classList.add('chosen');
+  const names = {
+    1:'PULSE BORDER + FLOAT', 2:'HEART RAIN', 3:'MAGNETIC ATTRACT',
+    4:'LIGHTNING STRIKE', 5:'WAVE CASCADE'
+  };
+  document.getElementById('footer-msg').textContent = `Diseño elegido para grid view: ${names[designId]}`;
+}
+
+// ─── Animations ─────────────────────────────────────────────
+const animations = {};
+
+// 1. Pulse border + floating +1
+animations[1] = (card) => {
+  card.classList.remove('pulse-border'); void card.offsetWidth;
+  card.classList.add('pulse-border');
+  const plus = document.createElement('span');
+  plus.className = 'plus-one'; plus.textContent = '+1';
+  card.appendChild(plus);
+  requestAnimationFrame(() => plus.classList.add('go'));
+  setTimeout(() => plus.remove(), 1500);
+};
+
+// 2. Heart rain (TikTok style)
+animations[2] = (card) => {
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      const h = document.createElement('span');
+      h.className = 'float-heart';
+      h.textContent = '♥';
+      const drift = (Math.random() - 0.5) * 60;
+      const rot = (Math.random() - 0.5) * 30;
+      h.style.setProperty('--drift', drift + 'px');
+      h.style.setProperty('--rot', rot + 'deg');
+      card.appendChild(h);
+      h.animate(
+        [
+          { opacity: 0, transform: `translate(-50%, 0) scale(0.5) rotate(${rot}deg)` },
+          { opacity: 1, transform: `translate(calc(-50% + ${drift/2}px), -30px) scale(1.1) rotate(${rot}deg)`, offset: 0.15 },
+          { opacity: 0, transform: `translate(calc(-50% + ${drift*2}px), -200px) scale(0.8) rotate(${rot}deg)` }
+        ],
+        { duration: 1800, easing: 'cubic-bezier(0.32, 0.72, 0.36, 1)' }
+      );
+      setTimeout(() => h.remove(), 1900);
+    }, i * 120);
+  }
+};
+
+// 3. Magnetic attract
+animations[3] = (card) => {
+  const ring = card.querySelector('.miniring.likes');
+  const ringRect = ring.getBoundingClientRect();
+  const cardRect = card.getBoundingClientRect();
+  const tx = ringRect.left + ringRect.width/2 - cardRect.left;
+  const ty = ringRect.top + ringRect.height/2 - cardRect.top;
+
+  for (let i = 0; i < 8; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark';
+    const startX = Math.random() * cardRect.width;
+    const startY = Math.random() * cardRect.height * 0.7;
+    s.style.left = startX + 'px';
+    s.style.top = startY + 'px';
+    card.appendChild(s);
+    s.animate(
+      [
+        { left: startX + 'px', top: startY + 'px', opacity: 0, transform: 'scale(0)' },
+        { opacity: 1, transform: 'scale(1)', offset: 0.2 },
+        { left: tx + 'px', top: ty + 'px', opacity: 1, transform: 'scale(0.5)', offset: 0.8 },
+        { left: tx + 'px', top: ty + 'px', opacity: 0, transform: 'scale(0)' }
+      ],
+      { duration: 700, easing: 'cubic-bezier(0.5, 0, 0.5, 1)', delay: i * 40 }
+    );
+    setTimeout(() => s.remove(), 800 + i * 40);
+  }
+  setTimeout(() => {
+    ring.classList.remove('attract'); void ring.offsetWidth;
+    ring.classList.add('attract');
+  }, 700);
+};
+
+// 4. Lightning strike
+animations[4] = (card) => {
+  const bolt = document.createElement('div');
+  bolt.className = 'lightning';
+  card.appendChild(bolt);
+  requestAnimationFrame(() => bolt.classList.add('strike'));
+  setTimeout(() => bolt.remove(), 700);
+  setTimeout(() => {
+    card.classList.remove('electric-flash'); void card.offsetWidth;
+    card.classList.add('electric-flash');
+    const ring = card.querySelector('.miniring.likes');
+    ring.classList.remove('electric'); void ring.offsetWidth;
+    ring.classList.add('electric');
+  }, 400);
+};
+
+// 5. Wave cascade
+animations[5] = (card, grid, cardIdx) => {
+  card.classList.remove('wave-origin'); void card.offsetWidth;
+  card.classList.add('wave-origin');
+  // Ripple from center
+  const ripple = document.createElement('div');
+  ripple.className = 'wave-ripple go';
+  card.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 1000);
+  // Neighbors pulse with delay
+  const allCards = grid.querySelectorAll('.gcard');
+  allCards.forEach((c, i) => {
+    if (i === cardIdx) return;
+    c.classList.remove('wave-neighbor'); void c.offsetWidth;
+    c.classList.add('wave-neighbor');
+  });
+};
+</script>
+
+</body>
+</html>

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -98,6 +99,29 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
       vsync: this,
       duration: const Duration(milliseconds: 4000),
     )..repeat();
+
+    // 2026-06-13 fix — hidratar el set de likeados desde el cache local de
+    // WallpaperStatsService (Hive). Sin esto, _likedIds arranca vacio cada
+    // vez que abres el viewer → corazon outline → tap se interpreta como
+    // LIKE nuevo aunque el usuario YA habia liked ese wallpaper → al darle
+    // unlike accidental, el contador en Supabase baja a 0. Bug reportado
+    // por Eduardo 2026-06-13.
+    _hydrateLikesForVisibleItems();
+  }
+
+  /// Llena `_likedIds` con los wallpapers que el cache local marca como liked.
+  /// Se llama en initState y cuando el indice cambia (por si Hive se hidrato
+  /// despues — p.ej. usuario abre el viewer antes de que init() del service
+  /// termine).
+  void _hydrateLikesForVisibleItems() {
+    final svc = WallpaperStatsService.instance;
+    for (final item in _items) {
+      if (item is _WallpaperItem) {
+        if (svc.hasLiked(item.wallpaper.id)) {
+          _likedIds.add(item.wallpaper.id);
+        }
+      }
+    }
   }
 
   @override
@@ -305,7 +329,18 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
                   child: PageView.builder(
                     controller: _pageCtrl,
                     itemCount: _items.length,
-                    onPageChanged: (i) => setState(() => _currentIndex = i),
+                    onPageChanged: (i) {
+                      setState(() => _currentIndex = i);
+                      // Re-hidratar por si el service termino su init() despues
+                      // que abrimos el viewer (race entre Hive.openBox y
+                      // navegacion del usuario).
+                      final wp = _currentWallpaper;
+                      if (wp != null &&
+                          WallpaperStatsService.instance.hasLiked(wp.id) &&
+                          !_likedIds.contains(wp.id)) {
+                        setState(() => _likedIds.add(wp.id));
+                      }
+                    },
                     itemBuilder: (context, i) {
                       final item = _items[i];
                       if (item is _AdItem) {
@@ -663,17 +698,66 @@ class _Corner extends StatelessWidget {
 }
 
 // ─── Stats bar (rating · downloads · rarity) ──────────────────────────────
-class _StatsBar extends StatelessWidget {
+/// 2026-06-13 — convertido de StatelessWidget a StatefulWidget para mostrar
+/// el contador de LIKES en tiempo real. Escucha el statsStream del
+/// WallpaperStatsService — cuando el cliente local (optimistic update) o
+/// otro usuario via Realtime incrementa el like, este widget rebuilds.
+class _StatsBar extends StatefulWidget {
   const _StatsBar({required this.wallpaper});
   final Wallpaper? wallpaper;
 
   @override
+  State<_StatsBar> createState() => _StatsBarState();
+}
+
+class _StatsBarState extends State<_StatsBar> {
+  StreamSubscription<Map<String, Map<String, int>>>? _sub;
+  Map<String, int> _stats = const {'likes': 0, 'downloads': 0, 'views': 0};
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshFromCache();
+    // Suscripcion al stream global — emite tanto en optimistic update local
+    // como en cambios via Supabase Realtime (otro usuario dio like).
+    _sub = WallpaperStatsService.instance.statsStream.listen((all) {
+      final wp = widget.wallpaper;
+      if (wp == null || !mounted) return;
+      final s = all[wp.id];
+      if (s != null) setState(() => _stats = s);
+    });
+  }
+
+  @override
+  void didUpdateWidget(_StatsBar old) {
+    super.didUpdateWidget(old);
+    // Al cambiar de wallpaper (swipe en el PageView), refrescar al instante
+    // desde el cache; el stream cubrira los updates posteriores.
+    if (old.wallpaper?.id != widget.wallpaper?.id) _refreshFromCache();
+  }
+
+  void _refreshFromCache() {
+    final wp = widget.wallpaper;
+    if (wp == null) return;
+    _stats = WallpaperStatsService.instance.getStats(wp.id);
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Placeholder stats — wire to wallpaper_stats Supabase later.
-    final downloads = wallpaper?.downloadCount ?? 0;
+    final downloads = widget.wallpaper?.downloadCount ?? 0;
     final downloadsStr = downloads >= 1000
         ? '${(downloads / 1000).toStringAsFixed(1)}K'
         : downloads.toString();
+    final likes = _stats['likes'] ?? 0;
+    final likesStr = likes >= 1000
+        ? '${(likes / 1000).toStringAsFixed(1)}K'
+        : likes.toString();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: const BoxDecoration(
@@ -684,7 +768,7 @@ class _StatsBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _statChip('RATING', '4.8★'),
+          _statChip('LIKES', likesStr),
           _statChip('DL', downloadsStr),
           _statChip('RARITY', _rarityFromCount(downloads)),
         ],

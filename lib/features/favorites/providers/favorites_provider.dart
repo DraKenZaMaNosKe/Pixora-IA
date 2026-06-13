@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/wallpaper_stats_service.dart';
 
 final favoritesProvider =
     StateNotifierProvider<FavoritesNotifier, Set<String>>((ref) {
@@ -132,6 +133,13 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
   Future<void> toggle(String wallpaperId) async {
     try {
       final box = _box ?? await Hive.openBox<String>(_boxName);
+      // Determinar el ESTADO NUEVO antes de mutar state, para usarlo en la
+      // sincronizacion con WallpaperStatsService mas abajo. Sin esto, los
+      // dos sistemas (favoritos Hive vs wallpaper_likes Hive) pueden estar
+      // desincronizados y toggleLike() decide al reves de lo que el usuario
+      // ve en el corazon. Bug reportado por Eduardo 2026-06-13.
+      final willBeFavorited = !state.contains(wallpaperId);
+
       if (state.contains(wallpaperId)) {
         final entry = box.toMap().entries.firstWhere(
               (e) => e.value == wallpaperId,
@@ -153,6 +161,22 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
               ),
         );
       }
+
+      // 2026-06-13 — sincronizar el sistema de likes publicos con el
+      // estado de favoritos del usuario. Usar setLiked (no toggleLike) para
+      // que respete el estado que YA decidio el favoritesProvider; toggleLike
+      // tiene su propio Hive box que puede estar OUT-OF-SYNC con favorites,
+      // causando que el contador global vaya al reves del corazon visible.
+      unawaited(
+        WallpaperStatsService.instance
+            .setLiked(wallpaperId, willBeFavorited)
+            .catchError(
+          (e) {
+            debugPrint('[Favorites] Public like sync failed: $e');
+            return;
+          },
+        ),
+      );
     } catch (e) {
       debugPrint('[Favorites] toggle($wallpaperId) failed: $e');
     }

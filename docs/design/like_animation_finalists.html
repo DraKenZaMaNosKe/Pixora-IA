@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · 5 Like Animation Finalists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Share+Tech+Mono&family=DM+Serif+Display:ital@0;1&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Pixora exact palette */
+  --bg-deep:      #0A001A;
+  --bg-mid:       #1A0033;
+  --bg-card:      #2A0050;
+  --neon-cyan:    #00F0FF;
+  --neon-pink:    #FF2BD6;
+  --neon-yellow:  #FFE44D;
+  --gold:         #E6B655;
+  --gold-pale:    #F0DD9E;
+  --gold-deep:    #C9A650;
+  --like-red:     #FF3B5C;
+  --text:         #E8E0FF;
+  --text-dim:     #8678A8;
+
+  --r: 12px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { background: var(--bg-deep); color: var(--text); font-family: 'Share Tech Mono', monospace; min-height:100vh; }
+
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,43,214,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 100%, rgba(0,240,255,0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(230,182,85,0.06), transparent 60%),
+    var(--bg-deep);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* Subtle grid background */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,240,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,240,255,0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* Noise */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.35' /%3E%3C/svg%3E");
+  opacity:0.03;
+  pointer-events:none;
+  z-index:1;
+}
+
+main { position:relative; z-index:2; padding: 48px 24px 64px; max-width: 1600px; margin: 0 auto; }
+
+header {
+  text-align:center;
+  margin-bottom: 56px;
+}
+
+.eyebrow {
+  display:inline-block;
+  font-family:'Share Tech Mono', monospace;
+  color: var(--neon-cyan);
+  font-size: 11px;
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--neon-cyan);
+  border-radius: 999px;
+  background: rgba(0,240,255,0.05);
+  text-shadow: 0 0 12px var(--neon-cyan);
+}
+h1 {
+  font-family:'Goldman', sans-serif;
+  font-weight:700;
+  font-size: clamp(28px, 5vw, 52px);
+  letter-spacing: 0.04em;
+  color: var(--gold-pale);
+  text-shadow:
+    0 0 24px rgba(230,182,85,0.4),
+    1px 1px 0 var(--bg-mid);
+  margin-bottom: 14px;
+}
+h1 .glitch { color: var(--neon-pink); text-shadow: 2px 0 var(--neon-cyan), -2px 0 var(--neon-pink); }
+
+header p {
+  color: var(--text-dim);
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Grid of 5 phone frames */
+.grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 36px;
+  align-items:start;
+  max-width: 1700px;
+  margin: 0 auto;
+}
+
+/* Phone shell */
+.phone {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+}
+
+.phone-label {
+  font-family:'Goldman', sans-serif;
+  font-weight:700;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--neon-cyan);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-left: 4px;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+.phone-label .num {
+  display:inline-flex;
+  width: 22px; height: 22px;
+  align-items:center; justify-content:center;
+  background: var(--neon-cyan);
+  color: var(--bg-deep);
+  font-weight:700;
+  border-radius:4px;
+  font-family:'Share Tech Mono', monospace;
+}
+
+.phone-name {
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+.phone-frame {
+  position: relative;
+  background:
+    linear-gradient(180deg, #08001A 0%, #14002A 100%);
+  border-radius: 36px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow:
+    0 30px 60px -20px rgba(0,0,0,0.7),
+    0 0 0 2px rgba(255,255,255,0.02) inset,
+    0 0 36px rgba(255,43,214,0.10);
+}
+.phone-frame::before {
+  content:'';
+  position:absolute;
+  top:20px; left:50%; transform:translateX(-50%);
+  width:80px; height:6px;
+  background: #000;
+  border-radius: 4px;
+  z-index:3;
+}
+
+.screen {
+  background: var(--bg-mid);
+  border-radius: 26px;
+  height: 520px;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Top status bar */
+.status-bar {
+  display:flex;
+  justify-content:space-between;
+  padding: 28px 18px 8px;
+  font-family:'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* Holocard inside screen */
+.holocard {
+  margin: 4px 16px 0;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #200044 0%, #100025 100%);
+  border: 1px solid var(--gold-deep);
+  padding: 8px;
+  position:relative;
+  overflow:hidden;
+}
+.holocard::before {
+  /* gold frame double-line */
+  content:'';
+  position:absolute; inset: 3px;
+  border: 1px solid rgba(230,182,85,0.4);
+  border-radius: 5px;
+  pointer-events:none;
+}
+
+.card-image {
+  height: 200px;
+  border-radius: 4px;
+  background-size: cover;
+  background-position: center;
+  position:relative;
+  overflow:hidden;
+  background-image:
+    radial-gradient(circle at 30% 30%, var(--neon-pink) 0%, transparent 40%),
+    radial-gradient(circle at 70% 70%, var(--neon-cyan) 0%, transparent 40%),
+    linear-gradient(135deg, #4A0080 0%, #1A0033 100%);
+}
+
+.card-image::after {
+  /* sample subject silhouette */
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse at 50% 65%, rgba(0,0,0,0.4) 0%, transparent 50%);
+}
+
+/* Rare label */
+.card-rare {
+  position:absolute;
+  top: 6px; left: 6px;
+  background: rgba(0,0,0,0.7);
+  color: var(--gold-pale);
+  font-family:'Goldman', sans-serif;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing: 0.2em;
+  padding: 3px 7px;
+  border: 1px solid var(--gold-deep);
+  border-radius: 2px;
+  z-index:2;
+}
+.card-rare::before { content:'★ '; color: var(--gold); }
+
+.card-number {
+  position:absolute;
+  top:6px; right:6px;
+  font-family:'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--gold-pale);
+  z-index:2;
+}
+
+/* Card title */
+.card-title {
+  background: rgba(0,0,0,0.85);
+  margin: 6px -2px -2px;
+  padding: 8px 10px;
+  border-radius: 2px;
+  position:relative;
+  z-index:2;
+}
+.card-title h3 {
+  font-family:'Goldman', sans-serif;
+  font-weight:700;
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.card-title .cat {
+  font-family:'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 0.2em;
+}
+
+/* Stats bar — the LIKES counter lives here */
+.stats-bar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding: 10px 16px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(0,240,255,0.15);
+  position:relative;
+}
+.stat {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap: 1px;
+}
+.stat-label {
+  font-family:'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: rgba(0,240,255,0.6);
+  letter-spacing: 1.4px;
+}
+.stat-value {
+  font-family:'Share Tech Mono', monospace;
+  font-size: 13px;
+  font-weight:700;
+  color: var(--gold-pale);
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px transparent;
+  transition: text-shadow 0.3s;
+}
+.stat-value.likes {
+  color: var(--like-red);
+}
+
+/* Description italic */
+.card-desc {
+  padding: 6px 16px 10px;
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Heart icon top right */
+.heart-icon {
+  position: absolute;
+  top: 28px;
+  right: 22px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:3;
+}
+.heart-icon svg {
+  width: 100%; height: 100%;
+  fill: rgba(255,255,255,0.6);
+  transition: fill 0.3s, transform 0.2s;
+}
+.heart-icon.liked svg {
+  fill: var(--like-red);
+  filter: drop-shadow(0 0 6px var(--like-red));
+}
+
+/* Apply button at bottom */
+.apply-btn {
+  background: linear-gradient(180deg, var(--gold-pale), var(--gold-deep));
+  color: var(--bg-mid);
+  font-family:'Goldman', sans-serif;
+  font-size: 12px;
+  font-weight:700;
+  letter-spacing: 0.2em;
+  padding: 12px 24px;
+  margin: 8px 16px;
+  border:none;
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 4px 16px rgba(230,182,85,0.4);
+}
+
+/* Controls below phone */
+.controls {
+  margin-top: 18px;
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+
+.btn {
+  font-family:'Goldman', sans-serif;
+  font-weight:700;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 11px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--neon-cyan);
+  background: rgba(0,240,255,0.08);
+  color: var(--neon-cyan);
+  cursor:pointer;
+  transition: all 0.2s;
+  text-shadow: 0 0 8px transparent;
+}
+.btn:hover {
+  background: rgba(0,240,255,0.18);
+  text-shadow: 0 0 12px var(--neon-cyan);
+  box-shadow: 0 0 24px rgba(0,240,255,0.3);
+}
+.btn:active { transform: scale(0.98); }
+
+.btn.secondary {
+  border-color: var(--neon-pink);
+  background: rgba(255,43,214,0.08);
+  color: var(--neon-pink);
+}
+.btn.secondary:hover {
+  background: rgba(255,43,214,0.18);
+  text-shadow: 0 0 12px var(--neon-pink);
+  box-shadow: 0 0 24px rgba(255,43,214,0.3);
+}
+
+.btn.choose {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(230,182,85,0.18), rgba(230,182,85,0.08));
+  color: var(--gold-pale);
+}
+.btn.choose:hover {
+  background: linear-gradient(180deg, var(--gold-pale), var(--gold-deep));
+  color: var(--bg-mid);
+  text-shadow: none;
+  box-shadow: 0 0 36px rgba(230,182,85,0.4);
+}
+.phone.chosen .btn.choose {
+  background: linear-gradient(180deg, var(--gold-pale), var(--gold-deep));
+  color: var(--bg-mid);
+  box-shadow: 0 0 36px rgba(230,182,85,0.5);
+}
+.phone.chosen .phone-frame {
+  box-shadow:
+    0 30px 60px -20px rgba(0,0,0,0.7),
+    0 0 0 3px var(--gold-pale),
+    0 0 60px rgba(230,182,85,0.3);
+}
+.phone.chosen .phone-label::after {
+  content: '★ WINNER';
+  margin-left: auto;
+  font-family:'Goldman', sans-serif;
+  color: var(--gold);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+/* ─────────── ANIMATION 1: HEART BURST + PARTICLES ─────────── */
+.burst-heart {
+  position:absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 80px;
+  height: 80px;
+  pointer-events:none;
+  z-index:10;
+}
+.burst-heart svg {
+  fill: var(--like-red);
+  filter: drop-shadow(0 0 24px var(--like-red));
+}
+@keyframes burstPop {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity:0; }
+  40%  { transform: translate(-50%, -50%) scale(1.4); opacity:1; }
+  60%  { transform: translate(-50%, -50%) scale(1.1); opacity:1; }
+  100% { transform: translate(-50%, -50%) scale(2); opacity:0; }
+}
+.burst-heart.go { animation: burstPop 800ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+.particle {
+  position:absolute;
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  top: 50%; left:50%;
+  pointer-events:none;
+  z-index:9;
+  box-shadow: 0 0 10px var(--gold);
+}
+
+/* screen shake */
+@keyframes shake {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, 2px); }
+}
+.screen.shake { animation: shake 200ms ease-in-out 2; }
+
+/* flap-board flip counter */
+.flap {
+  display:inline-block;
+  perspective: 400px;
+  position:relative;
+}
+.flap-digit {
+  display:inline-block;
+  position:relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.flap-digit.flipping {
+  animation: flapFlip 600ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+@keyframes flapFlip {
+  0%   { transform: rotateX(0); }
+  50%  { transform: rotateX(-90deg); color: var(--neon-yellow); }
+  51%  { transform: rotateX(90deg); }
+  100% { transform: rotateX(0); }
+}
+
+/* ─────────── ANIMATION 2: LIVE PULSE WAVE ─────────── */
+.pulse-wave {
+  position:absolute;
+  top: 50%; left: 50%;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid var(--neon-cyan);
+  pointer-events:none;
+  transform: translate(-50%, -50%);
+  z-index: 8;
+}
+@keyframes waveExpand {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity:1; border-width: 3px; }
+  100% { transform: translate(-50%, -50%) scale(20); opacity:0; border-width: 1px; }
+}
+.pulse-wave.go { animation: waveExpand 1.2s ease-out forwards; }
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.25); text-shadow: 0 0 16px var(--like-red); }
+}
+.stat-value.breathing { animation: breathe 600ms ease-in-out; }
+
+.avatar-popup {
+  position:absolute;
+  top: 24px; right: 22px;
+  background: rgba(10,0,26,0.9);
+  border: 1px solid var(--neon-cyan);
+  border-radius: 12px;
+  padding: 4px 8px 4px 4px;
+  display:flex;
+  align-items:center;
+  gap: 6px;
+  font-family:'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--text);
+  opacity: 0;
+  transform: translateX(20px) scale(0.8);
+  pointer-events:none;
+  z-index:11;
+  white-space:nowrap;
+}
+.avatar-popup .av {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+  display:flex; align-items:center; justify-content:center;
+  font-size: 11px;
+}
+.avatar-popup.show {
+  animation: avatarSlide 2400ms ease forwards;
+}
+@keyframes avatarSlide {
+  0%   { opacity:0; transform: translateX(20px) scale(0.8); }
+  20%  { opacity:1; transform: translateX(0) scale(1); }
+  80%  { opacity:1; transform: translateX(0) scale(1); }
+  100% { opacity:0; transform: translateY(-12px) scale(0.9); }
+}
+
+/* ─────────── ANIMATION 3: HOLOGRAPHIC SHIMMER ─────────── */
+.holo-shimmer-overlay {
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index: 7;
+  border-radius: 8px;
+}
+.holo-shimmer-overlay::before {
+  content:'';
+  position:absolute;
+  top: -50%;
+  left: -100%;
+  width: 60%;
+  height: 200%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255,255,255,0.0) 40%,
+    rgba(255,228,77,0.4) 48%,
+    rgba(0,240,255,0.5) 50%,
+    rgba(255,43,214,0.4) 52%,
+    rgba(255,255,255,0.0) 60%,
+    transparent 100%
+  );
+  filter: blur(8px);
+  transform: rotate(8deg);
+}
+.holo-shimmer-overlay.go::before {
+  animation: holoSweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes holoSweep {
+  0%   { left: -120%; }
+  100% { left: 220%; }
+}
+.holocard.holo-glow {
+  animation: holoGlow 1.4s ease-in-out;
+}
+@keyframes holoGlow {
+  0%, 100% { border-color: var(--gold-deep); box-shadow: none; }
+  50%      { border-color: var(--gold-pale); box-shadow: 0 0 24px var(--gold), inset 0 0 12px rgba(230,182,85,0.3); }
+}
+
+/* ─────────── ANIMATION 4: STACK COUNTER ─────────── */
+.toast {
+  position:absolute;
+  top: 38px;
+  right: -200px;
+  background: linear-gradient(180deg, rgba(10,0,26,0.95), rgba(26,0,51,0.95));
+  border: 1px solid var(--neon-pink);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  font-family:'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text);
+  z-index: 11;
+  box-shadow: 0 8px 24px rgba(255,43,214,0.3);
+  opacity: 0;
+}
+.toast .heart { color: var(--like-red); font-size: 14px; }
+.toast .plus { color: var(--neon-pink); font-weight: 700; }
+.toast.show {
+  animation: toastSlide 2800ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes toastSlide {
+  0%   { right: -200px; opacity: 0; }
+  15%  { right: 10px;  opacity: 1; }
+  75%  { right: 10px;  opacity: 1; }
+  100% { right: -50px; opacity: 0; }
+}
+
+.digit-flip {
+  position:relative;
+  display:inline-block;
+  overflow: hidden;
+  height: 14px;
+  vertical-align: middle;
+}
+.digit-flip .digits {
+  display:flex;
+  flex-direction:column;
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.digit-flip span { display:block; height: 14px; line-height: 14px; }
+
+/* ─────────── ANIMATION 5: AURA RING PULSE ─────────── */
+.aura-ring {
+  position:absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  z-index: 4;
+}
+
+.ring-svg {
+  width:100%; height:100%;
+  transform: rotate(-90deg);
+}
+.ring-bg {
+  fill:none;
+  stroke: rgba(255,255,255,0.08);
+  stroke-width: 5;
+}
+.ring-fg {
+  fill:none;
+  stroke: var(--like-red);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 188.5;
+  stroke-dashoffset: 188.5;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.65, 0, 0.35, 1), stroke 0.4s;
+  filter: drop-shadow(0 0 0 transparent);
+}
+.aura-ring.pulse .ring-fg {
+  animation: ringPulse 1.2s ease;
+}
+@keyframes ringPulse {
+  0% { stroke: var(--like-red); filter: drop-shadow(0 0 0 transparent); }
+  30% { stroke: var(--neon-cyan); filter: drop-shadow(0 0 18px var(--neon-cyan)); }
+  60% { stroke: var(--neon-pink); filter: drop-shadow(0 0 18px var(--neon-pink)); }
+  100% { stroke: var(--like-red); filter: drop-shadow(0 0 6px var(--like-red)); }
+}
+.ring-center {
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-family:'Share Tech Mono', monospace;
+  color: var(--like-red);
+  pointer-events:none;
+}
+.ring-center .num {
+  font-size: 18px;
+  font-weight:700;
+  line-height:1;
+  text-shadow: 0 0 8px transparent;
+}
+.ring-center .lbl {
+  font-size: 7px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  margin-top:1px;
+}
+
+.catchup-float {
+  position:absolute;
+  bottom: 88px;
+  left: 50%;
+  transform: translate(-50%, 12px);
+  font-family:'Goldman', sans-serif;
+  font-size: 10px;
+  color: var(--neon-yellow);
+  background: rgba(10,0,26,0.85);
+  padding: 4px 10px;
+  border: 1px solid var(--neon-yellow);
+  border-radius: 14px;
+  white-space:nowrap;
+  opacity: 0;
+  pointer-events:none;
+  z-index: 12;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 16px rgba(255,228,77,0.3);
+}
+.catchup-float.show {
+  animation: catchupFloat 2200ms ease forwards;
+}
+@keyframes catchupFloat {
+  0%   { opacity: 0; transform: translate(-50%, 12px); }
+  15%  { opacity: 1; transform: translate(-50%, 0); }
+  70%  { opacity: 1; transform: translate(-50%, -4px); }
+  100% { opacity: 0; transform: translate(-50%, -16px); }
+}
+
+/* aura compact card (5 has different card layout) */
+.aura-card .card-image { height: 140px; }
+.aura-card .stats-bar { padding-bottom: 70px; }
+.aura-card .card-desc { display:none; }
+.aura-card .apply-btn { display:none; }
+
+/* Footer summary */
+footer {
+  margin: 80px auto 0;
+  max-width: 720px;
+  text-align: center;
+  color: var(--text-dim);
+  font-family:'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  padding: 24px;
+  border-top: 1px solid rgba(0,240,255,0.1);
+}
+footer .chosen-label {
+  font-family:'Goldman', sans-serif;
+  font-style: normal;
+  color: var(--gold-pale);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  display:block;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 720px) {
+  main { padding: 24px 12px; }
+  h1 { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+
+<main>
+  <header>
+    <span class="eyebrow">▌ PIXORA · DESIGN LAB</span>
+    <h1>FIVE WAYS TO <span class="glitch">LIKE</span></h1>
+    <p>Cinco lenguajes visuales para el momento en que alguien (tú u otro usuario) le da like a un wallpaper. Cada celular muestra UNA card de Pixora con un estilo único de animación. Activa los triggers y elige el que mejor capture la sensación que queremos.</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ─────────── #1 HEART BURST + PARTICLES ─────────── -->
+    <div class="phone" data-design="1">
+      <div class="phone-label"><span class="num">1</span> HEART BURST</div>
+      <div class="phone-name">— físico, juguetón, instant gratification</div>
+      <div class="phone-frame">
+        <div class="screen" id="screen-1">
+          <div class="status-bar"><span>4:18</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="holocard">
+            <div class="card-image">
+              <span class="card-rare">RARE</span>
+              <span class="card-number">N° 528</span>
+            </div>
+            <div class="card-title">
+              <h3>AKUMA BATTLEFIELD</h3>
+              <span class="cat">PANORAMIC</span>
+            </div>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-label">LIKES</span>
+                <span class="stat-value likes flap"><span class="flap-digit" data-val="0">0</span></span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">DL</span>
+                <span class="stat-value">14</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">RARITY</span>
+                <span class="stat-value">RARE</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">Dark volcanic battlefield with Akuma surrounded by purple energy</p>
+          <button class="apply-btn">APLICAR WALLPAPER</button>
+          <div class="heart-icon" data-heart><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C0 8 2 4 5.5 4 7.5 4 9 5 12 8c3-3 4.5-4 6.5-4C22 4 24 8 21.5 12c-2.5 4.5-9.5 9-9.5 9z"/></svg></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="trigger(1)">▶ TRIGGER LIKE</button>
+        <button class="btn secondary" onclick="triggerMulti(1)">▶▶▶ TRIGGER 3 LIKES (CATCH-UP)</button>
+        <button class="btn choose" onclick="choose(1)">★ CHOOSE THIS DESIGN</button>
+      </div>
+    </div>
+
+    <!-- ─────────── #2 LIVE PULSE WAVE ─────────── -->
+    <div class="phone" data-design="2">
+      <div class="phone-label"><span class="num">2</span> LIVE PULSE</div>
+      <div class="phone-name">— orgánico, conectado, social proof</div>
+      <div class="phone-frame">
+        <div class="screen" id="screen-2">
+          <div class="status-bar"><span>4:18</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="holocard">
+            <div class="card-image" style="background-image: radial-gradient(circle at 30% 40%, #00F0FF 0%, transparent 40%), radial-gradient(circle at 70% 60%, #FFE44D 0%, transparent 40%), linear-gradient(135deg, #006080 0%, #1A0033 100%);">
+              <span class="card-rare">RARE</span>
+              <span class="card-number">N° 284</span>
+            </div>
+            <div class="card-title">
+              <h3>GATITO PAYASITO</h3>
+              <span class="cat">ANIMALS</span>
+            </div>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-label">LIKES</span>
+                <span class="stat-value likes" data-counter="0">0</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">DL</span>
+                <span class="stat-value">7</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">RARITY</span>
+                <span class="stat-value">RARE</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">A cute clown kitty with colorful makeup and playful charm</p>
+          <button class="apply-btn">APLICAR WALLPAPER</button>
+          <div class="heart-icon" data-heart><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C0 8 2 4 5.5 4 7.5 4 9 5 12 8c3-3 4.5-4 6.5-4C22 4 24 8 21.5 12c-2.5 4.5-9.5 9-9.5 9z"/></svg></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="trigger(2)">▶ TRIGGER LIKE</button>
+        <button class="btn secondary" onclick="triggerMulti(2)">▶▶▶ TRIGGER 3 LIKES (CATCH-UP)</button>
+        <button class="btn choose" onclick="choose(2)">★ CHOOSE THIS DESIGN</button>
+      </div>
+    </div>
+
+    <!-- ─────────── #3 HOLOGRAPHIC SHIMMER ─────────── -->
+    <div class="phone" data-design="3">
+      <div class="phone-label"><span class="num">3</span> HOLO SHIMMER</div>
+      <div class="phone-name">— premium TCG, luxury, refined</div>
+      <div class="phone-frame">
+        <div class="screen" id="screen-3">
+          <div class="status-bar"><span>4:18</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="holocard" id="holocard-3">
+            <div class="card-image" style="background-image: radial-gradient(circle at 50% 30%, #FFE44D 0%, transparent 50%), radial-gradient(circle at 30% 80%, #FF2BD6 0%, transparent 40%), linear-gradient(135deg, #800066 0%, #1A0033 100%);">
+              <span class="card-rare">LEGENDARY</span>
+              <span class="card-number">N° 001</span>
+            </div>
+            <div class="card-title">
+              <h3>SAGA DE GÉMINIS</h3>
+              <span class="cat">ANIME · COSMOS</span>
+            </div>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-label">LIKES</span>
+                <span class="stat-value likes" data-counter="0">0</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">DL</span>
+                <span class="stat-value">21</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">RARITY</span>
+                <span class="stat-value">EPIC</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">The Saga of Gemini — cosmos warrior with golden cloth</p>
+          <button class="apply-btn">APLICAR WALLPAPER</button>
+          <div class="heart-icon" data-heart><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C0 8 2 4 5.5 4 7.5 4 9 5 12 8c3-3 4.5-4 6.5-4C22 4 24 8 21.5 12c-2.5 4.5-9.5 9-9.5 9z"/></svg></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="trigger(3)">▶ TRIGGER LIKE</button>
+        <button class="btn secondary" onclick="triggerMulti(3)">▶▶▶ TRIGGER 3 LIKES (CATCH-UP)</button>
+        <button class="btn choose" onclick="choose(3)">★ CHOOSE THIS DESIGN</button>
+      </div>
+    </div>
+
+    <!-- ─────────── #4 STACK COUNTER ─────────── -->
+    <div class="phone" data-design="4">
+      <div class="phone-label"><span class="num">4</span> STACK COUNTER</div>
+      <div class="phone-name">— informacional, business-clean</div>
+      <div class="phone-frame">
+        <div class="screen" id="screen-4">
+          <div class="status-bar"><span>4:18</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="holocard">
+            <div class="card-image" style="background-image: radial-gradient(circle at 50% 50%, #4A90E2 0%, transparent 40%), linear-gradient(135deg, #002A4A 0%, #1A0033 100%);">
+              <span class="card-rare">COMMON</span>
+              <span class="card-number">N° 894</span>
+            </div>
+            <div class="card-title">
+              <h3>BULMA · BEDROOM</h3>
+              <span class="cat">PANORAMIC</span>
+            </div>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-label">LIKES</span>
+                <span class="stat-value likes">
+                  <span class="digit-flip" data-counter="0"><div class="digits"><span>0</span></div></span>
+                </span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">DL</span>
+                <span class="stat-value">10</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">RARITY</span>
+                <span class="stat-value">COMMON</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">Holographic bedroom panorama with futuristic city sunset</p>
+          <button class="apply-btn">APLICAR WALLPAPER</button>
+          <div class="heart-icon" data-heart><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C0 8 2 4 5.5 4 7.5 4 9 5 12 8c3-3 4.5-4 6.5-4C22 4 24 8 21.5 12c-2.5 4.5-9.5 9-9.5 9z"/></svg></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="trigger(4)">▶ TRIGGER LIKE</button>
+        <button class="btn secondary" onclick="triggerMulti(4)">▶▶▶ TRIGGER 3 LIKES (CATCH-UP)</button>
+        <button class="btn choose" onclick="choose(4)">★ CHOOSE THIS DESIGN</button>
+      </div>
+    </div>
+
+    <!-- ─────────── #5 AURA RING PULSE ─────────── -->
+    <div class="phone" data-design="5">
+      <div class="phone-label"><span class="num">5</span> AURA RING</div>
+      <div class="phone-name">— minimal cyber, watch-style, ambient</div>
+      <div class="phone-frame">
+        <div class="screen" id="screen-5">
+          <div class="status-bar"><span>4:18</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="holocard aura-card">
+            <div class="card-image" style="height:130px; background-image: radial-gradient(circle at 40% 50%, #FF6600 0%, transparent 40%), radial-gradient(circle at 70% 30%, #FFE44D 0%, transparent 30%), linear-gradient(135deg, #4A0000 0%, #1A0033 100%);">
+              <span class="card-rare">EPIC</span>
+              <span class="card-number">N° 028</span>
+            </div>
+            <div class="card-title">
+              <h3>FIREFLY FOREST</h3>
+              <span class="cat">PANORAMIC · NATURE</span>
+            </div>
+            <div style="position:relative; height: 100px;">
+              <div class="aura-ring" id="ring-5">
+                <svg class="ring-svg" viewBox="0 0 64 64">
+                  <circle class="ring-bg" cx="32" cy="32" r="28"/>
+                  <circle class="ring-fg" id="ring-fg-5" cx="32" cy="32" r="28"/>
+                </svg>
+                <div class="ring-center">
+                  <span class="num" data-counter="0">0</span>
+                  <span class="lbl">LIKES</span>
+                </div>
+              </div>
+              <div class="catchup-float" id="catchup-5">+3 LIKES NUEVOS</div>
+            </div>
+          </div>
+          <div class="heart-icon" data-heart><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C0 8 2 4 5.5 4 7.5 4 9 5 12 8c3-3 4.5-4 6.5-4C22 4 24 8 21.5 12c-2.5 4.5-9.5 9-9.5 9z"/></svg></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="trigger(5)">▶ TRIGGER LIKE</button>
+        <button class="btn secondary" onclick="triggerMulti(5)">▶▶▶ TRIGGER 3 LIKES (CATCH-UP)</button>
+        <button class="btn choose" onclick="choose(5)">★ CHOOSE THIS DESIGN</button>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="chosen-label">▌ DECISIÓN FINAL</span>
+    <span id="footer-msg">Activa los triggers y elige cuál se siente más Pixora.</span>
+  </footer>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  PIXORA · LIKE ANIMATION FINALISTS — Interactive JS
+// ─────────────────────────────────────────────────────────────
+
+// Shared counter state per phone
+const counters = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+// ─── Universal heart toggle ──────────────────────────────────
+document.querySelectorAll('[data-heart]').forEach(h => {
+  h.addEventListener('click', () => {
+    const phone = h.closest('.phone');
+    const id = parseInt(phone.dataset.design);
+    h.classList.toggle('liked');
+    trigger(id);
+  });
+});
+
+// ─── Choose this design ──────────────────────────────────────
+function choose(id) {
+  document.querySelectorAll('.phone').forEach(p => p.classList.remove('chosen'));
+  document.querySelector(`.phone[data-design="${id}"]`).classList.add('chosen');
+  const names = {
+    1: 'HEART BURST + PARTICLES',
+    2: 'LIVE PULSE WAVE',
+    3: 'HOLOGRAPHIC SHIMMER',
+    4: 'STACK COUNTER',
+    5: 'AURA RING PULSE',
+  };
+  document.getElementById('footer-msg').textContent = `Diseño elegido: ${names[id]}`;
+}
+
+// ─── Universal trigger (delegates to design-specific logic) ──
+function trigger(id, count = 1) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      counters[id]++;
+      designs[id](counters[id], i);
+    }, i * 380);
+  }
+}
+
+function triggerMulti(id) { trigger(id, 3); }
+
+// ─── DESIGN 1: HEART BURST + PARTICLES ────────────────────────
+const designs = {};
+
+designs[1] = (val) => {
+  const screen = document.getElementById('screen-1');
+  // Heart pop
+  const heart = document.createElement('div');
+  heart.className = 'burst-heart go';
+  heart.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C0 8 2 4 5.5 4 7.5 4 9 5 12 8c3-3 4.5-4 6.5-4C22 4 24 8 21.5 12c-2.5 4.5-9.5 9-9.5 9z"/></svg>';
+  screen.appendChild(heart);
+  setTimeout(() => heart.remove(), 800);
+  // Particles
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText += `top:50%; left:50%;`;
+    screen.appendChild(p);
+    const angle = (i / 12) * Math.PI * 2;
+    const dist = 80 + Math.random() * 60;
+    p.animate([
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${Math.cos(angle) * dist}px), calc(-50% + ${Math.sin(angle) * dist}px)) scale(0.2)`, opacity: 0 }
+    ], { duration: 900, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    setTimeout(() => p.remove(), 950);
+  }
+  // Screen shake
+  screen.classList.add('shake');
+  setTimeout(() => screen.classList.remove('shake'), 400);
+  // Flap counter
+  const flap = screen.querySelector('.flap-digit');
+  flap.classList.add('flipping');
+  setTimeout(() => {
+    flap.textContent = val;
+    flap.dataset.val = val;
+  }, 300);
+  setTimeout(() => flap.classList.remove('flipping'), 600);
+};
+
+// ─── DESIGN 2: LIVE PULSE WAVE ───────────────────────────────
+designs[2] = (val, idx) => {
+  const screen = document.getElementById('screen-2');
+  // wave
+  const w = document.createElement('div');
+  w.className = 'pulse-wave go';
+  screen.appendChild(w);
+  setTimeout(() => w.remove(), 1300);
+  // counter breath
+  const sv = screen.querySelector('.stat-value.likes');
+  sv.textContent = val;
+  sv.classList.remove('breathing');
+  void sv.offsetWidth;
+  sv.classList.add('breathing');
+  // avatar popup (only once in catch-up, or always for single)
+  if (idx === undefined || idx === 0) {
+    const av = document.createElement('div');
+    av.className = 'avatar-popup show';
+    const emojis = ['👤','👩','🧑','👨','🦸'];
+    const e = emojis[Math.floor(Math.random()*emojis.length)];
+    av.innerHTML = `<div class="av">${e}</div><span>user_${Math.floor(Math.random()*9000+1000)} liked</span>`;
+    screen.appendChild(av);
+    setTimeout(() => av.remove(), 2500);
+  }
+};
+
+// ─── DESIGN 3: HOLOGRAPHIC SHIMMER ───────────────────────────
+designs[3] = (val) => {
+  const card = document.getElementById('holocard-3');
+  const screen = document.getElementById('screen-3');
+  // shimmer overlay
+  let overlay = card.querySelector('.holo-shimmer-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'holo-shimmer-overlay';
+    card.appendChild(overlay);
+  }
+  overlay.classList.remove('go');
+  void overlay.offsetWidth;
+  overlay.classList.add('go');
+  // gold glow on border
+  card.classList.remove('holo-glow');
+  void card.offsetWidth;
+  card.classList.add('holo-glow');
+  // typewriter count-up
+  const sv = screen.querySelector('.stat-value.likes');
+  const start = parseInt(sv.dataset.counter || 0);
+  const end = val;
+  const dur = 800;
+  const t0 = performance.now();
+  function step(t) {
+    const k = Math.min((t - t0) / dur, 1);
+    const easy = 1 - Math.pow(1 - k, 3);
+    const cur = Math.round(start + (end - start) * easy);
+    sv.textContent = cur;
+    if (k < 1) requestAnimationFrame(step);
+    else sv.dataset.counter = end;
+  }
+  requestAnimationFrame(step);
+};
+
+// ─── DESIGN 4: STACK COUNTER ─────────────────────────────────
+designs[4] = (val, idx) => {
+  const screen = document.getElementById('screen-4');
+  // toast
+  const t = document.createElement('div');
+  t.className = 'toast show';
+  t.innerHTML = `<span class="heart">♥</span><span class="plus">+1</span><span>LIKE</span>`;
+  // stack offset for multiple
+  const existing = screen.querySelectorAll('.toast').length;
+  t.style.top = `${38 + existing * 36}px`;
+  screen.appendChild(t);
+  setTimeout(() => t.remove(), 2900);
+  // digit flip counter
+  const flip = screen.querySelector('.digit-flip');
+  const digits = flip.querySelector('.digits');
+  const span = document.createElement('span');
+  span.textContent = val;
+  digits.appendChild(span);
+  digits.style.transform = `translateY(-${val * 14}px)`;
+  flip.dataset.counter = val;
+};
+
+// ─── DESIGN 5: AURA RING PULSE ───────────────────────────────
+const MAX_LIKES_FOR_RING = 50; // when the ring fully wraps
+designs[5] = (val, idx) => {
+  const ring = document.getElementById('ring-5');
+  const fg = document.getElementById('ring-fg-5');
+  const num = document.querySelector('#screen-5 .ring-center .num');
+  num.textContent = val;
+  num.dataset.counter = val;
+  const ratio = Math.min(val / MAX_LIKES_FOR_RING, 1);
+  fg.style.strokeDashoffset = 188.5 * (1 - ratio);
+  // pulse glow
+  ring.classList.remove('pulse');
+  void ring.offsetWidth;
+  ring.classList.add('pulse');
+  // catch-up floating label (only on multi, in first call show "+3 nuevos")
+  if (idx === 0 && val > 1) {
+    const floatLabel = document.getElementById('catchup-5');
+    floatLabel.textContent = '+3 LIKES NUEVOS';
+    floatLabel.classList.remove('show');
+    void floatLabel.offsetWidth;
+    floatLabel.classList.add('show');
+  } else if (idx === undefined) {
+    // single like also shows small label
+    const floatLabel = document.getElementById('catchup-5');
+    floatLabel.textContent = '+1 NUEVO LIKE';
+    floatLabel.classList.remove('show');
+    void floatLabel.offsetWidth;
+    floatLabel.classList.add('show');
+  }
+};
+
+// ─── On load: seed catch-up state for design 5 visuals ────────
+window.addEventListener('load', () => {
+  // Initial ring rendered at 0 — no action needed
+});
+</script>
+
+</body>
+</html>

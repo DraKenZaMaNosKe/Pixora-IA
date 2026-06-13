@@ -123,8 +123,47 @@ class WallpaperStatsService {
     return id;
   }
 
+  /// 2026-06-13 — Set the absolute liked state for a wallpaper.
+  ///
+  /// Use this when an EXTERNAL system (favoritesProvider) has already
+  /// decided the new state and just wants WallpaperStatsService to follow.
+  /// Without this method, calling toggleLike() would consult ITS OWN Hive
+  /// box (which can be out-of-sync with favorites) and end up incrementing
+  /// when it should decrement (or vice versa), making the global counter
+  /// drift opposite to the heart icon the user sees.
+  ///
+  /// Idempotent: if the desired state already matches local state, no-ops.
+  Future<void> setLiked(String wallpaperId, bool liked) async {
+    final currentlyLiked = hasLiked(wallpaperId);
+    if (currentlyLiked == liked) return; // already in sync, nothing to do
+    // Delegate to toggleLike — it will flip from currentlyLiked → !currentlyLiked
+    // which equals the desired `liked`. We just verified the precondition.
+    await toggleLike(wallpaperId);
+  }
+
+  /// 2026-06-13 — Anti double-tap mutex. Si dos taps rapidos disparan dos
+  /// toggleLike concurrentes para el MISMO wallpaper, ambos leen hasLiked()
+  /// = false ANTES de que cualquiera haga el Hive put, y ambos aplican
+  /// optimistic +1 → cache muestra +2 aunque server queda en +1 (porque el
+  /// segundo .put true ya no cambia nada y el segundo RPC tampoco mueve el
+  /// stat de manera coherente). Serializamos por wallpaperId: el segundo
+  /// tap espera al primero y retorna su resultado sin duplicar.
+  final Map<String, Future<bool>> _toggleLocks = {};
+
   /// Toggle like on a wallpaper. Returns true if now liked.
   Future<bool> toggleLike(String wallpaperId) async {
+    final pending = _toggleLocks[wallpaperId];
+    if (pending != null) return pending;
+    final future = _doToggleLike(wallpaperId);
+    _toggleLocks[wallpaperId] = future;
+    try {
+      return await future;
+    } finally {
+      _toggleLocks.remove(wallpaperId);
+    }
+  }
+
+  Future<bool> _doToggleLike(String wallpaperId) async {
     final liked = hasLiked(wallpaperId);
 
     if (liked) {
@@ -154,11 +193,21 @@ class WallpaperStatsService {
       try {
         await _client
             .rpc('increment_likes', params: {'p_wallpaper_id': wallpaperId});
-        await _client.from('wallpaper_likes').upsert({
-          'device_id': _deviceId,
-          'wallpaper_id': wallpaperId,
-          'user_id': _client.auth.currentUser?.id,
-        });
+        // 2026-06-13 fix — sin onConflict, Supabase usaba el PK (id) por
+        // default; como no enviamos id, se generaba nuevo cada vez → INSERT
+        // → chocaba con UNIQUE(device_id, wallpaper_id) y throw → el
+        // try/catch lo silenciaba. Resultado: el RPC subia el contador en
+        // wallpaper_stats pero la tabla wallpaper_likes seguia vacia.
+        // Especificar onConflict matchea el constraint correcto y el upsert
+        // se vuelve idempotente.
+        await _client.from('wallpaper_likes').upsert(
+          {
+            'device_id': _deviceId,
+            'wallpaper_id': wallpaperId,
+            'user_id': _client.auth.currentUser?.id,
+          },
+          onConflict: 'device_id,wallpaper_id',
+        );
       } catch (e) {
         debugPrint('[Pixora] Like failed: $e');
       }
