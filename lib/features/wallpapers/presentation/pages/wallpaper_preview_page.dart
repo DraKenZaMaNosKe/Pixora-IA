@@ -368,6 +368,12 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
     showModalBottomSheet(
       context: context,
       backgroundColor: context.hud.surface,
+      // 2026-06-13 FIX: en pantallas chicas (Huawei VNS-L53 y similares) el
+      // contenido del sheet excede la altura disponible y RenderFlex
+      // overflowed by 34 pixels. Solucion: isScrollControlled permite que el
+      // sheet sea mas alto que la mitad de la pantalla, y el SingleChildScrollView
+      // mas abajo deja al usuario hacer swipe si aun no cabe todo.
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
       ),
@@ -385,95 +391,111 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
           removeBottom: true,
           child: SafeArea(
             top: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                24,
-                20,
-                24,
-                20 + MediaQuery.of(context).viewPadding.bottom,
+            child: ConstrainedBox(
+              // Cap a 85% de la pantalla para que siempre quede un peek del
+              // wallpaper detras y el usuario sepa que es un sheet, no full screen.
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header
-                  Row(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    24,
+                    20,
+                    24,
+                    20 + MediaQuery.of(context).viewPadding.bottom,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('— ',
-                          style: _serif(13,
-                              color: context.hud.accent, s: FontStyle.italic)),
-                      Text(
-                        'aplicar pieza',
-                        style: _serif(15,
-                            color: context.hud.accent,
-                            s: FontStyle.italic,
-                            w: FontWeight.w500),
+                      // Header
+                      Row(
+                        children: [
+                          Text('— ',
+                              style: _serif(13,
+                                  color: context.hud.accent,
+                                  s: FontStyle.italic)),
+                          Text(
+                            'aplicar pieza',
+                            style: _serif(15,
+                                color: context.hud.accent,
+                                s: FontStyle.italic,
+                                w: FontWeight.w500),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: context.hud.accent, width: 1),
+                            ),
+                            child: Text(
+                              isFree ? 'SIN AD' : 'CON AD',
+                              style:
+                                  _meta(9, color: context.hud.accent, ls: 0.2),
+                            ),
+                          ),
+                        ],
                       ),
-                      const Spacer(),
+                      const SizedBox(height: 16),
+                      // Diamonds line
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.diamond,
+                              color: context.hud.accent, size: 13),
+                          const SizedBox(width: 5),
+                          Text('$credits diamantes',
+                              style: _meta(11,
+                                  color: context.hud.textDim, ls: 0.15)),
+                          const SizedBox(width: 12),
+                          Text('·',
+                              style: _meta(11, color: context.hud.textDim)),
+                          const SizedBox(width: 12),
+                          Text(
+                            isFree
+                                ? 'próximo sin cobro'
+                                : '+${CreditService.creditsPerAd} por ver',
+                            style:
+                                _meta(11, color: context.hud.textDim, ls: 0.05),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // 2026-06-13 (Eduardo) — LIVE primero para que sea el
+                      // primer boton que tocan casi por inercia, antes de
+                      // leer. El foil shimmer + glow lo hace destacar como
+                      // CTA principal y empuja la conversion a la experiencia
+                      // premium (live wallpaper con efectos).
+                      _buildLiveFoilOption(() {
+                        Navigator.pop(context);
+                        _applyLiveWallpaper();
+                      }),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          border:
-                              Border.all(color: context.hud.accent, width: 1),
-                        ),
-                        child: Text(
-                          isFree ? 'SIN AD' : 'CON AD',
-                          style: _meta(9, color: context.hud.accent, ls: 0.2),
-                        ),
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        height: 1,
+                        color: context.hud.divider,
                       ),
+                      _buildOption(Icons.home_outlined, 'Pantalla principal',
+                          'home screen', () {
+                        Navigator.pop(context);
+                        _applyWallpaper(0);
+                      }),
+                      _buildOption(Icons.lock_outline, 'Pantalla de bloqueo',
+                          'lock screen', () {
+                        Navigator.pop(context);
+                        _applyWallpaper(1);
+                      }),
+                      _buildOption(Icons.phone_android_outlined,
+                          'Ambas pantallas', 'both', () {
+                        Navigator.pop(context);
+                        _applyWallpaper(2);
+                      }),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // Diamonds line
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.diamond, color: context.hud.accent, size: 13),
-                      const SizedBox(width: 5),
-                      Text('$credits diamantes',
-                          style:
-                              _meta(11, color: context.hud.textDim, ls: 0.15)),
-                      const SizedBox(width: 12),
-                      Text('·', style: _meta(11, color: context.hud.textDim)),
-                      const SizedBox(width: 12),
-                      Text(
-                        isFree
-                            ? 'próximo sin cobro'
-                            : '+${CreditService.creditsPerAd} por ver',
-                        style: _meta(11, color: context.hud.textDim, ls: 0.05),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _buildOption(
-                      Icons.home_outlined, 'Pantalla principal', 'home screen',
-                      () {
-                    Navigator.pop(context);
-                    _applyWallpaper(0);
-                  }),
-                  _buildOption(
-                      Icons.lock_outline, 'Pantalla de bloqueo', 'lock screen',
-                      () {
-                    Navigator.pop(context);
-                    _applyWallpaper(1);
-                  }),
-                  _buildOption(
-                      Icons.phone_android_outlined, 'Ambas pantallas', 'both',
-                      () {
-                    Navigator.pop(context);
-                    _applyWallpaper(2);
-                  }),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    height: 1,
-                    color: context.hud.divider,
-                  ),
-                  _buildLiveFoilOption(() {
-                    Navigator.pop(context);
-                    _applyLiveWallpaper();
-                  }),
-                ],
+                ),
               ),
             ),
           ),
