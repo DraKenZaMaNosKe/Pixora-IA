@@ -15,6 +15,7 @@ import '../../../wallpapers/presentation/pages/wallpaper_viewer_hud_page.dart';
 import '../../../wallpapers/presentation/widgets/category_chip_hud.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../providers/live_wallpaper_providers.dart';
+import '../widgets/live_grid_card_overlay.dart';
 import 'live_wallpaper_preview_page.dart';
 
 /// Sub-section selector inside the LIVE tab. VIDEOS keeps the existing
@@ -364,166 +365,176 @@ class _LiveWallpaperCard extends StatelessWidget {
             builder: (_) => LiveWallpaperPreviewPage(wallpaper: item),
           ),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: h.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isIos
-                  ? Colors.black.withValues(alpha: 0.06)
-                  : HudTokens.gold.withValues(alpha: 0.20),
-              width: 1,
+        // 2026-06-14 — Ambient combo 2+3+4+5 (emoji rise + mini stamp +
+        // heartbeat + ghost cursor) reacciona a statsEventStream remoto
+        // por wallpaperId. Throttle 850ms per-card + IgnorePointer en los
+        // overlays para no interferir con el tap del card.
+        child: LiveGridCardOverlay(
+          wallpaperId: item.id,
+          borderRadius: 14,
+          presenceAlignment: Alignment.bottomLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              color: h.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isIos
+                    ? Colors.black.withValues(alpha: 0.06)
+                    : HudTokens.gold.withValues(alpha: 0.20),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.20),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.20),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // ── Wallpaper (full bleed) ───────────────────────────
-              CachedNetworkImage(
-                imageUrl: item.previewUrl,
-                fit: BoxFit.cover,
-                memCacheWidth: 400,
-                placeholder: (_, __) => const AuroraWavesLoading(),
-                errorWidget: (_, __, ___) => Container(
-                  color: h.surface,
-                  child: Icon(Icons.play_circle, color: h.accent, size: 40),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // ── Wallpaper (full bleed) ───────────────────────────
+                CachedNetworkImage(
+                  imageUrl: item.previewUrl,
+                  fit: BoxFit.cover,
+                  memCacheWidth: 400,
+                  placeholder: (_, __) => const AuroraWavesLoading(),
+                  errorWidget: (_, __, ___) => Container(
+                    color: h.surface,
+                    child: Icon(Icons.play_circle, color: h.accent, size: 40),
+                  ),
                 ),
-              ),
 
-              // ── LIVE / SHADER / 3D — holographic mini pill (consistency
-              //    con el hero foil + Trading Card Holo). 2026-05-16.
-              Positioned(
-                top: 6,
-                right: 6,
-                child: HoloFoilPill(
-                  label: item.typeBadge,
-                  size: HoloFoilPillSize.mini,
+                // ── LIVE / SHADER / 3D — holographic mini pill (consistency
+                //    con el hero foil + Trading Card Holo). 2026-05-16.
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: HoloFoilPill(
+                    label: item.typeBadge,
+                    size: HoloFoilPillSize.mini,
+                  ),
                 ),
-              ),
 
-              // ── Play icon + cinematic strip (positioned with real
-              //    constraints, NOT widget.height which can be infinity in
-              //    SliverGrid — that was causing the LIVE freeze bug
-              //    2026-05-16). LayoutBuilder resolves to actual cell height.
-              Positioned.fill(
-                child: LayoutBuilder(
-                  builder: (ctx, constraints) {
-                    final ch = constraints.maxHeight;
-                    return Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        // Play icon at ~18% from top
-                        Positioned(
-                          top: ch * 0.18,
-                          left: 0,
-                          right: 0,
-                          child: Center(
+                // ── Play icon + cinematic strip (positioned with real
+                //    constraints, NOT widget.height which can be infinity in
+                //    SliverGrid — that was causing the LIVE freeze bug
+                //    2026-05-16). LayoutBuilder resolves to actual cell height.
+                Positioned.fill(
+                  child: LayoutBuilder(
+                    builder: (ctx, constraints) {
+                      final ch = constraints.maxHeight;
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          // Play icon at ~18% from top
+                          Positioned(
+                            top: ch * 0.18,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.45),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.60),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: const Icon(Icons.play_arrow_rounded,
+                                    color: Colors.white, size: 18),
+                              ),
+                            ),
+                          ),
+                          // Cinematic dark strip pinned to bottom 30%
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: ch * 0.30,
                             child: Container(
-                              width: 32,
-                              height: 32,
+                              padding: const EdgeInsets.fromLTRB(6, 5, 6, 4),
                               decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.45),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.60),
-                                  width: 1,
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: stripColors,
+                                  stops: const [0.0, 0.25, 1.0],
                                 ),
-                              ),
-                              child: const Icon(Icons.play_arrow_rounded,
-                                  color: Colors.white, size: 18),
-                            ),
-                          ),
-                        ),
-                        // Cinematic dark strip pinned to bottom 30%
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          height: ch * 0.30,
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(6, 5, 6, 4),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: stripColors,
-                                stops: const [0.0, 0.25, 1.0],
-                              ),
-                              border: isIos
-                                  ? null
-                                  : Border(
-                                      top: BorderSide(
-                                        color: HudTokens.goldBright
-                                            .withValues(alpha: 0.18),
-                                        width: 1,
-                                      ),
-                                    ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // Row 1: Watch Cartouche pill (concept #04)
-                                Row(
-                                  children: [
-                                    if (item.effectiveBadge != null)
-                                      WatchCartouchePill(
-                                        label: item.effectiveBadge!,
-                                      ),
-                                  ],
-                                ),
-                                // Row 2: category/title
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Text(
-                                    item.name.isEmpty
-                                        ? item.category
-                                        : item.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      letterSpacing: -0.01,
-                                      height: 1.1,
-                                      shadows: [
-                                        Shadow(
-                                          color: Colors.black
-                                              .withValues(alpha: 0.6),
-                                          offset: const Offset(0, 1),
-                                          blurRadius: 2,
+                                border: isIos
+                                    ? null
+                                    : Border(
+                                        top: BorderSide(
+                                          color: HudTokens.goldBright
+                                              .withValues(alpha: 0.18),
+                                          width: 1,
                                         ),
-                                      ],
+                                      ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Row 1: Watch Cartouche pill (concept #04)
+                                  Row(
+                                    children: [
+                                      if (item.effectiveBadge != null)
+                                        WatchCartouchePill(
+                                          label: item.effectiveBadge!,
+                                        ),
+                                    ],
+                                  ),
+                                  // Row 2: category/title
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      item.name.isEmpty
+                                          ? item.category
+                                          : item.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        letterSpacing: -0.01,
+                                        height: 1.1,
+                                        shadows: [
+                                          Shadow(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.6),
+                                            offset: const Offset(0, 1),
+                                            blurRadius: 2,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                // Row 3: Activity Rings (concept #04) — likes/
-                                // views/downloads como 3 anillos conic-gradient
-                                // que fill-up al aparecer (social proof épico).
-                                Center(
-                                  child: ActivityRings(
-                                    wallpaperId: 'live_${item.id}',
+                                  // Row 3: Activity Rings (concept #04) — likes/
+                                  // views/downloads como 3 anillos conic-gradient
+                                  // que fill-up al aparecer (social proof épico).
+                                  Center(
+                                    child: ActivityRings(
+                                      wallpaperId: item.id,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

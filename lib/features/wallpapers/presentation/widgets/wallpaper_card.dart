@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../favorites/providers/favorites_provider.dart';
+import 'grid_card_animations.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
@@ -148,6 +149,16 @@ class _IosCard extends StatelessWidget {
                       child: ActivityRings(wallpaperId: wallpaper.id),
                     ),
                   ),
+                  // 2026-06-13 — Overlay reactivo para mostrar like/view de
+                  // otros usuarios en tiempo real (Pulse Border + Magnetic
+                  // Attract + Lightning para like; Scan Line + Viewport
+                  // Corners + Number Ascend para view). Suscrito al
+                  // statsEventStream — costo cero si no hay eventos.
+                  Positioned.fill(
+                    child: GridCardAnimationOverlay(
+                      wallpaperId: wallpaper.id,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -246,6 +257,13 @@ class _TicketStubCard extends StatelessWidget {
                         ],
                       ),
                     ),
+                  // 2026-06-13 — animaciones reactivas para likes y views
+                  // entrantes via Realtime (mismo widget que la card iOS).
+                  Positioned.fill(
+                    child: GridCardAnimationOverlay(
+                      wallpaperId: wallpaper.id,
+                    ),
+                  ),
                   Positioned(
                     right: 4,
                     top: 4,

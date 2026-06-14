@@ -6,6 +6,7 @@ import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
+import 'grid_card_animations.dart';
 import 'native_ad_card.dart';
 
 /// One native ad card injected every [_kAdEvery] wallpaper cards in the
@@ -260,6 +261,12 @@ class _ParallaxCarouselCard extends StatelessWidget {
                         child: ActivityRings(wallpaperId: wallpaper.id),
                       ),
                     ),
+                    // 2026-06-13 — Realtime like/view animations overlay.
+                    Positioned.fill(
+                      child: GridCardAnimationOverlay(
+                        wallpaperId: wallpaper.id,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -342,6 +349,12 @@ class _ParallaxCarouselCard extends StatelessWidget {
                         bottom: 4,
                         child: Center(
                           child: ActivityRings(wallpaperId: wallpaper.id),
+                        ),
+                      ),
+                      // 2026-06-13 — Realtime animations overlay.
+                      Positioned.fill(
+                        child: GridCardAnimationOverlay(
+                          wallpaperId: wallpaper.id,
                         ),
                       ),
                       // Badge top-left

@@ -33,6 +33,16 @@ class WallpaperStatsService {
   Stream<Map<String, Map<String, int>>> get statsStream =>
       _statsController.stream;
 
+  // 2026-06-13 — Discrete event stream para alimentar animaciones.
+  // statsStream emite snapshots completos del cache; las animaciones
+  // necesitan SABER QUE PASO (like +1 vs view +1) para disparar el
+  // efecto visual correcto. Este stream emite eventos atomicos cada
+  // vez que algo cambia, con isLocal=true cuando el tap viene del
+  // usuario actual (optimistic) y false cuando llego via Realtime
+  // (otro device dio like).
+  final _eventController = StreamController<StatEvent>.broadcast();
+  Stream<StatEvent> get statsEventStream => _eventController.stream;
+
   RealtimeChannel? _channel;
   Box? _likesBox;
   bool _initialized = false;
@@ -71,16 +81,11 @@ class WallpaperStatsService {
           schema: 'public',
           table: 'wallpaper_stats',
           callback: (payload) {
-            final row = payload.newRecord;
-            final id = row['wallpaper_id'] as String?;
-            if (id != null) {
-              _cache[id] = {
-                'likes': row['likes'] as int? ?? 0,
-                'downloads': row['downloads'] as int? ?? 0,
-                'views': row['views'] as int? ?? 0,
-              };
-              _statsController.add(Map.from(_cache));
-            }
+            debugPrint(
+                '[PixoraStats] RT UPDATE recv: ${payload.newRecord['wallpaper_id']} '
+                'L=${payload.newRecord['likes']} D=${payload.newRecord['downloads']} '
+                'V=${payload.newRecord['views']}');
+            _applyRealtimeStats(payload.newRecord);
           },
         )
         .onPostgresChanges(
@@ -88,19 +93,75 @@ class WallpaperStatsService {
           schema: 'public',
           table: 'wallpaper_stats',
           callback: (payload) {
-            final row = payload.newRecord;
-            final id = row['wallpaper_id'] as String?;
-            if (id != null) {
-              _cache[id] = {
-                'likes': row['likes'] as int? ?? 0,
-                'downloads': row['downloads'] as int? ?? 0,
-                'views': row['views'] as int? ?? 0,
-              };
-              _statsController.add(Map.from(_cache));
-            }
+            debugPrint(
+                '[PixoraStats] RT INSERT recv: ${payload.newRecord['wallpaper_id']}');
+            _applyRealtimeStats(payload.newRecord);
           },
         )
-        .subscribe();
+        .subscribe((status, [err]) {
+      debugPrint(
+          '[PixoraStats] channel status=$status${err != null ? " err=$err" : ""}');
+    });
+    debugPrint('[PixoraStats] init OK — ${_cache.length} rows cached, '
+        'channel subscribing…');
+  }
+
+  /// 2026-06-13 — handler unico para UPDATE + INSERT del realtime.
+  ///
+  /// Ademas de actualizar el cache y emitir el snapshot via statsStream
+  /// (comportamiento original), DIFFEA contra el valor previo del cache
+  /// para emitir StatEvent discretos por cada delta detectado. Esto es
+  /// lo que alimenta las animaciones de like/view en tiempo real:
+  /// cuando otro usuario en otro device le da like a un wallpaper,
+  /// Realtime trae el row actualizado, comparamos contra el cached
+  /// anterior, y si subio likes -> emit StatEvent('like', delta, remote).
+  ///
+  /// IMPORTANTE: marca el evento como isLocal=false porque viene del
+  /// servidor. Los optimistic updates locales emiten su propio evento
+  /// con isLocal=true desde toggleLike() y _bumpLocalStat().
+  void _applyRealtimeStats(Map<String, dynamic> row) {
+    final id = row['wallpaper_id'] as String?;
+    if (id == null) return;
+    final prev = _cache[id] ?? const {'likes': 0, 'downloads': 0, 'views': 0};
+    final next = {
+      'likes': row['likes'] as int? ?? 0,
+      'downloads': row['downloads'] as int? ?? 0,
+      'views': row['views'] as int? ?? 0,
+    };
+    _cache[id] = next;
+    _statsController.add(Map.from(_cache));
+
+    // Diff vs prev → emit discrete events for animations.
+    // Si el delta es 0 (el server confirma un cambio que ya hicimos
+    // localmente con optimistic), NO emitimos otro evento — ya hubo uno
+    // local que dispara la animacion.
+    for (final type in ['likes', 'downloads', 'views']) {
+      final delta = (next[type] ?? 0) - (prev[type] ?? 0);
+      if (delta == 0) continue;
+      final eventType = _eventTypeFor(type, delta);
+      final ev = StatEvent(
+        wallpaperId: id,
+        type: eventType,
+        delta: delta,
+        newValue: next[type] ?? 0,
+        isLocal: false,
+      );
+      debugPrint('[PixoraStats] EMIT realtime $ev');
+      _eventController.add(ev);
+    }
+  }
+
+  String _eventTypeFor(String counterKey, int delta) {
+    switch (counterKey) {
+      case 'likes':
+        return delta > 0 ? 'like' : 'unlike';
+      case 'views':
+        return 'view';
+      case 'downloads':
+        return 'download';
+      default:
+        return counterKey;
+    }
   }
 
   /// Get stats for a wallpaper (from cache).
@@ -185,6 +246,14 @@ class WallpaperStatsService {
       if (s != null) {
         s['likes'] = ((s['likes'] ?? 0) - 1).clamp(0, 999999);
         _statsController.add(Map.from(_cache));
+        // 2026-06-13 — emit StatEvent local para alimentar animaciones.
+        _eventController.add(StatEvent(
+          wallpaperId: wallpaperId,
+          type: 'unlike',
+          delta: -1,
+          newValue: s['likes'] ?? 0,
+          isLocal: true,
+        ));
       }
       return false;
     } else {
@@ -216,6 +285,14 @@ class WallpaperStatsService {
       s['likes'] = ((s['likes'] ?? 0) + 1);
       _cache[wallpaperId] = s;
       _statsController.add(Map.from(_cache));
+      // 2026-06-13 — emit StatEvent local para alimentar animaciones.
+      _eventController.add(StatEvent(
+        wallpaperId: wallpaperId,
+        type: 'like',
+        delta: 1,
+        newValue: s['likes'] ?? 0,
+        isLocal: true,
+      ));
       return true;
     }
   }
@@ -252,6 +329,13 @@ class WallpaperStatsService {
     s['downloads'] = ((s['downloads'] ?? 0) + 1);
     _cache[wallpaperId] = s;
     _statsController.add(Map.from(_cache));
+    _eventController.add(StatEvent(
+      wallpaperId: wallpaperId,
+      type: 'download',
+      delta: 1,
+      newValue: s['downloads'] ?? 0,
+      isLocal: true,
+    ));
   }
 
   /// Increment view count.
@@ -267,6 +351,13 @@ class WallpaperStatsService {
     s['views'] = ((s['views'] ?? 0) + 1);
     _cache[wallpaperId] = s;
     _statsController.add(Map.from(_cache));
+    _eventController.add(StatEvent(
+      wallpaperId: wallpaperId,
+      type: 'view',
+      delta: 1,
+      newValue: s['views'] ?? 0,
+      isLocal: true,
+    ));
   }
 
   /// Track when a wallpaper is actually applied to the home screen.
@@ -293,8 +384,53 @@ class WallpaperStatsService {
     if (!_statsController.isClosed) {
       _statsController.close();
     }
+    if (!_eventController.isClosed) {
+      _eventController.close();
+    }
     _likesBox?.close();
     _likesBox = null;
     _initialized = false;
   }
+}
+
+/// Evento discreto disparado cada vez que cambia un counter (likes/views/
+/// downloads) — alimenta las animaciones de reactividad en tiempo real.
+///
+/// Diferencia clave vs statsStream: este emite UN evento por mutacion
+/// con delta y origen claro, en lugar de snapshots completos del cache.
+/// Asi las animaciones saben si fue un +1 like, un +1 view, o un -1
+/// unlike, y si vino del tap del usuario actual o de Realtime.
+class StatEvent {
+  /// Wallpaper afectado.
+  final String wallpaperId;
+
+  /// 'like' / 'unlike' / 'view' / 'download'.
+  final String type;
+
+  /// Diferencia aplicada (+1, -1, +3 si es catch-up de varios likes).
+  final int delta;
+
+  /// Valor nuevo del counter despues de aplicar el delta.
+  final int newValue;
+
+  /// true = el evento lo disparo el usuario actual (optimistic local).
+  /// false = llego via Supabase Realtime (otro device dio like/view).
+  ///
+  /// Las animaciones pueden tratar distinto cada caso: el like local
+  /// suele tener un efecto MAS impactante (Heart Burst grande) porque
+  /// el usuario lo provoco; el like remoto es mas sutil (Pulse Border)
+  /// porque es ambient (alguien mas existe).
+  final bool isLocal;
+
+  const StatEvent({
+    required this.wallpaperId,
+    required this.type,
+    required this.delta,
+    required this.newValue,
+    required this.isLocal,
+  });
+
+  @override
+  String toString() =>
+      'StatEvent($type ${delta > 0 ? '+' : ''}$delta on $wallpaperId → $newValue, ${isLocal ? "local" : "remote"})';
 }

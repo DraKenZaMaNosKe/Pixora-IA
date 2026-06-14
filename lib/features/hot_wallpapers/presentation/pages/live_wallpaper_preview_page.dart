@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 import '../../../../core/design/hud_tokens.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import '../../../../core/content/content_manager.dart';
 import '../../../../core/content/content_types.dart';
 import '../../../../core/services/ad_service.dart';
-import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -16,6 +15,8 @@ import '../../../../core/utils/locale_helper.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../../../core/widgets/codex_detail_layout.dart';
+import '../widgets/live_detail_animation_overlay.dart';
+import 'package:share_plus/share_plus.dart';
 
 class LiveWallpaperPreviewPage extends StatefulWidget {
   final LiveWallpaper wallpaper;
@@ -36,15 +37,81 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   // The `false` branch in apply() still exists as a safety fallback for
   // wallpapers that don't have remote frames yet.
   final bool _interactiveMode = true;
-  late Future<bool> _isDownloadedFuture;
+
+  // 2026-06-14 — Like state hidratado al init desde WallpaperStatsService
+  // (Hive box local). Toggle dispara el flow completo: optimistic local +
+  // RPC increment/decrement_likes + insert/delete en wallpaper_likes table.
+  // El HolocardLikeOverlay encima reacciona al statsEventStream y muestra
+  // los efectos (Heart Burst + Holo Shimmer + Stack Counter).
+  late String _statsId;
+  bool _isLiked = false;
+  int _likeCount = 0;
+  int _viewCount = 0;
+  // 2026-06-14 — Guardamos la subscription para cancelarla en dispose.
+  // Sin esto, cada apertura del detail registraba un listener nuevo que
+  // luego seguía vivo intentando setState sobre el widget desmontado
+  // (memory leak + setState after dispose en alta carga Realtime).
+  StreamSubscription<StatEvent>? _statsSub;
 
   Color get _glowColor => context.hud.accent;
 
   @override
   void initState() {
     super.initState();
-    _isDownloadedFuture = _isDownloaded();
-    WallpaperStatsService.instance.trackView('live_${widget.wallpaper.id}');
+    // 2026-06-14 — ID unificado SIN prefijo live_ para que el contador
+    // sea el mismo que el del holocard estatico y el grid live. Antes el
+    // prefijo creaba una fila separada en wallpaper_stats (live_X vs X)
+    // y los likes nunca se sincronizaban entre las dos vistas.
+    _statsId = widget.wallpaper.id;
+    WallpaperStatsService.instance.trackView(_statsId);
+    _isLiked = WallpaperStatsService.instance.hasLiked(_statsId);
+    final initial = WallpaperStatsService.instance.getStats(_statsId);
+    _likeCount = initial['likes'] ?? 0;
+    _viewCount = initial['views'] ?? 0;
+    // Listen for any stat event (like, unlike, view, download) — local
+    // optimistic + Realtime cross-device. Rebuild so _downloadsText() and
+    // friends re-read from the cache.
+    _statsSub = WallpaperStatsService.instance.statsEventStream.listen((e) {
+      if (!mounted) return;
+      if (e.wallpaperId != _statsId) return;
+      setState(() {
+        if (e.type == 'like' || e.type == 'unlike') {
+          _likeCount = e.newValue;
+          _isLiked = WallpaperStatsService.instance.hasLiked(_statsId);
+        } else if (e.type == 'view') {
+          _viewCount = e.newValue;
+        }
+        // For download events the cache is already updated by
+        // WallpaperStatsService — this setState just triggers a rebuild
+        // so the displayed counter picks up the new value.
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _statsSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _onLikeTap() async {
+    // Optimistic visual flip first for snappy UX. WallpaperStatsService
+    // toggleLike() is idempotent via internal Hive box + mutex.
+    setState(() => _isLiked = !_isLiked);
+    await WallpaperStatsService.instance.toggleLike(_statsId);
+  }
+
+  Future<void> _onShareTap() async {
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text:
+              '${widget.wallpaper.name} · Pixora IA live wallpaper\nhttps://pixora.app',
+          subject: widget.wallpaper.name,
+        ),
+      );
+      WallpaperStatsService.instance.trackShare(_statsId);
+    } catch (_) {}
   }
 
   Future<void> _applyLiveWallpaper() async {
@@ -76,7 +143,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         _loadingPhase = LoadingPhase.downloading;
       });
     }
-    WallpaperStatsService.instance.trackDownload('live_${widget.wallpaper.id}');
+    WallpaperStatsService.instance.trackDownload(_statsId);
 
     final dir = await getApplicationDocumentsDirectory();
     final w = widget.wallpaper;
@@ -129,8 +196,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         interactive: true,
       );
       // Track install to wallpaper_events
-      WallpaperStatsService.instance
-          .trackInstall('live_${widget.wallpaper.id}');
+      WallpaperStatsService.instance.trackInstall(_statsId);
 
       if (mounted) {
         setState(() {
@@ -223,45 +289,6 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     }
   }
 
-  Future<bool> _isDownloaded() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file =
-        File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
-    if (!await file.exists()) return false;
-    // Size-check guard: if the catalog publishes a re-encoded version of the
-    // SAME videoFile (same key, different bytes), the cached file becomes
-    // stale. Comparing byte count vs catalog's videoSize forces a fresh
-    // download instead of forever serving the old MP4. Cheap (stat call,
-    // microseconds) and self-healing for all future re-publishes. Tolerates
-    // 0-sized catalog entries (treat as "size unknown, accept cached file").
-    final expected = widget.wallpaper.videoSize;
-    if (expected > 0) {
-      final cachedSize = await file.length();
-      if (cachedSize != expected) return false;
-    }
-    return true;
-  }
-
-  Future<void> _deleteFromDevice() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file =
-        File('${dir.path}/live_wallpapers/${widget.wallpaper.videoFile}');
-    if (await file.exists()) {
-      await file.delete();
-      if (mounted) {
-        setState(() {
-          _isDownloadedFuture = _isDownloaded();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Video deleted from device'),
-            backgroundColor: context.hud.accent,
-          ),
-        );
-      }
-    }
-  }
-
   /// Cabinet of Curiosities CTA — chiseled Cinzel text on a dark stone /
   /// mahogany surface. `CodexDetailLayout` wraps this in its brass frame.
   Widget _buildApplyCta() {
@@ -324,371 +351,227 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       return _buildCodexScaffold(context);
     }
 
-    return _buildAppleProScaffold(context);
+    return _buildNeonEditorialScaffold(context);
   }
 
-  /// Apple Pro Window — concept #02 (Eduardo 2026-05-16).
+  /// Neon Editorial Magazine — concept #04 (Eduardo 2026-06-14).
   ///
-  /// Layout inspirado en la página de detalle del App Store:
-  /// breadcrumb back · video card 9:12 con badge · header row con título +
-  /// GET pill · category sub · stat-chips bordeadas · descripción · grid de
-  /// quick actions (Download / Favorite / Share). El APPLY (GET) vive en
-  /// header-row, no en bottom CTA — Apple Pro pattern.
-  Widget _buildAppleProScaffold(BuildContext context) {
+  /// Layout magazine-style con tipografia bold Bungee Inline + accent
+  /// amarillo + grid 2x2 de info-blocks + pull-quote cyan + CTA amarillo
+  /// flat con shadow offset. Boton LIKE wire al WallpaperStatsService
+  /// (toggleLike). HolocardLikeOverlay encima dispara los efectos visuales
+  /// cuando este wallpaper recibe un like (local o remote via Realtime).
+  Widget _buildNeonEditorialScaffold(BuildContext context) {
     final w = widget.wallpaper;
-    final h = context.hud;
-    final isIos = h.isIosStyle;
-    const iosBlue = Color(0xFF0A84FF);
+    const bgDeep = Color(0xFF0A001A);
+    const yellow = Color(0xFFFFE44D);
+    const cyan = Color(0xFF00F0FF);
+    const red = Color(0xFFFF3B5C);
+    const text = Color(0xFFE8E0FF);
 
-    final bg = isIos ? Colors.white : h.bg;
-    final cardBorder = isIos
-        ? const Color(0xFFC6C6C8).withValues(alpha: 0.5)
-        : HudTokens.gold.withValues(alpha: 0.18);
-    final textPrimary = isIos ? const Color(0xFF1C1C1E) : h.text;
-    final textDim = isIos ? const Color(0xFF8E8E93) : h.textDim;
-    final dividerColor = isIos
-        ? const Color(0xFFC6C6C8).withValues(alpha: 0.4)
-        : HudTokens.gold.withValues(alpha: 0.15);
-    final surfaceTile = isIos ? const Color(0xFFF2F2F7) : h.surface;
-    final accent = isIos ? iosBlue : HudTokens.goldBright;
-    final accentDeep = isIos ? const Color(0xFF0066CC) : HudTokens.gold;
+    final issueNum = (w.id.hashCode.abs() % 999).toString().padLeft(3, '0');
 
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: bgDeep,
       body: Stack(
         children: [
+          // Background gradient mesh subtil
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(0, -0.4),
+                  radius: 1.2,
+                  colors: [
+                    Color(0x33FF2BD6),
+                    Color(0xFF0A001A),
+                  ],
+                  stops: [0.0, 0.7],
+                ),
+              ),
+            ),
+          ),
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ── Breadcrumb back ──────────────────────────────
+                  // ── Back ─────────────────────────────────────────
                   InkWell(
                     onTap: () => Navigator.pop(context),
-                    borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 6, horizontal: 2),
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.chevron_left, color: accent, size: 22),
+                          const Icon(Icons.chevron_left,
+                              color: yellow, size: 22),
                           Text(
                             LocaleHelper.pick(es: 'Live', en: 'Live'),
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: accent,
+                            style: GoogleFonts.shareTechMono(
+                              color: yellow,
+                              fontSize: 12,
+                              letterSpacing: 2,
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
 
-                  // ── Video card (9:12 aspect) ─────────────────────
-                  AspectRatio(
-                    aspectRatio: 9 / 12,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: surfaceTile,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: cardBorder, width: 0.5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black
-                                .withValues(alpha: isIos ? 0.08 : 0.40),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+                  // ── Header strip: ISSUE + BOLD TITLE ────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ISSUE №$issueNum · ${_monthYearEs()} · LIVE',
+                          style: GoogleFonts.shareTechMono(
+                            color: yellow,
+                            fontSize: 10,
+                            letterSpacing: 3,
                           ),
-                        ],
+                        ),
+                        const SizedBox(height: 6),
+                        _bungeeTitle(w.name, yellow, text),
+                      ],
+                    ),
+                  ),
+
+                  // ── Video stage with LIVE tag + yellow borders ──
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: yellow, width: 4),
+                        bottom: BorderSide(color: yellow, width: 4),
                       ),
-                      clipBehavior: Clip.antiAlias,
+                    ),
+                    child: AspectRatio(
+                      aspectRatio: 16 / 10,
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
                           CachedNetworkImage(
                             imageUrl: w.previewUrl,
                             fit: BoxFit.cover,
-                            // Card en grid (~200px). Decodificar a 400px (2x
-                            // retina) ahorra memoria vs bitmap full size.
-                            memCacheWidth: 400,
+                            memCacheWidth: 800,
                             errorWidget: (_, __, ___) =>
-                                Container(color: surfaceTile),
+                                const ColoredBox(color: bgDeep),
                           ),
-                          // Badge top-left — LIVE / SHADER / 3D, frosted dark
+                          // LIVE pulsing badge
                           Positioned(
-                            top: 8,
-                            left: 8,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(999),
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 7, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.55),
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Text(
-                                    w.typeBadge.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontFamily: 'JetBrainsMono',
-                                      fontSize: 7.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      letterSpacing: 1.6,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            top: 10,
+                            left: 10,
+                            child: _livePulseBadge(red),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
 
-                  // ── Header row: title + GET button ───────────────
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              w.name,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: textPrimary,
-                                letterSpacing: -0.4,
-                                height: 1.15,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              w.category.toUpperCase(),
-                              style: TextStyle(
-                                fontFamily: 'JetBrainsMono',
-                                fontSize: 9,
-                                fontWeight: FontWeight.w600,
-                                color: textDim,
-                                letterSpacing: 1.6,
-                              ),
-                            ),
-                          ],
+                  // ── Info grid 2x2 ────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 14),
+                    child: Column(
+                      children: [
+                        Row(children: [
+                          Expanded(
+                              child:
+                                  _infoBlock('LIKES', _likeCount.toString())),
+                          const SizedBox(width: 12),
+                          Expanded(
+                              child:
+                                  _infoBlock('VIEWS', _viewCount.toString())),
+                        ]),
+                        const SizedBox(height: 12),
+                        Row(children: [
+                          Expanded(
+                              child: _infoBlock('DOWNLOADS', _downloadsText())),
+                          const SizedBox(width: 12),
+                          Expanded(child: _infoBlock('SIZE', _sizeText(w))),
+                        ]),
+                      ],
+                    ),
+                  ),
+
+                  // ── Pull quote ──────────────────────────────────
+                  if (w.description != null && w.description!.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          left: BorderSide(color: cyan, width: 2),
+                          right: BorderSide(color: cyan, width: 2),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      _buildAppleProGetButton(
-                          accent: accent, accentDeep: accentDeep, isIos: isIos),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // ── Stat chips row ───────────────────────────────
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: dividerColor, width: 0.5),
-                        bottom: BorderSide(color: dividerColor, width: 0.5),
+                      child: Text(
+                        '"${w.description}"',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.dmSerifDisplay(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 14,
+                          color: text,
+                          height: 1.4,
+                        ),
                       ),
                     ),
+
+                  const SizedBox(height: 16),
+
+                  // ── CTA principal OBTENER ──────────────────────
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child: _obtainButton(yellow, bgDeep),
+                  ),
+
+                  // ── 2 secundarios: LIKE / COMPARTIR ────────────
+                  // (DESCARGAR removido 2026-06-14 — el flujo de descarga
+                  // se hace via "APLICAR WALLPAPER" arriba, no como acción
+                  // separada. Evita redundancia y descarga sin propósito.)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                     child: Row(
                       children: [
-                        _buildStatChip(
-                          icon: Icons.star_rounded,
-                          iconColor: const Color(0xFFFFC107),
-                          label: '4.8',
-                          textPrimary: textPrimary,
-                          textDim: textDim,
-                        ),
-                        _buildStatSeparator(textDim),
-                        _buildStatChip(
-                          icon: Icons.visibility_outlined,
-                          iconColor: textDim,
-                          label: _formatStat(WallpaperStatsService.instance
-                                  .getStats('live_${w.id}')['views'] ??
-                              0),
-                          textPrimary: textPrimary,
-                          textDim: textDim,
-                        ),
-                        _buildStatSeparator(textDim),
-                        _buildStatChip(
-                          icon: Icons.download_outlined,
-                          iconColor: textDim,
-                          label: _formatStat(WallpaperStatsService.instance
-                                  .getStats('live_${w.id}')['downloads'] ??
-                              w.downloadCount),
-                          textPrimary: textPrimary,
-                          textDim: textDim,
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${(w.videoSize / 1024 / 1024).toStringAsFixed(1)} MB',
-                          style: TextStyle(
-                            fontFamily: 'JetBrainsMono',
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: textDim,
-                            letterSpacing: 0.4,
-                          ),
-                        ),
+                        Expanded(
+                            child: _secBtn(
+                          icon: _isLiked ? '♥' : '♡',
+                          label: LocaleHelper.pick(es: 'LIKE', en: 'LIKE'),
+                          highlighted: _isLiked,
+                          onTap: _onLikeTap,
+                        )),
+                        const SizedBox(width: 8),
+                        Expanded(
+                            child: _secBtn(
+                          icon: '⇄',
+                          label:
+                              LocaleHelper.pick(es: 'COMPARTIR', en: 'SHARE'),
+                          highlighted: false,
+                          onTap: _onShareTap,
+                        )),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // ── Description ──────────────────────────────────
-                  if (w.description.isNotEmpty)
-                    Text(
-                      w.description,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: textPrimary,
-                        height: 1.5,
-                      ),
-                    ),
-                  const SizedBox(height: 18),
-
-                  // ── Quick actions grid (3 cols) ──────────────────
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildQuickAction(
-                          icon: Icons.download_outlined,
-                          label: LocaleHelper.pick(
-                              es: 'Descargar', en: 'Download'),
-                          accent: accent,
-                          surfaceTile: surfaceTile,
-                          isIos: isIos,
-                          onTap: _isApplying ? null : _applyLiveWallpaper,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: _buildQuickAction(
-                          icon: Icons.favorite_border_rounded,
-                          label:
-                              LocaleHelper.pick(es: 'Favorito', en: 'Favorite'),
-                          accent: accent,
-                          surfaceTile: surfaceTile,
-                          isIos: isIos,
-                          onTap: () {},
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: _buildQuickAction(
-                          icon: Icons.ios_share_rounded,
-                          label:
-                              LocaleHelper.pick(es: 'Compartir', en: 'Share'),
-                          accent: accent,
-                          surfaceTile: surfaceTile,
-                          isIos: isIos,
-                          onTap: () {},
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // ── FREE / credits / delete row ──────────────────
-                  Builder(builder: (_) {
-                    final isFree = AdService.instance.isNextActionFree;
-                    final credits = CreditService.instance.balance;
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 9, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: isFree
-                                ? (isIos
-                                    ? const Color(0xFFE8F8EE)
-                                    : HudTokens.gold.withValues(alpha: 0.10))
-                                : accent.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            isFree
-                                ? 'FREE'
-                                : '+${CreditService.creditsPerAd} credits',
-                            style: TextStyle(
-                              fontFamily: 'JetBrainsMono',
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: isFree
-                                  ? (isIos
-                                      ? const Color(0xFF1B7340)
-                                      : HudTokens.goldBright)
-                                  : accent,
-                              letterSpacing: 0.6,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Icon(Icons.diamond, size: 12, color: textDim),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$credits',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: textDim,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                  FutureBuilder<bool>(
-                    future: _isDownloadedFuture,
-                    builder: (ctx, snap) {
-                      if (snap.data != true) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Center(
-                          child: TextButton.icon(
-                            onPressed: _deleteFromDevice,
-                            icon: Icon(Icons.delete_outline,
-                                size: 16, color: textDim),
-                            label: Text(
-                              LocaleHelper.pick(
-                                  es: 'Borrar del dispositivo',
-                                  en: 'Delete from device'),
-                              style: TextStyle(fontSize: 12, color: textDim),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 ],
               ),
             ),
           ),
-          // Loading overlay
+
+          // ── Animation overlay: PRINT STAMP (sello editorial) + TICKER
+          // TAPE (live feed bottom) — combo 1+5 elegido por Eduardo
+          // 2026-06-14. Reacciona a statsEventStream filtrado por _statsId
+          // (like local, like remoto, view remoto, download).
+          LiveDetailAnimationOverlay(wallpaperId: _statsId),
+
+          // ── Loading overlay durante apply ────────────────────
           LoadingOverlay(
             visible: _isApplying,
             progress: _downloadProgress > 0 ? _downloadProgress : null,
             status: _loadingStatus,
-            accentColor: accent,
+            accentColor: yellow,
             phase: _loadingPhase,
           ),
         ],
@@ -696,89 +579,93 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     );
   }
 
-  /// Apple Pro Window GET pill — solid colored pill in header row.
-  /// iOS: Apple Blue solid. B&G: gold gradient with dark text.
-  Widget _buildAppleProGetButton({
-    required Color accent,
-    required Color accentDeep,
-    required bool isIos,
-  }) {
-    final label = _isApplying
-        ? (_downloadProgress > 0
-            ? '${(_downloadProgress * 100).toInt()}%'
-            : '...')
-        : LocaleHelper.pick(es: 'OBTENER', en: 'GET');
+  String _monthYearEs() {
+    const months = [
+      'ENE',
+      'FEB',
+      'MAR',
+      'ABR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AGO',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DIC'
+    ];
+    final now = DateTime.now();
+    return '${months[now.month - 1]} ${now.year}';
+  }
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: _isApplying ? null : _applyLiveWallpaper,
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 7),
-          decoration: BoxDecoration(
-            gradient: isIos
-                ? null
-                : LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [accent, accentDeep],
-                  ),
-            color: isIos ? accent : null,
-            borderRadius: BorderRadius.circular(999),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: 0.30),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
+  String _downloadsText() {
+    final n =
+        WallpaperStatsService.instance.getStats(_statsId)['downloads'] ?? 0;
+    return n.toString();
+  }
+
+  String _sizeText(LiveWallpaper w) {
+    final bytes = w.videoSize;
+    if (bytes <= 0) return '~';
+    final mb = bytes / (1024 * 1024);
+    return mb >= 10 ? '${mb.toStringAsFixed(0)}M' : '${mb.toStringAsFixed(1)}M';
+  }
+
+  Widget _bungeeTitle(String name, Color accent, Color text) {
+    // Split por la primera palabra para el efecto "primera línea blanca,
+    // segunda accent" del diseño elegido.
+    final parts = name.split(' ');
+    final first = parts.first;
+    final rest = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          first.toUpperCase(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.bungeeInline(
+            fontSize: 28,
+            color: text,
+            height: 1,
+            letterSpacing: -0.5,
           ),
-          child: _isApplying && _downloadProgress == 0
-              ? const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: isIos ? Colors.white : const Color(0xFF1A1300),
-                    letterSpacing: 0.4,
-                  ),
-                ),
         ),
-      ),
+        if (rest.isNotEmpty)
+          Text(
+            rest.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.bungeeInline(
+              fontSize: 28,
+              color: accent,
+              height: 1,
+              letterSpacing: -0.5,
+            ),
+          ),
+      ],
     );
   }
 
-  Widget _buildStatChip({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required Color textPrimary,
-    required Color textDim,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+  Widget _livePulseBadge(Color red) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: red,
+        borderRadius: BorderRadius.circular(4),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: iconColor),
-          const SizedBox(width: 3),
+          const _BlinkingDot(),
+          const SizedBox(width: 5),
           Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 11,
+            'LIVE',
+            style: GoogleFonts.goldman(
+              color: Colors.white,
+              fontSize: 9,
               fontWeight: FontWeight.w700,
-              color: textPrimary,
+              letterSpacing: 2,
             ),
           ),
         ],
@@ -786,76 +673,117 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     );
   }
 
-  Widget _buildStatSeparator(Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Text(
-        '·',
-        style: TextStyle(
-          fontSize: 12,
-          color: color.withValues(alpha: 0.4),
-          fontWeight: FontWeight.w700,
+  Widget _infoBlock(String label, String value) {
+    const yellow = Color(0xFFFFE44D);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: const BoxDecoration(
+        color: Color(0x0DFFE44D),
+        border: Border(left: BorderSide(color: yellow, width: 3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.shareTechMono(
+              color: yellow,
+              fontSize: 9,
+              letterSpacing: 2,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: GoogleFonts.bungeeInline(
+              color: const Color(0xFFE8E0FF),
+              fontSize: 22,
+              height: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _obtainButton(Color yellow, Color bgDeep) {
+    final label = _isApplying
+        ? (_downloadProgress > 0
+            ? '${(_downloadProgress * 100).toInt()}%'
+            : '...')
+        : LocaleHelper.pick(es: '▼ OBTENER WALLPAPER', en: '▼ GET WALLPAPER');
+    return GestureDetector(
+      onTap: _isApplying ? null : _applyLiveWallpaper,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: yellow,
+          boxShadow: [
+            BoxShadow(
+              color: bgDeep,
+              offset: const Offset(6, 6),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: GoogleFonts.blackOpsOne(
+              color: bgDeep,
+              fontSize: 16,
+              letterSpacing: 4,
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildQuickAction({
-    required IconData icon,
+  Widget _secBtn({
+    required String icon,
     required String label,
-    required Color accent,
-    required Color surfaceTile,
-    required bool isIos,
-    required VoidCallback? onTap,
+    required bool highlighted,
+    required VoidCallback onTap,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 11),
-          decoration: BoxDecoration(
-            color: surfaceTile,
-            borderRadius: BorderRadius.circular(10),
-            border: isIos
-                ? null
-                : Border.all(
-                    color: HudTokens.gold.withValues(alpha: 0.15),
-                    width: 0.5,
-                  ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 18, color: accent),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: accent,
-                  letterSpacing: 0.2,
-                ),
+    const text = Color(0xFFE8E0FF);
+    const red = Color(0xFFFF3B5C);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: highlighted ? red : Colors.transparent,
+          border: Border.all(
+              color: highlighted ? red : text.withValues(alpha: 0.5)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              icon,
+              style: TextStyle(
+                fontSize: 18,
+                color: highlighted ? Colors.white : text,
+                height: 1,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: GoogleFonts.shareTechMono(
+                fontSize: 10,
+                color: highlighted ? Colors.white : text,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  String _formatStat(int n) {
-    if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
-    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}K';
-    return '$n';
-  }
-
-  /// Editorial "Códice" layout used when the wallpaper has cultural metadata.
-  /// Same lifecycle, ad service, credits, loading overlay — only the chrome
-  /// changes (scrollable magazine-style page instead of fullscreen preview).
+  // Placeholder kept for back-compat with imports — old AppleProScaffold removed.
   Widget _buildCodexScaffold(BuildContext context) {
     final w = widget.wallpaper;
     return Scaffold(
@@ -919,6 +847,50 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
             phase: _loadingPhase,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Punto blanco que parpadea — usado dentro del LIVE badge en el Neon
+/// Editorial scaffold para reforzar la sensación de "en vivo".
+class _BlinkingDot extends StatefulWidget {
+  const _BlinkingDot();
+
+  @override
+  State<_BlinkingDot> createState() => _BlinkingDotState();
+}
+
+class _BlinkingDotState extends State<_BlinkingDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween(begin: 0.3, end: 1.0).animate(_ctrl),
+      child: Container(
+        width: 6,
+        height: 6,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }

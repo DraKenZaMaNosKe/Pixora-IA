@@ -20,6 +20,7 @@ import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../../favorites/providers/favorites_provider.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../data/models/wallpaper.dart';
+import '../widgets/holocard_like_overlay.dart';
 
 /// Auction-listing preview for a wallpaper. Presents the image as a framed
 /// piece with catalog metadata below — as if it were a lot in a fine art
@@ -726,6 +727,13 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
                 ],
               ),
             ),
+          ),
+          // 2026-06-13 — Animacion de likes (Heart Burst + Holo Shimmer +
+          // Stack Counter) flotando encima del holocard. Disparada por el
+          // statsEventStream cuando este wallpaper recibe un like (local
+          // o remoto via Realtime).
+          Positioned.fill(
+            child: HolocardLikeOverlay(wallpaperId: widget.wallpaper.id),
           ),
           LoadingOverlay(
             visible: _isApplying,

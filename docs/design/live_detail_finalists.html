@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pixora · LIVE Wallpaper Detail · 5 Finalists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Goldman:wght@400;700&family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=DM+Serif+Display:ital@0;1&family=Black+Ops+One&family=Bungee+Inline&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep:    #0A001A;
+  --bg-mid:     #1A0033;
+  --bg-card:    #2A0050;
+  --cyan:       #00F0FF;
+  --pink:       #FF2BD6;
+  --yellow:     #FFE44D;
+  --gold:       #E6B655;
+  --gold-pale:  #F0DD9E;
+  --red:        #FF3B5C;
+  --text:       #E8E0FF;
+  --dim:        #8678A8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { background: var(--bg-deep); color: var(--text); font-family:'Share Tech Mono', monospace; min-height:100vh; }
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,43,214,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(0,240,255,0.08), transparent 60%),
+    var(--bg-deep);
+  background-attachment: fixed; overflow-x: hidden;
+}
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,240,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,240,255,0.025) 1px, transparent 1px);
+  background-size: 64px 64px; pointer-events:none; z-index:0;
+}
+main { position:relative; z-index:2; padding: 40px 24px 64px; max-width: 1900px; margin:0 auto; }
+header { text-align:center; margin-bottom: 56px; }
+.eyebrow {
+  display:inline-block; font-family:'Share Tech Mono', monospace;
+  color: var(--cyan); font-size: 11px; letter-spacing: 4px; margin-bottom: 12px;
+  padding: 6px 14px; border: 1px solid var(--cyan); border-radius: 999px;
+  background: rgba(0,240,255,0.05); text-shadow: 0 0 12px var(--cyan);
+}
+h1 {
+  font-family:'Audiowide', sans-serif;
+  font-size: clamp(28px, 5vw, 52px); letter-spacing: 0.04em;
+  color: var(--gold-pale); text-shadow: 0 0 24px rgba(230,182,85,0.4);
+  margin-bottom: 14px;
+}
+h1 .red { color: var(--red); text-shadow: 2px 0 var(--cyan), -2px 0 var(--pink); }
+header p {
+  color: var(--dim); font-family:'DM Serif Display', serif; font-style: italic;
+  font-size: 16px; max-width: 700px; margin: 0 auto; line-height: 1.5;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 36px; align-items: start;
+}
+.phone-col { display: flex; flex-direction: column; align-items: stretch; max-width: 360px; margin: 0 auto; }
+.phone-head {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  font-family:'Goldman', sans-serif; font-size: 11px; letter-spacing: 0.18em;
+  color: var(--cyan); text-transform: uppercase;
+}
+.phone-head .num {
+  display:inline-flex; width: 24px; height: 24px;
+  align-items:center; justify-content:center;
+  background: var(--cyan); color: var(--bg-deep);
+  font-weight:700; border-radius:4px; font-family:'Share Tech Mono', monospace;
+}
+.phone-name {
+  font-family:'DM Serif Display', serif; font-style: italic;
+  font-size: 13px; color: var(--dim); margin-bottom: 12px;
+}
+.phone-frame {
+  position: relative;
+  background: linear-gradient(180deg, #08001A 0%, #14002A 100%);
+  border-radius: 36px; padding: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.7), 0 0 36px rgba(255,43,214,0.10);
+}
+.phone-frame::before {
+  content:''; position:absolute; top:20px; left:50%; transform:translateX(-50%);
+  width:80px; height:6px; background: #000; border-radius: 4px; z-index:3;
+}
+.screen {
+  background: var(--bg-mid); border-radius: 26px; height: 660px;
+  position:relative; overflow:hidden;
+}
+.status-bar {
+  display:flex; justify-content:space-between; padding: 28px 18px 8px;
+  font-family:'Share Tech Mono', monospace; font-size: 9px;
+  color: var(--dim); letter-spacing: 1px;
+}
+.btn-row { margin-top: 16px; display:flex; flex-direction:column; gap: 8px; }
+.btn {
+  font-family:'Goldman', sans-serif; font-weight:700; font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 10px 14px; border-radius: 6px;
+  border: 1px solid var(--cyan); background: rgba(0,240,255,0.08);
+  color: var(--cyan); cursor: pointer; transition: all 0.2s;
+}
+.btn:hover { background: rgba(0,240,255,0.2); box-shadow: 0 0 20px rgba(0,240,255,0.4); }
+.btn.choose {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(230,182,85,0.18), rgba(230,182,85,0.08));
+  color: var(--gold-pale);
+}
+.btn.choose:hover { background: linear-gradient(180deg, var(--gold-pale), var(--gold)); color: var(--bg-mid); }
+.phone-col.chosen .btn.choose {
+  background: linear-gradient(180deg, var(--gold-pale), var(--gold)); color: var(--bg-mid);
+  box-shadow: 0 0 36px rgba(230,182,85,0.5);
+}
+.phone-col.chosen .phone-frame {
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.7), 0 0 0 3px var(--gold-pale), 0 0 60px rgba(230,182,85,0.3);
+}
+
+/* Video player placeholder (shared by all designs) */
+.video-stage {
+  position: relative; aspect-ratio: 9/16;
+  background:
+    radial-gradient(circle at 30% 40%, #FFE44D 0%, transparent 35%),
+    radial-gradient(circle at 70% 60%, #FF2BD6 0%, transparent 30%),
+    linear-gradient(135deg, #1A0033 0%, #0A001A 100%);
+  overflow: hidden;
+}
+.video-stage::after {
+  content: '▶'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 56px; color: rgba(255,255,255,0.5);
+  text-shadow: 0 0 24px rgba(255,255,255,0.4);
+}
+.live-tag {
+  position: absolute; top: 10px; left: 10px;
+  font-family:'Goldman', sans-serif; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.2em; color: white;
+  padding: 4px 8px; background: var(--red); border-radius: 3px;
+  display: flex; align-items: center; gap: 4px; z-index: 5;
+}
+.live-tag::before {
+  content:''; width: 6px; height: 6px; border-radius: 50%;
+  background: white; animation: blink 1.2s infinite;
+}
+@keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.3; } }
+
+/* Like burst (shared, reused in each design) */
+.like-burst {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+  width: 100px; height: 100px; pointer-events: none; z-index: 100;
+  font-size: 80px; color: var(--red);
+  text-shadow: 0 0 24px var(--red);
+  display: flex; align-items: center; justify-content: center;
+}
+.like-burst.go { animation: heartPop 800ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+@keyframes heartPop {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  40%  { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+  60%  { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+.particle {
+  position: absolute; width: 8px; height: 8px;
+  background: var(--gold); border-radius: 50%; top: 50%; left: 50%;
+  pointer-events: none; z-index: 99; box-shadow: 0 0 10px var(--gold);
+}
+.holo-shim-overlay {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 50;
+}
+.holo-shim-overlay::before {
+  content: ''; position: absolute; top: -50%; left: -100%; width: 60%; height: 200%;
+  background: linear-gradient(115deg, transparent 0%, rgba(255,228,77,0.0) 40%,
+    rgba(255,228,77,0.4) 48%, rgba(0,240,255,0.5) 50%, rgba(255,43,214,0.4) 52%,
+    rgba(255,228,77,0.0) 60%, transparent 100%);
+  filter: blur(8px); transform: rotate(8deg);
+}
+.holo-shim-overlay.go::before { animation: holoSweep 1.4s cubic-bezier(0.4,0,0.2,1) forwards; }
+@keyframes holoSweep { 0% { left: -120%; } 100% { left: 220%; } }
+.toast-popup {
+  position: absolute; top: 50px; right: -200px;
+  background: linear-gradient(180deg, rgba(10,0,26,0.95), rgba(26,0,51,0.95));
+  border: 1px solid var(--red); border-radius: 10px;
+  padding: 8px 14px; display: flex; align-items: center; gap: 8px;
+  font-family:'Share Tech Mono', monospace; font-size: 11px; color: var(--text);
+  z-index: 101; box-shadow: 0 8px 24px rgba(255,59,92,0.3); opacity: 0;
+}
+.toast-popup.go { animation: toastSlide 2400ms cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes toastSlide {
+  0% { right: -200px; opacity: 0; }
+  15% { right: 10px; opacity: 1; }
+  75% { right: 10px; opacity: 1; }
+  100% { right: -50px; opacity: 0; }
+}
+
+footer {
+  margin: 80px auto 0; max-width: 720px; text-align: center;
+  color: var(--dim); font-family:'DM Serif Display', serif; font-style: italic;
+  font-size: 14px; padding: 24px; border-top: 1px solid rgba(0,240,255,0.1);
+}
+footer .chosen-label {
+  font-family:'Goldman', sans-serif; font-style: normal;
+  color: var(--gold-pale); font-size: 13px; letter-spacing: 0.2em;
+  display: block; margin-bottom: 6px;
+}
+
+/* =============================================================
+   DESIGN 1: HOLOCARD TCG PREMIUM
+   ============================================================= */
+.d1 .video-stage { border: 2px solid var(--gold); border-radius: 4px; }
+.d1 .frame-deco {
+  position: absolute; inset: 4px; border: 1px solid rgba(230,182,85,0.4);
+  border-radius: 2px; pointer-events: none; z-index: 4;
+}
+.d1 .corner-stamp {
+  position: absolute; top: 8px; right: 8px; z-index: 6;
+  font-family:'Goldman', sans-serif; font-size: 8px; color: var(--gold-pale);
+  letter-spacing: 0.2em;
+}
+.d1 .name-strip {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.92); padding: 10px 12px;
+  z-index: 6;
+}
+.d1 .name-strip h3 {
+  font-family:'Goldman', sans-serif; font-size: 14px; color: var(--text);
+  letter-spacing: 0.02em;
+}
+.d1 .name-strip .cat {
+  font-family:'Share Tech Mono', monospace; font-size: 9px;
+  color: var(--gold); letter-spacing: 0.2em;
+}
+.d1 .info-section {
+  padding: 14px 16px; background: linear-gradient(180deg, transparent, rgba(10,0,26,0.95));
+}
+.d1 .stats-row { display: flex; gap: 16px; margin-bottom: 14px; }
+.d1 .stat {
+  font-family:'Share Tech Mono', monospace; font-size: 11px; color: var(--gold-pale);
+  display: flex; align-items: center; gap: 4px;
+}
+.d1 .stat .label { color: var(--dim); font-size: 9px; letter-spacing: 1px; margin-right: 4px; }
+.d1 .desc {
+  font-family:'DM Serif Display', serif; font-style: italic; font-size: 12px;
+  color: var(--dim); text-align: center; margin: 12px 0;
+}
+.d1 .cta-block { display: flex; gap: 8px; margin-top: 12px; }
+.d1 .cta-main {
+  flex: 1; padding: 12px; border-radius: 24px;
+  background: linear-gradient(180deg, var(--gold-pale), var(--gold));
+  color: var(--bg-mid); font-family:'Goldman', sans-serif; font-weight: 700;
+  font-size: 13px; letter-spacing: 0.2em; border: none;
+  box-shadow: 0 6px 18px rgba(230,182,85,0.4);
+}
+.d1 .cta-icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(230,182,85,0.4);
+  color: var(--gold-pale); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer;
+}
+.d1 .cta-icon.liked { background: var(--red); color: white; border-color: var(--red); }
+
+/* =============================================================
+   DESIGN 2: PORTAL INMERSIVO (glassmorphism)
+   ============================================================= */
+.d2 .screen { background: var(--bg-deep); }
+.d2 .bg-radial {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 30% 30%, var(--pink) 0%, transparent 35%),
+    radial-gradient(circle at 70% 70%, var(--cyan) 0%, transparent 30%),
+    var(--bg-deep);
+  filter: blur(40px); opacity: 0.6; z-index: 0;
+}
+.d2 .video-stage {
+  margin: 12px; border-radius: 24px; border: 2px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 0 1px rgba(0,240,255,0.3), 0 20px 60px -20px rgba(0,0,0,0.8);
+  position: relative; z-index: 1;
+}
+.d2 .glass-info {
+  position: absolute; left: 16px; right: 16px; bottom: 16px;
+  background: rgba(10,0,26,0.55); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+  padding: 14px 16px; z-index: 2;
+}
+.d2 .glass-info h3 {
+  font-family:'Orbitron', sans-serif; font-weight: 700; font-size: 15px;
+  color: white; margin-bottom: 4px;
+}
+.d2 .glass-info .cat {
+  font-family:'Share Tech Mono', monospace; font-size: 9px; color: var(--cyan);
+  letter-spacing: 0.2em;
+}
+.d2 .stats-pills {
+  display: flex; gap: 6px; margin-top: 10px;
+}
+.d2 .pill {
+  padding: 4px 10px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  font-family:'Share Tech Mono', monospace; font-size: 10px; color: var(--text);
+}
+.d2 .pill .icon { color: var(--gold); margin-right: 3px; }
+.d2 .desc {
+  font-family:'DM Serif Display', serif; font-style: italic; font-size: 12px;
+  color: var(--dim); margin: 10px 0;
+}
+.d2 .cta-row {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 8px; margin-top: 10px;
+}
+.d2 .cta-main {
+  padding: 12px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  color: var(--bg-deep); font-family:'Orbitron', sans-serif; font-weight: 700;
+  font-size: 13px; border: none; box-shadow: 0 0 24px rgba(255,43,214,0.4);
+  letter-spacing: 0.1em;
+}
+.d2 .cta-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  color: var(--text); cursor: pointer;
+}
+.d2 .cta-icon.liked { color: var(--red); background: rgba(255,59,92,0.2); border-color: var(--red); }
+
+/* =============================================================
+   DESIGN 3: MEDIA PLAYER / VINYL
+   ============================================================= */
+.d3 .top-bar {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  background: rgba(0,0,0,0.5); position: relative; z-index: 5;
+}
+.d3 .vinyl-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: radial-gradient(circle, #1a1a1a 20%, #000 30%, var(--cyan) 31%, #000 60%);
+  animation: spin 4s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.d3 .vinyl-info { flex: 1; }
+.d3 .vinyl-info .now { font-family:'Share Tech Mono', monospace; font-size: 8px; color: var(--cyan); letter-spacing: 1px; }
+.d3 .vinyl-info h3 { font-family:'Orbitron', sans-serif; font-size: 12px; color: var(--text); }
+.d3 .video-stage { margin: 4px 14px; border-radius: 8px; }
+.d3 .waveform {
+  display: flex; gap: 2px; padding: 14px; align-items: end; height: 50px;
+}
+.d3 .wave-bar {
+  flex: 1; background: linear-gradient(180deg, var(--cyan), var(--pink));
+  border-radius: 1px; min-height: 4px;
+  animation: wavePulse 1.2s ease-in-out infinite alternate;
+}
+.d3 .wave-bar:nth-child(1) { animation-delay: 0ms; }
+.d3 .wave-bar:nth-child(2) { animation-delay: 60ms; }
+.d3 .wave-bar:nth-child(3) { animation-delay: 120ms; }
+.d3 .wave-bar:nth-child(4) { animation-delay: 80ms; }
+.d3 .wave-bar:nth-child(5) { animation-delay: 200ms; }
+.d3 .wave-bar:nth-child(6) { animation-delay: 40ms; }
+.d3 .wave-bar:nth-child(7) { animation-delay: 160ms; }
+.d3 .wave-bar:nth-child(8) { animation-delay: 100ms; }
+.d3 .wave-bar:nth-child(9) { animation-delay: 220ms; }
+.d3 .wave-bar:nth-child(10) { animation-delay: 140ms; }
+@keyframes wavePulse {
+  0% { height: 8%; opacity: 0.5; }
+  100% { height: 100%; opacity: 1; }
+}
+.d3 .controls {
+  padding: 0 14px 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.d3 .progress {
+  height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
+}
+.d3 .progress-fill { height: 100%; width: 42%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.d3 .time-row {
+  display: flex; justify-content: space-between;
+  font-family:'Share Tech Mono', monospace; font-size: 9px; color: var(--dim);
+}
+.d3 .stats-bar {
+  display: flex; justify-content: space-around; padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.d3 .stat-item { text-align: center; }
+.d3 .stat-item .val { font-family:'Orbitron', sans-serif; font-size: 14px; color: var(--cyan); font-weight: 700; }
+.d3 .stat-item .lbl { font-family:'Share Tech Mono', monospace; font-size: 8px; color: var(--dim); letter-spacing: 1px; }
+.d3 .actions {
+  display: flex; gap: 8px; padding: 14px;
+}
+.d3 .actions .btn-act {
+  flex: 1; padding: 12px; border-radius: 8px;
+  background: rgba(0,240,255,0.08); border: 1px solid var(--cyan);
+  color: var(--cyan); font-family:'Goldman', sans-serif; font-size: 11px;
+  letter-spacing: 0.15em; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.d3 .actions .btn-act.primary {
+  background: linear-gradient(180deg, var(--cyan), #00A8B5); color: var(--bg-deep);
+  border-color: var(--cyan); box-shadow: 0 0 18px rgba(0,240,255,0.4);
+}
+.d3 .actions .btn-act.liked .heart { color: var(--red); }
+
+/* =============================================================
+   DESIGN 4: NEON MAGAZINE EDITORIAL
+   ============================================================= */
+.d4 .header-strip {
+  padding: 14px; background: var(--bg-deep);
+  border-bottom: 1px solid rgba(255,228,77,0.3); position: relative; z-index: 5;
+}
+.d4 .header-strip .issue {
+  font-family:'Share Tech Mono', monospace; font-size: 8px;
+  color: var(--yellow); letter-spacing: 0.3em;
+}
+.d4 .header-strip h3 {
+  font-family:'Bungee Inline', cursive; font-size: 20px;
+  color: var(--text); margin-top: 4px; line-height: 1; letter-spacing: -0.02em;
+}
+.d4 .header-strip h3 em {
+  color: var(--yellow); font-style: normal;
+}
+.d4 .video-stage {
+  margin: 0; border-radius: 0;
+  transform: skewY(-2deg); margin-top: -8px;
+  border-top: 4px solid var(--yellow); border-bottom: 4px solid var(--yellow);
+}
+.d4 .video-stage > * { transform: skewY(2deg); }
+.d4 .info-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  padding: 20px 16px 14px;
+}
+.d4 .info-block {
+  padding: 12px; background: rgba(255,228,77,0.05);
+  border-left: 3px solid var(--yellow);
+}
+.d4 .info-block .lbl {
+  font-family:'Share Tech Mono', monospace; font-size: 8px;
+  color: var(--yellow); letter-spacing: 0.2em;
+}
+.d4 .info-block .val {
+  font-family:'Bungee Inline', cursive; font-size: 22px; color: var(--text);
+  line-height: 1;
+}
+.d4 .pull-quote {
+  padding: 14px 20px;
+  font-family:'DM Serif Display', serif; font-style: italic; font-size: 14px;
+  color: var(--text); text-align: center;
+  border-left: 2px solid var(--cyan); border-right: 2px solid var(--cyan);
+  margin: 0 16px;
+}
+.d4 .cta-stack {
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;
+}
+.d4 .cta-primary {
+  padding: 14px; background: var(--yellow); color: var(--bg-deep);
+  font-family:'Black Ops One', cursive; font-size: 14px; letter-spacing: 0.2em;
+  border: none; box-shadow: 6px 6px 0 var(--bg-deep), 6px 6px 0 1px var(--yellow);
+  cursor: pointer; text-transform: uppercase;
+}
+.d4 .cta-secondary-row {
+  display: flex; gap: 8px;
+}
+.d4 .cta-sec {
+  flex: 1; padding: 10px; background: transparent;
+  border: 1px solid var(--text); color: var(--text);
+  font-family:'Share Tech Mono', monospace; font-size: 10px;
+  letter-spacing: 0.15em; cursor: pointer; text-transform: uppercase;
+}
+.d4 .cta-sec.liked { background: var(--red); border-color: var(--red); color: white; }
+
+/* =============================================================
+   DESIGN 5: ARCADE CABINET (retro retro)
+   ============================================================= */
+.d5 .screen {
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0 2px, transparent 2px 4px),
+    linear-gradient(180deg, #1A0033 0%, #0A001A 100%);
+}
+.d5 .marquee {
+  background: var(--red); color: white;
+  padding: 8px 14px; text-align: center;
+  font-family:'Bungee Inline', cursive; font-size: 14px;
+  letter-spacing: 0.3em; border-bottom: 4px solid var(--yellow);
+  position: relative; z-index: 5;
+  box-shadow: 0 0 24px rgba(255,59,92,0.5), inset 0 -4px 0 rgba(0,0,0,0.3);
+}
+.d5 .marquee::before, .d5 .marquee::after {
+  content: '★'; margin: 0 8px; color: var(--yellow);
+}
+.d5 .cabinet-frame {
+  margin: 12px; border: 4px solid var(--yellow); border-radius: 4px;
+  padding: 4px; background: var(--bg-deep);
+  box-shadow: 0 0 0 2px var(--red), 0 0 30px rgba(255,228,77,0.3);
+}
+.d5 .video-stage { border-radius: 2px; border: 2px solid #000; }
+.d5 .leds {
+  display: flex; justify-content: space-around; padding: 8px 0;
+}
+.d5 .led {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--red); box-shadow: 0 0 8px var(--red);
+  animation: ledBlink 1s infinite alternate;
+}
+.d5 .led:nth-child(2) { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); animation-delay: 0.2s; }
+.d5 .led:nth-child(3) { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation-delay: 0.4s; }
+.d5 .led:nth-child(4) { background: var(--pink); box-shadow: 0 0 8px var(--pink); animation-delay: 0.6s; }
+.d5 .led:nth-child(5) { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); animation-delay: 0.8s; }
+@keyframes ledBlink { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+.d5 .info-panel {
+  padding: 12px 16px; background: rgba(0,0,0,0.5);
+  border: 2px solid var(--yellow); margin: 0 16px;
+  font-family:'Black Ops One', cursive; color: var(--yellow);
+  text-align: center;
+}
+.d5 .info-panel .title { font-size: 16px; letter-spacing: 0.1em; }
+.d5 .info-panel .cat { font-size: 10px; color: var(--cyan); letter-spacing: 0.2em; margin-top: 2px; }
+.d5 .score-row {
+  display: flex; justify-content: space-around; padding: 12px 16px;
+  font-family:'Black Ops One', cursive;
+}
+.d5 .score-item { text-align: center; color: var(--text); }
+.d5 .score-item .val { font-size: 18px; color: var(--yellow); }
+.d5 .score-item .lbl { font-size: 8px; color: var(--dim); letter-spacing: 0.2em; margin-top: 2px; }
+.d5 .insert-coin {
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+}
+.d5 .coin-btn {
+  padding: 14px; background: linear-gradient(180deg, var(--yellow), #C9A650);
+  color: var(--bg-deep); font-family:'Black Ops One', cursive; font-size: 14px;
+  letter-spacing: 0.3em; border: 3px solid var(--bg-deep);
+  box-shadow: 0 4px 0 var(--bg-deep), 0 4px 16px rgba(255,228,77,0.4);
+  cursor: pointer; text-align: center;
+}
+.d5 .coin-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--bg-deep); }
+.d5 .arcade-actions { display: flex; gap: 6px; }
+.d5 .arcade-btn {
+  flex: 1; padding: 10px; background: var(--bg-deep);
+  border: 2px solid var(--cyan); color: var(--cyan);
+  font-family:'Black Ops One', cursive; font-size: 10px;
+  letter-spacing: 0.15em; cursor: pointer;
+  box-shadow: 0 3px 0 var(--cyan);
+}
+.d5 .arcade-btn.liked { background: var(--red); border-color: var(--yellow); color: var(--yellow); box-shadow: 0 3px 0 var(--yellow); }
+
+@media (max-width: 720px) {
+  main { padding: 24px 12px; }
+  h1 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<main>
+  <header>
+    <span class="eyebrow">▌ PIXORA · LIVE DETAIL EXPERIENCE</span>
+    <h1>5 WAYS TO SHOWCASE <span class="red">LIVE</span></h1>
+    <p>La pantalla actual de "wallpaper live detail" se siente plana — ni efectos, ni vida. Cinco rediseños épicos para que cuando alguien le da tap a un live wallpaper, vea algo memorable. El botón <strong>Favorito</strong> ahora también es <strong>LIKE</strong>: un solo tap guarda en favoritos Y dispara el efecto de like global con animación.</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- DESIGN 1: HOLOCARD TCG PREMIUM -->
+    <div class="phone-col" data-design="1">
+      <div class="phone-head"><span class="num">1</span>HOLOCARD TCG</div>
+      <div class="phone-name">— premium, coleccionable, gold-foil</div>
+      <div class="phone-frame d1">
+        <div class="screen" id="screen-1">
+          <div class="status-bar"><span>12:14</span><span>● ▮▮▮▮ 87%</span></div>
+          <div style="padding: 0 12px;">
+            <div class="video-stage">
+              <span class="live-tag">LIVE</span>
+              <span class="corner-stamp">N° 894 ★★★</span>
+              <div class="frame-deco"></div>
+              <div class="name-strip">
+                <h3>BULMA · CYAN GENIUS</h3>
+                <span class="cat">ANIME · DRAGON BALL</span>
+              </div>
+            </div>
+            <div class="info-section">
+              <div class="stats-row" style="justify-content: space-around;">
+                <span class="stat"><span class="label">RATING</span>★ 4.8</span>
+                <span class="stat"><span class="label">VIEWS</span>19</span>
+                <span class="stat"><span class="label">DL</span>12</span>
+                <span class="stat"><span class="label">SIZE</span>1.7MB</span>
+              </div>
+              <p class="desc">Bulma, la genio científica animada de Dragon Ball</p>
+              <div class="cta-block">
+                <button class="cta-main">★ OBTENER</button>
+                <div class="cta-icon" id="like-1" onclick="like(1)">♡</div>
+                <div class="cta-icon">⇄</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="like(1)">▶ TRIGGER LIKE</button>
+        <button class="btn choose" onclick="choose(1)">★ CHOOSE</button>
+      </div>
+    </div>
+
+    <!-- DESIGN 2: PORTAL INMERSIVO -->
+    <div class="phone-col" data-design="2">
+      <div class="phone-head"><span class="num">2</span>PORTAL INMERSIVO</div>
+      <div class="phone-name">— glassmorphism, cinematográfico</div>
+      <div class="phone-frame d2">
+        <div class="screen" id="screen-2">
+          <div class="bg-radial"></div>
+          <div class="status-bar"><span>12:14</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="video-stage" style="margin-top: 4px;">
+            <span class="live-tag">LIVE</span>
+            <div class="glass-info">
+              <h3>Bulma — Cyan Genius</h3>
+              <span class="cat">ANIME</span>
+              <div class="stats-pills">
+                <span class="pill"><span class="icon">★</span>4.8</span>
+                <span class="pill"><span class="icon">👁</span>19</span>
+                <span class="pill"><span class="icon">⬇</span>12</span>
+                <span class="pill" style="color: var(--cyan)">1.7 MB</span>
+              </div>
+              <p class="desc">Bulma, la genio científica animada de Dragon Ball</p>
+              <div class="cta-row">
+                <button class="cta-main">✨ OBTENER</button>
+                <div class="cta-icon" id="like-2" onclick="like(2)">♡</div>
+                <div class="cta-icon">⇄</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="like(2)">▶ TRIGGER LIKE</button>
+        <button class="btn choose" onclick="choose(2)">★ CHOOSE</button>
+      </div>
+    </div>
+
+    <!-- DESIGN 3: MEDIA PLAYER -->
+    <div class="phone-col" data-design="3">
+      <div class="phone-head"><span class="num">3</span>MEDIA PLAYER</div>
+      <div class="phone-name">— spotify-style, audio reactive vibe</div>
+      <div class="phone-frame d3">
+        <div class="screen" id="screen-3">
+          <div class="status-bar"><span>12:14</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="top-bar">
+            <div class="vinyl-icon"></div>
+            <div class="vinyl-info">
+              <span class="now">NOW PLAYING</span>
+              <h3>Bulma · Cyan Genius Live</h3>
+            </div>
+          </div>
+          <div class="video-stage">
+            <span class="live-tag">LIVE</span>
+          </div>
+          <div class="waveform">
+            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+          <div class="controls">
+            <div class="progress"><div class="progress-fill"></div></div>
+            <div class="time-row"><span>0:08</span><span>0:19</span></div>
+          </div>
+          <div class="stats-bar">
+            <div class="stat-item"><div class="val">19</div><div class="lbl">VIEWS</div></div>
+            <div class="stat-item"><div class="val">12</div><div class="lbl">DOWNLOADS</div></div>
+            <div class="stat-item"><div class="val">★ 4.8</div><div class="lbl">RATING</div></div>
+          </div>
+          <div class="actions">
+            <div class="btn-act primary">⬇ OBTENER</div>
+            <div class="btn-act" id="like-3" onclick="like(3)"><span class="heart">♡</span> LIKE</div>
+            <div class="btn-act">⇄ SHARE</div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="like(3)">▶ TRIGGER LIKE</button>
+        <button class="btn choose" onclick="choose(3)">★ CHOOSE</button>
+      </div>
+    </div>
+
+    <!-- DESIGN 4: NEON MAGAZINE EDITORIAL -->
+    <div class="phone-col" data-design="4">
+      <div class="phone-head"><span class="num">4</span>NEON EDITORIAL</div>
+      <div class="phone-name">— magazine layout, bold typography</div>
+      <div class="phone-frame d4">
+        <div class="screen" id="screen-4">
+          <div class="status-bar"><span>12:14</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="header-strip">
+            <span class="issue">ISSUE №894 · JUN 2026 · LIVE</span>
+            <h3>BULMA<br><em>CYAN GENIUS</em></h3>
+          </div>
+          <div class="video-stage" style="aspect-ratio: 16/9;">
+            <span class="live-tag">LIVE</span>
+          </div>
+          <div class="info-grid">
+            <div class="info-block">
+              <div class="lbl">RATING</div>
+              <div class="val">4.8★</div>
+            </div>
+            <div class="info-block">
+              <div class="lbl">VIEWS</div>
+              <div class="val">19</div>
+            </div>
+            <div class="info-block">
+              <div class="lbl">DOWNLOADS</div>
+              <div class="val">12</div>
+            </div>
+            <div class="info-block">
+              <div class="lbl">SIZE</div>
+              <div class="val">1.7M</div>
+            </div>
+          </div>
+          <p class="pull-quote">"La genio científica animada de Dragon Ball, ahora en tu pantalla."</p>
+          <div class="cta-stack">
+            <button class="cta-primary">▼ OBTENER WALLPAPER</button>
+            <div class="cta-secondary-row">
+              <button class="cta-sec" id="like-4" onclick="like(4)">♡ LIKE</button>
+              <button class="cta-sec">⬇ DESCARGAR</button>
+              <button class="cta-sec">⇄ COMPARTIR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="like(4)">▶ TRIGGER LIKE</button>
+        <button class="btn choose" onclick="choose(4)">★ CHOOSE</button>
+      </div>
+    </div>
+
+    <!-- DESIGN 5: ARCADE CABINET -->
+    <div class="phone-col" data-design="5">
+      <div class="phone-head"><span class="num">5</span>ARCADE CABINET</div>
+      <div class="phone-name">— retro, juguetón, insert coin</div>
+      <div class="phone-frame d5">
+        <div class="screen" id="screen-5">
+          <div class="status-bar"><span>12:14</span><span>● ▮▮▮▮ 87%</span></div>
+          <div class="marquee">PIXORA LIVE</div>
+          <div class="cabinet-frame">
+            <div class="video-stage">
+              <span class="live-tag">LIVE</span>
+            </div>
+            <div class="leds">
+              <div class="led"></div><div class="led"></div><div class="led"></div>
+              <div class="led"></div><div class="led"></div>
+            </div>
+          </div>
+          <div class="info-panel">
+            <div class="title">BULMA · CYAN GENIUS</div>
+            <div class="cat">⚡ ANIME · DRAGON BALL ⚡</div>
+          </div>
+          <div class="score-row">
+            <div class="score-item"><div class="val">★4.8</div><div class="lbl">SCORE</div></div>
+            <div class="score-item"><div class="val">19</div><div class="lbl">VIEWS</div></div>
+            <div class="score-item"><div class="val">12</div><div class="lbl">DOWNLOADS</div></div>
+            <div class="score-item"><div class="val">1.7M</div><div class="lbl">SIZE</div></div>
+          </div>
+          <div class="insert-coin">
+            <button class="coin-btn">▼ INSERT COIN · OBTENER ▼</button>
+            <div class="arcade-actions">
+              <button class="arcade-btn" id="like-5" onclick="like(5)">♡ LIKE</button>
+              <button class="arcade-btn">⬇ DESCARGA</button>
+              <button class="arcade-btn">⇄ SHARE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="like(5)">▶ TRIGGER LIKE</button>
+        <button class="btn choose" onclick="choose(5)">★ CHOOSE</button>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="chosen-label">▌ DECISIÓN FINAL</span>
+    <span id="footer-msg">Toca "TRIGGER LIKE" en cada uno para ver el efecto épico (Heart Burst + Holo Shimmer + Stack Counter). Elige el diseño que más te apantalle.</span>
+  </footer>
+</main>
+
+<script>
+// === EFECTOS REUSABLES (1+3+4 combo: Heart Burst + Holo Shimmer + Stack Counter) ===
+
+function like(designId) {
+  const screen = document.getElementById('screen-' + designId);
+  const likeBtn = document.getElementById('like-' + designId);
+
+  // Toggle visual heart state
+  if (likeBtn) {
+    likeBtn.classList.toggle('liked');
+    if (likeBtn.classList.contains('liked')) {
+      // Replace heart icon
+      const txt = likeBtn.textContent.replace('♡', '♥');
+      likeBtn.innerHTML = likeBtn.innerHTML.replace('♡', '♥');
+    } else {
+      likeBtn.innerHTML = likeBtn.innerHTML.replace('♥', '♡');
+      return; // unlike — no effect
+    }
+  }
+
+  // EFFECT 1: Heart burst
+  const heart = document.createElement('div');
+  heart.className = 'like-burst go';
+  heart.textContent = '♥';
+  screen.appendChild(heart);
+  setTimeout(() => heart.remove(), 800);
+
+  // Particles
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    screen.appendChild(p);
+    const angle = (i / 12) * Math.PI * 2;
+    const dist = 80 + Math.random() * 60;
+    p.animate([
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${Math.cos(angle) * dist}px), calc(-50% + ${Math.sin(angle) * dist}px)) scale(0.2)`, opacity: 0 }
+    ], { duration: 900, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    setTimeout(() => p.remove(), 950);
+  }
+
+  // EFFECT 2: Holographic shimmer
+  const shimmer = document.createElement('div');
+  shimmer.className = 'holo-shim-overlay go';
+  screen.appendChild(shimmer);
+  setTimeout(() => shimmer.remove(), 1500);
+
+  // EFFECT 3: Stack counter toast
+  const toast = document.createElement('div');
+  toast.className = 'toast-popup go';
+  toast.innerHTML = '♥ +1 LIKE';
+  screen.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+function choose(designId) {
+  document.querySelectorAll('.phone-col').forEach(p => p.classList.remove('chosen'));
+  document.querySelector(`.phone-col[data-design="${designId}"]`).classList.add('chosen');
+  const names = {1:'HOLOCARD TCG', 2:'PORTAL INMERSIVO', 3:'MEDIA PLAYER', 4:'NEON EDITORIAL', 5:'ARCADE CABINET'};
+  document.getElementById('footer-msg').textContent = `Diseño elegido para LIVE detail: ${names[designId]}`;
+}
+</script>
+
+</body>
+</html>

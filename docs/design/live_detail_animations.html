@@ -1,0 +1,1152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pixora · LIVE Detail Animation Finalists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Black+Ops+One&family=Bungee+Inline&family=DM+Serif+Display:ital@0;1&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E0020;
+    --bg-deep:#1A0033;
+    --bg-panel:#22003F;
+    --cyan:#00F0FF;
+    --pink:#FF2BD6;
+    --gold:#E6B655;
+    --rose:#FF3B5C;
+    --ink:#F5F5F5;
+    --ink-dim:rgba(245,245,245,.55);
+    --line:rgba(255,255,255,.08);
+    --line-strong:rgba(255,255,255,.18);
+    --shadow: 0 30px 90px rgba(0,0,0,.55), 0 8px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 20% -10%, rgba(255,43,214,.16), transparent 60%),
+      radial-gradient(1100px 700px at 85% 110%, rgba(0,240,255,.14), transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 50%, #07000F 100%);
+    color:var(--ink);
+    font-family:"DM Serif Display", serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  /* film grain overlay */
+  body::after{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:9999;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+    opacity:.6;
+  }
+
+  /* ---------------- HEADER ---------------- */
+  header.hero{
+    padding: 36px 48px 8px;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    border-bottom:1px solid var(--line);
+  }
+  header.hero h1{
+    font-family:"Bungee Inline", sans-serif;
+    font-weight:400;
+    font-size:clamp(32px, 4vw, 56px);
+    margin:0;
+    color:var(--cyan);
+    letter-spacing:.5px;
+    text-shadow: 0 0 30px rgba(0,240,255,.45);
+  }
+  header.hero h1 em{
+    font-family:"DM Serif Display", serif;
+    font-style:italic; font-weight:400;
+    color:var(--pink);
+    text-shadow:0 0 22px rgba(255,43,214,.45);
+    margin-left:.25em;
+  }
+  header.hero .meta{
+    font-family:"Share Tech Mono", monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    text-align:right;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+  }
+  header.hero .meta b{ color:var(--gold); }
+  header.hero .meta .dot{ color:var(--pink); margin:0 .5em; }
+
+  .subhead{
+    padding: 14px 48px 28px;
+    display:flex; gap:24px; align-items:center;
+    color:var(--ink-dim);
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+  }
+  .subhead .tag{
+    font-family:"Audiowide", sans-serif;
+    color:var(--ink);
+    padding:6px 12px;
+    border:1px solid var(--line-strong);
+    border-radius:4px;
+    letter-spacing:.18em; font-size:11px; text-transform:uppercase;
+  }
+  .subhead .tag.cyan{ color:var(--cyan); border-color:rgba(0,240,255,.4) }
+  .subhead .tag.pink{ color:var(--pink); border-color:rgba(255,43,214,.4) }
+  .subhead .rule{ flex:1; height:1px; background:var(--line-strong); }
+
+  /* ---------------- GRID ---------------- */
+  main{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(340px, 1fr));
+    gap: 56px 32px;
+    padding: 56px 48px 80px;
+    max-width: 1620px;
+    margin: 0 auto;
+  }
+  @media (max-width: 1180px){
+    main{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 760px){
+    main{ grid-template-columns: 1fr; }
+  }
+
+  .card{
+    display:flex; flex-direction:column; align-items:stretch;
+    gap:18px;
+  }
+  .card .label{
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:"Black Ops One", cursive;
+    letter-spacing:.18em;
+    font-size:18px;
+    color:var(--ink);
+  }
+  .card .label .num{
+    font-family:"Bungee Inline", sans-serif;
+    color:var(--gold);
+    font-size:14px;
+  }
+  .card .sub{
+    font-family:"Share Tech Mono", monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    margin-top:-10px;
+    margin-bottom:6px;
+  }
+
+  /* ---------------- PHONE FRAME ---------------- */
+  .phone{
+    width:100%;
+    aspect-ratio: 9 / 16.5;
+    border-radius: 32px;
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(255,43,214,.15), transparent 55%),
+      linear-gradient(180deg, #1B0036 0%, #100022 50%, #08000F 100%);
+    border:1px solid var(--line-strong);
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.04);
+    overflow:hidden;
+    position:relative;
+    isolation:isolate;
+  }
+  .phone .notch{
+    position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    width:90px; height:18px; border-radius:12px;
+    background:#000; z-index:6;
+    border:1px solid rgba(255,255,255,.06);
+  }
+
+  /* hero image */
+  .hero-img{
+    position:relative;
+    height:46%;
+    background:
+      radial-gradient(60% 80% at 30% 30%, rgba(0,240,255,.35), transparent 60%),
+      radial-gradient(80% 80% at 80% 100%, rgba(255,43,214,.4), transparent 60%),
+      linear-gradient(135deg, #2A0050, #060011 70%);
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-img::before{
+    /* synthwave horizon lines */
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 1px, transparent 1px 14px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 30px);
+    mix-blend-mode:overlay;
+  }
+  .hero-img::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:0; height:50%;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,.7));
+  }
+
+  /* LIVE badge */
+  .live-badge{
+    position:absolute; top:30px; left:18px; z-index:3;
+    display:inline-flex; align-items:center; gap:8px;
+    padding:6px 12px;
+    background:rgba(0,0,0,.55);
+    backdrop-filter: blur(6px);
+    border:1px solid rgba(255,59,92,.6);
+    border-radius:999px;
+    font-family:"Audiowide", sans-serif;
+    font-size:11px;
+    color:var(--rose);
+    letter-spacing:.22em;
+  }
+  .live-badge .pulse{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--rose);
+    box-shadow:0 0 0 0 rgba(255,59,92,.6);
+    animation: livePulse 1.4s ease-out infinite;
+  }
+  @keyframes livePulse{
+    0%{ box-shadow:0 0 0 0 rgba(255,59,92,.6) }
+    70%{ box-shadow:0 0 0 12px rgba(255,59,92,0) }
+    100%{ box-shadow:0 0 0 0 rgba(255,59,92,0) }
+  }
+
+  .hero-img .corner{
+    position:absolute; top:30px; right:18px; z-index:3;
+    font-family:"Share Tech Mono", monospace;
+    font-size:10px;
+    color:var(--ink-dim);
+    letter-spacing:.16em;
+  }
+
+  /* editorial title block */
+  .editorial{
+    padding: 20px 20px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .editorial .kicker{
+    font-family:"Share Tech Mono", monospace;
+    font-size:10px;
+    color:var(--cyan);
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .editorial h2{
+    margin:0;
+    font-family:"Bungee Inline", sans-serif;
+    font-weight:400;
+    font-size:22px;
+    color:var(--ink);
+    line-height:1.05;
+    letter-spacing:.4px;
+    text-shadow: 0 0 12px rgba(0,240,255,.25);
+  }
+  .editorial .byline{
+    margin-top:8px;
+    font-family:"DM Serif Display", serif;
+    font-style:italic;
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+
+  /* meta strip */
+  .meta-strip{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 10px 20px;
+    font-family:"Share Tech Mono", monospace;
+    font-size:10px;
+    letter-spacing:.18em;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    border-bottom:1px solid var(--line);
+  }
+  .meta-strip b{ color:var(--gold); }
+
+  /* primary CTA */
+  .cta-row{ padding: 14px 18px 10px; }
+  .btn-primary{
+    width:100%;
+    padding:14px;
+    background:linear-gradient(90deg, var(--cyan), var(--pink));
+    color:#0B0020;
+    border:none; border-radius:8px;
+    font-family:"Audiowide", sans-serif;
+    font-size:13px;
+    letter-spacing:.3em;
+    cursor:pointer;
+    box-shadow: 0 8px 24px rgba(255,43,214,.3), 0 0 0 1px rgba(255,255,255,.1) inset;
+    transition: transform .15s ease;
+  }
+  .btn-primary:active{ transform:scale(.98); }
+
+  /* secondary buttons */
+  .sec-row{
+    padding: 10px 18px 16px;
+    display:grid; grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+  }
+  .sec-btn{
+    position:relative;
+    padding: 10px 6px;
+    background: rgba(255,255,255,.04);
+    border:1px solid var(--line-strong);
+    border-radius:8px;
+    color:var(--ink);
+    font-family:"Share Tech Mono", monospace;
+    font-size:10px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    cursor:pointer;
+    overflow:hidden;
+  }
+  .sec-btn .icon{ font-size:16px; line-height:1; }
+  .sec-btn .num{
+    font-family:"Bungee Inline", sans-serif;
+    font-size:13px; letter-spacing:.5px;
+    color:var(--cyan);
+  }
+  .sec-btn.liked .num{ color:var(--rose); }
+  .sec-btn.liked .icon{ color:var(--rose); }
+
+  /* info blocks */
+  .info{
+    padding: 10px 20px 14px;
+    border-top:1px solid var(--line);
+    flex:1; overflow:hidden;
+    position:relative;
+  }
+  .info .row{
+    display:flex; justify-content:space-between;
+    font-family:"Share Tech Mono", monospace;
+    font-size:10px; letter-spacing:.18em;
+    color:var(--ink-dim);
+    padding:4px 0;
+    text-transform:uppercase;
+  }
+  .info .row b{ color:var(--ink); }
+  .info .copy{
+    margin-top:8px;
+    font-family:"DM Serif Display", serif;
+    font-style:italic;
+    color:rgba(245,245,245,.7);
+    font-size:11.5px;
+    line-height:1.4;
+  }
+  .info .tags{
+    margin-top:10px;
+    display:flex; flex-wrap:wrap; gap:6px;
+  }
+  .info .tag{
+    font-family:"Audiowide", sans-serif;
+    font-size:9px; letter-spacing:.18em;
+    padding:4px 8px;
+    border:1px solid var(--line-strong);
+    border-radius:3px;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+  }
+
+  /* ---------------- CONTROLS ---------------- */
+  .controls{
+    display:grid; grid-template-columns:1fr 1fr; gap:6px;
+    margin-top:8px;
+  }
+  .controls button{
+    padding:9px 8px;
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--line-strong);
+    color:var(--ink);
+    font-family:"Share Tech Mono", monospace;
+    font-size:10px;
+    letter-spacing:.14em;
+    border-radius:6px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .controls button:hover{
+    background:rgba(0,240,255,.1);
+    border-color:rgba(0,240,255,.4);
+  }
+  .controls button.choose{
+    grid-column:1 / -1;
+    background: linear-gradient(90deg, rgba(230,182,85,.15), rgba(230,182,85,.05));
+    color:var(--gold);
+    border-color:rgba(230,182,85,.5);
+    font-family:"Audiowide", sans-serif;
+    font-size:11px;
+    letter-spacing:.24em;
+  }
+  .card.selected .phone{
+    box-shadow: 0 0 0 2px var(--gold), var(--shadow);
+  }
+  .card.selected .label::after{
+    content:"SELECTED";
+    color:var(--gold);
+    font-family:"Audiowide", sans-serif;
+    font-size:11px; letter-spacing:.3em;
+    padding:4px 10px;
+    border:1px solid var(--gold);
+    border-radius:3px;
+    margin-left:10px;
+  }
+
+  /* ---------------- ANIM 1 · PRINT STAMP ---------------- */
+  .stamp{
+    position:absolute; left:50%; top:50%;
+    transform: translate(-50%, -50%) rotate(-18deg) scale(0);
+    width: 180px; height:180px;
+    border-radius:50%;
+    border: 4px double var(--rose);
+    color: var(--rose);
+    font-family:"Black Ops One", cursive;
+    text-align:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    pointer-events:none;
+    z-index:8;
+    text-shadow: 0 0 6px rgba(255,59,92,.5);
+    background: radial-gradient(circle at 30% 30%, rgba(255,59,92,.18), transparent 60%);
+  }
+  .stamp .lbl{ font-size:26px; letter-spacing:.18em; line-height:1; }
+  .stamp .sub{ font-family:"Share Tech Mono", monospace; font-size:9px; letter-spacing:.2em; margin-top:4px; color:rgba(255,59,92,.85); }
+  .stamp .ring{
+    position:absolute; inset:6px; border-radius:50%;
+    border:1px dashed rgba(255,59,92,.5);
+  }
+  .stamp.go{ animation: stampHit 1100ms cubic-bezier(.2,1.3,.4,1) forwards; }
+  @keyframes stampHit{
+    0%   { transform: translate(-50%, -50%) rotate(-25deg) scale(2.2); opacity:0; filter: blur(8px); }
+    35%  { transform: translate(-50%, -50%) rotate(-15deg) scale(.9); opacity:1; filter: blur(0); }
+    55%  { transform: translate(-50%, -50%) rotate(-18deg) scale(1.05); opacity:1; }
+    80%  { transform: translate(-50%, -50%) rotate(-18deg) scale(1); opacity:.95; }
+    100% { transform: translate(-50%, -50%) rotate(-18deg) scale(1); opacity:0; }
+  }
+  /* ink splatter */
+  .stamp .splat{
+    position:absolute;
+    width:6px; height:6px; border-radius:50%;
+    background: var(--rose);
+    opacity:.7;
+  }
+
+  /* flip board counter */
+  .flipboard{
+    display:inline-flex;
+    height:18px; min-width: 22px;
+    align-items:center; justify-content:center;
+    background:#000;
+    border-radius:3px;
+    color:var(--gold);
+    font-family:"Share Tech Mono", monospace;
+    font-size:13px;
+    padding: 0 4px;
+    box-shadow: inset 0 -6px 0 rgba(0,0,0,.5);
+    position:relative;
+    overflow:hidden;
+  }
+  .flipboard .digit{
+    display:inline-block;
+    transition: transform .5s cubic-bezier(.6,0,.2,1);
+  }
+  .flipboard.flip .digit{
+    transform: rotateX(-180deg);
+  }
+
+  /* ---------------- ANIM 2 · EDITORIAL SLIDE-IN ---------------- */
+  .breaking{
+    position:absolute; left:0; right:0; top:42%;
+    height:46px;
+    background:linear-gradient(90deg, var(--cyan), rgba(0,240,255,.0));
+    border-top:1px solid rgba(0,240,255,.6);
+    border-bottom:1px solid rgba(0,240,255,.6);
+    transform: translateX(-110%);
+    z-index:5;
+    display:flex; align-items:center; gap:14px;
+    padding: 0 18px;
+    color:#001417;
+    font-family:"Bungee Inline", sans-serif;
+    font-size:14px; letter-spacing:.18em;
+  }
+  .breaking::after{
+    content:"";
+    position:absolute; right:-2px; top:-3px; bottom:-3px; width:60px;
+    background:linear-gradient(90deg, transparent, var(--bg-deep));
+  }
+  .breaking .tag{
+    background:#000; color:var(--cyan);
+    padding:6px 10px;
+    font-family:"Audiowide", sans-serif;
+    font-size:11px; letter-spacing:.3em;
+  }
+  .breaking.go{ animation: breakingIn 1.6s cubic-bezier(.7,0,.2,1) forwards; }
+  @keyframes breakingIn{
+    0%{ transform: translateX(-110%); }
+    25%{ transform: translateX(0%); }
+    70%{ transform: translateX(0%); }
+    100%{ transform: translateX(110%); }
+  }
+
+  .citation{
+    position:absolute; right:14px; top:18%;
+    transform: translateY(-12px);
+    opacity:0;
+    background:rgba(255,255,255,.08);
+    backdrop-filter: blur(8px);
+    border-left:2px solid var(--pink);
+    padding:6px 12px;
+    font-family:"DM Serif Display", serif;
+    font-style:italic;
+    font-size:11px;
+    color:var(--ink);
+    z-index:5;
+    max-width:60%;
+  }
+  .citation .by{
+    display:block;
+    font-family:"Share Tech Mono", monospace;
+    font-style:normal;
+    font-size:9px; letter-spacing:.18em;
+    color:var(--pink);
+    margin-top:2px;
+  }
+  .citation.go{ animation: citationIn 2.4s ease forwards; }
+  @keyframes citationIn{
+    0%{ opacity:0; transform: translateY(-12px); }
+    10%{ opacity:1; transform: translateY(0); }
+    80%{ opacity:1; transform: translateY(0); }
+    100%{ opacity:0; transform: translateY(-8px); }
+  }
+  .viewmark{
+    position:absolute; top:38px; right:16px;
+    background: rgba(0,0,0,.55); backdrop-filter:blur(6px);
+    border:1px solid rgba(0,240,255,.4);
+    padding:4px 10px;
+    border-radius:999px;
+    font-family:"Share Tech Mono", monospace;
+    font-size:10px; letter-spacing:.14em;
+    color:var(--cyan);
+    opacity:0; z-index:5;
+    transform: translateY(-6px);
+  }
+  .viewmark.go{ animation: viewmarkIn 1.2s ease forwards; }
+  @keyframes viewmarkIn{
+    0%{ opacity:0; transform: translateY(-6px); }
+    20%{ opacity:1; transform: translateY(0); }
+    80%{ opacity:1; transform: translateY(0); }
+    100%{ opacity:0; transform: translateY(-6px); }
+  }
+
+  /* ---------------- ANIM 3 · MAGAZINE SPREAD FLIP ---------------- */
+  .sec-btn.flip-card{ perspective: 800px; }
+  .sec-btn.flip-card .inner{
+    transition: transform .9s cubic-bezier(.6,.0,.2,1);
+    transform-style: preserve-3d;
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    backface-visibility: hidden;
+  }
+  .sec-btn.flip-card .inner.back{
+    transform: rotateY(180deg);
+    background: linear-gradient(180deg, var(--gold), #B0832F);
+    color:#1A0033;
+  }
+  .sec-btn.flip-card .inner.back .num{ color:#1A0033; }
+  .sec-btn.flip-card.go .inner.front{ transform: rotateY(180deg); }
+  .sec-btn.flip-card.go .inner.back{ transform: rotateY(360deg); }
+  .sec-btn.flip-card.go{
+    box-shadow:
+      0 0 0 1px var(--gold),
+      0 0 24px rgba(230,182,85,.45);
+  }
+  .watermark{
+    position:absolute; top:38px; right:16px;
+    font-family:"Bungee Inline", sans-serif;
+    font-size:14px;
+    color: rgba(0,240,255,.7);
+    opacity:0; z-index:5;
+    text-shadow: 0 0 12px rgba(0,240,255,.5);
+  }
+  .watermark.go{ animation: watermarkIn .9s ease forwards; }
+  @keyframes watermarkIn{
+    0%{ opacity:0; transform: scale(.7) rotate(-8deg); }
+    30%{ opacity:1; transform: scale(1.1) rotate(0); }
+    70%{ opacity:1; transform: scale(1) rotate(0); }
+    100%{ opacity:0; transform: scale(1) rotate(0); }
+  }
+
+  /* ---------------- ANIM 4 · NEON INK BLEED ---------------- */
+  .ink{
+    position:absolute; top:50%; left:50%;
+    width:0; height:0;
+    border-radius:50%;
+    background: radial-gradient(circle, var(--pink) 0%, rgba(255,43,214,.6) 30%, transparent 70%);
+    transform: translate(-50%,-50%);
+    pointer-events:none;
+    filter: blur(1px);
+    mix-blend-mode: screen;
+    z-index:2;
+  }
+  .ink.go{ animation: inkBleed 1100ms cubic-bezier(.4,1.4,.5,1) forwards; }
+  @keyframes inkBleed{
+    0%{ width:0; height:0; opacity:.9; filter: blur(0); }
+    60%{ width:240px; height:240px; opacity:.7; filter: blur(2px); }
+    100%{ width:320px; height:320px; opacity:0; filter: blur(8px); }
+  }
+  .ink.cyan{ background: radial-gradient(circle, var(--cyan) 0%, rgba(0,240,255,.5) 30%, transparent 70%); }
+  .splash-num{
+    position:absolute; left:50%; top:50%;
+    transform: translate(-50%, -50%) scale(.5);
+    font-family:"Bungee Inline", sans-serif;
+    font-size:64px;
+    color:var(--ink);
+    text-shadow: 0 0 24px rgba(255,43,214,.7), 0 0 60px rgba(255,43,214,.4);
+    opacity:0;
+    z-index:6; pointer-events:none;
+  }
+  .splash-num.go{ animation: splashNum 1100ms cubic-bezier(.2,1.2,.3,1) forwards; }
+  @keyframes splashNum{
+    0%{ opacity:0; transform: translate(-50%,-50%) scale(.4); }
+    30%{ opacity:1; transform: translate(-50%,-50%) scale(1.2); }
+    60%{ opacity:1; transform: translate(-50%,-50%) scale(1); }
+    100%{ opacity:0; transform: translate(-50%,-150%) scale(.9); }
+  }
+
+  /* ---------------- ANIM 5 · TICKER TAPE ---------------- */
+  .ticker-wrap{
+    position:absolute; left:0; right:0; bottom:14px;
+    height:30px;
+    background: linear-gradient(90deg, var(--pink), var(--cyan));
+    border-top:1px solid rgba(255,255,255,.25);
+    border-bottom:1px solid rgba(255,255,255,.25);
+    overflow:hidden;
+    z-index:5;
+    box-shadow: 0 -6px 20px rgba(0,0,0,.4);
+  }
+  .ticker-wrap::before{
+    content:"LIVE";
+    position:absolute; left:0; top:0; bottom:0;
+    background:#000; color:var(--cyan);
+    display:flex; align-items:center; padding:0 10px;
+    font-family:"Audiowide", sans-serif;
+    font-size:11px; letter-spacing:.32em;
+    z-index:3;
+    border-right:1px solid rgba(255,255,255,.15);
+  }
+  .ticker-wrap::after{
+    content:""; position:absolute; right:0; top:0; bottom:0; width:24px;
+    background:linear-gradient(90deg, transparent, rgba(0,0,0,.4));
+    z-index:2;
+  }
+  .ticker{
+    position:absolute; left:60px; right:0; top:0; bottom:0;
+    overflow:hidden;
+  }
+  .ticker-track{
+    position:absolute; left:0; top:0; bottom:0;
+    display:flex; align-items:center; gap:24px;
+    padding-left:20px;
+    color:#000;
+    font-family:"Share Tech Mono", monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    font-weight:bold;
+    animation: tickerScroll 18s linear infinite;
+    text-transform:uppercase;
+  }
+  .ticker-track .it{
+    display:inline-flex; align-items:center; gap:6px;
+    white-space:nowrap;
+    padding: 2px 8px;
+    background: rgba(0,0,0,.15);
+    border-radius:3px;
+  }
+  .ticker-track .it.like{ background: rgba(0,0,0,.25); color:#0B0020; }
+  .ticker-track .it.view{ background: rgba(255,255,255,.25); color:#0B0020; }
+  .ticker-track .it.fresh{ outline:2px solid #fff; outline-offset:1px; animation: tickerFlash 1.6s ease forwards; }
+  @keyframes tickerFlash{
+    0%{ outline-color:#fff; transform:scale(1); }
+    30%{ outline-color:var(--gold); transform:scale(1.08); }
+    100%{ outline-color:transparent; transform:scale(1); }
+  }
+  @keyframes tickerScroll{
+    0%{ transform: translateX(0); }
+    100%{ transform: translateX(-50%); }
+  }
+
+  /* shared overlay helpers (counters) */
+  .sec-btn .pop{
+    position:absolute; top:-14px; right:-2px;
+    font-family:"Audiowide", sans-serif;
+    font-size:11px;
+    color:var(--gold);
+    background:#000;
+    padding:1px 6px;
+    border-radius:3px;
+    opacity:0;
+    transform: translateY(6px);
+    pointer-events:none;
+  }
+  .sec-btn .pop.go{ animation: popNum 1100ms ease forwards; }
+  @keyframes popNum{
+    0%{ opacity:0; transform: translateY(6px) scale(.8); }
+    20%{ opacity:1; transform: translateY(-2px) scale(1.05); }
+    70%{ opacity:1; transform: translateY(-2px) scale(1); }
+    100%{ opacity:0; transform: translateY(-10px) scale(.95); }
+  }
+
+  footer{
+    padding: 30px 48px 60px;
+    color:var(--ink-dim);
+    font-family:"Share Tech Mono", monospace;
+    font-size:11px;
+    letter-spacing:.18em;
+    text-align:center;
+    border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>LIVE Detail · <em>Animation</em> Finalists</h1>
+  <div class="meta">
+    Pixora IA <span class="dot">·</span> Issue <b>014</b> <span class="dot">·</span> 2026
+  </div>
+</header>
+<div class="subhead">
+  <span class="tag cyan">Neon Editorial</span>
+  <span class="tag pink">LIKE + VIEW</span>
+  <span class="tag">5 finalists</span>
+  <div class="rule"></div>
+  <span style="font-family:'DM Serif Display'; font-style:italic; color:var(--ink-dim);">
+    pick the one you'd put in print.
+  </span>
+</div>
+
+<main id="grid"></main>
+
+<footer>
+  PIXORA IA · LIVE WALLPAPER ANIMATION FINALISTS · CONFIDENTIAL · INTERNAL REVIEW
+</footer>
+
+<template id="tpl-phone">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="hero-img">
+      <div class="live-badge"><span class="pulse"></span> LIVE</div>
+      <div class="corner">REF-2406 · 4K</div>
+    </div>
+    <div class="editorial">
+      <div class="kicker">Issue 014 · Live Wallpaper</div>
+      <h2>BULMA LIVE</h2>
+      <div class="byline">Capítulo de la colección Bulma · DragonBall · A study in neon.</div>
+    </div>
+    <div class="meta-strip">
+      <span>JUN <b>2026</b></span>
+      <span><b class="dlnum">30</b> DOWNLOADS</span>
+      <span><b class="vwnum">29</b> VIEWS</span>
+      <span>2.4M</span>
+    </div>
+    <div class="cta-row">
+      <button class="btn-primary">APLICAR · LIVE</button>
+    </div>
+    <div class="sec-row">
+      <button class="sec-btn likebtn">
+        <span class="icon">♡</span>
+        <span class="num likenum">2</span>
+        <span class="lbl">LIKE</span>
+        <span class="pop">+1</span>
+      </button>
+      <button class="sec-btn">
+        <span class="icon">⇪</span>
+        <span class="num">—</span>
+        <span class="lbl">SHARE</span>
+      </button>
+      <button class="sec-btn">
+        <span class="icon">⤓</span>
+        <span class="num dlnum">30</span>
+        <span class="lbl">DOWNLOAD</span>
+      </button>
+    </div>
+    <div class="info">
+      <div class="row"><span>RESOLUTION</span><b>1080 × 2340</b></div>
+      <div class="row"><span>RUNTIME</span><b>6.2 s · LOOP</b></div>
+      <div class="row"><span>CATEGORY</span><b>ANIME · NEON</b></div>
+      <div class="copy">
+        “Bulma flota entre cyan y rosa, encerrada en una colección que sólo existe cuando alguien la mira.”
+      </div>
+      <div class="tags">
+        <span class="tag">ANIME</span><span class="tag">NEON</span>
+        <span class="tag">PORTRAIT</span><span class="tag">DAILY</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+/* ------------------------------------------------------------------ */
+/* shared utils                                                       */
+/* ------------------------------------------------------------------ */
+function $(sel, root=document){ return root.querySelector(sel); }
+function $$(sel, root=document){ return [...root.querySelectorAll(sel)]; }
+
+function countUp(el, to, ms=600){
+  const from = parseInt(el.textContent, 10) || 0;
+  const start = performance.now();
+  function tick(t){
+    const k = Math.min(1, (t-start)/ms);
+    const eased = 1 - Math.pow(1-k, 3);
+    el.textContent = Math.round(from + (to-from)*eased);
+    if(k < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ------------------------------------------------------------------ */
+/* design definitions                                                 */
+/* ------------------------------------------------------------------ */
+const DESIGNS = [
+  {
+    id:'print-stamp',
+    name:'PRINT STAMP',
+    sub:'sello aprobado · flip board counter',
+    setup(phone){
+      const stamp = document.createElement('div');
+      stamp.className = 'stamp';
+      stamp.innerHTML = `
+        <div class="ring"></div>
+        <div class="lbl">LIKED</div>
+        <div class="sub">REGISTRADO · 2026 · MX</div>
+      `;
+      phone.appendChild(stamp);
+      phone._stamp = stamp;
+    },
+    onLike(phone, isLocal){
+      const s = phone._stamp;
+      // colour swap for remote like
+      s.style.borderColor = isLocal ? 'var(--rose)' : 'var(--cyan)';
+      s.style.color = isLocal ? 'var(--rose)' : 'var(--cyan)';
+      s.querySelector('.lbl').textContent = isLocal ? 'LIKED' : 'NEW FAN';
+      s.classList.remove('go'); void s.offsetWidth; s.classList.add('go');
+
+      const btn = $('.likebtn', phone);
+      const num = $('.likenum', btn);
+      const cur = parseInt(num.textContent,10) || 0;
+      num.textContent = cur+1;
+      btn.classList.add('liked');
+      btn.querySelector('.icon').textContent = '♥';
+      const pop = btn.querySelector('.pop');
+      pop.textContent = isLocal ? '+1' : '+1 fan';
+      pop.classList.remove('go'); void pop.offsetWidth; pop.classList.add('go');
+    },
+    onView(phone){
+      // brief flash of stamp in cyan with VIEW label
+      const s = phone._stamp;
+      s.style.borderColor = 'var(--cyan)';
+      s.style.color = 'var(--cyan)';
+      s.querySelector('.lbl').textContent = 'SEEN';
+      s.classList.remove('go'); void s.offsetWidth; s.classList.add('go');
+      const v = $('.vwnum', phone);
+      countUp(v, (parseInt(v.textContent,10)||0)+1);
+    }
+  },
+
+  {
+    id:'editorial-slide',
+    name:'EDITORIAL SLIDE-IN',
+    sub:'breaking band · pull quote citation',
+    setup(phone){
+      const band = document.createElement('div');
+      band.className = 'breaking';
+      band.innerHTML = `<span class="tag">BREAKING</span><span class="msg">LIKED BY YOU</span>`;
+      phone.appendChild(band);
+      phone._band = band;
+
+      const cite = document.createElement('div');
+      cite.className = 'citation';
+      cite.innerHTML = `"+1 fan in the room." <span class="by">— ANON · GUADALAJARA</span>`;
+      phone.appendChild(cite);
+      phone._cite = cite;
+
+      const vm = document.createElement('div');
+      vm.className = 'viewmark';
+      vm.textContent = '👁 +1 LIVE';
+      phone.appendChild(vm);
+      phone._vm = vm;
+    },
+    onLike(phone, isLocal){
+      if(isLocal){
+        const b = phone._band;
+        b.style.background = 'linear-gradient(90deg, var(--cyan), rgba(0,240,255,0))';
+        b.querySelector('.msg').textContent = 'LIKED BY YOU';
+        b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
+      } else {
+        const c = phone._cite;
+        const msgs = ['+1 fan in the room.', 'remote ♥ logged.', 'someone noticed.', '+1 admirer.'];
+        c.firstChild.textContent = '"' + msgs[Math.floor(Math.random()*msgs.length)] + '"';
+        c.classList.remove('go'); void c.offsetWidth; c.classList.add('go');
+      }
+      const num = $('.likenum', phone);
+      countUp(num, (parseInt(num.textContent,10)||0)+1);
+      if(isLocal){
+        const btn = $('.likebtn', phone);
+        btn.classList.add('liked');
+        btn.querySelector('.icon').textContent = '♥';
+      }
+    },
+    onView(phone){
+      const vm = phone._vm;
+      vm.classList.remove('go'); void vm.offsetWidth; vm.classList.add('go');
+      const v = $('.vwnum', phone);
+      countUp(v, (parseInt(v.textContent,10)||0)+1);
+    }
+  },
+
+  {
+    id:'magazine-flip',
+    name:'MAGAZINE SPREAD FLIP',
+    sub:'3D page flip · gold edge flash',
+    setup(phone){
+      const like = $('.likebtn', phone);
+      like.classList.add('flip-card');
+      const old = like.innerHTML;
+      like.innerHTML = `
+        <div class="inner front">
+          <span class="icon">♡</span>
+          <span class="num likenum">2</span>
+          <span class="lbl">LIKE</span>
+        </div>
+        <div class="inner back">
+          <span class="icon">♥</span>
+          <span class="num likenum-back">3</span>
+          <span class="lbl">LIKED</span>
+        </div>
+        <span class="pop">+1</span>
+      `;
+      phone._like = like;
+
+      const wm = document.createElement('div');
+      wm.className = 'watermark';
+      wm.textContent = '👁 +1';
+      phone.appendChild(wm);
+      phone._wm = wm;
+    },
+    onLike(phone, isLocal){
+      const like = phone._like;
+      const front = like.querySelector('.front .likenum');
+      const back  = like.querySelector('.back  .likenum-back');
+      const cur = parseInt(front.textContent,10) || 0;
+      back.textContent = cur+1;
+      like.classList.remove('go');
+      void like.offsetWidth;
+      like.classList.add('go');
+      if(isLocal){
+        like.classList.add('liked');
+        const pop = like.querySelector('.pop');
+        pop.textContent = '+1';
+        pop.classList.remove('go'); void pop.offsetWidth; pop.classList.add('go');
+      }
+      // reset front after the flip swing so card "lands" on liked state
+      setTimeout(()=>{
+        front.textContent = cur+1;
+        like.classList.remove('go');
+        like.querySelector('.front .icon').textContent = '♥';
+      }, 950);
+    },
+    onView(phone){
+      const wm = phone._wm;
+      wm.classList.remove('go'); void wm.offsetWidth; wm.classList.add('go');
+      const v = $('.vwnum', phone);
+      countUp(v, (parseInt(v.textContent,10)||0)+1);
+    }
+  },
+
+  {
+    id:'neon-ink',
+    name:'NEON INK BLEED',
+    sub:'rorschach splash · big bungee number',
+    setup(phone){
+      const ink = document.createElement('div');
+      ink.className = 'ink';
+      phone.appendChild(ink);
+      phone._ink = ink;
+
+      const num = document.createElement('div');
+      num.className = 'splash-num';
+      num.textContent = '+1';
+      phone.appendChild(num);
+      phone._splash = num;
+    },
+    onLike(phone, isLocal){
+      // position the ink at the like button center
+      const btn = $('.likebtn', phone);
+      const phoneRect = phone.getBoundingClientRect();
+      const r = btn.getBoundingClientRect();
+      const x = (r.left + r.width/2 - phoneRect.left);
+      const y = (r.top  + r.height/2 - phoneRect.top);
+      const ink = phone._ink;
+      ink.style.left = x+'px';
+      ink.style.top  = y+'px';
+      ink.classList.toggle('cyan', !isLocal);
+      ink.classList.remove('go'); void ink.offsetWidth; ink.classList.add('go');
+
+      const splash = phone._splash;
+      splash.style.color = isLocal ? '#fff' : 'var(--cyan)';
+      splash.textContent = isLocal ? '+1' : '+1 FAN';
+      splash.classList.remove('go'); void splash.offsetWidth; splash.classList.add('go');
+
+      const numEl = $('.likenum', phone);
+      countUp(numEl, (parseInt(numEl.textContent,10)||0)+1);
+      if(isLocal){
+        btn.classList.add('liked');
+        btn.querySelector('.icon').textContent = '♥';
+      }
+    },
+    onView(phone){
+      // soft cyan ink at top-right corner of hero
+      const ink = phone._ink;
+      const phoneRect = phone.getBoundingClientRect();
+      ink.style.left = (phoneRect.width-50)+'px';
+      ink.style.top  = '60px';
+      ink.classList.add('cyan');
+      ink.classList.remove('go'); void ink.offsetWidth; ink.classList.add('go');
+      const v = $('.vwnum', phone);
+      countUp(v, (parseInt(v.textContent,10)||0)+1);
+    }
+  },
+
+  {
+    id:'ticker',
+    name:'TICKER TAPE LIVE FEED',
+    sub:'ambient presence · stock-exchange flow',
+    setup(phone){
+      // grow the phone vertically a touch by absorbing ticker over info
+      const wrap = document.createElement('div');
+      wrap.className = 'ticker-wrap';
+      wrap.innerHTML = `<div class="ticker"><div class="ticker-track" id="trk"></div></div>`;
+      phone.appendChild(wrap);
+      phone._track = wrap.querySelector('.ticker-track');
+
+      // seed loop items so the track always has content (duplicated for seamless loop)
+      const seed = [
+        {t:'like', txt:'♥ +1 LIKED'},
+        {t:'view', txt:'👁 +1 LIVE'},
+        {t:'like', txt:'♥ +1 FAN'},
+        {t:'view', txt:'👁 +1 LURKER'},
+        {t:'like', txt:'♥ HOT'},
+        {t:'view', txt:'👁 TRENDING'},
+      ];
+      const fill = () => {
+        for(const s of seed){
+          const it = document.createElement('span');
+          it.className = 'it ' + s.t;
+          it.textContent = s.txt;
+          phone._track.appendChild(it);
+        }
+      };
+      fill(); fill(); // duplicate for the -50% scroll loop
+    },
+    onLike(phone, isLocal){
+      const t = phone._track;
+      const it = document.createElement('span');
+      it.className = 'it like fresh';
+      it.textContent = isLocal ? '♥ +1 YOU' : '♥ +1 FAN';
+      t.insertBefore(it, t.firstChild);
+      // also reflect on the like number
+      const num = $('.likenum', phone);
+      countUp(num, (parseInt(num.textContent,10)||0)+1);
+      if(isLocal){
+        const btn = $('.likebtn', phone);
+        btn.classList.add('liked');
+        btn.querySelector('.icon').textContent = '♥';
+      }
+      // garbage collect very old items so DOM stays small
+      while(t.children.length > 60) t.lastChild.remove();
+    },
+    onView(phone){
+      const t = phone._track;
+      const it = document.createElement('span');
+      it.className = 'it view fresh';
+      it.textContent = '👁 +1 LIVE';
+      t.insertBefore(it, t.firstChild);
+      const v = $('.vwnum', phone);
+      countUp(v, (parseInt(v.textContent,10)||0)+1);
+      while(t.children.length > 60) t.lastChild.remove();
+    }
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* build the grid                                                     */
+/* ------------------------------------------------------------------ */
+const grid = $('#grid');
+const tpl  = $('#tpl-phone');
+
+DESIGNS.forEach((d, i) => {
+  const card = document.createElement('section');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="label"><span>0${i+1} · ${d.name}</span><span class="num">${String(i+1).padStart(2,'0')} / 05</span></div>
+    <div class="sub">${d.sub}</div>
+  `;
+
+  // phone
+  const phoneNode = tpl.content.firstElementChild.cloneNode(true);
+  card.appendChild(phoneNode);
+
+  // setup per-design
+  d.setup(phoneNode);
+
+  // controls
+  const ctrls = document.createElement('div');
+  ctrls.className = 'controls';
+  ctrls.innerHTML = `
+    <button data-act="local">♥ LIKE local</button>
+    <button data-act="remote">♥ LIKE remoto</button>
+    <button data-act="view">👁 VIEW remoto</button>
+    <button data-act="catchup">⚡ 3 likes catch-up</button>
+    <button class="choose">SELECT THIS DESIGN</button>
+  `;
+  card.appendChild(ctrls);
+
+  ctrls.addEventListener('click', (e)=>{
+    const b = e.target.closest('button'); if(!b) return;
+    const act = b.dataset.act;
+    if(b.classList.contains('choose')){
+      $$('.card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      // smooth scroll
+      card.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    if(act==='local')  d.onLike(phoneNode, true);
+    if(act==='remote') d.onLike(phoneNode, false);
+    if(act==='view')   d.onView(phoneNode);
+    if(act==='catchup'){
+      let n = 0;
+      const tick = () => { d.onLike(phoneNode, false); n++; if(n<3) setTimeout(tick, 320); };
+      tick();
+    }
+  });
+
+  grid.appendChild(card);
+});
+
+/* ambient presence: every few seconds, a random card receives a fake
+   remote view to show the design "alive" without interaction. */
+setInterval(()=>{
+  const cards = $$('.card');
+  if(!cards.length) return;
+  const c = cards[Math.floor(Math.random()*cards.length)];
+  const phone = c.querySelector('.phone');
+  const idx = cards.indexOf(c);
+  const d = DESIGNS[idx];
+  // 60% view, 40% remote like, to favour subtle ambient
+  if(Math.random() < 0.6) d.onView(phone);
+  else d.onLike(phone, false);
+}, 4200);
+</script>
+
+</body>
+</html>
