@@ -406,8 +406,15 @@ class PixoraWallpaperService : WallpaperService() {
                     //    halves battery cost during the most common case
                     //    (no music). Visualizer stays alive — we don't pay
                     //    re-acquire latency when music starts.
+                    // Canvas scenes with bob animation (e.g. Throotle's
+                    // floating turtle) MUST stay at marquee fps even when
+                    // idle — at 1fps the bob looks like teleporting jumps
+                    // instead of a smooth float.
+                    val sceneBobbing = isCanvasSceneMode &&
+                        canvasSceneRenderer.hasBobAnimation
                     val delay = when {
                         isFrameMode -> IDLE_FRAME_DELAY
+                        sceneBobbing -> deviceTier.idleMarqueeFrameDelay
                         idleMode -> IDLE_FRAME_DELAY
                         equalizerRenderer.hasAudio -> deviceTier.activeFrameDelay
                         else -> deviceTier.idleMarqueeFrameDelay

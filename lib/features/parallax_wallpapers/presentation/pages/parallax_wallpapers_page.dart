@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/app_strings_service.dart';
+import '../../../../core/services/catalog_index_service.dart';
 import '../../../../core/utils/locale_helper.dart';
 import '../../../wallpapers/data/models/wallpaper.dart';
 import '../../../wallpapers/presentation/pages/wallpaper_preview_page.dart';
@@ -26,6 +27,10 @@ class ParallaxWallpapersPage extends ConsumerWidget {
 
     return RefreshIndicator(
       onRefresh: () async {
+        // Force-fetch the catalog_index.json — the in-memory cache would
+        // otherwise hand back the stale list and the new canvas_scene
+        // entries would never show up until the app cold-starts.
+        await CatalogIndexService.instance.getItems(forceRefresh: true);
         ref.invalidate(parallaxWallpapersProvider);
         await AppStringsService.instance.refresh();
       },

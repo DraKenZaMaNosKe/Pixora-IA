@@ -7,6 +7,7 @@ import '../../features/aura/data/repositories/aura_repository.dart';
 import '../../features/events/data/events_service.dart';
 import 'app_strings_service.dart';
 import 'auto_rotate_service.dart';
+import 'catalog_index_service.dart';
 import 'catalog_service.dart';
 import 'day_cycle_catalog_service.dart';
 import 'live_wallpaper_catalog_service.dart';
@@ -192,6 +193,14 @@ class PushNotificationService {
     // catalog invalidation must not block the other scopes.
     Future<void> wallpapers() async {
       await safeClear('wallpapers', () => CatalogService.instance.clearCache());
+      // The 3D / parallax section reads from catalog_index.json (separate
+      // file in Storage with its own in-memory + disk cache). Without this
+      // clear, new canvas_scene entries don't show up in the 3D tab until
+      // cold start or after the 6h periodic refresh.
+      await safeClear(
+        'catalog-index',
+        () => CatalogIndexService.instance.clearCache(),
+      );
       await safeClear(
         'daily-refresh',
         () => AutoRotateService.instance.refreshIfRunning().then((_) {}),

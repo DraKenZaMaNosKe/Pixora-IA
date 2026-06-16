@@ -65,6 +65,13 @@ class CanvasSceneRenderer(private val context: Context) {
 
     /** True when the scene has its own image_layers (so wallpaper service skips bg draw). */
     val hasParallax: Boolean get() = spec?.hasParallax == true
+
+    /** True when any image_layer declares bob animation. Wallpaper service
+     *  uses this to keep the draw loop at video-rate (~16-30fps) even when
+     *  the device is idle — otherwise idleMode caps us at 1fps and the bob
+     *  becomes invisible (slow giant jumps instead of smooth float). */
+    val hasBobAnimation: Boolean
+        get() = spec?.imageLayers?.any { it.bobAmplitudePx > 0f } == true
     // The Pixora "P" 3D logo signature is owned globally by
     // PixoraWallpaperService so it appears on every wallpaper, not only
     // canvas_scenes. CanvasSceneRenderer just exposes spec.branding
@@ -261,9 +268,45 @@ class CanvasSceneRenderer(private val context: Context) {
         val extraW = (drawW - sw).coerceAtLeast(0f)
         val scrollOffset = (0.5f - scrollOffsetNorm) * extraW * sf
 
+        // Standalone organic float — sums two sinusoids whose periods differ
+        // by the golden ratio (~1.618), an irrational number. That means the
+        // combined wave NEVER repeats exactly, so the subject drifts in a
+        // pattern the eye can't predict — looks like a real object suspended
+        // in water/air instead of a robot bouncing on a metronome.
+        //
+        // Horizontal drift uses a different period+ratio so X and Y motion
+        // are decoupled (Lissajous-like). Result: tiny, organic 2D float.
+        //
+        // Key is hashed into the phase so multiple bobbing layers don't
+        // start at the same point in their cycle.
+        var bobOffsetX = 0f
+        var bobOffsetY = 0f
+        if (def.bobAmplitudePx > 0f) {
+            val tSec = System.nanoTime().toDouble() / 1_000_000_000.0
+            val phaseShift = (def.key.hashCode() and 0xff) / 256.0
+            val p = def.bobPeriodSec.toDouble()
+            val twoPi = 2.0 * Math.PI
+
+            // Vertical: compound wave (primary + golden-ratio harmonic)
+            val phaseY1 = ((tSec / p) + phaseShift) % 1.0
+            val phaseY2 = ((tSec / (p * 1.618)) + phaseShift + 0.27) % 1.0
+            val composedY = 0.62 * kotlin.math.sin(phaseY1 * twoPi) +
+                            0.38 * kotlin.math.sin(phaseY2 * twoPi)
+            bobOffsetY = (composedY * def.bobAmplitudePx).toFloat()
+
+            // Horizontal: subtle drift at ~35% of Y amplitude, slower period,
+            // golden-ratio harmonic too. Decoupled phase = organic 2D path.
+            val periodX = p * 1.37
+            val phaseX1 = ((tSec / periodX) + phaseShift + 0.41) % 1.0
+            val phaseX2 = ((tSec / (periodX * 1.618)) + phaseShift + 0.83) % 1.0
+            val composedX = 0.62 * kotlin.math.sin(phaseX1 * twoPi) +
+                            0.38 * kotlin.math.sin(phaseX2 * twoPi)
+            bobOffsetX = (composedX * def.bobAmplitudePx * 0.35).toFloat()
+        }
+
         // Vertical/horizontal TILT (gyro): per-layer depth using parallax_factor
-        val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset
-        val top  = (sh - drawH) / 2f + tiltY * pf
+        val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset + bobOffsetX
+        val top  = (sh - drawH) / 2f + tiltY * pf + bobOffsetY
         canvas.drawBitmap(bmp, left, top, layerPaint)  // pure blit, ~free
     }
 

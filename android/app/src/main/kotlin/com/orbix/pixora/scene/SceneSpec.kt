@@ -125,6 +125,12 @@ data class ImageLayerDef(
      *  the layer(s) beneath it visible around the edges. Used to "step back"
      *  a foreground subject (e.g. Goku) without re-cropping the asset. */
     val scale: Float,
+    /** Vertical sinusoidal bob. >0 makes the layer drift up/down forever
+     *  (regardless of gyro/scroll input) — used for natural "floating"
+     *  feel on subjects suspended in water/air. 0 = static (default). */
+    val bobAmplitudePx: Float,
+    /** Seconds per full bob cycle. Ignored when bobAmplitudePx == 0. */
+    val bobPeriodSec: Float,
 ) {
     companion object {
         fun parse(j: JSONObject): ImageLayerDef? = try {
@@ -139,6 +145,8 @@ data class ImageLayerDef(
                 scrollFactor = j.f("scroll_factor", pf),
                 z = j.optInt("z", 0),
                 scale = j.f("scale", 1f),
+                bobAmplitudePx = j.f("bob_amplitude_px", 0f).coerceAtLeast(0f),
+                bobPeriodSec = j.f("bob_period_sec", 4f).coerceAtLeast(0.1f),
             )
         } catch (e: Exception) { null }
     }
