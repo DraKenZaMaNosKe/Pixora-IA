@@ -242,6 +242,18 @@ class FrameScrubRenderer {
         targetIndex = (fraction * (frameCount - 1)).toInt().coerceIn(0, frameCount - 1)
     }
 
+    /** Total frames extracted (0 if not loaded). */
+    val totalFrames: Int get() = frameCount
+
+    /** Current frame being displayed (used to anchor drag-relative scrub). */
+    val currentFrameIndex: Int get() = currentIndex
+
+    /** Seek directly to a specific frame index (no fraction conversion). */
+    fun seekToIndex(index: Int) {
+        if (frameCount <= 0) return
+        targetIndex = index.coerceIn(0, frameCount - 1)
+    }
+
     /**
      * Update animation state. Call every frame (~16ms).
      * Returns true if a redraw is needed.

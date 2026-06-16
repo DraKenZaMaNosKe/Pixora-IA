@@ -102,6 +102,14 @@ class PixoraWallpaperService : WallpaperService() {
         // Frame scrub mode: extracted frames rendered via Canvas
         private val frameScrubRenderer = FrameScrubRenderer()
         private var isFrameMode = false // true when interactive uses extracted frames
+        // 2026-06-15 — drag-relative scrub anchors
+        private var scrubDragStartX = 0f       // dedo X cuando empezó el drag
+        private var scrubDragStartIndex = 0    // frame en el que estaba al empezar
+        // Sensibilidad del drag: cuántos px de movimiento = 1 frame de delta.
+        // 80px/frame → para recorrer un video de 24 frames hay que arrastrar
+        // 80*24 = 1920px (~1.8 swipes del ancho de pantalla 1080). Esto da
+        // una sensación natural similar a otros sliders touch nativos.
+        private val scrubPixelsPerFrame = 80f
         private val frameScrubUpdateRunnable = object : Runnable {
             override fun run() {
                 if (!isFrameMode || !frameScrubRenderer.isReady) return
@@ -781,6 +789,214 @@ class PixoraWallpaperService : WallpaperService() {
             prefsListener = null
         }
 
+        /**
+         * 2026-06-15 — Centralizar inferencia + persistencia de scene flags.
+         *
+         * Antes esta lógica vivía inline dentro de loadWallpaperImage() (~170
+         * líneas con sub-inits intercalados), que SOLO corre para wallpapers
+         * static. Cuando aplicabas un video/frame, esa función NO corre y los
+         * flags del wallpaper anterior persistían — drawFrame() pintaba el
+         * nuevo wallpaper + ENCIMA los renderers viejos (peces, fireflies,
+         * etc.). Lo descubrimos con Snoopy Explore tras venir de Aquarium.
+         *
+         * Ahora TODO entry point que active un wallpaper llama applySceneFlags
+         * para garantizar el state está limpio:
+         *   · loadWallpaperImage → applySceneFlags(path, sceneId)
+         *   · startVideoWallpaper → applySceneFlags(null, null) al inicio
+         *
+         * @param path path del wallpaper o null (null = limpiar todos los
+         *             scene modes, ej. cuando entras a video puro sin
+         *             background image).
+         * @param sceneId data-driven canvas scene id o null/blank.
+         */
+        private fun applySceneFlags(path: String?, sceneId: String?) {
+            val p = path ?: ""
+
+            // Inferencia desde keywords en el path — mantener el matching exacto
+            // del que estaba antes en loadWallpaperImage() para no romper
+            // wallpapers cuyo nombre matchee (ej. aquarium*.webp, firefly_*.png).
+            isRainWallpaper = p.contains("lofi_girl_rain")
+            isFireflyMode = p.contains("firefly")
+            isJellyfishMode = p.contains("jellyfish")
+            isPixoraIslandMode = p.contains("pixora_island")
+            isAquariumMode = p.contains("aquarium")
+            isCanvasSceneMode = !sceneId.isNullOrBlank()
+
+            // rainRenderer guarda su propio flag interno — mantener sincronizado
+            rainRenderer.isRainWallpaper = isRainWallpaper
+
+            // Persistir sceneId. :wallpaper process puede ser killed por canvas↔video
+            // Surface conflict; al respawn lo carga de prefs.
+            val editor = applicationContext
+                .getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+                .edit()
+            if (sceneId.isNullOrBlank()) {
+                editor.remove("scene_id")
+            } else {
+                editor.putString("scene_id", sceneId)
+            }
+            editor.apply()
+        }
+
+        /**
+         * Init Firefly scene: 4 luna moths + 1 owl + fireflies. Caller responsible
+         * de checar isFireflyMode + surface ready. Idempotente — no recarga si
+         * los sprites ya están.
+         */
+        private fun initFireflyScene() {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+            fireflyRenderer.surfaceWidth = surfaceWidth
+            fireflyRenderer.surfaceHeight = surfaceHeight
+            aquariumRenderer.surfaceWidth = surfaceWidth
+            aquariumRenderer.surfaceHeight = surfaceHeight
+            // moth_a, moth_d face left (canonical); moth_b, moth_c face right (mirror)
+            aquariumRenderer.loadFishSprites("aquarium/firefly/moth_a")
+            aquariumRenderer.loadFishSprites("aquarium/firefly/moth_b", mirrorOnLoad = true)
+            aquariumRenderer.loadFishSprites("aquarium/firefly/moth_c", mirrorOnLoad = true)
+            aquariumRenderer.loadFishSprites("aquarium/firefly/moth_d")
+            if (aquariumRenderer.fishCount == 0) {
+                aquariumRenderer.addFish(1, "aquarium/firefly/moth_a", scaleMin = 0.6f, scaleMax = 0.8f, speedMin = 0.5f, speedMax = 1.5f)
+                aquariumRenderer.addFish(1, "aquarium/firefly/moth_b", scaleMin = 0.5f, scaleMax = 0.7f, speedMin = 0.5f, speedMax = 1.5f)
+                aquariumRenderer.addFish(1, "aquarium/firefly/moth_c", scaleMin = 0.5f, scaleMax = 0.7f, speedMin = 0.5f, speedMax = 1.5f)
+                aquariumRenderer.addFish(1, "aquarium/firefly/moth_d", scaleMin = 0.6f, scaleMax = 0.8f, speedMin = 0.5f, speedMax = 1.5f)
+                aquariumRenderer.addFish(1, "aquarium/firefly/owl", scaleMin = 0.7f, scaleMax = 0.7f, speedMin = 0f, speedMax = 0f)
+                aquariumRenderer.setLastFishPosition(surfaceWidth * 0.78f, surfaceHeight * 0.02f)
+            }
+            Log.d(TAG, "Firefly mode activated: 4 luna moths + 1 owl + fireflies (${surfaceWidth}x${surfaceHeight})")
+        }
+
+        /**
+         * Init Jellyfish scene: bioluminescent jellies + bubbles + occasional anglerfish.
+         */
+        private fun initJellyfishScene() {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+            jellyfishRenderer.surfaceWidth = surfaceWidth
+            jellyfishRenderer.surfaceHeight = surfaceHeight
+            jellyfishRenderer.loadSprites("aquarium/jellyfish_blue")
+            jellyfishRenderer.loadSprites("aquarium/jellyfish_gold")
+            jellyfishRenderer.loadSprites("aquarium/comb_jelly")
+            if (jellyfishRenderer.jellyCount == 0) {
+                // Blue moon: 2 distant, 3 mid, 1 big foreground
+                jellyfishRenderer.addJellies(
+                    count = 2,
+                    spriteFolder = "aquarium/jellyfish_blue",
+                    scaleMin = 0.35f, scaleMax = 0.5f,
+                    speedMin = 0.2f, speedMax = 0.4f,
+                    swayAmpMin = 10f, swayAmpMax = 20f,
+                )
+                jellyfishRenderer.addJellies(
+                    count = 3,
+                    spriteFolder = "aquarium/jellyfish_blue",
+                    scaleMin = 0.6f, scaleMax = 0.85f,
+                    speedMin = 0.35f, speedMax = 0.7f,
+                    swayAmpMin = 20f, swayAmpMax = 35f,
+                )
+                jellyfishRenderer.addJellies(
+                    count = 1,
+                    spriteFolder = "aquarium/jellyfish_blue",
+                    scaleMin = 1.0f, scaleMax = 1.3f,
+                    speedMin = 0.5f, speedMax = 0.8f,
+                    swayAmpMin = 30f, swayAmpMax = 50f,
+                )
+                if (jellyfishRenderer.hasSprites("aquarium/jellyfish_gold")) {
+                    jellyfishRenderer.addJellies(
+                        count = 1,
+                        spriteFolder = "aquarium/jellyfish_gold",
+                        scaleMin = 0.9f, scaleMax = 1.15f,
+                        speedMin = 0.25f, speedMax = 0.5f,
+                        swayAmpMin = 25f, swayAmpMax = 45f,
+                    )
+                }
+                if (jellyfishRenderer.hasSprites("aquarium/comb_jelly")) {
+                    jellyfishRenderer.addJellies(
+                        count = 1,
+                        spriteFolder = "aquarium/comb_jelly",
+                        scaleMin = 0.7f, scaleMax = 0.9f,
+                        speedMin = 0.15f, speedMax = 0.3f,
+                        swayAmpMin = 35f, swayAmpMax = 55f,
+                    )
+                }
+            }
+            bubbleRenderer.surfaceWidth = surfaceWidth
+            bubbleRenderer.surfaceHeight = surfaceHeight
+            // Occasional deep-sea anglerfish
+            aquariumRenderer.surfaceWidth = surfaceWidth
+            aquariumRenderer.surfaceHeight = surfaceHeight
+            aquariumRenderer.loadFishSprites("aquarium/angler_fish")
+            if (aquariumRenderer.fishCount == 0) {
+                aquariumRenderer.addFish(
+                    count = 1,
+                    spriteFolder = "aquarium/angler_fish",
+                    scaleMin = 0.55f, scaleMax = 0.7f,
+                    speedMin = 0.4f, speedMax = 0.7f,
+                )
+            }
+            Log.d(TAG, "Jellyfish mode activated: jellies + bubbles + squid over ocean abyss (${surfaceWidth}x${surfaceHeight})")
+        }
+
+        /**
+         * Init Pixora Island scene: chibi mascot day-cycle.
+         */
+        private fun initPixoraIslandScene() {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+            pixoraFriendsRenderer.surfaceWidth = surfaceWidth
+            pixoraFriendsRenderer.surfaceHeight = surfaceHeight
+            pixoraFriendsRenderer.scale = (surfaceWidth * 0.22f) / 120f
+            Log.d(TAG, "Pixora Island mode activated: chibi mascot day-cycle (${surfaceWidth}x${surfaceHeight})")
+        }
+
+        /**
+         * Init Canvas Scene: data-driven FX (volcano_dragon, dusk_fortress, etc.).
+         * @return true si el spec cargó OK, false si falló (caller debe revertir
+         *         isCanvasSceneMode a false).
+         */
+        private fun initCanvasScene(sceneId: String): Boolean {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0) return false
+            canvasSceneRenderer.surfaceWidth = surfaceWidth
+            canvasSceneRenderer.surfaceHeight = surfaceHeight
+            val ok = canvasSceneRenderer.loadSpec(sceneId)
+            if (ok) {
+                canvasSceneRenderer.ensureLoaded()
+                Log.d(TAG, "Canvas scene activated: $sceneId (${surfaceWidth}x${surfaceHeight})")
+                if (canvasSceneRenderer.hasParallax) {
+                    registerGyroIfNeeded()
+                } else {
+                    unregisterGyro()
+                }
+            } else {
+                Log.w(TAG, "Canvas scene failed to load: $sceneId — falling back")
+                unregisterGyro()
+            }
+            return ok
+        }
+
+        /**
+         * Init Aquarium scene: betta + angelfish + neon tetras + bubbles.
+         */
+        private fun initAquariumScene() {
+            if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+            aquariumRenderer.surfaceWidth = surfaceWidth
+            aquariumRenderer.surfaceHeight = surfaceHeight
+            aquariumRenderer.loadFishSprites("aquarium/betta")
+            aquariumRenderer.loadFishSprites("aquarium/angel", mirrorOnLoad = true)
+            aquariumRenderer.loadFishSprites("aquarium/neon", mirrorOnLoad = true)
+            bubbleRenderer.surfaceWidth = surfaceWidth
+            bubbleRenderer.surfaceHeight = surfaceHeight
+            if (aquariumRenderer.fishCount == 0) {
+                aquariumRenderer.addFish(3, "aquarium/betta")
+                aquariumRenderer.addFish(3, "aquarium/angel")
+                aquariumRenderer.addFish(
+                    count = 5,
+                    spriteFolder = "aquarium/neon",
+                    scaleMin = 0.8f,
+                    scaleMax = 1.3f,
+                    speedMin = 2f,
+                    speedMax = 4f,
+                )
+                Log.d(TAG, "Aquarium mode activated: 3 betta + 3 angelfish + 5 neon tetras (${surfaceWidth}x${surfaceHeight})")
+            }
+        }
+
         private fun loadWallpaperImage() {
             try {
                 val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
@@ -868,177 +1084,30 @@ class PixoraWallpaperService : WallpaperService() {
                 // Pick clock style based on wallpaper path hash
                 clockRenderer.clockStyle = abs((path ?: "").hashCode()) % 4
                 currentWallpaperPath = path
-                isRainWallpaper = path?.contains("lofi_girl_rain") == true
-
-                // Firefly mode: glowing fireflies + luna moths over enchanted forest
-                isFireflyMode = path?.contains("firefly") == true
-                if (isFireflyMode && surfaceWidth > 0 && surfaceHeight > 0) {
-                    fireflyRenderer.surfaceWidth = surfaceWidth
-                    fireflyRenderer.surfaceHeight = surfaceHeight
-                    aquariumRenderer.surfaceWidth = surfaceWidth
-                    aquariumRenderer.surfaceHeight = surfaceHeight
-                    // moth_a, moth_d face left (canonical); moth_b, moth_c face right (mirror)
-                    aquariumRenderer.loadFishSprites("aquarium/firefly/moth_a")
-                    aquariumRenderer.loadFishSprites("aquarium/firefly/moth_b", mirrorOnLoad = true)
-                    aquariumRenderer.loadFishSprites("aquarium/firefly/moth_c", mirrorOnLoad = true)
-                    aquariumRenderer.loadFishSprites("aquarium/firefly/moth_d")
-                    if (aquariumRenderer.fishCount == 0) {
-                        aquariumRenderer.addFish(1, "aquarium/firefly/moth_a", scaleMin = 0.6f, scaleMax = 0.8f, speedMin = 0.5f, speedMax = 1.5f)
-                        aquariumRenderer.addFish(1, "aquarium/firefly/moth_b", scaleMin = 0.5f, scaleMax = 0.7f, speedMin = 0.5f, speedMax = 1.5f)
-                        aquariumRenderer.addFish(1, "aquarium/firefly/moth_c", scaleMin = 0.5f, scaleMax = 0.7f, speedMin = 0.5f, speedMax = 1.5f)
-                        aquariumRenderer.addFish(1, "aquarium/firefly/moth_d", scaleMin = 0.6f, scaleMax = 0.8f, speedMin = 0.5f, speedMax = 1.5f)
-                        // Owl: stationary, perched on upper-right branch
-                        aquariumRenderer.addFish(1, "aquarium/firefly/owl", scaleMin = 0.7f, scaleMax = 0.7f, speedMin = 0f, speedMax = 0f)
-                        aquariumRenderer.setLastFishPosition(surfaceWidth * 0.78f, surfaceHeight * 0.02f)
-                    }
-                    Log.d(TAG, "Firefly mode activated: 4 luna moths + 1 owl + fireflies (${surfaceWidth}x${surfaceHeight})")
-                }
-
-                // Jellyfish mode: bioluminescent jellies rise through deep-ocean column
-                isJellyfishMode = path?.contains("jellyfish") == true
-                if (isJellyfishMode && surfaceWidth > 0 && surfaceHeight > 0) {
-                    jellyfishRenderer.surfaceWidth = surfaceWidth
-                    jellyfishRenderer.surfaceHeight = surfaceHeight
-                    // Main species: blue moon jellies (always present)
-                    jellyfishRenderer.loadSprites("aquarium/jellyfish_blue")
-                    // Optional species: load if present. Silently skip otherwise.
-                    jellyfishRenderer.loadSprites("aquarium/jellyfish_gold")
-                    jellyfishRenderer.loadSprites("aquarium/comb_jelly")
-                    if (jellyfishRenderer.jellyCount == 0) {
-                        // Blue moon: 2 distant, 3 mid, 1 big foreground
-                        jellyfishRenderer.addJellies(
-                            count = 2,
-                            spriteFolder = "aquarium/jellyfish_blue",
-                            scaleMin = 0.35f, scaleMax = 0.5f,
-                            speedMin = 0.2f, speedMax = 0.4f,
-                            swayAmpMin = 10f, swayAmpMax = 20f,
-                        )
-                        jellyfishRenderer.addJellies(
-                            count = 3,
-                            spriteFolder = "aquarium/jellyfish_blue",
-                            scaleMin = 0.6f, scaleMax = 0.85f,
-                            speedMin = 0.35f, speedMax = 0.7f,
-                            swayAmpMin = 20f, swayAmpMax = 35f,
-                        )
-                        jellyfishRenderer.addJellies(
-                            count = 1,
-                            spriteFolder = "aquarium/jellyfish_blue",
-                            scaleMin = 1.0f, scaleMax = 1.3f,
-                            speedMin = 0.5f, speedMax = 0.8f,
-                            swayAmpMin = 30f, swayAmpMax = 50f,
-                        )
-                        // Golden lion's mane: 1 hero piece (only spawns if sprites loaded)
-                        if (jellyfishRenderer.hasSprites("aquarium/jellyfish_gold")) {
-                            jellyfishRenderer.addJellies(
-                                count = 1,
-                                spriteFolder = "aquarium/jellyfish_gold",
-                                scaleMin = 0.9f, scaleMax = 1.15f,
-                                speedMin = 0.25f, speedMax = 0.5f,
-                                swayAmpMin = 25f, swayAmpMax = 45f,
-                            )
-                        }
-                        // Comb jelly (ctenophore): 1 rare iridescent wanderer, very slow + wide sway
-                        if (jellyfishRenderer.hasSprites("aquarium/comb_jelly")) {
-                            jellyfishRenderer.addJellies(
-                                count = 1,
-                                spriteFolder = "aquarium/comb_jelly",
-                                scaleMin = 0.7f, scaleMax = 0.9f,
-                                speedMin = 0.15f, speedMax = 0.3f,
-                                swayAmpMin = 35f, swayAmpMax = 55f,
-                            )
-                        }
-                    }
-
-                    // Rising bubble streams — calm abyss respiration
-                    bubbleRenderer.surfaceWidth = surfaceWidth
-                    bubbleRenderer.surfaceHeight = surfaceHeight
-
-                    // Occasional deep-sea anglerfish (horizontal drifter).
-                    // No native lure glow — the GIF already bakes a pulsing
-                    // bioluminescent bulb into the animation, and since the
-                    // illicium sways per-frame, a static overlay can't track
-                    // it correctly. The GIF's built-in glow is enough.
-                    aquariumRenderer.surfaceWidth = surfaceWidth
-                    aquariumRenderer.surfaceHeight = surfaceHeight
-                    aquariumRenderer.loadFishSprites("aquarium/angler_fish")
-                    if (aquariumRenderer.fishCount == 0) {
-                        aquariumRenderer.addFish(
-                            count = 1,
-                            spriteFolder = "aquarium/angler_fish",
-                            scaleMin = 0.55f, scaleMax = 0.7f,
-                            speedMin = 0.4f, speedMax = 0.7f,
-                        )
-                    }
-
-                    Log.d(TAG, "Jellyfish mode activated: jellies + bubbles + squid over ocean abyss (${surfaceWidth}x${surfaceHeight})")
-                }
-
-                // Pixora Island: chibi mascot that cycles idle/walk/eat/sleep by hour
-                isPixoraIslandMode = path?.contains("pixora_island") == true
-                if (isPixoraIslandMode && surfaceWidth > 0 && surfaceHeight > 0) {
-                    pixoraFriendsRenderer.surfaceWidth = surfaceWidth
-                    pixoraFriendsRenderer.surfaceHeight = surfaceHeight
-                    // Sprite native size 240x~400, decoded at half via inSampleSize=2.
-                    // Target ~22% of screen width so the mascot feels present but doesn't
-                    // compete with the scene. At 1080 px screen that's ~237 px wide.
-                    pixoraFriendsRenderer.scale = (surfaceWidth * 0.22f) / 120f
-                    Log.d(TAG, "Pixora Island mode activated: chibi mascot day-cycle (${surfaceWidth}x${surfaceHeight})")
-                }
-
-                // Data-driven canvas scenes (volcano_dragon, dusk_fortress, and any
-                // future canvas_scene wallpaper). Activated by 'scene_id' pref set
-                // from MainActivity.setLiveWallpaper(sceneId=...). The wallpaper
-                // path remains the standard background image; the scene spec drives
-                // the FX overlay (sprites, particles, events).
+                // 2026-06-15 refactor — Scene flags + sub-renderer init
+                // centralizado en applySceneFlags() + initXxxScene() helpers.
+                // Antes vivía aquí inline (~170 líneas) y se duplicaba/leakeaba
+                // entre transitions porque otros entry points (startVideoWallpaper,
+                // story, etc.) NO corren este código y heredaban flags stale.
+                // Ahora ES ÚNICAMENTE el caller que decide los flags vía
+                // applySceneFlags(path, sceneId), y los inits son explícitos.
                 val sceneId = prefs.getString("scene_id", null)
-                isCanvasSceneMode = !sceneId.isNullOrBlank()
-                if (isCanvasSceneMode && surfaceWidth > 0 && surfaceHeight > 0) {
-                    canvasSceneRenderer.surfaceWidth = surfaceWidth
-                    canvasSceneRenderer.surfaceHeight = surfaceHeight
-                    val ok = canvasSceneRenderer.loadSpec(sceneId!!)
-                    if (ok) {
-                        canvasSceneRenderer.ensureLoaded()
-                        Log.d(TAG, "Canvas scene activated: $sceneId (${surfaceWidth}x${surfaceHeight})")
-                        // Register gyroscope only for parallax-enabled scenes
-                        if (canvasSceneRenderer.hasParallax) {
-                            registerGyroIfNeeded()
-                        } else {
-                            unregisterGyro()
-                        }
-                    } else {
-                        Log.w(TAG, "Canvas scene failed to load: $sceneId — falling back")
+                applySceneFlags(path, sceneId)
+
+                if (isFireflyMode) initFireflyScene()
+                if (isJellyfishMode) initJellyfishScene()
+                if (isPixoraIslandMode) initPixoraIslandScene()
+                if (isCanvasSceneMode && sceneId != null) {
+                    if (!initCanvasScene(sceneId)) {
+                        // load falló → applySceneFlags ya seteó isCanvasSceneMode=true
+                        // pero el spec no cargó. Revertir.
                         isCanvasSceneMode = false
                         unregisterGyro()
                     }
-                } else {
+                } else if (!isCanvasSceneMode) {
                     unregisterGyro()
                 }
-
-                // Aquarium mode: animated fish over background image
-                isAquariumMode = path?.contains("aquarium") == true
-                if (isAquariumMode && surfaceWidth > 0 && surfaceHeight > 0) {
-                    aquariumRenderer.surfaceWidth = surfaceWidth
-                    aquariumRenderer.surfaceHeight = surfaceHeight
-                    aquariumRenderer.loadFishSprites("aquarium/betta")
-                    aquariumRenderer.loadFishSprites("aquarium/angel", mirrorOnLoad = true)
-                    aquariumRenderer.loadFishSprites("aquarium/neon", mirrorOnLoad = true)
-                    bubbleRenderer.surfaceWidth = surfaceWidth
-                    bubbleRenderer.surfaceHeight = surfaceHeight
-                    if (aquariumRenderer.fishCount == 0) {
-                        aquariumRenderer.addFish(3, "aquarium/betta")
-                        aquariumRenderer.addFish(3, "aquarium/angel")
-                        // Neon tetra school: 5 small, fast fish
-                        aquariumRenderer.addFish(
-                            count = 5,
-                            spriteFolder = "aquarium/neon",
-                            scaleMin = 0.8f,
-                            scaleMax = 1.3f,
-                            speedMin = 2f,
-                            speedMax = 4f,
-                        )
-                        Log.d(TAG, "Aquarium mode activated: 3 betta + 3 angelfish + 5 neon tetras (${surfaceWidth}x${surfaceHeight})")
-                    }
-                }
+                if (isAquariumMode) initAquariumScene()
 
                 if (path != null) {
                     val file = File(path)
@@ -1164,6 +1233,15 @@ class PixoraWallpaperService : WallpaperService() {
             }
             Log.d(TAG, "Starting video: $path")
 
+            // 2026-06-15 — Garantizar que NINGÚN scene overlay del wallpaper
+            // anterior (Aquarium, Firefly, Jellyfish, Pixora Island, Canvas
+            // Scene, Rain) quede activo cuando entramos a video/frame mode.
+            // loadWallpaperImage() infiere scene flags por keyword en path,
+            // pero esa función no corre cuando entras a video — sin este
+            // cleanup central, los renderers se dibujarían ENCIMA del video
+            // o del frame scrub (bug Snoopy Explore 2026-06-15).
+            applySceneFlags(null, null)
+
             // Stop canvas drawing
             drawing = false
             handler.removeCallbacks(drawRunnable)
@@ -1207,7 +1285,17 @@ class PixoraWallpaperService : WallpaperService() {
                     return
                 }
                 isFrameMode = true
+                // 2026-06-15 — DEJAR isVideoWallpaper=true en modo Explore.
+                // onTouchEvent() require `isInteractive && isVideoWallpaper` para
+                // procesar el touch scrub. Si lo limpiamos aquí, el preview se
+                // ve pero queda congelado en el primer frame (sin respuesta al
+                // touch). La guarda de drawFrame() ahora distingue entre modo
+                // video real y modo frame (ver fix abajo).
                 synchronized(videoLock) { videoStarting = false }
+
+                // (Scene flag cleanup ahora vive en applySceneFlags(null, null)
+                // llamado al inicio de startVideoWallpaper — cubre TODOS los
+                // paths video/frame, no solo este branch Explore.)
 
                 Log.d(TAG, "Explore: loading frames from $path")
                 if (frameScrubRenderer.loadFromDirectory(path)) {
@@ -1682,22 +1770,39 @@ class PixoraWallpaperService : WallpaperService() {
                 aquariumRenderer.onTouch(event.x, event.y)
             }
 
-            // Interactive mode: tap position on screen = position in video/frames
+            // Interactive mode: DRAG-relative scrub.
+            // 2026-06-15 — Cambiado de posición absoluta (event.x / surfaceWidth
+            // → frame index) a delta-de-arrastre relativo. Con solo 24 frames y
+            // 1080px de ancho, el mapeo absoluto daba 45px/frame — demasiado
+            // sensible para un dedo (un swipe corto recorría todo el video). El
+            // nuevo modelo: ACTION_DOWN ancla la posición y el frame actual,
+            // cada ACTION_MOVE suma deltaX/scrubPixelsPerFrame al frame target.
+            // Con 80px/frame, 24 frames requieren ~1920px de arrastre (~1.8x
+            // ancho), sensación natural cercana a un slider iOS.
             if (isInteractive && isVideoWallpaper) {
-                if (event.action == MotionEvent.ACTION_DOWN) {
-                    val pct = (event.x / surfaceWidth.toFloat()).coerceIn(0f, 1f)
-
-                    if (isFrameMode && frameScrubRenderer.isReady) {
-                        // Frame mode: seek through extracted frames
-                        frameScrubRenderer.seekTo(pct)
-                        // Restart animation loop to process the seek
-                        handler.removeCallbacks(frameScrubUpdateRunnable)
-                        handler.post(frameScrubUpdateRunnable)
-                    } else {
-                        // ExoPlayer fallback: animated seek
-                        val player = mediaPlayer
-                        if (player != null && player.duration > 0) {
-                            player.seekTo((pct * player.duration).toInt().coerceIn(0, player.duration - 1))
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        scrubDragStartX = event.x
+                        if (isFrameMode && frameScrubRenderer.isReady) {
+                            scrubDragStartIndex = frameScrubRenderer.currentFrameIndex
+                        } else {
+                            // ExoPlayer fallback: single absolute seek en DOWN
+                            // (MediaPlayer.seekTo es caro para spamear en MOVE).
+                            val player = mediaPlayer
+                            if (player != null && player.duration > 0) {
+                                val pct = (event.x / surfaceWidth.toFloat()).coerceIn(0f, 1f)
+                                player.seekTo((pct * player.duration).toInt().coerceIn(0, player.duration - 1))
+                            }
+                        }
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        if (isFrameMode && frameScrubRenderer.isReady) {
+                            val deltaX = event.x - scrubDragStartX
+                            val deltaFrames = (deltaX / scrubPixelsPerFrame).toInt()
+                            val targetFrame = scrubDragStartIndex + deltaFrames
+                            frameScrubRenderer.seekToIndex(targetFrame)
+                            handler.removeCallbacks(frameScrubUpdateRunnable)
+                            handler.post(frameScrubUpdateRunnable)
                         }
                     }
                 }
@@ -1759,7 +1864,12 @@ class PixoraWallpaperService : WallpaperService() {
             // MediaPlayer owns it now; lockCanvas() here would push another
             // HWUI frame into the system RenderThread and re-trigger the
             // SkiaOpenGLPipeline::getFrame SIGABRT.
-            if (isVideoWallpaper) return
+            //
+            // 2026-06-15 — Excepción para Explore (frame scrub). En modo frames
+            // NO hay MediaPlayer, dibujamos vía Canvas igual que canvas scenes.
+            // isVideoWallpaper queda en true para que onTouchEvent procese el
+            // touch scrub, pero isFrameMode=true habilita el render Canvas.
+            if (isVideoWallpaper && !isFrameMode) return
             val holder = surfaceHolder ?: return
             var canvas: Canvas? = null
             try {
