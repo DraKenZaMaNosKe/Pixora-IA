@@ -1205,6 +1205,24 @@ class PixoraWallpaperService : WallpaperService() {
 
         // Guard against multiple simultaneous video starts
         @Volatile private var videoStarting = false
+        // 2026-06-15 — Token-based startup race guard.
+        //
+        // El problema: `videoStarting` es boolean simple y se resetea
+        // false en 11 lugares (early returns por surface no ready, file
+        // not found, error de MediaPlayer, etc.). Cada reset abre una
+        // ventana donde otra startVideoWallpaper (típicamente disparada
+        // por onVisibilityChanged callbacks rapidos de Android) entra,
+        // pasa la guarda, y crea otro MediaPlayer en paralelo. Resultado
+        // observado en logcat: "preparing #1" + "preparing #2" en 100ms
+        // + "READY #1" + "READY #2" — 2 MediaPlayer activos, waste de
+        // RAM/CPU.
+        //
+        // Fix: cada startVideoWallpaper incrementa un token. continueVideoStart
+        // y los callbacks onPrepared/onError verifican que su token sigue
+        // siendo el activo antes de asignar mediaPlayer = player o de
+        // resetear flags. Callbacks de tokens viejos hacen release
+        // silencioso de su player — el último startup gana siempre.
+        @Volatile private var currentStartupToken: Long = 0
 
         private var videoRetryCount = 0
         private val MAX_VIDEO_RETRIES = 10
@@ -1230,8 +1248,14 @@ class PixoraWallpaperService : WallpaperService() {
                     return
                 }
                 videoStarting = true
+                // 2026-06-15 — bump token. Cada nuevo startup invalida los
+                // anteriores; sus callbacks (onPrepared/onError de cualquier
+                // MediaPlayer que estuviera preparándose) descartarán sus
+                // players porque su token capturado ya no será el activo.
+                currentStartupToken++
             }
-            Log.d(TAG, "Starting video: $path")
+            val myToken = currentStartupToken
+            Log.d(TAG, "Starting video: $path (token=$myToken)")
 
             // 2026-06-15 — Garantizar que NINGÚN scene overlay del wallpaper
             // anterior (Aquarium, Firefly, Jellyfish, Pixora Island, Canvas
@@ -1324,15 +1348,41 @@ class PixoraWallpaperService : WallpaperService() {
             // A short delay drains the in-flight frame.
             // See logcat from 2026-06-10 00:37:02: "F ixora:wallpaper
             //   runtime.cc: SkiaOpenGLPipeline::getFrame+48".
-            handler.postDelayed({ continueVideoStart(path) }, 120)
+            handler.postDelayed({ continueVideoStart(path, myToken) }, 120)
         }
 
-        private fun continueVideoStart(path: String) {
+        /**
+         * Helper: ¿este token sigue siendo el activo? Si no, otro startup
+         * llegó después y ya invalido este. Caller debe limpiar lo que pueda.
+         */
+        private fun isTokenStale(token: Long): Boolean = token != currentStartupToken
+
+        /**
+         * Helper: reset videoStarting condicionalmente — solo si el token
+         * dado sigue siendo el activo. Si otro startup ya tomó el control,
+         * NO tocamos videoStarting (eso ya es responsabilidad de aquel).
+         */
+        private fun resetStartingIfMine(token: Long) {
+            synchronized(videoLock) {
+                if (token == currentStartupToken) {
+                    videoStarting = false
+                }
+            }
+        }
+
+        private fun continueVideoStart(path: String, token: Long) {
+            // Bail early si ya hay un startup más nuevo en flight — su propio
+            // continueVideoStart manejará el setup, no queremos correr en paralelo.
+            if (isTokenStale(token)) {
+                Log.d(TAG, "continueVideoStart token=$token stale (current=$currentStartupToken), skip")
+                return
+            }
+
             // Auto Play: use MediaPlayer — wait for valid surface
             val surface = surfaceHolder?.surface
             if (surface == null || !surface.isValid) {
                 // Surface not ready yet — retry shortly (reset guard so retry can enter)
-                synchronized(videoLock) { videoStarting = false }
+                resetStartingIfMine(token)
                 if (videoRetryCount < MAX_VIDEO_RETRIES) {
                     videoRetryCount++
                     Log.d(TAG, "Surface not ready, retry $videoRetryCount/$MAX_VIDEO_RETRIES")
@@ -1340,6 +1390,11 @@ class PixoraWallpaperService : WallpaperService() {
                 } else {
                     Log.e(TAG, "Surface never became ready after $MAX_VIDEO_RETRIES retries")
                     videoRetryCount = 0
+                    // 2026-06-15 fix bonus — resetear isVideoWallpaper TAMBIÉN
+                    // resetea videoStarting si es nuestro token. Antes solo
+                    // limpiaba isVideoWallpaper, dejando la guarda permanentemente
+                    // cerrada hasta el siguiente startup.
+                    resetStartingIfMine(token)
                     isVideoWallpaper = false
                 }
                 return
@@ -1349,7 +1404,7 @@ class PixoraWallpaperService : WallpaperService() {
             val videoFile = File(path)
             if (!videoFile.exists()) {
                 Log.e(TAG, "Video not found: $path")
-                synchronized(videoLock) { videoStarting = false }
+                resetStartingIfMine(token)
                 isVideoWallpaper = false
                 return
             }
@@ -1360,8 +1415,15 @@ class PixoraWallpaperService : WallpaperService() {
                 val currentSurface = surfaceHolder?.surface
                 if (currentSurface == null || !currentSurface.isValid) {
                     Log.w(TAG, "Surface became invalid before MediaPlayer setup")
-                    synchronized(videoLock) { videoStarting = false }
+                    resetStartingIfMine(token)
                     isVideoWallpaper = false
+                    return
+                }
+                // Re-check token: el ASYNC postDelayed pudo haber pasado tiempo
+                // suficiente para que otro startVideoWallpaper haya entrado.
+                // Si nuestro token ya es viejo, abortar antes de crear MediaPlayer.
+                if (isTokenStale(token)) {
+                    Log.d(TAG, "continueVideoStart token=$token went stale during surface check, skip")
                     return
                 }
                 val player = MediaPlayer()
@@ -1372,29 +1434,41 @@ class PixoraWallpaperService : WallpaperService() {
                 player.isLooping = true
 
                 player.setOnPreparedListener {
-                    Log.d(TAG, "MediaPlayer READY: $path")
+                    // 2026-06-15 — si otro startup invalido este token mientras
+                    // preparábamos, descartar este player. Su lugar lo toma el
+                    // MediaPlayer del startup más nuevo.
+                    if (isTokenStale(token)) {
+                        Log.d(TAG, "MediaPlayer READY but token=$token stale — releasing silently")
+                        releaseMediaPlayerSafely(player)
+                        return@setOnPreparedListener
+                    }
+                    Log.d(TAG, "MediaPlayer READY: $path (token=$token)")
                     synchronized(videoLock) {
                         mediaPlayer = player
                         videoStarting = false
-                        // Track the path that's actively playing so the
-                        // idempotency guard at the top of startVideoWallpaper
-                        // can short-circuit re-entrant calls for the same video.
                         currentWallpaperPath = path
                     }
                     try { player.start() } catch (e: Exception) { Log.e(TAG, "start failed: ${e.message}") }
                 }
 
                 player.setOnErrorListener { _, what, extra ->
-                    Log.e(TAG, "MediaPlayer error: what=$what extra=$extra")
+                    Log.e(TAG, "MediaPlayer error: what=$what extra=$extra (token=$token)")
                     releaseMediaPlayerSafely(player)
                     synchronized(videoLock) {
                         if (mediaPlayer === player) mediaPlayer = null
-                        videoStarting = false
+                        // Solo reset videoStarting si seguimos siendo el activo.
+                        if (token == currentStartupToken) {
+                            videoStarting = false
+                        }
                     }
-                    isVideoWallpaper = false
-                    handler.post {
-                        drawing = true
-                        handler.post(drawRunnable)
+                    // Solo desactivar isVideoWallpaper si era nuestro player el
+                    // que estaba activo (no si otro lo reemplazó ya).
+                    if (token == currentStartupToken) {
+                        isVideoWallpaper = false
+                        handler.post {
+                            drawing = true
+                            handler.post(drawRunnable)
+                        }
                     }
                     true
                 }
@@ -1407,15 +1481,14 @@ class PixoraWallpaperService : WallpaperService() {
                 player.setOnVideoSizeChangedListener { _, _, _ -> }
 
                 player.prepareAsync()
-                Log.d(TAG, "MediaPlayer preparing...")
+                Log.d(TAG, "MediaPlayer preparing... (token=$token)")
             } catch (e: Exception) {
                 Log.e(TAG, "MediaPlayer FAILED: ${e.javaClass.simpleName}: ${e.message}")
                 e.printStackTrace()
-                // Critical: release the local instance so it doesn't leak (was causing
-                // "finalized without being released" and stuck Surface for next attempts)
+                // Critical: release the local instance so it doesn't leak
                 if (mp != null) releaseMediaPlayerSafely(mp)
-                synchronized(videoLock) { videoStarting = false }
-                isVideoWallpaper = false
+                resetStartingIfMine(token)
+                if (token == currentStartupToken) isVideoWallpaper = false
             }
         }
 
@@ -2086,6 +2159,30 @@ class PixoraWallpaperService : WallpaperService() {
             // Only detach the surface so it doesn't draw to a destroyed one.
             synchronized(videoLock) {
                 mediaPlayer?.setSurface(null)
+            }
+            // 2026-06-16 — Aggressive release de renderers PESADOS cuando el
+            // preview Engine se destruye (user tap "Definir fondo de pantalla").
+            // Sin esto, los ~30-50MB de bitmaps del preview se quedan
+            // referenced hasta que el GC los cobre, y en devices low-RAM
+            // (Samsung 4GB) eso es suficiente para que lmkd mate Pixora.
+            //
+            // SOLO release en isPreview porque el Engine applied SÍ va a
+            // reusar la Surface después (ej. onVisibilityChanged false→true
+            // al abrir/cerrar el launcher). Liberar aquí rompería el applied.
+            if (isPreview) {
+                Log.d(TAG, "onSurfaceDestroyed isPreview → aggressive release")
+                frameScrubRenderer.release()
+                aquariumRenderer.recycle()
+                bubbleRenderer.reset()
+                fireflyRenderer.reset()
+                jellyfishRenderer.recycle()
+                pixoraFriendsRenderer.release()
+                canvasSceneRenderer.release()
+                synchronized(bitmapLock) {
+                    wallpaperBitmap?.recycle(); wallpaperBitmap = null
+                    scaledBitmap?.recycle(); scaledBitmap = null
+                    panoramicBitmap?.recycle(); panoramicBitmap = null
+                }
             }
             super.onSurfaceDestroyed(holder)
         }
