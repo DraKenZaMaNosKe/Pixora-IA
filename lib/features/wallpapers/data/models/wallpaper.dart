@@ -17,6 +17,7 @@ class Wallpaper {
     this.badge,
     this.sortOrder = 0,
     this.featured = false,
+    this.trendingScore = 0,
     this.dailyEligible = false,
     this.tags = const [],
     this.downloadCount = 0,
@@ -41,6 +42,12 @@ class Wallpaper {
   final String? badge;
   final int sortOrder;
   final bool featured;
+
+  /// Boost para el hero banner — items con `trendingScore > 0` ocupan un
+  /// slot extra en la rotación. Default 0 (sin boost). Manualmente se
+  /// bumpea en Postgres a 100+ desde el publisher para destacar drops
+  /// específicos. heroBannerProvider duplica el de mayor score.
+  final int trendingScore;
   // True si el admin marcó este wallpaper como eligible para rotar en
   // Pixora Daily (curado). Independiente de category — un wallpaper puede
   // estar en ANIME y a la vez ser daily_eligible. Solo en STATIC wallpapers
@@ -117,6 +124,7 @@ class Wallpaper {
       badge: json['badge'] as String?,
       sortOrder: json['sortOrder'] as int? ?? 0,
       featured: json['featured'] as bool? ?? false,
+      trendingScore: (json['trendingScore'] as num?)?.toInt() ?? 0,
       dailyEligible: json['dailyEligible'] as bool? ?? false,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
@@ -152,6 +160,7 @@ class Wallpaper {
       badge: row['badge'] as String?,
       sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
       featured: row['featured'] as bool? ?? false,
+      trendingScore: (row['trending_score'] as num?)?.toInt() ?? 0,
       dailyEligible: row['daily_eligible'] as bool? ?? false,
       tags:
           (row['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??

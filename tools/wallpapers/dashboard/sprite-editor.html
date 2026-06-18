@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Pixora · Scene Editor</title>
+<style>
+  :root {
+    --bg-0: #060611;
+    --bg-1: #0E0E1E;
+    --bg-2: #16162A;
+    --bg-3: #1F1F38;
+    --line: rgba(255,255,255,.06);
+    --line-hi: rgba(230,182,85,.25);
+    --text: #E9E6DD;
+    --dim: #8A8B97;
+    --gold: #E6B655;
+    --gold-bright: #F5C766;
+    --cyan: #00F0FF;
+    --magenta: #FF2BD6;
+    --hot: #FF6B9B;
+    --good: #5BCB5B;
+    --danger: #FF5C5C;
+    --purple-deep: #1A0033;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: radial-gradient(ellipse at top, #18102e 0%, var(--bg-0) 55%);
+    color: var(--text); font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+    font-size: 13px; overflow: hidden;
+  }
+
+  /* ─── TOPBAR ─── */
+  .topbar {
+    position: fixed; inset: 0 0 auto 0; height: 52px; z-index: 100;
+    background: rgba(6,6,17,.85); backdrop-filter: blur(16px) saturate(140%);
+    border-bottom: 1px solid var(--line-hi);
+    display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Cinzel', 'Times New Roman', serif;
+    font-weight: 700; font-size: 14px; letter-spacing: .18em;
+    color: var(--gold);
+  }
+  .brand-dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--gold);
+    box-shadow: 0 0 12px var(--gold);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .55; transform: scale(.82); }
+  }
+  .tabs { display: flex; gap: 2px; margin-left: 16px; }
+  .tab {
+    background: transparent; border: 1px solid transparent; color: var(--dim);
+    padding: 6px 12px; border-radius: 6px 6px 0 0; cursor: pointer;
+    font-family: inherit; font-size: 10px; font-weight: 600; letter-spacing: .14em;
+    transition: all 120ms;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--gold-bright); background: var(--bg-2);
+    border-color: var(--line-hi); border-bottom-color: transparent;
+    box-shadow: 0 -2px 0 0 var(--gold) inset;
+  }
+  .spacer { flex: 1; }
+  .picker {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-2); padding: 4px 8px; border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .picker label { color: var(--dim); font-size: 10px; letter-spacing: .12em; }
+  .picker select {
+    background: transparent; color: var(--text); border: 0; outline: 0;
+    font-family: inherit; font-size: 12px; padding: 4px 22px 4px 4px;
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23E6B655' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 4px center;
+  }
+  .btn {
+    background: var(--bg-2); color: var(--text);
+    border: 1px solid var(--line); padding: 7px 14px; border-radius: 8px;
+    cursor: pointer; font-family: inherit; font-size: 11px;
+    font-weight: 600; letter-spacing: .1em;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 120ms;
+  }
+  .btn:hover { background: var(--bg-3); border-color: rgba(255,255,255,.15); }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+    color: #0B0B14; border: 0; font-weight: 700;
+    box-shadow: 0 4px 18px -4px var(--gold);
+  }
+  .btn.primary:hover { box-shadow: 0 6px 24px -4px var(--gold-bright); }
+  .btn.primary:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  .btn.danger { color: var(--danger); border-color: rgba(255,92,92,.3); }
+  .btn .ico {
+    display: inline-block; width: 14px; height: 14px; line-height: 14px; text-align: center;
+  }
+  .save-dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--magenta); box-shadow: 0 0 8px var(--magenta);
+    margin-left: 6px; animation: pulse 1s ease-in-out infinite;
+  }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main {
+    position: fixed; inset: 52px 0 0 0;
+    display: grid; grid-template-columns: 240px 1fr 320px;
+    overflow: hidden;
+  }
+
+  /* ─── LEFT PANEL (catalog list) ─── */
+  .left {
+    background: var(--bg-1); border-right: 1px solid var(--line);
+    overflow-y: auto; padding: 12px;
+  }
+  .section-title {
+    font-size: 9px; font-weight: 700; letter-spacing: .22em; color: var(--gold);
+    margin: 14px 0 8px; padding-bottom: 4px; border-bottom: 1px dotted var(--line-hi);
+  }
+  .section-title:first-child { margin-top: 0; }
+  .left .search {
+    width: 100%; background: var(--bg-2); border: 1px solid var(--line);
+    color: var(--text); padding: 8px 10px; border-radius: 6px;
+    font-family: inherit; font-size: 12px;
+  }
+  .left .search:focus { outline: 1px solid var(--gold); }
+  .list-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 8px; border-radius: 6px; cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 100ms; user-select: none;
+  }
+  .list-item:hover { background: var(--bg-2); }
+  .list-item.selected {
+    background: var(--bg-2); border-left-color: var(--gold);
+  }
+  .list-thumb {
+    width: 34px; height: 60px; border-radius: 4px; flex-shrink: 0;
+    background-size: cover; background-position: center;
+    background-color: var(--bg-3); border: 1px solid var(--line);
+  }
+  .list-meta { flex: 1; min-width: 0; overflow: hidden; }
+  .list-name {
+    font-size: 11px; color: var(--text); font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .list-type {
+    font-size: 9px; color: var(--dim); letter-spacing: .15em;
+    margin-top: 2px;
+  }
+
+  /* ─── STAGE (Three.js canvas + overlays) ─── */
+  .stage {
+    position: relative; background: var(--bg-0); overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stage canvas { display: block; }
+  .stage video, .stage img.static-img {
+    max-width: 90%; max-height: 90%; border-radius: 14px;
+    box-shadow:
+      0 0 0 1px rgba(230,182,85,.3),
+      0 0 60px -10px rgba(0,240,255,.25),
+      0 20px 60px rgba(0,0,0,.6);
+  }
+  .stage-ctrl {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 6px; z-index: 10;
+    background: rgba(11,11,20,.7); backdrop-filter: blur(14px);
+    padding: 6px; border-radius: 999px; border: 1px solid var(--line);
+  }
+  .ctrl-btn {
+    background: transparent; color: var(--dim); border: 0;
+    width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; transition: all 100ms;
+  }
+  .ctrl-btn:hover { color: var(--cyan); background: var(--bg-2); }
+  .ctrl-btn.active { color: var(--cyan); background: var(--bg-3); }
+  .stage-info {
+    position: absolute; top: 14px; left: 14px;
+    background: rgba(11,11,20,.7); backdrop-filter: blur(10px);
+    padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line);
+    font-size: 10px; color: var(--dim); letter-spacing: .1em;
+    z-index: 10;
+  }
+  .stage-info .strong { color: var(--cyan); font-weight: 600; }
+  .stage-empty {
+    color: var(--dim); text-align: center; padding: 40px;
+    font-family: 'Cinzel', serif; font-style: italic; letter-spacing: .1em;
+  }
+
+  /* ─── RIGHT PANEL (params) ─── */
+  .right {
+    background: var(--bg-1); border-left: 1px solid var(--line);
+    overflow-y: auto; padding: 14px 16px;
+  }
+  .item-card {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px; margin-bottom: 10px;
+    cursor: pointer; transition: border-color 150ms;
+  }
+  .item-card.selected { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(0,240,255,.15); }
+  .item-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .item-head .swatch {
+    width: 22px; height: 22px; border-radius: 5px;
+    background: linear-gradient(135deg, var(--cyan), var(--magenta));
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #000; font-weight: 800;
+  }
+  .item-head .name {
+    font-size: 12px; font-weight: 600; color: var(--text); flex: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .item-head .badge {
+    background: rgba(0,240,255,.15); color: var(--cyan);
+    font-size: 8px; letter-spacing: .14em; font-weight: 700;
+    padding: 2px 6px; border-radius: 999px; border: 1px solid rgba(0,240,255,.3);
+  }
+
+  .field {
+    display: grid; grid-template-columns: 50px 1fr auto auto;
+    gap: 4px; align-items: center; margin-bottom: 6px;
+  }
+  .field label { font-size: 9px; color: var(--dim); letter-spacing: .14em; }
+  .field input[type="number"], .field input[type="text"] {
+    background: var(--bg-0); border: 1px solid var(--line);
+    color: var(--text); padding: 6px 8px; border-radius: 4px;
+    font-family: inherit; font-size: 11px; text-align: right;
+    width: 100%;
+  }
+  .field input:focus { outline: 1px solid var(--cyan); }
+  .bump {
+    background: var(--bg-3); border: 1px solid var(--line);
+    color: var(--text); width: 24px; height: 24px; border-radius: 4px;
+    cursor: pointer; font-weight: 700; font-size: 13px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .bump:active { background: var(--cyan); color: #000; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-3); color: var(--text); padding: 12px 22px;
+    border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: .1em;
+    border: 1px solid var(--gold);
+    box-shadow: 0 8px 30px rgba(0,0,0,.6);
+    opacity: 0; pointer-events: none;
+    transition: opacity 220ms, transform 220ms;
+    z-index: 1000;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+  .toast.ok { border-color: var(--good); }
+
+  /* ─── DRAWER ON MOBILE ─── */
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+    .left, .right {
+      position: fixed; bottom: 0; left: 0; right: 0; max-height: 50vh;
+      z-index: 50; transform: translateY(100%); transition: transform 240ms;
+      box-shadow: 0 -10px 40px rgba(0,0,0,.55);
+    }
+    .left.open, .right.open { transform: translateY(0); }
+    .mobile-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+      background: rgba(6,6,17,.95); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--line-hi);
+      display: flex; align-items: center; justify-content: space-around;
+      z-index: 60;
+    }
+    .stage { padding-bottom: 52px; }
+  }
+  @media (min-width: 901px) { .mobile-bar { display: none; } }
+
+  /* loading / status */
+  .loading {
+    color: var(--dim); font-style: italic; font-size: 11px;
+    padding: 20px; text-align: center; letter-spacing: .1em;
+  }
+  .pill {
+    display: inline-block; background: var(--bg-3); border: 1px solid var(--line);
+    color: var(--text); padding: 2px 10px; border-radius: 999px;
+    font-size: 10px; letter-spacing: .12em; margin-right: 4px;
+  }
+  .checkbox {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    margin: 6px 0; font-size: 11px;
+  }
+  .checkbox input { accent-color: var(--gold); width: 16px; height: 16px; }
+</style>
+</head>
+<body>
+
+<!-- ═════ TOPBAR ═════ -->
+<div class="topbar">
+  <div class="brand"><span class="brand-dot"></span> PIXORA · EDITOR</div>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-mode="3d">3D · SCENES</button>
+    <button class="tab" data-mode="live">LIVE · VIDEOS</button>
+    <button class="tab" data-mode="static">STATIC</button>
+    <button class="tab" data-mode="panoramic">PANORAMIC</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-reload" title="Re-fetch del server"><span class="ico">⟳</span> Recargar</button>
+  <button class="btn" id="btn-undo" title="Deshacer (Ctrl+Z)" disabled><span class="ico">↶</span></button>
+  <button class="btn primary" id="btn-save"><span class="ico">💾</span> GUARDAR<span id="save-dot"></span></button>
+</div>
+
+<!-- ═════ MAIN ═════ -->
+<div class="main">
+
+  <!-- ─── LEFT (catalog list) ─── -->
+  <aside class="left" id="left">
+    <div class="section-title">FILTRAR</div>
+    <input type="text" class="search" id="search" placeholder="buscar por nombre o tag...">
+    <div class="section-title" id="list-section-title">3D SCENES</div>
+    <div id="catalog-list" class="loading">cargando...</div>
+  </aside>
+
+  <!-- ─── STAGE ─── -->
+  <main class="stage" id="stage">
+    <div class="stage-info" id="stage-info"></div>
+    <canvas id="canvas-3d" style="display:none"></canvas>
+    <video id="canvas-video" style="display:none" autoplay loop muted playsinline></video>
+    <img id="canvas-static" class="static-img" style="display:none">
+    <div class="stage-empty" id="stage-empty">selecciona un wallpaper del panel izquierdo</div>
+    <div class="stage-ctrl" id="stage-ctrl" style="display:none">
+      <button class="ctrl-btn" id="ctrl-zoom-out" title="Zoom out">−</button>
+      <button class="ctrl-btn active" id="ctrl-fit" title="Encuadrar al teléfono">⛶</button>
+      <button class="ctrl-btn" id="ctrl-zoom-in" title="Zoom in">+</button>
+      <button class="ctrl-btn" id="ctrl-anim" title="Pausa / play animación">⏸</button>
+    </div>
+  </main>
+
+  <!-- ─── RIGHT (params) ─── -->
+  <aside class="right" id="right">
+    <div class="section-title">CAPAS Y SPRITES</div>
+    <div id="items-panel"><div class="loading">elige un wallpaper para editar</div></div>
+  </aside>
+
+</div>
+
+<!-- mobile bottom bar -->
+<div class="mobile-bar">
+  <button class="ctrl-btn" onclick="toggleDrawer('left')" title="catálogo">☰</button>
+  <button class="ctrl-btn" onclick="toggleDrawer('right')" title="params">⚙</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ═════════════════════════════════════════════════════════════════════
+// STATE
+// ═════════════════════════════════════════════════════════════════════
+
+const SUPA = 'https://vzuwvsmlyigjtsearxym.supabase.co';
+const SUPA_STORAGE = `${SUPA}/storage/v1/object/public`;
+const PHONE_W = 1080, PHONE_H = 2340;
+
+let state = {
+  mode: '3d',                  // '3d' | 'live' | 'static' | 'panoramic'
+  catalog: [],                 // items for current mode
+  selectedId: null,
+  spec: null,                  // canvas_scene JSON
+  selectedItemIdx: -1,         // index in spec.sprites / image_layers (mixed: layers first then sprites)
+  history: [],                 // serialized spec snapshots
+  dirty: false,
+  animPaused: false,
+  videoUrl: null,
+  staticUrl: null,
+  staticMeta: null,            // postgres row for static/live
+};
+
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+// ═════════════════════════════════════════════════════════════════════
+// THREE.JS SETUP
+// ═════════════════════════════════════════════════════════════════════
+
+const canvasEl = $('#canvas-3d');
+const renderer = new THREE.WebGLRenderer({
+  canvas: canvasEl, alpha: true, antialias: true,
+});
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+const scene = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-PHONE_W/2, PHONE_W/2, PHONE_H/2, -PHONE_H/2, -1000, 1000);
+camera.position.z = 100;
+
+let phoneFrame = null;          // visual border of the phone screen
+let bgMesh = null;
+let layerMeshes = [];           // {mesh, layer}
+let spriteMeshes = [];          // {mesh, spriteDef, frames: [Texture], idx, framesLoaded}
+
+function makePhoneFrame() {
+  const g = new THREE.PlaneGeometry(PHONE_W + 24, PHONE_H + 24);
+  const m = new THREE.MeshBasicMaterial({color: 0x000000});
+  const back = new THREE.Mesh(g, m);
+  back.position.z = -10;
+  // border line: use EdgesGeometry to render a stroke
+  const innerG = new THREE.PlaneGeometry(PHONE_W, PHONE_H);
+  const edges = new THREE.EdgesGeometry(innerG);
+  const border = new THREE.LineSegments(edges,
+      new THREE.LineBasicMaterial({color: 0xE6B655, transparent: true, opacity: 0.7}));
+  border.position.z = 50;
+  scene.add(back);
+  scene.add(border);
+  return {back, border};
+}
+phoneFrame = makePhoneFrame();
+
+// Selection outline
+const selOutlineGeom = new THREE.PlaneGeometry(1, 1);
+const selOutlineEdges = new THREE.EdgesGeometry(selOutlineGeom);
+const selOutline = new THREE.LineSegments(selOutlineEdges,
+    new THREE.LineDashedMaterial({color: 0x00F0FF, dashSize: 20, gapSize: 12, linewidth: 2}));
+selOutline.visible = false; selOutline.position.z = 60;
+scene.add(selOutline);
+
+function fitCanvas() {
+  const wrap = $('#stage');
+  const w = wrap.clientWidth, h = wrap.clientHeight - 80;
+  renderer.setSize(w, h, false);
+
+  const phoneAspect = PHONE_W / PHONE_H;
+  const viewAspect = w / h;
+  let viewW, viewH;
+  if (viewAspect > phoneAspect) {
+    viewH = PHONE_H * 1.05;
+    viewW = viewH * viewAspect;
+  } else {
+    viewW = PHONE_W * 1.05;
+    viewH = viewW / viewAspect;
+  }
+  camera.left = -viewW / 2;
+  camera.right = viewW / 2;
+  camera.top = viewH / 2;
+  camera.bottom = -viewH / 2;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', fitCanvas);
+
+// ═════════════════════════════════════════════════════════════════════
+// CATALOG LOADING
+// ═════════════════════════════════════════════════════════════════════
+
+async function loadCatalog() {
+  const list = $('#catalog-list');
+  list.innerHTML = '<div class="loading">cargando...</div>';
+  state.catalog = [];
+
+  if (state.mode === '3d') {
+    $('#list-section-title').textContent = '3D · CANVAS SCENES';
+    try {
+      const r = await fetch(`${SUPA_STORAGE}/wallpaper-images/catalog_index.json`);
+      const d = await r.json();
+      state.catalog = (d.items || []).filter(it => it.type === 'canvas_scene').map(it => ({
+        id: it.id, name: (it.title?.es || it.title?.en || it.id), tags: it.tags || [],
+        preview_url: it.preview_url, kind: '3d',
+      }));
+    } catch (e) { list.innerHTML = '<div class="loading">error: ' + e.message + '</div>'; return; }
+  } else if (state.mode === 'live') {
+    $('#list-section-title').textContent = 'LIVE VIDEOS';
+    try {
+      const r = await fetch(`/api/catalog-search?kinds=live&limit=60`);
+      const d = await r.json();
+      state.catalog = (d.rows || []).map(it => ({
+        id: it.id, name: it.name || it.id, tags: it.tags || [],
+        preview_url: it.preview_url, kind: 'live', raw: it,
+      }));
+    } catch (e) { list.innerHTML = '<div class="loading">' + e.message + '</div>'; return; }
+  } else if (state.mode === 'static') {
+    $('#list-section-title').textContent = 'STATIC WALLPAPERS';
+    try {
+      const r = await fetch(`/api/catalog-search?kinds=static&limit=60`);
+      const d = await r.json();
+      state.catalog = (d.rows || []).map(it => ({
+        id: it.id, name: it.name || it.id, tags: it.tags || [],
+        preview_url: it.preview_url, kind: 'static', raw: it,
+      }));
+    } catch (e) { list.innerHTML = '<div class="loading">' + e.message + '</div>'; return; }
+  } else if (state.mode === 'panoramic') {
+    $('#list-section-title').textContent = 'PANORAMIC';
+    try {
+      const r = await fetch(`/api/catalog-search?kinds=static&limit=120`);
+      const d = await r.json();
+      state.catalog = (d.rows || [])
+        .filter(it => (it.category || '').toUpperCase() === 'PANORAMIC')
+        .map(it => ({
+          id: it.id, name: it.name || it.id, tags: it.tags || [],
+          preview_url: it.preview_url, kind: 'panoramic', raw: it,
+        }));
+    } catch (e) { list.innerHTML = '<div class="loading">' + e.message + '</div>'; return; }
+  }
+
+  renderCatalogList();
+}
+
+function renderCatalogList() {
+  const q = ($('#search').value || '').toLowerCase().trim();
+  const filtered = state.catalog.filter(it => {
+    if (!q) return true;
+    return it.name.toLowerCase().includes(q) || (it.tags || []).some(t => t.toLowerCase().includes(q));
+  });
+  const list = $('#catalog-list');
+  if (!filtered.length) { list.innerHTML = '<div class="loading">sin resultados</div>'; return; }
+  list.innerHTML = '';
+  filtered.forEach(it => {
+    const row = document.createElement('div');
+    row.className = 'list-item' + (state.selectedId === it.id ? ' selected' : '');
+    row.innerHTML = `
+      <div class="list-thumb" style="background-image:url('${it.preview_url || ''}')"></div>
+      <div class="list-meta">
+        <div class="list-name">${escapeHtml(it.name)}</div>
+        <div class="list-type">${it.kind.toUpperCase()} · ${(it.tags || []).slice(0,2).join(' · ')}</div>
+      </div>
+    `;
+    row.onclick = () => loadItem(it);
+    list.appendChild(row);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// ITEM LOAD (per mode)
+// ═════════════════════════════════════════════════════════════════════
+
+async function loadItem(it) {
+  if (state.dirty) {
+    if (!confirm('Hay cambios sin guardar. ¿Descartar y cargar otro?')) return;
+  }
+  state.selectedId = it.id;
+  state.spec = null;
+  state.dirty = false;
+  state.history = [];
+  updateSaveButton();
+  $('#stage-empty').style.display = 'none';
+  $('#canvas-3d').style.display = 'none';
+  $('#canvas-video').style.display = 'none';
+  $('#canvas-static').style.display = 'none';
+  $('#stage-ctrl').style.display = 'none';
+  $('#stage-info').innerHTML = '';
+
+  renderCatalogList();  // refresh selection highlight
+
+  if (it.kind === '3d') return loadSceneSpec(it);
+  if (it.kind === 'live') return loadLiveItem(it);
+  if (it.kind === 'static' || it.kind === 'panoramic') return loadStaticItem(it);
+}
+
+async function loadSceneSpec(it) {
+  $('#stage-info').innerHTML = `<span class="strong">${it.id}</span> · canvas_scene`;
+  $('#canvas-3d').style.display = 'block';
+  $('#stage-ctrl').style.display = 'flex';
+  $('#items-panel').innerHTML = '<div class="loading">cargando spec...</div>';
+  try {
+    const r = await fetch(`${SUPA_STORAGE}/wallpaper-scenes/${it.id}.json`);
+    if (!r.ok) throw new Error('spec HTTP ' + r.status);
+    state.spec = await r.json();
+  } catch (e) {
+    $('#items-panel').innerHTML = `<div class="loading">error: ${escapeHtml(e.message)}</div>`;
+    return;
+  }
+  await rebuildScene();
+  renderItemsPanel();
+  fitCanvas();
+  pushHistory();
+}
+
+async function loadLiveItem(it) {
+  $('#stage-info').innerHTML = `<span class="strong">${it.id}</span> · LIVE`;
+  state.staticMeta = it.raw;
+  state.videoUrl = `${SUPA_STORAGE}/wallpaper-videos/videos/${(it.id || '').replace(/_auto$|_explore$/,'')}.mp4`;
+  const v = $('#canvas-video');
+  v.src = state.videoUrl; v.style.display = 'block';
+  renderLiveStaticPanel(it);
+}
+
+async function loadStaticItem(it) {
+  $('#stage-info').innerHTML = `<span class="strong">${it.id}</span> · ${it.kind.toUpperCase()}`;
+  state.staticMeta = it.raw;
+  state.staticUrl = `${SUPA_STORAGE}/wallpaper-images/${it.raw.image_path || (it.id + '.webp')}`;
+  const img = $('#canvas-static');
+  img.src = it.preview_url || state.staticUrl;
+  img.style.display = 'block';
+  renderLiveStaticPanel(it);
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// 3D SCENE BUILD
+// ═════════════════════════════════════════════════════════════════════
+
+const texLoader = new THREE.TextureLoader();
+texLoader.setCrossOrigin('anonymous');
+
+function loadTexture(url) {
+  return new Promise((res, rej) => {
+    texLoader.load(url, t => {
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter;
+      res(t);
+    }, undefined, rej);
+  });
+}
+
+function disposeMesh(m) {
+  if (!m) return;
+  if (m.geometry) m.geometry.dispose();
+  if (m.material) {
+    if (m.material.map) m.material.map.dispose();
+    m.material.dispose();
+  }
+  scene.remove(m);
+}
+
+async function rebuildScene() {
+  // Cleanup
+  if (bgMesh) disposeMesh(bgMesh);
+  layerMeshes.forEach(o => disposeMesh(o.mesh));
+  spriteMeshes.forEach(o => {
+    disposeMesh(o.mesh);
+    (o.frames || []).forEach(t => t && t.dispose && t.dispose());
+  });
+  bgMesh = null; layerMeshes = []; spriteMeshes = [];
+
+  if (!state.spec) return;
+
+  // Background (from spec.background.url) — drawn behind everything
+  const bgUrl = state.spec.background?.url;
+  if (bgUrl) {
+    try {
+      const tex = await loadTexture(bgUrl);
+      const aspect = tex.image.width / tex.image.height;
+      const screenAspect = PHONE_W / PHONE_H;
+      // Cover-fit: scale so the bg fills the phone
+      let w, h;
+      if (aspect > screenAspect) { h = PHONE_H; w = h * aspect; }
+      else { w = PHONE_W; h = w / aspect; }
+      const g = new THREE.PlaneGeometry(w, h);
+      const m = new THREE.MeshBasicMaterial({map: tex});
+      bgMesh = new THREE.Mesh(g, m);
+      bgMesh.position.z = 0;
+      scene.add(bgMesh);
+    } catch (e) { console.warn('bg load failed', e); }
+  }
+
+  // image_layers (z>0 above bg)
+  const imgLayers = state.spec.image_layers || [];
+  for (let i = 0; i < imgLayers.length; i++) {
+    const layer = imgLayers[i];
+    if (layer.key === 'bg' && !bgMesh) {
+      // Use this layer as the bg if spec.background didn't have a url
+    }
+    try {
+      const tex = await loadTexture(layer.url);
+      const aspect = tex.image.width / tex.image.height;
+      const scale = layer.scale || 1.0;
+      // Cover-fit then apply layer.scale (matches CanvasSceneRenderer)
+      const screenAspect = PHONE_W / PHONE_H;
+      let w, h;
+      if (aspect > screenAspect) { h = PHONE_H; w = h * aspect; }
+      else { w = PHONE_W; h = w / aspect; }
+      w *= scale; h *= scale;
+      const g = new THREE.PlaneGeometry(w, h);
+      const m = new THREE.MeshBasicMaterial({map: tex, transparent: true});
+      const mesh = new THREE.Mesh(g, m);
+      mesh.position.z = 1 + (layer.z || 0) * 0.1;
+      mesh.userData = {kind: 'layer', layerKey: layer.key};
+      scene.add(mesh);
+      layerMeshes.push({mesh, layer});
+    } catch (e) { console.warn('layer load failed', layer.key, e); }
+  }
+
+  // Sprites — each is a Plane with animated frame texture
+  const sprites = state.spec.sprites || [];
+  for (let i = 0; i < sprites.length; i++) {
+    const sp = sprites[i];
+    const obj = await buildSpriteMesh(sp, i);
+    if (obj) spriteMeshes.push(obj);
+  }
+}
+
+async function buildSpriteMesh(sp, idx) {
+  // Load first frame to determine native size
+  let firstTex;
+  try {
+    firstTex = await loadTexture(`/api/sprite-frame?manifest_key=${encodeURIComponent(sp.manifest_key)}&frame=1`);
+  } catch (e) { console.warn('sprite frame load failed', sp.name, e); return null; }
+  const natW = firstTex.image.width;
+  const natH = firstTex.image.height;
+  // After sample size=2 in renderer the sprite is half-res; we use 240 as
+  // canonical because that's the ZIP source. Renderer math:
+  //   pixelW = (natW/2) * scale * surfaceW   (sample=2)
+  // For preview we use natW (full GIF size) so pixelW = natW * scale * surfaceW * 0.5
+  // To match what the device renders we use: spritePixelWidth = (natW/2) * scale * surfaceW
+  const surfaceW = PHONE_W;
+  const renderW = (natW / 2) * (sp.params.scale || 0.003) * surfaceW;
+  const renderH = renderW * (natH / natW);
+  const g = new THREE.PlaneGeometry(renderW, renderH);
+  const m = new THREE.MeshBasicMaterial({
+    map: firstTex, transparent: true, alphaTest: 0.01,
+    depthWrite: false,
+  });
+  const mesh = new THREE.Mesh(g, m);
+  // Position: spec x,y are normalized 0..1 of surface (top-left origin in
+  // renderer but Three.js Y is up; we flip y).
+  mesh.position.x = (sp.params.x - 0.5) * PHONE_W;
+  mesh.position.y = (0.5 - sp.params.y) * PHONE_H;
+  mesh.position.z = 10 + idx;
+  mesh.userData = {kind: 'sprite', spriteIdx: idx, natW, natH};
+  scene.add(mesh);
+
+  // Lazy-load remaining frames
+  const obj = {mesh, spriteDef: sp, frames: [firstTex], framesLoaded: 1, idx, frameCount: 15};
+  // Background-load frames 2..15
+  (async () => {
+    for (let f = 2; f <= 15; f++) {
+      try {
+        const t = await loadTexture(`/api/sprite-frame?manifest_key=${encodeURIComponent(sp.manifest_key)}&frame=${f}`);
+        obj.frames.push(t); obj.framesLoaded++;
+      } catch (e) { break; }
+    }
+  })();
+  return obj;
+}
+
+function updateSpriteMeshSize(o) {
+  const sp = o.spriteDef;
+  const natW = o.mesh.userData.natW;
+  const natH = o.mesh.userData.natH;
+  const renderW = (natW / 2) * (sp.params.scale || 0.003) * PHONE_W;
+  const renderH = renderW * (natH / natW);
+  o.mesh.geometry.dispose();
+  o.mesh.geometry = new THREE.PlaneGeometry(renderW, renderH);
+  o.mesh.position.x = (sp.params.x - 0.5) * PHONE_W;
+  o.mesh.position.y = (0.5 - sp.params.y) * PHONE_H;
+}
+
+function updateLayerMeshSize(o) {
+  if (!o.mesh.material.map?.image) return;
+  const tex = o.mesh.material.map;
+  const aspect = tex.image.width / tex.image.height;
+  const scale = o.layer.scale || 1.0;
+  const screenAspect = PHONE_W / PHONE_H;
+  let w, h;
+  if (aspect > screenAspect) { h = PHONE_H; w = h * aspect; }
+  else { w = PHONE_W; h = w / aspect; }
+  w *= scale; h *= scale;
+  o.mesh.geometry.dispose();
+  o.mesh.geometry = new THREE.PlaneGeometry(w, h);
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// ANIMATION LOOP
+// ═════════════════════════════════════════════════════════════════════
+
+let frameCounter = 0;
+function tick() {
+  requestAnimationFrame(tick);
+  if (state.mode !== '3d' || !state.spec) {
+    renderer.render(scene, camera);
+    return;
+  }
+  if (!state.animPaused) {
+    frameCounter++;
+    spriteMeshes.forEach(o => {
+      const skip = Math.max(1, o.spriteDef.frame_skip || 2);
+      if (frameCounter % skip === 0) {
+        if (o.framesLoaded < 2) return;
+        const next = ((o.mesh.userData.curFrame || 0) + 1) % o.framesLoaded;
+        o.mesh.userData.curFrame = next;
+        o.mesh.material.map = o.frames[next];
+        o.mesh.material.needsUpdate = true;
+      }
+    });
+  }
+  // Apply bob to layer meshes
+  if (state.spec.image_layers) {
+    const tSec = performance.now() / 1000;
+    layerMeshes.forEach(o => {
+      const amp = o.layer.bob_amplitude_px || 0;
+      const period = o.layer.bob_period_sec || 4;
+      if (amp > 0) {
+        const phase = (tSec / period) * 2 * Math.PI;
+        const offsetY = Math.sin(phase) * amp;
+        o.mesh.position.y = offsetY;
+      }
+    });
+  }
+  // Update selection outline
+  if (state.selectedItemIdx >= 0) {
+    const mesh = getSelectedMesh();
+    if (mesh) {
+      selOutline.visible = true;
+      const params = mesh.geometry.parameters;
+      selOutline.scale.set(params.width + 20, params.height + 20, 1);
+      selOutline.position.x = mesh.position.x;
+      selOutline.position.y = mesh.position.y;
+    } else { selOutline.visible = false; }
+  } else { selOutline.visible = false; }
+  renderer.render(scene, camera);
+}
+tick();
+
+// ═════════════════════════════════════════════════════════════════════
+// SELECTION
+// ═════════════════════════════════════════════════════════════════════
+
+function getSelectedMesh() {
+  if (state.selectedItemIdx < 0) return null;
+  const sprites = state.spec.sprites || [];
+  if (state.selectedItemIdx < sprites.length) {
+    return spriteMeshes[state.selectedItemIdx]?.mesh;
+  }
+  return null;
+}
+
+function getCombinedItems() {
+  if (!state.spec) return [];
+  const sprites = state.spec.sprites || [];
+  return sprites.map((s, i) => ({kind: 'sprite', idx: i, item: s}));
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// POINTER (drag / pinch)
+// ═════════════════════════════════════════════════════════════════════
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let dragging = null;
+let pinch = null;
+
+function screenToWorld(clientX, clientY) {
+  const rect = canvasEl.getBoundingClientRect();
+  const ndcX = ((clientX - rect.left) / rect.width) * 2 - 1;
+  const ndcY = -((clientY - rect.top) / rect.height) * 2 + 1;
+  // Ortho camera: convert NDC to world
+  const wx = ndcX * (camera.right - camera.left) / 2;
+  const wy = ndcY * (camera.top - camera.bottom) / 2;
+  return {x: wx, y: wy};
+}
+
+function pickSpriteAt(clientX, clientY) {
+  const rect = canvasEl.getBoundingClientRect();
+  pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  // Sort by Z descending so we pick top sprites first
+  const meshes = spriteMeshes.map(o => o.mesh).sort((a,b) => b.position.z - a.position.z);
+  const hits = raycaster.intersectObjects(meshes);
+  if (hits.length) {
+    const m = hits[0].object;
+    return m.userData.spriteIdx;
+  }
+  return -1;
+}
+
+function onPointerDown(e) {
+  if (state.mode !== '3d' || !state.spec) return;
+  const pt = e.touches ? e.touches[0] : e;
+  if (e.touches && e.touches.length === 2) {
+    const a = e.touches[0], b = e.touches[1];
+    const d = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+    pinch = {startDist: d, startScale: 1, idx: state.selectedItemIdx};
+    return;
+  }
+  const hit = pickSpriteAt(pt.clientX, pt.clientY);
+  if (hit >= 0) {
+    state.selectedItemIdx = hit;
+    renderItemsPanel();
+    const sp = state.spec.sprites[hit];
+    const w = screenToWorld(pt.clientX, pt.clientY);
+    dragging = {idx: hit, startX: w.x, startY: w.y, sp0x: sp.params.x, sp0y: sp.params.y};
+    e.preventDefault();
+  } else {
+    state.selectedItemIdx = -1;
+    renderItemsPanel();
+  }
+}
+
+function onPointerMove(e) {
+  if (e.touches && e.touches.length === 2 && pinch) {
+    const a = e.touches[0], b = e.touches[1];
+    const d = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+    const f = d / pinch.startDist;
+    const sp = state.spec.sprites[pinch.idx];
+    if (sp) {
+      sp.params.scale = Math.max(0.0001, sp.params.scale * (1 + (f - 1) * 0.04));
+      updateSpriteMeshSize(spriteMeshes[pinch.idx]);
+      markDirty();
+      renderItemsPanel();
+    }
+    e.preventDefault();
+    return;
+  }
+  if (!dragging) return;
+  const pt = e.touches ? e.touches[0] : e;
+  const w = screenToWorld(pt.clientX, pt.clientY);
+  const dx = w.x - dragging.startX;
+  const dy = w.y - dragging.startY;
+  const sp = state.spec.sprites[dragging.idx];
+  sp.params.x = Math.max(-0.1, Math.min(1.1, dragging.sp0x + dx / PHONE_W));
+  sp.params.y = Math.max(-0.1, Math.min(1.1, dragging.sp0y - dy / PHONE_H));
+  updateSpriteMeshSize(spriteMeshes[dragging.idx]);
+  markDirty();
+  e.preventDefault();
+}
+
+function onPointerUp(e) {
+  if (dragging) { renderItemsPanel(); pushHistory(); }
+  if (pinch) { renderItemsPanel(); pushHistory(); }
+  dragging = null;
+  pinch = null;
+}
+
+function onWheel(e) {
+  if (state.selectedItemIdx < 0 || !state.spec) return;
+  const sp = state.spec.sprites[state.selectedItemIdx];
+  if (!sp) return;
+  e.preventDefault();
+  const f = e.deltaY > 0 ? 0.95 : 1.05;
+  sp.params.scale = Math.max(0.0001, sp.params.scale * f);
+  updateSpriteMeshSize(spriteMeshes[state.selectedItemIdx]);
+  markDirty();
+  renderItemsPanel();
+}
+
+canvasEl.addEventListener('mousedown', onPointerDown);
+canvasEl.addEventListener('touchstart', onPointerDown, {passive: false});
+window.addEventListener('mousemove', onPointerMove);
+window.addEventListener('touchmove', onPointerMove, {passive: false});
+window.addEventListener('mouseup', onPointerUp);
+window.addEventListener('touchend', onPointerUp);
+canvasEl.addEventListener('wheel', onWheel, {passive: false});
+
+// ═════════════════════════════════════════════════════════════════════
+// RIGHT PANEL (params)
+// ═════════════════════════════════════════════════════════════════════
+
+function renderItemsPanel() {
+  const panel = $('#items-panel');
+  if (state.mode !== '3d' || !state.spec) {
+    panel.innerHTML = '';
+    return;
+  }
+  const sprites = state.spec.sprites || [];
+  const layers = state.spec.image_layers || [];
+  let html = '';
+  if (sprites.length) {
+    html += '<div class="section-title" style="margin-top:0">SPRITES</div>';
+    sprites.forEach((sp, i) => {
+      const sel = state.selectedItemIdx === i;
+      html += spriteCardHtml(sp, i, sel);
+    });
+  }
+  if (layers.length) {
+    html += '<div class="section-title">IMAGE LAYERS</div>';
+    layers.forEach((l, i) => {
+      html += layerCardHtml(l, i);
+    });
+  }
+  panel.innerHTML = html;
+  // wire inputs
+  panel.querySelectorAll('input[data-key]').forEach(inp => {
+    inp.oninput = (e) => {
+      const idx = +inp.dataset.idx;
+      const kind = inp.dataset.kind;
+      const key = inp.dataset.key;
+      const v = inp.type === 'checkbox' ? inp.checked : parseFloat(inp.value);
+      if (kind === 'sprite') {
+        const sp = state.spec.sprites[idx];
+        if (key === 'frame_skip') sp.frame_skip = Math.max(1, Math.round(v));
+        else sp.params[key] = v;
+        updateSpriteMeshSize(spriteMeshes[idx]);
+      } else if (kind === 'layer') {
+        const l = state.spec.image_layers[idx];
+        l[key] = v;
+        updateLayerMeshSize(layerMeshes[idx]);
+      }
+      markDirty();
+    };
+  });
+  panel.querySelectorAll('.item-card[data-pick]').forEach(card => {
+    card.onclick = () => {
+      state.selectedItemIdx = +card.dataset.pick;
+      renderItemsPanel();
+    };
+  });
+  panel.querySelectorAll('[data-bump]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const idx = +btn.dataset.idx;
+      const key = btn.dataset.key;
+      const factor = parseFloat(btn.dataset.bump);
+      const sp = state.spec.sprites[idx];
+      if (key === 'frame_skip') sp.frame_skip = Math.max(1, sp.frame_skip + factor);
+      else sp.params[key] = (key === 'scale') ? sp.params[key] * (1 + factor) : sp.params[key] + factor;
+      updateSpriteMeshSize(spriteMeshes[idx]);
+      renderItemsPanel(); markDirty();
+    };
+  });
+}
+
+function spriteCardHtml(sp, i, sel) {
+  return `
+  <div class="item-card${sel ? ' selected' : ''}" data-pick="${i}">
+    <div class="item-head">
+      <span class="swatch">${(sp.name || '?')[0].toUpperCase()}</span>
+      <span class="name">${escapeHtml(sp.name)}</span>
+      <span class="badge">${sp.behavior}</span>
+    </div>
+    <div class="field"><label>X</label>
+      <input type="number" step="0.005" value="${(sp.params.x).toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="x">
+      <button class="bump" data-bump="-0.01" data-idx="${i}" data-key="x">−</button>
+      <button class="bump" data-bump="0.01" data-idx="${i}" data-key="x">+</button>
+    </div>
+    <div class="field"><label>Y</label>
+      <input type="number" step="0.005" value="${(sp.params.y).toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="y">
+      <button class="bump" data-bump="-0.01" data-idx="${i}" data-key="y">−</button>
+      <button class="bump" data-bump="0.01" data-idx="${i}" data-key="y">+</button>
+    </div>
+    <div class="field"><label>SCALE</label>
+      <input type="number" step="0.0001" value="${(sp.params.scale).toFixed(4)}" data-kind="sprite" data-idx="${i}" data-key="scale">
+      <button class="bump" data-bump="-0.1" data-idx="${i}" data-key="scale">−</button>
+      <button class="bump" data-bump="0.1" data-idx="${i}" data-key="scale">+</button>
+    </div>
+    <div class="field"><label>SPEED</label>
+      <input type="number" step="1" min="1" max="60" value="${sp.frame_skip}" data-kind="sprite" data-idx="${i}" data-key="frame_skip">
+      <button class="bump" data-bump="-1" data-idx="${i}" data-key="frame_skip">−</button>
+      <button class="bump" data-bump="1" data-idx="${i}" data-key="frame_skip">+</button>
+    </div>
+    <div class="field"><label>ALPHA</label>
+      <input type="number" step="5" min="0" max="255" value="${sp.params.alpha || 255}" data-kind="sprite" data-idx="${i}" data-key="alpha">
+      <button class="bump" data-bump="-10" data-idx="${i}" data-key="alpha">−</button>
+      <button class="bump" data-bump="10" data-idx="${i}" data-key="alpha">+</button>
+    </div>
+  </div>`;
+}
+
+function layerCardHtml(l, i) {
+  return `
+  <div class="item-card">
+    <div class="item-head">
+      <span class="swatch" style="background:linear-gradient(135deg,var(--gold),var(--cyan))">${(l.key || '?')[0].toUpperCase()}</span>
+      <span class="name">${escapeHtml(l.key)}</span>
+      <span class="badge">Z${l.z || 0}</span>
+    </div>
+    <div class="field"><label>SCALE</label>
+      <input type="number" step="0.01" value="${(l.scale || 1).toFixed(2)}" data-kind="layer" data-idx="${i}" data-key="scale">
+      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="scale">−</button>
+      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="scale">+</button>
+    </div>
+    <div class="field"><label>PRLLX</label>
+      <input type="number" step="0.05" value="${(l.parallax_factor || 0).toFixed(2)}" data-kind="layer" data-idx="${i}" data-key="parallax_factor">
+      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="parallax_factor">−</button>
+      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="parallax_factor">+</button>
+    </div>
+    <div class="field"><label>BOB Px</label>
+      <input type="number" step="2" value="${l.bob_amplitude_px || 0}" data-kind="layer" data-idx="${i}" data-key="bob_amplitude_px">
+      <button class="bump" data-bump="-5" data-idx="${i}" data-key="bob_amplitude_px">−</button>
+      <button class="bump" data-bump="5" data-idx="${i}" data-key="bob_amplitude_px">+</button>
+    </div>
+    <div class="field"><label>BOB s</label>
+      <input type="number" step="0.5" value="${(l.bob_period_sec || 4).toFixed(1)}" data-kind="layer" data-idx="${i}" data-key="bob_period_sec">
+      <button class="bump" data-bump="-0.5" data-idx="${i}" data-key="bob_period_sec">−</button>
+      <button class="bump" data-bump="0.5" data-idx="${i}" data-key="bob_period_sec">+</button>
+    </div>
+  </div>`;
+}
+
+function renderLiveStaticPanel(it) {
+  const meta = it.raw || {};
+  const panel = $('#items-panel');
+  const kind = it.kind === 'live' ? 'live' : 'static';
+  panel.innerHTML = `
+    <div class="section-title">METADATA</div>
+    <div class="item-card">
+      <div class="item-head"><span class="swatch">${kind[0].toUpperCase()}</span>
+        <span class="name">${escapeHtml(it.name)}</span><span class="badge">${kind.toUpperCase()}</span></div>
+      <div class="field"><label>CAT</label>
+        <input type="text" value="${escapeHtml(meta.category || '')}" data-key="category">
+        <span></span><span></span>
+      </div>
+      <div class="field"><label>GLOW</label>
+        <input type="text" value="${escapeHtml(meta.glow_color || '#FFFFFF')}" data-key="glow_color">
+        <span></span><span></span>
+      </div>
+      <div class="field"><label>BADGE</label>
+        <input type="text" value="${escapeHtml(meta.badge || '')}" data-key="badge">
+        <span></span><span></span>
+      </div>
+      <div class="field"><label>ORDER</label>
+        <input type="number" value="${meta.sort_order || 0}" data-key="sort_order">
+        <span></span><span></span>
+      </div>
+      <label class="checkbox"><input type="checkbox" ${meta.featured ? 'checked' : ''} data-key="featured"> Featured (entra hero banner)</label>
+      <label class="checkbox"><input type="checkbox" ${meta.daily_eligible ? 'checked' : ''} data-key="daily_eligible"> Eligible Daily</label>
+      <label class="checkbox"><input type="checkbox" ${meta.published !== false ? 'checked' : ''} data-key="published"> Publicado</label>
+      <div style="margin-top:10px;color:var(--dim);font-size:10px;letter-spacing:.1em">
+        ${(meta.tags || []).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('')}
+      </div>
+    </div>
+  `;
+  // wire — store edits in state.staticMeta
+  panel.querySelectorAll('input[data-key]').forEach(inp => {
+    inp.oninput = () => {
+      const k = inp.dataset.key;
+      const v = inp.type === 'checkbox' ? inp.checked
+              : (inp.type === 'number' ? parseFloat(inp.value) : inp.value);
+      state.staticMeta[k] = v;
+      markDirty();
+    };
+  });
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// HISTORY / DIRTY / SAVE
+// ═════════════════════════════════════════════════════════════════════
+
+function markDirty() {
+  state.dirty = true;
+  updateSaveButton();
+}
+
+function updateSaveButton() {
+  $('#save-dot').innerHTML = state.dirty ? '<span class="save-dot"></span>' : '';
+  $('#btn-undo').disabled = state.history.length < 2;
+}
+
+function pushHistory() {
+  if (!state.spec) return;
+  state.history.push(JSON.stringify(state.spec));
+  if (state.history.length > 30) state.history.shift();
+  updateSaveButton();
+}
+
+function undo() {
+  if (state.history.length < 2) return;
+  state.history.pop();
+  const last = state.history[state.history.length - 1];
+  state.spec = JSON.parse(last);
+  rebuildScene().then(renderItemsPanel);
+  markDirty();
+}
+
+async function save() {
+  if (!state.dirty) return;
+  if (state.mode === '3d' && state.spec) {
+    const r = await fetch('/api/save-scene-sprites', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({scene_id: state.selectedId, sprites: state.spec.sprites}),
+    });
+    if (r.ok) {
+      const j = await r.json();
+      state.dirty = false; updateSaveButton();
+      toast(`Guardado · FCM ${j.fcm ? 'OK' : '✗'} · ${j.sprites_updated} sprites`, 'ok');
+    } else {
+      const t = await r.text();
+      toast('ERROR: ' + t.slice(0,80), 'error');
+    }
+    return;
+  }
+  if ((state.mode === 'live' || state.mode === 'static' || state.mode === 'panoramic') && state.staticMeta) {
+    const fields = {};
+    ['category','glow_color','badge','sort_order','featured','daily_eligible','published'].forEach(k => {
+      if (state.staticMeta[k] !== undefined) fields[k] = state.staticMeta[k];
+    });
+    const kind = state.mode === 'live' ? 'live' : 'static';
+    const r = await fetch('/api/wallpaper-edit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({kind, id: state.staticMeta.id, fields}),
+    });
+    if (r.ok) {
+      state.dirty = false; updateSaveButton();
+      toast('Metadata guardada', 'ok');
+    } else {
+      toast('ERROR al guardar', 'error');
+    }
+  }
+}
+
+function toast(msg, cls) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (cls || '');
+  setTimeout(() => el.className = 'toast', 2400);
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// EVENT WIRING
+// ═════════════════════════════════════════════════════════════════════
+
+$$('#tabs .tab').forEach(t => t.onclick = () => {
+  $$('#tabs .tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  state.mode = t.dataset.mode;
+  state.selectedId = null;
+  state.spec = null;
+  state.staticMeta = null;
+  // Hide stage children
+  $('#stage-empty').style.display = '';
+  $('#canvas-3d').style.display = 'none';
+  $('#canvas-video').style.display = 'none';
+  $('#canvas-static').style.display = 'none';
+  $('#stage-ctrl').style.display = 'none';
+  $('#items-panel').innerHTML = '';
+  loadCatalog();
+});
+
+$('#search').addEventListener('input', renderCatalogList);
+$('#btn-reload').onclick = () => {
+  if (state.selectedId) {
+    const item = state.catalog.find(it => it.id === state.selectedId);
+    if (item) { state.dirty = false; loadItem(item); }
+  } else loadCatalog();
+};
+$('#btn-save').onclick = save;
+$('#btn-undo').onclick = undo;
+$('#ctrl-anim').onclick = () => {
+  state.animPaused = !state.animPaused;
+  $('#ctrl-anim').textContent = state.animPaused ? '▶' : '⏸';
+};
+$('#ctrl-fit').onclick = fitCanvas;
+$('#ctrl-zoom-in').onclick = () => { camera.zoom *= 1.2; camera.updateProjectionMatrix(); };
+$('#ctrl-zoom-out').onclick = () => { camera.zoom /= 1.2; camera.updateProjectionMatrix(); };
+
+window.toggleDrawer = (which) => {
+  const other = which === 'left' ? 'right' : 'left';
+  $(`#${other}`).classList.remove('open');
+  $(`#${which}`).classList.toggle('open');
+};
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+});
+
+// ═════════════════════════════════════════════════════════════════════
+// INIT
+// ═════════════════════════════════════════════════════════════════════
+
+fitCanvas();
+loadCatalog();
+
+</script>
+</body>
+</html>

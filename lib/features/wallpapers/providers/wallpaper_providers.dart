@@ -84,12 +84,32 @@ final featuredWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   return wallpapers.where((w) => w.featured).toList();
 });
 
-/// Hero banner: featured wallpapers, fallback to first 5.
+/// Hero banner: featured wallpapers ordenados por trending_score desc.
+/// El item de mayor trending_score ocupa 2 slots del array de 6 (uno
+/// extra al final, después del slot natural). Resultado: el "boosted"
+/// aparece ~33% del tiempo en la rotación auto cada 7s, vs 16% que
+/// tendría un slot normal. Lo usamos para destacar drops específicos
+/// (ej. Mario stream lanzamiento, eventos estacionales).
+///
+/// El campo `trendingScore` se setea en Postgres al subir el wallpaper
+/// (default 0, manualmente bumpeado a 100+ para hero-boost).
 final heroBannerProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final featured = await ref.watch(featuredWallpapersProvider.future);
-  if (featured.isNotEmpty) return featured.take(6).toList();
-  final all = await ref.watch(catalogPublicProvider.future);
-  return all.take(5).toList();
+  if (featured.isEmpty) {
+    final all = await ref.watch(catalogPublicProvider.future);
+    return all.take(5).toList();
+  }
+  // Sort by trending_score desc — top first.
+  final sorted = [...featured]
+    ..sort((a, b) => b.trendingScore.compareTo(a.trendingScore));
+  // Take 5 distinct, then duplicate the top one at the end of the list
+  // so the rotation hits it twice per cycle without breaking the dot
+  // indicator semantics (PageController page count = list length).
+  final base = sorted.take(5).toList();
+  if (base.isNotEmpty && base.first.trendingScore > 0) {
+    base.add(base.first);
+  }
+  return base;
 });
 
 /// Trending: sorted by download count (highest first), fallback to sortOrder.

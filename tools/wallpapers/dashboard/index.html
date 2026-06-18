@@ -545,9 +545,33 @@ tbody tr:hover {
   border: 1px solid var(--gold-dark);
   z-index: 3; line-height: 1;
 }
-.wp-card .wp-kind.live   { color: #ff6b9b; border-color: rgba(255,107,155,.5); }
-.wp-card .wp-kind.static { color: var(--gold-saint); }
+.wp-card .wp-kind.live      { color: #ff6b9b; border-color: rgba(255,107,155,.5); }
+.wp-card .wp-kind.static    { color: var(--gold-saint); }
+.wp-card .wp-kind.stories   { color: #6bdcff; border-color: rgba(107,220,255,.5); }
+.wp-card .wp-kind.day_cycle { color: #ffd66b; border-color: rgba(255,214,107,.5); }
+.wp-card .wp-kind.ringtones { color: #b876ff; border-color: rgba(184,118,255,.5); }
 .wp-card .wp-kind .material-symbols-rounded { font-size: 11px; }
+
+/* Kind filter chips above the search grid — checkbox-driven toggles for
+   the new dropdown-equivalent UI added 2026-06-16 so Eduardo can scope
+   the catalog search to specific content types. */
+.kind-filters {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+}
+.kind-filters label {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 999px; cursor: pointer; user-select: none;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10);
+  letter-spacing: .08em; transition: all .15s ease;
+}
+.kind-filters label:hover { background: rgba(255,255,255,.08); }
+.kind-filters input[type=checkbox] { accent-color: var(--gold-bright); cursor: pointer; }
+.kind-filters label.k-live.checked      { background: rgba(255,107,155,.18); border-color: rgba(255,107,155,.6); color: #ff6b9b; }
+.kind-filters label.k-static.checked    { background: rgba(229,182,85,.18);  border-color: var(--gold-dark);     color: var(--gold-saint); }
+.kind-filters label.k-stories.checked   { background: rgba(107,220,255,.18); border-color: rgba(107,220,255,.6); color: #6bdcff; }
+.kind-filters label.k-day_cycle.checked { background: rgba(255,214,107,.18); border-color: rgba(255,214,107,.6); color: #ffd66b; }
+.kind-filters label.k-ringtones.checked { background: rgba(184,118,255,.18); border-color: rgba(184,118,255,.6); color: #b876ff; }
 
 .wp-card .wp-badge {
   position: absolute; top: 6px; right: 6px;
@@ -1182,6 +1206,13 @@ button { white-space: nowrap; }
     <button id="btn-search" class="primary">
       <span class="material-symbols-rounded">search</span> Buscar
     </button>
+  </div>
+  <div class="kind-filters" id="kind-filters" title="Filtra el grid por tipo de contenido">
+    <label class="k-live checked"><input type="checkbox" data-kind="live" checked> LIVE</label>
+    <label class="k-static checked"><input type="checkbox" data-kind="static" checked> STATIC</label>
+    <label class="k-stories checked"><input type="checkbox" data-kind="stories" checked> STORIES</label>
+    <label class="k-day_cycle checked"><input type="checkbox" data-kind="day_cycle" checked> DAY-CYCLE</label>
+    <label class="k-ringtones checked"><input type="checkbox" data-kind="ringtones" checked> RINGTONES</label>
   </div>
   <div class="panel">
     <h3>Resultados <span class="count" id="search-count">0</span></h3>
@@ -2289,15 +2320,27 @@ function renderPagination(rowsLength) {
   $('#page-last').disabled  = onLastPage || pager.lastQuery;
 }
 
+// Read the currently-checked kind filters as a comma list for the server.
+// Empty string when ALL are checked — server defaults to all kinds, so this
+// keeps URLs short and avoids redundancy.
+function selectedKindsParam() {
+  const all = ['live','static','stories','day_cycle','ringtones'];
+  const checked = Array.from(document.querySelectorAll('#kind-filters input:checked'))
+    .map(el => el.dataset.kind);
+  if (!checked.length || checked.length === all.length) return '';
+  return checked.join(',');
+}
+
 async function doSearch(resetPage = true) {
   if (resetPage) pager.page = 1;
   const q = $('#search-input').value.trim();
   const cat = $('#search-category').value;
+  const kinds = selectedKindsParam();
   pager.lastQuery = q; pager.lastCat = cat;
   const offset = (pager.page - 1) * pager.size;
   // NEW endpoint: reads Storage catalogs (live + static) directly, so admin
   // sees ALL content — including wallpapers never viewed/installed yet.
-  const url = `/api/catalog-search?q=${encodeURIComponent(q)}${cat ? `&category=${cat}` : ''}&limit=${pager.size}&offset=${offset}`;
+  const url = `/api/catalog-search?q=${encodeURIComponent(q)}${cat ? `&category=${cat}` : ''}${kinds ? `&kinds=${kinds}` : ''}&limit=${pager.size}&offset=${offset}`;
   const resp = await api(url);
   const rows = (resp && Array.isArray(resp.rows)) ? resp.rows : [];
   const total = (resp && typeof resp.total === 'number') ? resp.total : rows.length;
@@ -2317,12 +2360,18 @@ async function doSearch(resetPage = true) {
     const card = document.createElement('div');
     card.className = 'wp-card' + (w.published === false ? ' is-hidden' : '');
     card.onclick = () => openModal(w.id);
-    const kindLabel = (w.kind || '').toUpperCase();
-    const isLive = w.kind === 'live';
+    const kindLabel = (w.kind || 'static').toUpperCase();
+    const kindIcon = ({
+      live: 'play_circle',
+      static: 'image',
+      stories: 'auto_stories',
+      day_cycle: 'wb_twilight',
+      ringtones: 'music_note',
+    })[w.kind] || 'image';
     const badgeHtml = w.badge
       ? `<div class="wp-badge ${(w.badge || '').toLowerCase()}">${escape(w.badge)}</div>` : '';
-    const kindHtml = `<div class="wp-kind ${isLive ? 'live' : 'static'}">
-      <span class="material-symbols-rounded">${isLive ? 'play_circle' : 'image'}</span>
+    const kindHtml = `<div class="wp-kind ${escape(w.kind || 'static')}">
+      <span class="material-symbols-rounded">${kindIcon}</span>
       ${escape(kindLabel)}
     </div>`;
     const hiddenOverlay = w.published === false
@@ -2856,6 +2905,13 @@ function bindEvents() {
   $('#btn-search').onclick = () => doSearch(true);
   $('#search-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(true); });
   $('#search-category').onchange = () => doSearch(true);
+  // Kind filter chips — refresh grid + toggle the .checked class for styling
+  document.querySelectorAll('#kind-filters input').forEach(el => {
+    el.addEventListener('change', () => {
+      el.parentElement.classList.toggle('checked', el.checked);
+      doSearch(true);
+    });
+  });
 
   // Pagination handlers
   $('#page-prev').onclick  = () => { if (pager.page > 1) { pager.page--; doSearch(false); } };

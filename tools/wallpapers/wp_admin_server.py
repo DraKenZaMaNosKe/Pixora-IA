@@ -63,8 +63,13 @@ CATALOGS = {
     "live":      ("wallpaper-videos", "live_wallpaper_catalog.json", "wallpapers"),
     "static":    ("wallpaper-images", "dynamic_catalog.json",        "wallpapers"),
     "stories":   ("wallpaper-images", "stories_catalog.json",        "stories"),
-    "day_cycle": ("wallpaper-images", "day_cycle_catalog.json",      "scenes"),
-    "ringtones": ("wallpaper-images", "ringtones_catalog.json",      "ringtones"),
+    # Real schemas verified 2026-06-16: day_cycle JSON uses 'themes' (each
+    # theme = one daycycle the app tracks as 'daycycle_<id>'); ringtones
+    # JSON uses 'packs' (each pack = one tone_pack_<id> tracked entity).
+    # Previous keys ('scenes'/'ringtones') silently returned 0 items so
+    # these sections were invisible in the dashboard grid.
+    "day_cycle": ("wallpaper-images", "day_cycle_catalog.json",      "themes"),
+    "ringtones": ("wallpaper-images", "ringtones_catalog.json",      "packs"),
 }
 
 # Text CMS — Phase 1 endpoints (2026-05-18)
@@ -134,11 +139,21 @@ class Handler(BaseHTTPRequestHandler):
             return
         sys.stderr.write(f"  {self.address_string()} - {fmt % args}\n")
 
-    def _send(self, status: int, ctype: str, body: bytes):
+    def _send(self, status: int, ctype: str, body: bytes, extra_headers: dict | None = None):
         self.send_response(status)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        # Default no-store; let callers override (e.g. sprite frames get cached
+        # to avoid re-fetching the ZIP from Storage every editor render).
+        if extra_headers and "Cache-Control" in extra_headers:
+            self.send_header("Cache-Control", extra_headers["Cache-Control"])
+        else:
+            self.send_header("Cache-Control", "no-store")
+        if extra_headers:
+            for k, v in extra_headers.items():
+                if k == "Cache-Control":
+                    continue
+                self.send_header(k, v)
         self.end_headers()
         self.wfile.write(body)
 
@@ -302,14 +317,30 @@ class Handler(BaseHTTPRequestHandler):
             print(f"[catalog-cache] fetch {kind} failed: {e}")
             return None
 
+    # The app tracks stats with type-specific prefixes (see
+    # wallpaper_stats_service.dart): a ringtone pack lives in catalog as
+    # id='zelda_pack' but is tracked as 'tone_pack_zelda_pack'. The catalog
+    # id stays the user-visible/editable one; stats_id is the key we use
+    # when querying admin_content_breakdown / wallpaper_stats.
+    _STATS_PREFIX = {
+        "ringtones": "tone_pack_",
+        "stories":   "story_",
+        "day_cycle": "daycycle_",
+        # 'live' and 'static' track the raw wallpaper id, no prefix.
+    }
+
     def _normalize_item(self, item: dict, kind: str) -> dict:
         """Map catalog entry → unified card row matching what the grid expects."""
         bucket, _, items_key = CATALOGS[kind]
-        prev = item.get("previewFile") or item.get("imageFile") or ""
+        prev = item.get("previewFile") or item.get("imageFile") or item.get("previewImage") or ""
         prev_url = f"{SUPABASE_STORAGE}/object/public/{bucket}/{prev}" if prev else ""
+        raw_id = item.get("id") or ""
+        prefix = self._STATS_PREFIX.get(kind, "")
+        stats_id = f"{prefix}{raw_id}" if prefix and not raw_id.startswith(prefix) else raw_id
         return {
-            "id": item.get("id"),
-            "name": item.get("name") or item.get("id") or "",
+            "id": raw_id,
+            "stats_id": stats_id,            # used internally for stats lookup
+            "name": item.get("name") or raw_id,
             "category": item.get("category") or "",
             "description": item.get("description", ""),
             "tags": item.get("tags", []),
@@ -318,39 +349,47 @@ class Handler(BaseHTTPRequestHandler):
             "sort_order": item.get("sortOrder", 0),
             "badge": item.get("badge"),
             "created_at": item.get("createdAt") or item.get("created_at"),
-            # Stats — filled below from admin_wallpaper_breakdown if available
+            # Stats — filled below from admin_content_breakdown if available
             "view_count": 0,
             "install_count": 0,
             "share_count": 0,
+            "like_count": 0,
+            "download_count": 0,
         }
 
     def _enrich_with_stats(self, items: list) -> None:
         """Batch-fetch stats + published flag from Postgres for the page."""
         if not items:
             return
-        ids = [i["id"] for i in items if i.get("id")]
-        if not ids:
+        # Stats lookup uses the prefixed id (tone_pack_*, story_*, ...)
+        # set up in _normalize_item; published lookup uses the raw id since
+        # only wallpapers (without prefix) ever exist in the wallpapers table.
+        stats_ids = [i.get("stats_id") or i["id"] for i in items if i.get("id")]
+        raw_ids = [i["id"] for i in items if i.get("id")]
+        if not stats_ids:
             return
-        ids_csv = ",".join(urllib.parse.quote(x, safe="") for x in ids)
-        # Stats vienen de la vista; published viene de la tabla.
+        stats_csv = ",".join(urllib.parse.quote(x, safe="") for x in stats_ids)
+        raw_csv   = ",".join(urllib.parse.quote(x, safe="") for x in raw_ids)
         stats, status = self._proxy(
-            f"admin_wallpaper_breakdown?id=in.({ids_csv})&select=id,views,installs,shares"
+            f"admin_content_breakdown?id=in.({stats_csv})&select=id,content_type,views,installs,shares,likes,downloads"
         )
         by_id_stats: dict = {}
         if status == 200 and isinstance(stats, list):
             by_id_stats = {row["id"]: row for row in stats}
         pub_rows, pub_status = self._proxy(
-            f"wallpapers?id=in.({ids_csv})&select=id,published,daily_eligible,media_width,media_height"
+            f"wallpapers?id=in.({raw_csv})&select=id,published,daily_eligible,media_width,media_height"
         )
         by_id_pub: dict = {}
         if pub_status == 200 and isinstance(pub_rows, list):
             by_id_pub = {row["id"]: row for row in pub_rows}
         for it in items:
-            sr = by_id_stats.get(it["id"])
+            sr = by_id_stats.get(it.get("stats_id") or it["id"])
             if sr:
-                it["view_count"] = sr.get("views", 0) or 0
-                it["install_count"] = sr.get("installs", 0) or 0
-                it["share_count"] = sr.get("shares", 0) or 0
+                it["view_count"]     = sr.get("views", 0) or 0
+                it["install_count"]  = sr.get("installs", 0) or 0
+                it["share_count"]    = sr.get("shares", 0) or 0
+                it["like_count"]     = sr.get("likes", 0) or 0
+                it["download_count"] = sr.get("downloads", 0) or 0
             pr = by_id_pub.get(it["id"])
             # Defaultea a True si Postgres no tiene la fila (ej. LIVE wallpapers
             # solo viven en Storage, no en tabla wallpapers).
@@ -366,7 +405,13 @@ class Handler(BaseHTTPRequestHandler):
         q = (query.get("q", [""])[0] or "").lower().strip()
         cat = (query.get("category", [""])[0] or "").strip()
         kinds_param = query.get("kinds", [""])[0]
-        kinds = [k for k in kinds_param.split(",") if k] or ["live", "static"]
+        # Default to ALL known catalog kinds so the grid surfaces every
+        # content type Eduardo publishes (was just live+static before, which
+        # left stories / ringtones / day_cycle invisible in the dashboard).
+        kinds = (
+            [k for k in kinds_param.split(",") if k]
+            or list(CATALOGS.keys())
+        )
         limit = int(query.get("limit", ["24"])[0])
         offset = int(query.get("offset", ["0"])[0])
 
@@ -448,6 +493,22 @@ class Handler(BaseHTTPRequestHandler):
             except FileNotFoundError:
                 return self._send(404, "text/plain", b"dashboard html not found")
 
+        # Sprite editor — visual drag/resize tool for canvas_scene sprites
+        if path == "/sprite-editor.html":
+            try:
+                body = (DASHBOARD_HTML.parent / "sprite-editor.html").read_bytes()
+                return self._send(200, "text/html; charset=utf-8", body)
+            except FileNotFoundError:
+                return self._send(404, "text/plain", b"sprite-editor.html not found")
+
+        # Sprite frame: downloads the sprite ZIP from Storage, extracts the
+        # requested frame number, and serves it as PNG. Used by the editor
+        # to render the actual sprite over the bg preview.
+        if path == "/api/sprite-frame":
+            mk = query.get("manifest_key", [""])[0]
+            frame = int(query.get("frame", ["1"])[0])
+            return self._serve_sprite_frame(mk, frame)
+
         # -- API routes --
         if path == "/api/stats":
             data, status = self._proxy("rpc/wp_stats", "POST", b"{}")
@@ -464,9 +525,17 @@ class Handler(BaseHTTPRequestHandler):
             return self._send_json(data, status)
 
         if path == "/api/top-wallpapers":
+            # Now backed by admin_content_breakdown so the ranking surfaces
+            # ALL content types (was limited to rows in `wallpapers` table
+            # before — left stories/tones/aura/daycycle invisible).
+            # Optional ?content_type=wallpaper,ringtone,story... filters.
             limit = int(query.get("limit", ["50"])[0])
             order = query.get("order", ["views.desc"])[0]
-            data, status = self._proxy(f"admin_wallpaper_breakdown?order={order}&limit={limit}")
+            ct = query.get("content_type", [""])[0]
+            extra = f"&content_type=in.({ct})" if ct else ""
+            data, status = self._proxy(
+                f"admin_content_breakdown?order={order}&limit={limit}{extra}"
+            )
             return self._send_json(data, status)
 
         if path == "/api/recent-events":
@@ -477,9 +546,12 @@ class Handler(BaseHTTPRequestHandler):
             return self._send_json(data, status)
 
         if path == "/api/wallpaper":
+            # Uses admin_content_breakdown so the modal opens with stats
+            # for ringtones/stories/aura/daycycle too (was breaking before
+            # for any id that wasn't in the `wallpapers` table).
             wid = query.get("id", [""])[0]
             data, status = self._proxy(
-                f"admin_wallpaper_breakdown?id=eq.{urllib.parse.quote(wid)}"
+                f"admin_content_breakdown?id=eq.{urllib.parse.quote(wid)}"
             )
             return self._send_json(data, status)
 
@@ -752,8 +824,108 @@ class Handler(BaseHTTPRequestHandler):
         except urllib.error.HTTPError as e:
             return ({"error": e.read().decode()[:300]}, e.code)
 
+    # ───── Sprite editor helpers ──────────────────────────────
+    # Strict allowlist for ids that get interpolated into Storage URLs.
+    # Without this, a crafted scene_id like "../../foo" could overwrite or
+    # read arbitrary objects in the Supabase bucket (SERVICE_KEY has full
+    # rights). Internal-only admin doesn't excuse defense-in-depth — bots
+    # scanning localhost ports are a real thing.
+    _SAFE_ID_RE = re.compile(r"^[a-z0-9_]{1,64}$")
+    # Manifest keys can be flat ("goku_genkidama_orb") OR namespaced
+    # ("pokemon_cafe/chimenea", "aquarium/firefly/moth_a") — allow up to
+    # 3 segments. No "..", no leading/trailing slash, no consecutive slashes.
+    _SAFE_MANIFEST_RE = re.compile(r"^[a-z0-9_]{1,40}(/[a-z0-9_]{1,40}){0,2}$")
+
+    def _serve_sprite_frame(self, manifest_key: str, frame_n: int):
+        """
+        Download the sprite ZIP from wallpaper-sprites bucket, extract the
+        Nth PNG frame, serve it inline. Used by the visual editor to render
+        the sprite's actual texture over the bg preview.
+        """
+        if not manifest_key or not self._SAFE_MANIFEST_RE.match(manifest_key):
+            return self._send(400, "text/plain", b"invalid manifest_key")
+        # Fetch sprite manifest entry to get the zip filename
+        try:
+            mf_url = f"{SUPABASE_STORAGE}/object/public/wallpaper-sprites/manifest.json"
+            with urllib.request.urlopen(mf_url, timeout=15) as r:
+                mf = json.loads(r.read())
+        except Exception as e:
+            return self._send(502, "text/plain", f"manifest fetch failed: {e}".encode())
+        info = mf.get(manifest_key)
+        if not info:
+            return self._send(404, "text/plain", f"key {manifest_key} not in manifest".encode())
+        zip_path = info.get("zip")
+        if not zip_path:
+            return self._send(500, "text/plain", b"manifest entry has no 'zip' field")
+        try:
+            zip_url = f"{SUPABASE_STORAGE}/object/public/wallpaper-sprites/{zip_path}"
+            with urllib.request.urlopen(zip_url, timeout=30) as r:
+                zip_bytes = r.read()
+        except Exception as e:
+            return self._send(502, "text/plain", f"zip fetch failed: {e}".encode())
+        import io as _io, zipfile as _zf
+        try:
+            with _zf.ZipFile(_io.BytesIO(zip_bytes)) as zf:
+                names = sorted([n for n in zf.namelist() if n.endswith(".png")])
+                if not names:
+                    return self._send(500, "text/plain", b"no png frames in zip")
+                pick = names[max(0, min(frame_n - 1, len(names) - 1))]
+                png = zf.read(pick)
+        except Exception as e:
+            return self._send(500, "text/plain", f"zip extract failed: {e}".encode())
+        return self._send(200, "image/png", png, extra_headers={"Cache-Control": "public, max-age=3600"})
+
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
+
+        # Sprite editor save — update spec sprites array and FCM invalidate
+        if path == "/api/save-scene-sprites":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            scene_id = payload.get("scene_id")
+            new_sprites = payload.get("sprites")
+            if not scene_id or not isinstance(new_sprites, list):
+                return self._send_json({"error": "scene_id + sprites required"}, 400)
+            # Validate scene_id against strict allowlist — prevents path
+            # traversal that could overwrite arbitrary Storage objects
+            # using the service_role key.
+            if not self._SAFE_ID_RE.match(scene_id):
+                return self._send_json({"error": "invalid scene_id format"}, 400)
+            # Fetch current spec, replace sprites field, PUT back
+            try:
+                spec_url = f"{SUPABASE_STORAGE}/object/public/wallpaper-scenes/{scene_id}.json"
+                with urllib.request.urlopen(spec_url, timeout=15) as r:
+                    spec = json.loads(r.read())
+            except Exception as e:
+                return self._send_json({"error": f"spec fetch: {e}"}, 502)
+            spec["sprites"] = new_sprites
+            put_url = f"{SUPABASE_STORAGE}/object/wallpaper-scenes/{scene_id}.json"
+            put_body = json.dumps(spec, indent=2, ensure_ascii=False).encode("utf-8")
+            req = urllib.request.Request(put_url, data=put_body, method="PUT")
+            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+            req.add_header("Content-Type", "application/json")
+            req.add_header("x-upsert", "true")
+            try:
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    pass
+            except Exception as e:
+                return self._send_json({"error": f"spec save: {e}"}, 502)
+            # FCM broadcast so devices pick up the new spec without a 6h wait
+            fcm_ok = False
+            try:
+                fcm_ok = bool(_fcm_push_catalog_invalidate("wallpapers"))
+            except Exception:
+                pass
+            return self._send_json({
+                "ok": True,
+                "scene_id": scene_id,
+                "sprites_updated": len(new_sprites),
+                "fcm": fcm_ok,
+            })
 
         # ─── Single-wallpaper edit (Postgres + JSON sync) ────────
         # POST /api/wallpaper-edit

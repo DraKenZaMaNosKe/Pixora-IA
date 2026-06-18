@@ -139,11 +139,12 @@ def main() -> None:
     # ── 3. Compara con admin endpoint ──────────────────────────
     header("3. COMPARATIVA — Admin endpoint vs SQL directo")
     try:
-        # El admin tiene varios endpoints, probamos /api/users
-        r = requests.get(f"{ADMIN_URL}/api/users", timeout=10)
+        # El admin no expone /api/users — el endpoint real es /api/top-users.
+        # Antes este script tiraba 404 silencioso aqui (audit 2026-06-16).
+        r = requests.get(f"{ADMIN_URL}/api/top-users", timeout=10)
         if r.status_code == 200:
             admin_users = r.json()
-            print(f"  Admin /api/users devolvio {len(admin_users)} usuarios")
+            print(f"  Admin /api/top-users devolvio {len(admin_users)} usuarios")
             if admin_users and len(admin_users) > 0:
                 print(f"  Primeros 5:")
                 for u in admin_users[:5]:

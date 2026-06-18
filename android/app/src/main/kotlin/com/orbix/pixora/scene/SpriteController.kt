@@ -164,11 +164,21 @@ class StaticController(def: SpriteDef, sheet: SpriteSheet) :
             val sx = surfaceW.toFloat() / bmpW
             val sy = surfaceH.toFloat() / bmpH
             val s = maxOf(sx, sy)
+            // Pre-scale once to surface dims — fullscreen sprites benefit
+            // the most since they have the largest per-frame draw cost.
+            sheet.ensurePrescaled((bmpW * s).toInt(), (bmpH * s).toInt())
             sheet.drawAt(canvas, surfaceW / 2f, surfaceH / 2f,
                 scale = s, flipX = flipX, alpha = alpha)
         } else {
+            // Positioned sprite (e.g. Pikachu, chimenea fire) — pre-scale
+            // the frames to their final on-screen size so per-frame draw
+            // becomes a pure blit (no GPU bilinear filter, no matrix scale).
+            val finalScale = surfaceW * scale
+            val targetW = (sheet.width * finalScale).toInt().coerceAtLeast(1)
+            val targetH = (sheet.height * finalScale).toInt().coerceAtLeast(1)
+            sheet.ensurePrescaled(targetW, targetH)
             sheet.drawAt(canvas, surfaceW * x, surfaceH * y,
-                scale = surfaceW * scale,
+                scale = finalScale,
                 flipX = flipX, alpha = alpha)
         }
     }
