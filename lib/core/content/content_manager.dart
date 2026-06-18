@@ -103,13 +103,16 @@ class ContentManager {
     void Function(String phase)? onPhase,
     bool showAd = true,
   }) async {
-    // Track the download
-    WallpaperStatsService.instance.trackDownload(item.id);
-
     // Phase 1: Download
     onPhase?.call('downloading');
     final path = await download(item, onProgress: onProgress, onError: onError);
     if (path == null) return false;
+
+    // Track download AFTER it succeeded. Was firing before the await which
+    // inflated the counter even on network failure / cancel (audit 2026-06-18
+    // Sprint 1 finding #5 + #6). Callers should NOT also call trackDownload —
+    // this method is the single source of truth.
+    WallpaperStatsService.instance.trackDownload(item.id);
 
     // Phase 2: Download sprites if animated wallpaper theme.
     // If sprite download fails we abort — installing without sprites would leave

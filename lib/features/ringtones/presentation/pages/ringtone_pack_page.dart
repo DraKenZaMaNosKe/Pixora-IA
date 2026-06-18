@@ -176,7 +176,6 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
       _toneLoadingPhase = LoadingPhase.downloading;
       _toneLoadingStatus = 'Downloading ${tone.name}...';
     });
-    WallpaperStatsService.instance.trackDownload('tone_${tone.id}');
     final path = await RingtoneService.instance.downloadTone(tone);
     if (path == null) {
       if (mounted) {
@@ -190,6 +189,9 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
       }
       return;
     }
+    // Track download AFTER it succeeded (audit Sprint 1 fix).
+    WallpaperStatsService.instance.trackDownload('tone_${tone.id}');
+
     if (mounted) {
       setState(() {
         _toneLoadingPhase = LoadingPhase.installing;

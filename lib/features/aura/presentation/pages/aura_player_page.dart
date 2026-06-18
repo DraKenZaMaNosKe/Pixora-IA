@@ -304,10 +304,15 @@ class _AuraPlayerPageState extends State<AuraPlayerPage> {
                           AdService.instance.showInterstitialAd(
                               placement: 'aura_save',
                               onAdDismissed: () async {
-                                WallpaperStatsService.instance
-                                    .trackDownload('aura_${t.id}');
+                                // trackDownload moved AFTER download success
+                                // (audit Sprint 1 fix — was inflating counter
+                                // even on network failure / cancel).
                                 final file = await AuraDownloadService.instance
                                     .download(t);
+                                if (file != null) {
+                                  WallpaperStatsService.instance
+                                      .trackDownload('aura_${t.id}');
+                                }
                                 if (!mounted) return;
                                 setState(() {
                                   _downloadPhase = file != null

@@ -143,7 +143,9 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         _loadingPhase = LoadingPhase.downloading;
       });
     }
-    WallpaperStatsService.instance.trackDownload(_statsId);
+    // trackDownload removed here — ContentManager.downloadAndInstall
+    // (line ~217) handles it AFTER the download succeeds. Was causing
+    // double-counting + inflated counter on failed downloads.
 
     final dir = await getApplicationDocumentsDirectory();
     final w = widget.wallpaper;

@@ -89,7 +89,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage>
       _loadingStatus = 'Downloading frame 1/$total...';
       _loadingPhase = LoadingPhase.downloading;
     });
-    WallpaperStatsService.instance.trackDownload('story_${widget.story.id}');
+    // trackDownload moved AFTER all frames succeed (audit Sprint 1 fix).
 
     final paths = <String>[];
     for (var i = 0; i < total; i++) {
@@ -142,6 +142,7 @@ class _StoryDetailPageState extends ConsumerState<StoryDetailPage>
       intervalMinutes: widget.story.intervalMinutes,
     );
     if (success) {
+      WallpaperStatsService.instance.trackDownload('story_${widget.story.id}');
       WallpaperStatsService.instance.trackInstall('story_${widget.story.id}');
     }
     if (mounted) {

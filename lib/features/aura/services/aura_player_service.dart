@@ -37,6 +37,13 @@ class AuraPlayerService extends ChangeNotifier {
   }
 
   Future<void> play(AuraTrack track) async {
+    // Cancel any pending sleep timer from the previous track AND stop the
+    // periodic listen tick — otherwise (audit Sprint 1 fix #4):
+    //   · a 5-min timer set on track A keeps running and stops track B too soon
+    //   · listen tick of track A keeps emitting aura_play_tick for ID A
+    //     while user is actually listening to B → stats wrong
+    _cancelSleepTimer();
+    _stopListenTick();
     // Guardar el estado anterior para rollback si la carga falla.
     final previous = _current;
     _current = track;
@@ -94,6 +101,12 @@ class AuraPlayerService extends ChangeNotifier {
 
   /// Play any URL (used by PreviewPlayerService for tone previews).
   /// This reuses the same AudioPlayer already registered with just_audio_background.
+  ///
+  /// IMPORTANT: this method STOPS any AURA track currently playing because
+  /// only one AudioPlayer instance exists across the app. Callers in the
+  /// tones preview UI should be aware that hitting "preview" while AURA is
+  /// active will stop the user's wellness session. Show a confirm UI before
+  /// calling this if AURA is active (`AuraPlayerService.instance.current != null`).
   Future<void> playUrl({
     required String url,
     required String id,
@@ -101,8 +114,12 @@ class AuraPlayerService extends ChangeNotifier {
     String album = 'Preview',
     String artist = 'Pixora',
   }) async {
-    _current = null;
+    // Clean teardown of AURA state (sleep timer, listen tick, current track)
+    // before hijacking the player for preview. Was leaving timers running.
+    _stopListenTick();
     _cancelSleepTimer();
+    _current = null;
+    notifyListeners();
     try {
       await _player.setAudioSource(
         AudioSource.uri(
@@ -136,9 +153,29 @@ class AuraPlayerService extends ChangeNotifier {
 
   Future<void> stop() async {
     _stopListenTick();
-    await _player.stop();
-    _current = null;
     _cancelSleepTimer();
+    // Aggressive memory release. Just_audio's `stop()` rewinds but keeps
+    // decoded buffers + audio source loaded in memory (can be 30-80 MB
+    // depending on track length). On 4 GB devices this is what pushes
+    // lmkd to kill Pixora when the user taps stop in the system
+    // notification (audit logcat 2026-06-18 12:38: lmkd reclaim
+    // com.orbix.pixora reason min2x watermark breached). Replacing the
+    // source with a tiny silent one ("setAsset" with a 1-byte audio) is
+    // the only public API in just_audio 0.9.x that drops the decoder
+    // without disposing the singleton.
+    try {
+      await _player.stop();
+    } catch (_) {}
+    try {
+      // Re-set with empty/dummy URI to drop decoder buffers. If this
+      // throws (some platforms validate URI), we just lose the memory
+      // optimization; functionality still works.
+      await _player.setAudioSource(
+        AudioSource.uri(Uri.parse('asset:///')),
+        preload: false,
+      );
+    } catch (_) {}
+    _current = null;
     notifyListeners();
   }
 

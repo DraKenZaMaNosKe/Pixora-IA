@@ -127,8 +127,47 @@ class _AIGeneratePageState extends State<AIGeneratePage>
   void _subscribeQueue() {
     final uid = Supabase.instance.client.auth.currentUser?.id;
     if (uid == null) return;
+    // Listen to BOTH insert + update events. Listening only to UPDATE meant
+    // that if the user generated something from another device (or even
+    // submitted from this device with a race), the new row wouldn't appear
+    // here until the user manually refreshed (audit Sprint 1 fix #8).
+    void handleChange(payload) {
+      final row = payload.newRecord;
+      final id = row['id'] as int?;
+      if (id == null) return;
+      final updated = _AIGenerationState(
+        id: id,
+        prompt: (row['prompt'] as String?) ?? '',
+        status: (row['status'] as String?) ?? 'pending',
+        resultUrl: row['result_url'] as String?,
+        errorMessage: row['error_message'] as String?,
+      );
+      setState(() {
+        if (_latest != null && _latest!.id == id) {
+          _latest = updated;
+        }
+        if (updated.status == 'done' && updated.resultUrl != null) {
+          final already = _history.any((e) => e.id == id);
+          if (!already) {
+            _history = [updated, ..._history];
+          }
+        }
+      });
+    }
+
     _queueChannel = Supabase.instance.client
         .channel('ia_gen_$uid')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'ia_generation_queue',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: uid,
+          ),
+          callback: handleChange,
+        )
         .onPostgresChanges(
           event: PostgresChangeEvent.update,
           schema: 'public',
@@ -138,33 +177,7 @@ class _AIGeneratePageState extends State<AIGeneratePage>
             column: 'user_id',
             value: uid,
           ),
-          callback: (payload) {
-            final row = payload.newRecord;
-            final id = row['id'] as int?;
-            if (id == null) return;
-            final updated = _AIGenerationState(
-              id: id,
-              prompt: (row['prompt'] as String?) ?? '',
-              status: (row['status'] as String?) ?? 'pending',
-              resultUrl: row['result_url'] as String?,
-              errorMessage: row['error_message'] as String?,
-            );
-            setState(() {
-              // Only mirror into _latest if this is the in-flight gen the
-              // user just submitted.
-              if (_latest != null && _latest!.id == id) {
-                _latest = updated;
-              }
-              // When a gen finishes successfully, insert into history at
-              // the top (newest first) — unless already there.
-              if (updated.status == 'done' && updated.resultUrl != null) {
-                final already = _history.any((e) => e.id == id);
-                if (!already) {
-                  _history = [updated, ..._history];
-                }
-              }
-            });
-          },
+          callback: handleChange,
         )
         .subscribe();
   }

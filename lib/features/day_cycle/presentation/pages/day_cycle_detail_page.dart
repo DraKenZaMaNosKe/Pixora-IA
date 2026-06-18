@@ -90,7 +90,7 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage>
   }
 
   Future<void> _doActivate() async {
-    WallpaperStatsService.instance.trackDownload('daycycle_${widget.theme.id}');
+    // trackDownload moved AFTER `success` check below (audit Sprint 1 fix).
     if (mounted) {
       setState(() {
         _loadingPhase = LoadingPhase.downloading;
@@ -116,6 +116,8 @@ class _DayCycleDetailPageState extends ConsumerState<DayCycleDetailPage>
     );
     if (!mounted) return;
     if (success) {
+      WallpaperStatsService.instance
+          .trackDownload('daycycle_${widget.theme.id}');
       WallpaperStatsService.instance
           .trackInstall('daycycle_${widget.theme.id}');
       ref.read(activeDayCycleIdProvider.notifier).state = widget.theme.id;

@@ -2408,7 +2408,9 @@ async function doSearch(resetPage = true) {
         <div class="name">${escape(w.name)}</div>
         <div class="stats">
           <span title="vistas"><span class="material-symbols-rounded">visibility</span> ${fmt(w.view_count)}</span>
-          <span title="installs"><span class="material-symbols-rounded">download</span> ${fmt(w.install_count)}</span>
+          <span title="downloads"><span class="material-symbols-rounded">download</span> ${fmt(w.download_count || 0)}</span>
+          <span title="likes" style="color:#FF6B9B"><span class="material-symbols-rounded">favorite</span> ${fmt(w.like_count || 0)}</span>
+          <span title="installs" style="color:#5BCB5B"><span class="material-symbols-rounded">check_circle</span> ${fmt(w.install_count)}</span>
           ${dimsHtml}
         </div>
       </div>

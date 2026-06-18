@@ -427,10 +427,36 @@ class Handler(BaseHTTPRequestHandler):
             for raw in catalog.get(items_key, []):
                 all_items.append(self._normalize_item(raw, kind))
 
-        # 2. Sort: newest first (createdAt desc), fallback sort_order desc
+        # 2a. Sort: newest first (createdAt desc), fallback sort_order desc
         def sort_key(it):
             return (it.get("created_at") or "", it.get("sort_order") or 0)
         all_items.sort(key=sort_key, reverse=True)
+
+        # 2b. Interleave series so two cards from the same family don't sit
+        # next to each other (Eduardo: "se ven pegaditos, parece error").
+        # Series key = first 2 tokens of the id (e.g. "throotle_underwater_*"
+        # all share family "throotle_underwater"). We split into series-bucket
+        # queues sorted newest-first, then round-robin them. The most recent
+        # ones still win first slots; only adjacent duplicates get shifted.
+        from collections import defaultdict, deque
+        buckets = defaultdict(deque)
+        family_first_seen = {}  # preserve original order between families
+        for i, it in enumerate(all_items):
+            wid = it.get("id", "")
+            parts = wid.split("_")
+            family = "_".join(parts[:2]) if len(parts) >= 2 else wid
+            if family not in family_first_seen:
+                family_first_seen[family] = i
+            buckets[family].append(it)
+        # Round-robin across families, families ordered by their first item's
+        # original position (preserves global newest-first ordering).
+        ordered_families = sorted(buckets.keys(), key=family_first_seen.get)
+        interleaved = []
+        while any(buckets[f] for f in ordered_families):
+            for f in ordered_families:
+                if buckets[f]:
+                    interleaved.append(buckets[f].popleft())
+        all_items = interleaved
 
         # 3. Filter by query + category
         def matches(it):

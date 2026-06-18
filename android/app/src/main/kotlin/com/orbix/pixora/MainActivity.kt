@@ -10,6 +10,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.Settings as AndroidSettings
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import com.ryanheise.audioservice.AudioServiceActivity
@@ -764,7 +765,24 @@ class MainActivity : AudioServiceActivity() {
             val file = File(path)
             if (!file.exists()) return false
 
-            val bitmap = BitmapFactory.decodeFile(path) ?: return false
+            // Decode with inSampleSize matching screen size. Panoramic WebPs
+            // (4192×1024) decoded full take ~50 MB in RAM and OOM on 4GB
+            // devices — Eduardo's Samsung A155M crashed Pixora repeatedly
+            // during June 2026 testing (audit Sprint 1 fix #2).
+            val dm = resources.displayMetrics
+            val screenW = dm.widthPixels.coerceAtLeast(1080)
+            val screenH = dm.heightPixels.coerceAtLeast(1920)
+            val targetMaxDim = maxOf(screenW, screenH) * 2  // 2× headroom
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(path, bounds)
+            var sample = 1
+            val srcMax = maxOf(bounds.outWidth, bounds.outHeight)
+            while (srcMax / sample > targetMaxDim) sample *= 2
+            val opts = BitmapFactory.Options().apply {
+                inSampleSize = sample
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+            }
+            val bitmap = BitmapFactory.decodeFile(path, opts) ?: return false
             val manager = WallpaperManager.getInstance(applicationContext)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -779,6 +797,9 @@ class MainActivity : AudioServiceActivity() {
             }
             bitmap.recycle()
             true
+        } catch (e: OutOfMemoryError) {
+            android.util.Log.e("Pixora", "setWallpaper OOM (path=$path)", e)
+            false
         } catch (e: Exception) {
             e.printStackTrace()
             false

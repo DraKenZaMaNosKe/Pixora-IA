@@ -161,7 +161,6 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
       _downloadProgress = 0.0;
       _loadingStatus = 'Descargando...';
     });
-    WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
     String? errorMsg;
     final path = await DownloadService.instance.downloadWallpaper(
@@ -198,6 +197,10 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
       setState(() => _isApplying = false);
       return;
     }
+
+    // Track download AFTER it succeeded (audit Sprint 1 fix: was firing
+    // before the await above, inflating counter even on network failure).
+    WallpaperStatsService.instance.trackDownload(widget.wallpaper.id);
 
     _setLoading('Guardando en galería...', progress: 1.0);
     final success = await WallpaperService.instance.saveToGallery(path);
