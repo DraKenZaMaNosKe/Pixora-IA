@@ -372,30 +372,46 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
               ],
             ),
             // Animated scanline overlay for HUD feel (subtle)
-            IgnorePointer(
-              ignoring: true,
-              child: AnimatedBuilder(
-                animation: _scanlineCtrl,
-                builder: (_, __) {
-                  final y = _scanlineCtrl.value * viewportH;
-                  return Positioned(
-                    top: y,
-                    left: 0,
-                    right: 0,
-                    height: 1,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.transparent,
-                            WallpaperViewerHudPage.cyan.withValues(alpha: 0.3),
-                            Colors.transparent,
-                          ],
+            // Animated scanline overlay for HUD feel (subtle).
+            // Positioned MUST be the direct child of Stack. Wrapping
+            // AnimatedBuilder so its builder returns Positioned is a
+            // ParentDataWidget violation — Stack sees IgnorePointer +
+            // AnimatedBuilder as children, reads StackParentData on a
+            // plain ParentData and throws hundreds of casts per frame.
+            // Net effect: the viewer renders as a gray hole. Fix is to
+            // wrap the whole subtree in Positioned.fill and use
+            // Transform.translate to slide the scanline vertically.
+            Positioned.fill(
+              child: IgnorePointer(
+                ignoring: true,
+                child: AnimatedBuilder(
+                  animation: _scanlineCtrl,
+                  builder: (_, __) {
+                    final y = _scanlineCtrl.value * viewportH;
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Transform.translate(
+                        offset: Offset(0, y),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 1,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.transparent,
+                                  WallpaperViewerHudPage.cyan
+                                      .withValues(alpha: 0.3),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ],

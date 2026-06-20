@@ -184,15 +184,6 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
         debugPrint('[Pixora] Skia cap error: $e');
       });
 
-      // Flutter imageCache cap (decoded bitmaps RAM). Default is 100 MB /
-      // 1000 images which is way too high for a wallpaper app browsing
-      // hundreds of thumbnails — Robo testing showed 1 GB RAM peak driven
-      // mostly by this. 50 MB / 200 images covers ~3 grid screens of
-      // wallpapers without hogging memory on 4 GB devices (Samsung A155M).
-      PaintingBinding.instance.imageCache.maximumSize = 200;
-      PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
-      debugPrint('[Pixora] Flutter imageCache capped at 50 MB / 200 images');
-
       // 2026-06-09 Phase 4 future-proofing: if Pixora Daily is active,
       // re-fetch both catalogs (static + live) and push the fresh snapshot
       // to native. This means new wallpapers added to either catalog

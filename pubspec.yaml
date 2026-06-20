@@ -1,7 +1,7 @@
 name: pixora
 description: "Pixora IA - Wallpapers, Ringtones & Icon Packs"
 publish_to: 'none'
-version: 1.7.28+71
+version: 1.7.29+72
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
@@ -16,6 +16,7 @@ dependencies:
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
   hive_flutter: ^1.1.0
+  shared_preferences: ^2.3.2
   http: ^1.2.1
   path: ^1.9.0
   path_provider: ^2.1.3

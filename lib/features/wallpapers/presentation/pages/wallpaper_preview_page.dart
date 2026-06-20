@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../../../core/utils/hud_hint_helper.dart';
 import '../../../../core/content/content_manager.dart';
 import '../../../../core/content/content_types.dart';
 import '../../../../core/design/hud_tokens.dart';
@@ -212,6 +213,9 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
           backgroundColor: context.hud.surface,
         ),
       );
+      if (success) {
+        await HudHintHelper.maybeShow(context);
+      }
     }
     setState(() => _isApplying = false);
   }

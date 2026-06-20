@@ -8,6 +8,8 @@ import '../pages/wallpaper_preview_page.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
 import 'grid_card_animations.dart';
 import 'native_ad_card.dart';
+import 'wallpaper_card.dart'
+    show PixoraCardKind, PixoraCardKindUI, PixoraCornerIcon;
 
 /// One native ad card injected every [_kAdEvery] wallpaper cards in the
 /// carousel. 6 is the industry sweet spot (similar to Instagram / Pinterest
@@ -176,28 +178,16 @@ class _ParallaxCarouselCard extends StatelessWidget {
   final ScrollController scrollController;
   final int index;
 
-  double _getParallaxOffset(BuildContext context) {
-    if (!scrollController.hasClients) return 0.0;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final scrollOffset = scrollController.offset;
-    final cardPosition = index * (width + 12) + 12 - scrollOffset;
-    final center = screenWidth / 2;
-    final cardCenter = cardPosition + width / 2;
-    final distFromCenter = (cardCenter - center) / center;
-    return distFromCenter * -15.0; // subtle parallax
-  }
-
-  String get _lotNumber {
-    final n = wallpaper.id.hashCode.abs() % 1000;
-    return n.toString().padLeft(3, '0');
-  }
-
   @override
   Widget build(BuildContext context) {
     final h = context.hud;
     if (h.isIosStyle) return _buildIosCard(context);
     return _buildTicketCard(context);
   }
+
+  PixoraCardKind get _kind => wallpaper.isPanoramic
+      ? PixoraCardKind.panoramic
+      : PixoraCardKind.staticImage;
 
   Widget _buildIosCard(BuildContext context) {
     final h = context.hud;
@@ -210,15 +200,22 @@ class _ParallaxCarouselCard extends StatelessWidget {
       ),
       child: Container(
         width: width,
+        height: height,
         margin: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
           color: h.bg,
           borderRadius: BorderRadius.circular(14),
+          // Propuesta 3 — SOLO contorno 2px sólido (Eduardo 2026-06-20:
+          // sin halo de color porque cuando varias cards del mismo
+          // kind quedan adyacentes el blur se acumulaba y parecía un
+          // relleno amarillo/rosa detrás del grid). La sombra negra
+          // se queda solo para dar profundidad neutra.
+          border: Border.all(color: _kind.color, width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 2),
+              color: Colors.black.withValues(alpha: 0.18),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -227,21 +224,19 @@ class _ParallaxCarouselCard extends StatelessWidget {
           children: [
             Expanded(
               child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(14)),
+                borderRadius: BorderRadius.circular(12),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    AnimatedBuilder(
-                      animation: scrollController,
-                      builder: (ctx, child) => Transform.translate(
-                        offset: Offset(_getParallaxOffset(ctx), 0),
-                        child: child,
-                      ),
-                      child: Transform.scale(
-                        scale: 1.1,
-                        child: CachedWallpaperImage(
-                            imageUrl: wallpaper.previewUrl),
+                    // 2026-06-20 — quitado el parallax (Transform.scale +
+                    // Transform.translate) a pedido de Eduardo: con
+                    // imágenes panorámicas se veían franjas negras y la
+                    // imagen "se salía del centro". Sin parallax el cover
+                    // simple llena el card limpiamente para todo tipo.
+                    SizedBox.expand(
+                      child: CachedWallpaperImage(
+                        imageUrl: wallpaper.previewUrl,
+                        fit: BoxFit.cover,
                       ),
                     ),
                     if (wallpaper.badge != null)
@@ -267,6 +262,14 @@ class _ParallaxCarouselCard extends StatelessWidget {
                         wallpaperId: wallpaper.id,
                       ),
                     ),
+                    // Propuesta 3 — corner icon kind arriba-derecha
+                    // (zona limpia: no choca con ActivityRings center-
+                    // bottom ni con badge top-left).
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: PixoraCornerIcon(kind: _kind),
+                    ),
                   ],
                 ),
               ),
@@ -288,138 +291,87 @@ class _ParallaxCarouselCard extends StatelessWidget {
       ),
       child: Container(
         width: width,
+        height: height,
         margin: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
           color: context.hud.surface,
-          border: Border.all(
-            color: context.hud.accent.withValues(alpha: 0.55),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ── Top stub header ─────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 5),
-              child: Row(
-                children: [
-                  Text('ADMIT',
-                      style: HudTokens.mono(
-                          size: 7.5,
-                          weight: FontWeight.w700,
-                          color: context.hud.accent,
-                          letterSpacing: 0.3)),
-                  const Spacer(),
-                  Text('N° $_lotNumber',
-                      style: HudTokens.mono(
-                          size: 7.5,
-                          weight: FontWeight.w700,
-                          color: context.hud.accent,
-                          letterSpacing: 0.3)),
-                ],
-              ),
+          borderRadius: BorderRadius.circular(14),
+          // Propuesta 3 — SOLO contorno limpio (Eduardo 2026-06-20):
+          // border 2px sólido del kind, sin halo de color porque cuando
+          // varias cards adyacentes son del mismo tipo el blur se acumula
+          // y parece relleno amarillo/rosa detrás del grid.
+          border: Border.all(color: _kind.color, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
             ),
-            // ── Image panel ─────────────────────
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: ClipRect(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Parallax listens to scrollController so Transform.translate
-                      // rebuilds on scroll, but the expensive image below does not.
-                      AnimatedBuilder(
-                        animation: scrollController,
-                        builder: (ctx, child) => Transform.translate(
-                          offset: Offset(_getParallaxOffset(ctx), 0),
-                          child: child,
-                        ),
-                        child: Transform.scale(
-                          scale: 1.1,
-                          child: CachedWallpaperImage(
-                              imageUrl: wallpaper.previewUrl),
-                        ),
-                      ),
-                      // Activity Rings bottom-centered (concept #04)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 4,
-                        child: Center(
-                          child: ActivityRings(wallpaperId: wallpaper.id),
-                        ),
-                      ),
-                      // 2026-06-13 — Realtime animations overlay.
-                      Positioned.fill(
-                        child: GridCardAnimationOverlay(
-                          wallpaperId: wallpaper.id,
-                        ),
-                      ),
-                      // Badge top-left
-                      if (wallpaper.badge != null)
-                        Positioned(
-                          top: 4,
-                          left: 4,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 5, vertical: 2),
-                            color: context.hud.accent,
-                            child: Text(
-                              wallpaper.badge!.toUpperCase(),
-                              style: HudTokens.mono(
-                                  size: 8,
-                                  weight: FontWeight.w700,
-                                  color: Colors.black,
-                                  letterSpacing: 0.15),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+          ],
+        ),
+        // Pure-image (sin header ADMIT, sin dashed perforation, sin
+        // bottom stub). Image clipped al border radius para que rellene
+        // el card por completo y se vea centrada como en el mockup.
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Parallax quitado 2026-06-20 (Eduardo) — imagen centrada
+              // y limpia, sin movimiento al scroll.
+              SizedBox.expand(
+                child: CachedWallpaperImage(
+                  imageUrl: wallpaper.previewUrl,
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-            // ── Dashed gold perforation ─────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-              child: CustomPaint(
-                size: const Size(double.infinity, 1),
-                painter: _CarouselDashPainter(color: context.hud.accent),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 8,
+                child: Center(
+                  child: ActivityRings(wallpaperId: wallpaper.id),
+                ),
               ),
-            ),
-            // Bottom stub (title + serial + category) hidden — pure-image
-            // browsing per user request.
-          ],
+              Positioned.fill(
+                child: GridCardAnimationOverlay(wallpaperId: wallpaper.id),
+              ),
+              if (wallpaper.badge != null)
+                Positioned(
+                  top: 6,
+                  left: 6,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: context.hud.accent,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      wallpaper.badge!.toUpperCase(),
+                      style: HudTokens.mono(
+                        size: 8,
+                        weight: FontWeight.w700,
+                        color: Colors.black,
+                        letterSpacing: 0.15,
+                      ),
+                    ),
+                  ),
+                ),
+              // Corner icon Propuesta 3 — arriba-derecha (zona libre
+              // en el ticket variant: no choca con ActivityRings
+              // center-bottom ni con badge top-left).
+              Positioned(
+                right: 8,
+                top: 8,
+                child: PixoraCornerIcon(kind: _kind),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-}
-
-/// Dashed gold line for the torn-ticket perforation.
-class _CarouselDashPainter extends CustomPainter {
-  const _CarouselDashPainter({required this.color});
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.0;
-    const dash = 4.0;
-    const gap = 3.0;
-    double x = 0;
-    while (x < size.width) {
-      final end = (x + dash).clamp(0, size.width).toDouble();
-      canvas.drawLine(Offset(x, 0), Offset(end, 0), paint);
-      x += dash + gap;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _CarouselDashPainter old) => old.color != color;
 }
 
 /// Catalog loading skeleton — Faithful Mirror (concept #01, 2026-05-13).

@@ -276,9 +276,17 @@ class PixoraWallpaperService : WallpaperService() {
         // refreshed via OVERLAY_SETTINGS_CHANGED broadcast so Settings toggles take
         // effect instantly (the :wallpaper process can't see main-process pref
         // writes directly — see tech_sharedprefs_multi_process.md).
-        @Volatile private var showClock = true
-        @Volatile private var showBattery = true
-        @Volatile private var showEqualizer = true
+        // Defaults flipped to FALSE 2026-06-20 (Eduardo): la mayoría de
+        // wallpapers se ven mejor SIN HUD overlays. Esto también lleva
+        // el live wallpaper a 0 fps efectivos cuando todo está estático,
+        // ahorrando GPU y batería. User puede activar desde Settings.
+        @Volatile private var showClock = false
+        @Volatile private var showBattery = false
+        @Volatile private var showEqualizer = false
+        // Master switch para el HUD del preset (systemRings/hudRenderer/
+        // sacredOrnaments) + branding logo. Off por default — el preset
+        // sigue persistido pero NO se dibuja hasta que el user activa.
+        @Volatile private var showHudOverlays = false
 
         private val overlaySettingsReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -337,11 +345,12 @@ class PixoraWallpaperService : WallpaperService() {
 
         private fun loadOverlaySettings() {
             val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
-            showClock = prefs.getBoolean("show_clock", true)
-            showBattery = prefs.getBoolean("show_battery", true)
-            showEqualizer = prefs.getBoolean("show_equalizer", true)
-            systemRings.showRam = prefs.getBoolean("show_ram", true)
-            systemRings.showStorage = prefs.getBoolean("show_storage", true)
+            showClock = prefs.getBoolean("show_clock", false)
+            showBattery = prefs.getBoolean("show_battery", false)
+            showEqualizer = prefs.getBoolean("show_equalizer", false)
+            showHudOverlays = prefs.getBoolean("show_hud_overlays", false)
+            systemRings.showRam = prefs.getBoolean("show_ram", false)
+            systemRings.showStorage = prefs.getBoolean("show_storage", false)
             hudRenderer.showRam = systemRings.showRam
             hudRenderer.showStorage = systemRings.showStorage
             // HUD preset — 1 of 10 selectable themes. Defaults to SACRED
@@ -819,6 +828,20 @@ class PixoraWallpaperService : WallpaperService() {
         private fun applySceneFlags(path: String?, sceneId: String?) {
             val p = path ?: ""
 
+            // 2026-06-20 — GPU cleanup en transiciones de wallpaper.
+            // Snapshot del estado previo ANTES de actualizar los flags
+            // para detectar qué renderers pasan de activo→inactivo y
+            // liberar sus assets (sprites, bitmaps, texturas). Sin esto,
+            // los assets del wallpaper anterior quedaban residentes en
+            // GPU sumando ~60 MB sin razón. El cleanup existente en
+            // loadWallpaperImage SOLO cubría static→static — videos,
+            // canvas_scenes y frame mode no pasan por ahí.
+            val wasFireflyMode = isFireflyMode
+            val wasJellyfishMode = isJellyfishMode
+            val wasAquariumMode = isAquariumMode
+            val wasCanvasSceneMode = isCanvasSceneMode
+            val wasPixoraIslandMode = isPixoraIslandMode
+
             // Inferencia desde keywords en el path — mantener el matching exacto
             // del que estaba antes en loadWallpaperImage() para no romper
             // wallpapers cuyo nombre matchee (ej. aquarium*.webp, firefly_*.png).
@@ -828,6 +851,29 @@ class PixoraWallpaperService : WallpaperService() {
             isPixoraIslandMode = p.contains("pixora_island")
             isAquariumMode = p.contains("aquarium")
             isCanvasSceneMode = !sceneId.isNullOrBlank()
+
+            // Cleanup proactivo de renderers que dejan de estar activos.
+            // Cada renderer libera sprites + bitmaps en su recycle/release.
+            // firefly y aquarium comparten aquariumRenderer (firefly carga
+            // moths como "peces"); solo lo reciclamos cuando NINGUNO de
+            // los dos modos está activo.
+            val aquariumLikeStillActive = isAquariumMode || isFireflyMode
+            if ((wasAquariumMode || wasFireflyMode) && !aquariumLikeStillActive) {
+                aquariumRenderer.recycle()
+                bubbleRenderer.reset()
+            }
+            if (wasFireflyMode && !isFireflyMode) {
+                fireflyRenderer.reset()
+            }
+            if (wasJellyfishMode && !isJellyfishMode) {
+                jellyfishRenderer.recycle()
+            }
+            if (wasCanvasSceneMode && !isCanvasSceneMode) {
+                canvasSceneRenderer.release()
+            }
+            if (wasPixoraIslandMode && !isPixoraIslandMode) {
+                pixoraFriendsRenderer.release()
+            }
 
             // rainRenderer guarda su propio flag interno — mantener sincronizado
             rainRenderer.isRainWallpaper = isRainWallpaper
@@ -2052,7 +2098,12 @@ class PixoraWallpaperService : WallpaperService() {
                         com.orbix.pixora.renderers.HudStyle.GOLD_RINGS) {
                     batteryIndicator.draw(canvas)
                 }
-                if (!isLocked && currentPreset.showSystemHud) {
+                // 2026-06-20 — `showHudOverlays` (master switch, default
+                // false) gate al systemHud y ornamentos. Sin esto el preset
+                // SACRED/CLASICO dibujaba el HUD aunque los toggles
+                // individuales estuvieran en false → wallpaper nunca podía
+                // ser "imagen pura".
+                if (!isLocked && showHudOverlays && currentPreset.showSystemHud) {
                     if (currentPreset.hudStyle == com.orbix.pixora.renderers.HudStyle.GOLD_RINGS) {
                         systemRings.draw(canvas)
                     } else {
@@ -2070,10 +2121,11 @@ class PixoraWallpaperService : WallpaperService() {
                 if (!isLocked) captionOverlay.draw(canvas)
                 drawGlowEffects(canvas)
 
-                // Pixora "P" 3D branding signature — universal, drawn last
-                // so it sits on top of every other layer. Hidden on lock
-                // screen so it doesn't compete with the system clock.
-                if (!isLocked) {
+                // Pixora "P" 3D branding signature — drawn last so it
+                // sits on top. Hidden on lock screen + gated por
+                // showHudOverlays para que el wallpaper pueda ser
+                // realmente "imagen pura" cuando user quiere.
+                if (!isLocked && showHudOverlays) {
                     brandingTick++
                     // Refresh per-scene overrides each frame (cheap — JSON
                     // already parsed). When current wallpaper isn't a

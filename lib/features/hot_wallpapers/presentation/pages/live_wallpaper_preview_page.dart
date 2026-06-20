@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/utils/hud_hint_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -285,6 +286,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
             ? 'Explore wallpaper set!'
             : 'Live wallpaper applied!';
       });
+      await HudHintHelper.maybeShow(context);
       await Future.delayed(const Duration(milliseconds: 1200));
       if (!mounted) return;
       setState(() => _isApplying = false);

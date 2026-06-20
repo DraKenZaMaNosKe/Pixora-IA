@@ -43,6 +43,13 @@ class WallpaperCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final h = context.hud;
     final isFav = ref.watch(favoritesProvider).contains(wallpaper.id);
+    // Type label: Eduardo elegido Propuesta 3 (halo glow + corner icon)
+    // del mockup `docs/design/card_top_label_finalists.html`. Por ahora
+    // solo distingue static vs panoramic — LIVE y 3D viven en otros
+    // grids con su propio card.
+    final type = wallpaper.isPanoramic
+        ? PixoraCardKind.panoramic
+        : PixoraCardKind.staticImage;
 
     return GestureDetector(
       onTap: () {
@@ -56,12 +63,14 @@ class WallpaperCard extends ConsumerWidget {
           ? _IosCard(
               wallpaper: wallpaper,
               isFav: isFav,
+              cardKind: type,
               onToggleFav: () {
                 ref.read(favoritesProvider.notifier).toggle(wallpaper.id);
               })
           : _TicketStubCard(
               wallpaper: wallpaper,
               isFav: isFav,
+              cardKind: type,
               serial: _serial(),
               lotNumber: _lotNumber(),
               seatLine: _seatLine(),
@@ -73,16 +82,93 @@ class WallpaperCard extends ConsumerWidget {
   }
 }
 
+/// Propuesta 3 — kind del contenido para halo glow + corner icon.
+/// Live y canvasScene reservados; sus grids viven aparte y los aplicarán
+/// en una segunda pasada cuando Eduardo apruebe la primera.
+enum PixoraCardKind { staticImage, panoramic, live, canvasScene }
+
+extension PixoraCardKindUI on PixoraCardKind {
+  Color get color {
+    switch (this) {
+      case PixoraCardKind.staticImage:
+        return const Color(0xFFE6B655); // gold
+      case PixoraCardKind.panoramic:
+        return const Color(0xFFFF2BD6); // magenta
+      case PixoraCardKind.live:
+        return const Color(0xFFFF6B9B); // hot pink
+      case PixoraCardKind.canvasScene:
+        return const Color(0xFF00F0FF); // cyan
+    }
+  }
+
+  Color get glowColor {
+    switch (this) {
+      case PixoraCardKind.staticImage:
+        return const Color(0xFFF5C766); // gold bright
+      default:
+        return color;
+    }
+  }
+
+  String get cornerGlyph {
+    switch (this) {
+      case PixoraCardKind.staticImage:
+        return '🖼';
+      case PixoraCardKind.panoramic:
+        return '⟷';
+      case PixoraCardKind.live:
+        return '▶';
+      case PixoraCardKind.canvasScene:
+        return '⬢';
+    }
+  }
+}
+
+/// Corner icon Propuesta 3 — 28×28 bg negra translúcida + glyph del color
+/// del kind. Va en bottom-right por convención (top-right está reservado
+/// para el ♥ favorito / HoloFoilPill en cards LIVE).
+class PixoraCornerIcon extends StatelessWidget {
+  const PixoraCornerIcon({super.key, required this.kind});
+  final PixoraCardKind kind;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.12),
+          width: 1,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        kind.cornerGlyph,
+        style: TextStyle(
+          fontSize: 18,
+          color: kind.color,
+          height: 1,
+        ),
+      ),
+    );
+  }
+}
+
 /// iOS Photos-app inspired card. Rounded image, white bg, soft shadow,
 /// title underneath in Geist body font. No ticket metaphor.
 class _IosCard extends StatelessWidget {
   const _IosCard({
     required this.wallpaper,
     required this.isFav,
+    required this.cardKind,
     required this.onToggleFav,
   });
   final Wallpaper wallpaper;
   final bool isFav;
+  final PixoraCardKind cardKind;
   final VoidCallback onToggleFav;
 
   @override
@@ -93,6 +179,13 @@ class _IosCard extends StatelessWidget {
         color: h.bg,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
+          // Halo glow del tipo (Propuesta 3) — más sutil en iOS para no
+          // romper el look limpio. Sombra negra base preserved para depth.
+          BoxShadow(
+            color: cardKind.color.withValues(alpha: 0.35),
+            blurRadius: 14,
+            spreadRadius: -1,
+          ),
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
@@ -159,6 +252,13 @@ class _IosCard extends StatelessWidget {
                       wallpaperId: wallpaper.id,
                     ),
                   ),
+                  // Propuesta 3 — corner icon del tipo (bottom-right para
+                  // no chocar con pills/badge superiores).
+                  Positioned(
+                    right: 8,
+                    bottom: 8,
+                    child: PixoraCornerIcon(kind: cardKind),
+                  ),
                 ],
               ),
             ),
@@ -176,6 +276,7 @@ class _TicketStubCard extends StatelessWidget {
   const _TicketStubCard({
     required this.wallpaper,
     required this.isFav,
+    required this.cardKind,
     required this.serial,
     required this.lotNumber,
     required this.seatLine,
@@ -183,6 +284,7 @@ class _TicketStubCard extends StatelessWidget {
   });
   final Wallpaper wallpaper;
   final bool isFav;
+  final PixoraCardKind cardKind;
   final String serial;
   final String lotNumber;
   final String seatLine;
@@ -194,7 +296,27 @@ class _TicketStubCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: h.surface,
-        border: Border.all(color: h.accent.withValues(alpha: 0.55), width: 1),
+        // Propuesta 3 — el border del card adopta el color del tipo
+        // (gold/static, magenta/pano). Mantiene la presencia del tema
+        // pero comunica el kind sin perforar el image panel.
+        border: Border.all(
+          color: cardKind.color.withValues(alpha: 0.65),
+          width: 1.2,
+        ),
+        boxShadow: [
+          // Halo glow externo Propuesta 3 — replica el look del mockup
+          // `box-shadow: 0 0 0 2px <color>, 0 0 22px -2px <color>`.
+          BoxShadow(
+            color: cardKind.glowColor.withValues(alpha: 0.55),
+            blurRadius: 22,
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 22,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -284,6 +406,13 @@ class _TicketStubCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
+                  // Propuesta 3 — corner icon kind. Bottom-right por
+                  // convenio (top-right ocupado por el ♥).
+                  Positioned(
+                    right: 4,
+                    bottom: 4,
+                    child: PixoraCornerIcon(kind: cardKind),
                   ),
                 ],
               ),

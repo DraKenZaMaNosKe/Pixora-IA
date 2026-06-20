@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card top label — 5 propuestas</title>
+<style>
+  :root {
+    --bg: #0B0B14;
+    --panel: #15151F;
+    --gold: #E6B655;
+    --gold-bright: #F5C766;
+    --cyan: #00F0FF;
+    --magenta: #FF2BD6;
+    --hot: #FF6B9B;
+    --text: #E9E6DD;
+    --dim: #8A8B97;
+    --green: #5BCB5B;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: radial-gradient(ellipse at top, #18102e 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 30px 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(230,182,85,.2);
+  }
+  header h1 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 28px;
+    letter-spacing: .18em;
+    margin: 0;
+  }
+  header p {
+    color: var(--dim);
+    font-size: 13px;
+    margin: 10px 0 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    padding: 30px 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .proposal {
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 180ms ease;
+  }
+  .proposal:hover {
+    border-color: var(--gold);
+    transform: translateY(-3px);
+  }
+  .proposal h3 {
+    color: var(--gold-bright);
+    font-size: 12px;
+    letter-spacing: .15em;
+    margin: 0 0 4px;
+  }
+  .proposal .name {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    margin: 0 0 14px;
+    color: var(--text);
+  }
+  .proposal .pros {
+    font-size: 11px;
+    color: var(--dim);
+    margin: 14px 0 0;
+    padding-left: 16px;
+  }
+  .proposal .pros li { margin: 4px 0; }
+
+  /* Wallpaper card base — todas las propuestas comparten esto */
+  .card-row {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    padding: 12px 0;
+  }
+  .card {
+    width: 130px;
+    height: 230px;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.06),
+      0 6px 22px rgba(0,0,0,.5);
+  }
+  /* Backgrounds de ejemplo (gradientes que simulan wallpapers reales) */
+  .card.static { background: linear-gradient(135deg, #4a3266 0%, #8a4d6e 60%, #c97a4a 100%); }
+  .card.live   { background: linear-gradient(135deg, #1a3a5e 0%, #3d6b8a 50%, #6a9ec0 100%); }
+  .card.pano   { background: linear-gradient(90deg, #b8742a 0%, #d9985f 25%, #e6b655 50%, #c99560 75%, #8a5d36 100%); }
+  .card.scene3d { background: radial-gradient(circle at 30% 50%, #ff6b9b 0%, #6e2cb5 60%, #1a0033 100%); }
+
+  /* ═════════════════════════════════════════════════
+     PROP 1 — Pill superior izquierda con tipo + glow
+     ═════════════════════════════════════════════════ */
+  .p1-pill {
+    position: absolute; top: 8px; left: 8px;
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(0,0,0,.75); backdrop-filter: blur(8px);
+    border: 1px solid;
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 8px; font-weight: 700; letter-spacing: .14em;
+    z-index: 3;
+  }
+  .p1-pill.static  { color: var(--gold);    border-color: rgba(230,182,85,.5); }
+  .p1-pill.live    { color: var(--hot);     border-color: rgba(255,107,155,.6); box-shadow: 0 0 10px rgba(255,107,155,.3); }
+  .p1-pill.pano    { color: #FF80AB;        border-color: rgba(255,128,171,.6); }
+  .p1-pill.scene3d { color: var(--cyan);    border-color: rgba(0,240,255,.6);   box-shadow: 0 0 10px rgba(0,240,255,.3); }
+  .p1-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+  }
+  .p1-pill.live .dot { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .4; transform: scale(.7); }
+  }
+
+  /* ═════════════════════════════════════════════════
+     PROP 2 — Banderín lateral (corte oblicuo) + ícono
+     ═════════════════════════════════════════════════ */
+  .p2-banner {
+    position: absolute; top: 0; left: 0;
+    background: var(--gold);
+    color: #0B0B14;
+    padding: 4px 16px 4px 8px;
+    font-size: 9px; font-weight: 800; letter-spacing: .12em;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    z-index: 3;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .p2-banner.live  { background: var(--hot); color: #fff; }
+  .p2-banner.pano  { background: var(--magenta); color: #fff; }
+  .p2-banner.scene3d { background: var(--cyan); color: #000; }
+  .p2-banner svg { width: 11px; height: 11px; }
+
+  /* ═════════════════════════════════════════════════
+     PROP 3 — Border halo glow (todo el card)
+     ═════════════════════════════════════════════════ */
+  .p3 { position: relative; }
+  .p3 .card { box-shadow: 0 0 0 2px var(--gold), 0 0 20px -2px var(--gold-bright), 0 6px 22px rgba(0,0,0,.5); }
+  .p3 .card.live { box-shadow: 0 0 0 2px var(--hot), 0 0 22px -2px var(--hot), 0 6px 22px rgba(0,0,0,.5); }
+  .p3 .card.pano { box-shadow: 0 0 0 2px var(--magenta), 0 0 22px -2px var(--magenta), 0 6px 22px rgba(0,0,0,.5); }
+  .p3 .card.scene3d { box-shadow: 0 0 0 2px var(--cyan), 0 0 22px -2px var(--cyan), 0 6px 22px rgba(0,0,0,.5); }
+  .p3-icon {
+    position: absolute; top: 8px; right: 8px;
+    width: 28px; height: 28px;
+    background: rgba(0,0,0,.75); backdrop-filter: blur(8px);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; z-index: 3;
+    border: 1px solid rgba(255,255,255,.1);
+  }
+
+  /* ═════════════════════════════════════════════════
+     PROP 4 — Esquinas tipo "polaroid corner badge"
+     ═════════════════════════════════════════════════ */
+  .p4-corner {
+    position: absolute; top: 0; right: 0;
+    width: 0; height: 0;
+    border-top: 30px solid var(--gold);
+    border-left: 30px solid transparent;
+    z-index: 3;
+  }
+  .p4-corner.live { border-top-color: var(--hot); }
+  .p4-corner.pano { border-top-color: var(--magenta); }
+  .p4-corner.scene3d { border-top-color: var(--cyan); }
+  .p4-corner-icon {
+    position: absolute; top: 2px; right: 4px;
+    font-size: 10px;
+    color: #0B0B14;
+    font-weight: 800;
+    z-index: 4;
+  }
+
+  /* ═════════════════════════════════════════════════
+     PROP 5 — Bottom bar tipo "stats sticker"
+     ═════════════════════════════════════════════════ */
+  .p5-stripe {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.6) 70%, transparent 100%);
+    padding: 24px 8px 8px;
+    z-index: 3;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 9px; letter-spacing: .1em; font-weight: 700;
+  }
+  .p5-stripe .badge {
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: #0B0B14;
+    text-transform: uppercase;
+  }
+  .p5-stripe.static .badge { background: var(--gold); }
+  .p5-stripe.live   .badge { background: var(--hot); color: #fff; }
+  .p5-stripe.pano   .badge { background: var(--magenta); color: #fff; }
+  .p5-stripe.scene3d .badge { background: var(--cyan); }
+  .p5-stripe .stats { color: var(--text); margin-left: auto; opacity: .85; font-size: 9px; }
+
+  /* Section labels for type explanation */
+  .type-labels {
+    display: flex; justify-content: center; gap: 16px;
+    margin-top: 12px;
+    font-size: 9px; color: var(--dim); letter-spacing: .14em;
+  }
+  .type-labels span { width: 130px; text-align: center; }
+
+  .choose-bar {
+    margin-top: 24px;
+    text-align: center;
+  }
+  .choose-bar button {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+    color: #0B0B14;
+    border: 0;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: .12em;
+    cursor: pointer;
+    transition: all 150ms;
+  }
+  .choose-bar button:hover { transform: scale(1.05); box-shadow: 0 6px 20px -4px var(--gold-bright); }
+
+  .footer-note {
+    text-align: center;
+    padding: 30px;
+    color: var(--dim);
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  .footer-note strong { color: var(--gold-bright); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>5 PROPUESTAS · TIPO DE WALLPAPER</h1>
+  <p>Cada propuesta muestra: <strong style="color:var(--gold)">STATIC</strong> · <strong style="color:var(--hot)">LIVE</strong> · <strong style="color:var(--magenta)">PANO</strong> · <strong style="color:var(--cyan)">3D</strong></p>
+</header>
+
+<div class="grid">
+
+  <!-- ═════════ PROP 1 ═════════ -->
+  <div class="proposal">
+    <h3>PROPUESTA 1</h3>
+    <div class="name">Pill superior + dot animado</div>
+    <div class="card-row">
+      <div class="card static">
+        <div class="p1-pill static"><span class="dot"></span>STATIC</div>
+      </div>
+      <div class="card live">
+        <div class="p1-pill live"><span class="dot"></span>LIVE</div>
+      </div>
+      <div class="card pano">
+        <div class="p1-pill pano"><span class="dot"></span>PANO</div>
+      </div>
+      <div class="card scene3d">
+        <div class="p1-pill scene3d"><span class="dot"></span>3D</div>
+      </div>
+    </div>
+    <div class="type-labels">
+      <span>STATIC</span><span>LIVE</span><span>PANO</span><span>3D</span>
+    </div>
+    <ul class="pros">
+      <li>Sutil pero visible — no estorba al wallpaper</li>
+      <li>Dot animado en LIVE refuerza "está en movimiento"</li>
+      <li>Glow color-codeado por tipo</li>
+      <li>Diseño actual de Pixora — mínimo cambio</li>
+    </ul>
+    <div class="choose-bar"><button onclick="select(1)">Elegir esta</button></div>
+  </div>
+
+  <!-- ═════════ PROP 2 ═════════ -->
+  <div class="proposal">
+    <h3>PROPUESTA 2</h3>
+    <div class="name">Banderín lateral cinematográfico</div>
+    <div class="card-row">
+      <div class="card static">
+        <div class="p2-banner static">⬛ STATIC</div>
+      </div>
+      <div class="card live">
+        <div class="p2-banner live">▶ LIVE</div>
+      </div>
+      <div class="card pano">
+        <div class="p2-banner pano">⟷ PANO</div>
+      </div>
+      <div class="card scene3d">
+        <div class="p2-banner scene3d">⬢ 3D</div>
+      </div>
+    </div>
+    <div class="type-labels">
+      <span>STATIC</span><span>LIVE</span><span>PANO</span><span>3D</span>
+    </div>
+    <ul class="pros">
+      <li>Estética "movie ticket" mantiene el vibe Pixora</li>
+      <li>Más grande/visible que pill</li>
+      <li>Ícono Unicode ayuda comprensión instantánea</li>
+      <li>Riesgo: tapa más del wallpaper</li>
+    </ul>
+    <div class="choose-bar"><button onclick="select(2)">Elegir esta</button></div>
+  </div>
+
+  <!-- ═════════ PROP 3 ═════════ -->
+  <div class="proposal">
+    <h3>PROPUESTA 3</h3>
+    <div class="name">Halo glow + ícono grande esquina</div>
+    <div class="card-row">
+      <div class="p3"><div class="card static">
+        <div class="p3-icon" style="color:var(--gold)">🖼</div>
+      </div></div>
+      <div class="p3"><div class="card live">
+        <div class="p3-icon" style="color:var(--hot)">▶</div>
+      </div></div>
+      <div class="p3"><div class="card pano">
+        <div class="p3-icon" style="color:var(--magenta)">⟷</div>
+      </div></div>
+      <div class="p3"><div class="card scene3d">
+        <div class="p3-icon" style="color:var(--cyan)">⬢</div>
+      </div></div>
+    </div>
+    <div class="type-labels">
+      <span>STATIC</span><span>LIVE</span><span>PANO</span><span>3D</span>
+    </div>
+    <ul class="pros">
+      <li>Muy visual — el COLOR del marco te dice el tipo</li>
+      <li>Ícono solo, sin texto = más limpio</li>
+      <li>Glow + halo refuerza "premium / coleccionable"</li>
+      <li>Riesgo: puede saturar visualmente la grid</li>
+    </ul>
+    <div class="choose-bar"><button onclick="select(3)">Elegir esta</button></div>
+  </div>
+
+  <!-- ═════════ PROP 4 ═════════ -->
+  <div class="proposal">
+    <h3>PROPUESTA 4</h3>
+    <div class="name">Corner triangular minimalista</div>
+    <div class="card-row">
+      <div class="card static">
+        <div class="p4-corner static"></div>
+        <div class="p4-corner-icon">S</div>
+      </div>
+      <div class="card live">
+        <div class="p4-corner live"></div>
+        <div class="p4-corner-icon">L</div>
+      </div>
+      <div class="card pano">
+        <div class="p4-corner pano"></div>
+        <div class="p4-corner-icon">P</div>
+      </div>
+      <div class="card scene3d">
+        <div class="p4-corner scene3d"></div>
+        <div class="p4-corner-icon">3D</div>
+      </div>
+    </div>
+    <div class="type-labels">
+      <span>STATIC</span><span>LIVE</span><span>PANO</span><span>3D</span>
+    </div>
+    <ul class="pros">
+      <li>Súper minimalista — casi no estorba</li>
+      <li>Color del triángulo = código de tipo</li>
+      <li>Letra hace de iniciali — sin desambiguación necesaria</li>
+      <li>Riesgo: muy chico, fácil de pasar de largo</li>
+    </ul>
+    <div class="choose-bar"><button onclick="select(4)">Elegir esta</button></div>
+  </div>
+
+  <!-- ═════════ PROP 5 ═════════ -->
+  <div class="proposal">
+    <h3>PROPUESTA 5</h3>
+    <div class="name">Bottom bar con badge + stats</div>
+    <div class="card-row">
+      <div class="card static">
+        <div class="p5-stripe static">
+          <span class="badge">STATIC</span>
+          <span class="stats">👁 12 · ♥ 3</span>
+        </div>
+      </div>
+      <div class="card live">
+        <div class="p5-stripe live">
+          <span class="badge">▶ LIVE</span>
+          <span class="stats">👁 47 · ♥ 9</span>
+        </div>
+      </div>
+      <div class="card pano">
+        <div class="p5-stripe pano">
+          <span class="badge">⟷ PANO</span>
+          <span class="stats">👁 22 · ♥ 5</span>
+        </div>
+      </div>
+      <div class="card scene3d">
+        <div class="p5-stripe scene3d">
+          <span class="badge">⬢ 3D</span>
+          <span class="stats">👁 88 · ♥ 14</span>
+        </div>
+      </div>
+    </div>
+    <div class="type-labels">
+      <span>STATIC</span><span>LIVE</span><span>PANO</span><span>3D</span>
+    </div>
+    <ul class="pros">
+      <li>Tipo + stats en una sola zona = aprovecha espacio</li>
+      <li>Reemplaza el "ADMIT · N°" inútil con info real</li>
+      <li>Stats abajo es comportamiento esperado</li>
+      <li>Mi recomendada — máxima utilidad informativa</li>
+    </ul>
+    <div class="choose-bar"><button onclick="select(5)">Elegir esta</button></div>
+  </div>
+
+</div>
+
+<div class="footer-note">
+  <strong>¿Qué se quita?</strong><br>
+  La línea "ADMIT · N° 941" del top de cada card desaparece en TODAS las propuestas.<br>
+  El N° era un decorado de "movie ticket" sin información útil.<br><br>
+
+  <strong>¿Cómo decidimos?</strong><br>
+  Mira las 4 cards de cada propuesta — debes poder <em>distinguir STATIC / LIVE / PANO / 3D</em><br>
+  a un solo vistazo, SIN leer ningún texto si fuera posible.<br><br>
+
+  Cuando escojas, dime el número (1-5) y aplico el cambio en el código de Pixora.
+</div>
+
+<script>
+function select(n) {
+  alert('Elegiste PROPUESTA ' + n + '. Avísame en el chat para aplicarla.');
+}
+</script>
+
+</body>
+</html>
