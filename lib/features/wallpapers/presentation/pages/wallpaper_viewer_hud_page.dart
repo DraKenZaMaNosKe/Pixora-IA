@@ -8,7 +8,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/services/credit_service.dart';
+import '../../../../core/services/report_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
+import '../../../../core/widgets/report_content_modal.dart';
 import '../../data/models/wallpaper.dart';
 import 'wallpaper_preview_page.dart';
 
@@ -275,9 +277,27 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
                 icon: Icons.flag_outlined,
                 label: 'Reportar contenido',
                 onTap: () {
+                  // 2026-06-21 — Antes era un mock que solo mostraba un
+                  // snackbar fake "Reporte enviado · gracias" sin llamar
+                  // al RPC. Eduardo lo notó en device cuando intentó
+                  // reportar Quantum Atom y nada llegaba a la tabla.
+                  // Ahora abre el modal real que sí persiste.
                   Navigator.of(sheetCtx).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Reporte enviado · gracias')),
+                  final wp = _currentWallpaper;
+                  if (wp == null) return;
+                  showReportContentModal(
+                    context,
+                    wallpaperId: wp.id,
+                    kind: wp.isPanoramic
+                        ? ReportableKind.panoramic
+                        : ReportableKind.static_,
+                    wallpaperMeta: {
+                      'name': wp.name,
+                      'category': wp.category,
+                      'preview_url': wp.previewUrl,
+                      'author': wp.authorName,
+                      'reported_from': 'viewer_hud',
+                    },
                   );
                 },
                 tint: WallpaperViewerHudPage.amber,
