@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/report_service.dart';
 import '../../../../core/utils/hud_hint_helper.dart';
+import '../../../../core/utils/tap_guard.dart';
 import '../../../../core/widgets/report_content_modal.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,12 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   double _downloadProgress = 0.0;
   String _loadingStatus = '';
   LoadingPhase _loadingPhase = LoadingPhase.downloading;
+
+  // 2026-06-21 — anti-spam guards. Mismo patrón que wallpaper_preview_page.
+  final _reportGuard = TapGuardController(cooldown: const Duration(seconds: 2));
+  final _favGuard =
+      TapGuardController(cooldown: const Duration(milliseconds: 700));
+  final _applyGuard = TapGuardController(cooldown: const Duration(seconds: 3));
   // Auto Play mode removed (Apr 2026) — all live wallpapers now ship as
   // Explore-only (touch scrub through frames). Saved bytes + better UX.
   // The `false` branch in apply() still exists as a safety fallback for
@@ -98,14 +105,19 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   }
 
   Future<void> _onLikeTap() async {
-    // Optimistic visual flip first for snappy UX. WallpaperStatsService
-    // toggleLike() is idempotent via internal Hive box + mutex.
+    // 2026-06-21 — Tap-guard 700ms para evitar martilleo del ❤ que
+    // satura RPCs Supabase. Optimistic visual flip first for snappy UX.
+    // WallpaperStatsService toggleLike() is idempotent via internal
+    // Hive box + mutex.
+    if (!_favGuard.tryFire()) return;
     setState(() => _isLiked = !_isLiked);
     await WallpaperStatsService.instance.toggleLike(_statsId);
   }
 
   /// 2026-06-20 — Reporte de contenido (Google Play AI policy compliance).
   void _onReportContent() {
+    // 2026-06-21 — Tap-guard 2s — evita abrir múltiples modales encima.
+    if (!_reportGuard.tryFire()) return;
     final w = widget.wallpaper;
     showReportContentModal(
       context,
@@ -133,6 +145,10 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   }
 
   Future<void> _applyLiveWallpaper() async {
+    // 2026-06-21 — Tap-guard 3s para no disparar dos veces el ad
+    // interstitial ni dos applies en paralelo (race en WallpaperService
+    // nativo, ver canvas↔video crash 2026-06-10).
+    if (!_applyGuard.tryFire()) return;
     // Show alternating ad (awards credits), then proceed
     AdService.instance.showInterstitialAd(
         placement: 'live_wallpaper_apply',
@@ -364,15 +380,22 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
   Widget build(BuildContext context) {
     final w = widget.wallpaper;
 
+    // 2026-06-21 — Bloquea el back gesture/button cuando hay un apply
+    // en curso; al regresar mid-download el ContentManager quedaba con
+    // un archivo parcial en disco. Aplica para ambos layouts (Codex y
+    // Neon Editorial).
+    Widget content;
     // If the wallpaper carries cultural editorial data (mythology / culture
     // category), render the Codex layout. Otherwise use the new Apple Music
     // Now Playing inspired layout (cream background, contained album-art preview,
     // dark text — solves the contrast problem of the old fullscreen overlay).
     if (w.cultural != null && w.cultural!.isNotEmpty) {
-      return _buildCodexScaffold(context);
+      content = _buildCodexScaffold(context);
+    } else {
+      content = _buildNeonEditorialScaffold(context);
     }
 
-    return _buildNeonEditorialScaffold(context);
+    return PopScope(canPop: !_isApplying, child: content);
   }
 
   /// Neon Editorial Magazine — concept #04 (Eduardo 2026-06-14).

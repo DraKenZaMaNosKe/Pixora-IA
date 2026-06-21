@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../../core/services/report_service.dart';
 import '../../../../core/utils/hud_hint_helper.dart';
+import '../../../../core/utils/tap_guard.dart';
 import '../../../../core/widgets/report_content_modal.dart';
 import '../../../../core/content/content_manager.dart';
 import '../../../../core/content/content_types.dart';
@@ -44,6 +45,13 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   double _downloadProgress = 0.0;
   String _loadingStatus = '';
   LoadingPhase _loadingPhase = LoadingPhase.downloading;
+
+  // 2026-06-21 — anti-spam guards. Filosofía: swallow silent (sin
+  // feedback visual), el user no nota nada raro cuando da doble-tap.
+  final _reportGuard = TapGuardController(cooldown: const Duration(seconds: 2));
+  final _favGuard =
+      TapGuardController(cooldown: const Duration(milliseconds: 700));
+  final _applyGuard = TapGuardController(cooldown: const Duration(seconds: 3));
 
   late final AnimationController _holoShine;
   late final AnimationController _holoSweep;
@@ -86,6 +94,11 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   }
 
   Future<void> _applyWallpaper(int target) async {
+    // 2026-06-21 — Tap-guard 3s. Doble-tap accidental en APLICAR
+    // disparaba race en el WallpaperService nativo (canvas↔video
+    // crash 2026-06-10). Swallow silent — el _isApplying state ya
+    // muestra el LoadingOverlay como feedback visual.
+    if (!_applyGuard.tryFire()) return;
     // Pre-check de conectividad: si está offline Y el archivo NO está en
     // cache local, mostrar el modal Holographic Edge en vez de intentar y
     // fallar. Si lo está, proceder normal (apply offline funciona).
@@ -223,6 +236,9 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   }
 
   Future<void> _applyLiveWallpaper() async {
+    // 2026-06-21 — Tap-guard 3s — comparte controller con _applyWallpaper
+    // porque solo puede haber UNA aplicación en curso (sea live o static).
+    if (!_applyGuard.tryFire()) return;
     // Pre-check de conectividad para live wallpapers (mismo patrón que
     // _applyWallpaper). Live wallpapers casi siempre necesitan red porque
     // los videos son archivos nuevos; si está cacheado, dejar pasar.
@@ -684,74 +700,81 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
     final h = context.hud;
     final isIos = h.isIosStyle;
 
-    return Scaffold(
-      backgroundColor:
-          isIos ? const Color(0xFFF5F7FA) : const Color(0xFF07060E),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Cosmic background with subtle radials
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: isIos
-                    ? const RadialGradient(
-                        center: Alignment.topCenter,
-                        radius: 1.2,
-                        colors: [Color(0x145E5CE6), Color(0xFFF5F7FA)],
-                        stops: [0.0, 0.6],
-                      )
-                    : RadialGradient(
-                        center: Alignment.topCenter,
-                        radius: 1.4,
-                        colors: [
-                          const Color(0xFF502878).withValues(alpha: 0.20),
-                          const Color(0xFF07060E),
-                        ],
-                        stops: const [0.0, 0.7],
-                      ),
+    // 2026-06-21 — Bloquear back gesture mientras está aplicando para
+    // no dejar el ContentManager huérfano (download en curso + nav back
+    // a veces dejaba archivos parciales en disk). Permite back normal
+    // cuando no hay apply activo.
+    return PopScope(
+      canPop: !_isApplying,
+      child: Scaffold(
+        backgroundColor:
+            isIos ? const Color(0xFFF5F7FA) : const Color(0xFF07060E),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Cosmic background with subtle radials
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: isIos
+                      ? const RadialGradient(
+                          center: Alignment.topCenter,
+                          radius: 1.2,
+                          colors: [Color(0x145E5CE6), Color(0xFFF5F7FA)],
+                          stops: [0.0, 0.6],
+                        )
+                      : RadialGradient(
+                          center: Alignment.topCenter,
+                          radius: 1.4,
+                          colors: [
+                            const Color(0xFF502878).withValues(alpha: 0.20),
+                            const Color(0xFF07060E),
+                          ],
+                          stops: const [0.0, 0.7],
+                        ),
+                ),
               ),
             ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
-              child: Column(
-                children: [
-                  _buildHoloTopBar(isFav),
-                  const SizedBox(height: 4),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildHoloCard(),
-                          const SizedBox(height: 12),
-                          _buildHoloDescription(),
-                          const SizedBox(height: 14),
-                          _buildHoloCta(),
-                        ],
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+                child: Column(
+                  children: [
+                    _buildHoloTopBar(isFav),
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            _buildHoloCard(),
+                            const SizedBox(height: 12),
+                            _buildHoloDescription(),
+                            const SizedBox(height: 14),
+                            _buildHoloCta(),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          // 2026-06-13 — Animacion de likes (Heart Burst + Holo Shimmer +
-          // Stack Counter) flotando encima del holocard. Disparada por el
-          // statsEventStream cuando este wallpaper recibe un like (local
-          // o remoto via Realtime).
-          Positioned.fill(
-            child: HolocardLikeOverlay(wallpaperId: widget.wallpaper.id),
-          ),
-          LoadingOverlay(
-            visible: _isApplying,
-            progress: _downloadProgress > 0 ? _downloadProgress : null,
-            status: _loadingStatus,
-            accentColor: context.hud.accent,
-            phase: _loadingPhase,
-          ),
-        ],
+            // 2026-06-13 — Animacion de likes (Heart Burst + Holo Shimmer +
+            // Stack Counter) flotando encima del holocard. Disparada por el
+            // statsEventStream cuando este wallpaper recibe un like (local
+            // o remoto via Realtime).
+            Positioned.fill(
+              child: HolocardLikeOverlay(wallpaperId: widget.wallpaper.id),
+            ),
+            LoadingOverlay(
+              visible: _isApplying,
+              progress: _downloadProgress > 0 ? _downloadProgress : null,
+              status: _loadingStatus,
+              accentColor: context.hud.accent,
+              phase: _loadingPhase,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -787,11 +810,15 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
           ),
         ),
         const SizedBox(width: 4),
-        // M06 — Heart Burst con partículas rosas al activar.
+        // M06 — Heart Burst con partículas rosas al activar. Tap-guard
+        // 700ms para que el martilleo del corazón no sature el RPC de
+        // toggleLike ni acumule animaciones encimadas.
         HeartBurstButton(
           active: isFav,
-          onTap: () =>
-              ref.read(favoritesProvider.notifier).toggle(widget.wallpaper.id),
+          onTap: () {
+            if (!_favGuard.tryFire()) return;
+            ref.read(favoritesProvider.notifier).toggle(widget.wallpaper.id);
+          },
           size: 18,
           color: isFav && isIos ? const Color(0xFFFF3B30) : accent,
         ),
@@ -800,6 +827,9 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   }
 
   void _onReportContent() {
+    // Tap-guard 2s — evita abrir múltiples modales encimados o crear
+    // reportes duplicados aunque el RPC ya tenga su propio anti-spam.
+    if (!_reportGuard.tryFire()) return;
     final w = widget.wallpaper;
     showReportContentModal(
       context,
