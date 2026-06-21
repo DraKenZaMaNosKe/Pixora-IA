@@ -3479,40 +3479,61 @@ function renderReportesList(reports) {
     return;
   }
   empty.style.display = 'none';
+  // SECURITY: escapar TODO campo que venga de user-input antes de
+  // interpolar en innerHTML. Aunque el admin es local, cualquier user
+  // anónimo puede insertar reportes vía RPC y un wallpaper_id /
+  // reporter_email malicioso ejecutaría JS en el navegador del admin
+  // (Stored XSS). Pasamos por escapeHtmlSafe + validamos URLs.
   list.innerHTML = reports.map(r => {
     const meta = r.wallpaper_meta || {};
-    const previewUrl = meta.preview_url || meta.result_url || '';
-    const name = meta.name || meta.prompt || r.wallpaper_id;
-    const reasonBadge = REPORTES_REASON_LABEL[r.reason] || r.reason;
-    const kindBadge = REPORTES_KIND_LABEL[r.wallpaper_kind] || r.wallpaper_kind;
-    const distinct = r.distinct_reporter_count || 1;
+    const previewUrl = sanitizeHttpUrl(meta.preview_url || meta.result_url || '');
+    const name = meta.name || meta.prompt || r.wallpaper_id || '';
+    const reasonBadge = REPORTES_REASON_LABEL[r.reason] || 'unknown';
+    const kindBadge = REPORTES_KIND_LABEL[r.wallpaper_kind] || 'unknown';
+    const distinct = Number(r.distinct_reporter_count) || 1;
     const distinctBadge = distinct >= 3
       ? `<span style="background:#C2410C;color:#fff;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;margin-left:6px;">${distinct} reporters</span>`
       : `<span style="color:#98989d;font-size:11px;margin-left:6px;">${distinct} reporter${distinct>1?'s':''}</span>`;
+    const reporter = r.reporter_email || r.reporter_id || 'anónimo';
+    const safeId = escapeHtmlSafe(String(r.id || ''));
     return `
       <div style="background:#1c1c1e;border:1px solid #2c2c2e;border-radius:8px;padding:14px;display:grid;grid-template-columns:80px 1fr auto;gap:14px;align-items:start;">
         <div style="width:80px;height:140px;background:#0c0c0e;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-          ${previewUrl ? `<img src="${previewUrl}" style="width:100%;height:100%;object-fit:cover;" alt="">` : '<span class="material-symbols-rounded" style="color:#444;font-size:32px;">image_not_supported</span>'}
+          ${previewUrl ? `<img src="${escapeHtmlSafe(previewUrl)}" style="width:100%;height:100%;object-fit:cover;" alt="">` : '<span class="material-symbols-rounded" style="color:#444;font-size:32px;">image_not_supported</span>'}
         </div>
         <div>
           <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
-            <span style="background:#C2410C;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">${reasonBadge}</span>
-            <span style="background:#2c2c2e;color:#98989d;border-radius:6px;padding:2px 8px;font-size:11px;">${kindBadge}</span>
+            <span style="background:#C2410C;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">${escapeHtmlSafe(reasonBadge)}</span>
+            <span style="background:#2c2c2e;color:#98989d;border-radius:6px;padding:2px 8px;font-size:11px;">${escapeHtmlSafe(kindBadge)}</span>
             ${distinctBadge}
           </div>
           <div style="font-size:14px;font-weight:600;color:#e8e8ec;margin-bottom:4px;">${escapeHtmlSafe(name)}</div>
-          <div style="font-size:12px;color:#98989d;margin-bottom:6px;font-family:monospace;">ID: ${r.wallpaper_id}</div>
+          <div style="font-size:12px;color:#98989d;margin-bottom:6px;font-family:monospace;">ID: ${escapeHtmlSafe(String(r.wallpaper_id || ''))}</div>
           ${r.description ? `<div style="font-size:13px;color:#c8c8cc;background:#0c0c0e;padding:8px;border-radius:4px;margin-bottom:8px;">"${escapeHtmlSafe(r.description)}"</div>` : ''}
-          <div style="font-size:11px;color:#666;">${r.reporter_email || r.reporter_id || 'anónimo'} · ${new Date(r.reported_at).toLocaleString('es-MX')}</div>
+          <div style="font-size:11px;color:#666;">${escapeHtmlSafe(reporter)} · ${escapeHtmlSafe(new Date(r.reported_at).toLocaleString('es-MX'))}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;min-width:130px;">
-          <button onclick="resolveReporte('${r.id}','removed')" style="background:#C2410C;color:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;">Quitar wallpaper</button>
-          <button onclick="resolveReporte('${r.id}','dismissed')" style="background:#2c2c2e;color:#e8e8ec;border:1px solid #3a3a3c;border-radius:6px;padding:8px 12px;font-size:12px;cursor:pointer;">Descartar</button>
-          <button onclick="resolveReporte('${r.id}','reviewed')" style="background:transparent;color:#98989d;border:1px solid #3a3a3c;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;">Solo marcar revisado</button>
+          <button onclick="resolveReporte('${safeId}','removed')" style="background:#C2410C;color:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;">Quitar wallpaper</button>
+          <button onclick="resolveReporte('${safeId}','dismissed')" style="background:#2c2c2e;color:#e8e8ec;border:1px solid #3a3a3c;border-radius:6px;padding:8px 12px;font-size:12px;cursor:pointer;">Descartar</button>
+          <button onclick="resolveReporte('${safeId}','reviewed')" style="background:transparent;color:#98989d;border:1px solid #3a3a3c;border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;">Solo marcar revisado</button>
         </div>
       </div>
     `;
   }).join('');
+}
+
+/**
+ * Allowlist scheme (http/https) + reject javascript:/data:/vbscript:/file:.
+ * Devuelve '' si el URL no parsea como http(s), para que el <img> no se
+ * renderice. Combinar con escapeHtmlSafe al interpolar en el attribute.
+ */
+function sanitizeHttpUrl(raw) {
+  if (typeof raw !== 'string' || raw.length === 0 || raw.length > 2048) return '';
+  try {
+    const u = new URL(raw);
+    if (u.protocol === 'http:' || u.protocol === 'https:') return u.href;
+  } catch (_) {}
+  return '';
 }
 
 function escapeHtmlSafe(s) {
