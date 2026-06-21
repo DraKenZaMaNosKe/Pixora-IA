@@ -491,6 +491,36 @@ class Handler(BaseHTTPRequestHandler):
             "limit": limit,
         })
 
+    def _compute_report_stats(self, all_rows: list) -> dict:
+        """Resumen para el dashboard de moderación. Calcula a partir
+        de un pull liviano (id, wallpaper_id, status, reported_at)."""
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        h24 = now - timedelta(hours=24)
+        pending = sum(1 for r in all_rows if r.get("status") == "pending")
+        last_24h = 0
+        for r in all_rows:
+            try:
+                ts = datetime.fromisoformat(str(r.get("reported_at")).replace("Z", "+00:00"))
+                if ts >= h24:
+                    last_24h += 1
+            except Exception:
+                pass
+        unique_wallpapers = len({r.get("wallpaper_id") for r in all_rows if r.get("status") == "pending"})
+        counts: dict[str, int] = {}
+        for r in all_rows:
+            if r.get("status") in ("pending", "reviewed"):
+                wid = r.get("wallpaper_id")
+                if wid:
+                    counts[wid] = counts.get(wid, 0) + 1
+        with_3_plus = sum(1 for v in counts.values() if v >= 3)
+        return {
+            "pending": pending,
+            "last_24h": last_24h,
+            "unique_wallpapers": unique_wallpapers,
+            "with_3_plus": with_3_plus,
+        }
+
     def _proxy(self, sub_path: str, method: str = "GET", body: bytes | None = None):
         url = f"{SUPABASE_REST}/{sub_path}"
         req = urllib.request.Request(url, data=body, method=method)
@@ -596,6 +626,31 @@ class Handler(BaseHTTPRequestHandler):
                 f"wallpapers_v?id=eq.{urllib.parse.quote(wid)}&select=*"
             )
             return self._send_json(data, status)
+
+        # 2026-06-20 — Content moderation (Google Play AI policy compliance)
+        if path == "/api/reports":
+            status_filter = query.get("status", ["pending"])[0]
+            badge_only = query.get("badge_only", ["0"])[0] == "1"
+            # Pull raw rows from wallpaper_reports (service-role bypasses RLS).
+            filter_q = "" if status_filter == "all" else f"&status=eq.{status_filter}"
+            rows, http_status = self._proxy(
+                f"wallpaper_reports?select=*&order=reported_at.desc{filter_q}&limit=200"
+            )
+            if http_status >= 400 or not isinstance(rows, list):
+                return self._send_json({"reports": [], "stats": {}}, http_status)
+            # Compute stats from all-status pull (admin overview)
+            all_rows, _ = self._proxy("wallpaper_reports?select=id,wallpaper_id,status,reported_at&limit=1000")
+            stats = self._compute_report_stats(all_rows or [])
+            # Attach distinct_reporter_count per wallpaper for the badge.
+            counts = {}
+            for r in (all_rows or []):
+                if r.get("status") in ("pending", "reviewed"):
+                    counts[r.get("wallpaper_id")] = counts.get(r.get("wallpaper_id"), 0) + 1
+            for r in rows:
+                r["distinct_reporter_count"] = counts.get(r.get("wallpaper_id"), 1)
+            if badge_only:
+                return self._send_json({"stats": stats}, 200)
+            return self._send_json({"reports": rows, "stats": stats}, 200)
 
         if path == "/api/search":
             q = query.get("q", [""])[0]
@@ -903,6 +958,28 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
+
+        # 2026-06-20 — Resolve a moderation report (Google Play AI policy).
+        # Body: {id: uuid, status: "removed"|"reviewed"|"dismissed", admin_notes?: str}
+        if path == "/api/reports/resolve":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            rid = payload.get("id")
+            status = payload.get("status")
+            admin_notes = payload.get("admin_notes")
+            if not rid or status not in ("removed", "reviewed", "dismissed"):
+                return self._send_json({"error": "id + valid status required"}, 400)
+            rpc_body = json.dumps({
+                "p_report_id": rid,
+                "p_status": status,
+                "p_admin_notes": admin_notes,
+            }).encode("utf-8")
+            data, http_status = self._proxy("rpc/resolve_report", "POST", rpc_body)
+            return self._send_json({"ok": http_status < 400, "data": data}, http_status)
 
         # Sprite editor save — update spec sprites array and FCM invalidate
         if path == "/api/save-scene-sprites":

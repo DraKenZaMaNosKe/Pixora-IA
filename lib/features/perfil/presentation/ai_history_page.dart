@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/report_service.dart';
+import '../../../core/widgets/report_content_modal.dart';
 
 /// Grid of all AI-generated images the signed-in user has created. Reads
 /// from the `ia_generation_queue` table — same table the AI generate page
@@ -164,6 +166,7 @@ class _AITile extends StatelessWidget {
   Widget build(BuildContext context) {
     final url = row['result_url'] as String?;
     final prompt = row['prompt'] as String?;
+    final id = row['id'];
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Stack(
@@ -215,6 +218,40 @@ class _AITile extends StatelessWidget {
                 ),
               ),
             ),
+          // 2026-06-20 — Flag icon arriba-derecha en cada tile. Requerido
+          // por la política de contenido generado por IA de Google Play.
+          // Tile estática del historial personal: aún así el user debe
+          // poder reportar (puede ser que su propio gen salió ofensivo
+          // por error del modelo y quiera marcarlo).
+          Positioned(
+            top: 6,
+            right: 6,
+            child: Material(
+              color: Colors.black.withValues(alpha: 0.55),
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => showReportContentModal(
+                  context,
+                  wallpaperId: 'ai_gen_$id',
+                  kind: ReportableKind.aiGenerated,
+                  wallpaperMeta: {
+                    'gen_id': id,
+                    'prompt': prompt,
+                    'result_url': url,
+                  },
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(6),
+                  child: Icon(
+                    Icons.flag_outlined,
+                    size: 14,
+                    color: Color(0xFFE8E8EC),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

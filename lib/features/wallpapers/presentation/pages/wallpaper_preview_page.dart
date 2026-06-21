@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../../../core/services/report_service.dart';
 import '../../../../core/utils/hud_hint_helper.dart';
+import '../../../../core/widgets/report_content_modal.dart';
 import '../../../../core/content/content_manager.dart';
 import '../../../../core/content/content_types.dart';
 import '../../../../core/design/hud_tokens.dart';
@@ -770,6 +772,21 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
           ),
         ),
         const Spacer(),
+        // 2026-06-20 — Botón Reportar contenido. Requerido por la
+        // política de contenido generado por IA de Google Play.
+        InkWell(
+          onTap: _onReportContent,
+          borderRadius: BorderRadius.circular(999),
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Icon(
+              Icons.flag_outlined,
+              color: accent.withValues(alpha: 0.7),
+              size: 18,
+            ),
+          ),
+        ),
+        const SizedBox(width: 4),
         // M06 — Heart Burst con partículas rosas al activar.
         HeartBurstButton(
           active: isFav,
@@ -779,6 +796,21 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
           color: isFav && isIos ? const Color(0xFFFF3B30) : accent,
         ),
       ],
+    );
+  }
+
+  void _onReportContent() {
+    final w = widget.wallpaper;
+    showReportContentModal(
+      context,
+      wallpaperId: w.id,
+      kind: w.isPanoramic ? ReportableKind.panoramic : ReportableKind.static_,
+      wallpaperMeta: {
+        'name': w.name,
+        'category': w.category,
+        'preview_url': w.previewUrl,
+        'is_panoramic': w.isPanoramic,
+      },
     );
   }
 

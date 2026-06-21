@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/services/report_service.dart';
 import '../../../../core/utils/hud_hint_helper.dart';
+import '../../../../core/widgets/report_content_modal.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -100,6 +102,21 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
     // toggleLike() is idempotent via internal Hive box + mutex.
     setState(() => _isLiked = !_isLiked);
     await WallpaperStatsService.instance.toggleLike(_statsId);
+  }
+
+  /// 2026-06-20 — Reporte de contenido (Google Play AI policy compliance).
+  void _onReportContent() {
+    final w = widget.wallpaper;
+    showReportContentModal(
+      context,
+      wallpaperId: _statsId,
+      kind: ReportableKind.live,
+      wallpaperMeta: {
+        'name': w.name,
+        'category': w.category,
+        'preview_url': w.previewUrl,
+      },
+    );
   }
 
   Future<void> _onShareTap() async {
@@ -400,26 +417,45 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ── Back ─────────────────────────────────────────
-                  InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.chevron_left,
-                              color: yellow, size: 22),
-                          Text(
-                            LocaleHelper.pick(es: 'Live', en: 'Live'),
-                            style: GoogleFonts.shareTechMono(
-                              color: yellow,
-                              fontSize: 12,
-                              letterSpacing: 2,
+                  // ── Back + Reportar (compliance Google Play) ────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                    child: Row(
+                      children: [
+                        InkWell(
+                          onTap: () => Navigator.pop(context),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.chevron_left,
+                                  color: yellow, size: 22),
+                              Text(
+                                LocaleHelper.pick(es: 'Live', en: 'Live'),
+                                style: GoogleFonts.shareTechMono(
+                                  color: yellow,
+                                  fontSize: 12,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        // 2026-06-20 — Botón reportar (política de
+                        // contenido generado por IA, Google Play).
+                        InkWell(
+                          onTap: _onReportContent,
+                          borderRadius: BorderRadius.circular(999),
+                          child: Padding(
+                            padding: const EdgeInsets.all(6),
+                            child: Icon(
+                              Icons.flag_outlined,
+                              color: yellow.withValues(alpha: 0.7),
+                              size: 18,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
 

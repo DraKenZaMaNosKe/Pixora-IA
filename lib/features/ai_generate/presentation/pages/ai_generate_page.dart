@@ -16,8 +16,11 @@ import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/subscription_service.dart';
+import '../../../../core/services/report_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../../../core/utils/locale_helper.dart';
+import '../../../../core/widgets/report_content_modal.dart';
+import '../../data/prompt_validator.dart';
 
 class AIGeneratePage extends StatefulWidget {
   const AIGeneratePage({super.key});
@@ -332,6 +335,18 @@ class _AIGeneratePageState extends State<AIGeneratePage>
       return;
     }
 
+    // 2026-06-20 — Pre-flight content check (Google Play AI policy).
+    // Bloquea NSFW / violencia / odio / drogas / celebridades+marcas
+    // ANTES de mandar al worker para no quemar créditos del user en un
+    // prompt que el modelo va a rechazar igual server-side.
+    final blockReason = LocaleHelper.isSpanish
+        ? PromptValidator.checkSpanish(prompt)
+        : PromptValidator.checkEnglish(prompt);
+    if (blockReason != null) {
+      _snack(blockReason, color: context.hud.accent);
+      return;
+    }
+
     setState(() => _submitting = true);
     try {
       final response = await Supabase.instance.client.rpc(
@@ -450,6 +465,23 @@ class _AIGeneratePageState extends State<AIGeneratePage>
         files: [XFile(file.path)],
         text: 'Mira lo que generé con Pixora IA',
       ),
+    );
+  }
+
+  /// 2026-06-20 — Reporte de contenido IA. Requerido por la política
+  /// de contenido generado por IA de Google Play. El modal se encarga
+  /// del flujo completo (categorías + descripción + envío + confirmación).
+  Future<void> _onReport(_AIGenerationState g) async {
+    await showReportContentModal(
+      context,
+      wallpaperId: 'ai_gen_${g.id}',
+      kind: ReportableKind.aiGenerated,
+      wallpaperMeta: {
+        'gen_id': g.id,
+        'prompt': g.prompt,
+        'result_url': g.resultUrl,
+        'status': g.status,
+      },
     );
   }
 
@@ -905,6 +937,22 @@ class _AIGeneratePageState extends State<AIGeneratePage>
             letterSpacing: 2.2,
           ),
         ),
+        const SizedBox(height: 6),
+        // 2026-06-20 — Disclaimer requerido por la política de
+        // contenido generado por IA de Google Play. Texto subtle
+        // pero claro para que el user sepa qué NO se permite.
+        Text(
+          LocaleHelper.pick(
+            es: 'No generamos contenido sexual, violento, con drogas, odio, marcas registradas ni personas reales.',
+            en: 'We do not generate sexual, violent, drug-related, hateful, trademark or real-person content.',
+          ),
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 9,
+            color: _ivoryDim,
+            height: 1.4,
+            letterSpacing: 0.6,
+          ),
+        ),
         const SizedBox(height: 8),
         _HoloFrame(
           controller: _foilCtrl,
@@ -1182,6 +1230,38 @@ class _AIGeneratePageState extends State<AIGeneratePage>
                 ),
               ),
             ],
+          ),
+          // 2026-06-20 — Botón "Reportar" requerido por política de
+          // contenido generado por IA de Google Play (v1.7.28 fue
+          // rechazada por NO tener esta función). Estilo subtle —
+          // solo texto + flag — para no competir con los CTAs de
+          // arriba; el rol del botón es defensivo, no comercial.
+          const SizedBox(height: HudTokens.sp2),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => _onReport(g),
+              icon: const Icon(
+                Icons.flag_outlined,
+                size: 14,
+                color: Color(0xFF98989D),
+              ),
+              label: Text(
+                LocaleHelper.pick(
+                  es: 'Reportar contenido',
+                  en: 'Report content',
+                ),
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: const Color(0xFF98989D),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                minimumSize: const Size(0, 32),
+              ),
+            ),
           ),
         ],
       ],

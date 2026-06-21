@@ -6,6 +6,8 @@ import '../../../core/services/auth_service.dart';
 import '../../../core/services/credit_service.dart';
 import '../../../core/services/subscription_service.dart';
 import '../../favorites/providers/favorites_provider.dart';
+import '../../../core/widgets/report_content_modal.dart';
+import '../../../core/services/report_service.dart';
 import '../../subscription/presentation/subscription_pitch_page.dart';
 import 'payment_history_page.dart';
 import 'ai_history_page.dart';
@@ -150,6 +152,19 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
             h: h,
           ),
           _SectionGap(h: h),
+          // 2026-06-20 — Entry global de moderación. Permite reportar
+          // contenido sin necesidad de estar viendo el wallpaper
+          // específico. Requerido por la política de contenido generado
+          // por IA de Google Play.
+          _SectionHeader(text: 'Seguridad', h: h),
+          _Tile(
+            icon: Icons.flag_outlined,
+            title: 'Reportar contenido',
+            subtitle: 'Avísanos si algo viola las políticas',
+            onTap: _openReportPicker,
+            h: h,
+          ),
+          _SectionGap(h: h),
           _SectionHeader(text: 'Pagos', h: h),
           _Tile(
             icon: Icons.credit_card_outlined,
@@ -248,6 +263,64 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
       _showSnack(
           'No pudimos abrir Play Store. Ve a Play Store › Pagos y suscripciones › Pixora.');
     }
+  }
+
+  /// 2026-06-20 — Entry point global de reporte. Muestra un picker
+  /// liviano (dialog) para que el user escoja qué tipo de contenido
+  /// reportar (wallpaper / live / AI / etc.) y después abre el modal
+  /// con el campo ID prellenado (texto manual del user).
+  Future<void> _openReportPicker() async {
+    final h = context.hud;
+    final id = await showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        final ctrl = TextEditingController();
+        return AlertDialog(
+          backgroundColor: h.surface,
+          title: Text(
+            'Reportar contenido',
+            style: TextStyle(color: h.text, fontSize: 16),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Si estás viendo un wallpaper, pulsa el icono ⚐ en la esquina superior de la pantalla del visor. Si quieres reportar algo más general, pega aquí el ID del contenido o describe:',
+                style: TextStyle(color: h.textDim, fontSize: 13, height: 1.4),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ctrl,
+                style: TextStyle(color: h.text),
+                decoration: InputDecoration(
+                  hintText: 'ID o descripción',
+                  hintStyle: TextStyle(color: h.textDim),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+              child: const Text('Continuar'),
+            ),
+          ],
+        );
+      },
+    );
+    if (id == null || id.isEmpty || !mounted) return;
+    await showReportContentModal(
+      context,
+      wallpaperId: id,
+      kind: ReportableKind.other,
+      wallpaperMeta: {'reported_via': 'profile_picker', 'user_text': id},
+    );
   }
 
   Future<void> _restorePurchases() async {
