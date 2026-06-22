@@ -1126,6 +1126,11 @@ button { white-space: nowrap; }
     Reportes
     <span id="reportes-badge" style="display:none;background:#C2410C;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:6px;font-weight:600;">0</span>
   </button>
+  <button class="nav-btn" data-page="daycycle" id="nav-daycycle">
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">schedule</span>
+    Day Cycle
+    <span id="daycycle-count" style="display:none;background:#7C4DFF;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:6px;font-weight:600;">0</span>
+  </button>
 </nav>
 
 <main>
@@ -1628,6 +1633,27 @@ button { white-space: nowrap; }
     </div>
   </section>
   <!-- ════ /PAGE: REPORTES ════════════════════════════════════════════════════ -->
+
+  <!-- ════ PAGE: DAY CYCLE ═════════════════════════════════════════════════════ -->
+  <section class="page" data-page="daycycle">
+    <h1><span class="material-symbols-rounded" style="vertical-align:middle;color:#7C4DFF;">schedule</span> Day Cycle</h1>
+    <p style="color:#888;margin-top:-4px;">Catálogo de wallpapers que rotan con la hora del día (mañana / tarde / atardecer / noche). Viven en Storage JSON, no en Postgres.</p>
+
+    <div style="margin:14px 0;display:flex;gap:10px;align-items:center;">
+      <button class="primary" onclick="loadDayCycle()" style="background:#7C4DFF;border:none;color:#fff;padding:8px 14px;border-radius:6px;cursor:pointer;">
+        <span class="material-symbols-rounded" style="font-size:16px;vertical-align:middle;">refresh</span>
+        Recargar
+      </button>
+      <span id="daycycle-meta" style="color:#666;font-size:13px;"></span>
+    </div>
+
+    <div id="daycycle-list" style="display:flex;flex-direction:column;gap:14px;"></div>
+    <div id="daycycle-empty" style="display:none;text-align:center;padding:40px;color:#666;">
+      <span class="material-symbols-rounded" style="font-size:48px;color:#444;">schedule</span>
+      <p>Sin temas en el catálogo Day Cycle.</p>
+    </div>
+  </section>
+  <!-- ════ /PAGE: DAY CYCLE ════════════════════════════════════════════════════ -->
 
 </main>
 
@@ -3568,6 +3594,141 @@ fetch('/api/reports?status=pending&badge_only=1').then(r => r.json()).then(d => 
     badge.textContent = pending;
     badge.style.display = '';
   }
+}).catch(() => {});
+
+// ════════════════════════════════════════════════════════════════════════════
+// DAY CYCLE tab — temas viven en Storage JSON (day_cycle_catalog.json), no en
+// Postgres. Por eso no podemos cruzarlo con wallpapers_v ni con stats globales
+// — los stats per-theme vendrían vía wallpaper_stats con id 'daycycle_<x>' si
+// el cliente trackea views/downloads con ese id. Por ahora: CRUD + preview.
+// ════════════════════════════════════════════════════════════════════════════
+const STORAGE_BASE = 'https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public/wallpaper-images/';
+
+async function loadDayCycle() {
+  const listEl = document.getElementById('daycycle-list');
+  const emptyEl = document.getElementById('daycycle-empty');
+  const metaEl = document.getElementById('daycycle-meta');
+  const countBadge = document.getElementById('daycycle-count');
+  listEl.innerHTML = '<div style="color:#888;padding:18px;">Cargando…</div>';
+  emptyEl.style.display = 'none';
+  try {
+    const r = await fetch('/api/day-cycle/list');
+    const d = await r.json();
+    const themes = d.themes || [];
+    metaEl.textContent = `${themes.length} temas en el catálogo · última carga ${new Date().toLocaleTimeString('es-MX')}`;
+    if (countBadge) {
+      countBadge.textContent = themes.length;
+      countBadge.style.display = themes.length ? '' : 'none';
+    }
+    if (!themes.length) {
+      listEl.innerHTML = '';
+      emptyEl.style.display = '';
+      return;
+    }
+    listEl.innerHTML = themes.map(renderDayCycleCard).join('');
+  } catch (e) {
+    listEl.innerHTML = `<div style="color:#C2410C;padding:18px;">Error: ${escapeHtmlSafe(String(e.message || e))}</div>`;
+  }
+}
+
+function renderDayCycleCard(t) {
+  const id = String(t.id || '');
+  const name = String(t.name || '(sin nombre)');
+  const desc = String(t.description || '');
+  const glow = sanitizeHexColor(t.glowColor) || '#7C4DFF';
+  const moments = [
+    {label: 'Mañana',    file: t.morningImage,   icon: 'wb_sunny',     col: '#FBBF24'},
+    {label: 'Tarde',     file: t.afternoonImage, icon: 'light_mode',   col: '#F59E0B'},
+    {label: 'Atardecer', file: t.eveningImage,   icon: 'wb_twilight',  col: '#DC2626'},
+    {label: 'Noche',     file: t.nightImage,     icon: 'bedtime',      col: '#6366F1'},
+  ];
+  const cells = moments.map(m => {
+    const url = m.file ? STORAGE_BASE + encodeURIComponent(String(m.file)) : '';
+    const safeUrl = sanitizeHttpUrl(url);
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+      <div style="width:78px;height:140px;border-radius:6px;overflow:hidden;background:#0c0c0e;border:1px solid #222;display:flex;align-items:center;justify-content:center;">
+        ${safeUrl
+          ? `<img src="${escapeHtmlSafe(safeUrl)}" style="width:100%;height:100%;object-fit:cover;" alt="" loading="lazy">`
+          : `<span class="material-symbols-rounded" style="color:#444;">image_not_supported</span>`}
+      </div>
+      <div style="font-size:10px;color:${m.col};display:flex;align-items:center;gap:3px;">
+        <span class="material-symbols-rounded" style="font-size:12px;">${escapeHtmlSafe(m.icon)}</span>
+        ${escapeHtmlSafe(m.label)}
+      </div>
+    </div>`;
+  }).join('');
+  return `<div style="background:#1a1a1c;border:1px solid #2c2c2e;border-radius:10px;padding:14px;border-left:4px solid ${glow};">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px;">
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:700;color:#e8e8ec;">${escapeHtmlSafe(name)}</div>
+        <div style="font-size:11px;color:#666;font-family:monospace;margin-top:2px;">${escapeHtmlSafe(id)}</div>
+        ${desc ? `<div style="font-size:13px;color:#c8c8cc;margin-top:6px;line-height:1.4;">${escapeHtmlSafe(desc)}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+        <button onclick="editDayCycle('${escapeHtmlSafe(id)}')" style="background:#2c2c2e;color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:12px;">
+          <span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">edit</span> Editar
+        </button>
+        <button onclick="deleteDayCycle('${escapeHtmlSafe(id)}', '${escapeHtmlSafe(name).replace(/'/g, "\\'")}')" style="background:#C2410C;color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:12px;">
+          <span class="material-symbols-rounded" style="font-size:14px;vertical-align:middle;">delete</span> Borrar
+        </button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">${cells}</div>
+  </div>`;
+}
+
+function sanitizeHexColor(s) {
+  if (typeof s !== 'string') return null;
+  return /^#[0-9A-Fa-f]{3,8}$/.test(s) ? s : null;
+}
+
+async function editDayCycle(id) {
+  const newName = prompt('Nuevo nombre (deja vacío para no cambiar):', '');
+  const newDesc = prompt('Nueva descripción (deja vacío para no cambiar):', '');
+  const newGlow = prompt('Nuevo glow color hex (#RRGGBB, vacío = no cambiar):', '');
+  const changes = {};
+  if (newName) changes.name = newName.trim();
+  if (newDesc) changes.description = newDesc.trim();
+  if (newGlow && /^#[0-9A-Fa-f]{6}$/.test(newGlow.trim())) changes.glowColor = newGlow.trim();
+  if (!Object.keys(changes).length) return;
+  try {
+    const r = await fetch('/api/day-cycle/edit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id, action: 'update', changes}),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'falló');
+    alert('Actualizado. Refrescando…');
+    loadDayCycle();
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+async function deleteDayCycle(id, name) {
+  if (!confirm(`¿Borrar "${name}" del catálogo Day Cycle?\n\nLos archivos en Storage quedan (se pueden re-publicar), pero el tema desaparece de la app.`)) return;
+  try {
+    const r = await fetch('/api/day-cycle/edit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id, action: 'delete'}),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'falló');
+    alert(`Borrado. Quedan ${d.themes_remaining} temas.`);
+    loadDayCycle();
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+// Hook tab + auto-load badge
+document.querySelector('[data-page="daycycle"].nav-btn')?.addEventListener('click', loadDayCycle);
+fetch('/api/day-cycle/list').then(r => r.json()).then(d => {
+  const n = (d.themes || []).length;
+  const b = document.getElementById('daycycle-count');
+  if (b && n > 0) { b.textContent = n; b.style.display = ''; }
 }).catch(() => {});
 </script>
 </body>

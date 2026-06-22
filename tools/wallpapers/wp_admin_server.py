@@ -627,6 +627,15 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send_json(data, status)
 
+        # 2026-06-22 — Day Cycle catalog (lives in Storage JSON, not Postgres)
+        if path == "/api/day-cycle/list":
+            url = f"{SUPABASE_STORAGE}/object/public/wallpaper-images/day_cycle_catalog.json"
+            try:
+                with urllib.request.urlopen(url, timeout=15) as r:
+                    return self._send_json(json.loads(r.read()), 200)
+            except Exception as e:
+                return self._send_json({"error": str(e), "themes": []}, 502)
+
         # 2026-06-20 — Content moderation (Google Play AI policy compliance)
         if path == "/api/reports":
             status_filter = query.get("status", ["pending"])[0]
@@ -980,6 +989,53 @@ class Handler(BaseHTTPRequestHandler):
             }).encode("utf-8")
             data, http_status = self._proxy("rpc/resolve_report", "POST", rpc_body)
             return self._send_json({"ok": http_status < 400, "data": data}, http_status)
+
+        # 2026-06-22 — Day Cycle: actualizar metadata (name/desc/glow) o
+        # eliminar un theme completo. Body: {id, action: "update"|"delete",
+        # changes?: {name, description, glowColor}}
+        if path == "/api/day-cycle/edit":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            theme_id = payload.get("id")
+            action = payload.get("action")
+            if not theme_id or action not in ("update", "delete"):
+                return self._send_json({"error": "id + action(update|delete) required"}, 400)
+            # Cargar catálogo
+            cat_url = f"{SUPABASE_STORAGE}/object/public/wallpaper-images/day_cycle_catalog.json"
+            try:
+                with urllib.request.urlopen(cat_url, timeout=15) as r:
+                    catalog = json.loads(r.read())
+            except Exception as e:
+                return self._send_json({"error": f"catalog fetch: {e}"}, 502)
+            themes = catalog.get("themes", [])
+            idx = next((i for i, t in enumerate(themes) if t.get("id") == theme_id), -1)
+            if idx < 0:
+                return self._send_json({"error": "theme not found"}, 404)
+            if action == "delete":
+                themes.pop(idx)
+            else:
+                changes = payload.get("changes") or {}
+                for k in ("name", "description", "glowColor"):
+                    if k in changes and isinstance(changes[k], str):
+                        themes[idx][k] = changes[k]
+            catalog["themes"] = themes
+            # PUT back
+            put_url = f"{SUPABASE_STORAGE}/object/wallpaper-images/day_cycle_catalog.json"
+            req = urllib.request.Request(put_url,
+                data=json.dumps(catalog, indent=2, ensure_ascii=False).encode("utf-8"),
+                method="PUT")
+            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+            req.add_header("Content-Type", "application/json")
+            req.add_header("x-upsert", "true")
+            try:
+                urllib.request.urlopen(req, timeout=30)
+            except Exception as e:
+                return self._send_json({"error": f"put: {e}"}, 502)
+            return self._send_json({"ok": True, "themes_remaining": len(themes)}, 200)
 
         # Sprite editor save — update spec sprites array and FCM invalidate
         if path == "/api/save-scene-sprites":

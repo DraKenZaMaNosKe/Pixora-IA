@@ -1,28 +1,49 @@
-' Pixora Admin Server — silent launcher
-' Inicia tools/wallpapers/wp_admin_server.py en background, sin ventana
-' de consola visible. Usa pythonw.exe (Python For Windows) que descarta
-' stdout/stderr a la consola pero permite que webbrowser.open abra el
-' navegador con el dashboard al terminar de inicializar.
+' Pixora Admin Server — silent launcher (restart-safe v2)
+' 1) Mata SOLO los pythons que estén corriendo wp_admin_server.py
+'    (vía PowerShell Stop-Process filtrando por CommandLine — método
+'    más confiable que WMI Terminate desde VBS).
+' 2) Espera a que el puerto 5757 quede libre (poll, no sleep ciego).
+' 3) Lanza una instancia fresca, oculta.
+' 4) Abre el dashboard en el navegador.
 '
-' Doble click al .lnk del escritorio → server arranca silencioso → tu
-' navegador default abre http://localhost:5757/ con el dashboard listo.
-'
-' Para detener: cierra el proceso pythonw.exe desde el Administrador de
-' Tareas, o reinicia la PC.
+' Doble click al .lnk del escritorio → siempre arranca limpio, sin
+' tocar otros pythons que tengas corriendo (notebooks, scripts, etc).
 
 Set sh = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
-' Resolve script paths relative to this .vbs file so the shortcut works
-' regardless of which directory the user double-clicks from.
 scriptDir = fso.GetParentFolderName(WScript.ScriptFullName)
-projectDir = fso.GetParentFolderName(fso.GetParentFolderName(scriptDir))
 serverPath = scriptDir & "\wp_admin_server.py"
 
-' pythonw.exe = Python For Windows; runs without opening a console window.
-' Search order: system-wide installs first, then user-scope (winget user install),
-' then PATH fallback. User-scope paths use %LOCALAPPDATA% so it works on any
-' machine without hardcoding the username (repo syncs across laptops).
+' ─── 1) Kill cualquier wp_admin_server.py previo ────────────────────────────
+' Usamos PowerShell con WindowStyle Hidden — más rápido y robusto que el
+' enfoque WMI puro de VBS (que requiere privilegios específicos para
+' Terminate y falla silencioso en algunas máquinas).
+killCmd = "powershell -NoProfile -WindowStyle Hidden -Command """ & _
+  "Get-CimInstance Win32_Process -Filter \""Name='pythonw.exe' OR Name='python.exe'\"" | " & _
+  "Where-Object { $_.CommandLine -like '*wp_admin_server*' } | " & _
+  "ForEach-Object { Stop-Process -Id $_.ProcessId -ErrorAction SilentlyContinue }"" "
+sh.Run killCmd, 0, True   ' bWaitOnReturn=True — esperar a que termine de matar
+
+' ─── 2) Esperar a que puerto 5757 se libere (max 5s) ────────────────────────
+Set httpProbe = CreateObject("MSXML2.XMLHTTP")
+freed = False
+For i = 0 To 20
+  WScript.Sleep 250
+  On Error Resume Next
+  httpProbe.Open "GET", "http://127.0.0.1:5757/api/stats", False
+  httpProbe.Send
+  ' Si el GET falla con conexión rechazada → puerto libre.
+  ' Si responde algo → todavía vive algo, seguir esperando.
+  If Err.Number <> 0 Then
+    freed = True
+    Err.Clear
+    Exit For
+  End If
+  On Error Goto 0
+Next
+
+' ─── 3) Resolver pythonw.exe ────────────────────────────────────────────────
 pythonwPath = "pythonw.exe"
 localAppData = sh.ExpandEnvironmentStrings("%LOCALAPPDATA%")
 If fso.FileExists("C:\Python314\pythonw.exe") Then
@@ -39,11 +60,27 @@ ElseIf fso.FileExists(localAppData & "\Programs\Python\Python312\pythonw.exe") T
   pythonwPath = localAppData & "\Programs\Python\Python312\pythonw.exe"
 End If
 
-' Run command: pythonw "wp_admin_server.py"
-' Working directory = scriptDir so relative paths inside the server work.
-' WindowStyle 0 = hidden, bWaitOnReturn = False so this .vbs exits immediately.
-' Server writes its own log file (admin_server.log) for diagnostics — see
-' wp_admin_server.py top of file for the redirection.
+' ─── 4) Lanzar el server (hidden, sin esperar) ──────────────────────────────
 cmd = """" & pythonwPath & """ """ & serverPath & """"
 sh.CurrentDirectory = scriptDir
 sh.Run cmd, 0, False
+
+' ─── 5) Esperar a que /api/stats responda (max 6s), luego abrir browser ─────
+Set httpReady = CreateObject("MSXML2.XMLHTTP")
+ready = False
+For i = 0 To 24
+  WScript.Sleep 250
+  On Error Resume Next
+  httpReady.Open "GET", "http://127.0.0.1:5757/api/stats", False
+  httpReady.Send
+  If Err.Number = 0 And httpReady.Status >= 200 Then
+    ready = True
+    Err.Clear
+    Exit For
+  End If
+  Err.Clear
+  On Error Goto 0
+Next
+
+' Abre dashboard incluso si el ready-check no respondió (puede tardar más).
+sh.Run "http://127.0.0.1:5757/", 1, False
