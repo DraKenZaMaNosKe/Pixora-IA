@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/app_strings_service.dart';
+import '../../../../core/services/day_cycle_catalog_service.dart';
 import '../../../../core/utils/locale_helper.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
 import '../../providers/day_cycle_providers.dart';
@@ -51,6 +52,14 @@ class DayCyclePage extends ConsumerWidget {
         }
         return RefreshIndicator(
           onRefresh: () async {
+            // 2026-06-21 — Fix: invalidar SOLO el provider de Riverpod no
+            // alcanza, porque DayCycleCatalogService tiene su propio
+            // cache interno (_themes + _isCacheValid) que se queda con
+            // los datos viejos. Forzamos un fetch con forceRefresh: true
+            // para bypass del cache del service y luego invalidamos el
+            // provider para que el FutureBuilder rebuild con los nuevos.
+            await DayCycleCatalogService.instance
+                .fetchCatalog(forceRefresh: true);
             ref.invalidate(dayCycleCatalogProvider);
             await AppStringsService.instance.refresh();
           },
