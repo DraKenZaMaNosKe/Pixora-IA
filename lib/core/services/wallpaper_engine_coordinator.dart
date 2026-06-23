@@ -91,6 +91,34 @@ class WallpaperEngineCoordinator extends ChangeNotifier {
     }
   }
 
+  /// Stop whichever rotation engine (if any) is currently active. Call
+  /// before applying a wallpaper MANUALLY (setWallpaper, setLiveWallpaper,
+  /// setShaderWallpaper, etc) so the rotation doesn't sobreescribe the
+  /// user's pick at the next tick.
+  ///
+  /// No-op if no engine is active. Idempotent. Defensive — swallows
+  /// any error from the underlying _stopEngine so callers (apply flow)
+  /// never crash if the engine can't be stopped cleanly. Worst case
+  /// the rotation keeps running, which is a UX glitch, not a crash.
+  Future<WallpaperEngine> stopAll() async {
+    final previous = _active;
+    if (previous == WallpaperEngine.none) return WallpaperEngine.none;
+    try {
+      await _stopEngine(previous);
+    } catch (e) {
+      debugPrint('[EngineCoordinator] stopAll: _stopEngine failed: $e');
+      // Continue anyway — we still want to mark coordinator as none so
+      // future apply calls don't loop trying to stop a stuck engine.
+    }
+    _active = WallpaperEngine.none;
+    _activeContext = null;
+    try {
+      notifyListeners();
+    } catch (_) {/* ignore — listener errors must never break apply */}
+    debugPrint('[EngineCoordinator] stopAll: stopped $previous');
+    return previous;
+  }
+
   /// Resync state from native side at app start. Each service's
   /// `getStatus()` is called and whichever returns `enabled=true` first
   /// wins (rare race, but possible if app crashed mid-switch).

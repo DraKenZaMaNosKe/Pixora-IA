@@ -278,6 +278,38 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             category: String? = null
         ): Boolean {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+            // 2026-06-22 — Fix: limpiar el filesystem cache cuando cambia la
+            // category O cuando el cache contiene archivos cuyo basename NO está
+            // en el catalog actual. El catalog de SharedPrefs sí se actualiza,
+            // pero la rotación in-service pickea de `auto_rotate_cache/` que
+            // tiene archivos del category anterior (Seiya/Elvira aparecían en
+            // PAISAJES por esto). Forzamos re-download del prefetch worker.
+            val previousCategory = prefs.getString("category", null)
+            val cacheDir = File(context.filesDir, "auto_rotate_cache")
+            val catalogIds = catalogData.mapNotNull { line ->
+                line.split("|").firstOrNull()
+            }.toSet()
+
+            val shouldClear = previousCategory != category || run {
+                // Cache contains files whose ID prefix isn't in the new catalog
+                val cachedNames = cacheDir.listFiles()
+                    ?.map { it.nameWithoutExtension }
+                    ?.filter { !it.endsWith(".tmp") } ?: emptyList()
+                cachedNames.any { name ->
+                    catalogIds.none { id -> name.startsWith(id) }
+                }
+            }
+
+            if (shouldClear && cacheDir.exists()) {
+                val deleted = cacheDir.listFiles()?.count { it.delete() } ?: 0
+                Log.d(TAG, "Cache mismatch ($previousCategory → $category): " +
+                    "cleared $deleted stale files")
+                prefs.edit().remove("current_path").apply()
+                context.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+                    .edit().remove("wallpaper_path").apply()
+            }
+
             val editor = prefs.edit()
                 .putString("catalog_json", catalogData.joinToString("\n"))
                 .putInt("interval_minutes", intervalMinutes)

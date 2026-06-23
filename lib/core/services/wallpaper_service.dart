@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'catalog_index_service.dart';
 import 'scene_spec_service.dart';
+import 'wallpaper_engine_coordinator.dart';
 
 /// Servicio para aplicar wallpapers (Android) o guardar en galería (iOS).
 ///
@@ -18,8 +19,18 @@ class WallpaperService {
   /// Establece el wallpaper en Android.
   /// [target]: 0 = Home, 1 = Lock, 2 = Ambos.
   /// Retorna false en iOS (no soportado vía WallpaperManager).
+  ///
+  /// Antes de aplicar, detiene cualquier rotation engine activa
+  /// (Pixora Daily / Day Cycle / Story) — el manual apply tiene
+  /// prioridad, no queremos que el siguiente tick sobreescriba.
   Future<bool> setWallpaper(String filePath, int target) async {
     if (!Platform.isAndroid) return false;
+    // Defensive: no fail apply si el stop tira excepción.
+    try {
+      await WallpaperEngineCoordinator.instance.stopAll();
+    } catch (e) {
+      debugPrint('[WallpaperService] setWallpaper stopAll failed: $e');
+    }
     try {
       final result = await _channel.invokeMethod<bool>(
         'setWallpaper',
@@ -75,6 +86,12 @@ class WallpaperService {
   Future<bool> setLiveWallpaper(String filePath, String glowColor,
       {bool interactive = false, String? sceneId}) async {
     if (!Platform.isAndroid) return false;
+    // Defensive: stop any rotation engine first (manual apply prioridad).
+    try {
+      await WallpaperEngineCoordinator.instance.stopAll();
+    } catch (e) {
+      debugPrint('[WallpaperService] setLiveWallpaper stopAll failed: $e');
+    }
     final resolvedScene =
         sceneId ?? await _resolveCanvasSceneFromPath(filePath);
     try {
