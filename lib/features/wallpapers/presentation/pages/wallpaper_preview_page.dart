@@ -905,29 +905,60 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
             ),
             child: Column(
               children: [
-                // Header — RARE pill + lot serial
+                // Header — RARE pill + (opcional) TYPE pill + lot serial.
+                // 2026-06-24: agregamos pill de TIPO (PANORAMIC / LIVE / 3D)
+                // al lado del RARE para que el user identifique de un vistazo
+                // qué tipo de wallpaper está viendo. Static no muestra pill
+                // extra (es el default).
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '★★★ RARE',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFFFFD95E),
-                            letterSpacing: 2.4,
-                            height: 1.0,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '★★★ RARE',
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFFFFD95E),
+                                letterSpacing: 2.4,
+                                height: 1.0,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (widget.wallpaper.isPanoramic) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF2BD6)
+                                    .withValues(alpha: 0.85),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '⟷ PANORAMIC',
+                                style: GoogleFonts.jetBrainsMono(
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  letterSpacing: 1.8,
+                                  height: 1.0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       Text(
                         '${_lotNumber.replaceFirst('N° ', 'N° ')} / ∞',

@@ -120,8 +120,8 @@ final trendingWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
       if (a.downloadCount != b.downloadCount) {
         return b.downloadCount.compareTo(a.downloadCount);
       }
-      // Fallback: sortOrder ascending
-      return a.sortOrder.compareTo(b.sortOrder);
+      // 2026-06-24: fallback sortOrder DESC (newest first)
+      return b.sortOrder.compareTo(a.sortOrder);
     });
   return sorted.take(15).toList();
 });
@@ -145,7 +145,7 @@ final newWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
 final arteWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final wallpapers = await ref.watch(catalogPublicProvider.future);
   return wallpapers.where(_isArte).toList()
-    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    ..sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
 });
 
 /// Sección "Mitología" — wallpapers de mitologías (Aztec, Egipto, Griega,
@@ -154,7 +154,7 @@ final mitologiaWallpapersProvider =
     FutureProvider<List<Wallpaper>>((ref) async {
   final wallpapers = await ref.watch(catalogPublicProvider.future);
   return wallpapers.where(_isMitologia).toList()
-    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    ..sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
 });
 
 /// Sección "Panoramic" — chip 5. Cualquier wallpaper que califique como
@@ -168,9 +168,9 @@ final panoramicWallpapersProvider =
   final wallpapers = await ref.watch(catalogPublicProvider.future);
   return wallpapers.where((w) => w.isPanoramic).toList()
     ..sort((a, b) {
-      // Featured primero, luego sortOrder ascendente.
+      // Featured primero, luego sortOrder DESC (newest first).
       if (a.featured != b.featured) return a.featured ? -1 : 1;
-      return a.sortOrder.compareTo(b.sortOrder);
+      return b.sortOrder.compareTo(a.sortOrder);
     });
 });
 
@@ -180,7 +180,7 @@ final panoramicWallpapersProvider =
 final gamingWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final wallpapers = await ref.watch(catalogPublicProvider.future);
   return wallpapers.where((w) => w.category.toUpperCase() == 'GAMING').toList()
-    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    ..sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
 });
 
 /// Sección "Anime" — chip 7. Wallpapers de category ANIME. Personajes,
@@ -188,7 +188,7 @@ final gamingWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
 final animeWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final wallpapers = await ref.watch(catalogPublicProvider.future);
   return wallpapers.where((w) => w.category.toUpperCase() == 'ANIME').toList()
-    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    ..sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
 });
 
 /// Sección "Calendar" — chip 8. Wallpapers funcionales con calendarios
@@ -199,7 +199,7 @@ final calendarWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   return wallpapers
       .where((w) => w.category.toUpperCase() == 'CALENDAR')
       .toList()
-    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    ..sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
 });
 
 /// Category rows: grouped by category, min 3 items per row.

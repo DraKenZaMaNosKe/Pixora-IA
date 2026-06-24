@@ -28,6 +28,7 @@ class Wallpaper {
     this.customPreviewUrl,
     this.mediaWidth,
     this.mediaHeight,
+    this.type,
   });
 
   final String id;
@@ -87,6 +88,13 @@ class Wallpaper {
   final int? mediaWidth;
   final int? mediaHeight;
 
+  /// Wallpaper type from Postgres `wallpaper_type` enum:
+  /// `static`, `panoramic`, `live`, `canvas_scene`, etc.
+  /// 2026-06-24 — added as third signal for `isPanoramic` so a wallpaper
+  /// with type=panoramic in DB is detected even if its category lives in
+  /// ANIME/GAMING (i.e. a panoramic Adventure Time card).
+  final String? type;
+
   /// Aspect ratio (width / height). Null if dimensions are unknown. Use
   /// `aspectRatio ?? <fallback>` if you need a non-null value (most callers
   /// can default to the legacy assumption of 9:16 = 0.5625 for static or
@@ -140,6 +148,7 @@ class Wallpaper {
       authorUserId: json['authorUserId'] as int?,
       mediaWidth: (json['mediaWidth'] as num?)?.toInt(),
       mediaHeight: (json['mediaHeight'] as num?)?.toInt(),
+      type: json['type'] as String?,
     );
   }
 
@@ -176,6 +185,7 @@ class Wallpaper {
       authorUserId: (row['author_user_id'] as num?)?.toInt(),
       mediaWidth: (row['media_width'] as num?)?.toInt(),
       mediaHeight: (row['media_height'] as num?)?.toInt(),
+      type: row['type'] as String?,
     );
   }
 
@@ -198,6 +208,14 @@ class Wallpaper {
   /// Defense in depth: either signal triggers panoramic rendering, so we
   /// never accidentally hide an item during the transition.
   bool get isPanoramic {
+    // 2026-06-24 — added `type=='panoramic'` as primary signal. Catches
+    // wallpapers marked panoramic in DB regardless of their thematic
+    // category (e.g. pano_adventure_time_noche lives in ANIME but is a
+    // landscape 16:9 panoramic). Order of checks:
+    //   1. type explicit
+    //   2. ratio >= 3.0 (ultra-wide auto-detect)
+    //   3. category == PANORAMIC (legacy/manual)
+    if (type == 'panoramic') return true;
     final ratio = aspectRatio;
     if (ratio != null && ratio >= 3.0) return true;
     return category == 'PANORAMIC';

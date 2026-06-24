@@ -97,10 +97,14 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
       viewportFraction: 0.86,
       initialPage: _currentIndex,
     );
+    // 2026-06-24 — Scanline antes corría con `.repeat()` permanente y daba
+    // sensación de "imagen en carga eterna". Ahora corre UNA sola pasada
+    // (~2.5s) tipo scan-and-reveal y se queda quieto. Si swipe a otra
+    // página, .forward(from: 0) la dispara de nuevo en la nueva imagen.
     _scanlineCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 4000),
-    )..repeat();
+      duration: const Duration(milliseconds: 2500),
+    )..forward();
 
     // 2026-06-13 fix — hidratar el set de likeados desde el cache local de
     // WallpaperStatsService (Hive). Sin esto, _likedIds arranca vacio cada
@@ -351,6 +355,10 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
                     itemCount: _items.length,
                     onPageChanged: (i) {
                       setState(() => _currentIndex = i);
+                      // 2026-06-24 — re-dispara la scanline (single-pass)
+                      // en la nueva imagen para mantener el efecto de
+                      // scan-and-reveal en cada swipe.
+                      _scanlineCtrl.forward(from: 0);
                       // Re-hidratar por si el service termino su init() despues
                       // que abrimos el viewer (race entre Hive.openBox y
                       // navegacion del usuario).

@@ -125,11 +125,15 @@ class CatalogService {
   Future<List<Wallpaper>?> _fetchFromSupabase() async {
     try {
       final client = Supabase.instance.client;
+      // 2026-06-24 — DESC para que los wallpapers más nuevos (sort_order
+      // alto, asignado por COALESCE(MAX)+1 al insertar) aparezcan PRIMERO
+      // en grid, panoramic list, search. Antes ASC ponía los primeros
+      // wallpapers que subimos al inicio — feed siempre se sentía viejo.
       final rows = await client
           .from('wallpapers_v')
           .select()
           .eq('published', true)
-          .order('sort_order', ascending: true)
+          .order('sort_order', ascending: false)
           .timeout(const Duration(seconds: 12));
       final list = (rows as List)
           .map((r) => Wallpaper.fromSupabase(r as Map<String, dynamic>))
@@ -186,7 +190,8 @@ class CatalogService {
       final wallpapers = list
           .map((e) => Wallpaper.fromJson(e as Map<String, dynamic>))
           .toList();
-      wallpapers.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+      // 2026-06-24 — DESC: newest first. b vs a flip.
+      wallpapers.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
       return wallpapers;
     } catch (e) {
       debugPrint('[Pixora] Catalog parse error: $e');
