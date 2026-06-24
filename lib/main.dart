@@ -62,9 +62,13 @@ Future<void> main() async {
 
     // Memory: cap Flutter's in-memory image cache so 4K wallpapers don't
     // balloon RAM on mid-range devices (Samsung A15 / MediaTek chips crash
-    // around 100 MB of bitmap cache). 100 images × ~0.5 MB each ≈ 50 MB max.
-    PaintingBinding.instance.imageCache.maximumSize = 50;
-    PaintingBinding.instance.imageCache.maximumSizeBytes = 40 * 1024 * 1024;
+    // around 100 MB of bitmap cache). 2026-06-24 — bajado de 40→25 MB y
+    // 50→30 imágenes después de LMK kill confirmado en device de Eduardo
+    // (Pixora a 658 MB RSS antes de ser matada). Combinado con
+    // maxDecodedWidth 320→240 en CachedWallpaperImage, el grid pesa
+    // ~150 MB en lugar de ~660 MB.
+    PaintingBinding.instance.imageCache.maximumSize = 30;
+    PaintingBinding.instance.imageCache.maximumSizeBytes = 25 * 1024 * 1024;
 
     // Skia GPU resource cache cap. This is the BIG one — Skia keeps an
     // internal cache of GPU textures, framebuffers and compiled shaders

@@ -14,7 +14,12 @@ class CachedWallpaperImage extends StatelessWidget {
     required this.imageUrl,
     this.fit = BoxFit.cover,
     this.borderRadius,
-    this.maxDecodedWidth = 320,
+    // 2026-06-24 — Bajado 320 → 240 después de OOM en Samsung A15 (4GB).
+    // 240 logical × 2.625 dpr ≈ 630 px decoded — suficiente para cards
+    // del grid (~160 logical px wide), ahorra ~44 % memoria por bitmap
+    // (de 5 MB → 2.8 MB por card). Si necesitas más resolución (e.g.
+    // detail page) pasa maxDecodedWidth explícito.
+    this.maxDecodedWidth = 240,
     this.useAuroraLoader = false,
     super.key,
   });

@@ -104,8 +104,11 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                     // Layout: [W W W W W W AD W W W W W W AD W W ...]
                     itemCount: widget.items.length +
                         (widget.items.length ~/ _kAdEvery),
+                    // 2026-06-24 — bajado 150 → 80 después de OOM Samsung A15.
+                    // Solo cachea 1 card off-screen a cada lado (cards son
+                    // ~160 logical wide), purga el resto inmediato.
                     // ignore: deprecated_member_use
-                    cacheExtent: 150,
+                    cacheExtent: 80,
                     // Aggressive memory: drop offscreen cards from the
                     // element tree as soon as they scroll out (default
                     // `true` would keep them mounted forever, accumulating
