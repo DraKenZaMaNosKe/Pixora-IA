@@ -4,6 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'mystery_exclusion_service.dart';
+
 /// Wallpaper stats with real-time updates via Supabase Realtime.
 class WallpaperStatsService {
   WallpaperStatsService._();
@@ -361,8 +363,18 @@ class WallpaperStatsService {
   }
 
   /// Track when a wallpaper is actually applied to the home screen.
+  ///
+  /// Side effect: 2026-06-24 — agrega el ID al MysteryExclusionService
+  /// para que NUNCA vuelva a aparecer como mystery card (ya lo viste y
+  /// te lo gustaba lo suficiente para instalarlo). Defensive try-catch
+  /// para que un fallo de Hive no rompa el tracking principal.
   Future<void> trackInstall(String wallpaperId) async {
     await _logEvent(wallpaperId, 'install');
+    try {
+      unawaited(MysteryExclusionService.instance.exclude(wallpaperId));
+    } catch (e) {
+      debugPrint('[Stats] mystery exclude failed: $e');
+    }
   }
 
   /// Track when a user shares a wallpaper.

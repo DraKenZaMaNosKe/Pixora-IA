@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/services/mystery_exclusion_service.dart';
 import '../../../../core/widgets/aurora_waves_loading.dart';
 import '../../../../core/widgets/stamped_foil_header.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
@@ -7,9 +9,41 @@ import '../../data/models/wallpaper.dart';
 import '../pages/wallpaper_preview_page.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
 import 'grid_card_animations.dart';
+import 'mystery_card_widget.dart';
 import 'native_ad_card.dart';
 import 'wallpaper_card.dart'
     show PixoraCardKind, PixoraCardKindUI, PixoraCornerIcon;
+
+/// 1 de cada N cards en el grid aparece como Mystery (tap-to-reveal).
+/// 2026-06-24 — engagement feature. Determinístico por wallpaper.id hash
+/// → mismo wallpaper siempre cae en el mismo "slot" hasta que se revele.
+/// 12 = ~8% de las cards.
+const int _kMysteryEvery = 12;
+
+/// Hive box name para favoritos (lectura sync directa para evitar
+/// dependencia de Riverpod en este widget).
+const String _kFavoritesBox = 'favorites';
+
+/// Devuelve true si este wallpaper debe aparecer como Mystery card.
+/// Reglas (en orden):
+///   1. Si ya fue installed → NUNCA mystery (MysteryExclusionService).
+///   2. Si está en favoritos → NUNCA mystery (ya le gusta al user).
+///   3. Si es nuevo (badge='NEW' o creado <14 días) → 2× probabilidad
+///      (Phase 2: bias hacia contenido fresco).
+///   4. Si NO cae en el slot hash → no mystery (~8% de cards normales,
+///      ~17% de cards nuevas).
+bool _isMysterySlot(Wallpaper w) {
+  // 1. Already installed → skip
+  if (MysteryExclusionService.instance.isExcluded(w.id)) return false;
+  // 2. Favorited → skip (defensive try, Hive box may not be open)
+  try {
+    final favBox = Hive.box<String>(_kFavoritesBox);
+    if (favBox.values.contains(w.id)) return false;
+  } catch (_) {/* box not open, fall through */}
+  // 3+4. Hash slot — modulo más pequeño para wallpapers nuevos (más probable).
+  final mod = w.isNew ? 6 : _kMysteryEvery;
+  return w.id.hashCode.abs() % mod == 0;
+}
 
 /// One native ad card injected every [_kAdEvery] wallpaper cards in the
 /// carousel. 6 is the industry sweet spot (similar to Instagram / Pinterest
@@ -139,13 +173,30 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                           return const SizedBox.shrink();
                         }
                         final wp = widget.items[wpIdx];
-                        child = _ParallaxCarouselCard(
+                        final card = _ParallaxCarouselCard(
                           wallpaper: wp,
                           width: widget.cardWidth,
                           height: widget.cardHeight,
                           scrollController: _scrollController,
                           index: wpIdx,
                         );
+                        // 2026-06-24 — Mystery Card.
+                        // Phase 1: excluye favoritos+installed, auto-hide 3s.
+                        // Phase 2: 2× probabilidad para wallpapers `isNew`.
+                        // Phase 3: 1 de cada 5 reveals → Tesoro Bonus
+                        //   (ad interstitial + diamantes via AdService).
+                        if (_isMysterySlot(wp)) {
+                          child = SizedBox(
+                            width: widget.cardWidth,
+                            height: widget.cardHeight,
+                            child: MysteryCardWidget(
+                              wallpaperId: wp.id,
+                              revealedChild: card,
+                            ),
+                          );
+                        } else {
+                          child = card;
+                        }
                       }
                       return Opacity(
                         opacity: cardFade,

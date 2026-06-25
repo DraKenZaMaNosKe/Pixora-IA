@@ -20,6 +20,7 @@ import 'core/services/day_cycle_catalog_service.dart';
 import 'core/services/grace_pass_service.dart';
 import 'core/services/legal_service.dart';
 import 'core/services/live_wallpaper_catalog_service.dart';
+import 'core/services/mystery_exclusion_service.dart';
 import 'core/services/ringtone_service.dart';
 import 'core/services/story_catalog_service.dart';
 import 'core/services/push_notification_service.dart';
@@ -118,6 +119,9 @@ Future<void> main() async {
     await CreditService.instance.init();
     await GracePassService.instance.init();
     await AuraPlayerService.instance.init();
+    // Mystery Card exclusion set (Hive box `mystery_excluded`).
+    // 2026-06-24 — wallpapers ya instalados no aparecen como mystery.
+    await MysteryExclusionService.instance.init();
     // Connectivity — pasivo (cero datos). Detecta WiFi/datos/avión y
     // expone isOnline + showRestoredToast con debouncing de 30s.
     // Widgets escuchan vía ListenableBuilder.
