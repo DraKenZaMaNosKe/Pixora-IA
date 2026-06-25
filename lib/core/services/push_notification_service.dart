@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../features/aura/data/repositories/aura_repository.dart';
 import '../../features/events/data/events_service.dart';
@@ -13,6 +16,7 @@ import 'day_cycle_catalog_service.dart';
 import 'live_wallpaper_catalog_service.dart';
 import 'realm_catalog_service.dart';
 import 'ringtone_service.dart';
+import 'scene_spec_service.dart';
 import 'story_catalog_service.dart';
 
 /// Top-level handler required by FCM for background messages.
@@ -20,12 +24,36 @@ import 'story_catalog_service.dart';
 /// an isolated Dart isolate when the app is in background or terminated.
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // This handler is invoked when the user receives a notification while
-  // the app is NOT in foreground. Firebase auto-renders the system
-  // notification — we don't need to do anything else here unless we
-  // want to update local state, mark as read, etc.
-  // Keep it lightweight — long work here can be killed by Android.
-  debugPrint('[PixoraFCM bg] ${message.notification?.title}');
+  // This handler runs in a FRESH ISOLATE — no service singletons available,
+  // no Hive open, no Riverpod. We can ONLY use what initialises self-contained
+  // (path_provider channels work because they're platform-bound, not isolate-bound).
+  //
+  // CRITICAL (v1.7.40 fix): when a `catalog_invalidate` arrives while the app
+  // is killed/background, we MUST evict the on-disk scene caches here. The
+  // foreground onMessage handler runs the full service eviction, but if the
+  // app isn't foreground, that handler never fires — and the disk cache
+  // persists for 7 days, so the user never sees Eduardo's spec/asset updates.
+  //
+  // Pure-disk eviction: rmdir scene_specs/ + scene_layers/. Next time the
+  // user opens a canvas_scene, Dart re-downloads from Supabase fresh.
+  debugPrint('[PixoraFCM bg] data=${message.data}');
+  if (message.data['type'] == 'catalog_invalidate') {
+    final scope = message.data['scope']?.toString() ?? 'all';
+    if (scope == 'wallpapers' || scope == 'all') {
+      try {
+        final support = await getApplicationSupportDirectory();
+        for (final sub in const ['scene_specs', 'scene_layers']) {
+          final dir = Directory('${support.path}/$sub');
+          if (await dir.exists()) {
+            await dir.delete(recursive: true);
+            debugPrint('[PixoraFCM bg] wiped $sub/');
+          }
+        }
+      } catch (e) {
+        debugPrint('[PixoraFCM bg] disk evict failed: $e');
+      }
+    }
+  }
 }
 
 /// Singleton service for Firebase Cloud Messaging.
@@ -200,6 +228,15 @@ class PushNotificationService {
       await safeClear(
         'catalog-index',
         () => CatalogIndexService.instance.clearCache(),
+      );
+      // Wipe scene_specs/ + scene_layers/. Without this, remote tweaks to
+      // bob amplitude, parallax, scale or layer positions never reach
+      // devices that already applied the wallpaper (the spec is cached
+      // 7 days in disk; the layer bitmaps are skipped if they exist on
+      // disk regardless of remote URL changes). v1.7.38 fix.
+      await safeClear(
+        'scene-specs',
+        () => SceneSpecService.instance.clearCache(),
       );
       await safeClear(
         'daily-refresh',

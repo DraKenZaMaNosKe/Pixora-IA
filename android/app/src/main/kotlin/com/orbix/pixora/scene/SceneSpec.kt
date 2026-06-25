@@ -131,6 +131,19 @@ data class ImageLayerDef(
     val bobAmplitudePx: Float,
     /** Seconds per full bob cycle. Ignored when bobAmplitudePx == 0. */
     val bobPeriodSec: Float,
+    /** Initial alpha [0..1]. Default 1.0 (fully visible). Set 0.0 for layers
+     *  that should be hidden until a collision triggers a rise_fade animation. */
+    val initialAlpha: Float,
+    /** Optional subject bbox normalized to TARGET (1080x2340). Used for
+     *  collision detection. If null, the entire layer bitmap acts as bbox
+     *  (rarely what you want — most layers are mostly transparent canvas). */
+    val boundsNorm: android.graphics.RectF?,
+    /** Autonomous motion (e.g. auto_jump every N seconds). Null = static. */
+    val motion: MotionDef?,
+    /** Collision-triggered animation. Each frame, the renderer checks if
+     *  this layer's bounds intersect [collision.withLayer]'s bounds and,
+     *  if so AND cooldown elapsed, triggers [collision.action]. */
+    val collision: CollisionDef?,
 ) {
     companion object {
         fun parse(j: JSONObject): ImageLayerDef? = try {
@@ -147,6 +160,72 @@ data class ImageLayerDef(
                 scale = j.f("scale", 1f),
                 bobAmplitudePx = j.f("bob_amplitude_px", 0f).coerceAtLeast(0f),
                 bobPeriodSec = j.f("bob_period_sec", 4f).coerceAtLeast(0.1f),
+                initialAlpha = j.f("initial_alpha", 1f).coerceIn(0f, 1f),
+                boundsNorm = parseRect(j.optJSONObject("bounds_norm")),
+                motion = j.optJSONObject("motion")?.let { MotionDef.parse(it) },
+                collision = j.optJSONObject("collision")?.let { CollisionDef.parse(it) },
+            )
+        } catch (e: Exception) { null }
+
+        private fun parseRect(o: JSONObject?): android.graphics.RectF? {
+            if (o == null) return null
+            val x = o.f("x", -1f); val y = o.f("y", -1f)
+            val w = o.f("w", -1f); val h = o.f("h", -1f)
+            if (x < 0 || y < 0 || w <= 0 || h <= 0) return null
+            return android.graphics.RectF(x, y, x + w, y + h)
+        }
+    }
+}
+
+/** Autonomous motion attached to an image_layer.
+ *  Currently supported kinds:
+ *    - "auto_jump" — parabolic vertical arc every [intervalSec], peak at
+ *      [amplitudePx] above resting position, lasts [durationSec]. */
+data class MotionDef(
+    val kind: String,
+    val intervalSec: Float,
+    val amplitudePx: Float,
+    val durationSec: Float,
+) {
+    companion object {
+        fun parse(j: JSONObject): MotionDef? = try {
+            MotionDef(
+                kind = j.optString("kind", "auto_jump"),
+                intervalSec = j.f("interval_s", 4f).coerceAtLeast(0.5f),
+                amplitudePx = j.f("amplitude_px", 200f).coerceAtLeast(10f),
+                durationSec = j.f("duration_s", 0.8f).coerceAtLeast(0.1f),
+            )
+        } catch (e: Exception) { null }
+    }
+}
+
+/** Collision-driven action attached to an image_layer.
+ *  Supported actions:
+ *    - "bump_up"  — brief parabolic bump upward of [amplitudePx] over
+ *      [durationSec]. Used for `?` blocks reacting to Mario's head.
+ *    - "rise_fade" — slides up by [risePx] over [durationSec] while
+ *      fading alpha 1→0. Used for coins/stars spawning from blocks.
+ *      Layer should be defined with initial_alpha=0 so it's hidden at rest.
+ *
+ *  [cooldownSec] gates re-triggering. Default = 1.0s prevents Mario's
+ *  return-down-through-block from triggering a second bump. */
+data class CollisionDef(
+    val withLayer: String,
+    val action: String,
+    val amplitudePx: Float,
+    val risePx: Float,
+    val durationSec: Float,
+    val cooldownSec: Float,
+) {
+    companion object {
+        fun parse(j: JSONObject): CollisionDef? = try {
+            CollisionDef(
+                withLayer = j.getString("with_layer"),
+                action = j.optString("action", "bump_up"),
+                amplitudePx = j.f("amplitude_px", 25f),
+                risePx = j.f("rise_px", 200f),
+                durationSec = j.f("duration_s", 0.4f).coerceAtLeast(0.05f),
+                cooldownSec = j.f("cooldown_s", 1.0f).coerceAtLeast(0f),
             )
         } catch (e: Exception) { null }
     }

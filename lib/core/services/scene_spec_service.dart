@@ -72,14 +72,25 @@ class SceneSpecService {
     return _fetchAndCache(entry);
   }
 
-  /// Drop disk + memory cache (e.g. after sign-out or for debugging).
+  /// Drop disk + memory cache (e.g. after sign-out, FCM invalidate, or
+  /// debugging). Wipes BOTH scene_specs/ and scene_layers/ so the next
+  /// apply re-downloads fresh JSON + layer bitmaps from Supabase. This is
+  /// what makes remote-only edits (bob amplitude, position, scale) reach
+  /// users without an app update.
   Future<void> clearCache() async {
     _memCache.clear();
     try {
       final dir = await _diskDir();
       if (await dir.exists()) await dir.delete(recursive: true);
     } catch (e) {
-      debugPrint('[SceneSpec] cache clear error: $e');
+      debugPrint('[SceneSpec] specs cache clear error: $e');
+    }
+    try {
+      final support = await getApplicationSupportDirectory();
+      final layers = Directory('${support.path}/scene_layers');
+      if (await layers.exists()) await layers.delete(recursive: true);
+    } catch (e) {
+      debugPrint('[SceneSpec] layers cache clear error: $e');
     }
   }
 
@@ -141,8 +152,14 @@ class SceneSpecService {
   }
 
   /// Download each image_layer URL referenced in the spec to
-  /// filesDir/scene_layers/<sceneId>/<key>.webp. Idempotent — skips already
-  /// cached files. Native side reads these directly via BitmapFactory.
+  /// filesDir/scene_layers/<sceneId>/<key>.webp. Native side reads these
+  /// directly via BitmapFactory.
+  ///
+  /// v1.7.40 fix: also writes _meta.json with the URL per layer. On subsequent
+  /// fetches, if the current spec URL differs from the cached URL, the layer
+  /// is re-downloaded. This eliminates the need to suffix asset URLs with
+  /// _v5/_v6 etc. just to force re-download on devices that already cached
+  /// the prior version.
   Future<void> _fetchImageLayers(
       String sceneId, Map<String, dynamic> spec) async {
     final layers = spec['image_layers'];
@@ -151,24 +168,52 @@ class SceneSpecService {
       final support = await getApplicationSupportDirectory();
       final dir = Directory('${support.path}/scene_layers/$sceneId');
       await dir.create(recursive: true);
+
+      // Read existing meta (URL per cached layer) — if not present, treat as
+      // empty map so all layers download fresh on first fetch.
+      final metaFile = File('${dir.path}/_meta.json');
+      Map<String, dynamic> meta = {};
+      if (metaFile.existsSync()) {
+        try {
+          meta =
+              jsonDecode(await metaFile.readAsString()) as Map<String, dynamic>;
+        } catch (_) {
+          meta = {};
+        }
+      }
+
+      bool metaChanged = false;
       for (final l in layers) {
         if (l is! Map) continue;
         final key = l['key'] as String?;
         final url = l['url'] as String?;
         if (key == null || url == null) continue;
         final out = File('${dir.path}/$key.webp');
-        if (out.existsSync() && out.lengthSync() > 1024) continue;
+        final cachedUrl = meta[key] as String?;
+        final fileFresh = out.existsSync() && out.lengthSync() > 1024;
+        // Skip ONLY if file present AND URL unchanged.
+        if (fileFresh && cachedUrl == url) continue;
         try {
           final r = await http
               .get(Uri.parse(url))
               .timeout(const Duration(seconds: 30));
           if (r.statusCode == 200 && r.bodyBytes.length > 1024) {
             await out.writeAsBytes(r.bodyBytes);
+            meta[key] = url;
+            metaChanged = true;
+            final reason = fileFresh ? 'URL changed' : 'first fetch';
             debugPrint(
-                '[SceneSpec] $sceneId/$key: cached layer (${r.bodyBytes.length} bytes)');
+                '[SceneSpec] $sceneId/$key: $reason, ${r.bodyBytes.length} bytes');
           }
         } catch (e) {
           debugPrint('[SceneSpec] $sceneId/$key: layer fetch error $e');
+        }
+      }
+      if (metaChanged) {
+        try {
+          await metaFile.writeAsString(jsonEncode(meta));
+        } catch (e) {
+          debugPrint('[SceneSpec] $sceneId: meta write failed: $e');
         }
       }
     } catch (e) {

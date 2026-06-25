@@ -29,6 +29,7 @@ class CanvasSceneRenderer(private val context: Context) {
 
     private var spec: SceneSpec? = null
     private var loadedFor: String? = null  // sceneId of currently loaded spec
+    private var loadedSpecMtime: Long = 0L // disk mtime of last-parsed spec file
     private var tick = 0L
 
     // Active sub-systems (rebuilt when spec changes)
@@ -45,6 +46,26 @@ class CanvasSceneRenderer(private val context: Context) {
     // prevents redundant prescaling work each frame.
     private var prescaledForW = 0
     private var prescaledForH = 0
+
+    // ── Interactive layer state (v1.7.39) ────────────────────────────────
+    // Per-layer mutable state for motion (auto_jump) + collision-triggered
+    // animations (bump_up, rise_fade). Indexed by layer.key.
+    private data class LayerState(
+        var dx: Float = 0f,
+        var dy: Float = 0f,
+        var alpha: Float = 1f,
+        var lastTriggerNanos: Long = 0L,
+        var anim: ActiveAnim? = null,
+    )
+    private data class ActiveAnim(
+        val kind: String,        // "bump_up" | "rise_fade"
+        val startNanos: Long,
+        val durationSec: Float,
+        val amplitudePx: Float = 0f,
+        val risePx: Float = 0f,
+    )
+    private val layerStates = mutableMapOf<String, LayerState>()
+    private var sceneStartNanos: Long = 0L
 
     /** Latest gyroscope-driven offset in pixels (set by PixoraWallpaperService). */
     @Volatile var tiltX: Float = 0f
@@ -71,7 +92,9 @@ class CanvasSceneRenderer(private val context: Context) {
      *  the device is idle — otherwise idleMode caps us at 1fps and the bob
      *  becomes invisible (slow giant jumps instead of smooth float). */
     val hasBobAnimation: Boolean
-        get() = spec?.imageLayers?.any { it.bobAmplitudePx > 0f } == true
+        get() = spec?.imageLayers?.any {
+            it.bobAmplitudePx > 0f || it.motion != null || it.collision != null
+        } == true
     // The Pixora "P" 3D logo signature is owned globally by
     // PixoraWallpaperService so it appears on every wallpaper, not only
     // canvas_scenes. CanvasSceneRenderer just exposes spec.branding
@@ -86,16 +109,24 @@ class CanvasSceneRenderer(private val context: Context) {
      * (which Dart's SceneSpecService writes). Returns true on success.
      */
     fun loadSpec(sceneId: String): Boolean {
-        if (loadedFor == sceneId && spec != null) return true
         val f = File(context.filesDir, "scene_specs/$sceneId.json")
         if (!f.isFile) {
             Log.w(TAG, "Scene spec not found: ${f.absolutePath}")
             return false
         }
+        // CACHE GUARD (v1.7.40 fix): if same sceneId AND disk file hasn't been
+        // re-written since last parse, the in-memory spec is fresh — short-circuit.
+        // Otherwise, re-parse: Eduardo edited the spec via admin, FCM evicted disk
+        // cache, or Dart re-downloaded it — disk is newer, in-memory is stale.
+        val diskMtime = f.lastModified()
+        if (loadedFor == sceneId && spec != null && diskMtime == loadedSpecMtime) {
+            return true
+        }
         val parsed = SceneSpec.fromFile(f) ?: run {
             Log.w(TAG, "Scene spec parse failed: $sceneId")
             return false
         }
+        Log.d(TAG, "loadSpec $sceneId: parsing fresh (mtime=$diskMtime, was=$loadedSpecMtime)")
         // Tear down old subsystems (preserve sprite bitmaps if reused below)
         spriteControllers.clear()
         particleSystems.clear()
@@ -105,7 +136,14 @@ class CanvasSceneRenderer(private val context: Context) {
         // Same fix as in release() — fresh bitmaps need a fresh prescale.
         prescaledForW = 0
         prescaledForH = 0
+        // Reset interactive layer state — fresh scene start time for motion timing.
+        layerStates.clear()
+        sceneStartNanos = System.nanoTime()
+        for (layer in parsed.imageLayers) {
+            layerStates[layer.key] = LayerState(alpha = layer.initialAlpha)
+        }
         loadedFor = sceneId
+        loadedSpecMtime = diskMtime
         spec = parsed
         Log.d(TAG, "Loaded scene '$sceneId' (${parsed.sprites.size} sprites, " +
             "${parsed.particles.size} particles, ${parsed.events.size} events)")
@@ -186,6 +224,10 @@ class CanvasSceneRenderer(private val context: Context) {
         // visible frame; insignificant vs the savings of every subsequent frame.
         ensureLayersPrescaled()
         tick++
+
+        // Update interactive layer state (motion + collision-triggered anims).
+        // Done BEFORE drawing so offsets/alpha applied this frame are fresh.
+        updateInteractiveLayers()
 
         // Direct one-shot follow — same model Samsung's ImageWallpaper
         // uses for static panoramic wallpapers. Each onOffsetsChanged
@@ -304,10 +346,141 @@ class CanvasSceneRenderer(private val context: Context) {
             bobOffsetX = (composedX * def.bobAmplitudePx * 0.35).toFloat()
         }
 
+        // Interactive layer state offsets (motion + collision animations).
+        val st = layerStates[def.key]
+        val interactiveDx = st?.dx ?: 0f
+        val interactiveDy = st?.dy ?: 0f
+        val interactiveAlpha = st?.alpha ?: 1f
+
         // Vertical/horizontal TILT (gyro): per-layer depth using parallax_factor
-        val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset + bobOffsetX
-        val top  = (sh - drawH) / 2f + tiltY * pf + bobOffsetY
-        canvas.drawBitmap(bmp, left, top, layerPaint)  // pure blit, ~free
+        val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset + bobOffsetX + interactiveDx
+        val top  = (sh - drawH) / 2f + tiltY * pf + bobOffsetY + interactiveDy
+
+        // Skip draw if fully transparent (rise_fade end state, hidden layers).
+        if (interactiveAlpha <= 0.005f) return
+
+        if (interactiveAlpha >= 0.995f) {
+            canvas.drawBitmap(bmp, left, top, layerPaint)  // pure blit
+        } else {
+            val prev = layerPaint.alpha
+            layerPaint.alpha = (interactiveAlpha * 255f).toInt().coerceIn(0, 255)
+            canvas.drawBitmap(bmp, left, top, layerPaint)
+            layerPaint.alpha = prev
+        }
+    }
+
+    /** Per-frame update for image_layer motion (auto_jump) and collision-driven
+     *  animations (bump_up, rise_fade). Two passes:
+     *
+     *    1. Advance autonomous motion + active collision animations.
+     *    2. Detect collisions and trigger fresh animations (with cooldown).
+     *
+     *  Pass order matters: motion offsets in pass 1 inform bounds in pass 2. */
+    private fun updateInteractiveLayers() {
+        val s = spec ?: return
+        if (s.imageLayers.isEmpty()) return
+        if (layerStates.isEmpty()) return  // safeguard
+        val nowNs = System.nanoTime()
+        val tSec = (nowNs - sceneStartNanos) / 1_000_000_000.0
+
+        // ── Pass 1: advance motion + active animations ─────────────────
+        for (layer in s.imageLayers) {
+            val st = layerStates[layer.key] ?: continue
+
+            // Reset offsets each frame; motion + anims recompute below.
+            st.dx = 0f
+            st.dy = 0f
+
+            // Autonomous auto_jump (every motion.intervalSec).
+            layer.motion?.let { m ->
+                if (m.kind == "auto_jump") {
+                    val phase = (tSec % m.intervalSec).toFloat()
+                    if (phase < m.durationSec) {
+                        val p = phase / m.durationSec       // [0..1]
+                        val arc = 4f * p * (1f - p)         // parabola, peak=1 at p=0.5
+                        st.dy = -m.amplitudePx * arc
+                    }
+                }
+            }
+
+            // Active collision-triggered animation (bump_up / rise_fade).
+            val anim = st.anim
+            if (anim != null) {
+                val elapsed = (nowNs - anim.startNanos) / 1_000_000_000f
+                val p = (elapsed / anim.durationSec).coerceIn(0f, 1f)
+                when (anim.kind) {
+                    "bump_up" -> {
+                        val arc = 4f * p * (1f - p)
+                        st.dy += -anim.amplitudePx * arc
+                    }
+                    "rise_fade" -> {
+                        // Linear rise + fade out (alpha 1→0 over second half).
+                        st.dy += -anim.risePx * p
+                        st.alpha = (1f - p)
+                    }
+                }
+                if (p >= 1f) {
+                    st.anim = null
+                    // rise_fade returns to hidden; bump_up returns to visible default.
+                    st.alpha = if (anim.kind == "rise_fade") 0f else layer.initialAlpha
+                }
+            }
+        }
+
+        // ── Pass 2: detect collisions + maybe trigger new animations ───
+        for (layer in s.imageLayers) {
+            val coll = layer.collision ?: continue
+            val st = layerStates[layer.key] ?: continue
+            if (st.anim != null) continue  // already animating; let it finish
+            // Cooldown gate.
+            if (st.lastTriggerNanos > 0L) {
+                val sinceLast = (nowNs - st.lastTriggerNanos) / 1_000_000_000f
+                if (sinceLast < coll.cooldownSec) continue
+            }
+            val myBounds = layerBoundsOnScreen(layer) ?: continue
+            val target = s.imageLayers.firstOrNull { it.key == coll.withLayer } ?: continue
+            val targetBounds = layerBoundsOnScreen(target) ?: continue
+            if (!android.graphics.RectF.intersects(myBounds, targetBounds)) continue
+
+            // Collision detected → trigger animation.
+            st.lastTriggerNanos = nowNs
+            st.anim = ActiveAnim(
+                kind = coll.action,
+                startNanos = nowNs,
+                durationSec = coll.durationSec,
+                amplitudePx = coll.amplitudePx,
+                risePx = coll.risePx,
+            )
+            if (coll.action == "rise_fade") st.alpha = 1f  // become visible
+        }
+    }
+
+    /** Compute the layer's subject bounds in SCREEN coordinates this frame,
+     *  factoring in pre-scale + current motion/anim offsets. Null if the
+     *  layer has no boundsNorm or no loaded bitmap. */
+    private fun layerBoundsOnScreen(layer: ImageLayerDef): android.graphics.RectF? {
+        val b = layer.boundsNorm ?: return null
+        val pair = layerBitmaps.firstOrNull { it.first.key == layer.key } ?: return null
+        val bmp = pair.second
+        if (bmp.isRecycled) return null
+        val sw = surfaceWidth.toFloat()
+        val sh = surfaceHeight.toFloat()
+        val drawW = bmp.width.toFloat()
+        val drawH = bmp.height.toFloat()
+        val st = layerStates[layer.key]
+        val baseLeft = (sw - drawW) / 2f + (st?.dx ?: 0f)
+        val baseTop = (sh - drawH) / 2f + (st?.dy ?: 0f)
+        // boundsNorm is normalized to TARGET (matches the source layer's
+        // own coordinate system since layer was authored at TARGET resolution).
+        // After pre-scale, the layer's drawW/drawH IS the cover-fit surface
+        // dimensions, so multiplying boundsNorm by drawW/drawH yields the
+        // subject position in screen coordinates.
+        return android.graphics.RectF(
+            baseLeft + b.left * drawW,
+            baseTop + b.top * drawH,
+            baseLeft + b.right * drawW,
+            baseTop + b.bottom * drawH,
+        )
     }
 
     /**

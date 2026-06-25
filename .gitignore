@@ -104,6 +104,10 @@ macos/Flutter/ephemeral/
 # Throwaway temp files at repo root (screenshots, exports, scratch)
 /tmp_*
 
+# Per-feature upload staging directories (tools/wallpapers/_tmp_*, tools/ringtones/_tmp_*)
+# Often contain ad-hoc scripts with secrets pulled from KEYS_LOCAL.md
+_tmp_*/
+
 # AI content production staging — uploads to Supabase Storage, not git
 /wallpapers_new/
 
