@@ -92,9 +92,12 @@ class CanvasSceneRenderer(private val context: Context) {
      *  the device is idle — otherwise idleMode caps us at 1fps and the bob
      *  becomes invisible (slow giant jumps instead of smooth float). */
     val hasBobAnimation: Boolean
-        get() = spec?.imageLayers?.any {
-            it.bobAmplitudePx > 0f || it.motion != null || it.collision != null
-        } == true
+        get() {
+            val s = spec ?: return false
+            return s.imageLayers.any {
+                it.bobAmplitudePx > 0f || it.motion != null || it.collision != null
+            } || s.cycles.isNotEmpty()
+        }
     // The Pixora "P" 3D logo signature is owned globally by
     // PixoraWallpaperService so it appears on every wallpaper, not only
     // canvas_scenes. CanvasSceneRenderer just exposes spec.branding
@@ -325,7 +328,11 @@ class CanvasSceneRenderer(private val context: Context) {
         var bobOffsetY = 0f
         if (def.bobAmplitudePx > 0f) {
             val tSec = System.nanoTime().toDouble() / 1_000_000_000.0
-            val phaseShift = (def.key.hashCode() and 0xff) / 256.0
+            // bobPhaseSource locks this layer's bob to another layer's phase
+            // — used for glow/highlight layers painted over a subject so they
+            // drift IN SYNC instead of trailing.
+            val phaseKey = def.bobPhaseSource ?: def.key
+            val phaseShift = (phaseKey.hashCode() and 0xff) / 256.0
             val p = def.bobPeriodSec.toDouble()
             val twoPi = 2.0 * Math.PI
 
@@ -391,14 +398,24 @@ class CanvasSceneRenderer(private val context: Context) {
             st.dx = 0f
             st.dy = 0f
 
-            // Autonomous auto_jump (every motion.intervalSec).
+            // Autonomous motion (auto_jump | alpha_pulse).
             layer.motion?.let { m ->
-                if (m.kind == "auto_jump") {
-                    val phase = (tSec % m.intervalSec).toFloat()
-                    if (phase < m.durationSec) {
-                        val p = phase / m.durationSec       // [0..1]
-                        val arc = 4f * p * (1f - p)         // parabola, peak=1 at p=0.5
-                        st.dy = -m.amplitudePx * arc
+                when (m.kind) {
+                    "auto_jump" -> {
+                        val phase = (tSec % m.intervalSec).toFloat()
+                        if (phase < m.durationSec) {
+                            val p = phase / m.durationSec       // [0..1]
+                            val arc = 4f * p * (1f - p)         // parabola, peak=1 at p=0.5
+                            st.dy = -m.amplitudePx * arc
+                        }
+                    }
+                    "alpha_pulse" -> {
+                        // Sinusoidal alpha breath between min..max with period periodSec.
+                        // Phase shift by layer.key hash so multiple pulsing layers don't sync.
+                        val phaseShift = (layer.key.hashCode() and 0xff) / 256.0
+                        val phase = (tSec / m.periodSec + phaseShift) % 1.0
+                        val s01 = (kotlin.math.sin(phase * 2.0 * Math.PI) + 1.0) * 0.5
+                        st.alpha = (m.minAlpha + (m.maxAlpha - m.minAlpha) * s01).toFloat()
                     }
                 }
             }
@@ -424,6 +441,31 @@ class CanvasSceneRenderer(private val context: Context) {
                     // rise_fade returns to hidden; bump_up returns to visible default.
                     st.alpha = if (anim.kind == "rise_fade") 0f else layer.initialAlpha
                 }
+            }
+        }
+
+        // ── Pass 1.5: apply frame cycles (overrides per-layer alpha) ───
+        // For each cycle: find the frame whose [from_s, to_s) window contains
+        // the current cycle-relative time. The layer KEY of that frame is
+        // visible (alpha=1); all OTHER unique layer keys referenced by the
+        // cycle go alpha=0. Mutually exclusive at the KEY level (not index)
+        // so cycles can reference the same layer multiple times — e.g. a
+        // blink that opens → half → shut → half → open touches goku_open
+        // and goku_half twice each.
+        for (cycle in s.cycles) {
+            if (cycle.frames.isEmpty()) continue
+            val tInCycle = (tSec % cycle.durationSec).toFloat()
+            var activeKey: String? = null
+            for (f in cycle.frames) {
+                if (tInCycle >= f.fromSec && tInCycle < f.toSec) {
+                    activeKey = f.layerKey
+                    break
+                }
+            }
+            val cycleKeys = cycle.frames.map { it.layerKey }.toSet()
+            for (key in cycleKeys) {
+                val st = layerStates[key] ?: continue
+                st.alpha = if (key == activeKey) 1f else 0f
             }
         }
 

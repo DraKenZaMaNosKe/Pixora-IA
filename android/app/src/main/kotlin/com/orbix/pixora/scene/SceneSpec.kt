@@ -30,6 +30,9 @@ data class SceneSpec(
     val sprites: List<SpriteDef>,
     val particles: List<ParticleDef>,
     val events: List<EventDef>,
+    /** Frame cycles — groups of image_layers whose alphas are time-multiplexed.
+     *  Used for face blink, fire flicker, traffic light, etc. (v1.7.41). */
+    val cycles: List<CycleDef>,
     /** Optional per-scene overrides for the BrandingLogo (P 3D signature). */
     val brandingJson: JSONObject?,
 ) {
@@ -64,6 +67,9 @@ data class SceneSpec(
                 },
                 events = parseList(j.optJSONArray("events")) {
                     EventDef.parse(it)
+                },
+                cycles = parseList(j.optJSONArray("cycles")) {
+                    CycleDef.parse(it)
                 },
                 brandingJson = j.optJSONObject("branding"),
             )
@@ -131,6 +137,12 @@ data class ImageLayerDef(
     val bobAmplitudePx: Float,
     /** Seconds per full bob cycle. Ignored when bobAmplitudePx == 0. */
     val bobPeriodSec: Float,
+    /** When set, this layer's bob phase is derived from the target layer's
+     *  key (not its own). Used to LOCK two layers' bobs in lockstep — e.g.
+     *  a glow layer painted over a subject must drift IN PHASE with the
+     *  subject, otherwise the glow visibly trails behind. Default: null
+     *  → each layer gets its own phase shift via its own key hash. */
+    val bobPhaseSource: String?,
     /** Initial alpha [0..1]. Default 1.0 (fully visible). Set 0.0 for layers
      *  that should be hidden until a collision triggers a rise_fade animation. */
     val initialAlpha: Float,
@@ -160,6 +172,7 @@ data class ImageLayerDef(
                 scale = j.f("scale", 1f),
                 bobAmplitudePx = j.f("bob_amplitude_px", 0f).coerceAtLeast(0f),
                 bobPeriodSec = j.f("bob_period_sec", 4f).coerceAtLeast(0.1f),
+                bobPhaseSource = j.optString("bob_phase_source").takeIf { it.isNotBlank() },
                 initialAlpha = j.f("initial_alpha", 1f).coerceIn(0f, 1f),
                 boundsNorm = parseRect(j.optJSONObject("bounds_norm")),
                 motion = j.optJSONObject("motion")?.let { MotionDef.parse(it) },
@@ -178,14 +191,20 @@ data class ImageLayerDef(
 }
 
 /** Autonomous motion attached to an image_layer.
- *  Currently supported kinds:
- *    - "auto_jump" — parabolic vertical arc every [intervalSec], peak at
- *      [amplitudePx] above resting position, lasts [durationSec]. */
+ *  Supported kinds:
+ *    - "auto_jump"   — parabolic vertical arc every [intervalSec], peak at
+ *      [amplitudePx] above resting position, lasts [durationSec].
+ *    - "alpha_pulse" — alpha sinusoidally oscillates between [minAlpha] and
+ *      [maxAlpha] with full period [periodSec]. Used for breathing glows
+ *      (dragon eyes, embers, magic auras). */
 data class MotionDef(
     val kind: String,
     val intervalSec: Float,
     val amplitudePx: Float,
     val durationSec: Float,
+    val minAlpha: Float,
+    val maxAlpha: Float,
+    val periodSec: Float,
 ) {
     companion object {
         fun parse(j: JSONObject): MotionDef? = try {
@@ -194,6 +213,62 @@ data class MotionDef(
                 intervalSec = j.f("interval_s", 4f).coerceAtLeast(0.5f),
                 amplitudePx = j.f("amplitude_px", 200f).coerceAtLeast(10f),
                 durationSec = j.f("duration_s", 0.8f).coerceAtLeast(0.1f),
+                minAlpha = j.f("min_alpha", 0.3f).coerceIn(0f, 1f),
+                maxAlpha = j.f("max_alpha", 1f).coerceIn(0f, 1f),
+                periodSec = j.f("period_s", 1.5f).coerceAtLeast(0.1f),
+            )
+        } catch (e: Exception) { null }
+    }
+}
+
+/** Frame cycle — time-multiplexes the alpha of N image_layers so exactly
+ *  one is visible at any moment. Used for face blink (open / half / closed
+ *  eye states), animated fire (frame_a/b/c), traffic lights, etc.
+ *
+ *  Frames are evaluated mod [durationSec]: at time t (modular), the frame
+ *  whose [fromSec, toSec) window contains t becomes alpha=1, all other
+ *  frames in this cycle go alpha=0.
+ *
+ *  Layers referenced by the cycle MUST exist in image_layers. Their
+ *  declared initial_alpha is overridden every frame by the cycle. */
+data class CycleDef(
+    val name: String,
+    val durationSec: Float,
+    val frames: List<FrameDef>,
+) {
+    companion object {
+        fun parse(j: JSONObject): CycleDef? {
+            return try {
+                val frames = mutableListOf<FrameDef>()
+                val arr = j.optJSONArray("frames")
+                if (arr != null) {
+                    for (i in 0 until arr.length()) {
+                        val item = arr.optJSONObject(i) ?: continue
+                        FrameDef.parse(item)?.let { frames.add(it) }
+                    }
+                }
+                if (frames.isEmpty()) null
+                else CycleDef(
+                    name = j.optString("name", "cycle"),
+                    durationSec = j.f("duration_s", 4f).coerceAtLeast(0.1f),
+                    frames = frames,
+                )
+            } catch (e: Exception) { null }
+        }
+    }
+}
+
+data class FrameDef(
+    val layerKey: String,
+    val fromSec: Float,
+    val toSec: Float,
+) {
+    companion object {
+        fun parse(j: JSONObject): FrameDef? = try {
+            FrameDef(
+                layerKey = j.getString("layer_key"),
+                fromSec = j.f("from_s", 0f).coerceAtLeast(0f),
+                toSec = j.f("to_s", 0f).coerceAtLeast(0f),
             )
         } catch (e: Exception) { null }
     }
