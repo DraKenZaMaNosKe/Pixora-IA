@@ -170,10 +170,12 @@ class _PaymentRow extends StatelessWidget {
         : null;
     // user_subscriptions doesn't keep amount/currency directly — derive from
     // product_id. Adjust here if more SKUs are added.
+    // 2026-06-24 — pricing v1.7.37: mensual $199 MXN ($9.99 USD),
+    // trimestral $499 (~17% off), anual $1799 (~25% off).
     final (amountMxn, currency) = switch (productId) {
-      'pixora_monthly' => (49.0, 'MXN'),
-      'pixora_quarterly' => (129.0, 'MXN'),
-      'pixora_yearly' => (399.0, 'MXN'),
+      'pixora_monthly' => (199.0, 'MXN'),
+      'pixora_quarterly' => (499.0, 'MXN'),
+      'pixora_yearly' => (1799.0, 'MXN'),
       _ => (0.0, 'MXN'),
     };
     final tierLabel = switch (tier) {

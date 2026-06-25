@@ -657,7 +657,7 @@ class _StickyCta extends StatelessWidget {
     if (event.isPast) {
       label = hasAccess ? 'Revivir el recuerdo' : 'Ver wallpapers (Pro)';
     } else if (locked) {
-      label = '🔒  Hazte Pro · \$49 / mes';
+      label = '🔒  Hazte Pro · \$9.99 USD/mes';
     } else if (event.isUpcoming) {
       label = 'Recuérdamelo cuando empiece';
     } else {

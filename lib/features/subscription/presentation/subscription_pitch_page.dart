@@ -431,12 +431,14 @@ class _PriceCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
+            // 2026-06-24 — display dual: USD prominente (parece menos)
+            // + MXN abajo (precio real que Google cobra en MX).
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 const Text(
-                  '\$49',
+                  '\$9.99',
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 46,
@@ -449,7 +451,7 @@ class _PriceCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 8),
                   child: Text(
-                    'MXN',
+                    'USD',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
@@ -460,9 +462,9 @@ class _PriceCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
-              'Cancela cuando quieras',
+              '~\$199 MXN · cancela cuando quieras',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 12,

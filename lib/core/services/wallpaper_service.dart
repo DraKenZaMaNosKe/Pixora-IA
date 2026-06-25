@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'catalog_index_service.dart';
+import 'mystery_exclusion_service.dart';
 import 'scene_spec_service.dart';
 import 'wallpaper_engine_coordinator.dart';
 

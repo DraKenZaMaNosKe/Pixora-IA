@@ -88,7 +88,7 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
               title: 'Hacerse Pro',
               subtitle: 'Sin anuncios + códices y eventos exclusivos',
               trailing: const Text(
-                '\$49 / mes',
+                '\$9.99 USD',
                 style: TextStyle(
                   color: Color(0xFFD9B14A),
                   fontWeight: FontWeight.w700,
@@ -378,7 +378,7 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
     if (days < 0) return 'En periodo de gracia';
     final fmt =
         '${next.day.toString().padLeft(2, '0')}/${next.month.toString().padLeft(2, '0')}/${next.year}';
-    return 'Próx. renovación $fmt · \$49 MXN';
+    return 'Próx. renovación $fmt · \$199 MXN';
   }
 }
 

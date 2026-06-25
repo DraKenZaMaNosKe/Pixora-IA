@@ -117,6 +117,43 @@ class CreditService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 2026-06-24 — generic add credits para flujos no-ad (premium daily
+  /// refill, promo grants, etc). Logged via 'earn_credits' RPC con el
+  /// reason custom. Defensive: errores no rompen UX.
+  Future<void> addCredits({required int amount, required String reason}) async {
+    if (amount <= 0) return;
+    if (_isLoggedIn) {
+      try {
+        final row = await _client.rpc(
+          'earn_credits',
+          params: {
+            'p_amount': amount,
+            'p_metadata': <String, dynamic>{'source': reason},
+          },
+        );
+        if (row is Map) {
+          _balance = (row['balance'] as int?) ?? _balance;
+          await _box?.put(_keyBalance, _balance);
+          await _box?.put(_keyTotalEarned, row['total_earned'] ?? totalEarned);
+        }
+        debugPrint('[Credits] +$amount ($reason, balance: $_balance)');
+      } catch (e) {
+        debugPrint('[Credits] addCredits ($reason) failed: $e');
+        // Fallback: local-only
+        _balance += amount;
+        await _box?.put(_keyBalance, _balance);
+        await _box?.put(_keyTotalEarned, totalEarned + amount);
+      }
+    } else {
+      _balance += amount;
+      await _box?.put(_keyBalance, _balance);
+      await _box?.put(_keyTotalEarned, totalEarned + amount);
+      await _box?.put(_keyLocalOnly, true);
+      debugPrint('[Credits] +$amount ($reason, local, balance: $_balance)');
+    }
+    notifyListeners();
+  }
+
   // ── Spending ───────────────────────────────────────────────────────────
 
   /// Spend credits. REQUIRES login — throws `CreditError('not_authenticated')`

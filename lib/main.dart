@@ -19,6 +19,7 @@ import 'core/widgets/connectivity_toast.dart';
 import 'core/services/day_cycle_catalog_service.dart';
 import 'core/services/grace_pass_service.dart';
 import 'core/services/legal_service.dart';
+import 'core/services/ia_quota_service.dart';
 import 'core/services/live_wallpaper_catalog_service.dart';
 import 'core/services/mystery_exclusion_service.dart';
 import 'core/services/ringtone_service.dart';
@@ -122,6 +123,10 @@ Future<void> main() async {
     // Mystery Card exclusion set (Hive box `mystery_excluded`).
     // 2026-06-24 — wallpapers ya instalados no aparecen como mystery.
     await MysteryExclusionService.instance.init();
+    // IA quota tracking + daily refill premium (Hive box `ia_quota`).
+    // 2026-06-24 — free 2000💎/img (1/día), premium 30💎/img (5/día) +
+    // refill auto 150💎 cada 24 h.
+    await IaQuotaService.instance.init();
     // Connectivity — pasivo (cero datos). Detecta WiFi/datos/avión y
     // expone isOnline + showRestoredToast con debouncing de 30s.
     // Widgets escuchan vía ListenableBuilder.

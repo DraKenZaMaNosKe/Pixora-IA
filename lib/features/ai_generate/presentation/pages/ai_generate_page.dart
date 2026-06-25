@@ -15,6 +15,7 @@ import '../../../../core/design/hud_widgets.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/credit_service.dart';
+import '../../../../core/services/ia_quota_service.dart';
 import '../../../../core/services/subscription_service.dart';
 import '../../../../core/services/report_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -282,28 +283,33 @@ class _AIGeneratePageState extends State<AIGeneratePage>
         en: 'SIGN IN TO GENERATE',
       );
     }
-    if (sub.freeGensRemaining > 0) {
+    // 2026-06-24 — IaQuotaService rules:
+    //   Free:    2000💎/img, cap 1/día
+    //   Premium:  30💎/img, cap 5/día + 150💎ddiariosauto
+    final q = IaQuotaService.instance;
+    final cost = q.currentCost;
+    final remaining = q.remainingToday;
+    final cap = q.currentDailyCap;
+    final balance = CreditService.instance.balance;
+
+    if (remaining <= 0) {
       return LocaleHelper.pick(
-        es: 'GENERATE · ${sub.freeGensRemaining} FREE',
-        en: 'GENERATE · ${sub.freeGensRemaining} FREE',
+        es: 'LÍMITE DIARIO ALCANZADO ($cap/$cap)',
+        en: 'DAILY LIMIT REACHED ($cap/$cap)',
       );
     }
-    if (!sub.hasAccess) {
+    if (balance < cost) {
+      if (sub.hasAccess) {
+        return 'NECESITAS $cost 💎';
+      }
+      // Free user sin diamantes suficientes — hard sell
       return LocaleHelper.pick(
-        es: 'SUSCRIBIRSE · \$99/MES',
-        en: 'SUBSCRIBE · \$99/MO',
+        es: 'NECESITAS $cost 💎  ·  o SUSCRÍBETE',
+        en: 'NEED $cost 💎  ·  or SUBSCRIBE',
       );
     }
-    if (sub.generationsRemaining > 0) {
-      return 'GENERATE · ${sub.generationsRemaining} LEFT';
-    }
-    if (CreditService.instance.balance >= 30) {
-      return 'GENERATE · 30 💎';
-    }
-    return LocaleHelper.pick(
-      es: 'CUOTA AGOTADA',
-      en: 'QUOTA EMPTY',
-    );
+    // Puede generar — muestra costo + cuántas le quedan hoy
+    return 'GENERAR · $cost 💎  ·  $remaining/$cap HOY';
   }
 
   // ── Actions ───────────────────────────────────────────────────────────
@@ -315,14 +321,21 @@ class _AIGeneratePageState extends State<AIGeneratePage>
       _showLoginPrompt();
       return;
     }
-    if (sub.freeGensRemaining == 0 && !sub.hasAccess) {
-      _showPaywall();
+    // 2026-06-24 — IaQuotaService gating.
+    final q = IaQuotaService.instance;
+    if (q.remainingToday <= 0) {
+      _showQuotaExhausted();
       return;
     }
-    if (sub.hasAccess &&
-        sub.generationsRemaining == 0 &&
-        CreditService.instance.balance < 30) {
-      _showQuotaExhausted();
+    if (CreditService.instance.balance < q.currentCost) {
+      if (sub.hasAccess) {
+        _snack(LocaleHelper.pick(
+          es: 'Necesitas ${q.currentCost} 💎. Mira ads para ganar más.',
+          en: 'Need ${q.currentCost} 💎. Watch ads to earn more.',
+        ));
+      } else {
+        _showPaywall();
+      }
       return;
     }
 
@@ -364,6 +377,18 @@ class _AIGeneratePageState extends State<AIGeneratePage>
             status: 'pending',
           );
         });
+        // 2026-06-24 — cobrar diamantes + record cuota diaria.
+        // Spend wrapped en try-catch: si falla server, igual se
+        // dispara la generación (server tiene su propio gating).
+        try {
+          await CreditService.instance.spend(
+            IaQuotaService.instance.currentCost,
+            reason: 'ia_generation',
+          );
+        } catch (e) {
+          debugPrint('[AIGenerate] spend failed: $e');
+        }
+        unawaited(IaQuotaService.instance.recordGeneration());
         unawaited(_dispatchWorker(queueId));
       }
       _snack(
@@ -628,8 +653,8 @@ class _AIGeneratePageState extends State<AIGeneratePage>
               const SizedBox(height: HudTokens.sp3),
               Text(
                 LocaleHelper.pick(
-                  es: '100 GENERACIONES IA AL MES · 7 DÍAS GRATIS',
-                  en: '100 AI GENERATIONS / MONTH · 7-DAY TRIAL',
+                  es: '5 IMÁGENES IA AL DÍA · SIN ANUNCIOS',
+                  en: '5 AI IMAGES PER DAY · NO ADS',
                 ),
                 style: HudTokens.mono(
                   size: 11,
@@ -638,12 +663,14 @@ class _AIGeneratePageState extends State<AIGeneratePage>
                 ),
               ),
               const SizedBox(height: HudTokens.sp6),
+              _benefit('◆', '5 IMÁGENES IA AL DÍA'),
+              _benefit('◆', 'SIN ANUNCIOS EN TODA LA APP'),
+              _benefit('◆', 'DIAMANTES DIARIOS AUTOMÁTICOS'),
               _benefit('◆', 'SYNC CROSS-DEVICE'),
-              _benefit('◆', 'ACCESO A MODELOS PREMIUM'),
               _benefit('◆', 'CANCELA CUANDO QUIERAS'),
               const SizedBox(height: HudTokens.sp6),
               HudPrimaryButton(
-                label: 'EMPEZAR PRUEBA GRATUITA',
+                label: 'SUSCRIBIRSE',
                 busy: sub.purchaseInFlight,
                 onPressed: () async {
                   Navigator.of(ctx).pop();
@@ -661,8 +688,8 @@ class _AIGeneratePageState extends State<AIGeneratePage>
               const SizedBox(height: HudTokens.sp3),
               Text(
                 LocaleHelper.pick(
-                  es: 'Cobro automático tras 7 días. Cancela desde Google Play antes de vencer.',
-                  en: 'Auto-charged after 7 days. Cancel in Google Play anytime before.',
+                  es: 'Renovación automática mensual. Cancela cuando quieras desde Google Play.',
+                  en: 'Auto-renewing monthly. Cancel anytime from Google Play.',
                 ),
                 textAlign: TextAlign.center,
                 style: HudTokens.mono(
@@ -721,8 +748,8 @@ class _AIGeneratePageState extends State<AIGeneratePage>
               const SizedBox(height: HudTokens.sp3),
               Text(
                 LocaleHelper.pick(
-                  es: 'Ya usaste las 100 generaciones de este mes. Espera al próximo ciclo o gasta 30 diamantes (de ads) para una extra.',
-                  en: 'You\'ve used this month\'s 100. Wait for next cycle or spend 30 diamonds for an extra.',
+                  es: 'Ya usaste tus 5 generaciones de hoy. Vuelve mañana — tu cuota se renueva cada 24 h.',
+                  en: 'You\'ve used today\'s 5 generations. Come back tomorrow — your quota refreshes every 24h.',
                 ),
                 style: HudTokens.body(size: 13, color: h.text),
               ),

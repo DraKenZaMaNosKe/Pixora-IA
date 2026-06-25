@@ -208,7 +208,7 @@ class _TermsAcceptancePageState extends State<TermsAcceptancePage> {
             ),
             _section(
               '5. Suscripción Pixora Pro',
-              'La suscripción Pixora Pro tiene un costo de \$49.00 MXN mensuales y se cobra mediante Google Play Billing. La cancelación se realiza desde Google Play Store, no desde la app. Conservas acceso hasta el fin del periodo pagado.',
+              'La suscripción Pixora Pro tiene un costo de \$9.99 USD (\$199.00 MXN) mensuales, \$24.99 USD (\$499.00 MXN) trimestrales o \$89.99 USD (\$1,799.00 MXN) anuales. Se cobra mediante Google Play Billing. La cancelación se realiza desde Google Play Store, no desde la app. Conservas acceso hasta el fin del periodo pagado.',
             ),
             _section(
               '8. Generación con IA',
