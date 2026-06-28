@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../features/aura/data/repositories/aura_repository.dart';
 import '../../features/events/data/events_service.dart';
@@ -18,6 +15,7 @@ import 'realm_catalog_service.dart';
 import 'ringtone_service.dart';
 import 'scene_spec_service.dart';
 import 'story_catalog_service.dart';
+import 'wallpaper_service.dart';
 
 /// Top-level handler required by FCM for background messages.
 /// Must be a top-level function (not a class method) because it runs in
@@ -34,26 +32,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // app isn't foreground, that handler never fires — and the disk cache
   // persists for 7 days, so the user never sees Eduardo's spec/asset updates.
   //
-  // Pure-disk eviction: rmdir scene_specs/ + scene_layers/. Next time the
-  // user opens a canvas_scene, Dart re-downloads from Supabase fresh.
+  // Do NOT wipe scene_specs/ here — the :wallpaper process reads them
+  // directly and cannot re-download. Foreground handler + app resume
+  // refresh specs instead (v1.7.43 fix).
   debugPrint('[PixoraFCM bg] data=${message.data}');
-  if (message.data['type'] == 'catalog_invalidate') {
-    final scope = message.data['scope']?.toString() ?? 'all';
-    if (scope == 'wallpapers' || scope == 'all') {
-      try {
-        final support = await getApplicationSupportDirectory();
-        for (final sub in const ['scene_specs', 'scene_layers']) {
-          final dir = Directory('${support.path}/$sub');
-          if (await dir.exists()) {
-            await dir.delete(recursive: true);
-            debugPrint('[PixoraFCM bg] wiped $sub/');
-          }
-        }
-      } catch (e) {
-        debugPrint('[PixoraFCM bg] disk evict failed: $e');
-      }
-    }
-  }
 }
 
 /// Singleton service for Firebase Cloud Messaging.
@@ -229,14 +211,14 @@ class PushNotificationService {
         'catalog-index',
         () => CatalogIndexService.instance.clearCache(),
       );
-      // Wipe scene_specs/ + scene_layers/. Without this, remote tweaks to
-      // bob amplitude, parallax, scale or layer positions never reach
-      // devices that already applied the wallpaper (the spec is cached
-      // 7 days in disk; the layer bitmaps are skipped if they exist on
-      // disk regardless of remote URL changes). v1.7.38 fix.
+      // Re-fetch canvas_scene specs in-place (don't wipe first — wiping
+      // breaks the live wallpaper until the user re-applies). v1.7.43 fix.
       await safeClear(
         'scene-specs',
-        () => SceneSpecService.instance.clearCache(),
+        () async {
+          await SceneSpecService.instance.refreshAllCanvasScenes();
+          await WallpaperService.instance.notifyWallpaperReload();
+        },
       );
       await safeClear(
         'daily-refresh',

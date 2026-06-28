@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'catalog_index_service.dart';
 import 'mystery_exclusion_service.dart';
 import 'scene_spec_service.dart';
@@ -121,6 +122,47 @@ class WallpaperService {
   /// a live canvas_scene apply when the basename matches a canvas_scene.
   Future<String?> resolveCanvasSceneFromPath(String filePath) =>
       _resolveCanvasSceneFromPath(filePath);
+
+  /// Scene id stored in pixora_live prefs by the last canvas_scene apply.
+  Future<String?> getActiveSceneId() async {
+    if (!Platform.isAndroid) return null;
+    try {
+      return await _channel.invokeMethod<String>('getActiveSceneId');
+    } catch (e) {
+      debugPrint('[WallpaperService] getActiveSceneId error: $e');
+      return null;
+    }
+  }
+
+  /// Bump changed_at so :wallpaper reloads after a remote spec refresh.
+  Future<void> notifyWallpaperReload() async {
+    if (!Platform.isAndroid) return;
+    try {
+      await _channel.invokeMethod('notifyWallpaperReload');
+    } catch (e) {
+      debugPrint('[WallpaperService] notifyWallpaperReload error: $e');
+    }
+  }
+
+  /// If the active live wallpaper is a canvas_scene but its spec was evicted,
+  /// re-fetch from Supabase and nudge the wallpaper process to reload.
+  Future<void> rehydrateActiveSceneIfNeeded() async {
+    if (!Platform.isAndroid) return;
+    final sceneId = await getActiveSceneId();
+    if (sceneId == null || sceneId.isEmpty) return;
+    try {
+      final support = await getApplicationSupportDirectory();
+      final specFile = File('${support.path}/scene_specs/$sceneId.json');
+      if (specFile.existsSync()) return;
+      final entry = await CatalogIndexService.instance.findById(sceneId);
+      if (entry == null) return;
+      debugPrint('[WallpaperService] rehydrate missing spec for $sceneId');
+      await SceneSpecService.instance.fetch(entry);
+      await notifyWallpaperReload();
+    } catch (e) {
+      debugPrint('[WallpaperService] rehydrateActiveScene error: $e');
+    }
+  }
 
   /// Look up the wallpaper filename in the catalog index. If it's a
   /// canvas_scene, fetch the spec to filesDir and return the scene id

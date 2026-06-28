@@ -77,12 +77,52 @@ class SpriteDownloadService {
     return Directory('${support.path}/sprites');
   }
 
-  bool _isCached(Directory spritesRoot, String folder, int expectedFrames) {
+  static const _metaFileName = '.pixora_sprite_meta.json';
+
+  bool _isCached(
+    Directory spritesRoot,
+    String folder,
+    Map<String, dynamic> info,
+  ) {
     final dir = Directory('${spritesRoot.path}/$folder');
     if (!dir.existsSync()) return false;
     final pngs =
         dir.listSync().whereType<File>().where((f) => f.path.endsWith('.png'));
-    return pngs.length >= expectedFrames;
+    final expectedFrames = (info['frames'] as int?) ?? 1;
+    // Exact match — stale folders with extra frames (e.g. 8 cached vs 5
+    // expected) must re-download or the device keeps old low-res art.
+    if (pngs.length != expectedFrames) return false;
+    final expectedSize = info['size'] as int?;
+    if (expectedSize == null) return true;
+    final metaFile = File('${dir.path}/$_metaFileName');
+    // Legacy folders (pre-meta) — trust frame count until next download.
+    if (!metaFile.existsSync()) return true;
+    try {
+      final meta =
+          json.decode(metaFile.readAsStringSync()) as Map<String, dynamic>;
+      return meta['zip_size'] == expectedSize;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _writeSpriteMeta(
+    Directory dir,
+    Map<String, dynamic> info,
+  ) async {
+    final frames = info['frames'];
+    final zipSize = info['size'];
+    if (frames is! int && zipSize is! int) return;
+    try {
+      await File('${dir.path}/$_metaFileName').writeAsString(
+        jsonEncode({
+          if (frames is int) 'frames': frames,
+          if (zipSize is int) 'zip_size': zipSize,
+        }),
+      );
+    } catch (e) {
+      debugPrint('[Pixora] sprite meta write failed: $e');
+    }
   }
 
   Future<Map<String, dynamic>> _fetchManifest() async {
@@ -140,10 +180,8 @@ class SpriteDownloadService {
     final root = await _spritesDir();
     final toDownload = folders.where((f) {
       final info = manifest[f];
-      final expected = (info is Map && info.containsKey('frames'))
-          ? (info['frames'] as int? ?? 10)
-          : 10;
-      return !_isCached(root, f, expected);
+      if (info is! Map<String, dynamic>) return true;
+      return !_isCached(root, f, info);
     }).toList();
 
     if (toDownload.isEmpty) {
@@ -193,6 +231,7 @@ class SpriteDownloadService {
                 await outFile.writeAsBytes(file.content as List<int>);
               }
             }
+            await _writeSpriteMeta(dir, info);
             debugPrint('[Pixora] Extracted ${archive.length} files to $folder');
             success = true;
             break;
@@ -268,10 +307,8 @@ class SpriteDownloadService {
     final root = await _spritesDir();
     final toDownload = keys.where((k) {
       final info = manifest[k];
-      final expected = (info is Map && info.containsKey('frames'))
-          ? (info['frames'] as int? ?? 1)
-          : 1;
-      return !_isCached(root, k, expected);
+      if (info is! Map<String, dynamic>) return true;
+      return !_isCached(root, k, info);
     }).toList();
 
     if (toDownload.isEmpty) {
@@ -316,6 +353,7 @@ class SpriteDownloadService {
                 await outFile.writeAsBytes(file.content as List<int>);
               }
             }
+            await _writeSpriteMeta(dir, info);
             debugPrint(
                 '[Pixora] Extracted ${archive.length} files to $folder (scene sprite)');
             success = true;

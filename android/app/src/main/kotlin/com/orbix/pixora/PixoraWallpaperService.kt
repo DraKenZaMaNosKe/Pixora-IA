@@ -261,7 +261,7 @@ class PixoraWallpaperService : WallpaperService() {
         // Keeps the engine at full FPS so animations and the clock second-hand stay smooth.
         private val hasAnimatedCanvasOverlay: Boolean
             get() = isAquariumMode || isFireflyMode || isJellyfishMode || isPixoraIslandMode ||
-                isCanvasSceneMode
+                (isCanvasSceneMode && canvasSceneRenderer.needsContinuousAnimation)
 
         // Auto-rotate: listen for wallpaper path changes from AutoRotateWorker
         private var prefsListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
@@ -420,7 +420,7 @@ class PixoraWallpaperService : WallpaperService() {
                     // idle — at 1fps the bob looks like teleporting jumps
                     // instead of a smooth float.
                     val sceneBobbing = isCanvasSceneMode &&
-                        canvasSceneRenderer.hasBobAnimation
+                        canvasSceneRenderer.needsContinuousAnimation
                     val delay = when {
                         isFrameMode -> IDLE_FRAME_DELAY
                         sceneBobbing -> deviceTier.idleMarqueeFrameDelay

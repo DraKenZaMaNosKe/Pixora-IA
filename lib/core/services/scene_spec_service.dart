@@ -94,6 +94,29 @@ class SceneSpecService {
     }
   }
 
+  /// Re-download every canvas_scene spec (and layers/sprites). Used after
+  /// FCM catalog invalidation so the live wallpaper keeps working — wiping
+  /// scene_specs/ without an immediate re-fetch leaves the :wallpaper process
+  /// with no spec until the user re-applies manually.
+  Future<void> refreshAllCanvasScenes() async {
+    if (!await Connectivity.hasInternet()) {
+      debugPrint('[SceneSpec] refreshAllCanvasScenes: offline, skip');
+      return;
+    }
+    try {
+      await CatalogIndexService.instance.refresh();
+      final items = await CatalogIndexService.instance.ofType('canvas_scene');
+      for (final entry in items) {
+        _memCache.remove(entry.id);
+        await _fetchAndCache(entry);
+      }
+      debugPrint(
+          '[SceneSpec] refreshAllCanvasScenes: ${items.length} scenes updated');
+    } catch (e) {
+      debugPrint('[SceneSpec] refreshAllCanvasScenes error: $e');
+    }
+  }
+
   /// Drop just one entry (e.g. when index version bumps and you know
   /// this specific scene was updated).
   Future<void> evict(String id) async {

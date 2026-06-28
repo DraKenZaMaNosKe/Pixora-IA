@@ -29,7 +29,7 @@ class SpriteSheet(
     private val context: Context,
     private val folder: String,
 ) {
-    var framesPerTick: Int = 2
+    var framesPerTick: Float = 2f
     var loaded: Boolean = false
         private set
 
@@ -41,7 +41,8 @@ class SpriteSheet(
     private val prescaled = mutableListOf<Bitmap>()
     private var prescaledFor = 0  // hashed target dims; 0 = not prescaled yet
     private var frameIndex = 0
-    private var frameTimer = 0
+    private var frameTimerAcc = 0f
+    private var advanceDirection = 1
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val fastPaint = Paint()  // no filter — pure blit for prescaled bitmaps
     private val matrix = Matrix()
@@ -52,14 +53,16 @@ class SpriteSheet(
 
     /**
      * Load sprite frames into RAM.
-     * @param framesPerTick how many render frames to wait before advancing
+     * @param framesPerTick render ticks per frame advance (float OK; negative
+     *   reverses direction). Lower abs = faster animation.
      * @param sampleSize Bitmap decoder downscale factor (1 = full resolution,
      *   2 = half resolution = ~4x less RAM). Use 1 for fullscreen sprites
      *   (e.g. anime cockpit) so they don't pixelate when stretched.
      */
-    fun load(framesPerTick: Int = 2, sampleSize: Int = 2): Boolean {
+    fun load(framesPerTick: Float = 2f, sampleSize: Int = 2): Boolean {
         if (loaded) return true
         this.framesPerTick = framesPerTick
+        this.advanceDirection = if (framesPerTick < 0f) -1 else 1
         try {
             val cacheDir = java.io.File(context.filesDir, "sprites/$folder")
             val fromFiles = cacheDir.isDirectory
@@ -100,24 +103,33 @@ class SpriteSheet(
         }
     }
 
+    /** Update tick rate without reloading bitmaps (spec hot-reload). */
+    fun updateFramesPerTick(value: Float) {
+        framesPerTick = value
+        advanceDirection = if (value < 0f) -1 else 1
+    }
+
     /** Advance the animation pointer. Call once per render frame. */
     fun advance() {
-        if (!loaded) return
-        frameTimer++
-        if (frameTimer >= framesPerTick) {
-            frameTimer = 0
-            frameIndex = (frameIndex + 1) % bitmaps.size
+        if (!loaded || bitmaps.isEmpty()) return
+        val threshold = kotlin.math.abs(framesPerTick).coerceAtLeast(0.05f)
+        frameTimerAcc += 1f
+        if (frameTimerAcc >= threshold) {
+            frameTimerAcc -= threshold
+            val n = bitmaps.size
+            frameIndex = (frameIndex + advanceDirection + n) % n
         }
     }
 
     /** Reset to first frame — useful when starting a one-shot cinematic. */
-    fun reset() { frameIndex = 0; frameTimer = 0 }
+    fun reset() { frameIndex = 0; frameTimerAcc = 0f }
 
     /** Get current normalized progress 0..1 for one-shot cinematics. */
     val progress: Float get() = if (bitmaps.isEmpty()) 0f else frameIndex.toFloat() / bitmaps.size
 
     /** Whether the animation has finished one full cycle since last reset. */
-    val isComplete: Boolean get() = frameIndex >= bitmaps.size - 1 && frameTimer >= framesPerTick - 1
+    val isComplete: Boolean get() = frameIndex >= bitmaps.size - 1 &&
+        frameTimerAcc >= kotlin.math.abs(framesPerTick).coerceAtLeast(0.05f) - 0.01f
 
     /**
      * Draw current frame centered at (cx, cy) with given scale.
@@ -215,6 +227,6 @@ class SpriteSheet(
         bitmaps.clear()
         loaded = false
         frameIndex = 0
-        frameTimer = 0
+        frameTimerAcc = 0f
     }
 }

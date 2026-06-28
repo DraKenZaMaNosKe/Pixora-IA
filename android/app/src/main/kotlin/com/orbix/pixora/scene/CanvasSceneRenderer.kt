@@ -98,6 +98,14 @@ class CanvasSceneRenderer(private val context: Context) {
                 it.bobAmplitudePx > 0f || it.motion != null || it.collision != null
             } || s.cycles.isNotEmpty()
         }
+
+    /** True when the scene needs >1fps even without music (sprites, particles, bob). */
+    val needsContinuousAnimation: Boolean
+        get() {
+            val s = spec ?: return false
+            return hasBobAnimation || s.sprites.isNotEmpty() ||
+                s.particles.isNotEmpty() || s.events.isNotEmpty()
+        }
     // The Pixora "P" 3D logo signature is owned globally by
     // PixoraWallpaperService so it appears on every wallpaper, not only
     // canvas_scenes. CanvasSceneRenderer just exposes spec.branding
@@ -148,9 +156,22 @@ class CanvasSceneRenderer(private val context: Context) {
         loadedFor = sceneId
         loadedSpecMtime = diskMtime
         spec = parsed
+        syncSpritesFromSpec(parsed)
         Log.d(TAG, "Loaded scene '$sceneId' (${parsed.sprites.size} sprites, " +
             "${parsed.particles.size} particles, ${parsed.events.size} events)")
         return true
+    }
+
+    /** Drop removed sprites; refresh frame_skip on retained sheets. */
+    private fun syncSpritesFromSpec(parsed: SceneSpec) {
+        val live = parsed.sprites.map { it.name }.toSet()
+        val stale = sheets.keys.filter { it !in live }
+        for (name in stale) {
+            sheets.remove(name)?.release()
+        }
+        for (sp in parsed.sprites) {
+            sheets[sp.name]?.takeIf { it.loaded }?.updateFramesPerTick(sp.frameSkip)
+        }
     }
 
     /** Lazy-load all SpriteSheets the spec needs from filesDir. */
@@ -165,7 +186,11 @@ class CanvasSceneRenderer(private val context: Context) {
                     Log.w(TAG, "Image layer file missing: ${f.absolutePath}")
                     continue
                 }
-                val bmp = BitmapFactory.decodeFile(f.absolutePath)
+                val opts = BitmapFactory.Options().apply {
+                    // RGB_565 halves RAM vs ARGB_8888; layers are opaque WebPs.
+                    inPreferredConfig = Bitmap.Config.RGB_565
+                }
+                val bmp = BitmapFactory.decodeFile(f.absolutePath, opts)
                 if (bmp != null) {
                     layerBitmaps.add(layer to bmp)
                     Log.d(TAG, "Loaded layer ${layer.key} ${bmp.width}x${bmp.height} pf=${layer.parallaxFactor}")
@@ -178,10 +203,15 @@ class CanvasSceneRenderer(private val context: Context) {
         for (sp in s.sprites) {
             sheets.getOrPut(sp.name) {
                 val isFullscreen = sp.params.optBoolean("fullscreen", false)
+                val highRes = sp.params.optBoolean("high_res", false)
+                val sampleSize = when {
+                    isFullscreen || highRes -> 1
+                    else -> 2
+                }
                 SpriteSheet(context, sp.manifestKey).also {
                     if (!it.loaded) it.load(
                         framesPerTick = sp.frameSkip,
-                        sampleSize = if (isFullscreen) 1 else 2,
+                        sampleSize = sampleSize,
                     )
                 }
             }
@@ -216,6 +246,8 @@ class CanvasSceneRenderer(private val context: Context) {
      *  layers here in z-order with gyroscope-driven parallax offsets). */
     fun draw(canvas: Canvas) {
         if (surfaceWidth <= 0 || surfaceHeight <= 0) return
+        // Hot-reload: one stat() per frame; re-parse only when spec file mtime changes.
+        loadedFor?.let { loadSpec(it) }
         if (spec == null) return
         ensureLoaded()
         // PERF (2026-06-06): pre-scale layer bitmaps to cover-fit dimensions
@@ -360,8 +392,10 @@ class CanvasSceneRenderer(private val context: Context) {
         val interactiveAlpha = st?.alpha ?: 1f
 
         // Vertical/horizontal TILT (gyro): per-layer depth using parallax_factor
-        val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset + bobOffsetX + interactiveDx
-        val top  = (sh - drawH) / 2f + tiltY * pf + bobOffsetY + interactiveDy
+        val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset + bobOffsetX +
+            interactiveDx + def.offsetXPx
+        val top  = (sh - drawH) / 2f + tiltY * pf + bobOffsetY +
+            interactiveDy + def.offsetYPx
 
         // Skip draw if fully transparent (rise_fade end state, hidden layers).
         if (interactiveAlpha <= 0.005f) return

@@ -28,6 +28,7 @@ import 'core/services/push_notification_service.dart';
 import 'core/services/subscription_service.dart';
 import 'core/services/theme_service.dart';
 import 'core/services/wallpaper_engine_coordinator.dart';
+import 'core/services/wallpaper_service.dart';
 import 'features/aura/services/aura_player_service.dart';
 import 'features/events/data/events_service.dart';
 import 'core/services/wallpaper_stats_service.dart';
@@ -233,6 +234,9 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
       // when the server ETag differs. Catches publish events that the
       // FCM push may have missed (e.g. notification denied, app killed).
       unawaited(_refreshCatalogsOnResume());
+      // Canvas scenes: if FCM evicted specs while app was backgrounded,
+      // re-download the active scene so the live wallpaper recovers.
+      unawaited(WallpaperService.instance.rehydrateActiveSceneIfNeeded());
     }
   }
 

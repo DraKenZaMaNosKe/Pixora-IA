@@ -161,12 +161,16 @@
     display: flex; align-items: center; justify-content: center;
   }
   .stage canvas { display: block; }
+  .stage.panning, .stage.panning canvas { cursor: grabbing; }
+  .stage:not(.panning) canvas { cursor: default; }
   .stage video, .stage img.static-img {
     max-width: 90%; max-height: 90%; border-radius: 14px;
     box-shadow:
       0 0 0 1px rgba(230,182,85,.3),
       0 0 60px -10px rgba(0,240,255,.25),
       0 20px 60px rgba(0,0,0,.6);
+    transform-origin: center center;
+    transition: transform 80ms ease-out;
   }
   .stage-ctrl {
     position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
@@ -294,6 +298,61 @@
     margin: 6px 0; font-size: 11px;
   }
   .checkbox input { accent-color: var(--gold); width: 16px; height: 16px; }
+
+  /* ─── TRANSFORM GIZMO (HTML overlay on stage) ─── */
+  .stage-toolbar {
+    position: absolute; top: 14px; right: 14px; z-index: 15;
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;
+    max-width: 55%;
+  }
+  .stage-toolbar .btn { padding: 5px 10px; font-size: 9px; }
+  .stage-toolbar .btn.active {
+    color: var(--cyan); border-color: rgba(0,240,255,.45);
+    box-shadow: 0 0 0 1px rgba(0,240,255,.2);
+  }
+  .stage-status {
+    position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+    z-index: 15; background: rgba(11,11,20,.82); backdrop-filter: blur(12px);
+    padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line);
+    font-size: 10px; color: var(--dim); letter-spacing: .08em; white-space: nowrap;
+    pointer-events: none;
+  }
+  .stage-status strong { color: var(--cyan); font-weight: 700; }
+  #transform-box {
+    position: absolute; z-index: 12; pointer-events: none;
+    border: 2px dashed var(--cyan); border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.5);
+    display: none;
+  }
+  #transform-box.visible { display: block; }
+  .xhandle {
+    position: absolute; width: 11px; height: 11px; border-radius: 2px;
+    background: var(--cyan); border: 2px solid #0B0B14;
+    box-shadow: 0 0 8px rgba(0,240,255,.6);
+    pointer-events: auto; transform: translate(-50%, -50%);
+  }
+  .xhandle.corner { cursor: nwse-resize; }
+  .xhandle.corner.se, .xhandle.corner.nw { cursor: nwse-resize; }
+  .xhandle.corner.ne, .xhandle.corner.sw { cursor: nesw-resize; }
+  .xhandle.edge-n, .xhandle.edge-s { cursor: ns-resize; width: 14px; height: 8px; }
+  .xhandle.edge-e, .xhandle.edge-w { cursor: ew-resize; width: 8px; height: 14px; }
+  .xhandle.move { cursor: move; width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(0,240,255,.25); border: 2px solid var(--cyan); }
+  .grid-overlay {
+    position: absolute; inset: 0; pointer-events: none; z-index: 5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 54px 54px;
+    display: none;
+  }
+  .grid-overlay.on { display: block; }
+  .hint-bar {
+    font-size: 9px; color: var(--dim); letter-spacing: .1em;
+    padding: 8px 0 4px; border-top: 1px dotted var(--line);
+    margin-top: 8px; line-height: 1.6;
+  }
+  .layer-hidden { opacity: .35; }
 </style>
 </head>
 <body>
@@ -326,7 +385,29 @@
 
   <!-- ─── STAGE ─── -->
   <main class="stage" id="stage">
+    <div class="grid-overlay" id="grid-overlay"></div>
     <div class="stage-info" id="stage-info"></div>
+    <div class="stage-toolbar" id="stage-toolbar" style="display:none">
+      <button class="btn active" id="tool-select" title="Seleccionar / mover">◎ SEL</button>
+      <button class="btn" id="tool-grid" title="Cuadrícula 54px">▦ GRID</button>
+      <button class="btn" id="tool-blink" title="Ocultar frames de parpadeo">👁 BLINK</button>
+      <button class="btn" id="tool-sync" title="Mover grupo de cycle junto">🔗 SYNC</button>
+      <button class="btn" id="tool-copy" title="Copiar offsets al portapapeles">📋 COPY</button>
+      <button class="btn" id="tool-grpall" title="Grupo cycle (capas) o manifest (sprites)">⊞ GRP</button>
+      <button class="btn" id="tool-selall" title="Seleccionar todo (Ctrl+A)">⊞ ALL</button>
+    </div>
+    <div class="stage-status" id="stage-status" style="display:none"></div>
+    <div id="transform-box">
+      <div class="xhandle move" data-handle="move" style="left:50%;top:50%"></div>
+      <div class="xhandle corner nw" data-handle="nw" style="left:0;top:0"></div>
+      <div class="xhandle corner ne" data-handle="ne" style="left:100%;top:0"></div>
+      <div class="xhandle corner sw" data-handle="sw" style="left:0;top:100%"></div>
+      <div class="xhandle corner se" data-handle="se" style="left:100%;top:100%"></div>
+      <div class="xhandle edge-n" data-handle="n" style="left:50%;top:0"></div>
+      <div class="xhandle edge-s" data-handle="s" style="left:50%;top:100%"></div>
+      <div class="xhandle edge-w" data-handle="w" style="left:0;top:50%"></div>
+      <div class="xhandle edge-e" data-handle="e" style="left:100%;top:50%"></div>
+    </div>
     <canvas id="canvas-3d" style="display:none"></canvas>
     <video id="canvas-video" style="display:none" autoplay loop muted playsinline></video>
     <img id="canvas-static" class="static-img" style="display:none">
@@ -334,6 +415,7 @@
     <div class="stage-ctrl" id="stage-ctrl" style="display:none">
       <button class="ctrl-btn" id="ctrl-zoom-out" title="Zoom out">−</button>
       <button class="ctrl-btn active" id="ctrl-fit" title="Encuadrar al teléfono">⛶</button>
+      <span id="zoom-label" style="font-size:10px;color:var(--dim);min-width:42px;text-align:center">100%</span>
       <button class="ctrl-btn" id="ctrl-zoom-in" title="Zoom in">+</button>
       <button class="ctrl-btn" id="ctrl-anim" title="Pausa / play animación">⏸</button>
     </div>
@@ -375,17 +457,20 @@ const SUPA_STORAGE = `${SUPA}/storage/v1/object/public`;
 const PHONE_W = 1080, PHONE_H = 2340;
 
 let state = {
-  mode: '3d',                  // '3d' | 'live' | 'static' | 'panoramic'
-  catalog: [],                 // items for current mode
+  mode: '3d',
+  catalog: [],
   selectedId: null,
-  spec: null,                  // canvas_scene JSON
-  selectedItemIdx: -1,         // index in spec.sprites / image_layers (mixed: layers first then sprites)
-  history: [],                 // serialized spec snapshots
+  spec: null,
+  selection: [],               // [{kind:'layer'|'sprite', idx:n}, ...] multi-select
+  history: [],
   dirty: false,
   animPaused: false,
   videoUrl: null,
   staticUrl: null,
-  staticMeta: null,            // postgres row for static/live
+  staticMeta: null,
+  showGrid: false,
+  hideBlinkFrames: true,       // preview only open/half/shut hidden except open
+  syncCycleLayers: true,
 };
 
 const $ = sel => document.querySelector(sel);
@@ -403,6 +488,13 @@ renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
 const scene = new THREE.Scene();
 const camera = new THREE.OrthographicCamera(-PHONE_W/2, PHONE_W/2, PHONE_H/2, -PHONE_H/2, -1000, 1000);
 camera.position.z = 100;
+let viewZoom = 1;
+let viewPanX = 0;
+let viewPanY = 0;
+let previewZoom = 1;
+let previewPanX = 0;
+let previewPanY = 0;
+let spaceHeld = false;
 
 let phoneFrame = null;          // visual border of the phone screen
 let bgMesh = null;
@@ -453,7 +545,74 @@ function fitCanvas() {
   camera.right = viewW / 2;
   camera.top = viewH / 2;
   camera.bottom = -viewH / 2;
+  camera.zoom = viewZoom;
+  camera.position.x = viewPanX;
+  camera.position.y = viewPanY;
   camera.updateProjectionMatrix();
+  updateZoomLabel();
+}
+
+function resetViewPan() {
+  viewPanX = 0;
+  viewPanY = 0;
+  camera.position.x = 0;
+  camera.position.y = 0;
+  camera.updateProjectionMatrix();
+}
+
+function isSceneEditing() {
+  return state.mode === '3d' && !!state.spec;
+}
+
+function hasPreviewLoaded() {
+  if (isSceneEditing()) return true;
+  return $('#canvas-video').style.display !== 'none' ||
+         $('#canvas-static').style.display !== 'none';
+}
+
+function getPreviewElement() {
+  if ($('#canvas-video').style.display !== 'none') return $('#canvas-video');
+  if ($('#canvas-static').style.display !== 'none') return $('#canvas-static');
+  return null;
+}
+
+function updateZoomLabel() {
+  const el = $('#zoom-label');
+  if (!el) return;
+  const z = isSceneEditing() ? viewZoom : previewZoom;
+  el.textContent = Math.round(z * 100) + '%';
+}
+
+function setViewZoom(z) {
+  viewZoom = Math.max(0.2, Math.min(8, z));
+  camera.zoom = viewZoom;
+  camera.updateProjectionMatrix();
+  updateZoomLabel();
+}
+
+function applyPreviewTransform() {
+  const el = getPreviewElement();
+  if (!el) return;
+  el.style.transform = `translate(${previewPanX}px, ${previewPanY}px) scale(${previewZoom})`;
+  el.style.transformOrigin = 'center center';
+}
+
+function setPreviewZoom(z) {
+  previewZoom = Math.max(0.2, Math.min(8, z));
+  applyPreviewTransform();
+  updateZoomLabel();
+  updateStatusBar();
+}
+
+function resetPreviewZoom() {
+  previewZoom = 1;
+  previewPanX = 0;
+  previewPanY = 0;
+  const v = $('#canvas-video');
+  const img = $('#canvas-static');
+  if (v) v.style.transform = '';
+  if (img) img.style.transform = '';
+  updateZoomLabel();
 }
 window.addEventListener('resize', fitCanvas);
 
@@ -551,14 +710,19 @@ async function loadItem(it) {
   }
   state.selectedId = it.id;
   state.spec = null;
+  state.selection = [];
   state.dirty = false;
   state.history = [];
+  resetPreviewZoom();
   updateSaveButton();
   $('#stage-empty').style.display = 'none';
   $('#canvas-3d').style.display = 'none';
   $('#canvas-video').style.display = 'none';
   $('#canvas-static').style.display = 'none';
   $('#stage-ctrl').style.display = 'none';
+  $('#stage-toolbar').style.display = 'none';
+  $('#stage-status').style.display = 'none';
+  $('#transform-box').classList.remove('visible');
   $('#stage-info').innerHTML = '';
 
   renderCatalogList();  // refresh selection highlight
@@ -569,9 +733,15 @@ async function loadItem(it) {
 }
 
 async function loadSceneSpec(it) {
+  state.selection = [];
+  viewZoom = 1;
+  resetViewPan();
   $('#stage-info').innerHTML = `<span class="strong">${it.id}</span> · canvas_scene`;
   $('#canvas-3d').style.display = 'block';
   $('#stage-ctrl').style.display = 'flex';
+  $('#stage-toolbar').style.display = 'flex';
+  $('#stage-status').style.display = 'block';
+  updateStatusBar();
   $('#items-panel').innerHTML = '<div class="loading">cargando spec...</div>';
   try {
     const r = await fetch(`${SUPA_STORAGE}/wallpaper-scenes/${it.id}.json`);
@@ -593,6 +763,9 @@ async function loadLiveItem(it) {
   state.videoUrl = `${SUPA_STORAGE}/wallpaper-videos/videos/${(it.id || '').replace(/_auto$|_explore$/,'')}.mp4`;
   const v = $('#canvas-video');
   v.src = state.videoUrl; v.style.display = 'block';
+  $('#stage-ctrl').style.display = 'flex';
+  $('#stage-status').style.display = 'block';
+  setPreviewZoom(1);
   renderLiveStaticPanel(it);
 }
 
@@ -603,6 +776,9 @@ async function loadStaticItem(it) {
   const img = $('#canvas-static');
   img.src = it.preview_url || state.staticUrl;
   img.style.display = 'block';
+  $('#stage-ctrl').style.display = 'flex';
+  $('#stage-status').style.display = 'block';
+  setPreviewZoom(1);
   renderLiveStaticPanel(it);
 }
 
@@ -631,6 +807,78 @@ function disposeMesh(m) {
     m.material.dispose();
   }
   scene.remove(m);
+}
+
+/** Alpha bbox of visible pixels in a texture (for tight selection gizmo). */
+function computeAlphaBbox(img) {
+  const maxDim = 640;
+  const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+  const cw = Math.max(1, Math.round(img.width * scale));
+  const ch = Math.max(1, Math.round(img.height * scale));
+  const c = document.createElement('canvas');
+  c.width = cw; c.height = ch;
+  const ctx = c.getContext('2d', {willReadFrequently: true});
+  ctx.drawImage(img, 0, 0, cw, ch);
+  const data = ctx.getImageData(0, 0, cw, ch).data;
+  let minX = cw, minY = ch, maxX = -1, maxY = -1;
+  for (let y = 0; y < ch; y++) {
+    for (let x = 0; x < cw; x++) {
+      if (data[(y * cw + x) * 4 + 3] > 24) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < minX) return null;
+  const inv = 1 / scale;
+  return {
+    x: minX * inv, y: minY * inv,
+    w: (maxX - minX + 1) * inv, h: (maxY - minY + 1) * inv,
+    texW: img.width, texH: img.height,
+  };
+}
+
+/** Subject rect in world coords (tight around non-transparent pixels). */
+function getSubjectWorldRect(mesh) {
+  const p = mesh.geometry.parameters;
+  const pw = p.width, ph = p.height;
+  const bbox = mesh.userData.alphaBbox;
+  if (!bbox) {
+    return {
+      x0: mesh.position.x - pw / 2, y0: mesh.position.y - ph / 2,
+      x1: mesh.position.x + pw / 2, y1: mesh.position.y + ph / 2,
+    };
+  }
+  const u0 = bbox.x / bbox.texW;
+  const u1 = (bbox.x + bbox.w) / bbox.texW;
+  const vTop = bbox.y / bbox.texH;
+  const vBot = (bbox.y + bbox.h) / bbox.texH;
+  const vy0 = 1 - vBot;
+  const vy1 = 1 - vTop;
+  const lx0 = (u0 - 0.5) * pw;
+  const lx1 = (u1 - 0.5) * pw;
+  const ly0 = (vy0 - 0.5) * ph;
+  const ly1 = (vy1 - 0.5) * ph;
+  return {
+    x0: mesh.position.x + Math.min(lx0, lx1),
+    y0: mesh.position.y + Math.min(ly0, ly1),
+    x1: mesh.position.x + Math.max(lx0, lx1),
+    y1: mesh.position.y + Math.max(ly0, ly1),
+  };
+}
+
+function getSubjectScreenRect(mesh) {
+  const wr = getSubjectWorldRect(mesh);
+  const tl = worldToScreen(wr.x0, wr.y1);
+  const br = worldToScreen(wr.x1, wr.y0);
+  return {
+    left: Math.min(tl.x, br.x),
+    top: Math.min(tl.y, br.y),
+    width: Math.abs(br.x - tl.x),
+    height: Math.abs(br.y - tl.y),
+  };
 }
 
 async function rebuildScene() {
@@ -668,9 +916,10 @@ async function rebuildScene() {
   const imgLayers = state.spec.image_layers || [];
   for (let i = 0; i < imgLayers.length; i++) {
     const layer = imgLayers[i];
-    if (layer.key === 'bg' && !bgMesh) {
-      // Use this layer as the bg if spec.background didn't have a url
-    }
+    if (layer.key === 'bg' && !bgMesh) continue;
+    if (state.hideBlinkFrames && isBlinkVariant(layer.key)) continue;
+    if (layer.offset_x_px == null) layer.offset_x_px = 0;
+    if (layer.offset_y_px == null) layer.offset_y_px = 0;
     try {
       const tex = await loadTexture(layer.url);
       const aspect = tex.image.width / tex.image.height;
@@ -685,9 +934,11 @@ async function rebuildScene() {
       const m = new THREE.MeshBasicMaterial({map: tex, transparent: true});
       const mesh = new THREE.Mesh(g, m);
       mesh.position.z = 1 + (layer.z || 0) * 0.1;
-      mesh.userData = {kind: 'layer', layerKey: layer.key};
+      applyLayerTransform(mesh, layer);
+      const alphaBbox = computeAlphaBbox(tex.image);
+      mesh.userData = {kind: 'layer', layerIdx: i, layerKey: layer.key, alphaBbox};
       scene.add(mesh);
-      layerMeshes.push({mesh, layer});
+      layerMeshes.push({mesh, layer, layerIdx: i, alphaBbox});
     } catch (e) { console.warn('layer load failed', layer.key, e); }
   }
 
@@ -727,7 +978,10 @@ async function buildSpriteMesh(sp, idx) {
   mesh.position.x = (sp.params.x - 0.5) * PHONE_W;
   mesh.position.y = (0.5 - sp.params.y) * PHONE_H;
   mesh.position.z = 10 + idx;
-  mesh.userData = {kind: 'sprite', spriteIdx: idx, natW, natH};
+  const alphaBbox = computeAlphaBbox(firstTex.image) || {
+    x: 0, y: 0, w: natW, h: natH, texW: natW, texH: natH,
+  };
+  mesh.userData = {kind: 'sprite', spriteIdx: idx, natW, natH, alphaBbox};
   scene.add(mesh);
 
   // Lazy-load remaining frames
@@ -756,6 +1010,68 @@ function updateSpriteMeshSize(o) {
   o.mesh.position.y = (0.5 - sp.params.y) * PHONE_H;
 }
 
+function isBlinkVariant(key) {
+  return /_(half|shut|closed)$/i.test(key || '');
+}
+
+function cycleGroupPrefix(key) {
+  const m = (key || '').match(/^(.+)_(open|half|shut|closed)$/i);
+  return m ? m[1] : null;
+}
+
+function spriteGroupKey(sp) {
+  if (!sp) return '';
+  if (sp.manifest_key) {
+    return sp.manifest_key.replace(/\/frames?.*$/i, '').replace(/_\d+$/, '');
+  }
+  const m = (sp.name || '').match(/^(.+?)(_\d+|_frame\d+)?$/i);
+  return m ? m[1] : (sp.name || '');
+}
+
+function getCycleSiblingKeys(key) {
+  const p = cycleGroupPrefix(key);
+  if (!p || !state.syncCycleLayers) return [key];
+  return (state.spec?.image_layers || [])
+    .filter(l => l.key.startsWith(p + '_'))
+    .map(l => l.key);
+}
+
+function getSpriteSiblingIndices(idx) {
+  if (!state.syncCycleLayers || !state.spec?.sprites) return [idx];
+  const sp = state.spec.sprites[idx];
+  if (!sp) return [idx];
+  const gk = spriteGroupKey(sp);
+  return state.spec.sprites
+    .map((s, i) => ({s, i}))
+    .filter(({s}) => spriteGroupKey(s) === gk)
+    .map(({i}) => i);
+}
+
+function setSpriteParam(idx, key, value) {
+  let indices;
+  if (state.selection.length > 1) {
+    indices = state.selection.filter(s => s.kind === 'sprite').map(s => s.idx);
+    if (!indices.length) indices = [idx];
+  } else {
+    indices = getSpriteSiblingIndices(idx);
+  }
+  indices.forEach(i => {
+    const sp = state.spec.sprites[i];
+    if (!sp) return;
+    if (key === 'frame_skip') {
+      const v = parseFloat(value);
+      sp.frame_skip = isNaN(v) ? 2 : (Math.abs(v) < 0.05 ? (v < 0 ? -0.05 : 0.05) : v);
+    }
+    else sp.params[key] = value;
+    if (spriteMeshes[i]) updateSpriteMeshSize(spriteMeshes[i]);
+  });
+}
+
+function applyLayerTransform(mesh, layer) {
+  mesh.position.x = layer.offset_x_px || 0;
+  mesh.position.y = -(layer.offset_y_px || 0);
+}
+
 function updateLayerMeshSize(o) {
   if (!o.mesh.material.map?.image) return;
   const tex = o.mesh.material.map;
@@ -768,6 +1084,52 @@ function updateLayerMeshSize(o) {
   w *= scale; h *= scale;
   o.mesh.geometry.dispose();
   o.mesh.geometry = new THREE.PlaneGeometry(w, h);
+  applyLayerTransform(o.mesh, o.layer);
+}
+
+function findLayerObjByKey(key) {
+  return layerMeshes.find(o => o.layer.key === key);
+}
+
+function findLayerDefByKey(key) {
+  return (state.spec?.image_layers || []).find(l => l.key === key);
+}
+
+function setLayerOffset(key, ox, oy) {
+  let keys;
+  if (state.selection.length > 1) {
+    keys = state.selection
+      .filter(s => s.kind === 'layer')
+      .map(s => state.spec.image_layers[s.idx]?.key)
+      .filter(Boolean);
+    if (!keys.length) keys = [key];
+  } else {
+    keys = getCycleSiblingKeys(key);
+  }
+  setLayerOffsetKeys(keys, ox, oy);
+}
+
+function setLayerScaleKeys(keys, scale) {
+  keys.forEach(k => {
+    const l = findLayerDefByKey(k);
+    if (l) l.scale = scale;
+    const o = findLayerObjByKey(k);
+    if (o) updateLayerMeshSize(o);
+  });
+}
+
+function setLayerScale(key, scale) {
+  let keys;
+  if (state.selection.length > 1) {
+    keys = state.selection
+      .filter(s => s.kind === 'layer')
+      .map(s => state.spec.image_layers[s.idx]?.key)
+      .filter(Boolean);
+    if (!keys.length) keys = [key];
+  } else {
+    keys = getCycleSiblingKeys(key);
+  }
+  setLayerScaleKeys(keys, scale);
 }
 
 // ═════════════════════════════════════════════════════════════════════
@@ -777,17 +1139,23 @@ function updateLayerMeshSize(o) {
 let frameCounter = 0;
 function tick() {
   requestAnimationFrame(tick);
-  if (state.mode !== '3d' || !state.spec) {
+  if (!isSceneEditing()) {
     renderer.render(scene, camera);
     return;
   }
   if (!state.animPaused) {
     frameCounter++;
     spriteMeshes.forEach(o => {
-      const skip = Math.max(1, o.spriteDef.frame_skip || 2);
-      if (frameCounter % skip === 0) {
+      const skip = parseFloat(o.spriteDef.frame_skip);
+      const spd = isNaN(skip) ? 2 : skip;
+      const thr = Math.max(0.05, Math.abs(spd));
+      const dir = spd < 0 ? -1 : 1;
+      o.mesh.userData.speedAcc = (o.mesh.userData.speedAcc || 0) + 1;
+      if (o.mesh.userData.speedAcc >= thr) {
+        o.mesh.userData.speedAcc -= thr;
         if (o.framesLoaded < 2) return;
-        const next = ((o.mesh.userData.curFrame || 0) + 1) % o.framesLoaded;
+        const cur = o.mesh.userData.curFrame || 0;
+        const next = (cur + dir + o.framesLoaded) % o.framesLoaded;
         o.mesh.userData.curFrame = next;
         o.mesh.material.map = o.frames[next];
         o.mesh.material.needsUpdate = true;
@@ -800,45 +1168,266 @@ function tick() {
     layerMeshes.forEach(o => {
       const amp = o.layer.bob_amplitude_px || 0;
       const period = o.layer.bob_period_sec || 4;
+      const baseY = -(o.layer.offset_y_px || 0);
       if (amp > 0) {
         const phase = (tSec / period) * 2 * Math.PI;
-        const offsetY = Math.sin(phase) * amp;
-        o.mesh.position.y = offsetY;
+        o.mesh.position.y = baseY + Math.sin(phase) * amp;
+      } else {
+        o.mesh.position.y = baseY;
       }
+      o.mesh.position.x = o.layer.offset_x_px || 0;
     });
   }
-  // Update selection outline
-  if (state.selectedItemIdx >= 0) {
-    const mesh = getSelectedMesh();
-    if (mesh) {
-      selOutline.visible = true;
-      const params = mesh.geometry.parameters;
-      selOutline.scale.set(params.width + 20, params.height + 20, 1);
-      selOutline.position.x = mesh.position.x;
-      selOutline.position.y = mesh.position.y;
-    } else { selOutline.visible = false; }
-  } else { selOutline.visible = false; }
+  updateTransformBox();
   renderer.render(scene, camera);
 }
 tick();
 
 // ═════════════════════════════════════════════════════════════════════
-// SELECTION
+// SELECTION (multi-select with Ctrl)
 // ═════════════════════════════════════════════════════════════════════
 
-function getSelectedMesh() {
-  if (state.selectedItemIdx < 0) return null;
-  const sprites = state.spec.sprites || [];
-  if (state.selectedItemIdx < sprites.length) {
-    return spriteMeshes[state.selectedItemIdx]?.mesh;
-  }
-  return null;
+function selId(kind, idx) { return `${kind}:${idx}`; }
+
+function isSelected(kind, idx) {
+  return state.selection.some(s => s.kind === kind && s.idx === idx);
 }
 
-function getCombinedItems() {
-  if (!state.spec) return [];
-  const sprites = state.spec.sprites || [];
-  return sprites.map((s, i) => ({kind: 'sprite', idx: i, item: s}));
+function selectOnly(kind, idx) {
+  state.selection = [{kind, idx}];
+  renderItemsPanel();
+  updateStatusBar();
+}
+
+function toggleSelection(kind, idx) {
+  if (isSelected(kind, idx)) {
+    state.selection = state.selection.filter(s => !(s.kind === kind && s.idx === idx));
+  } else {
+    state.selection.push({kind, idx});
+  }
+  renderItemsPanel();
+  updateStatusBar();
+}
+
+function addManyToSelection(items) {
+  items.forEach(({kind, idx}) => {
+    if (!isSelected(kind, idx)) state.selection.push({kind, idx});
+  });
+  renderItemsPanel();
+  updateStatusBar();
+}
+
+function clearSelection() {
+  state.selection = [];
+  renderItemsPanel();
+  updateStatusBar();
+}
+
+function getPrimarySelection() {
+  return state.selection[0] || null;
+}
+
+function getSelectedMeshes() {
+  return state.selection.map(s => {
+    if (s.kind === 'layer') return layerMeshes.find(o => o.layerIdx === s.idx)?.mesh;
+    if (s.kind === 'sprite') return spriteMeshes[s.idx]?.mesh;
+    return null;
+  }).filter(Boolean);
+}
+
+function getSelectedMesh() {
+  return getSelectedMeshes()[0] || null;
+}
+
+function getSelectedLayer() {
+  const p = state.selection.find(s => s.kind === 'layer');
+  return p ? state.spec?.image_layers?.[p.idx] : null;
+}
+
+function getSelectedSprite() {
+  const p = state.selection.find(s => s.kind === 'sprite');
+  return p ? state.spec?.sprites?.[p.idx] : null;
+}
+
+function selectLayerCycleGroup(layerKey) {
+  const prefix = cycleGroupPrefix(layerKey);
+  if (!prefix || !state.spec?.image_layers) return false;
+  const items = state.spec.image_layers
+    .map((l, i) => ({l, i}))
+    .filter(({l}) => l.key.startsWith(prefix + '_'))
+    .map(({i}) => ({kind: 'layer', idx: i}));
+  state.selection = items;
+  renderItemsPanel();
+  updateStatusBar();
+  toast(`Grupo capa ${prefix}: ${items.length}`, 'ok');
+  return true;
+}
+
+function selectSpriteGroup(idx) {
+  if (!state.spec?.sprites) return false;
+  const sp = state.spec.sprites[idx];
+  if (!sp) return false;
+  const gk = spriteGroupKey(sp);
+  const items = state.spec.sprites
+    .map((s, i) => ({s, i}))
+    .filter(({s}) => spriteGroupKey(s) === gk)
+    .map(({i}) => ({kind: 'sprite', idx: i}));
+  state.selection = items;
+  renderItemsPanel();
+  updateStatusBar();
+  toast(`Grupo sprite ${gk}: ${items.length}`, 'ok');
+  return true;
+}
+
+function selectGroupOfPrimary() {
+  const p = getPrimarySelection();
+  if (!p) return false;
+  if (p.kind === 'layer') {
+    const l = state.spec?.image_layers?.[p.idx];
+    if (!l) return false;
+    if (selectLayerCycleGroup(l.key)) return true;
+    selectOnly('layer', p.idx);
+    toast('Sin grupo cycle — capa individual', 'ok');
+    return true;
+  }
+  return selectSpriteGroup(p.idx);
+}
+
+function selectAllEditable() {
+  if (!isSceneEditing()) return;
+  const items = [];
+  (state.spec.sprites || []).forEach((_, i) => items.push({kind: 'sprite', idx: i}));
+  (state.spec.image_layers || []).forEach((l, i) => {
+    if (l.key !== 'bg') items.push({kind: 'layer', idx: i});
+  });
+  state.selection = items;
+  renderItemsPanel();
+  updateStatusBar();
+  toast(`Todo seleccionado: ${items.length} items`, 'ok');
+}
+
+function snapshotSelectionForDrag() {
+  return state.selection.map(s => {
+    if (s.kind === 'layer') {
+      const l = state.spec.image_layers[s.idx];
+      return {kind: 'layer', idx: s.idx, key: l.key,
+        ox0: l.offset_x_px || 0, oy0: l.offset_y_px || 0, scale0: l.scale || 1};
+    }
+    const sp = state.spec.sprites[s.idx];
+    return {kind: 'sprite', idx: s.idx,
+      sp0x: sp.params.x, sp0y: sp.params.y, scale0: sp.params.scale};
+  });
+}
+
+function applyDragDelta(snapshots, dx, dy) {
+  snapshots.forEach(item => {
+    if (item.kind === 'layer') {
+      setLayerOffsetKeys([item.key], item.ox0 + dx, item.oy0 - dy);
+    } else {
+      const sp = state.spec.sprites[item.idx];
+      sp.params.x = Math.max(-0.1, Math.min(1.1, item.sp0x + dx / PHONE_W));
+      sp.params.y = Math.max(-0.1, Math.min(1.1, item.sp0y - dy / PHONE_H));
+      updateSpriteMeshSize(spriteMeshes[item.idx]);
+    }
+  });
+}
+
+function applyScaleFactor(snapshots, factor) {
+  snapshots.forEach(item => {
+    if (item.kind === 'layer') {
+      setLayerScaleKeys([item.key], Math.max(0.05, item.scale0 * factor));
+    } else {
+      const sp = state.spec.sprites[item.idx];
+      sp.params.scale = Math.max(0.0001, item.scale0 * factor);
+      updateSpriteMeshSize(spriteMeshes[item.idx]);
+    }
+  });
+}
+
+function setLayerOffsetKeys(keys, ox, oy) {
+  keys.forEach(k => {
+    const l = findLayerDefByKey(k);
+    if (l) { l.offset_x_px = ox; l.offset_y_px = oy; }
+    const o = findLayerObjByKey(k);
+    if (o) applyLayerTransform(o.mesh, l);
+  });
+}
+
+function worldToScreen(wx, wy) {
+  const v = new THREE.Vector3(wx, wy, 0);
+  v.project(camera);
+  const canvasRect = canvasEl.getBoundingClientRect();
+  const stageRect = $('#stage').getBoundingClientRect();
+  return {
+    x: (v.x * 0.5 + 0.5) * canvasRect.width + canvasRect.left - stageRect.left,
+    y: (-v.y * 0.5 + 0.5) * canvasRect.height + canvasRect.top - stageRect.top,
+  };
+}
+
+function screenToWorldClient(clientX, clientY) {
+  const canvasRect = canvasEl.getBoundingClientRect();
+  const ndcX = ((clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
+  const ndcY = -((clientY - canvasRect.top) / canvasRect.height) * 2 + 1;
+  const v = new THREE.Vector3(ndcX, ndcY, 0);
+  v.unproject(camera);
+  return {x: v.x, y: v.y};
+}
+
+function updateTransformBox() {
+  const box = $('#transform-box');
+  const meshes = getSelectedMeshes();
+  if (!meshes.length || !isSceneEditing()) {
+    box.classList.remove('visible');
+    return;
+  }
+  const pad = 6;
+  let minL = Infinity, minT = Infinity, maxR = -Infinity, maxB = -Infinity;
+  meshes.forEach(m => {
+    const sr = getSubjectScreenRect(m);
+    minL = Math.min(minL, sr.left);
+    minT = Math.min(minT, sr.top);
+    maxR = Math.max(maxR, sr.left + sr.width);
+    maxB = Math.max(maxB, sr.top + sr.height);
+  });
+  box.style.left = (minL - pad) + 'px';
+  box.style.top = (minT - pad) + 'px';
+  box.style.width = (maxR - minL + pad * 2) + 'px';
+  box.style.height = (maxB - minT + pad * 2) + 'px';
+  box.classList.add('visible');
+}
+
+function updateStatusBar() {
+  const bar = $('#stage-status');
+  if (!hasPreviewLoaded()) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  if (!isSceneEditing()) {
+    bar.textContent = `rueda = zoom preview · ${Math.round(previewZoom * 100)}% · metadata editable en panel →`;
+    return;
+  }
+  const n = state.selection.length;
+  if (n === 0) {
+    bar.textContent = 'rueda = zoom · clic vacío+arrastrar = mover vista · Espacio+arrastrar = pan · Alt+rueda = escala';
+    return;
+  }
+  if (n > 1) {
+    const names = state.selection.map(s => {
+      if (s.kind === 'layer') return state.spec.image_layers[s.idx]?.key;
+      return state.spec.sprites[s.idx]?.name;
+    }).filter(Boolean).join(', ');
+    const kinds = [...new Set(state.selection.map(s => s.kind))].join('+');
+    bar.innerHTML = `<strong>${n} items (${kinds})</strong> · ${escapeHtml(names)} · arrastra = mueve · Alt+rueda = escala`;
+    return;
+  }
+  const s = state.selection[0];
+  if (s.kind === 'layer') {
+    const l = state.spec.image_layers[s.idx];
+    if (!l) return;
+    bar.innerHTML = `<strong>${escapeHtml(l.key)}</strong> · X ${(l.offset_x_px||0).toFixed(0)}px · Y ${(l.offset_y_px||0).toFixed(0)}px · SCALE ${(l.scale||1).toFixed(2)} · Ctrl+clic multi`;
+  } else {
+    const sp = state.spec.sprites[s.idx];
+    if (!sp) return;
+    bar.innerHTML = `<strong>${escapeHtml(sp.name)}</strong> · X ${sp.params.x.toFixed(3)} · Y ${sp.params.y.toFixed(3)} · SCALE ${sp.params.scale.toFixed(4)} · Ctrl+clic multi`;
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════
@@ -848,67 +1437,155 @@ function getCombinedItems() {
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let dragging = null;
+let panning = null;
 let pinch = null;
+let resizing = null;
 
-function screenToWorld(clientX, clientY) {
+function panWorldPerPixel() {
   const rect = canvasEl.getBoundingClientRect();
-  const ndcX = ((clientX - rect.left) / rect.width) * 2 - 1;
-  const ndcY = -((clientY - rect.top) / rect.height) * 2 + 1;
-  // Ortho camera: convert NDC to world
-  const wx = ndcX * (camera.right - camera.left) / 2;
-  const wy = ndcY * (camera.top - camera.bottom) / 2;
-  return {x: wx, y: wy};
+  if (!rect.width || !rect.height) return {x: 1, y: 1};
+  return {
+    x: (camera.right - camera.left) / rect.width,
+    y: (camera.top - camera.bottom) / rect.height,
+  };
 }
 
-function pickSpriteAt(clientX, clientY) {
-  const rect = canvasEl.getBoundingClientRect();
-  pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-  pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-  raycaster.setFromCamera(pointer, camera);
-  // Sort by Z descending so we pick top sprites first
-  const meshes = spriteMeshes.map(o => o.mesh).sort((a,b) => b.position.z - a.position.z);
-  const hits = raycaster.intersectObjects(meshes);
-  if (hits.length) {
-    const m = hits[0].object;
-    return m.userData.spriteIdx;
+function screenToWorld(clientX, clientY) {
+  return screenToWorldClient(clientX, clientY);
+}
+
+function pointInScreenRect(px, py, sr) {
+  return px >= sr.left && px <= sr.left + sr.width &&
+         py >= sr.top && py <= sr.top + sr.height;
+}
+
+function pickAt(clientX, clientY) {
+  const canvasRect = canvasEl.getBoundingClientRect();
+  const stageRect = $('#stage').getBoundingClientRect();
+  const sx = clientX - stageRect.left;
+  const sy = clientY - stageRect.top;
+
+  const layers = [...layerMeshes]
+    .filter(o => o.layer.key !== 'bg')
+    .sort((a, b) => b.mesh.position.z - a.mesh.position.z);
+  for (const o of layers) {
+    const sr = getSubjectScreenRect(o.mesh);
+    if (pointInScreenRect(sx, sy, sr)) {
+      return {kind: 'layer', idx: o.layerIdx};
+    }
   }
-  return -1;
+
+  pointer.x = ((clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
+  pointer.y = -((clientY - canvasRect.top) / canvasRect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const spriteMeshList = spriteMeshes.map(o => o.mesh)
+    .sort((a, b) => b.position.z - a.position.z);
+  const hits = raycaster.intersectObjects(spriteMeshList);
+  if (hits.length) {
+    return {kind: 'sprite', idx: hits[0].object.userData.spriteIdx};
+  }
+  return null;
+}
+
+function startPan(pt, is3d) {
+  panning = {
+    startX: pt.clientX,
+    startY: pt.clientY,
+    panX0: viewPanX,
+    panY0: viewPanY,
+    prevPanX0: previewPanX,
+    prevPanY0: previewPanY,
+    is3d,
+  };
+  $('#stage').classList.add('panning');
 }
 
 function onPointerDown(e) {
-  if (state.mode !== '3d' || !state.spec) return;
+  if (e.target?.dataset?.handle) return;
+  if (e.target.closest('#stage-toolbar, #stage-ctrl, #stage-info, #transform-box, .topbar, .btn')) return;
+  if (!e.target.closest('#stage')) return;
   const pt = e.touches ? e.touches[0] : e;
+
+  // Preview pan (static/live/panoramic)
+  if (!isSceneEditing() && hasPreviewLoaded()) {
+    if (e.button === 0 || e.touches) {
+      startPan(pt, false);
+      e.preventDefault();
+    }
+    return;
+  }
+
+  if (!isSceneEditing()) return;
+
   if (e.touches && e.touches.length === 2) {
     const a = e.touches[0], b = e.touches[1];
     const d = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
-    pinch = {startDist: d, startScale: 1, idx: state.selectedItemIdx};
+    pinch = {startDist: d, snapshots: snapshotSelectionForDrag()};
     return;
   }
-  const hit = pickSpriteAt(pt.clientX, pt.clientY);
-  if (hit >= 0) {
-    state.selectedItemIdx = hit;
-    renderItemsPanel();
-    const sp = state.spec.sprites[hit];
+
+  const hit = pickAt(pt.clientX, pt.clientY);
+  const panMode = spaceHeld || e.button === 1;
+
+  if (hit && !panMode) {
+    if (e.ctrlKey || e.metaKey) {
+      toggleSelection(hit.kind, hit.idx);
+      e.preventDefault();
+      return;
+    }
+    if (!isSelected(hit.kind, hit.idx)) selectOnly(hit.kind, hit.idx);
     const w = screenToWorld(pt.clientX, pt.clientY);
-    dragging = {idx: hit, startX: w.x, startY: w.y, sp0x: sp.params.x, sp0y: sp.params.y};
+    dragging = {startX: w.x, startY: w.y, snapshots: snapshotSelectionForDrag()};
     e.preventDefault();
-  } else {
-    state.selectedItemIdx = -1;
-    renderItemsPanel();
+    return;
+  }
+
+  if (!e.ctrlKey && !e.metaKey) clearSelection();
+  if (e.button === 0 || e.button === 1 || e.touches) {
+    startPan(pt, true);
+    e.preventDefault();
   }
 }
 
 function onPointerMove(e) {
+  if (resizing) {
+    const pt = e.touches ? e.touches[0] : e;
+    const w = screenToWorld(pt.clientX, pt.clientY);
+    const dx = w.x - resizing.startX;
+    const dy = w.y - resizing.startY;
+    const rect = canvasEl.getBoundingClientRect();
+    const factor = Math.max(0.05, 1 + (dx - dy) / Math.max(rect.width, 400) * 0.8);
+    applyScaleFactor(resizing.snapshots, factor);
+    markDirty(); updateStatusBar(); renderItemsPanel();
+    e.preventDefault();
+    return;
+  }
   if (e.touches && e.touches.length === 2 && pinch) {
     const a = e.touches[0], b = e.touches[1];
     const d = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
-    const f = d / pinch.startDist;
-    const sp = state.spec.sprites[pinch.idx];
-    if (sp) {
-      sp.params.scale = Math.max(0.0001, sp.params.scale * (1 + (f - 1) * 0.04));
-      updateSpriteMeshSize(spriteMeshes[pinch.idx]);
-      markDirty();
-      renderItemsPanel();
+    const f = 1 + (d / pinch.startDist - 1) * 0.04;
+    applyScaleFactor(pinch.snapshots, f);
+    pinch.snapshots = snapshotSelectionForDrag();
+    pinch.startDist = d;
+    markDirty(); renderItemsPanel(); updateStatusBar();
+    e.preventDefault();
+    return;
+  }
+  if (panning) {
+    const pt = e.touches ? e.touches[0] : e;
+    const dx = pt.clientX - panning.startX;
+    const dy = pt.clientY - panning.startY;
+    if (panning.is3d) {
+      viewPanX = panning.panX0 - dx * panWorldPerPixel().x;
+      viewPanY = panning.panY0 + dy * panWorldPerPixel().y;
+      camera.position.x = viewPanX;
+      camera.position.y = viewPanY;
+      camera.updateProjectionMatrix();
+      updateTransformBox();
+    } else {
+      previewPanX = panning.prevPanX0 + dx;
+      previewPanY = panning.prevPanY0 + dy;
+      applyPreviewTransform();
     }
     e.preventDefault();
     return;
@@ -918,40 +1595,61 @@ function onPointerMove(e) {
   const w = screenToWorld(pt.clientX, pt.clientY);
   const dx = w.x - dragging.startX;
   const dy = w.y - dragging.startY;
-  const sp = state.spec.sprites[dragging.idx];
-  sp.params.x = Math.max(-0.1, Math.min(1.1, dragging.sp0x + dx / PHONE_W));
-  sp.params.y = Math.max(-0.1, Math.min(1.1, dragging.sp0y - dy / PHONE_H));
-  updateSpriteMeshSize(spriteMeshes[dragging.idx]);
-  markDirty();
+  applyDragDelta(dragging.snapshots, dx, dy);
+  markDirty(); updateStatusBar();
   e.preventDefault();
 }
 
 function onPointerUp(e) {
-  if (dragging) { renderItemsPanel(); pushHistory(); }
-  if (pinch) { renderItemsPanel(); pushHistory(); }
-  dragging = null;
-  pinch = null;
+  if (dragging || pinch || resizing) { renderItemsPanel(); pushHistory(); }
+  dragging = null; panning = null; pinch = null; resizing = null;
+  $('#stage').classList.remove('panning');
 }
 
 function onWheel(e) {
-  if (state.selectedItemIdx < 0 || !state.spec) return;
-  const sp = state.spec.sprites[state.selectedItemIdx];
-  if (!sp) return;
+  if (!hasPreviewLoaded()) return;
   e.preventDefault();
-  const f = e.deltaY > 0 ? 0.95 : 1.05;
-  sp.params.scale = Math.max(0.0001, sp.params.scale * f);
-  updateSpriteMeshSize(spriteMeshes[state.selectedItemIdx]);
-  markDirty();
-  renderItemsPanel();
+  if (isSceneEditing()) {
+    if (e.altKey && state.selection.length > 0) {
+      const f = e.deltaY > 0 ? 0.97 : 1.03;
+      const snaps = snapshotSelectionForDrag();
+      applyScaleFactor(snaps, f);
+      markDirty(); renderItemsPanel(); updateStatusBar(); pushHistory();
+      return;
+    }
+    const factor = e.deltaY > 0 ? 0.9 : 1.1;
+    setViewZoom(viewZoom * factor);
+    return;
+  }
+  const factor = e.deltaY > 0 ? 0.9 : 1.1;
+  setPreviewZoom(previewZoom * factor);
 }
 
-canvasEl.addEventListener('mousedown', onPointerDown);
-canvasEl.addEventListener('touchstart', onPointerDown, {passive: false});
+function onHandleDown(e) {
+  if (!isSceneEditing() || !state.selection.length) return;
+  e.stopPropagation(); e.preventDefault();
+  const handle = e.target.dataset.handle;
+  const pt = e.touches ? e.touches[0] : e;
+  const w = screenToWorld(pt.clientX, pt.clientY);
+  if (handle === 'move') {
+    dragging = {startX: w.x, startY: w.y, snapshots: snapshotSelectionForDrag()};
+  } else {
+    resizing = {handle, startX: w.x, startY: w.y, snapshots: snapshotSelectionForDrag()};
+  }
+}
+
+$$('#transform-box .xhandle').forEach(h => {
+  h.addEventListener('mousedown', onHandleDown);
+  h.addEventListener('touchstart', onHandleDown, {passive: false});
+});
+
+$('#stage').addEventListener('mousedown', onPointerDown);
+$('#stage').addEventListener('touchstart', onPointerDown, {passive: false});
 window.addEventListener('mousemove', onPointerMove);
 window.addEventListener('touchmove', onPointerMove, {passive: false});
 window.addEventListener('mouseup', onPointerUp);
 window.addEventListener('touchend', onPointerUp);
-canvasEl.addEventListener('wheel', onWheel, {passive: false});
+$('#stage').addEventListener('wheel', onWheel, {passive: false});
 
 // ═════════════════════════════════════════════════════════════════════
 // RIGHT PANEL (params)
@@ -959,8 +1657,7 @@ canvasEl.addEventListener('wheel', onWheel, {passive: false});
 
 function renderItemsPanel() {
   const panel = $('#items-panel');
-  if (state.mode !== '3d' || !state.spec) {
-    panel.innerHTML = '';
+  if (!isSceneEditing()) {
     return;
   }
   const sprites = state.spec.sprites || [];
@@ -969,41 +1666,52 @@ function renderItemsPanel() {
   if (sprites.length) {
     html += '<div class="section-title" style="margin-top:0">SPRITES</div>';
     sprites.forEach((sp, i) => {
-      const sel = state.selectedItemIdx === i;
-      html += spriteCardHtml(sp, i, sel);
+      html += spriteCardHtml(sp, i);
     });
   }
   if (layers.length) {
     html += '<div class="section-title">IMAGE LAYERS</div>';
     layers.forEach((l, i) => {
-      html += layerCardHtml(l, i);
+      const hidden = state.hideBlinkFrames && isBlinkVariant(l.key);
+      html += layerCardHtml(l, i, hidden);
     });
   }
+  html += `<div class="hint-bar">rueda = zoom · clic vacío+arrastrar = pan · Espacio+arrastrar = pan · Alt+rueda = escala · SPEED ±decimal</div>`;
   panel.innerHTML = html;
-  // wire inputs
   panel.querySelectorAll('input[data-key]').forEach(inp => {
-    inp.oninput = (e) => {
+    inp.oninput = () => {
       const idx = +inp.dataset.idx;
       const kind = inp.dataset.kind;
       const key = inp.dataset.key;
       const v = inp.type === 'checkbox' ? inp.checked : parseFloat(inp.value);
       if (kind === 'sprite') {
-        const sp = state.spec.sprites[idx];
-        if (key === 'frame_skip') sp.frame_skip = Math.max(1, Math.round(v));
-        else sp.params[key] = v;
-        updateSpriteMeshSize(spriteMeshes[idx]);
+        setSpriteParam(idx, key, v);
       } else if (kind === 'layer') {
         const l = state.spec.image_layers[idx];
-        l[key] = v;
-        updateLayerMeshSize(layerMeshes[idx]);
+        if (key === 'offset_x_px' || key === 'offset_y_px') {
+          const ox = key === 'offset_x_px' ? v : (l.offset_x_px || 0);
+          const oy = key === 'offset_y_px' ? v : (l.offset_y_px || 0);
+          setLayerOffset(l.key, ox, oy);
+        } else if (key === 'scale') {
+          setLayerScale(l.key, v);
+        } else {
+          getCycleSiblingKeys(l.key).forEach(k => {
+            const t = findLayerDefByKey(k);
+            if (t) t[key] = v;
+          });
+          const o = findLayerObjByKey(l.key);
+          if (o) updateLayerMeshSize(o);
+        }
       }
-      markDirty();
+      markDirty(); updateStatusBar();
     };
   });
   panel.querySelectorAll('.item-card[data-pick]').forEach(card => {
-    card.onclick = () => {
-      state.selectedItemIdx = +card.dataset.pick;
-      renderItemsPanel();
+    card.onclick = (ev) => {
+      const kind = card.dataset.kind;
+      const idx = +card.dataset.pick;
+      if (ev.ctrlKey || ev.metaKey) toggleSelection(kind, idx);
+      else selectOnly(kind, idx);
     };
   });
   panel.querySelectorAll('[data-bump]').forEach(btn => {
@@ -1012,22 +1720,49 @@ function renderItemsPanel() {
       const idx = +btn.dataset.idx;
       const key = btn.dataset.key;
       const factor = parseFloat(btn.dataset.bump);
-      const sp = state.spec.sprites[idx];
-      if (key === 'frame_skip') sp.frame_skip = Math.max(1, sp.frame_skip + factor);
-      else sp.params[key] = (key === 'scale') ? sp.params[key] * (1 + factor) : sp.params[key] + factor;
-      updateSpriteMeshSize(spriteMeshes[idx]);
-      renderItemsPanel(); markDirty();
+      const kind = btn.dataset.kind || 'sprite';
+      if (kind === 'layer') {
+        const l = state.spec.image_layers[idx];
+        if (key === 'offset_x_px' || key === 'offset_y_px') {
+          setLayerOffset(l.key, (l.offset_x_px||0) + (key==='offset_x_px'?factor:0),
+            (l.offset_y_px||0) + (key==='offset_y_px'?factor:0));
+        } else if (key === 'scale') {
+          setLayerScale(l.key, Math.max(0.05, (l.scale||1) * (1 + factor)));
+        } else {
+          getCycleSiblingKeys(l.key).forEach(k => {
+            const t = findLayerDefByKey(k);
+            if (t) t[key] = (t[key]||0) + factor;
+          });
+          const o = findLayerObjByKey(l.key);
+          if (o) updateLayerMeshSize(o);
+        }
+      } else {
+        const sp = state.spec.sprites[idx];
+        let nv;
+        if (key === 'frame_skip') {
+          const cur = parseFloat(sp.frame_skip) || 2;
+          nv = cur + factor;
+          if (Math.abs(nv) < 0.05) nv = nv < 0 ? -0.05 : 0.05;
+        }
+        else if (key === 'scale') nv = sp.params[key] * (1 + factor);
+        else nv = sp.params[key] + factor;
+        setSpriteParam(idx, key, nv);
+      }
+      renderItemsPanel(); markDirty(); updateStatusBar();
     };
   });
 }
 
-function spriteCardHtml(sp, i, sel) {
+function spriteCardHtml(sp, i) {
+  const isSel = isSelected('sprite', i);
+  const grp = spriteGroupKey(sp);
+  const grpBadge = state.syncCycleLayers ? 'GRP' : 'SPR';
   return `
-  <div class="item-card${sel ? ' selected' : ''}" data-pick="${i}">
+  <div class="item-card${isSel ? ' selected' : ''}" data-pick="${i}" data-kind="sprite">
     <div class="item-head">
       <span class="swatch">${(sp.name || '?')[0].toUpperCase()}</span>
       <span class="name">${escapeHtml(sp.name)}</span>
-      <span class="badge">${sp.behavior}</span>
+      <span class="badge" title="${escapeHtml(grp)}">${grpBadge} · ${sp.behavior}</span>
     </div>
     <div class="field"><label>X</label>
       <input type="number" step="0.005" value="${(sp.params.x).toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="x">
@@ -1045,9 +1780,9 @@ function spriteCardHtml(sp, i, sel) {
       <button class="bump" data-bump="0.1" data-idx="${i}" data-key="scale">+</button>
     </div>
     <div class="field"><label>SPEED</label>
-      <input type="number" step="1" min="1" max="60" value="${sp.frame_skip}" data-kind="sprite" data-idx="${i}" data-key="frame_skip">
-      <button class="bump" data-bump="-1" data-idx="${i}" data-key="frame_skip">−</button>
-      <button class="bump" data-bump="1" data-idx="${i}" data-key="frame_skip">+</button>
+      <input type="number" step="0.1" value="${(parseFloat(sp.frame_skip)||2).toFixed(1)}" data-kind="sprite" data-idx="${i}" data-key="frame_skip" title="ticks/frame · menor=más rápido · negativo=reversa">
+      <button class="bump" data-bump="-0.5" data-idx="${i}" data-key="frame_skip">−</button>
+      <button class="bump" data-bump="0.5" data-idx="${i}" data-key="frame_skip">+</button>
     </div>
     <div class="field"><label>ALPHA</label>
       <input type="number" step="5" min="0" max="255" value="${sp.params.alpha || 255}" data-kind="sprite" data-idx="${i}" data-key="alpha">
@@ -1057,33 +1792,41 @@ function spriteCardHtml(sp, i, sel) {
   </div>`;
 }
 
-function layerCardHtml(l, i) {
+function layerCardHtml(l, i, hiddenPreview = false) {
+  const sel = isSelected('layer', i);
+  const grp = cycleGroupPrefix(l.key);
+  const grpBadge = grp && state.syncCycleLayers ? 'GRP' : 'LYR';
   return `
-  <div class="item-card">
+  <div class="item-card${sel ? ' selected' : ''}${hiddenPreview ? ' layer-hidden' : ''}" data-pick="${i}" data-kind="layer">
     <div class="item-head">
       <span class="swatch" style="background:linear-gradient(135deg,var(--gold),var(--cyan))">${(l.key || '?')[0].toUpperCase()}</span>
       <span class="name">${escapeHtml(l.key)}</span>
-      <span class="badge">Z${l.z || 0}</span>
+      <span class="badge">${grpBadge} Z${l.z || 0}</span>
+    </div>
+    <div class="field"><label>OFF X</label>
+      <input type="number" step="1" value="${(l.offset_x_px || 0).toFixed(0)}" data-kind="layer" data-idx="${i}" data-key="offset_x_px">
+      <button class="bump" data-bump="-5" data-idx="${i}" data-key="offset_x_px" data-kind="layer">−</button>
+      <button class="bump" data-bump="5" data-idx="${i}" data-key="offset_x_px" data-kind="layer">+</button>
+    </div>
+    <div class="field"><label>OFF Y</label>
+      <input type="number" step="1" value="${(l.offset_y_px || 0).toFixed(0)}" data-kind="layer" data-idx="${i}" data-key="offset_y_px">
+      <button class="bump" data-bump="-5" data-idx="${i}" data-key="offset_y_px" data-kind="layer">−</button>
+      <button class="bump" data-bump="5" data-idx="${i}" data-key="offset_y_px" data-kind="layer">+</button>
     </div>
     <div class="field"><label>SCALE</label>
       <input type="number" step="0.01" value="${(l.scale || 1).toFixed(2)}" data-kind="layer" data-idx="${i}" data-key="scale">
-      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="scale">−</button>
-      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="scale">+</button>
+      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="scale" data-kind="layer">−</button>
+      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="scale" data-kind="layer">+</button>
     </div>
     <div class="field"><label>PRLLX</label>
       <input type="number" step="0.05" value="${(l.parallax_factor || 0).toFixed(2)}" data-kind="layer" data-idx="${i}" data-key="parallax_factor">
-      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="parallax_factor">−</button>
-      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="parallax_factor">+</button>
+      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="parallax_factor" data-kind="layer">−</button>
+      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="parallax_factor" data-kind="layer">+</button>
     </div>
-    <div class="field"><label>BOB Px</label>
+    <div class="field"><label>BOB</label>
       <input type="number" step="2" value="${l.bob_amplitude_px || 0}" data-kind="layer" data-idx="${i}" data-key="bob_amplitude_px">
-      <button class="bump" data-bump="-5" data-idx="${i}" data-key="bob_amplitude_px">−</button>
-      <button class="bump" data-bump="5" data-idx="${i}" data-key="bob_amplitude_px">+</button>
-    </div>
-    <div class="field"><label>BOB s</label>
-      <input type="number" step="0.5" value="${(l.bob_period_sec || 4).toFixed(1)}" data-kind="layer" data-idx="${i}" data-key="bob_period_sec">
-      <button class="bump" data-bump="-0.5" data-idx="${i}" data-key="bob_period_sec">−</button>
-      <button class="bump" data-bump="0.5" data-idx="${i}" data-key="bob_period_sec">+</button>
+      <button class="bump" data-bump="-5" data-idx="${i}" data-key="bob_amplitude_px" data-kind="layer">−</button>
+      <button class="bump" data-bump="5" data-idx="${i}" data-key="bob_amplitude_px" data-kind="layer">+</button>
     </div>
   </div>`;
 }
@@ -1119,6 +1862,7 @@ function renderLiveStaticPanel(it) {
       <div style="margin-top:10px;color:var(--dim);font-size:10px;letter-spacing:.1em">
         ${(meta.tags || []).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join('')}
       </div>
+      <div class="hint-bar">rueda = zoom preview · botones − ⛶ + abajo · metadata editable aquí</div>
     </div>
   `;
   // wire — store edits in state.staticMeta
@@ -1169,12 +1913,16 @@ async function save() {
     const r = await fetch('/api/save-scene-sprites', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({scene_id: state.selectedId, sprites: state.spec.sprites}),
+      body: JSON.stringify({
+        scene_id: state.selectedId,
+        sprites: state.spec.sprites || [],
+        image_layers: state.spec.image_layers || [],
+      }),
     });
     if (r.ok) {
       const j = await r.json();
       state.dirty = false; updateSaveButton();
-      toast(`Guardado · FCM ${j.fcm ? 'OK' : '✗'} · ${j.sprites_updated} sprites`, 'ok');
+      toast(`Guardado · FCM ${j.fcm ? 'OK' : '✗'} · ${j.layers_updated} layers`, 'ok');
     } else {
       const t = await r.text();
       toast('ERROR: ' + t.slice(0,80), 'error');
@@ -1219,13 +1967,19 @@ $$('#tabs .tab').forEach(t => t.onclick = () => {
   state.selectedId = null;
   state.spec = null;
   state.staticMeta = null;
+  state.selection = [];
+  resetPreviewZoom();
+  viewZoom = 1;
   // Hide stage children
   $('#stage-empty').style.display = '';
   $('#canvas-3d').style.display = 'none';
   $('#canvas-video').style.display = 'none';
   $('#canvas-static').style.display = 'none';
   $('#stage-ctrl').style.display = 'none';
-  $('#items-panel').innerHTML = '';
+  $('#stage-toolbar').style.display = 'none';
+  $('#stage-status').style.display = 'none';
+  $('#transform-box').classList.remove('visible');
+  $('#items-panel').innerHTML = '<div class="loading">elige un wallpaper para editar</div>';
   loadCatalog();
 });
 
@@ -1242,9 +1996,18 @@ $('#ctrl-anim').onclick = () => {
   state.animPaused = !state.animPaused;
   $('#ctrl-anim').textContent = state.animPaused ? '▶' : '⏸';
 };
-$('#ctrl-fit').onclick = fitCanvas;
-$('#ctrl-zoom-in').onclick = () => { camera.zoom *= 1.2; camera.updateProjectionMatrix(); };
-$('#ctrl-zoom-out').onclick = () => { camera.zoom /= 1.2; camera.updateProjectionMatrix(); };
+$('#ctrl-fit').onclick = () => {
+  if (isSceneEditing()) { viewZoom = 1; resetViewPan(); fitCanvas(); }
+  else { previewPanX = 0; previewPanY = 0; setPreviewZoom(1); }
+};
+$('#ctrl-zoom-in').onclick = () => {
+  if (isSceneEditing()) setViewZoom(viewZoom * 1.2);
+  else setPreviewZoom(previewZoom * 1.2);
+};
+$('#ctrl-zoom-out').onclick = () => {
+  if (isSceneEditing()) setViewZoom(viewZoom / 1.2);
+  else setPreviewZoom(previewZoom / 1.2);
+};
 
 window.toggleDrawer = (which) => {
   const other = which === 'left' ? 'right' : 'left';
@@ -1252,14 +2015,77 @@ window.toggleDrawer = (which) => {
   $(`#${which}`).classList.toggle('open');
 };
 document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && !e.target.matches('input, textarea, select')) {
+    e.preventDefault();
+    spaceHeld = true;
+    $('#stage').classList.add('space-pan');
+  }
   if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); }
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'a' && isSceneEditing()) {
+    e.preventDefault();
+    selectAllEditable();
+    return;
+  }
+  if (!isSceneEditing() || !state.selection.length) return;
+  const step = e.shiftKey ? 10 : 1;
+  const arrows = {ArrowLeft:[-step,0], ArrowRight:[step,0], ArrowUp:[0,-step], ArrowDown:[0,step]};
+  if (!arrows[e.key]) return;
+  e.preventDefault();
+  const [dx, dy] = arrows[e.key];
+  const snaps = snapshotSelectionForDrag();
+  applyDragDelta(snaps, dx, dy);
+  markDirty(); renderItemsPanel(); updateStatusBar(); pushHistory();
 });
+document.addEventListener('keyup', e => {
+  if (e.code === 'Space') {
+    spaceHeld = false;
+    $('#stage').classList.remove('space-pan');
+  }
+});
+
+$('#tool-grid').onclick = () => {
+  state.showGrid = !state.showGrid;
+  $('#grid-overlay').classList.toggle('on', state.showGrid);
+  $('#tool-grid').classList.toggle('active', state.showGrid);
+};
+$('#tool-blink').onclick = async () => {
+  state.hideBlinkFrames = !state.hideBlinkFrames;
+  $('#tool-blink').classList.toggle('active', state.hideBlinkFrames);
+  await rebuildScene(); renderItemsPanel(); updateStatusBar();
+};
+$('#tool-sync').onclick = () => {
+  state.syncCycleLayers = !state.syncCycleLayers;
+  $('#tool-sync').classList.toggle('active', state.syncCycleLayers);
+  toast(state.syncCycleLayers ? 'Sync ON — mueve grupo (capas cycle + sprites manifest)' : 'Sync OFF — item individual', 'ok');
+};
+$('#tool-copy').onclick = () => {
+  if (!isSceneEditing()) return;
+  const lines = [];
+  (state.spec.sprites || []).forEach(sp => {
+    lines.push(`sprite ${sp.name}: x=${sp.params.x.toFixed(4)} y=${sp.params.y.toFixed(4)} scale=${sp.params.scale.toFixed(5)}`);
+  });
+  (state.spec.image_layers || [])
+    .filter(l => l.key !== 'bg')
+    .forEach(l => {
+      lines.push(`layer ${l.key}: offset_x=${l.offset_x_px||0} offset_y=${l.offset_y_px||0} scale=${l.scale||1}`);
+    });
+  if (!lines.length) { toast('Nada que copiar', 'error'); return; }
+  navigator.clipboard.writeText(lines.join('\n'));
+  toast(`${lines.length} items copiados`, 'ok');
+};
+$('#tool-grpall').onclick = () => {
+  if (!getPrimarySelection()) { toast('Selecciona capa o sprite primero', 'error'); return; }
+  selectGroupOfPrimary();
+};
+$('#tool-selall').onclick = () => selectAllEditable();
 
 // ═════════════════════════════════════════════════════════════════════
 // INIT
 // ═════════════════════════════════════════════════════════════════════
 
+$('#tool-sync').classList.add('active');
+$('#tool-blink').classList.add('active');
 fitCanvas();
 loadCatalog();
 

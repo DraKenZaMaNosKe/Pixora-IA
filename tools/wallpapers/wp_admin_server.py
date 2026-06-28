@@ -1037,7 +1037,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_json({"error": f"put: {e}"}, 502)
             return self._send_json({"ok": True, "themes_remaining": len(themes)}, 200)
 
-        # Sprite editor save — update spec sprites array and FCM invalidate
+        # Sprite editor save — update spec sprites and/or image_layers + FCM
         if path == "/api/save-scene-sprites":
             length = int(self.headers.get("Content-Length", "0"))
             body = self.rfile.read(length) if length > 0 else b"{}"
@@ -1047,21 +1047,23 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_json({"error": f"bad JSON: {e}"}, 400)
             scene_id = payload.get("scene_id")
             new_sprites = payload.get("sprites")
-            if not scene_id or not isinstance(new_sprites, list):
-                return self._send_json({"error": "scene_id + sprites required"}, 400)
-            # Validate scene_id against strict allowlist — prevents path
-            # traversal that could overwrite arbitrary Storage objects
-            # using the service_role key.
+            new_layers = payload.get("image_layers")
+            if not scene_id:
+                return self._send_json({"error": "scene_id required"}, 400)
+            if new_sprites is None and new_layers is None:
+                return self._send_json({"error": "sprites or image_layers required"}, 400)
             if not self._SAFE_ID_RE.match(scene_id):
                 return self._send_json({"error": "invalid scene_id format"}, 400)
-            # Fetch current spec, replace sprites field, PUT back
             try:
                 spec_url = f"{SUPABASE_STORAGE}/object/public/wallpaper-scenes/{scene_id}.json"
                 with urllib.request.urlopen(spec_url, timeout=15) as r:
                     spec = json.loads(r.read())
             except Exception as e:
                 return self._send_json({"error": f"spec fetch: {e}"}, 502)
-            spec["sprites"] = new_sprites
+            if isinstance(new_sprites, list):
+                spec["sprites"] = new_sprites
+            if isinstance(new_layers, list):
+                spec["image_layers"] = new_layers
             put_url = f"{SUPABASE_STORAGE}/object/wallpaper-scenes/{scene_id}.json"
             put_body = json.dumps(spec, indent=2, ensure_ascii=False).encode("utf-8")
             req = urllib.request.Request(put_url, data=put_body, method="PUT")
@@ -1073,7 +1075,6 @@ class Handler(BaseHTTPRequestHandler):
                     pass
             except Exception as e:
                 return self._send_json({"error": f"spec save: {e}"}, 502)
-            # FCM broadcast so devices pick up the new spec without a 6h wait
             fcm_ok = False
             try:
                 fcm_ok = bool(_fcm_push_catalog_invalidate("wallpapers"))
@@ -1082,7 +1083,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send_json({
                 "ok": True,
                 "scene_id": scene_id,
-                "sprites_updated": len(new_sprites),
+                "sprites_updated": len(spec.get("sprites") or []),
+                "layers_updated": len(spec.get("image_layers") or []),
                 "fcm": fcm_ok,
             })
 

@@ -428,6 +428,16 @@ class MainActivity : AudioServiceActivity() {
                         val status = LunarPhaseWorker.getStatus(applicationContext)
                         result.success(status)
                     }
+                    "getActiveSceneId" -> {
+                        val prefs = getSharedPreferences("pixora_live", 0)
+                        result.success(prefs.getString("scene_id", null))
+                    }
+                    "notifyWallpaperReload" -> {
+                        getSharedPreferences("pixora_live", 0).edit()
+                            .putLong("changed_at", System.currentTimeMillis())
+                            .apply()
+                        result.success(true)
+                    }
                     "getOverlayVisibility" -> {
                         val prefs = getSharedPreferences("pixora_live", 0)
                         val map = mapOf(

@@ -101,7 +101,9 @@ data class SpriteDef(
     val behavior: String,        // orbit | wander | translate | static
     val defaultFacing: String,   // "left" or "right"
     val params: JSONObject,
-    val frameSkip: Int,          // framesPerTick for SpriteSheet
+    /** Ticks per sprite frame advance. Float OK (e.g. 0.5 = 2x speed).
+     *  Negative reverses playback direction. */
+    val frameSkip: Float,
 ) {
     companion object {
         fun parse(j: JSONObject): SpriteDef? = try {
@@ -111,7 +113,7 @@ data class SpriteDef(
                 behavior = j.getString("behavior"),
                 defaultFacing = j.optString("default_facing", "right"),
                 params = j.optJSONObject("params") ?: JSONObject(),
-                frameSkip = j.optInt("frame_skip", 2),
+                frameSkip = j.optDouble("frame_skip", 2.0).toFloat(),
             )
         } catch (e: Exception) { null }
     }
@@ -146,6 +148,11 @@ data class ImageLayerDef(
     /** Initial alpha [0..1]. Default 1.0 (fully visible). Set 0.0 for layers
      *  that should be hidden until a collision triggers a rise_fade animation. */
     val initialAlpha: Float,
+    /** Static pixel offset from cover-fit center. Positive Y moves DOWN.
+     *  Set via the desktop sprite editor; avoids re-baking layer bitmaps
+     *  when nudging subjects (e.g. kittens on a fence). Default 0. */
+    val offsetXPx: Float,
+    val offsetYPx: Float,
     /** Optional subject bbox normalized to TARGET (1080x2340). Used for
      *  collision detection. If null, the entire layer bitmap acts as bbox
      *  (rarely what you want — most layers are mostly transparent canvas). */
@@ -174,6 +181,8 @@ data class ImageLayerDef(
                 bobPeriodSec = j.f("bob_period_sec", 4f).coerceAtLeast(0.1f),
                 bobPhaseSource = j.optString("bob_phase_source").takeIf { it.isNotBlank() },
                 initialAlpha = j.f("initial_alpha", 1f).coerceIn(0f, 1f),
+                offsetXPx = j.f("offset_x_px", 0f),
+                offsetYPx = j.f("offset_y_px", 0f),
                 boundsNorm = parseRect(j.optJSONObject("bounds_norm")),
                 motion = j.optJSONObject("motion")?.let { MotionDef.parse(it) },
                 collision = j.optJSONObject("collision")?.let { CollisionDef.parse(it) },
