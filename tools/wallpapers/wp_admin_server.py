@@ -81,6 +81,27 @@ TEXT_CMS_FCM_TOPIC = 'text_cms_update'  # used by _fcm_push.send_text_cms_update
 # helper is broken or the service account JSON is missing. send_text_cms_update()
 # returns False in those cases and we silently degrade to TTL-based refresh.
 try:
+    from scene_layer_utils import (
+        bump_layer_revisions,
+        bump_layers_with_url_changes,
+        fetch_scene_spec,
+        put_scene_spec,
+        replace_scene_layer_asset,
+    )
+except Exception as _scene_utils_err:
+    print(f"[wp_admin_server] scene_layer_utils unavailable: {_scene_utils_err}")
+    def bump_layer_revisions(spec, keys=None):
+        return []
+    def bump_layers_with_url_changes(old_spec, new_layers):
+        return []
+    def fetch_scene_spec(scene_id, service_key=None):
+        raise RuntimeError("scene_layer_utils not loaded")
+    def put_scene_spec(scene_id, spec, service_key=None):
+        raise RuntimeError("scene_layer_utils not loaded")
+    def replace_scene_layer_asset(scene_id, layer_key, local_file, **kwargs):
+        raise RuntimeError("scene_layer_utils not loaded")
+
+try:
     from _fcm_push import send_text_cms_update as _fcm_push_text_cms_update
     from _fcm_push import send_catalog_invalidate as _fcm_push_catalog_invalidate
     from _fcm_push import VALID_CATALOG_SCOPES as _FCM_VALID_SCOPES
@@ -1055,24 +1076,17 @@ class Handler(BaseHTTPRequestHandler):
             if not self._SAFE_ID_RE.match(scene_id):
                 return self._send_json({"error": "invalid scene_id format"}, 400)
             try:
-                spec_url = f"{SUPABASE_STORAGE}/object/public/wallpaper-scenes/{scene_id}.json"
-                with urllib.request.urlopen(spec_url, timeout=15) as r:
-                    spec = json.loads(r.read())
+                spec = fetch_scene_spec(scene_id, SERVICE_KEY)
             except Exception as e:
                 return self._send_json({"error": f"spec fetch: {e}"}, 502)
+            bumped_layers = []
             if isinstance(new_sprites, list):
                 spec["sprites"] = new_sprites
             if isinstance(new_layers, list):
+                bumped_layers = bump_layers_with_url_changes(spec, new_layers)
                 spec["image_layers"] = new_layers
-            put_url = f"{SUPABASE_STORAGE}/object/wallpaper-scenes/{scene_id}.json"
-            put_body = json.dumps(spec, indent=2, ensure_ascii=False).encode("utf-8")
-            req = urllib.request.Request(put_url, data=put_body, method="PUT")
-            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
-            req.add_header("Content-Type", "application/json")
-            req.add_header("x-upsert", "true")
             try:
-                with urllib.request.urlopen(req, timeout=20) as r:
-                    pass
+                put_scene_spec(scene_id, spec, SERVICE_KEY)
             except Exception as e:
                 return self._send_json({"error": f"spec save: {e}"}, 502)
             fcm_ok = False
@@ -1085,6 +1099,48 @@ class Handler(BaseHTTPRequestHandler):
                 "scene_id": scene_id,
                 "sprites_updated": len(spec.get("sprites") or []),
                 "layers_updated": len(spec.get("image_layers") or []),
+                "layers_revision_bumped": bumped_layers,
+                "fcm": fcm_ok,
+            })
+
+        # Replace one canvas_scene image_layer bitmap in-place + bump revision + FCM.
+        # POST /api/replace-scene-layer
+        # body: {scene_id, layer_key, file_path}  (file_path = local path on this PC)
+        if path == "/api/replace-scene-layer":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            scene_id = payload.get("scene_id")
+            layer_key = payload.get("layer_key")
+            file_path = payload.get("file_path")
+            if not scene_id or not layer_key or not file_path:
+                return self._send_json(
+                    {"error": "scene_id, layer_key, file_path required"}, 400)
+            if not self._SAFE_ID_RE.match(scene_id):
+                return self._send_json({"error": "invalid scene_id format"}, 400)
+            local = Path(str(file_path))
+            if not local.is_file():
+                return self._send_json({"error": f"file not found: {local}"}, 400)
+            try:
+                summary = replace_scene_layer_asset(
+                    scene_id,
+                    layer_key,
+                    local,
+                    service_key=SERVICE_KEY,
+                )
+            except Exception as e:
+                return self._send_json({"error": str(e)}, 502)
+            fcm_ok = False
+            try:
+                fcm_ok = bool(_fcm_push_catalog_invalidate("wallpapers"))
+            except Exception:
+                pass
+            return self._send_json({
+                "ok": True,
+                **summary,
                 "fcm": fcm_ok,
             })
 

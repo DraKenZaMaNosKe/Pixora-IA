@@ -234,9 +234,10 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
       // when the server ETag differs. Catches publish events that the
       // FCM push may have missed (e.g. notification denied, app killed).
       unawaited(_refreshCatalogsOnResume());
-      // Canvas scenes: if FCM evicted specs while app was backgrounded,
-      // re-download the active scene so the live wallpaper recovers.
-      unawaited(WallpaperService.instance.rehydrateActiveSceneIfNeeded());
+      // FCM catalog_invalidate may have arrived in a bg isolate — process now.
+      unawaited(PushNotificationService.instance.processPendingInvalidates());
+      // Reconcile active canvas_scene spec + layers after remote edits.
+      unawaited(WallpaperService.instance.refreshActiveSceneIfNeeded());
     }
   }
 

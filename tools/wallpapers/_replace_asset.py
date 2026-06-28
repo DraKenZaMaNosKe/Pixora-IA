@@ -243,11 +243,37 @@ def replace_live_video(wid: str, src: Path, entry: dict, cat: dict) -> None:
 
 # ────────────────────────── main ──────────────────────────
 
+def replace_canvas_scene_layer(scene_id: str, layer_key: str, src: Path) -> None:
+    """In-place layer replace for canvas_scene parallax layers."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from scene_layer_utils import replace_scene_layer_asset
+
+    print(f"\n[canvas_scene layer] {scene_id}/{layer_key}")
+    summary = replace_scene_layer_asset(scene_id, layer_key, src)
+    print(f"  revision={summary.get('revision')} bytes={summary.get('bytes')}")
+    fcm_invalidate("wallpapers")
+
+
 def main():
     ap = argparse.ArgumentParser(description="Replace an existing Pixora asset.")
-    ap.add_argument("wallpaper_id", help="ID of the wallpaper to replace")
-    ap.add_argument("src", help="Local file path (PNG/JPG/MP4)")
+    ap.add_argument("wallpaper_id", nargs="?", help="ID of the wallpaper to replace")
+    ap.add_argument("src", nargs="?", help="Local file path (PNG/JPG/MP4/WEBP)")
+    ap.add_argument("--scene", dest="scene_id", help="canvas_scene id (with --layer)")
+    ap.add_argument("--layer", dest="layer_key", help="image_layer key to replace")
     args = ap.parse_args()
+
+    if args.scene_id and args.layer_key:
+        if not args.src:
+            raise SystemExit("Falta src: python _replace_asset.py --scene ID --layer KEY archivo.webp")
+        src = Path(args.src)
+        if not src.exists():
+            raise SystemExit(f"No existe: {src}")
+        replace_canvas_scene_layer(args.scene_id, args.layer_key, src)
+        print("\n[OK] capa reemplazada + revision bump + FCM.")
+        return
+
+    if not args.wallpaper_id or not args.src:
+        raise SystemExit("Uso: _replace_asset.py <id> <file>  o  --scene <id> --layer <key> <file>")
 
     src = Path(args.src)
     if not src.exists():

@@ -60,6 +60,9 @@ class PixoraWallpaperService : WallpaperService() {
         // recycler reset, sprite loads, mode flag flips, decode-bounds probe.
         // Roughly 15-25ms saved per redundant call on MID tier.
         @Volatile private var lastLoadedConfigKey: String? = null
+        // FCM catalog_invalidate bumps changed_at — bypass config/bitmap idempotency
+        // so canvas_scene layers + flat wallpaper re-decode after remote edits.
+        @Volatile private var lastHandledChangedAt: Long = 0L
 
         // Scaling idempotency guard — same idea for createScaledBitmap(). The
         // versioning counter above protects against applying stale results, but
@@ -1094,9 +1097,11 @@ class PixoraWallpaperService : WallpaperService() {
                 // MediaPlayer for video) is still alive, skip the entire
                 // body — no renderer recycles, no sprite loads, no decode.
                 val sceneIdEarly = prefs.getString("scene_id", null)
+                val changedAt = prefs.getLong("changed_at", 0L)
+                val contentRefresh = changedAt > lastHandledChangedAt
                 val configKey =
                     "$path|$sceneIdEarly|$isInteractive|$color|$caption|$trailStyle"
-                if (configKey == lastLoadedConfigKey) {
+                if (!contentRefresh && configKey == lastLoadedConfigKey) {
                     val hasLiveBitmap = wallpaperBitmap?.let { !it.isRecycled } == true
                     val hasLiveVideo = isVideoWallpaper && mediaPlayer != null
                     if (hasLiveBitmap || hasLiveVideo) {
@@ -1105,6 +1110,10 @@ class PixoraWallpaperService : WallpaperService() {
                         currentWallpaperPath = path
                         return
                     }
+                }
+                if (contentRefresh) {
+                    lastHandledChangedAt = changedAt
+                    Log.d(TAG, "loadWallpaperImage: content refresh (changed_at=$changedAt)")
                 }
                 lastLoadedConfigKey = configKey
 
@@ -1200,7 +1209,8 @@ class PixoraWallpaperService : WallpaperService() {
                         // Stops the 2nd/3rd redundant decode from onVisibilityChanged and the
                         // debounced prefs reload.
                         val existing = wallpaperBitmap
-                        if (path == lastDecodedPath &&
+                        if (!contentRefresh &&
+                            path == lastDecodedPath &&
                             surfaceWidth == lastDecodedSurfaceW &&
                             surfaceHeight == lastDecodedSurfaceH &&
                             existing != null && !existing.isRecycled) {
@@ -2012,15 +2022,23 @@ class PixoraWallpaperService : WallpaperService() {
                 } ?: return
                 updateRendererState()
 
+                // Pre-load parallax layers before deciding bg vs black clear.
+                if (isCanvasSceneMode) {
+                    canvasSceneRenderer.ensureLoaded()
+                }
+
                 // Frame mode: draw extracted frame instead of wallpaper bitmap
                 if (isFrameMode && frameScrubRenderer.isReady) {
                     frameScrubRenderer.draw(canvas)
-                } else if (isCanvasSceneMode && canvasSceneRenderer.hasParallax) {
+                } else if (isCanvasSceneMode && canvasSceneRenderer.hasParallax
+                    && canvasSceneRenderer.layersReady) {
                     // Parallax scenes draw their own image_layers — skip the bg
                     // bitmap to avoid double-drawing. Clear to black first so any
                     // edge pixels (if a layer doesn't fully cover) don't leak.
                     canvas.drawColor(android.graphics.Color.BLACK)
                 } else {
+                    // Fallback: layers not ready yet (or download failed) → show
+                    // wallpaper_path flat image instead of a black screen.
                     drawBackground(canvas)
                 }
 

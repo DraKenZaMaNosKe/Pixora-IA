@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'catalog_index_service.dart';
-import 'mystery_exclusion_service.dart';
 import 'scene_spec_service.dart';
 import 'wallpaper_engine_coordinator.dart';
 
@@ -144,25 +142,23 @@ class WallpaperService {
     }
   }
 
-  /// If the active live wallpaper is a canvas_scene but its spec was evicted,
-  /// re-fetch from Supabase and nudge the wallpaper process to reload.
-  Future<void> rehydrateActiveSceneIfNeeded() async {
+  /// Re-fetch the active canvas_scene spec + image_layers (revision/size checks).
+  Future<void> refreshActiveSceneIfNeeded() async {
     if (!Platform.isAndroid) return;
     final sceneId = await getActiveSceneId();
     if (sceneId == null || sceneId.isEmpty) return;
     try {
-      final support = await getApplicationSupportDirectory();
-      final specFile = File('${support.path}/scene_specs/$sceneId.json');
-      if (specFile.existsSync()) return;
       final entry = await CatalogIndexService.instance.findById(sceneId);
       if (entry == null) return;
-      debugPrint('[WallpaperService] rehydrate missing spec for $sceneId');
+      debugPrint('[WallpaperService] refresh active scene $sceneId');
       await SceneSpecService.instance.fetch(entry);
       await notifyWallpaperReload();
     } catch (e) {
-      debugPrint('[WallpaperService] rehydrateActiveScene error: $e');
+      debugPrint('[WallpaperService] refreshActiveScene error: $e');
     }
   }
+
+
 
   /// Look up the wallpaper filename in the catalog index. If it's a
   /// canvas_scene, fetch the spec to filesDir and return the scene id

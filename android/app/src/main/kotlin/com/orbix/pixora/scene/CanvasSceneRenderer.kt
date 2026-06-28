@@ -38,6 +38,10 @@ class CanvasSceneRenderer(private val context: Context) {
     private val particleSystems = mutableListOf<ParticleSystem>()
     private val events = mutableListOf<SceneEvent>()
     private val layerBitmaps = mutableListOf<Pair<ImageLayerDef, Bitmap>>()
+    /** Disk mtime per layer key — detect remote re-uploads without URL change. */
+    private val layerSourceMtime = mutableMapOf<String, Long>()
+    /** Spec revision per layer — admin bump forces RAM reload. */
+    private val layerSourceRevision = mutableMapOf<String, Int>()
     private val layerPaint = Paint(Paint.FILTER_BITMAP_FLAG)
 
     // Layer pre-scaling — see ensureLayersPrescaled().
@@ -86,6 +90,14 @@ class CanvasSceneRenderer(private val context: Context) {
 
     /** True when the scene has its own image_layers (so wallpaper service skips bg draw). */
     val hasParallax: Boolean get() = spec?.hasParallax == true
+
+    /** All declared image_layers decoded into [layerBitmaps]. */
+    val layersReady: Boolean
+        get() {
+            val s = spec ?: return false
+            if (s.imageLayers.isEmpty()) return true
+            return layerBitmaps.size >= s.imageLayers.size
+        }
 
     /** True when any image_layer declares bob animation. Wallpaper service
      *  uses this to keep the draw loop at video-rate (~16-30fps) even when
@@ -142,8 +154,7 @@ class CanvasSceneRenderer(private val context: Context) {
         spriteControllers.clear()
         particleSystems.clear()
         events.clear()
-        for ((_, b) in layerBitmaps) if (!b.isRecycled) b.recycle()
-        layerBitmaps.clear()
+        recycleLayerBitmaps()
         // Same fix as in release() — fresh bitmaps need a fresh prescale.
         prescaledForW = 0
         prescaledForH = 0
@@ -178,22 +189,41 @@ class CanvasSceneRenderer(private val context: Context) {
     fun ensureLoaded() {
         val s = spec ?: return
         // Load image layers (parallax) — read from filesDir/scene_layers/<id>/<key>.webp
-        if (layerBitmaps.isEmpty() && s.imageLayers.isNotEmpty()) {
+        if (s.imageLayers.isNotEmpty()) {
             val layerDir = File(context.filesDir, "scene_layers/${s.id}")
-            for (layer in s.imageLayers.sortedBy { it.z }) {
-                val f = File(layerDir, "${layer.key}.webp")
-                if (!f.isFile) {
-                    Log.w(TAG, "Image layer file missing: ${f.absolutePath}")
-                    continue
+            layerDir.mkdirs()
+            var needsReload = layerBitmaps.isEmpty()
+            if (!needsReload) {
+                for (layer in s.imageLayers) {
+                    val f = File(layerDir, "${layer.key}.webp")
+                    val mtime = if (f.isFile) f.lastModified() else 0L
+                    if (layerSourceMtime[layer.key] != mtime ||
+                        layerSourceRevision[layer.key] != layer.revision) {
+                        needsReload = true
+                        break
+                    }
                 }
-                val opts = BitmapFactory.Options().apply {
-                    // RGB_565 halves RAM vs ARGB_8888; layers are opaque WebPs.
-                    inPreferredConfig = Bitmap.Config.RGB_565
-                }
-                val bmp = BitmapFactory.decodeFile(f.absolutePath, opts)
-                if (bmp != null) {
-                    layerBitmaps.add(layer to bmp)
-                    Log.d(TAG, "Loaded layer ${layer.key} ${bmp.width}x${bmp.height} pf=${layer.parallaxFactor}")
+            }
+            if (needsReload) {
+                recycleLayerBitmaps()
+                prescaledForW = 0
+                prescaledForH = 0
+                for (layer in s.imageLayers.sortedBy { it.z }) {
+                    val f = ensureLayerFile(layerDir, layer) ?: continue
+                    val opts = BitmapFactory.Options().apply {
+                        // ARGB_8888 required — foreground layers (e.g. Spiderman) ship
+                        // with transparency; RGB_565 drops alpha → black halo around subject.
+                        inPreferredConfig = Bitmap.Config.ARGB_8888
+                    }
+                    val bmp = BitmapFactory.decodeFile(f.absolutePath, opts)
+                    if (bmp != null) {
+                        layerBitmaps.add(layer to bmp)
+                        layerSourceMtime[layer.key] = f.lastModified()
+                        layerSourceRevision[layer.key] = layer.revision
+                        Log.d(TAG, "Loaded layer ${layer.key} rev=${layer.revision} ${bmp.width}x${bmp.height} pf=${layer.parallaxFactor}")
+                    } else {
+                        Log.e(TAG, "Failed to decode layer ${layer.key} from ${f.absolutePath}")
+                    }
                 }
             }
         }
@@ -329,6 +359,59 @@ class CanvasSceneRenderer(private val context: Context) {
      *  When the bitmap is wider than the surface (oversized), the scroll
      *  offset pans across the extra horizontal slack — just like a panoramic
      *  wallpaper but per-layer with its own depth speed. */
+    /** Read cached layer from disk; download from spec URL if missing or stale
+     *  (wallpaper process may start before Flutter finished caching layers). */
+    private fun ensureLayerFile(layerDir: File, layer: ImageLayerDef): File? {
+        val f = File(layerDir, "${layer.key}.webp")
+        if (f.isFile && f.length() > 1024L && layer.url.isNotBlank()) {
+            val remoteLen = remoteContentLength(layer.url)
+            if (remoteLen == null || remoteLen == f.length()) return f
+            Log.d(TAG, "Layer ${layer.key} stale: local=${f.length()} remote=$remoteLen")
+        } else if (f.isFile && f.length() > 1024L) {
+            return f
+        }
+        if (layer.url.isBlank()) {
+            Log.w(TAG, "Image layer file missing, no URL: ${layer.key}")
+            return null
+        }
+        return try {
+            val conn = java.net.URL(layer.url).openConnection()
+            conn.connectTimeout = 15_000
+            conn.readTimeout = 30_000
+            conn.getInputStream().use { input ->
+                f.outputStream().use { output -> input.copyTo(output) }
+            }
+            Log.d(TAG, "Downloaded layer ${layer.key} (${f.length()} bytes)")
+            if (f.isFile && f.length() > 1024L) f else null
+        } catch (e: Exception) {
+            Log.e(TAG, "Layer download failed ${layer.key}: ${e.message}")
+            if (f.isFile && f.length() > 1024L) f else null
+        }
+    }
+
+    private fun remoteContentLength(url: String): Long? {
+        return try {
+            val conn = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+            conn.requestMethod = "HEAD"
+            conn.connectTimeout = 10_000
+            conn.readTimeout = 10_000
+            conn.connect()
+            val len = conn.contentLengthLong
+            conn.disconnect()
+            if (len > 0L) len else null
+        } catch (e: Exception) {
+            Log.w(TAG, "HEAD failed for layer URL: ${e.message}")
+            null
+        }
+    }
+
+    private fun recycleLayerBitmaps() {
+        for ((_, b) in layerBitmaps) if (!b.isRecycled) b.recycle()
+        layerBitmaps.clear()
+        layerSourceMtime.clear()
+        layerSourceRevision.clear()
+    }
+
     private fun drawLayerCentered(canvas: Canvas, bmp: Bitmap, def: ImageLayerDef) {
         // POST-PRESCALE FAST PATH: the bitmap was already scaled to cover-fit
         // dimensions in ensureLayersPrescaled(). bmp.width/height ARE the
@@ -636,8 +719,7 @@ class CanvasSceneRenderer(private val context: Context) {
         events.clear()
         for (s in sheets.values) s.release()
         sheets.clear()
-        for ((_, b) in layerBitmaps) if (!b.isRecycled) b.recycle()
-        layerBitmaps.clear()
+        recycleLayerBitmaps()
         spec = null
         loadedFor = null
         // 2026-06-06 BUG FIX: invalidate prescale flag so the NEXT load gets

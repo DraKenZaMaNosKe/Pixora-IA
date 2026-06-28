@@ -163,6 +163,8 @@ data class ImageLayerDef(
      *  this layer's bounds intersect [collision.withLayer]'s bounds and,
      *  if so AND cooldown elapsed, triggers [collision.action]. */
     val collision: CollisionDef?,
+    /** Bumped by admin on in-place asset replace — forces client re-download. */
+    val revision: Int,
 ) {
     companion object {
         fun parse(j: JSONObject): ImageLayerDef? = try {
@@ -186,6 +188,7 @@ data class ImageLayerDef(
                 boundsNorm = parseRect(j.optJSONObject("bounds_norm")),
                 motion = j.optJSONObject("motion")?.let { MotionDef.parse(it) },
                 collision = j.optJSONObject("collision")?.let { CollisionDef.parse(it) },
+                revision = j.optInt("revision", 0),
             )
         } catch (e: Exception) { null }
 

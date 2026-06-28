@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'catalog_invalidate_store.dart';
 import '../../features/aura/data/repositories/aura_repository.dart';
 import '../../features/events/data/events_service.dart';
 import 'app_strings_service.dart';
@@ -32,10 +33,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // app isn't foreground, that handler never fires — and the disk cache
   // persists for 7 days, so the user never sees Eduardo's spec/asset updates.
   //
-  // Do NOT wipe scene_specs/ here — the :wallpaper process reads them
-  // directly and cannot re-download. Foreground handler + app resume
-  // refresh specs instead (v1.7.43 fix).
+  // Record pending scope — consumed on next resume (singletons unavailable here).
+  await Firebase.initializeApp();
   debugPrint('[PixoraFCM bg] data=${message.data}');
+  if (message.data['type'] == 'catalog_invalidate') {
+    final scope = message.data['scope']?.toString() ?? 'all';
+    await CatalogInvalidateStore.recordPending(scope);
+  }
 }
 
 /// Singleton service for Firebase Cloud Messaging.
@@ -176,6 +180,14 @@ class PushNotificationService {
   /// Opt out from notifications (called from settings).
   Future<void> unsubscribeFromNewContent() async {
     await FirebaseMessaging.instance.unsubscribeFromTopic('new_content');
+  }
+
+  /// Process FCM invalidations that arrived while backgrounded/killed.
+  Future<void> processPendingInvalidates() async {
+    final scopes = await CatalogInvalidateStore.consumePending();
+    for (final scope in scopes) {
+      await _handleCatalogInvalidate(scope);
+    }
   }
 
   /// Dispatches a `catalog_invalidate` push to the right service(s).

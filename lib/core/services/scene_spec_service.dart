@@ -43,7 +43,13 @@ class SceneSpecService {
       return null;
     }
     final cached = _memCache[entry.id];
-    if (cached != null) return cached;
+    if (cached != null) {
+      // Spec may be cached while image_layers are still missing on disk
+      // (e.g. FCM refresh wrote JSON but layer download failed). Always
+      // reconcile layers before the native engine reads filesDir.
+      await _fetchImageLayers(entry.id, cached);
+      return cached;
+    }
 
     // Try disk
     final f = await _diskFile(entry.id);
@@ -52,6 +58,7 @@ class SceneSpecService {
         final json = jsonDecode(await f.readAsString()) as Map<String, dynamic>;
         if (CapabilityRegistry.sceneSpecValid(json)) {
           _memCache[entry.id] = json;
+          await _fetchImageLayers(entry.id, json);
           // Background refresh check (don't block)
           unawaited(_refreshIfStale(entry, f.lastModifiedSync()));
           return json;
@@ -178,11 +185,10 @@ class SceneSpecService {
   /// filesDir/scene_layers/<sceneId>/<key>.webp. Native side reads these
   /// directly via BitmapFactory.
   ///
-  /// v1.7.40 fix: also writes _meta.json with the URL per layer. On subsequent
-  /// fetches, if the current spec URL differs from the cached URL, the layer
-  /// is re-downloaded. This eliminates the need to suffix asset URLs with
-  /// _v5/_v6 etc. just to force re-download on devices that already cached
-  /// the prior version.
+  /// v1.7.43 fix: _meta.json stores {url, size} per layer. Re-download when
+  /// the remote Content-Length differs from cached size OR local file size —
+  /// same URL with a replaced Supabase object now reaches users without _vN
+  /// suffix churn.
   Future<void> _fetchImageLayers(
       String sceneId, Map<String, dynamic> spec) async {
     final layers = spec['image_layers'];
@@ -192,8 +198,6 @@ class SceneSpecService {
       final dir = Directory('${support.path}/scene_layers/$sceneId');
       await dir.create(recursive: true);
 
-      // Read existing meta (URL per cached layer) — if not present, treat as
-      // empty map so all layers download fresh on first fetch.
       final metaFile = File('${dir.path}/_meta.json');
       Map<String, dynamic> meta = {};
       if (metaFile.existsSync()) {
@@ -211,20 +215,62 @@ class SceneSpecService {
         final key = l['key'] as String?;
         final url = l['url'] as String?;
         if (key == null || url == null) continue;
+        final specRevision = (l['revision'] as num?)?.toInt() ?? 0;
         final out = File('${dir.path}/$key.webp');
-        final cachedUrl = meta[key] as String?;
         final fileFresh = out.existsSync() && out.lengthSync() > 1024;
-        // Skip ONLY if file present AND URL unchanged.
-        if (fileFresh && cachedUrl == url) continue;
+        final entry = meta[key];
+        final cachedUrl = entry is Map
+            ? entry['url'] as String?
+            : entry as String?;
+        final cachedSize = entry is Map ? entry['size'] as int? : null;
+        final cachedRevision =
+            entry is Map ? (entry['revision'] as num?)?.toInt() : null;
+        final localSize = fileFresh ? out.lengthSync() : 0;
+        final revisionMatch =
+            cachedRevision != null && cachedRevision == specRevision;
+
+        if (fileFresh &&
+            cachedUrl == url &&
+            revisionMatch &&
+            specRevision > 0) {
+          continue;
+        }
+
+        if (fileFresh && cachedUrl == url) {
+          final remoteSize = await _remoteContentLength(url);
+          if (remoteSize != null &&
+              remoteSize == cachedSize &&
+              remoteSize == localSize &&
+              revisionMatch) {
+            continue;
+          }
+          if (remoteSize == null &&
+              cachedSize != null &&
+              cachedSize == localSize &&
+              revisionMatch) {
+            continue;
+          }
+        }
+
         try {
           final r = await http
               .get(Uri.parse(url))
               .timeout(const Duration(seconds: 30));
           if (r.statusCode == 200 && r.bodyBytes.length > 1024) {
             await out.writeAsBytes(r.bodyBytes);
-            meta[key] = url;
+            meta[key] = {
+              'url': url,
+              'size': r.bodyBytes.length,
+              if (specRevision > 0) 'revision': specRevision,
+            };
             metaChanged = true;
-            final reason = fileFresh ? 'URL changed' : 'first fetch';
+            final reason = !fileFresh
+                ? 'first fetch'
+                : cachedUrl != url
+                    ? 'URL changed'
+                    : !revisionMatch
+                        ? 'revision $specRevision'
+                        : 'remote size changed';
             debugPrint(
                 '[SceneSpec] $sceneId/$key: $reason, ${r.bodyBytes.length} bytes');
           }
@@ -241,6 +287,20 @@ class SceneSpecService {
       }
     } catch (e) {
       debugPrint('[SceneSpec] $sceneId: image_layers cache dir error $e');
+    }
+  }
+
+  /// HEAD Content-Length for remote asset staleness checks.
+  Future<int?> _remoteContentLength(String url) async {
+    try {
+      final r = await http
+          .head(Uri.parse(url))
+          .timeout(const Duration(seconds: 10));
+      if (r.statusCode < 200 || r.statusCode >= 300) return null;
+      final len = r.contentLength;
+      return (len != null && len > 0) ? len : null;
+    } catch (_) {
+      return null;
     }
   }
 
