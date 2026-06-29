@@ -39,6 +39,13 @@ class CanvasSceneRenderer(private val context: Context) {
     private val events = mutableListOf<SceneEvent>()
     private val layerBitmaps = mutableListOf<Pair<ImageLayerDef, Bitmap>>()
     /** Disk mtime per layer key — detect remote re-uploads without URL change. */
+    // Throttle for per-frame mtime polling (loadSpec + ensureLoaded). v1.7.44 fix:
+    // Grok's v1.7.42 hot-reload added one File.lastModified() per spec + per layer,
+    // EVERY draw frame (30/s). On gatitos that's 8 syscalls/frame = 240/s, all on
+    // the draw thread. We now poll at 1 Hz max. FCM/changedAt handlers call
+    // markSpecPotentiallyChanged() to skip the throttle and force an immediate check.
+    @Volatile private var lastDiskPollNs: Long = 0L
+    private val diskPollPeriodNs: Long = 1_000_000_000L
     private val layerSourceMtime = mutableMapOf<String, Long>()
     /** Spec revision per layer — admin bump forces RAM reload. */
     private val layerSourceRevision = mutableMapOf<String, Int>()
@@ -111,12 +118,21 @@ class CanvasSceneRenderer(private val context: Context) {
             } || s.cycles.isNotEmpty()
         }
 
-    /** True when the scene needs >1fps even without music (sprites, particles, bob). */
+    /** True when the scene needs >1fps even without music (sprites, particles, bob).
+     *
+     *  v1.7.44 fix: removed `events.isNotEmpty()` from this predicate. Events
+     *  (flash_overlay, phoenix, lightning_*, bat_swarm) are intermittent timed
+     *  bursts — between fires they have nothing to draw, so locking the
+     *  wallpaper to 30 fps for them burns battery for no gain. Grok's v1.7.42
+     *  inclusion was overly broad. The correct behaviour is what pre-Grok did:
+     *  1 fps idle + the draw thread wakes when an event enters its [interval,
+     *  interval+duration] window. Wallpapers using only events (e.g.
+     *  goku_genkidama flash_overlay) go back to battery-friendly idle. */
     val needsContinuousAnimation: Boolean
         get() {
             val s = spec ?: return false
             return hasBobAnimation || s.sprites.isNotEmpty() ||
-                s.particles.isNotEmpty() || s.events.isNotEmpty()
+                s.particles.isNotEmpty()
         }
     // The Pixora "P" 3D logo signature is owned globally by
     // PixoraWallpaperService so it appears on every wallpaper, not only
@@ -126,6 +142,14 @@ class CanvasSceneRenderer(private val context: Context) {
 
     /** Currently-loaded scene id, or null if none. */
     val currentSceneId: String? get() = loadedFor
+
+    /** External signal: spec or its layer files may have changed on disk (FCM
+     *  catalog_invalidate, prefs `changed_at` bump, admin replace-layer push).
+     *  Resets the disk-poll throttle so the very next draw frame re-stats the
+     *  spec file. Cheap — sets one volatile long. */
+    fun markSpecPotentiallyChanged() {
+        lastDiskPollNs = 0L
+    }
 
     /**
      * Load a scene spec by its id. Reads from filesDir/scene_specs/<id>.json
@@ -276,8 +300,15 @@ class CanvasSceneRenderer(private val context: Context) {
      *  layers here in z-order with gyroscope-driven parallax offsets). */
     fun draw(canvas: Canvas) {
         if (surfaceWidth <= 0 || surfaceHeight <= 0) return
-        // Hot-reload: one stat() per frame; re-parse only when spec file mtime changes.
-        loadedFor?.let { loadSpec(it) }
+        // Hot-reload — THROTTLED to 1 Hz so we don't burn 30 syscalls/sec on the
+        // draw thread (Grok's v1.7.42 added per-frame polling here). FCM /
+        // changedAt handlers call markSpecPotentiallyChanged() to skip the
+        // throttle and force an immediate re-parse on the next frame.
+        val nowNs = System.nanoTime()
+        if (nowNs - lastDiskPollNs >= diskPollPeriodNs) {
+            lastDiskPollNs = nowNs
+            loadedFor?.let { loadSpec(it) }
+        }
         if (spec == null) return
         ensureLoaded()
         // PERF (2026-06-06): pre-scale layer bitmaps to cover-fit dimensions
@@ -359,17 +390,20 @@ class CanvasSceneRenderer(private val context: Context) {
      *  When the bitmap is wider than the surface (oversized), the scroll
      *  offset pans across the extra horizontal slack — just like a panoramic
      *  wallpaper but per-layer with its own depth speed. */
-    /** Read cached layer from disk; download from spec URL if missing or stale
-     *  (wallpaper process may start before Flutter finished caching layers). */
+    /** Read cached layer from disk. v1.7.44 fix: removed the HTTP HEAD freshness
+     *  check Grok added in v1.7.43 — it ran inline on the draw thread (ANR risk
+     *  on flaky wifi; gatitos = 7 HEADs per ensureLoaded). The Dart side
+     *  (SceneSpecService._fetchImageLayers + _meta.json) is the authority on
+     *  layer freshness — it diffs URL + revision + size BEFORE the apply and
+     *  rewrites the local file when stale. Kotlin's job is purely to load it.
+     *
+     *  The synchronous one-shot download fallback below is retained for the
+     *  rare case where the wallpaper service starts before Flutter finished
+     *  caching layers (e.g. cold boot). Fires at most once per layer per
+     *  process lifetime; tolerable on the draw thread. */
     private fun ensureLayerFile(layerDir: File, layer: ImageLayerDef): File? {
         val f = File(layerDir, "${layer.key}.webp")
-        if (f.isFile && f.length() > 1024L && layer.url.isNotBlank()) {
-            val remoteLen = remoteContentLength(layer.url)
-            if (remoteLen == null || remoteLen == f.length()) return f
-            Log.d(TAG, "Layer ${layer.key} stale: local=${f.length()} remote=$remoteLen")
-        } else if (f.isFile && f.length() > 1024L) {
-            return f
-        }
+        if (f.isFile && f.length() > 1024L) return f
         if (layer.url.isBlank()) {
             Log.w(TAG, "Image layer file missing, no URL: ${layer.key}")
             return null
@@ -381,26 +415,10 @@ class CanvasSceneRenderer(private val context: Context) {
             conn.getInputStream().use { input ->
                 f.outputStream().use { output -> input.copyTo(output) }
             }
-            Log.d(TAG, "Downloaded layer ${layer.key} (${f.length()} bytes)")
+            Log.d(TAG, "Downloaded missing layer ${layer.key} (${f.length()} bytes)")
             if (f.isFile && f.length() > 1024L) f else null
         } catch (e: Exception) {
             Log.e(TAG, "Layer download failed ${layer.key}: ${e.message}")
-            if (f.isFile && f.length() > 1024L) f else null
-        }
-    }
-
-    private fun remoteContentLength(url: String): Long? {
-        return try {
-            val conn = java.net.URL(url).openConnection() as java.net.HttpURLConnection
-            conn.requestMethod = "HEAD"
-            conn.connectTimeout = 10_000
-            conn.readTimeout = 10_000
-            conn.connect()
-            val len = conn.contentLengthLong
-            conn.disconnect()
-            if (len > 0L) len else null
-        } catch (e: Exception) {
-            Log.w(TAG, "HEAD failed for layer URL: ${e.message}")
             null
         }
     }

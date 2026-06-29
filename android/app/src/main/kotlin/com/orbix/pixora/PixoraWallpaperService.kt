@@ -786,6 +786,11 @@ class PixoraWallpaperService : WallpaperService() {
             prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 if (key == "changed_at" || key == "wallpaper_path") {
                     Log.d(TAG, "Prefs changed: $key — scheduling reload")
+                    // v1.7.44: tell the canvas renderer to bypass its 1Hz disk-poll
+                    // throttle so the spec/layers are re-stat'd immediately on the
+                    // next draw frame (FCM-driven refresh feels instant instead of
+                    // waiting up to 1s for the throttle window).
+                    canvasSceneRenderer.markSpecPotentiallyChanged()
                     // Debounce: only reload once after 300ms of no changes
                     pendingReload?.let { handler.removeCallbacks(it) }
                     val reload = Runnable {
