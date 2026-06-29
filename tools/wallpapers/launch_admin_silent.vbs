@@ -2,7 +2,7 @@
 ' 1) Mata SOLO los pythons que estén corriendo wp_admin_server.py
 '    (vía PowerShell Stop-Process filtrando por CommandLine — método
 '    más confiable que WMI Terminate desde VBS).
-' 2) Espera a que el puerto 5757 quede libre (poll, no sleep ciego).
+' 2) Espera a que el puerto 5758 quede libre (poll, no sleep ciego).
 ' 3) Lanza una instancia fresca, oculta.
 ' 4) Abre el dashboard en el navegador.
 '
@@ -12,26 +12,35 @@
 Set sh = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
+' Prepend correct adb to PATH to avoid any "d:adb tools" flashes
+adbDir = "C:\Users\lalo\AppData\Local\Android\Sdk\platform-tools"
+Set procEnv = sh.Environment("PROCESS")
+procEnv("PATH") = adbDir & ";" & procEnv("PATH")
+
 scriptDir = fso.GetParentFolderName(WScript.ScriptFullName)
 serverPath = scriptDir & "\wp_admin_server.py"
 
-' ─── 1) Kill cualquier wp_admin_server.py previo ────────────────────────────
-' Usamos PowerShell con WindowStyle Hidden — más rápido y robusto que el
-' enfoque WMI puro de VBS (que requiere privilegios específicos para
-' Terminate y falla silencioso en algunas máquinas).
+' ─── 1) Mata TODO lo que use el puerto 5758 (wp_admin + outlier notes + cualquier otro)
+' Primero los wp_admin_server
 killCmd = "powershell -NoProfile -WindowStyle Hidden -Command """ & _
   "Get-CimInstance Win32_Process -Filter \""Name='pythonw.exe' OR Name='python.exe'\"" | " & _
   "Where-Object { $_.CommandLine -like '*wp_admin_server*' } | " & _
-  "ForEach-Object { Stop-Process -Id $_.ProcessId -ErrorAction SilentlyContinue }"" "
-sh.Run killCmd, 0, True   ' bWaitOnReturn=True — esperar a que termine de matar
+  "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"" "
+sh.Run killCmd, 0, True
 
-' ─── 2) Esperar a que puerto 5757 se libere (max 5s) ────────────────────────
+' Luego cualquier listener en 5758 (outlier, etc.)
+killPortCmd = "powershell -NoProfile -WindowStyle Hidden -Command """ & _
+  "$pids = @(Get-NetTCPConnection -LocalPort 5758 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Sort-Object -Unique); " & _
+  "foreach ($pid in $pids) { if ($pid) { Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue } }"" "
+sh.Run killPortCmd, 0, True
+
+' ─── 2) Esperar a que puerto 5758 se libere (max 5s) ────────────────────────
 Set httpProbe = CreateObject("MSXML2.XMLHTTP")
 freed = False
 For i = 0 To 20
   WScript.Sleep 250
   On Error Resume Next
-  httpProbe.Open "GET", "http://127.0.0.1:5757/api/stats", False
+  httpProbe.Open "GET", "http://127.0.0.1:5758/api/stats", False
   httpProbe.Send
   ' Si el GET falla con conexión rechazada → puerto libre.
   ' Si responde algo → todavía vive algo, seguir esperando.
@@ -71,7 +80,7 @@ ready = False
 For i = 0 To 24
   WScript.Sleep 250
   On Error Resume Next
-  httpReady.Open "GET", "http://127.0.0.1:5757/api/stats", False
+  httpReady.Open "GET", "http://127.0.0.1:5758/api/stats", False
   httpReady.Send
   If Err.Number = 0 And httpReady.Status >= 200 Then
     ready = True
@@ -83,4 +92,4 @@ For i = 0 To 24
 Next
 
 ' Abre dashboard incluso si el ready-check no respondió (puede tardar más).
-sh.Run "http://127.0.0.1:5757/", 1, False
+sh.Run "http://127.0.0.1:5758/", 1, False

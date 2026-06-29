@@ -17,7 +17,7 @@ import requests
 REPO = Path(__file__).resolve().parent.parent.parent
 KEYS = REPO / "KEYS_LOCAL.md"
 SUPA_URL = "https://vzuwvsmlyigjtsearxym.supabase.co"
-ADMIN_URL = "http://127.0.0.1:5757"
+ADMIN_URL = "http://127.0.0.1:5758"
 
 # Tu Samsung
 EDUARDO_DEVICE = "RF8X903KZ3K"

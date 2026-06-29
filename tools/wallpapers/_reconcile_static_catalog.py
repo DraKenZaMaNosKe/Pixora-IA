@@ -18,7 +18,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 KEYS = Path(r"D:/Orbix/Pixora-IA/KEYS_LOCAL.md").read_text(encoding="utf-8")
 SERVICE_KEY = re.search(r"Service Role Key[^\n]*?(eyJ[A-Za-z0-9_\-\.]+)", KEYS).group(1)
 PROJECT = "https://vzuwvsmlyigjtsearxym.supabase.co"
-ADMIN_LOCAL = "http://127.0.0.1:5757"
+ADMIN_LOCAL = "http://127.0.0.1:5758"
 
 # Campos que el dashboard puede editar — solo esos comparamos
 EDITABLE = {

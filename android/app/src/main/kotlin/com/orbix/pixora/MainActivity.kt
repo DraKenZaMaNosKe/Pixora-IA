@@ -433,9 +433,23 @@ class MainActivity : AudioServiceActivity() {
                         result.success(prefs.getString("scene_id", null))
                     }
                     "notifyWallpaperReload" -> {
-                        getSharedPreferences("pixora_live", 0).edit()
+                        val prefs = getSharedPreferences("pixora_live", 0)
+                        val path = prefs.getString("wallpaper_path", null)
+                        val glow = prefs.getString("glow_color", null)
+                        val caption = prefs.getString("caption", null)
+                        prefs.edit()
                             .putLong("changed_at", System.currentTimeMillis())
-                            .apply()
+                            .commit()
+                        // :wallpaper does not see main-process SharedPreferences writes;
+                        // broadcast so wallpaperPathReceiver syncs changed_at + reloads.
+                        if (!path.isNullOrBlank()) {
+                            val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
+                                .setPackage(packageName)
+                                .putExtra("wallpaper_path", path)
+                            if (glow != null) notify.putExtra("glow_color", glow)
+                            if (caption != null) notify.putExtra("caption", caption)
+                            sendBroadcast(notify)
+                        }
                         result.success(true)
                     }
                     "getOverlayVisibility" -> {

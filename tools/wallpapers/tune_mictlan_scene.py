@@ -3,7 +3,7 @@ Tune Mictlantecuhtli sprite size + position. Edit the two variables below,
 run, and the spec is patched + index bumped + device cache cleared in one
 shot. Usage: python tools/wallpapers/tune_mictlan_scene.py
 """
-import json, re, subprocess, urllib.request
+import json, os, re, subprocess, urllib.request
 from pathlib import Path
 
 # ─── EDIT THESE TO ITERATE SIZE/POSITION ──────────────────────────────
@@ -52,15 +52,17 @@ put("wallpaper-images", "catalog_index.json",
     "application/json")
 print(f"Catalog index bumped to v{idx['version']}")
 
-# 3. Clear device cache + relaunch
-subprocess.run(["adb", "-s", DEV, "shell", "run-as", "com.orbix.pixora",
-                "rm", "-f", "files/catalog_index.json"], check=False)
-subprocess.run(["adb", "-s", DEV, "shell", "run-as", "com.orbix.pixora",
-                "rm", "-rf", "files/scene_specs"], check=False)
-subprocess.run(["adb", "-s", DEV, "shell", "am", "force-stop",
-                "com.orbix.pixora"], check=False)
-subprocess.run(["adb", "-s", DEV, "shell", "am", "start",
-                "-n", "com.orbix.pixora/.MainActivity"], check=False)
+# 3. Clear device cache + relaunch (sin ventana adb)
+ADB = r"C:\Users\lalo\AppData\Local\Android\Sdk\platform-tools\adb.exe"
+flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+subprocess.run([ADB, "-s", DEV, "shell", "run-as", "com.orbix.pixora",
+                "rm", "-f", "files/catalog_index.json"], check=False, creationflags=flags)
+subprocess.run([ADB, "-s", DEV, "shell", "run-as", "com.orbix.pixora",
+                "rm", "-rf", "files/scene_specs"], check=False, creationflags=flags)
+subprocess.run([ADB, "-s", DEV, "shell", "am", "force-stop",
+                "com.orbix.pixora"], check=False, creationflags=flags)
+subprocess.run([ADB, "-s", DEV, "shell", "am", "start",
+                "-n", "com.orbix.pixora/.MainActivity"], check=False, creationflags=flags)
 print("Device cache cleared, Pixora relaunched.")
 print()
 print("Open Pixora -> 3D tab -> Mictlantecuhtli -> Apply again.")

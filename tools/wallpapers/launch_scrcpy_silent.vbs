@@ -45,13 +45,51 @@ If scrcpyPath = "scrcpy.exe" And fso.FolderExists(wingetDir) Then
   Next
 End If
 
+' --- Buscar adb.exe (para pre-iniciar el server sin ventana) ---
+adbPath = "adb.exe"
+adbCandidates = Array( _
+  "C:\Users\lalo\AppData\Local\Android\Sdk\platform-tools\adb.exe", _
+  localAppData & "\Android\Sdk\platform-tools\adb.exe", _
+  "C:\Program Files (x86)\Android\android-sdk\platform-tools\adb.exe" _
+)
+For Each c In adbCandidates
+  If fso.FileExists(c) Then
+    adbPath = c
+    Exit For
+  End If
+Next
+If adbPath = "adb.exe" Then
+  On Error Resume Next
+  adbPath = sh.RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths\adb.exe\")
+  On Error Goto 0
+End If
+
+' Prepend adb dir to PATH so any child (scrcpy, adb inside) uses the lalo one, not D:\adb
+adbDir = fso.GetParentFolderName(adbPath)
+Set procEnv = sh.Environment("PROCESS")
+procEnv("PATH") = adbDir & ";" & procEnv("PATH")
+
+' --- Pre-iniciar "adb start-server" completamente oculto ---
+' Esto evita que aparezca la ventanita negra de "adb" cuando scrcpy conecta.
+psAdb = "powershell.exe -NoProfile -WindowStyle Hidden -Command "" " & _
+  "$si = New-Object System.Diagnostics.ProcessStartInfo; " & _
+  "$si.FileName = '" & adbPath & "'; " & _
+  "$si.Arguments = 'start-server'; " & _
+  "$si.CreateNoWindow = $true; " & _
+  "$si.UseShellExecute = $false; " & _
+  "$si.RedirectStandardOutput = $true; " & _
+  "$si.RedirectStandardError = $true; " & _
+  "[void][System.Diagnostics.Process]::Start($si) """
+sh.Run psAdb, 0, True
+WScript.Sleep 600
+
 ' Build command: scrcpy --serial RF8X903KZ3K
 ' Wrapped in `cmd /c start "" ""` so the console window is detached and
 ' scrcpy.exe inherits its own GUI window from SDL (the mirror window).
 ' Without `start`, the wscript host can suppress scrcpy's window too.
-scrcpyCmd = """" & scrcpyPath & """ --serial " & deviceSerial
 fullCmd = "cmd.exe /c start """" """ & scrcpyPath & """ --serial " & deviceSerial
 
 ' WindowStyle 0 hides the cmd window; scrcpy's own mirror window appears
 ' normally because `start` decouples it from the cmd parent.
 sh.Run fullCmd, 0, False
+

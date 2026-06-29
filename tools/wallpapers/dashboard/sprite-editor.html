@@ -353,6 +353,66 @@
     margin-top: 8px; line-height: 1.6;
   }
   .layer-hidden { opacity: .35; }
+
+  /* ─── Import modal ─── */
+  .import-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(4,4,12,.72); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .import-overlay.open { display: flex; }
+  .import-panel {
+    width: min(920px, 96vw); max-height: 88vh;
+    background: var(--bg-1); border: 1px solid var(--line-hi);
+    border-radius: 12px; box-shadow: 0 24px 80px rgba(0,0,0,.55);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .import-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border-bottom: 1px solid var(--line);
+  }
+  .import-head h3 {
+    margin: 0; font-size: 12px; letter-spacing: .16em; color: var(--gold);
+    font-family: 'Cinzel', serif;
+  }
+  .import-tabs { display: flex; gap: 4px; margin-left: 12px; }
+  .import-tab {
+    background: var(--bg-2); border: 1px solid var(--line); color: var(--dim);
+    padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 10px;
+  }
+  .import-tab.active { color: var(--gold-bright); border-color: var(--line-hi); }
+  .import-body { flex: 1; overflow-y: auto; padding: 12px; }
+  .import-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+  .import-card {
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px;
+    overflow: hidden; cursor: pointer; transition: border-color 120ms;
+  }
+  .import-card:hover, .import-card.selected { border-color: var(--cyan); }
+  .import-card img, .import-card .zip-thumb {
+    width: 100%; aspect-ratio: 9/16; object-fit: cover; display: block;
+    background: var(--bg-3);
+  }
+  .import-card .zip-thumb {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: var(--gold);
+  }
+  .import-card .meta {
+    padding: 6px 8px; font-size: 9px; color: var(--dim);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .import-foot {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    padding: 12px 14px; border-top: 1px solid var(--line);
+  }
+  .import-foot select, .import-foot input {
+    background: var(--bg-2); border: 1px solid var(--line); color: var(--text);
+    padding: 6px 8px; border-radius: 6px; font-family: inherit; font-size: 11px;
+  }
+  .import-hint { font-size: 9px; color: var(--dim); letter-spacing: .08em; flex: 1; min-width: 200px; }
 </style>
 </head>
 <body>
@@ -367,6 +427,11 @@
     <button class="tab" data-mode="panoramic">PANORAMIC</button>
   </div>
   <div class="spacer"></div>
+  <div class="picker" id="device-picker" title="Dimensiones del dispositivo conectado (adb)">
+    <label>DEVICE</label>
+    <span id="device-label" style="font-size:11px;color:var(--cyan);cursor:pointer">detectando…</span>
+  </div>
+  <button class="btn" id="btn-device" title="Re-detectar tamaño del cel conectado"><span class="ico">📱</span></button>
   <button class="btn" id="btn-reload" title="Re-fetch del server"><span class="ico">⟳</span> Recargar</button>
   <button class="btn" id="btn-undo" title="Deshacer (Ctrl+Z)" disabled><span class="ico">↶</span></button>
   <button class="btn primary" id="btn-save"><span class="ico">💾</span> GUARDAR<span id="save-dot"></span></button>
@@ -390,6 +455,8 @@
     <div class="stage-toolbar" id="stage-toolbar" style="display:none">
       <button class="btn active" id="tool-select" title="Seleccionar / mover">◎ SEL</button>
       <button class="btn" id="tool-grid" title="Cuadrícula 54px">▦ GRID</button>
+      <button class="btn" id="tool-import" title="Importar capas o sprite packs (cel / PC)">📲 IMPORT</button>
+      <button class="btn" id="tool-ref" title="Flat de referencia (background.url) — solo comparación">🖼 REF</button>
       <button class="btn" id="tool-blink" title="Ocultar frames de parpadeo">👁 BLINK</button>
       <button class="btn" id="tool-sync" title="Mover grupo de cycle junto">🔗 SYNC</button>
       <button class="btn" id="tool-copy" title="Copiar offsets al portapapeles">📋 COPY</button>
@@ -437,6 +504,46 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="import-overlay" id="import-overlay">
+  <div class="import-panel">
+    <div class="import-head">
+      <h3 id="import-title">IMPORTAR</h3>
+      <div class="import-tabs" id="import-mode-tabs">
+        <button type="button" class="import-tab active" data-import-mode="layer">🖼 Capas</button>
+        <button type="button" class="import-tab" data-import-mode="sprite">🎞 Sprite pack</button>
+      </div>
+      <div class="import-tabs" style="margin-left:8px">
+        <button type="button" class="import-tab active" data-import-tab="device">📱 Cel</button>
+        <button type="button" class="import-tab" data-import-tab="pc">💻 PC</button>
+      </div>
+      <div class="spacer"></div>
+      <button type="button" class="btn" id="import-refresh">⟳</button>
+      <button type="button" class="btn" id="import-close">✕</button>
+    </div>
+    <div class="import-body" id="import-body">
+      <div class="loading" id="import-loading">conectando adb…</div>
+      <div class="import-grid" id="import-grid" style="display:none"></div>
+      <div id="import-pc-pane" style="display:none;text-align:center;padding:28px 12px">
+        <p id="import-pc-hint" style="color:var(--dim);font-size:11px;margin:0 0 14px">
+          JPG · PNG · WebP — se convierte a WebP y sube a Supabase
+        </p>
+        <input type="file" id="import-pc-file" accept="image/*" style="display:none">
+        <button type="button" class="btn primary" id="import-pc-pick">Elegir archivo…</button>
+        <div id="import-pc-name" style="margin-top:10px;font-size:10px;color:var(--cyan)"></div>
+      </div>
+    </div>
+    <div class="import-foot">
+      <label style="font-size:10px;color:var(--dim)">ACCIÓN</label>
+      <select id="import-action"></select>
+      <input type="text" id="import-layer-key" placeholder="layer_key" style="width:120px;display:none">
+      <input type="text" id="import-sprite-name" placeholder="nombre sprite" style="width:120px;display:none">
+      <input type="number" id="import-frame-skip" step="0.1" value="2" title="frame_skip" style="width:56px;display:none">
+      <span class="import-hint" id="import-hint">Pixora/inbox en el cel</span>
+      <button type="button" class="btn primary" id="import-apply" disabled>Subir y aplicar</button>
+    </div>
+  </div>
+</div>
+
 <script type="importmap">
 {
   "imports": {
@@ -447,6 +554,7 @@
 
 <script type="module">
 import * as THREE from 'three';
+import * as SC from '/scene_coords.js';
 
 // ═════════════════════════════════════════════════════════════════════
 // STATE
@@ -454,7 +562,8 @@ import * as THREE from 'three';
 
 const SUPA = 'https://vzuwvsmlyigjtsearxym.supabase.co';
 const SUPA_STORAGE = `${SUPA}/storage/v1/object/public`;
-const PHONE_W = 1080, PHONE_H = 2340;
+function phoneW() { return SC.surface.w; }
+function phoneH() { return SC.surface.h; }
 
 let state = {
   mode: '3d',
@@ -469,8 +578,12 @@ let state = {
   staticUrl: null,
   staticMeta: null,
   showGrid: false,
+  showReferenceBg: false,      // flat background.url overlay (off = WYSIWYG con device)
   hideBlinkFrames: true,       // preview only open/half/shut hidden except open
   syncCycleLayers: true,
+  device: null,                  // last /api/device-surface payload
+  devicePollId: null,
+  spriteCacheBust: Date.now(),
 };
 
 const $ = sel => document.querySelector(sel);
@@ -486,8 +599,18 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
 const scene = new THREE.Scene();
-const camera = new THREE.OrthographicCamera(-PHONE_W/2, PHONE_W/2, PHONE_H/2, -PHONE_H/2, -1000, 1000);
+const camera = new THREE.OrthographicCamera(-540, 540, 1170, -1170, -1000, 1000);
 camera.position.z = 100;
+
+function updateCameraFrustum() {
+  const w = phoneW(), h = phoneH();
+  camera.left = -w / 2;
+  camera.right = w / 2;
+  camera.top = h / 2;
+  camera.bottom = -h / 2;
+  camera.updateProjectionMatrix();
+}
+updateCameraFrustum();
 let viewZoom = 1;
 let viewPanX = 0;
 let viewPanY = 0;
@@ -501,13 +624,12 @@ let bgMesh = null;
 let layerMeshes = [];           // {mesh, layer}
 let spriteMeshes = [];          // {mesh, spriteDef, frames: [Texture], idx, framesLoaded}
 
-function makePhoneFrame() {
-  const g = new THREE.PlaneGeometry(PHONE_W + 24, PHONE_H + 24);
+function makePhoneFrame(w, h) {
+  const g = new THREE.PlaneGeometry(w + 24, h + 24);
   const m = new THREE.MeshBasicMaterial({color: 0x000000});
   const back = new THREE.Mesh(g, m);
   back.position.z = -10;
-  // border line: use EdgesGeometry to render a stroke
-  const innerG = new THREE.PlaneGeometry(PHONE_W, PHONE_H);
+  const innerG = new THREE.PlaneGeometry(w, h);
   const edges = new THREE.EdgesGeometry(innerG);
   const border = new THREE.LineSegments(edges,
       new THREE.LineBasicMaterial({color: 0xE6B655, transparent: true, opacity: 0.7}));
@@ -516,7 +638,19 @@ function makePhoneFrame() {
   scene.add(border);
   return {back, border};
 }
-phoneFrame = makePhoneFrame();
+
+function rebuildPhoneFrame() {
+  if (phoneFrame) {
+    scene.remove(phoneFrame.back);
+    scene.remove(phoneFrame.border);
+    disposeMesh(phoneFrame.back);
+    phoneFrame.border.geometry.dispose();
+    phoneFrame.border.material.dispose();
+  }
+  phoneFrame = makePhoneFrame(phoneW(), phoneH());
+}
+
+rebuildPhoneFrame();
 
 // Selection outline
 const selOutlineGeom = new THREE.PlaneGeometry(1, 1);
@@ -526,19 +660,48 @@ const selOutline = new THREE.LineSegments(selOutlineEdges,
 selOutline.visible = false; selOutline.position.z = 60;
 scene.add(selOutline);
 
+let anchorMarker = null;
+function ensureAnchorMarker() {
+  if (anchorMarker) return;
+  const g = new THREE.RingGeometry(5, 10, 32);
+  const m = new THREE.MeshBasicMaterial({color: 0xFF2BD6, transparent: true, opacity: 0.95});
+  anchorMarker = new THREE.Mesh(g, m);
+  anchorMarker.position.z = 65;
+  scene.add(anchorMarker);
+}
+
+function updateAnchorMarker() {
+  const p = getPrimarySelection();
+  if (!p || p.kind !== 'sprite' || !isSceneEditing() || state.selection.length !== 1) {
+    if (anchorMarker) anchorMarker.visible = false;
+    return;
+  }
+  const o = spriteMeshes[p.idx];
+  const sp = state.spec?.sprites?.[p.idx];
+  if (!o || !sp || sp.params?.fullscreen) {
+    if (anchorMarker) anchorMarker.visible = false;
+    return;
+  }
+  ensureAnchorMarker();
+  const {w, h} = SC.spriteRenderSize(sp.params, o.mesh.userData.natW, o.mesh.userData.natH);
+  const aw = SC.spriteAnchorWorld(sp.params, w, h);
+  anchorMarker.position.set(aw.x, aw.y, 65);
+  anchorMarker.visible = true;
+}
+
 function fitCanvas() {
   const wrap = $('#stage');
   const w = wrap.clientWidth, h = wrap.clientHeight - 80;
   renderer.setSize(w, h, false);
 
-  const phoneAspect = PHONE_W / PHONE_H;
+  const phoneAspect = phoneW() / phoneH();
   const viewAspect = w / h;
   let viewW, viewH;
   if (viewAspect > phoneAspect) {
-    viewH = PHONE_H * 1.05;
+    viewH = phoneH() * 1.05;
     viewW = viewH * viewAspect;
   } else {
-    viewW = PHONE_W * 1.05;
+    viewW = phoneW() * 1.05;
     viewH = viewW / viewAspect;
   }
   camera.left = -viewW / 2;
@@ -736,7 +899,10 @@ async function loadSceneSpec(it) {
   state.selection = [];
   viewZoom = 1;
   resetViewPan();
-  $('#stage-info').innerHTML = `<span class="strong">${it.id}</span> · canvas_scene`;
+  const devTag = state.device?.connected && state.device?.source === 'device'
+    ? `${state.device.model || state.device.serial} ${phoneW()}×${phoneH()}`
+    : `${phoneW()}×${phoneH()} ref`;
+  $('#stage-info').innerHTML = `<span class="strong">${it.id}</span> · canvas_scene · <span style="color:var(--cyan)">${escapeHtml(devTag)}</span>`;
   $('#canvas-3d').style.display = 'block';
   $('#stage-ctrl').style.display = 'flex';
   $('#stage-toolbar').style.display = 'flex';
@@ -751,10 +917,15 @@ async function loadSceneSpec(it) {
     $('#items-panel').innerHTML = `<div class="loading">error: ${escapeHtml(e.message)}</div>`;
     return;
   }
-  await rebuildScene();
-  renderItemsPanel();
-  fitCanvas();
-  pushHistory();
+  try {
+    await rebuildScene();
+    renderItemsPanel();
+    fitCanvas();
+    pushHistory();
+  } catch (e) {
+    console.error('loadSceneSpec failed', e);
+    $('#items-panel').innerHTML = `<div class="loading">error rebuild: ${escapeHtml(e.message)}</div>`;
+  }
 }
 
 async function loadLiveItem(it) {
@@ -788,6 +959,12 @@ async function loadStaticItem(it) {
 
 const texLoader = new THREE.TextureLoader();
 texLoader.setCrossOrigin('anonymous');
+
+function assetUrlWithBust(url, revision) {
+  if (!url) return url;
+  const rev = revision != null ? revision : Date.now();
+  return url + (url.includes('?') ? '&' : '?') + 'rev=' + rev;
+}
 
 function loadTexture(url) {
   return new Promise((res, rej) => {
@@ -893,23 +1070,33 @@ async function rebuildScene() {
 
   if (!state.spec) return;
 
-  // Background (from spec.background.url) — drawn behind everything
-  const bgUrl = state.spec.background?.url;
-  if (bgUrl) {
-    try {
-      const tex = await loadTexture(bgUrl);
-      const aspect = tex.image.width / tex.image.height;
-      const screenAspect = PHONE_W / PHONE_H;
-      // Cover-fit: scale so the bg fills the phone
-      let w, h;
-      if (aspect > screenAspect) { h = PHONE_H; w = h * aspect; }
-      else { w = PHONE_W; h = w / aspect; }
-      const g = new THREE.PlaneGeometry(w, h);
-      const m = new THREE.MeshBasicMaterial({map: tex});
-      bgMesh = new THREE.Mesh(g, m);
-      bgMesh.position.z = 0;
-      scene.add(bgMesh);
-    } catch (e) { console.warn('bg load failed', e); }
+  const parallaxMode = SC.hasParallaxLayers(state.spec);
+
+  // Parallax scenes: device clears BLACK and only draws image_layers (no flat bg).
+  // Editor matches that by default; REF toggle shows background.url for comparison.
+  if (parallaxMode && !state.showReferenceBg) {
+    const g = new THREE.PlaneGeometry(phoneW(), phoneH());
+    const m = new THREE.MeshBasicMaterial({color: 0x000000});
+    bgMesh = new THREE.Mesh(g, m);
+    bgMesh.position.z = -0.5;
+    scene.add(bgMesh);
+  } else {
+    const bgUrl = state.spec.background?.url;
+    if (bgUrl) {
+      try {
+        const tex = await loadTexture(bgUrl);
+        const {w, h} = SC.spriteRenderSize({fullscreen: true}, tex.image.width, tex.image.height);
+        const g = new THREE.PlaneGeometry(w, h);
+        const m = new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: parallaxMode && state.showReferenceBg,
+          opacity: parallaxMode && state.showReferenceBg ? 0.35 : 1,
+        });
+        bgMesh = new THREE.Mesh(g, m);
+        bgMesh.position.z = 0;
+        scene.add(bgMesh);
+      } catch (e) { console.warn('bg load failed', e); }
+    }
   }
 
   // image_layers (z>0 above bg)
@@ -921,20 +1108,13 @@ async function rebuildScene() {
     if (layer.offset_x_px == null) layer.offset_x_px = 0;
     if (layer.offset_y_px == null) layer.offset_y_px = 0;
     try {
-      const tex = await loadTexture(layer.url);
-      const aspect = tex.image.width / tex.image.height;
-      const scale = layer.scale || 1.0;
-      // Cover-fit then apply layer.scale (matches CanvasSceneRenderer)
-      const screenAspect = PHONE_W / PHONE_H;
-      let w, h;
-      if (aspect > screenAspect) { h = PHONE_H; w = h * aspect; }
-      else { w = PHONE_W; h = w / aspect; }
-      w *= scale; h *= scale;
+      const tex = await loadTexture(assetUrlWithBust(layer.url, layer.revision));
+      const {w, h} = SC.layerWorldSize(tex.image.width, tex.image.height, layer);
       const g = new THREE.PlaneGeometry(w, h);
       const m = new THREE.MeshBasicMaterial({map: tex, transparent: true});
       const mesh = new THREE.Mesh(g, m);
       mesh.position.z = 1 + (layer.z || 0) * 0.1;
-      applyLayerTransform(mesh, layer);
+      SC.applyLayerMeshTransform(mesh, layer);
       const alphaBbox = computeAlphaBbox(tex.image);
       mesh.userData = {kind: 'layer', layerIdx: i, layerKey: layer.key, alphaBbox};
       scene.add(mesh);
@@ -951,33 +1131,41 @@ async function rebuildScene() {
   }
 }
 
+async function fetchSpriteFrameCount(manifestKey) {
+  try {
+    const r = await fetch(`/api/sprite-info?manifest_key=${encodeURIComponent(manifestKey)}`);
+    if (!r.ok) return 15;
+    const j = await r.json();
+    return Math.max(1, parseInt(j.frames, 10) || 15);
+  } catch (e) { return 15; }
+}
+
+function spriteFrameUrl(manifestKey, frame, bust) {
+  const b = bust != null ? bust : (state.spriteCacheBust || 0);
+  return `/api/sprite-frame?manifest_key=${encodeURIComponent(manifestKey)}&frame=${frame}&t=${b}`;
+}
+
 async function buildSpriteMesh(sp, idx) {
-  // Load first frame to determine native size
+  const frameCount = await fetchSpriteFrameCount(sp.manifest_key);
   let firstTex;
   try {
-    firstTex = await loadTexture(`/api/sprite-frame?manifest_key=${encodeURIComponent(sp.manifest_key)}&frame=1`);
+    firstTex = await loadTexture(spriteFrameUrl(sp.manifest_key, 1));
   } catch (e) { console.warn('sprite frame load failed', sp.name, e); return null; }
   const natW = firstTex.image.width;
   const natH = firstTex.image.height;
-  // After sample size=2 in renderer the sprite is half-res; we use 240 as
-  // canonical because that's the ZIP source. Renderer math:
-  //   pixelW = (natW/2) * scale * surfaceW   (sample=2)
-  // For preview we use natW (full GIF size) so pixelW = natW * scale * surfaceW * 0.5
-  // To match what the device renders we use: spritePixelWidth = (natW/2) * scale * surfaceW
-  const surfaceW = PHONE_W;
-  const renderW = (natW / 2) * (sp.params.scale || 0.003) * surfaceW;
-  const renderH = renderW * (natH / natW);
+  const {w: renderW, h: renderH} = SC.spriteRenderSize(sp.params, natW, natH);
   const g = new THREE.PlaneGeometry(renderW, renderH);
   const m = new THREE.MeshBasicMaterial({
     map: firstTex, transparent: true, alphaTest: 0.01,
     depthWrite: false,
   });
   const mesh = new THREE.Mesh(g, m);
-  // Position: spec x,y are normalized 0..1 of surface (top-left origin in
-  // renderer but Three.js Y is up; we flip y).
-  mesh.position.x = (sp.params.x - 0.5) * PHONE_W;
-  mesh.position.y = (0.5 - sp.params.y) * PHONE_H;
-  mesh.position.z = 10 + idx;
+  if (sp.params?.fullscreen) {
+    mesh.position.set(0, 0, 10 + idx);
+  } else {
+    const pos = SC.spriteMeshPosition(sp.params, renderW, renderH);
+    mesh.position.set(pos.x, pos.y, 10 + idx);
+  }
   const alphaBbox = computeAlphaBbox(firstTex.image) || {
     x: 0, y: 0, w: natW, h: natH, texW: natW, texH: natH,
   };
@@ -985,12 +1173,11 @@ async function buildSpriteMesh(sp, idx) {
   scene.add(mesh);
 
   // Lazy-load remaining frames
-  const obj = {mesh, spriteDef: sp, frames: [firstTex], framesLoaded: 1, idx, frameCount: 15};
-  // Background-load frames 2..15
+  const obj = {mesh, spriteDef: sp, frames: [firstTex], framesLoaded: 1, idx, frameCount};
   (async () => {
-    for (let f = 2; f <= 15; f++) {
+    for (let f = 2; f <= frameCount; f++) {
       try {
-        const t = await loadTexture(`/api/sprite-frame?manifest_key=${encodeURIComponent(sp.manifest_key)}&frame=${f}`);
+        const t = await loadTexture(spriteFrameUrl(sp.manifest_key, f));
         obj.frames.push(t); obj.framesLoaded++;
       } catch (e) { break; }
     }
@@ -1002,12 +1189,30 @@ function updateSpriteMeshSize(o) {
   const sp = o.spriteDef;
   const natW = o.mesh.userData.natW;
   const natH = o.mesh.userData.natH;
-  const renderW = (natW / 2) * (sp.params.scale || 0.003) * PHONE_W;
-  const renderH = renderW * (natH / natW);
+  const {w: renderW, h: renderH} = SC.spriteRenderSize(sp.params, natW, natH);
+  if (sp.params?.fullscreen) {
+    o.mesh.position.set(0, 0, o.mesh.position.z);
+  } else {
+    const pos = SC.spriteMeshPosition(sp.params, renderW, renderH);
+    o.mesh.position.set(pos.x, pos.y, o.mesh.position.z);
+  }
   o.mesh.geometry.dispose();
   o.mesh.geometry = new THREE.PlaneGeometry(renderW, renderH);
-  o.mesh.position.x = (sp.params.x - 0.5) * PHONE_W;
-  o.mesh.position.y = (0.5 - sp.params.y) * PHONE_H;
+}
+
+function calibrateSpriteAnchor(idx) {
+  const sp = state.spec?.sprites?.[idx];
+  const o = spriteMeshes[idx];
+  if (!sp || !o) return;
+  const bbox = o.mesh.userData.alphaBbox;
+  const {w, h} = SC.spriteRenderSize(sp.params, o.mesh.userData.natW, o.mesh.userData.natH);
+  const anchor = SC.anchorFromAlphaBbox(bbox);
+  sp.params = SC.retargetSpriteAnchor(sp.params, anchor.x, anchor.y, w, h);
+  updateSpriteMeshSize(o);
+  markDirty();
+  renderItemsPanel();
+  updateStatusBar();
+  toast(`Anchor visual ${anchor.x.toFixed(3)}, ${anchor.y.toFixed(3)}`, 'ok');
 }
 
 function isBlinkVariant(key) {
@@ -1067,24 +1272,13 @@ function setSpriteParam(idx, key, value) {
   });
 }
 
-function applyLayerTransform(mesh, layer) {
-  mesh.position.x = layer.offset_x_px || 0;
-  mesh.position.y = -(layer.offset_y_px || 0);
-}
-
 function updateLayerMeshSize(o) {
   if (!o.mesh.material.map?.image) return;
   const tex = o.mesh.material.map;
-  const aspect = tex.image.width / tex.image.height;
-  const scale = o.layer.scale || 1.0;
-  const screenAspect = PHONE_W / PHONE_H;
-  let w, h;
-  if (aspect > screenAspect) { h = PHONE_H; w = h * aspect; }
-  else { w = PHONE_W; h = w / aspect; }
-  w *= scale; h *= scale;
+  const {w, h} = SC.layerWorldSize(tex.image.width, tex.image.height, o.layer);
   o.mesh.geometry.dispose();
   o.mesh.geometry = new THREE.PlaneGeometry(w, h);
-  applyLayerTransform(o.mesh, o.layer);
+  SC.applyLayerMeshTransform(o.mesh, o.layer);
 }
 
 function findLayerObjByKey(key) {
@@ -1325,8 +1519,8 @@ function applyDragDelta(snapshots, dx, dy) {
       setLayerOffsetKeys([item.key], item.ox0 + dx, item.oy0 - dy);
     } else {
       const sp = state.spec.sprites[item.idx];
-      sp.params.x = Math.max(-0.1, Math.min(1.1, item.sp0x + dx / PHONE_W));
-      sp.params.y = Math.max(-0.1, Math.min(1.1, item.sp0y - dy / PHONE_H));
+      sp.params.x = Math.max(-0.1, Math.min(1.1, item.sp0x + dx / phoneW()));
+      sp.params.y = Math.max(-0.1, Math.min(1.1, item.sp0y - dy / phoneH()));
       updateSpriteMeshSize(spriteMeshes[item.idx]);
     }
   });
@@ -1349,7 +1543,7 @@ function setLayerOffsetKeys(keys, ox, oy) {
     const l = findLayerDefByKey(k);
     if (l) { l.offset_x_px = ox; l.offset_y_px = oy; }
     const o = findLayerObjByKey(k);
-    if (o) applyLayerTransform(o.mesh, l);
+    if (o) SC.applyLayerMeshTransform(o.mesh, l);
   });
 }
 
@@ -1394,6 +1588,7 @@ function updateTransformBox() {
   box.style.width = (maxR - minL + pad * 2) + 'px';
   box.style.height = (maxB - minT + pad * 2) + 'px';
   box.classList.add('visible');
+  updateAnchorMarker();
 }
 
 function updateStatusBar() {
@@ -1426,7 +1621,14 @@ function updateStatusBar() {
   } else {
     const sp = state.spec.sprites[s.idx];
     if (!sp) return;
-    bar.innerHTML = `<strong>${escapeHtml(sp.name)}</strong> · X ${sp.params.x.toFixed(3)} · Y ${sp.params.y.toFixed(3)} · SCALE ${sp.params.scale.toFixed(4)} · Ctrl+clic multi`;
+    if (sp.params?.fullscreen) {
+      bar.innerHTML = `<strong>${escapeHtml(sp.name)}</strong> · FULLSCREEN overlay · SPEED ${(parseFloat(sp.frame_skip)||2).toFixed(1)} · Ctrl+clic multi`;
+    } else {
+      const ax = sp.params.anchor_x ?? 0.5, ay = sp.params.anchor_y ?? 0.5;
+      const px = Math.round((sp.params.x ?? 0.5) * phoneW());
+      const py = Math.round((sp.params.y ?? 0.5) * phoneH());
+      bar.innerHTML = `<strong>${escapeHtml(sp.name)}</strong> · X ${(sp.params.x ?? 0.5).toFixed(3)} (${px}px) · Y ${(sp.params.y ?? 0.5).toFixed(3)} (${py}px) · SCALE ${(sp.params.scale ?? 0.003).toFixed(4)} · ◎ magenta = anchor · Ctrl+clic multi`;
+    }
   }
 }
 
@@ -1676,7 +1878,8 @@ function renderItemsPanel() {
       html += layerCardHtml(l, i, hidden);
     });
   }
-  html += `<div class="hint-bar">rueda = zoom · clic vacío+arrastrar = pan · Espacio+arrastrar = pan · Alt+rueda = escala · SPEED ±decimal</div>`;
+  const wysiwyg = SC.hasParallaxLayers(state.spec) && !state.showReferenceBg;
+  html += `<div class="hint-bar">rueda = zoom · pan vacío/Espacio · Alt+rueda = escala · ${wysiwyg ? 'WYSIWYG cel (sin flat bg)' : 'REF = comparar flat'} · ◎ centro visual = anchor</div>`;
   panel.innerHTML = html;
   panel.querySelectorAll('input[data-key]').forEach(inp => {
     inp.oninput = () => {
@@ -1712,6 +1915,13 @@ function renderItemsPanel() {
       const idx = +card.dataset.pick;
       if (ev.ctrlKey || ev.metaKey) toggleSelection(kind, idx);
       else selectOnly(kind, idx);
+    };
+  });
+  panel.querySelectorAll('[data-cal-anchor]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      calibrateSpriteAnchor(+btn.dataset.calAnchor);
+      pushHistory();
     };
   });
   panel.querySelectorAll('[data-bump]').forEach(btn => {
@@ -1757,28 +1967,32 @@ function spriteCardHtml(sp, i) {
   const isSel = isSelected('sprite', i);
   const grp = spriteGroupKey(sp);
   const grpBadge = state.syncCycleLayers ? 'GRP' : 'SPR';
+  const fs = !!sp.params?.fullscreen;
+  const posFields = fs ? `
+    <div class="hint-bar" style="margin:6px 0 0">FULLSCREEN · overlay transparente cover-fit (sin X/Y/SCALE)</div>` : `
+    <div class="field"><label>X</label>
+      <input type="number" step="0.005" value="${(sp.params.x ?? 0.5).toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="x">
+      <button class="bump" data-bump="-0.01" data-idx="${i}" data-key="x">−</button>
+      <button class="bump" data-bump="0.01" data-idx="${i}" data-key="x">+</button>
+    </div>
+    <div class="field"><label>Y</label>
+      <input type="number" step="0.005" value="${(sp.params.y ?? 0.5).toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="y">
+      <button class="bump" data-bump="-0.01" data-idx="${i}" data-key="y">−</button>
+      <button class="bump" data-bump="0.01" data-idx="${i}" data-key="y">+</button>
+    </div>
+    <div class="field"><label>SCALE</label>
+      <input type="number" step="0.0001" value="${(sp.params.scale ?? 0.003).toFixed(4)}" data-kind="sprite" data-idx="${i}" data-key="scale">
+      <button class="bump" data-bump="-0.1" data-idx="${i}" data-key="scale">−</button>
+      <button class="bump" data-bump="0.1" data-idx="${i}" data-key="scale">+</button>
+    </div>`;
   return `
   <div class="item-card${isSel ? ' selected' : ''}" data-pick="${i}" data-kind="sprite">
     <div class="item-head">
       <span class="swatch">${(sp.name || '?')[0].toUpperCase()}</span>
       <span class="name">${escapeHtml(sp.name)}</span>
-      <span class="badge" title="${escapeHtml(grp)}">${grpBadge} · ${sp.behavior}</span>
+      <span class="badge" title="${escapeHtml(grp)}">${grpBadge} · ${sp.behavior}${fs ? ' · FS' : ''}</span>
     </div>
-    <div class="field"><label>X</label>
-      <input type="number" step="0.005" value="${(sp.params.x).toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="x">
-      <button class="bump" data-bump="-0.01" data-idx="${i}" data-key="x">−</button>
-      <button class="bump" data-bump="0.01" data-idx="${i}" data-key="x">+</button>
-    </div>
-    <div class="field"><label>Y</label>
-      <input type="number" step="0.005" value="${(sp.params.y).toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="y">
-      <button class="bump" data-bump="-0.01" data-idx="${i}" data-key="y">−</button>
-      <button class="bump" data-bump="0.01" data-idx="${i}" data-key="y">+</button>
-    </div>
-    <div class="field"><label>SCALE</label>
-      <input type="number" step="0.0001" value="${(sp.params.scale).toFixed(4)}" data-kind="sprite" data-idx="${i}" data-key="scale">
-      <button class="bump" data-bump="-0.1" data-idx="${i}" data-key="scale">−</button>
-      <button class="bump" data-bump="0.1" data-idx="${i}" data-key="scale">+</button>
-    </div>
+    ${posFields}
     <div class="field"><label>SPEED</label>
       <input type="number" step="0.1" value="${(parseFloat(sp.frame_skip)||2).toFixed(1)}" data-kind="sprite" data-idx="${i}" data-key="frame_skip" title="ticks/frame · menor=más rápido · negativo=reversa">
       <button class="bump" data-bump="-0.5" data-idx="${i}" data-key="frame_skip">−</button>
@@ -1789,6 +2003,10 @@ function spriteCardHtml(sp, i) {
       <button class="bump" data-bump="-10" data-idx="${i}" data-key="alpha">−</button>
       <button class="bump" data-bump="10" data-idx="${i}" data-key="alpha">+</button>
     </div>
+    ${fs ? '' : `<div class="hint-bar" style="margin-top:6px">
+      ANCHOR ${(sp.params.anchor_x ?? 0.5).toFixed(3)}, ${(sp.params.anchor_y ?? 0.5).toFixed(3)}
+      · <button class="btn" type="button" data-cal-anchor="${i}" style="padding:2px 6px;font-size:9px">◎ centro visual</button>
+    </div>`}
   </div>`;
 }
 
@@ -2049,6 +2267,18 @@ $('#tool-grid').onclick = () => {
   $('#grid-overlay').classList.toggle('on', state.showGrid);
   $('#tool-grid').classList.toggle('active', state.showGrid);
 };
+$('#tool-ref').onclick = async () => {
+  if (!SC.hasParallaxLayers(state.spec)) {
+    toast('Sin image_layers — flat bg ya es la vista principal', 'ok');
+    return;
+  }
+  state.showReferenceBg = !state.showReferenceBg;
+  $('#tool-ref').classList.toggle('active', state.showReferenceBg);
+  await rebuildScene();
+  toast(state.showReferenceBg
+    ? 'REF ON — flat semitransparente (solo comparar)'
+    : 'REF OFF — WYSIWYG como el cel (capas + sprites)', 'ok');
+};
 $('#tool-blink').onclick = async () => {
   state.hideBlinkFrames = !state.hideBlinkFrames;
   $('#tool-blink').classList.toggle('active', state.hideBlinkFrames);
@@ -2081,12 +2311,481 @@ $('#tool-grpall').onclick = () => {
 $('#tool-selall').onclick = () => selectAllEditable();
 
 // ═════════════════════════════════════════════════════════════════════
+// IMAGE IMPORT (device adb + PC upload)
+// ═════════════════════════════════════════════════════════════════════
+
+const importState = {
+  mode: 'layer',   // layer | sprite
+  tab: 'device',   // device | pc
+  images: [],
+  selectedPath: null,
+  pcFile: null,
+  busy: false,
+};
+
+const LAYER_ACTIONS = [
+  ['replace_layer', 'Reemplazar capa seleccionada'],
+  ['add_layer', 'Nueva capa'],
+  ['background', 'Fondo flat (background.url)'],
+];
+const SPRITE_ACTIONS = [
+  ['replace_sprite', 'Reemplazar sprite seleccionado'],
+  ['add_sprite', 'Nuevo sprite'],
+];
+
+function formatBytes(n) {
+  if (!n) return '';
+  if (n < 1024) return n + ' B';
+  if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' KB';
+  return (n / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function getImportTargetLayerKey() {
+  const p = getPrimarySelection();
+  if (p?.kind === 'layer') {
+    const l = state.spec?.image_layers?.[p.idx];
+    return l?.key || '';
+  }
+  return '';
+}
+
+function getImportTargetSprite() {
+  const p = getPrimarySelection();
+  if (p?.kind === 'sprite') return state.spec?.sprites?.[p.idx] || null;
+  return null;
+}
+
+function fillImportActionSelect() {
+  const sel = $('#import-action');
+  const opts = importState.mode === 'sprite' ? SPRITE_ACTIONS : LAYER_ACTIONS;
+  sel.innerHTML = opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+}
+
+function syncImportActionUi() {
+  const isSprite = importState.mode === 'sprite';
+  $('#import-title').textContent = isSprite ? 'SPRITE PACK' : 'CAPAS / IMÁGENES';
+  $('#import-pc-hint').textContent = isSprite
+    ? 'ZIP con frame_001.png … frame_NNN.png (salida de extracción GIF/video)'
+    : 'JPG · PNG · WebP — se convierte a WebP y sube a Supabase';
+  $('#import-pc-file').accept = isSprite ? '.zip,application/zip' : 'image/*';
+
+  const action = $('#import-action').value;
+  const layerKeyInp = $('#import-layer-key');
+  const spriteNameInp = $('#import-sprite-name');
+  const frameSkipInp = $('#import-frame-skip');
+  const hint = $('#import-hint');
+
+  layerKeyInp.style.display = 'none';
+  spriteNameInp.style.display = 'none';
+  frameSkipInp.style.display = 'none';
+
+  if (isSprite) {
+    frameSkipInp.style.display = '';
+    if (action === 'add_sprite') {
+      spriteNameInp.style.display = '';
+      spriteNameInp.placeholder = 'ej. orb, fire';
+      hint.innerHTML = 'Sube ZIP → manifest + nuevo sprite en spec · ajusta X/Y después';
+    } else {
+      const sp = getImportTargetSprite();
+      hint.innerHTML = sp
+        ? `Reemplaza <strong>${escapeHtml(sp.name)}</strong> (${escapeHtml(sp.manifest_key)})`
+        : 'Selecciona un sprite en el panel';
+    }
+  } else if (action === 'add_layer') {
+    layerKeyInp.style.display = '';
+    layerKeyInp.placeholder = 'nombre_capa';
+    hint.textContent = 'Nueva image_layer en el spec';
+  } else if (action === 'replace_layer') {
+    const k = getImportTargetLayerKey();
+    hint.innerHTML = k
+      ? `Reemplaza capa <strong>${escapeHtml(k)}</strong>`
+      : 'Selecciona una capa';
+  } else {
+    hint.textContent = 'Actualiza background.url (flat referencia)';
+  }
+  updateImportApplyBtn();
+}
+
+function updateImportApplyBtn() {
+  const btn = $('#import-apply');
+  const action = $('#import-action').value;
+  const isSprite = importState.mode === 'sprite';
+  const hasSrc = importState.tab === 'device'
+    ? !!importState.selectedPath
+    : !!importState.pcFile;
+  let ok = hasSrc && !!state.selectedId && !importState.busy;
+  if (isSprite) {
+    if (action === 'replace_sprite' && !getImportTargetSprite()) ok = false;
+    if (action === 'add_sprite' && !($('#import-sprite-name').value || '').trim()) ok = false;
+    if (importState.tab === 'device') {
+      const item = importState.images.find(i => i.path === importState.selectedPath);
+      if (item && item.kind !== 'sprite_pack') ok = false;
+    } else if (importState.pcFile && !importState.pcFile.name.toLowerCase().endsWith('.zip')) {
+      ok = false;
+    }
+  } else {
+    if (action === 'replace_layer' && !getImportTargetLayerKey()) ok = false;
+    if (action === 'add_layer' && !($('#import-layer-key').value || '').trim()) ok = false;
+    if (importState.tab === 'device') {
+      const item = importState.images.find(i => i.path === importState.selectedPath);
+      if (item && item.kind === 'sprite_pack') ok = false;
+    }
+  }
+  btn.disabled = !ok;
+}
+
+async function loadDeviceImages() {
+  $('#import-loading').style.display = 'block';
+  $('#import-loading').textContent = 'escaneando cel…';
+  $('#import-grid').style.display = 'none';
+  try {
+    const r = await fetch('/api/device-images');
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'HTTP ' + r.status);
+    importState.images = j.images || [];
+    $('#import-hint').innerHTML = j.hint
+      ? `${j.hint} · <strong>${j.inbox || '/sdcard/Pixora/inbox'}</strong>`
+      : 'Pixora/inbox en el cel';
+    renderDeviceImageGrid();
+  } catch (e) {
+    $('#import-loading').textContent = 'sin adb: ' + e.message;
+    importState.images = [];
+  }
+}
+
+function filteredDeviceItems() {
+  const wantPack = importState.mode === 'sprite';
+  return importState.images.filter(i =>
+    wantPack ? i.kind === 'sprite_pack' : i.kind !== 'sprite_pack',
+  );
+}
+
+function renderDeviceImageGrid() {
+  const grid = $('#import-grid');
+  grid.innerHTML = '';
+  const items = filteredDeviceItems();
+  if (!items.length) {
+    $('#import-loading').style.display = 'block';
+    $('#import-loading').textContent = importState.mode === 'sprite'
+      ? 'sin ZIP en cel — copia tu pack a Pixora/inbox'
+      : 'sin imágenes — guarda en Pixora/inbox';
+    grid.style.display = 'none';
+    return;
+  }
+  $('#import-loading').style.display = 'none';
+  grid.style.display = 'grid';
+  const serial = state.device?.serial ? `&serial=${encodeURIComponent(state.device.serial)}` : '';
+  items.forEach(img => {
+    const card = document.createElement('div');
+    card.className = 'import-card' + (importState.selectedPath === img.path ? ' selected' : '');
+    const thumb = img.kind === 'sprite_pack'
+      ? '<div class="zip-thumb">🎞</div>'
+      : `<img loading="lazy" alt="" src="/api/device-image-preview?path=${encodeURIComponent(img.path)}${serial}">`;
+    card.innerHTML = `${thumb}
+      <div class="meta" title="${escapeHtml(img.path)}">${escapeHtml(img.name)} · ${formatBytes(img.size)}</div>`;
+    card.onclick = () => {
+      importState.selectedPath = img.path;
+      $$('.import-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      updateImportApplyBtn();
+    };
+    grid.appendChild(card);
+  });
+}
+
+function setImportMode(mode) {
+  importState.mode = mode;
+  importState.selectedPath = null;
+  importState.pcFile = null;
+  $('#import-pc-name').textContent = '';
+  $('#import-pc-file').value = '';
+  $$('[data-import-mode]').forEach(t =>
+    t.classList.toggle('active', t.dataset.importMode === mode));
+  fillImportActionSelect();
+  const sp = getImportTargetSprite();
+  const layer = getImportTargetLayerKey();
+  if (mode === 'sprite') {
+    $('#import-action').value = sp ? 'replace_sprite' : 'add_sprite';
+  } else {
+    $('#import-action').value = layer ? 'replace_layer' : 'add_layer';
+  }
+  syncImportActionUi();
+  if (importState.tab === 'device') renderDeviceImageGrid();
+}
+
+function setImportTab(tab) {
+  importState.tab = tab;
+  $$('[data-import-tab]').forEach(t => t.classList.toggle('active', t.dataset.importTab === tab));
+  const isDevice = tab === 'device';
+  $('#import-pc-pane').style.display = isDevice ? 'none' : 'block';
+  if (isDevice) {
+    if (!importState.images.length) loadDeviceImages();
+    else renderDeviceImageGrid();
+  }
+  updateImportApplyBtn();
+}
+
+function openImportModal() {
+  if (!state.selectedId || !state.spec) {
+    toast('Abre un canvas_scene primero', 'error');
+    return;
+  }
+  importState.selectedPath = null;
+  importState.pcFile = null;
+  $('#import-pc-name').textContent = '';
+  $('#import-pc-file').value = '';
+  const sp = getImportTargetSprite();
+  importState.mode = sp ? 'sprite' : (getImportTargetLayerKey() ? 'layer' : 'layer');
+  $$('[data-import-mode]').forEach(t =>
+    t.classList.toggle('active', t.dataset.importMode === importState.mode));
+  fillImportActionSelect();
+  if (importState.mode === 'sprite' && sp) {
+    $('#import-action').value = 'replace_sprite';
+  } else if (getImportTargetLayerKey()) {
+    $('#import-action').value = 'replace_layer';
+  }
+  syncImportActionUi();
+  $('#import-overlay').classList.add('open');
+  setImportTab('device');
+  if (!importState.images.length) loadDeviceImages();
+}
+
+function closeImportModal() {
+  $('#import-overlay').classList.remove('open');
+}
+
+async function applySceneImport() {
+  if (!state.selectedId || importState.busy) return;
+  const action = $('#import-action').value;
+  const isSprite = importState.mode === 'sprite';
+  importState.busy = true;
+  updateImportApplyBtn();
+  $('#import-apply').textContent = 'Subiendo…';
+  try {
+    let summary;
+    let targetMk = null;
+    let targetLayerKey = null;
+
+    if (isSprite) {
+      const sp = getImportTargetSprite();
+      const spriteName = ($('#import-sprite-name').value || '').trim();
+      const frameSkip = parseFloat($('#import-frame-skip').value) || 2;
+      if (importState.tab === 'device') {
+        if (!importState.selectedPath) throw new Error('elige un ZIP del cel');
+        const r = await fetch('/api/device-import-sprite', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            scene_id: state.selectedId,
+            device_path: importState.selectedPath,
+            serial: state.device?.serial,
+            action,
+            manifest_key: action === 'replace_sprite' ? sp?.manifest_key : undefined,
+            sprite_name: action === 'add_sprite' ? spriteName : undefined,
+            frame_skip: frameSkip,
+          }),
+        });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || 'sprite import failed');
+        summary = j;
+      } else {
+        if (!importState.pcFile) throw new Error('elige un ZIP');
+        const fd = new FormData();
+        fd.append('file', importState.pcFile);
+        fd.append('scene_id', state.selectedId);
+        fd.append('action', action);
+        fd.append('frame_skip', String(frameSkip));
+        if (action === 'replace_sprite' && sp) fd.append('manifest_key', sp.manifest_key);
+        if (action === 'add_sprite') fd.append('sprite_name', spriteName);
+        const r = await fetch('/api/import-sprite-pack', {method: 'POST', body: fd});
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || 'upload failed');
+        summary = j;
+      }
+      if (summary.sprites) state.spec.sprites = summary.sprites;
+      state.spriteCacheBust = Date.now();
+      targetMk = summary.manifest_key || summary.sprite?.manifest_key || (action === 'replace_sprite' ? (sp && sp.manifest_key) : null);
+      // pequeño delay para que el storage propague el manifest + zip nuevo antes del fetch de frames
+      await new Promise(r => setTimeout(r, 250));
+    } else {
+      const layerKey = getImportTargetLayerKey();
+      const newLayerKey = ($('#import-layer-key').value || '').trim();
+      if (importState.tab === 'device') {
+        if (!importState.selectedPath) throw new Error('elige una imagen del cel');
+        const r = await fetch('/api/device-import-image', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            scene_id: state.selectedId,
+            device_path: importState.selectedPath,
+            serial: state.device?.serial,
+            action,
+            layer_key: action === 'replace_layer' ? layerKey : undefined,
+            new_layer_key: action === 'add_layer' ? newLayerKey : undefined,
+            z: (state.spec.image_layers?.length || 0),
+          }),
+        });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || 'import failed');
+        summary = j;
+      } else {
+        if (!importState.pcFile) throw new Error('elige un archivo');
+        const fd = new FormData();
+        fd.append('file', importState.pcFile);
+        fd.append('scene_id', state.selectedId);
+        fd.append('action', action);
+        if (action === 'replace_layer') fd.append('layer_key', layerKey);
+        if (action === 'add_layer') fd.append('new_layer_key', newLayerKey);
+        fd.append('z', String(state.spec.image_layers?.length || 0));
+        const r = await fetch('/api/import-scene-image', {method: 'POST', body: fd});
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || 'upload failed');
+        summary = j;
+      }
+      if (summary.image_layers) state.spec.image_layers = summary.image_layers;
+      if (summary.background) state.spec.background = summary.background;
+      targetLayerKey = summary.layer_key || (action === 'add_layer' ? newLayerKey : layerKey);
+    }
+
+    await rebuildScene();
+    renderItemsPanel();
+    markDirty();
+    pushHistory();
+
+    // Auto-select the just imported/replaced item so user can tweak position/params immediately
+    let didAutoSelect = false;
+    if (isSprite && targetMk && state.spec.sprites) {
+      const idx = state.spec.sprites.findIndex(s => s && s.manifest_key === targetMk);
+      if (idx >= 0) {
+        selectOnly('sprite', idx);
+        didAutoSelect = true;
+      }
+    } else if (!isSprite && targetLayerKey && state.spec.image_layers) {
+      const idx = state.spec.image_layers.findIndex(l => l && l.key === targetLayerKey);
+      if (idx >= 0) {
+        selectOnly('layer', idx);
+        didAutoSelect = true;
+      }
+    }
+    if (!didAutoSelect) {
+      updateStatusBar();
+      updateTransformBox();
+    }
+
+    // reset import picks for next time
+    importState.selectedPath = null;
+    importState.pcFile = null;
+    const pcNameEl = $('#import-pc-name');
+    if (pcNameEl) pcNameEl.textContent = '';
+    closeImportModal();
+
+    const extra = summary && summary.frames ? ` · ${summary.frames} frames` : '';
+    toast(`OK · ${summary ? summary.action : 'import'}${extra} · FCM ${summary && summary.fcm ? '✓' : '✗'}`, 'ok');
+  } catch (e) {
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    importState.busy = false;
+    $('#import-apply').textContent = 'Subir y aplicar';
+    updateImportApplyBtn();
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// DEVICE SURFACE (adb → editor viewport)
+// ═════════════════════════════════════════════════════════════════════
+
+function formatDeviceLabel(dev) {
+  if (!dev) return '1080×2340 ref';
+  const dims = `${dev.width}×${dev.height}`;
+  if (dev.connected && dev.source === 'device') {
+    const name = dev.model || dev.serial || 'device';
+    return `${name} · ${dims}`;
+  }
+  return `${dims} ref`;
+}
+
+function updateDeviceLabel() {
+  const el = $('#device-label');
+  if (!el) return;
+  el.textContent = formatDeviceLabel(state.device);
+  el.style.color = (state.device?.connected && state.device?.source === 'device')
+    ? 'var(--cyan)' : 'var(--dim)';
+  el.title = state.device?.message || 'Dimensiones del lienzo del editor';
+}
+
+async function applyDeviceSurface(dev, opts = {}) {
+  const silent = !!opts.silent;
+  const prevW = phoneW(), prevH = phoneH();
+  state.device = dev;
+  SC.setSurfaceDims(dev.width, dev.height);
+  updateDeviceLabel();
+
+  const changed = prevW !== phoneW() || prevH !== phoneH();
+  if (!changed) return false;
+
+  updateCameraFrustum();
+  rebuildPhoneFrame();
+  fitCanvas();
+  if (state.spec) {
+    await rebuildScene();
+    renderItemsPanel();
+    updateStatusBar();
+    updateTransformBox();
+  }
+  if (!silent) {
+    const src = dev.source === 'device' ? 'cel conectado' : 'referencia';
+    toast(`Lienzo ${phoneW()}×${phoneH()} (${src})`, 'ok');
+  }
+  return true;
+}
+
+async function fetchDeviceSurface(opts = {}) {
+  try {
+    const r = await fetch('/api/device-surface');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const dev = await r.json();
+    return applyDeviceSurface(dev, opts);
+  } catch (e) {
+    console.warn('device-surface failed', e);
+    if (!opts.silent) toast('Sin adb — usando 1080×2340', 'error');
+    updateDeviceLabel();
+    return false;
+  }
+}
+
+function startDevicePolling() {
+  if (state.devicePollId) clearInterval(state.devicePollId);
+  state.devicePollId = setInterval(() => fetchDeviceSurface({ silent: true }), 45000);
+}
+
+// ═════════════════════════════════════════════════════════════════════
 // INIT
 // ═════════════════════════════════════════════════════════════════════
 
 $('#tool-sync').classList.add('active');
 $('#tool-blink').classList.add('active');
+$('#btn-device').onclick = () => fetchDeviceSurface();
+$('#device-label').onclick = () => fetchDeviceSurface();
+$('#tool-import').onclick = () => openImportModal();
+$('#import-close').onclick = () => closeImportModal();
+$('#import-overlay').onclick = (e) => { if (e.target === $('#import-overlay')) closeImportModal(); };
+$('#import-refresh').onclick = () => { importState.images = []; loadDeviceImages(); };
+$$('[data-import-tab]').forEach(t => t.onclick = () => setImportTab(t.dataset.importTab));
+$$('[data-import-mode]').forEach(t => t.onclick = () => setImportMode(t.dataset.importMode));
+$('#import-action').onchange = syncImportActionUi;
+$('#import-layer-key').oninput = updateImportApplyBtn;
+$('#import-sprite-name').oninput = updateImportApplyBtn;
+$('#import-frame-skip').oninput = updateImportApplyBtn;
+$('#import-apply').onclick = () => applySceneImport();
+$('#import-pc-pick').onclick = () => $('#import-pc-file').click();
+$('#import-pc-file').onchange = (e) => {
+  const f = e.target.files?.[0];
+  importState.pcFile = f || null;
+  $('#import-pc-name').textContent = f ? `${f.name} · ${formatBytes(f.size)}` : '';
+  updateImportApplyBtn();
+};
 fitCanvas();
+fetchDeviceSurface({ silent: true }).then(() => startDevicePolling());
 loadCatalog();
 
 </script>

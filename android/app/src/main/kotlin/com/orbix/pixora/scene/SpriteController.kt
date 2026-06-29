@@ -149,6 +149,8 @@ class StaticController(def: SpriteDef, sheet: SpriteSheet) :
 
     private val x = def.params.f("x", 0.5f)
     private val y = def.params.f("y", 0.5f)
+    private val anchorX = def.params.f("anchor_x", 0.5f)
+    private val anchorY = def.params.f("anchor_y", 0.5f)
     private val scale = def.params.f("scale", 0.0010f)
     private val alpha = def.params.i("alpha", 255)
     private val flipX = def.params.b("flip_x", false)
@@ -177,7 +179,10 @@ class StaticController(def: SpriteDef, sheet: SpriteSheet) :
             val targetW = (sheet.width * finalScale).toInt().coerceAtLeast(1)
             val targetH = (sheet.height * finalScale).toInt().coerceAtLeast(1)
             sheet.ensurePrescaled(targetW, targetH)
-            sheet.drawAt(canvas, surfaceW * x, surfaceH * y,
+            val (drawCx, drawCy) = SceneCoords.spriteDrawCenter(
+                x, y, anchorX, anchorY, targetW, targetH, surfaceW, surfaceH,
+            )
+            sheet.drawAt(canvas, drawCx, drawCy,
                 scale = finalScale,
                 flipX = flipX, alpha = alpha)
         }

@@ -16,6 +16,7 @@ import json, os, re, sys, urllib.request, urllib.parse, urllib.error, webbrowser
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
+from socketserver import ThreadingMixIn
 from threading import Timer
 
 
@@ -47,9 +48,14 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-PORT = 5757  # uncommon high port to avoid Windows reservations / Pixora design tools
+PORT = int(os.environ.get("PIXORA_PORT", 5758))
+
+# NOTA: El "Pixora Admin" (/) y el "Sprite Editor" (/sprite-editor.html) son el MISMO servidor.
+# Usa UN solo launcher (preferiblemente "Pixora Sprite Editor" cuando vas a editar sprites).
+# El launcher mata cualquier cosa en el puerto antes de levantar para evitar choques con otros servidores (outlier, etc.).
 KEYS_PATH = Path(r"D:/Orbix/Pixora-IA/KEYS_LOCAL.md")
-DASHBOARD_HTML = Path(__file__).parent / "dashboard" / "index.html"
+DASHBOARD_DIR = Path(__file__).parent / "dashboard"
+DASHBOARD_HTML = DASHBOARD_DIR / "index.html"
 PROJECT_REF = "vzuwvsmlyigjtsearxym"
 SUPABASE_REST = f"https://{PROJECT_REF}.supabase.co/rest/v1"
 SUPABASE_STORAGE = f"https://{PROJECT_REF}.supabase.co/storage/v1"
@@ -81,13 +87,48 @@ TEXT_CMS_FCM_TOPIC = 'text_cms_update'  # used by _fcm_push.send_text_cms_update
 # helper is broken or the service account JSON is missing. send_text_cms_update()
 # returns False in those cases and we silently degrade to TTL-based refresh.
 try:
+    from device_images import (
+        ensure_pixora_inbox,
+        list_device_images,
+        pull_device_image,
+        pull_device_preview,
+    )
+except Exception as _dev_img_err:
+    print(f"[wp_admin_server] device_images unavailable: {_dev_img_err}")
+    def ensure_pixora_inbox(serial=None):
+        pass
+    def list_device_images(serial=None, limit=48):
+        return []
+    def pull_device_image(device_path, serial=None, dest=None):
+        raise RuntimeError("device_images module missing")
+    def pull_device_preview(device_path, serial=None, max_side=720):
+        raise RuntimeError("device_images module missing")
+
+try:
+    from device_surface import get_device_surface, list_devices
+except Exception as _dev_surf_err:
+    print(f"[wp_admin_server] device_surface unavailable: {_dev_surf_err}")
+    def get_device_surface(serial=None):
+        return type("DS", (), {
+            "to_dict": lambda self: {
+                "connected": False, "serial": None, "model": None,
+                "width": 1080, "height": 2340, "density": None,
+                "source": "fallback", "message": "device_surface module missing",
+            },
+        })()
+    def list_devices():
+        return []
+
+try:
     from scene_layer_utils import (
         bump_layer_revisions,
         bump_layers_with_url_changes,
         fetch_scene_spec,
+        import_image_to_scene,
         put_scene_spec,
         replace_scene_layer_asset,
     )
+    from sprite_pack_utils import fetch_sprite_manifest, import_sprite_pack_to_scene
 except Exception as _scene_utils_err:
     print(f"[wp_admin_server] scene_layer_utils unavailable: {_scene_utils_err}")
     def bump_layer_revisions(spec, keys=None):
@@ -100,6 +141,12 @@ except Exception as _scene_utils_err:
         raise RuntimeError("scene_layer_utils not loaded")
     def replace_scene_layer_asset(scene_id, layer_key, local_file, **kwargs):
         raise RuntimeError("scene_layer_utils not loaded")
+    def import_image_to_scene(scene_id, local_file, action, **kwargs):
+        raise RuntimeError("scene_layer_utils not loaded")
+    def fetch_sprite_manifest(service_key=None):
+        raise RuntimeError("sprite_pack_utils not loaded")
+    def import_sprite_pack_to_scene(scene_id, zip_path, action, **kwargs):
+        raise RuntimeError("sprite_pack_utils not loaded")
 
 try:
     from _fcm_push import send_text_cms_update as _fcm_push_text_cms_update
@@ -573,10 +620,33 @@ class Handler(BaseHTTPRequestHandler):
         # Sprite editor — visual drag/resize tool for canvas_scene sprites
         if path == "/sprite-editor.html":
             try:
-                body = (DASHBOARD_HTML.parent / "sprite-editor.html").read_bytes()
+                body = (DASHBOARD_DIR / "sprite-editor.html").read_bytes()
                 return self._send(200, "text/html; charset=utf-8", body)
             except FileNotFoundError:
                 return self._send(404, "text/plain", b"sprite-editor.html not found")
+
+        # Explicit support for editor support modules (ES modules loaded by sprite-editor.html)
+        # These must be served from root because of how the HTML is loaded at /sprite-editor.html
+        try:
+            if path in ("/scene_coords.js", "/scene_coords.js/"):
+                local = DASHBOARD_DIR / "scene_coords.js"
+                if local.is_file():
+                    return self._send(200, "text/javascript; charset=utf-8", local.read_bytes())
+                else:
+                    print(f"[editor] scene_coords.js missing at {local}")
+                    return self._send(404, "text/plain", b"scene_coords.js not found")
+
+            # Dashboard static assets (ES modules for sprite-editor, etc.)
+            dash_asset = self._serve_dashboard_asset(path)
+            if dash_asset is not None:
+                return dash_asset
+        except Exception as asset_err:
+            print(f"[asset error] {path}: {asset_err}")
+            try:
+                self._send(500, "text/plain", f"Asset error: {asset_err}".encode())
+            except:
+                pass
+            return
 
         # Sprite frame: downloads the sprite ZIP from Storage, extracts the
         # requested frame number, and serves it as PNG. Used by the editor
@@ -585,6 +655,73 @@ class Handler(BaseHTTPRequestHandler):
             mk = query.get("manifest_key", [""])[0]
             frame = int(query.get("frame", ["1"])[0])
             return self._serve_sprite_frame(mk, frame)
+
+        # Connected Android device surface (adb wm size) for sprite editor WYSIWYG.
+        if path == "/api/device-surface":
+            serial = query.get("serial", [""])[0] or None
+            try:
+                info = get_device_surface(serial)
+                payload = info.to_dict()
+                payload["devices"] = list_devices()
+                return self._send_json(payload)
+            except Exception as e:
+                return self._send_json({
+                    "connected": False,
+                    "serial": None,
+                    "model": None,
+                    "width": 1080,
+                    "height": 2340,
+                    "density": None,
+                    "source": "fallback",
+                    "message": str(e),
+                    "devices": [],
+                })
+
+        if path == "/api/device-images":
+            serial = query.get("serial", [""])[0] or None
+            limit = min(80, max(1, int(query.get("limit", ["48"])[0])))
+            try:
+                ensure_pixora_inbox(serial)
+                images = [img.to_dict() for img in list_device_images(serial, limit)]
+                return self._send_json({
+                    "ok": True,
+                    "images": images,
+                    "inbox": "/sdcard/Pixora/inbox",
+                    "hint": "Guarda o comparte imágenes a Pixora/inbox en el cel",
+                })
+            except Exception as e:
+                return self._send_json({"ok": False, "error": str(e), "images": []}, 502)
+
+        if path == "/api/sprite-info":
+            mk = query.get("manifest_key", [""])[0]
+            if not mk or not self._SAFE_MANIFEST_RE.match(mk):
+                return self._send_json({"error": "manifest_key required"}, 400)
+            try:
+                mf = fetch_sprite_manifest(SERVICE_KEY)
+                info = mf.get(mk)
+                if not info:
+                    return self._send_json({"error": "not in manifest"}, 404)
+                return self._send_json({
+                    "manifest_key": mk,
+                    "frames": info.get("frames", 0),
+                    "zip": info.get("zip"),
+                    "size": info.get("size"),
+                })
+            except Exception as e:
+                return self._send_json({"error": str(e)}, 502)
+
+        if path == "/api/device-image-preview":
+            device_path = query.get("path", [""])[0]
+            serial = query.get("serial", [""])[0] or None
+            if not device_path or ".." in device_path:
+                return self._send_json({"error": "path required"}, 400)
+            try:
+                preview = pull_device_preview(device_path, serial=serial)
+                data = preview.read_bytes()
+                ctype = "image/jpeg" if preview.suffix.lower() in (".jpg", ".jpeg") else "application/octet-stream"
+                return self._send(200, ctype, data)
+            except Exception as e:
+                return self._send_json({"error": str(e)}, 502)
 
         # -- API routes --
         if path == "/api/stats":
@@ -947,6 +1084,176 @@ class Handler(BaseHTTPRequestHandler):
     # 3 segments. No "..", no leading/trailing slash, no consecutive slashes.
     _SAFE_MANIFEST_RE = re.compile(r"^[a-z0-9_]{1,40}(/[a-z0-9_]{1,40}){0,2}$")
 
+    def _handle_import_scene_image_multipart(self):
+        """POST /api/import-scene-image — PC file upload into canvas_scene."""
+        import cgi
+        import tempfile
+
+        ctype = self.headers.get("Content-Type", "")
+        if "multipart/form-data" not in ctype:
+            return self._send_json({"error": "multipart/form-data required"}, 400)
+
+        environ = {"REQUEST_METHOD": "POST", "CONTENT_TYPE": ctype}
+        form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ=environ)
+
+        def field(name: str, default: str = "") -> str:
+            item = form.get(name)
+            if item is None:
+                return default
+            if isinstance(item, list):
+                item = item[0]
+            return item.value if hasattr(item, "value") else str(item)
+
+        scene_id = field("scene_id")
+        action = field("action", "replace_layer")
+        layer_key = field("layer_key") or None
+        new_layer_key = field("new_layer_key") or None
+        z = int(field("z") or "1")
+
+        if not scene_id or not self._SAFE_ID_RE.match(scene_id):
+            return self._send_json({"error": "valid scene_id required"}, 400)
+        if action not in ("replace_layer", "add_layer", "background"):
+            return self._send_json({"error": "invalid action"}, 400)
+        for lk in (layer_key, new_layer_key):
+            if lk and not self._SAFE_ID_RE.match(lk):
+                return self._send_json({"error": f"invalid layer key: {lk}"}, 400)
+
+        file_item = form.get("file")
+        if file_item is None or not getattr(file_item, "file", None):
+            return self._send_json({"error": "file field required"}, 400)
+
+        suffix = Path(file_item.filename or "upload.jpg").suffix or ".jpg"
+        tmp_path = Path(tempfile.mkstemp(suffix=suffix)[1])
+        try:
+            tmp_path.write_bytes(file_item.file.read())
+            summary = import_image_to_scene(
+                scene_id,
+                tmp_path,
+                action,
+                layer_key=layer_key,
+                new_layer_key=new_layer_key,
+                z=z,
+                service_key=SERVICE_KEY,
+            )
+        except Exception as e:
+            return self._send_json({"error": str(e)}, 502)
+        finally:
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except Exception:
+                pass
+
+        fcm_ok = False
+        try:
+            fcm_ok = bool(_fcm_push_catalog_invalidate("wallpapers"))
+        except Exception:
+            pass
+        return self._send_json({"ok": True, **summary, "fcm": fcm_ok})
+
+    def _handle_import_sprite_pack_multipart(self):
+        """POST /api/import-sprite-pack — PC ZIP upload into canvas_scene sprite."""
+        import cgi
+        import tempfile
+
+        ctype = self.headers.get("Content-Type", "")
+        if "multipart/form-data" not in ctype:
+            return self._send_json({"error": "multipart/form-data required"}, 400)
+
+        environ = {"REQUEST_METHOD": "POST", "CONTENT_TYPE": ctype}
+        form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ=environ)
+
+        def field(name: str, default: str = "") -> str:
+            item = form.get(name)
+            if item is None:
+                return default
+            if isinstance(item, list):
+                item = item[0]
+            return item.value if hasattr(item, "value") else str(item)
+
+        scene_id = field("scene_id")
+        action = field("action", "add_sprite")
+        manifest_key = field("manifest_key") or None
+        sprite_name = field("sprite_name") or None
+        frame_skip = float(field("frame_skip") or "2")
+
+        if not scene_id or not self._SAFE_ID_RE.match(scene_id):
+            return self._send_json({"error": "valid scene_id required"}, 400)
+        if action not in ("replace_sprite", "add_sprite"):
+            return self._send_json({"error": "invalid action"}, 400)
+        if manifest_key and not self._SAFE_MANIFEST_RE.match(manifest_key):
+            return self._send_json({"error": "invalid manifest_key"}, 400)
+
+        file_item = form.get("file")
+        if file_item is None or not getattr(file_item, "file", None):
+            return self._send_json({"error": "file field required"}, 400)
+
+        tmp_path = Path(tempfile.mkstemp(suffix=".zip")[1])
+        try:
+            tmp_path.write_bytes(file_item.file.read())
+            summary = import_sprite_pack_to_scene(
+                scene_id,
+                tmp_path,
+                action,
+                manifest_key=manifest_key,
+                sprite_name=sprite_name,
+                frame_skip=frame_skip,
+                service_key=SERVICE_KEY,
+            )
+        except Exception as e:
+            return self._send_json({"error": str(e)}, 502)
+        finally:
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except Exception:
+                pass
+
+        fcm_ok = False
+        try:
+            fcm_ok = bool(_fcm_push_catalog_invalidate("wallpapers"))
+        except Exception:
+            pass
+        return self._send_json({"ok": True, **summary, "fcm": fcm_ok})
+
+    _DASHBOARD_MIME = {
+        ".js": "text/javascript; charset=utf-8",
+        ".css": "text/css; charset=utf-8",
+        ".json": "application/json; charset=utf-8",
+        ".map": "application/json; charset=utf-8",
+        ".woff2": "font/woff2",
+    }
+
+    def _serve_dashboard_asset(self, path: str):
+        """Serve files from tools/wallpapers/dashboard/ (e.g. scene_coords.js).
+        This is required for the sprite-editor.html ES module imports.
+        """
+        name = path.lstrip("/")
+        if not name or "/" in name or "\\" in name or name.startswith("."):
+            if name.endswith(('.js', '.mjs')):
+                print(f"[dashboard-assets] REJECTED (bad name): {path!r}")
+            return None
+        suffix = Path(name).suffix.lower()
+        if suffix not in self._DASHBOARD_MIME:
+            return None
+
+        local = DASHBOARD_DIR / name
+        if not local.is_file():
+            print(f"[dashboard-assets] 404 for {path!r} (looked in {local})")
+            return None
+
+        # Safety: must be direct child of dashboard dir
+        try:
+            local.resolve().relative_to(DASHBOARD_DIR.resolve())
+        except Exception:
+            print(f"[dashboard-assets] path escape attempt: {path!r}")
+            return None
+
+        try:
+            body = local.read_bytes()
+            return self._send(200, self._DASHBOARD_MIME[suffix], body)
+        except Exception as e:
+            print(f"[dashboard-assets] read error for {name}: {e}")
+            return None
+
     def _serve_sprite_frame(self, manifest_key: str, frame_n: int):
         """
         Download the sprite ZIP from wallpaper-sprites bucket, extract the
@@ -1102,6 +1409,92 @@ class Handler(BaseHTTPRequestHandler):
                 "layers_revision_bumped": bumped_layers,
                 "fcm": fcm_ok,
             })
+
+        # Import image from connected Android device into a canvas_scene.
+        # POST /api/device-import-image
+        # body: {device_path, scene_id, action, layer_key?, new_layer_key?, z?}
+        if path == "/api/device-import-image":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            scene_id = payload.get("scene_id")
+            device_path = payload.get("device_path")
+            action = payload.get("action", "replace_layer")
+            if not scene_id or not device_path:
+                return self._send_json({"error": "scene_id + device_path required"}, 400)
+            if not self._SAFE_ID_RE.match(scene_id):
+                return self._send_json({"error": "invalid scene_id"}, 400)
+            if action not in ("replace_layer", "add_layer", "background"):
+                return self._send_json({"error": "invalid action"}, 400)
+            try:
+                local = pull_device_image(
+                    device_path, serial=payload.get("serial"),
+                )
+                summary = import_image_to_scene(
+                    scene_id,
+                    local,
+                    action,
+                    layer_key=payload.get("layer_key"),
+                    new_layer_key=payload.get("new_layer_key"),
+                    z=int(payload.get("z") or 1),
+                    service_key=SERVICE_KEY,
+                )
+            except Exception as e:
+                return self._send_json({"error": str(e)}, 502)
+            fcm_ok = False
+            try:
+                fcm_ok = bool(_fcm_push_catalog_invalidate("wallpapers"))
+            except Exception:
+                pass
+            return self._send_json({"ok": True, **summary, "fcm": fcm_ok})
+
+        # Import image from PC upload (multipart) into a canvas_scene.
+        if path == "/api/import-scene-image":
+            return self._handle_import_scene_image_multipart()
+
+        # Import sprite ZIP pack from connected Android device.
+        if path == "/api/device-import-sprite":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            scene_id = payload.get("scene_id")
+            device_path = payload.get("device_path")
+            action = payload.get("action", "add_sprite")
+            if not scene_id or not device_path:
+                return self._send_json({"error": "scene_id + device_path required"}, 400)
+            if not self._SAFE_ID_RE.match(scene_id):
+                return self._send_json({"error": "invalid scene_id"}, 400)
+            if action not in ("replace_sprite", "add_sprite"):
+                return self._send_json({"error": "invalid action"}, 400)
+            try:
+                local = pull_device_image(device_path, serial=payload.get("serial"))
+                summary = import_sprite_pack_to_scene(
+                    scene_id,
+                    local,
+                    action,
+                    manifest_key=payload.get("manifest_key"),
+                    sprite_name=payload.get("sprite_name"),
+                    frame_skip=float(payload.get("frame_skip") or 2.0),
+                    service_key=SERVICE_KEY,
+                )
+            except Exception as e:
+                return self._send_json({"error": str(e)}, 502)
+            fcm_ok = False
+            try:
+                fcm_ok = bool(_fcm_push_catalog_invalidate("wallpapers"))
+            except Exception:
+                pass
+            return self._send_json({"ok": True, **summary, "fcm": fcm_ok})
+
+        # Import sprite ZIP pack from PC (multipart).
+        if path == "/api/import-sprite-pack":
+            return self._handle_import_sprite_pack_multipart()
 
         # Replace one canvas_scene image_layer bitmap in-place + bump revision + FCM.
         # POST /api/replace-scene-layer
@@ -1310,13 +1703,26 @@ def main():
     if not DASHBOARD_HTML.exists():
         print(f"FATAL: dashboard html missing at {DASHBOARD_HTML}")
         sys.exit(1)
+
+    scene_coords = DASHBOARD_DIR / "scene_coords.js"
+    if not scene_coords.exists():
+        print(f"WARNING: scene_coords.js missing at {scene_coords}")
+        print("         The sprite editor will fail to load (ES module 404).")
+    else:
+        print(f"  scene_coords: {scene_coords}")
+
     print(f"Pixora Admin Dashboard")
     print(f"  Serving:    http://127.0.0.1:{PORT}/")
     print(f"  Dashboard:  {DASHBOARD_HTML}")
     print(f"  Supabase:   {SUPABASE_REST}")
     print(f"  Press Ctrl+C to stop\n")
     Timer(0.6, open_browser).start()
-    server = HTTPServer(("127.0.0.1", PORT), Handler)
+    class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+        """Handle requests in separate threads so the sprite editor (which loads
+        multiple assets + does API calls) doesn't block itself."""
+        pass
+
+    server = ThreadedHTTPServer(("127.0.0.1", PORT), Handler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

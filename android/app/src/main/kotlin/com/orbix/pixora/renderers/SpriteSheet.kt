@@ -82,7 +82,11 @@ class SpriteSheet(
                 Log.w("SpriteSheet", "No frames in $folder")
                 return false
             }
-            val opts = BitmapFactory.Options().apply { inSampleSize = sampleSize }
+            val opts = BitmapFactory.Options().apply {
+                inSampleSize = sampleSize
+                // ARGB_8888 — RGB_565 drops alpha → black box on transparent sprites.
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+            }
             for (name in fileList) {
                 val bmp = if (fromFiles) {
                     BitmapFactory.decodeFile("${cacheDir.absolutePath}/$name", opts)

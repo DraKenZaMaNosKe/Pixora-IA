@@ -48,7 +48,7 @@ que lanza pythonw silencioso.
 
 ### 5. Lanzar
 Doble click al icono **Pixora Admin** del escritorio. Server arranca
-en `http://127.0.0.1:5757/` y abre el browser solo.
+en `http://127.0.0.1:5758/` y abre el browser solo.
 
 ## Pre-requisito Supabase
 
@@ -67,7 +67,7 @@ https://supabase.com/dashboard/project/vzuwvsmlyigjtsearxym/settings/addons
 | `psycopg2 module not found` | Python sin libs | Repetir paso 3 |
 | `ERR_EMPTY_RESPONSE` en browser | Server no arrancó / atorado | `tail tools/wallpapers/admin_server.log` |
 | `Tenant or user not found` | IPv4 apagado en Supabase | Reactivar en dashboard de Supabase |
-| Browser abre `localhost:5757` y no `127.0.0.1` | DNS resuelve a IPv6 sin escuchar IPv4 | Editar URL a 127.0.0.1 manualmente o dejar que el .vbs lo abra correctamente |
+| Browser abre `localhost:5758` y no `127.0.0.1` | DNS resuelve a IPv6 sin escuchar IPv4 | Editar URL a 127.0.0.1 manualmente o dejar que el .vbs lo abra correctamente |
 | Error `22P02 invalid_text_representation` al guardar wallpaper | Categoría no existe en el enum `wallpaper_category` | Ver §"Agregar categorías nuevas" abajo |
 | Modal del wallpaper muestra nombre viejo | Cache del browser | Ctrl+Shift+R |
 
