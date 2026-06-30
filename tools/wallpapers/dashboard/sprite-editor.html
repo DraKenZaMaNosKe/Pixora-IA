@@ -248,6 +248,15 @@
     display: inline-flex; align-items: center; justify-content: center;
   }
   .bump:active { background: var(--cyan); color: #000; }
+  .zbtn {
+    background: var(--bg-2); border: 1px solid var(--line);
+    color: var(--gold); width: 22px; height: 22px; border-radius: 4px;
+    cursor: pointer; font-weight: 700; font-size: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-left: 4px;
+  }
+  .zbtn:hover { background: var(--bg-3); border-color: var(--gold); }
+  .zbtn:active { background: var(--gold); color: #000; }
 
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -1160,11 +1169,15 @@ async function buildSpriteMesh(sp, idx) {
     depthWrite: false,
   });
   const mesh = new THREE.Mesh(g, m);
+  // v1.7.47: params.z (if set) lets sprites interleave with image_layers
+  // instead of always rendering on top. Fallback 10 + idx keeps legacy
+  // sprites behaving exactly as before.
+  const spriteZ = (sp.params?.z != null) ? sp.params.z : (10 + idx);
   if (sp.params?.fullscreen) {
-    mesh.position.set(0, 0, 10 + idx);
+    mesh.position.set(0, 0, spriteZ);
   } else {
     const pos = SC.spriteMeshPosition(sp.params, renderW, renderH);
-    mesh.position.set(pos.x, pos.y, 10 + idx);
+    mesh.position.set(pos.x, pos.y, spriteZ);
   }
   const alphaBbox = computeAlphaBbox(firstTex.image) || {
     x: 0, y: 0, w: natW, h: natH, texW: natW, texH: natH,
@@ -1924,6 +1937,35 @@ function renderItemsPanel() {
       pushHistory();
     };
   });
+  // v1.7.47: z reorder buttons — bump z up (▲) brings the layer/sprite
+  // toward the front; bump down (▼) sends it back. Renderer + editor sort
+  // image_layers + sprites (with explicit params.z) by z, so a sprite can
+  // sit BEHIND any layer by setting its z lower.
+  panel.querySelectorAll('[data-zbump]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const idx = +btn.dataset.zidx;
+      const kind = btn.dataset.zkind;
+      const delta = parseInt(btn.dataset.zbump, 10);
+      if (kind === 'layer') {
+        const l = state.spec.image_layers[idx];
+        if (!l) return;
+        l.z = (l.z || 0) + delta;
+        const o = findLayerObjByKey(l.key);
+        if (o) o.mesh.position.z = l.z;
+      } else {
+        const sp = state.spec.sprites[idx];
+        if (!sp) return;
+        sp.params = sp.params || {};
+        const cur = (sp.params.z != null) ? sp.params.z : 10;
+        sp.params.z = cur + delta;
+        const o = spriteMeshes[idx];
+        if (o) o.mesh.position.z = sp.params.z;
+      }
+      markDirty(); updateStatusBar(); renderItemsPanel();
+      pushHistory();
+    };
+  });
   panel.querySelectorAll('[data-bump]').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
@@ -1985,12 +2027,15 @@ function spriteCardHtml(sp, i) {
       <button class="bump" data-bump="-0.1" data-idx="${i}" data-key="scale">−</button>
       <button class="bump" data-bump="0.1" data-idx="${i}" data-key="scale">+</button>
     </div>`;
+  const zVal = (sp.params?.z != null) ? sp.params.z : 10;
   return `
   <div class="item-card${isSel ? ' selected' : ''}" data-pick="${i}" data-kind="sprite">
     <div class="item-head">
       <span class="swatch">${(sp.name || '?')[0].toUpperCase()}</span>
       <span class="name">${escapeHtml(sp.name)}</span>
-      <span class="badge" title="${escapeHtml(grp)}">${grpBadge} · ${sp.behavior}${fs ? ' · FS' : ''}</span>
+      <button class="zbtn" title="Mandar atras (z-1)" data-zbump="-1" data-zkind="sprite" data-zidx="${i}">▼</button>
+      <button class="zbtn" title="Traer al frente (z+1)" data-zbump="1" data-zkind="sprite" data-zidx="${i}">▲</button>
+      <span class="badge" title="${escapeHtml(grp)}">${grpBadge} · ${sp.behavior}${fs ? ' · FS' : ''} · Z${zVal}</span>
     </div>
     ${posFields}
     <div class="field"><label>SPEED</label>
@@ -2019,6 +2064,8 @@ function layerCardHtml(l, i, hiddenPreview = false) {
     <div class="item-head">
       <span class="swatch" style="background:linear-gradient(135deg,var(--gold),var(--cyan))">${(l.key || '?')[0].toUpperCase()}</span>
       <span class="name">${escapeHtml(l.key)}</span>
+      <button class="zbtn" title="Mandar atras (z-1)" data-zbump="-1" data-zkind="layer" data-zidx="${i}">▼</button>
+      <button class="zbtn" title="Traer al frente (z+1)" data-zbump="1" data-zkind="layer" data-zidx="${i}">▲</button>
       <span class="badge">${grpBadge} Z${l.z || 0}</span>
     </div>
     <div class="field"><label>OFF X</label>

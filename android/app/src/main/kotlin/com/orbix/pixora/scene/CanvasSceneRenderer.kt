@@ -354,13 +354,47 @@ class CanvasSceneRenderer(private val context: Context) {
         // thanks to suggestDesiredDimensions(2*W, H) + SET_WALLPAPER_HINTS).
         scrollOffsetNorm = targetScrollOffsetNorm
 
-        // Parallax image layers (drawn first — behind everything else)
+        // v1.7.47: sprites with an explicit `params.z` get INTERLEAVED with
+        // image_layers sorted by z. Sprites WITHOUT params.z keep the legacy
+        // behavior — drawn after particles + behind-events, on top of all
+        // image_layers. This lets new specs put a sprite BEHIND a character
+        // layer (e.g. Morrigan's hair behind her body) without breaking
+        // existing scenes (Ryu's orb, etc.) which rely on the original order.
+        val embeddedSprites = mutableListOf<Pair<Int, SpriteController>>()
+        val legacySprites = mutableListOf<SpriteController>()
+        for (c in spriteControllers) {
+            if (c.def.params.has("z")) {
+                embeddedSprites.add(c.def.params.optInt("z", 0) to c)
+            } else {
+                legacySprites.add(c)
+            }
+        }
+
+        // Pass 1: interleaved image_layers + embedded sprites, sorted by z.
+        // Stable sort preserves spec order when z values tie.
+        data class DrawItem(val z: Int, val drawFn: () -> Unit)
+        val phase1 = mutableListOf<DrawItem>()
         if (layerBitmaps.isNotEmpty()) {
             for ((def, bmp) in layerBitmaps) {
                 if (bmp.isRecycled) continue
-                drawLayerCentered(canvas, bmp, def)
+                phase1.add(DrawItem(def.z) { drawLayerCentered(canvas, bmp, def) })
             }
         }
+        for ((z, c) in embeddedSprites) {
+            val pf = c.def.params.f("parallax_factor", 1f)
+            phase1.add(DrawItem(z) {
+                if (pf > 0.001f) {
+                    canvas.save()
+                    canvas.translate(tiltX * pf, tiltY * pf)
+                    c.draw(canvas, surfaceWidth, surfaceHeight, tick)
+                    canvas.restore()
+                } else {
+                    c.draw(canvas, surfaceWidth, surfaceHeight, tick)
+                }
+            })
+        }
+        phase1.sortBy { it.z }
+        for (item in phase1) item.drawFn()
 
         for (p in particleSystems) p.draw(canvas, surfaceWidth, surfaceHeight, tick)
 
@@ -371,10 +405,8 @@ class CanvasSceneRenderer(private val context: Context) {
             }
         }
 
-        // Sprites — sprites in parallax scenes inherit the layer offset matching
-        // their declared parallax_factor (read from sprite params, default 1.0
-        // so the sprite stays "stuck" to the foreground layer e.g. orb in hands).
-        for (c in spriteControllers) {
+        // Pass 2: legacy sprites (no params.z) — drawn on top, as before.
+        for (c in legacySprites) {
             val pf = c.def.params.f("parallax_factor", 1f)
             if (pf > 0.001f) {
                 canvas.save()
