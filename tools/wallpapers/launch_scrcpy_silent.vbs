@@ -1,20 +1,36 @@
-' Pixora — silent scrcpy launcher for the Samsung device.
-' Doble click al .lnk del escritorio → scrcpy arranca y abre la ventana
-' espejo del Samsung sin que aparezca consola negra de fondo.
+' Pixora — silent scrcpy launcher for ANY connected device.
+' Doble click al .lnk del escritorio → scrcpy arranca una ventana por cada
+' device conectado (Samsung y/o Huawei). Sin consola negra de fondo.
+'
+' Devices conocidos:
+'   RF8X903KZ3K       → Samsung A155M (1080x2340) — referencia principal
+'   G2R4C17516000149  → Huawei (1080x1920) — secondary, para validar cross-device
+'
+' Si conectas un device nuevo, agrégalo al array DEVICES más abajo con su
+' label (aparece en el título de la ventana scrcpy).
 '
 ' Para detener: cierra la ventana de scrcpy (X) o el proceso scrcpy.exe
 ' desde el Administrador de Tareas.
 
-Set sh = CreateObject("WScript.Shell")
+Set sh  = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
-' Samsung device serial (adb devices). If you change phones, update this.
-deviceSerial = "RF8X903KZ3K"
+' --- Devices conocidos: serial → window title → extra flags -----------
+' Format: serial|label|extraFlags. La VBS recorre adb devices y solo lanza
+' scrcpy para serials que estén actualmente "device" (no offline /
+' unauthorized).
+'
+' extraFlags: flags scrcpy específicos del device. Huawei (Android 7.0)
+' necesita --no-audio (audio no soportado < Android 11) y
+' --video-codec=h264 (h265 falla en encoders viejos), si no scrcpy tira
+' "Server connection failed".
+DEVICES = Array( _
+  "RF8X903KZ3K|Samsung A155M (1080x2340)|", _
+  "G2R4C17516000149|Huawei (1080x1920)|--no-audio --video-codec=h264 --max-fps=30" _
+)
 
-' Search scrcpy.exe in common locations. Winget installs land under a
-' versioned subfolder (e.g. scrcpy-win64-v4.0\) so we iterate the package
-' dir to stay future-proof when scrcpy updates.
-scrcpyPath = "scrcpy.exe"  ' fallback: PATH lookup
+' --- Localizar scrcpy.exe (mismas rutas que antes) --------------------
+scrcpyPath  = "scrcpy.exe"
 localAppData = sh.ExpandEnvironmentStrings("%LOCALAPPDATA%")
 candidates = Array( _
   "C:\scrcpy\scrcpy.exe", _
@@ -32,7 +48,6 @@ For Each c In candidates
   End If
 Next
 
-' Winget package — version-suffixed subfolder, walk it.
 wingetDir = localAppData & "\Microsoft\WinGet\Packages\Genymobile.scrcpy_Microsoft.Winget.Source_8wekyb3d8bbwe"
 If scrcpyPath = "scrcpy.exe" And fso.FolderExists(wingetDir) Then
   Set wgFolder = fso.GetFolder(wingetDir)
@@ -45,7 +60,7 @@ If scrcpyPath = "scrcpy.exe" And fso.FolderExists(wingetDir) Then
   Next
 End If
 
-' --- Buscar adb.exe (para pre-iniciar el server sin ventana) ---
+' --- Localizar adb.exe ------------------------------------------------
 adbPath = "adb.exe"
 adbCandidates = Array( _
   "C:\Users\lalo\AppData\Local\Android\Sdk\platform-tools\adb.exe", _
@@ -64,13 +79,12 @@ If adbPath = "adb.exe" Then
   On Error Goto 0
 End If
 
-' Prepend adb dir to PATH so any child (scrcpy, adb inside) uses the lalo one, not D:\adb
+' Prepend adb dir to PATH so scrcpy uses the same adb we found.
 adbDir = fso.GetParentFolderName(adbPath)
 Set procEnv = sh.Environment("PROCESS")
 procEnv("PATH") = adbDir & ";" & procEnv("PATH")
 
-' --- Pre-iniciar "adb start-server" completamente oculto ---
-' Esto evita que aparezca la ventanita negra de "adb" cuando scrcpy conecta.
+' --- Pre-iniciar "adb start-server" oculto ----------------------------
 psAdb = "powershell.exe -NoProfile -WindowStyle Hidden -Command "" " & _
   "$si = New-Object System.Diagnostics.ProcessStartInfo; " & _
   "$si.FileName = '" & adbPath & "'; " & _
@@ -83,13 +97,57 @@ psAdb = "powershell.exe -NoProfile -WindowStyle Hidden -Command "" " & _
 sh.Run psAdb, 0, True
 WScript.Sleep 600
 
-' Build command: scrcpy --serial RF8X903KZ3K
-' Wrapped in `cmd /c start "" ""` so the console window is detached and
-' scrcpy.exe inherits its own GUI window from SDL (the mirror window).
-' Without `start`, the wscript host can suppress scrcpy's window too.
-fullCmd = "cmd.exe /c start """" """ & scrcpyPath & """ --serial " & deviceSerial
+' --- Pedir adb devices (parseable) ------------------------------------
+' Usamos un archivo temporal porque WScript.Exec dispara una ventana de
+' consola que el usuario quiere evitar. PowerShell con -WindowStyle Hidden
+' redirige stdout al archivo sin ventana visible.
+tmpFile = fso.GetSpecialFolder(2).Path & "\pixora_adb_devices.txt"
+psList = "powershell.exe -NoProfile -WindowStyle Hidden -Command "" " & _
+  "& '" & adbPath & "' devices | Out-File -Encoding ascii '" & tmpFile & "' """
+sh.Run psList, 0, True
+WScript.Sleep 400
 
-' WindowStyle 0 hides the cmd window; scrcpy's own mirror window appears
-' normally because `start` decouples it from the cmd parent.
-sh.Run fullCmd, 0, False
+connectedSerials = ""
+If fso.FileExists(tmpFile) Then
+  Set ts = fso.OpenTextFile(tmpFile, 1)
+  raw = ts.ReadAll
+  ts.Close
+  fso.DeleteFile tmpFile, True
+  ' Each line after the header: "<serial>\t<state>". We want lines where
+  ' state == "device" (not "offline" / "unauthorized" / empty).
+  lines = Split(raw, vbCrLf)
+  For Each ln In lines
+    parts = Split(ln, vbTab)
+    If UBound(parts) >= 1 Then
+      If Trim(parts(1)) = "device" Then
+        connectedSerials = connectedSerials & "|" & Trim(parts(0)) & "|"
+      End If
+    End If
+  Next
+End If
 
+' --- Por cada device conocido, si está conectado lanza scrcpy ---------
+launched = 0
+For Each entry In DEVICES
+  pair = Split(entry, "|")
+  serial = pair(0)
+  label  = pair(1)
+  If InStr(connectedSerials, "|" & serial & "|") > 0 Then
+    ' Wrap in `cmd /c start "" ""` so scrcpy's window is decoupled from
+    ' the wscript host and not suppressed.
+    fullCmd = "cmd.exe /c start """" """ & scrcpyPath & """ " & _
+              "--serial " & serial & " " & _
+              "--window-title=""" & label & """"
+    sh.Run fullCmd, 0, False
+    launched = launched + 1
+    WScript.Sleep 350  ' tiny gap so two scrcpy startups don't race on adb
+  End If
+Next
+
+' --- Friendly hint si NO había ningún device conocido conectado -------
+If launched = 0 Then
+  MsgBox "No hay ningun device conocido conectado." & vbCrLf & vbCrLf & _
+    "Conecta el Samsung (RF8X903KZ3K) o el Huawei (G2R4C17516000149) " & _
+    "via USB con depuracion activada y vuelve a intentar.", _
+    vbInformation, "Pixora · scrcpy"
+End If

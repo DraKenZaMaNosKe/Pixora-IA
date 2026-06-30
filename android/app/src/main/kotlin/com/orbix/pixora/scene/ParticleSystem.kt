@@ -32,8 +32,132 @@ sealed class ParticleSystem(val def: ParticleDef) {
             "fireflies" -> FireflySystem(def)
             "oncoming_lights" -> OncomingLightsSystem(def)
             "perspective_posts" -> PerspectivePostsSystem(def)
+            "bats" -> BatSystem(def)
             else -> null
         }
+    }
+}
+
+/* ── Bats (procedural silhouettes, no bitmaps) ─────────────────────────
+   Gothic/Halloween night sky bats. Draws vector silhouettes via drawPath
+   so memory cost is ~0.5 MB regardless of count. Wings flap by scaling Y
+   sinusoidally per-bat with phase shift so the swarm doesn't sync.
+
+   params:
+     count            (Int, default 8)
+     size_min_px      (Float, default 12)  — wingspan in TARGET coords
+     size_max_px      (Float, default 28)
+     color            (String hex, default "#1a0a26")  — silhouette fill
+     speed_min        (Float, default 0.3) — px/s relative units
+     speed_max        (Float, default 0.9)
+     wing_flap_hz     (Float, default 8)   — Hz, flap frequency
+     spawn_top        (Float, default 0.0) — vertical band where bats fly
+     spawn_bottom     (Float, default 0.6) — (0..1 normalized)
+*/
+class BatSystem(def: ParticleDef) : ParticleSystem(def) {
+    private val count = def.params.i("count", 8)
+    private val sizeMin = def.params.f("size_min_px", 12f)
+    private val sizeMax = def.params.f("size_max_px", 28f)
+    private val color = try { Color.parseColor(def.params.s("color", "#1a0a26")) }
+        catch (_: Exception) { 0xFF1A0A26.toInt() }
+    private val speedMin = def.params.f("speed_min", 0.3f)
+    private val speedMax = def.params.f("speed_max", 0.9f)
+    private val wingFlapHz = def.params.f("wing_flap_hz", 8f)
+    private val spawnTop = def.params.f("spawn_top", 0.0f)
+    private val spawnBottom = def.params.f("spawn_bottom", 0.6f)
+
+    private data class Bat(
+        var x: Float, var y: Float,
+        var vx: Float, var vy: Float,
+        var size: Float,            // wingspan px
+        var flapPhase: Float,       // 0..2π
+        var dirRight: Boolean,
+    )
+
+    private val bats = mutableListOf<Bat>()
+    private var initialized = false
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = this@BatSystem.color
+    }
+    private val path = android.graphics.Path()
+
+    override fun reset() { bats.clear(); initialized = false }
+
+    override fun draw(canvas: Canvas, surfaceW: Int, surfaceH: Int, tick: Long) {
+        if (!initialized) { spawn(surfaceW, surfaceH, count); initialized = true }
+        val tSec = (System.nanoTime() % 100_000_000_000L) / 1_000_000_000f
+        val it = bats.iterator()
+        while (it.hasNext()) {
+            val b = it.next()
+            b.x += b.vx
+            b.y += b.vy
+            // gentle Y wave so they don't fly in a straight line
+            b.y += sin((b.flapPhase + tSec * 0.7f).toDouble()).toFloat() * 0.3f
+            // wrap horizontally
+            if (b.dirRight && b.x - b.size > surfaceW) {
+                b.x = -b.size; b.y = randomY(surfaceH)
+            } else if (!b.dirRight && b.x + b.size < 0) {
+                b.x = surfaceW + b.size; b.y = randomY(surfaceH)
+            }
+            drawBat(canvas, b, tSec)
+        }
+    }
+
+    private fun spawn(surfaceW: Int, surfaceH: Int, n: Int) {
+        repeat(n) {
+            val dirRight = Random.nextBoolean()
+            val sp = Random.nextFloat() * (speedMax - speedMin) + speedMin
+            bats.add(Bat(
+                x = if (dirRight) -Random.nextFloat() * surfaceW * 0.5f
+                    else surfaceW + Random.nextFloat() * surfaceW * 0.5f,
+                y = randomY(surfaceH),
+                vx = if (dirRight) sp else -sp,
+                vy = (Random.nextFloat() - 0.5f) * 0.1f,
+                size = Random.nextFloat() * (sizeMax - sizeMin) + sizeMin,
+                flapPhase = Random.nextFloat() * 6.2831f,
+                dirRight = dirRight,
+            ))
+        }
+    }
+
+    private fun randomY(surfaceH: Int): Float {
+        val band = (spawnBottom - spawnTop).coerceAtLeast(0.05f)
+        return surfaceH * (spawnTop + Random.nextFloat() * band)
+    }
+
+    private fun drawBat(canvas: Canvas, b: Bat, tSec: Float) {
+        // wing flap: scale Y of the wing wedges by a sinusoid 0.35..1.0
+        val flapT = sin((b.flapPhase + tSec * wingFlapHz * 6.2831f).toDouble()).toFloat()
+        val wingY = 0.5f + 0.35f * flapT   // 0.15 .. 0.85
+        val w = b.size
+        val h = w * 0.55f                  // wing height proportional to span
+        val cx = b.x
+        val cy = b.y
+        val dir = if (b.dirRight) 1f else -1f
+        path.reset()
+        // Bat silhouette built from triangles: 2 wings + body
+        // Right wing (positive X direction, mirrored if facing left)
+        path.moveTo(cx, cy)
+        path.lineTo(cx + 0.5f * w * dir, cy - h * wingY)
+        path.lineTo(cx + 0.35f * w * dir, cy + h * 0.15f)
+        path.lineTo(cx + 0.5f * w * dir, cy + h * 0.4f)
+        path.lineTo(cx + 0.15f * w * dir, cy + h * 0.05f)
+        path.close()
+        // Left wing
+        path.moveTo(cx, cy)
+        path.lineTo(cx - 0.5f * w * dir, cy - h * wingY)
+        path.lineTo(cx - 0.35f * w * dir, cy + h * 0.15f)
+        path.lineTo(cx - 0.5f * w * dir, cy + h * 0.4f)
+        path.lineTo(cx - 0.15f * w * dir, cy + h * 0.05f)
+        path.close()
+        // Body — small ellipse-ish polygon
+        path.moveTo(cx, cy - h * 0.18f)
+        path.lineTo(cx + 0.08f * w, cy + h * 0.2f)
+        path.lineTo(cx, cy + h * 0.3f)
+        path.lineTo(cx - 0.08f * w, cy + h * 0.2f)
+        path.close()
+        canvas.drawPath(path, paint)
     }
 }
 

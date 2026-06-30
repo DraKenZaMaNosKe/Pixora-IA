@@ -24,8 +24,29 @@ import java.io.File
  */
 class CanvasSceneRenderer(private val context: Context) {
 
+    companion object {
+        private const val TAG = "CanvasScene"
+        /** Authoring reference resolution. ALL px-based spec fields
+         *  (`offset_x_px`, `bob_amplitude_px`, `motion.amplitude_px`,
+         *  `collision.amplitude_px` / `rise_px`, etc.) are interpreted at
+         *  this resolution and scaled to the actual device surface at
+         *  draw time. Without this scaling, wallpapers positioned in the
+         *  sprite editor on a 1080×2340 device appear desfasados on any
+         *  other resolution (v1.7.45 critical fix). */
+        private const val TARGET_W = 1080f
+        private const val TARGET_H = 2340f
+    }
+
     var surfaceWidth = 0
     var surfaceHeight = 0
+
+    /** Px-scale factors: 1.0 on a perfectly 1080×2340 device. Larger on
+     *  bigger surfaces (e.g. 1440×3120 → ~1.33). Updated dynamically on
+     *  surface resize via these computed properties. */
+    private val pxScaleX: Float
+        get() = if (surfaceWidth > 0) surfaceWidth / TARGET_W else 1f
+    private val pxScaleY: Float
+        get() = if (surfaceHeight > 0) surfaceHeight / TARGET_H else 1f
 
     private var spec: SceneSpec? = null
     private var loadedFor: String? = null  // sceneId of currently loaded spec
@@ -428,6 +449,13 @@ class CanvasSceneRenderer(private val context: Context) {
         layerBitmaps.clear()
         layerSourceMtime.clear()
         layerSourceRevision.clear()
+        // v1.7.45 debug: log px-scale on every layer rebuild so we can verify
+        // the fix is active on every device. surfaceWidth/Height are set by
+        // PixoraWallpaperService onSurfaceChanged BEFORE this is called.
+        Log.d(TAG, "[pxScale] surface=${surfaceWidth}x${surfaceHeight} " +
+            "scaleX=${"%.3f".format(pxScaleX)} " +
+            "scaleY=${"%.3f".format(pxScaleY)} " +
+            "(target=${TARGET_W.toInt()}x${TARGET_H.toInt()})")
     }
 
     private fun drawLayerCentered(canvas: Canvas, bmp: Bitmap, def: ImageLayerDef) {
@@ -474,7 +502,9 @@ class CanvasSceneRenderer(private val context: Context) {
             val phaseY2 = ((tSec / (p * 1.618)) + phaseShift + 0.27) % 1.0
             val composedY = 0.62 * kotlin.math.sin(phaseY1 * twoPi) +
                             0.38 * kotlin.math.sin(phaseY2 * twoPi)
-            bobOffsetY = (composedY * def.bobAmplitudePx).toFloat()
+            // v1.7.45: amplitude scaled to actual surface so wallpapers
+            // authored on 1080×2340 reference feel identical on any device.
+            bobOffsetY = (composedY * def.bobAmplitudePx * pxScaleY).toFloat()
 
             // Horizontal: subtle drift at ~35% of Y amplitude, slower period,
             // golden-ratio harmonic too. Decoupled phase = organic 2D path.
@@ -483,20 +513,29 @@ class CanvasSceneRenderer(private val context: Context) {
             val phaseX2 = ((tSec / (periodX * 1.618)) + phaseShift + 0.83) % 1.0
             val composedX = 0.62 * kotlin.math.sin(phaseX1 * twoPi) +
                             0.38 * kotlin.math.sin(phaseX2 * twoPi)
-            bobOffsetX = (composedX * def.bobAmplitudePx * 0.35).toFloat()
+            bobOffsetX = (composedX * def.bobAmplitudePx * 0.35 * pxScaleX).toFloat()
         }
 
         // Interactive layer state offsets (motion + collision animations).
+        // Note: st.dx/dy already include px-scale (updateInteractiveLayers
+        // applies pxScaleX/Y to motion amplitudes and anim deltas).
         val st = layerStates[def.key]
         val interactiveDx = st?.dx ?: 0f
         val interactiveDy = st?.dy ?: 0f
         val interactiveAlpha = st?.alpha ?: 1f
 
-        // Vertical/horizontal TILT (gyro): per-layer depth using parallax_factor
+        // Vertical/horizontal TILT (gyro): per-layer depth using parallax_factor.
+        // v1.7.45: offset_x_px / offset_y_px are spec-authored against
+        // TARGET reference (1080×2340) and SCALED here to surface units, so
+        // small nudge offsets (the kind the sprite editor produces) behave
+        // consistently across devices. Subject layers should bake the
+        // bitmap in editor-resolution and stay with scale=1.0/offset=0 — see
+        // tools/wallpapers/dashboard/sprite-editor.html and ryu_hadouken
+        // for the canonical pattern.
         val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset + bobOffsetX +
-            interactiveDx + def.offsetXPx
+            interactiveDx + def.offsetXPx * pxScaleX
         val top  = (sh - drawH) / 2f + tiltY * pf + bobOffsetY +
-            interactiveDy + def.offsetYPx
+            interactiveDy + def.offsetYPx * pxScaleY
 
         // Skip draw if fully transparent (rise_fade end state, hidden layers).
         if (interactiveAlpha <= 0.005f) return
@@ -533,7 +572,8 @@ class CanvasSceneRenderer(private val context: Context) {
             st.dx = 0f
             st.dy = 0f
 
-            // Autonomous motion (auto_jump | alpha_pulse).
+            // Autonomous motion. All amplitudes in px are spec-authored
+            // against TARGET reference (1080×2340) and scaled to surface here.
             layer.motion?.let { m ->
                 when (m.kind) {
                     "auto_jump" -> {
@@ -541,7 +581,7 @@ class CanvasSceneRenderer(private val context: Context) {
                         if (phase < m.durationSec) {
                             val p = phase / m.durationSec       // [0..1]
                             val arc = 4f * p * (1f - p)         // parabola, peak=1 at p=0.5
-                            st.dy = -m.amplitudePx * arc
+                            st.dy = -m.amplitudePx * arc * pxScaleY
                         }
                     }
                     "alpha_pulse" -> {
@@ -551,6 +591,47 @@ class CanvasSceneRenderer(private val context: Context) {
                         val phase = (tSec / m.periodSec + phaseShift) % 1.0
                         val s01 = (kotlin.math.sin(phase * 2.0 * Math.PI) + 1.0) * 0.5
                         st.alpha = (m.minAlpha + (m.maxAlpha - m.minAlpha) * s01).toFloat()
+                    }
+                    // ── NEW v1.7.45 motion kinds ────────────────────────
+                    "sway" -> {
+                        // Pure horizontal sine sway. For hair tips, plants,
+                        // tassels, flags. Uses periodSec + amplitudePx (X axis).
+                        val phaseShift = (layer.key.hashCode() and 0xff) / 256.0
+                        val phase = (tSec / m.periodSec + phaseShift) % 1.0
+                        val s = kotlin.math.sin(phase * 2.0 * Math.PI)
+                        st.dx = (s * m.amplitudePx * pxScaleX).toFloat()
+                    }
+                    "drift_lateral" -> {
+                        // Continuous lateral pan. Speed in px/s (TARGET coords).
+                        // When the layer's bounds exit the surface horizontally
+                        // by more than its width, the offset wraps so it
+                        // reappears on the opposite side. amplitudePx encodes
+                        // speed_px_per_s (avoiding new spec fields for compat).
+                        val speedPxPerSec = m.amplitudePx * pxScaleX
+                        val drawW = (layerBitmaps.firstOrNull { it.first.key == layer.key }
+                            ?.second?.width ?: surfaceWidth).toFloat()
+                        val travel = (drawW + surfaceWidth.toFloat()).coerceAtLeast(1f)
+                        val tWrap = (tSec * speedPxPerSec.toDouble()) % travel.toDouble()
+                        st.dx = (tWrap - travel / 2.0).toFloat()
+                    }
+                    "tremor" -> {
+                        // Brief high-frequency shake every intervalSec for
+                        // durationSec. Used for hands trembling under effort,
+                        // candle flicker, earthquake, etc. amplitudePx is the
+                        // peak px deviation; periodSec sets shake frequency.
+                        val phase = (tSec % m.intervalSec).toFloat()
+                        if (phase < m.durationSec) {
+                            val freq = 1.0 / m.periodSec.coerceAtLeast(0.02f)
+                            val nowAng = tSec * freq * 2.0 * Math.PI
+                            // Decoupled X/Y so the shake doesn't look like a
+                            // ruler — random-ish jitter via golden-ratio offset.
+                            val sX = kotlin.math.sin(nowAng)
+                            val sY = kotlin.math.sin(nowAng * 1.618 + 0.91)
+                            val envelope = 4f * phase / m.durationSec *
+                                           (1f - phase / m.durationSec)
+                            st.dx += (sX * m.amplitudePx * pxScaleX * envelope).toFloat()
+                            st.dy += (sY * m.amplitudePx * pxScaleY * envelope).toFloat()
+                        }
                     }
                 }
             }
@@ -563,11 +644,11 @@ class CanvasSceneRenderer(private val context: Context) {
                 when (anim.kind) {
                     "bump_up" -> {
                         val arc = 4f * p * (1f - p)
-                        st.dy += -anim.amplitudePx * arc
+                        st.dy += -anim.amplitudePx * arc * pxScaleY
                     }
                     "rise_fade" -> {
                         // Linear rise + fade out (alpha 1→0 over second half).
-                        st.dy += -anim.risePx * p
+                        st.dy += -anim.risePx * p * pxScaleY
                         st.alpha = (1f - p)
                     }
                 }
@@ -751,7 +832,4 @@ class CanvasSceneRenderer(private val context: Context) {
         prescaledForH = 0
     }
 
-    companion object {
-        private const val TAG = "CanvasScene"
-    }
 }

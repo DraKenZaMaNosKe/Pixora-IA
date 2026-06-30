@@ -2714,27 +2714,28 @@ function updateDeviceLabel() {
 }
 
 async function applyDeviceSurface(dev, opts = {}) {
+  // v1.7.45 CRITICAL FIX:
+  // The editor canvas is ALWAYS authored against the TARGET reference
+  // 1080×2340 regardless of the connected device. Previously, when a
+  // device with different resolution connected, SC.setSurfaceDims() was
+  // called with the device dims → all px-based coordinates (offset_x_px,
+  // bob_amplitude_px, motion amplitudes) were saved in the device's
+  // resolution and rendered desfasados on other devices.
+  //
+  // Now: SC.surface.w/h stays locked to 1080×2340. We only remember
+  // the device info to show its label/dimensions in the toolbar (so
+  // you know what's connected, but it doesn't affect the spec values).
+  // The renderer scales TARGET-relative px values to each device's
+  // actual surface at draw time (see pxScaleX/pxScaleY in
+  // CanvasSceneRenderer.kt).
   const silent = !!opts.silent;
-  const prevW = phoneW(), prevH = phoneH();
   state.device = dev;
-  SC.setSurfaceDims(dev.width, dev.height);
   updateDeviceLabel();
-
-  const changed = prevW !== phoneW() || prevH !== phoneH();
-  if (!changed) return false;
-
-  updateCameraFrustum();
-  rebuildPhoneFrame();
-  fitCanvas();
-  if (state.spec) {
-    await rebuildScene();
-    renderItemsPanel();
-    updateStatusBar();
-    updateTransformBox();
-  }
   if (!silent) {
-    const src = dev.source === 'device' ? 'cel conectado' : 'referencia';
-    toast(`Lienzo ${phoneW()}×${phoneH()} (${src})`, 'ok');
+    const src = dev.source === 'device'
+      ? `dispositivo ${dev.width}×${dev.height} detectado`
+      : 'sin device — usando referencia';
+    toast(`Canvas fijo 1080×2340 (${src})`, 'ok');
   }
   return true;
 }
