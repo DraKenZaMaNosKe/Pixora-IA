@@ -44,14 +44,14 @@ HAIR_CYCLE_DURATION_S = 1.0  # full loop ~1s -> 167ms per frame, smooth swing
 
 # ------------------------------------------------------------------ helpers
 def pad_to_target(im: Image.Image) -> Image.Image:
-    """Pad a 1080x1920 image vertically (centered) into a 1080x2340 canvas.
+    """LEGACY. Pad a 1080x1920 image vertically (centered) into a 1080x2340
+    canvas. Kept for callers that need identity-preserving padding, but for
+    subject layers prefer bake_subject_complete() below — it also guarantees
+    subject fits inside canvas with margin, avoiding any crop on any device.
 
     Transparent padding for layers with alpha (cabello, morrigan_sola), so
     the subject keeps its proportional vertical position and the renderer
-    can blend cleanly. Background image (no alpha) gets centered against
-    a black canvas; cover-fit of the surface will hide the bands on most
-    devices (Samsung shows the full bitmap, Huawei crops top/bottom of
-    TARGET which is exactly where the padding lives — invisible)."""
+    can blend cleanly."""
     if im.mode != "RGBA":
         im = im.convert("RGBA")
     sw, sh = im.size
@@ -63,6 +63,60 @@ def pad_to_target(im: Image.Image) -> Image.Image:
     y = (th - sh) // 2
     canvas.alpha_composite(im, (x, y))
     return canvas
+
+
+def bake_subject_complete(im: Image.Image, margin: float = 0.15) -> tuple:
+    """CANONICAL FORMULA (2026-06-30) for subject layers in canvas_scene.
+
+    Takes an image with a transparent subject, crops tight to the subject
+    bbox, resizes so the subject fits inside canvas TARGET with `margin`
+    around each edge, and composites centered into a 1080x2340 canvas.
+
+    Returns (canvas_image, runtime_scale) where runtime_scale is the value
+    to put in the spec's `scale` field — it renders the subject at ~TARGET
+    width on a Samsung-shaped device (surface == TARGET). Editor fine-tunes
+    from there.
+
+    Why this works cross-device:
+    - Subject NEVER touches canvas edges → never cropped on any aspect
+    - Canvas is always TARGET-aspect (0.462) → cover-fit factor is uniform
+      across every phone surface (they're all close to 9:19.5)
+    - Spec scale > 1 amplifies the subject; because the amplification
+      happens AFTER a uniform cover-fit, subject size is consistent
+      cross-device
+
+    Contrast with pad_to_target(): that keeps subject at its natural
+    position in source pixels, which can leave subject touching (or beyond)
+    the canvas edges — meaning the subject IS cropped in the bitmap and
+    devices with different aspect ratios show missing edges.
+    """
+    import numpy as np
+    if im.mode != "RGBA":
+        im = im.convert("RGBA")
+    # Detect subject bbox by alpha
+    a = np.array(im)[:, :, 3]
+    ys, xs = np.where(a > 30)
+    if len(xs) == 0:
+        # No subject — nothing to bake. Return original padded.
+        return pad_to_target(im), 1.0
+    sx0, sy0 = int(xs.min()), int(ys.min())
+    sx1, sy1 = int(xs.max()) + 1, int(ys.max()) + 1
+    subj_w, subj_h = sx1 - sx0, sy1 - sy0
+    tight = im.crop((sx0, sy0, sx1, sy1))
+
+    tw, th = TARGET
+    max_w = tw * (1.0 - 2 * margin)
+    max_h = th * (1.0 - 2 * margin)
+    fit = min(max_w / subj_w, max_h / subj_h)
+    new_w, new_h = int(round(subj_w * fit)), int(round(subj_h * fit))
+    tight_resized = tight.resize((new_w, new_h), Image.LANCZOS)
+
+    canvas = Image.new("RGBA", TARGET, (0, 0, 0, 0))
+    canvas.alpha_composite(tight_resized, ((tw - new_w) // 2, (th - new_h) // 2))
+
+    # scale renders subject at ~TARGET_W wide on a Samsung-shaped device
+    runtime_scale = round(tw / new_w, 4)
+    return canvas, runtime_scale
 
 
 def save_webp(im: Image.Image, out: Path, quality=92):
@@ -123,13 +177,16 @@ def main():
     fondo_cf.save(out_fondo, "WEBP", quality=92, method=6)
     print(f"      -> {out_fondo.name} ({out_fondo.stat().st_size:,} bytes)")
 
-    # ---- 2. Bake morrigan ---------------------------------------------
-    print("[2/4] Baking morrigan...")
-    morrigan = Image.open(SRC / "morrigan_sola_.png")
-    morrigan_baked = pad_to_target(morrigan)
+    # ---- 2. Bake morrigan (SUBJECT COMPLETE + runtime scale) ----------
+    # 2026-06-30 formula: subject stays completely inside canvas TARGET with
+    # 15% margin, so no crop on any device. Spec.scale amplifies in runtime.
+    print("[2/4] Baking morrigan (subject complete + runtime scale)...")
+    morrigan_src = Image.open(SRC / "morrigan_sola_.png")
+    morrigan_baked, morrigan_runtime_scale = bake_subject_complete(morrigan_src)
     out_morrigan = WORK / f"{SCENE_ID}_morrigan.webp"
     save_webp(morrigan_baked, out_morrigan)
-    print(f"      -> {out_morrigan.name} ({out_morrigan.stat().st_size:,} bytes)")
+    print(f"      -> {out_morrigan.name} ({out_morrigan.stat().st_size:,} bytes)"
+          f" runtime_scale={morrigan_runtime_scale}")
 
     # ---- 3. Bake each hair frame --------------------------------------
     print(f"[3/4] Baking {len(HAIR_FRAMES)} hair frames...")
@@ -207,8 +264,8 @@ def main():
             {
                 "key": "morrigan",
                 "url": url_morrigan,
-                "z": 1,
-                "scale": 1.0,
+                "z": 2,  # front — 2026-06-30 formula: sprite cabello sits at z=1
+                "scale": morrigan_runtime_scale,  # e.g. 1.4286 — renders subject at ~1080 wide
                 "parallax_factor": 0.55,
                 "scroll_factor": 0.55,
                 "offset_x_px": 0,
