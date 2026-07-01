@@ -1255,12 +1255,14 @@ button { white-space: nowrap; }
             <th>nombre</th>
             <th>cat</th>
             <th class="num">vistas</th>
+            <th class="num">💖</th>
+            <th class="num">DL</th>
             <th class="num">installs</th>
             <th class="num">devices</th>
             <th class="num">install%</th>
           </tr>
         </thead>
-        <tbody id="topwp-tbody"><tr><td colspan="6" class="loading">cargando</td></tr></tbody>
+        <tbody id="topwp-tbody"><tr><td colspan="8" class="loading">cargando</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -1974,10 +1976,14 @@ async function loadTopWallpapers() {
     const tr = document.createElement('tr');
     tr.dataset.id = r.id;
     tr.onclick = () => openModal(r.id);
+    const likeClr = r.likes > 0 ? 'color:#ff2bd6' : 'color:var(--muted)';
+    const dlClr = r.downloads > 0 ? 'color:#00f0ff' : 'color:var(--muted)';
     tr.innerHTML = `
       <td>${escape(r.name)}</td>
       <td><span class="pill view">${r.category}</span></td>
       <td class="num mono">${fmt(r.views)}</td>
+      <td class="num mono" style="${likeClr}">${fmt(r.likes)}</td>
+      <td class="num mono" style="${dlClr}">${fmt(r.downloads)}</td>
       <td class="num mono">${fmt(r.installs)}</td>
       <td class="num mono">${fmt(r.unique_devices)}</td>
       <td class="num mono">${(r.install_rate_pct || 0).toFixed(1)}%</td>
