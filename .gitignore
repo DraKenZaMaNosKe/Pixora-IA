@@ -118,3 +118,9 @@ _tmp_*/
 # Firebase service account (FCM admin)
 firebase-service-account.json
 /android/app/build/
+
+# Local caches / experimental sandboxes — no repo value
+/agent-tools/
+/mcps/
+/terminals/
+/rel
