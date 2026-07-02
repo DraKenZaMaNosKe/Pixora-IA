@@ -759,6 +759,39 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send_json(data, status)
 
+        # ─── Recently added wallpapers (freshness monitoring) ─────
+        # Wallpapers creados en los últimos ?days=N con stats mergeados
+        # (likes/downloads/views/installs). Feeds panel "Últimos agregados"
+        # + badge NUEVO en la tabla top wallpapers. 2026-07-02.
+        if path == "/api/recent-wallpapers":
+            from datetime import datetime, timezone, timedelta as _td
+            days = int(query.get("days", ["14"])[0])
+            limit = int(query.get("limit", ["30"])[0])
+            since = (datetime.now(timezone.utc) - _td(days=days)).strftime("%Y-%m-%dT%H:%M:%S")
+            wps, s1 = self._proxy(
+                f"wallpapers?created_at=gte.{since}&order=created_at.desc"
+                f"&limit={limit}&select=id,name,category,type,created_at,badge,featured,published"
+            )
+            if s1 >= 400 or not isinstance(wps, list):
+                return self._send_json({"error": "wallpapers fetch failed", "detail": wps}, s1 or 500)
+            if not wps:
+                return self._send_json({"days": days, "total": 0, "items": []}, 200)
+            ids = ",".join(w["id"] for w in wps)
+            stats, _ = self._proxy(
+                f"admin_content_breakdown?id=in.({ids})"
+                f"&select=id,likes,downloads,views,installs,unique_devices,install_rate_pct"
+            )
+            stats_map = {s["id"]: s for s in (stats or [])}
+            for w in wps:
+                s = stats_map.get(w["id"], {})
+                w["likes"] = s.get("likes", 0)
+                w["downloads"] = s.get("downloads", 0)
+                w["views"] = s.get("views", 0)
+                w["installs"] = s.get("installs", 0)
+                w["unique_devices"] = s.get("unique_devices", 0)
+                w["install_rate_pct"] = s.get("install_rate_pct", 0.0)
+            return self._send_json({"days": days, "total": len(wps), "items": wps}, 200)
+
         if path == "/api/wallpaper":
             # Uses admin_content_breakdown so the modal opens with stats
             # for ringtones/stories/aura/daycycle too (was breaking before
@@ -890,6 +923,58 @@ class Handler(BaseHTTPRequestHandler):
                 f"ad_events?select=id,ts,device_id,user_id,ad_kind,placement,wallpaper_id,shown,rewarded&order=ts.desc&limit={limit}"
             )
             return self._send_json(data, status)
+
+        # ─── Likes audit (counter drift detection) ────────────────
+        # Compara wallpaper_stats.likes (counter) vs COUNT(wallpaper_likes)
+        # rows reales. Devuelve solo los wallpapers con drift para monitoring
+        # rapido de desincronizaciones. Uso: dashboard alarma cuando != 0.
+        # 2026-07-02 — creado tras auditoria del pipeline de likes.
+        if path == "/api/wallpaper-likes-audit":
+            # Snapshot counters
+            stats_data, s1 = self._proxy(
+                "wallpaper_stats?select=wallpaper_id,likes&likes=gt.0&limit=5000"
+            )
+            if s1 >= 400:
+                return self._send_json({"error": "stats fetch failed"}, s1)
+            counters = {r["wallpaper_id"]: r["likes"] for r in (stats_data or [])}
+
+            # Snapshot rows reales (paginado)
+            from collections import Counter
+            row_counts = Counter()
+            offset = 0
+            while True:
+                batch, sc = self._proxy(
+                    f"wallpaper_likes?select=wallpaper_id&limit=1000&offset={offset}"
+                )
+                if sc >= 400 or not batch:
+                    break
+                for r in batch:
+                    row_counts[r["wallpaper_id"]] += 1
+                if len(batch) < 1000:
+                    break
+                offset += 1000
+
+            # Diff — solo los con drift (incluye wallpapers en likes pero sin stats row)
+            all_ids = set(counters) | set(row_counts)
+            drift = []
+            for wid in all_ids:
+                c = counters.get(wid, 0)
+                r = row_counts.get(wid, 0)
+                if c != r:
+                    drift.append({
+                        "wallpaper_id": wid,
+                        "counter": c,
+                        "rows": r,
+                        "diff": r - c,
+                    })
+            drift.sort(key=lambda x: abs(x["diff"]), reverse=True)
+            return self._send_json({
+                "total_wallpapers_checked": len(all_ids),
+                "total_with_drift": len(drift),
+                "counter_total": sum(counters.values()),
+                "rows_total": sum(row_counts.values()),
+                "drift": drift,
+            }, 200)
 
         # ─── Per-wallpaper installers (modal) ─────────────────────
         if path == "/api/wallpaper-installers":

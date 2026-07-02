@@ -1245,6 +1245,38 @@ button { white-space: nowrap; }
     </div>
   </div>
 
+  <!-- ÚLTIMOS AGREGADOS · monitoring de releases frescos -->
+  <div class="panel" style="margin-top:16px;">
+    <h3>
+      Últimos agregados <span class="count" id="recentwp-count">--</span>
+      <span class="dim" style="font-size:11px;font-weight:400;margin-left:8px;">últimos
+        <select id="recentwp-days" style="background:transparent;color:var(--accent);border:none;font-size:11px;">
+          <option value="7">7</option>
+          <option value="14" selected>14</option>
+          <option value="30">30</option>
+        </select>
+        días · performance en testers
+      </span>
+    </h3>
+    <div class="scrollable">
+      <table>
+        <thead>
+          <tr>
+            <th>nombre</th>
+            <th>cat</th>
+            <th class="num">creado</th>
+            <th class="num">vistas</th>
+            <th class="num">💖</th>
+            <th class="num">DL</th>
+            <th class="num">installs</th>
+            <th class="num">devices</th>
+          </tr>
+        </thead>
+        <tbody id="recentwp-tbody"><tr><td colspan="8" class="loading">cargando</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- TOP WALLPAPERS (legendarias) -->
   <div class="panel" style="margin-top:16px;">
     <h3>Top wallpapers por vistas <span class="count" id="topwp-count">--</span></h3>
@@ -1966,6 +1998,59 @@ function renderCategoriesChart(byCat) {
   });
 }
 
+// Set de IDs de wallpapers "nuevos" (creados en ventana N días).
+// Poblado por loadRecentWallpapers() y consumido por loadTopWallpapers()
+// para pintar el badge dorado NUEVO al lado del nombre.
+window._recentWallpaperIds = new Set();
+const NEW_BADGE_STYLE = 'display:inline-block;margin-left:6px;padding:1px 6px;font-size:9px;font-weight:700;letter-spacing:0.5px;background:linear-gradient(135deg,#E6B655,#FFD66B);color:#000;border-radius:3px;vertical-align:middle;box-shadow:0 0 6px rgba(230,182,85,0.5);';
+
+async function loadRecentWallpapers() {
+  const days = parseInt(document.getElementById('recentwp-days').value || '14');
+  const res = await api(`/api/recent-wallpapers?days=${days}&limit=30`);
+  if (!res || !Array.isArray(res.items)) return;
+  $('#recentwp-count').textContent = res.total;
+  const tbody = $('#recentwp-tbody');
+  tbody.innerHTML = '';
+  // Poblar set global para el badge NUEVO en la tabla top-wallpapers
+  window._recentWallpaperIds = new Set(res.items.map(w => w.id));
+  if (res.items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="loading">sin wallpapers en los últimos ${days} días</td></tr>`;
+    return;
+  }
+  const now = Date.now();
+  res.items.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = r.id;
+    tr.onclick = () => openModal(r.id);
+    const ageMs = r.created_at ? (now - new Date(r.created_at).getTime()) : 0;
+    const ageDays = ageMs / (1000*60*60*24);
+    let ageLabel;
+    if (ageDays < 1) ageLabel = `${Math.floor(ageMs/(1000*60*60))}h`;
+    else if (ageDays < 30) ageLabel = `${Math.floor(ageDays)}d`;
+    else ageLabel = `${Math.floor(ageDays/30)}mo`;
+    const likeClr = r.likes > 0 ? 'color:#ff2bd6' : 'color:var(--muted)';
+    const dlClr = r.downloads > 0 ? 'color:#00f0ff' : 'color:var(--muted)';
+    tr.innerHTML = `
+      <td>${escape(r.name || r.id)}<span style="${NEW_BADGE_STYLE}">NUEVO</span></td>
+      <td><span class="pill view">${r.category || '?'}</span></td>
+      <td class="num mono dim">${ageLabel}</td>
+      <td class="num mono">${fmt(r.views)}</td>
+      <td class="num mono" style="${likeClr}">${fmt(r.likes)}</td>
+      <td class="num mono" style="${dlClr}">${fmt(r.downloads)}</td>
+      <td class="num mono">${fmt(r.installs)}</td>
+      <td class="num mono">${fmt(r.unique_devices)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Change handler para el selector de días
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'recentwp-days') {
+    loadRecentWallpapers().then(() => loadTopWallpapers());
+  }
+});
+
 async function loadTopWallpapers() {
   const rows = await api('/api/top-wallpapers?limit=50');
   if (!Array.isArray(rows)) return;
@@ -1978,8 +2063,11 @@ async function loadTopWallpapers() {
     tr.onclick = () => openModal(r.id);
     const likeClr = r.likes > 0 ? 'color:#ff2bd6' : 'color:var(--muted)';
     const dlClr = r.downloads > 0 ? 'color:#00f0ff' : 'color:var(--muted)';
+    // Badge NUEVO si el wallpaper está en la ventana de "recientes" (poblada por loadRecentWallpapers)
+    const isNew = window._recentWallpaperIds && window._recentWallpaperIds.has(r.id);
+    const newBadge = isNew ? `<span style="${NEW_BADGE_STYLE}">NUEVO</span>` : '';
     tr.innerHTML = `
-      <td>${escape(r.name)}</td>
+      <td>${escape(r.name)}${newBadge}</td>
       <td><span class="pill view">${r.category}</span></td>
       <td class="num mono">${fmt(r.views)}</td>
       <td class="num mono" style="${likeClr}">${fmt(r.likes)}</td>
@@ -2948,6 +3036,10 @@ function escape(s) {
 // Bootstrap
 // ────────────────────────────────────────────────────────────────────────────
 async function refreshAll() {
+  // loadRecentWallpapers PRIMERO — puebla el set de IDs nuevos que consume
+  // loadTopWallpapers para pintar el badge NUEVO. Si va en paralelo, hay
+  // race: el top se pinta antes de conocer los nuevos y quedan sin badge.
+  await loadRecentWallpapers();
   await Promise.all([
     loadStats(), loadDaily(), loadTopWallpapers(), loadTopUsers(), loadFeed(),
     loadAdStats(), loadAdRevenueDaily(), loadAdTopUsers(), loadAdFeed(),
