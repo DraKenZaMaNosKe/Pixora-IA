@@ -1,0 +1,57 @@
+{
+  "_meta": {
+    "source_dir": "C:/Users/lalo/Desktop/wallPapers_repo/tonos",
+    "date": "2026-06-23",
+    "warning": "Archivos descargados manualmente por Eduardo. Probable IP risk (Nokia/Apple/Nintendo). Eduardo decidió subir bajo su responsabilidad — Pixora app tiene flujo de Report Content si llega DMCA."
+  },
+  "files": [
+    {
+      "src_filename": "Icq old sound.mp3",
+      "target_pack": "internet_nostalgia_pack",
+      "tone_id": "icq_uh_oh_original",
+      "name": "ICQ - Uh Oh!",
+      "target_sec": 2,
+      "suggestedType": "notification"
+    },
+    {
+      "src_filename": "tono de messenger 2.mp3",
+      "target_pack": "internet_nostalgia_pack",
+      "tone_id": "msn_messenger_original",
+      "name": "MSN Messenger - Aviso",
+      "target_sec": 2,
+      "suggestedType": "notification"
+    },
+    {
+      "src_filename": "El mejor tono de llamada - SONIDO de Yoshi story theme  Tono para usar como llamada 2021.mp3",
+      "target_pack": "gaming_pack",
+      "tone_id": "yoshi_story_theme",
+      "name": "Yoshi - Story Theme",
+      "target_sec": 15,
+      "suggestedType": "ringtone"
+    },
+    {
+      "src_filename": "ESTE es el MEJOR TONO de llamada de Nokia para tu celular.mp3",
+      "target_pack": "retro_classic_pack",
+      "tone_id": "nokia_classic_tune",
+      "name": "Nokia - Tune Clásico",
+      "target_sec": 12,
+      "suggestedType": "ringtone"
+    },
+    {
+      "src_filename": "EL MEJOR TONO de llamada - IPHONE max 12 pro  Tono para llamada 2021.mp3",
+      "target_pack": "modern_futuristic_pack",
+      "tone_id": "iphone_pro_marimba",
+      "name": "iPhone - Pro Marimba",
+      "target_sec": 12,
+      "suggestedType": "ringtone"
+    },
+    {
+      "src_filename": "FX - TONO DE LLAMADA - El mejor tono de llamada para celular de POU 2021.mp3",
+      "target_pack": "memes_pack",
+      "tone_id": "pou_call_fx",
+      "name": "POU - Llamada",
+      "target_sec": 10,
+      "suggestedType": "ringtone"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "_meta": {
+    "selected_by": "Eduardo",
+    "date": "2026-06-23",
+    "pack_id": "internet_nostalgia_pack",
+    "pack_name": "Internet Retro",
+    "pack_description": "Sonidos icónicos del internet de los 90s/2000s — alertas de chat, módems, teléfonos antiguos. Pura nostalgia digital.",
+    "pack_glow": "#4ECDC4",
+    "pack_category": "RETRO"
+  },
+  "slots": {
+    "retro_chat_uhoh": [
+      { "freesound_id": 575339, "name_human": "Niña Uh-Oh", "target_sec": 2 },
+      { "freesound_id": 578797, "name_human": "Cartoon Uh-Oh", "target_sec": 3 },
+      { "freesound_id": 361255, "name_human": "8-bit Uh-Oh", "target_sec": 1 },
+      { "freesound_id": 823530, "name_human": "Voz Uh-Oh Clásico", "target_sec": 2 }
+    ],
+    "retro_chat_door_open": [
+      { "freesound_id": 316876, "name_human": "Puerta Crujiente", "target_sec": 2 }
+    ],
+    "retro_chat_door_close": [
+      { "freesound_id": 700705, "name_human": "Puerta Metálica Cierra", "target_sec": 2 }
+    ],
+    "retro_chat_msg": [
+      { "freesound_id": 651590, "name_human": "Ding Estación", "target_sec": 2 },
+      { "freesound_id": 644943, "name_human": "Ding Respuesta Correcta", "target_sec": 2 },
+      { "freesound_id": 644946, "name_human": "Ping Correcto", "target_sec": 1 },
+      { "freesound_id": 644944, "name_human": "Ding Suave", "target_sec": 1 },
+      { "freesound_id": 699704, "name_human": "Burbuja Notificación", "target_sec": 3 },
+      { "freesound_id": 644952, "name_human": "Ping Game Show", "target_sec": 2 }
+    ],
+    "retro_chat_nudge": [
+      { "freesound_id": 692847, "name_human": "Buzz Falso C", "target_sec": 2 },
+      { "freesound_id": 616405, "name_human": "Brig Alarm Sci-Fi", "target_sec": 4 },
+      { "freesound_id": 572541, "name_human": "Vibración de Teléfono", "target_sec": 1 },
+      { "freesound_id": 670891, "name_human": "Timer Cocina Buzz", "target_sec": 2 }
+    ],
+    "retro_mail_alert": [
+      { "freesound_id": 380482, "name_human": "Chime Notificación", "target_sec": 1 },
+      { "freesound_id": 188012, "name_human": "Alarma Japonesa", "target_sec": 4 }
+    ],
+    "retro_phone_ring_old": [
+      { "freesound_id": 610191, "name_human": "Teléfono Antiguo Sonando", "target_sec": 5 }
+    ]
+  }
+}

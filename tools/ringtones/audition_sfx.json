@@ -1,0 +1,22 @@
+{
+  "title": "⚡ EFECTOS ESPECIALES · Audition",
+  "pack_id": "sfx_pack",
+  "pack_name": "FX Especiales",
+  "pack_description": "Efectos puros para sorprender — risas grupales, aplausos, cristal roto, tornadito, suspense, etc.",
+  "pack_glow": "#FACC15",
+  "pack_category": "FX",
+  "slots": [
+    { "id": "sfx_laugh_track",   "name": "Risa Grupo (sitcom)",     "query": "laugh track sitcom",     "duration_target": "2-3s", "hint": "Risas de público estilo TV" },
+    { "id": "sfx_applause",      "name": "Aplausos",                "query": "applause crowd",          "duration_target": "3-4s", "hint": "Audiencia aplaudiendo" },
+    { "id": "sfx_glass_break",   "name": "Cristal Roto",             "query": "glass break shatter",     "duration_target": "1-2s", "hint": "Vidrio quebrándose" },
+    { "id": "sfx_record_scratch","name": "Rasca Disco (DJ)",         "query": "record scratch",          "duration_target": "1-2s", "hint": "Disco rayado tipo meme" },
+    { "id": "sfx_drumroll",      "name": "Redoble de Tambor",        "query": "drum roll suspense",      "duration_target": "3s",   "hint": "Suspense antes del reveal" },
+    { "id": "sfx_cricket",       "name": "Grillos (Silencio Awk)",  "query": "crickets chirping awkward","duration_target": "3-4s", "hint": "Silencio incómodo" },
+    { "id": "sfx_air_horn",      "name": "Bocina de Aire",           "query": "air horn",                "duration_target": "1s",   "hint": "Horn estilo party" },
+    { "id": "sfx_camera_shutter","name": "Click de Cámara",          "query": "camera shutter snap",     "duration_target": "1s",   "hint": "Foto tomada" },
+    { "id": "sfx_typewriter",    "name": "Máquina de Escribir",      "query": "typewriter typing",       "duration_target": "2-3s", "hint": "Teclas + ding del retorno" },
+    { "id": "sfx_cash_register", "name": "Caja Registradora",        "query": "cash register ding",      "duration_target": "1-2s", "hint": "Venta hecha, ka-ching" },
+    { "id": "sfx_bell",          "name": "Campana",                  "query": "bell ring chime",         "duration_target": "2s",   "hint": "Campana clásica" },
+    { "id": "sfx_whistle",       "name": "Silbato Árbitro",          "query": "referee whistle",         "duration_target": "1s",   "hint": "Falta en el fut" }
+  ]
+}

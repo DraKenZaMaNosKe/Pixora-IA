@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>🎮 VIDEOJUEGOS · Audition · Audition</title>
+<style>
+  :root {
+    --bg: #0F0E1A;
+    --surf: #1A1B2E;
+    --surf2: #21223A;
+    --text: #E8E8EC;
+    --muted: #98989D;
+    --cyan: #00F0FF;
+    --gold: #E6B655;
+    --pink: #FF2BD6;
+    --border: #2C2C3E;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, 'Segoe UI', sans-serif; line-height: 1.5; }
+  header.top { background: linear-gradient(180deg, #1A0033 0%, #0F0E1A 100%);
+    padding: 28px 32px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
+  h1 { margin: 0 0 4px; font-size: 28px; color: var(--cyan); letter-spacing: 1px; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 32px 80px; }
+  .slot { background: var(--surf); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin: 18px 0; }
+  .slot header { margin-bottom: 14px; }
+  .slot h2 { margin: 0 0 4px; color: var(--gold); font-size: 18px; }
+  .slot-meta { color: var(--muted); font-size: 12px; font-family: monospace; }
+  .hint { color: var(--text); font-size: 13px; margin-top: 6px; font-style: italic; opacity: 0.8; }
+  .cards { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+  .cand { display: grid; grid-template-columns: 36px 1fr 240px; gap: 12px;
+    align-items: center; background: var(--surf2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; transition: border-color .2s; }
+  .cand:has(input:checked) { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+  .pick { cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .pick input { display: none; }
+  .pick-mark { width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; color: transparent; transition: all .2s; }
+  .pick input:checked + .pick-mark { border-color: var(--cyan); background: var(--cyan);
+    color: var(--bg); transform: scale(1.1); }
+  .count { background: var(--bg); color: var(--cyan); padding: 2px 10px;
+    border-radius: 12px; font-size: 11px; font-weight: 400; margin-left: 12px;
+    border: 1px solid var(--cyan); }
+  .count.zero { color: var(--muted); border-color: var(--muted); }
+  .meta { min-width: 0; }
+  .cand-name { font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .cand-info { color: var(--muted); font-size: 12px; }
+  .cand-tags { color: var(--gold); font-size: 11px; margin-top: 4px; font-family: monospace; opacity: 0.6; }
+  .cand-desc { color: var(--text); font-size: 11px; margin-top: 4px; opacity: 0.6; max-height: 30px; overflow: hidden; }
+  audio { width: 240px; height: 36px; }
+  .no-results { color: #C2410C; padding: 20px; text-align: center; }
+  .actions { position: sticky; bottom: 0; background: var(--surf); border: 1px solid var(--cyan);
+    border-radius: 12px; padding: 16px; margin-top: 24px;
+    display: flex; gap: 12px; align-items: center; }
+  button { background: var(--cyan); color: var(--bg); border: none; padding: 12px 24px;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px;
+    /* type=button por default sin form, pero forzamos no-submit */ }
+  button:hover { background: #00d0e0; }
+  #output { flex: 1; background: var(--bg); color: var(--cyan); padding: 10px;
+    border-radius: 6px; font-family: monospace; font-size: 11px; max-height: 240px;
+    overflow: auto; white-space: pre-wrap; border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>🎮 VIDEOJUEGOS · Audition</h1>
+  <div class="subtitle">
+    Escucha cada candidato y marca los que más te gusten (puedes elegir varios por slot).
+    Solo CC0 / CC-BY (uso libre comercial).
+  </div>
+</header>
+<main>
+
+<section class="slot" data-slot-id="vg_coin">
+  <header>
+    <h2>Moneda / Coin Pickup <span class="count zero" id="count_vg_coin">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_coin</code> · target 1s ·
+      query: <em>"coin pickup"</em>
+    </div>
+    <div class="hint">Ding metálico tipo Mario</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_coin" data-fsid="646673"
+           data-name="Coin Pickup SFX [1]"
+           data-dur="1.5" data-user="SoundDesignForYou">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Coin Pickup SFX [1]</div>
+    <div class="cand-info">
+      ⏱ 1.5s · ⭐ 5.0/5 ·
+      by SoundDesignForYou
+    </div>
+    <div class="cand-tags">coin, collect, game, item, object</div>
+    <div class="cand-desc">Coin pickup sound effect.  DONATE: <a href=&quot;https://www.paypal.com/paypalme/andrewweigh&quot; rel=&quot;nofollow&quot;>https://www.paypal.com/paypalme/andr</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/646/646673_13085623-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_coin" data-fsid="350869"
+           data-name="Coin_C_06"
+           data-dur="0.5" data-user="cabled_mess">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Coin_C_06</div>
+    <div class="cand-info">
+      ⏱ 0.5s · ⭐ 5.0/5 ·
+      by cabled_mess
+    </div>
+    <div class="cand-tags">8-bit, abstract, arcade, chest, chip</div>
+    <div class="cand-desc">Simple retro video game sound effects created using the amazing, free ChipTone tool. <a href=&quot;http://sfbgames.com/chiptone&quot; rel=&quot;nofollow&quot;></div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/350/350869_5450487-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_coin" data-fsid="539662"
+           data-name="Pick-Up SFX"
+           data-dur="3.2" data-user="jhyland">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Pick-Up SFX</div>
+    <div class="cand-info">
+      ⏱ 3.2s · ⭐ 5.0/5 ·
+      by jhyland
+    </div>
+    <div class="cand-tags">8-Bit, Coin, Pick-Up, Power-Up, SFX</div>
+    <div class="cand-desc">A simple 8-bit sound effect used in a video game. Link: <a href=&quot;https://bsharpgames.itch.io/match-ride-rescue&quot; rel=&quot;nofollow&quot;>https://bshar</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/539/539662_8272284-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_coin" data-fsid="830029"
+           data-name="GAMEMisc_Designed, Coin, Pick-Up, Tonal, High Pitched, Digit"
+           data-dur="1.0" data-user="JW_Audio">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">GAMEMisc_Designed, Coin, Pick-Up, Tonal, High Pitched, Digit</div>
+    <div class="cand-info">
+      ⏱ 1.0s · ⭐ 5.0/5 ·
+      by JW_Audio
+    </div>
+    <div class="cand-tags">coin, designed, game-audio, high, pick-up</div>
+    <div class="cand-desc">Designed coin pick up SFX created with Phaseplant and Vital.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/830/830029_13183432-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_coin" data-fsid="848795"
+           data-name="Pickup"
+           data-dur="0.5" data-user="swifty433">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Pickup</div>
+    <div class="cand-info">
+      ⏱ 0.5s · ⭐ 5.0/5 ·
+      by swifty433
+    </div>
+    <div class="cand-tags">coin, grab, object, pick-up, picking</div>
+    <div class="cand-desc">picking up of an object off wood</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/848/848795_16393918-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_coin" data-fsid="830027"
+           data-name="GAMEMisc_Designed, Coin, Pick-Up, Tonal, High Pitched, Digit"
+           data-dur="1.0" data-user="JW_Audio">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">GAMEMisc_Designed, Coin, Pick-Up, Tonal, High Pitched, Digit</div>
+    <div class="cand-info">
+      ⏱ 1.0s · ⭐ 5.0/5 ·
+      by JW_Audio
+    </div>
+    <div class="cand-tags">coin, designed, game-audio, high-pitched, pick-up</div>
+    <div class="cand-desc">Designed coin pick up SFX created with Phaseplant and Vital.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/830/830027_13183432-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_powerup">
+  <header>
+    <h2>Power Up <span class="count zero" id="count_vg_powerup">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_powerup</code> · target 1-2s ·
+      query: <em>"powerup"</em>
+    </div>
+    <div class="hint">Sube de nivel, escala ascendente</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_powerup" data-fsid="781125"
+           data-name="anime powerup"
+           data-dur="6.2" data-user="ImATaco">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">anime powerup</div>
+    <div class="cand-info">
+      ⏱ 6.2s · ⭐ 5.0/5 ·
+      by ImATaco
+    </div>
+    <div class="cand-tags">anime, cute, power-up, powerup, superhero</div>
+    <div class="cand-desc">messed around in fl studio and encountered this, feel free to use</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/781/781125_13478074-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_powerup" data-fsid="746988"
+           data-name="Robot Awakening | Power On"
+           data-dur="1.2" data-user="GammaGool">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Robot Awakening | Power On</div>
+    <div class="cand-info">
+      ⏱ 1.2s · ⭐ 5.0/5 ·
+      by GammaGool
+    </div>
+    <div class="cand-tags">electromechanical, power, robot, sci-fi, synthetic</div>
+    <div class="cand-desc">Chunky power-up sound, like an android or robot coming to life for the first time.  Mixed in audacity from a variety CC0 sounds that were so</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/746/746988_8908475-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_powerup" data-fsid="257040"
+           data-name="Heater warmup.wav"
+           data-dur="22.2" data-user="fffidle">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Heater warmup.wav</div>
+    <div class="cand-info">
+      ⏱ 22.2s · ⭐ 5.0/5 ·
+      by fffidle
+    </div>
+    <div class="cand-tags">Heater, Warm-up, Warmup, buzzing, power-up</div>
+    <div class="cand-desc">A recorded sound of my old QUARTZ 1500W heater starting up on the 750W (halfway) setting</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/257/257040_4794260-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_powerup" data-fsid="818671"
+           data-name="8-bit &quot;pli-pli-pli-plim&quot; ARP"
+           data-dur="0.6" data-user="hotpin7">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">8-bit "pli-pli-pli-plim" ARP</div>
+    <div class="cand-info">
+      ⏱ 0.6s · ⭐ 5.0/5 ·
+      by hotpin7
+    </div>
+    <div class="cand-tags">8-bit, arcade, chippy, power-up, retro</div>
+    <div class="cand-desc">8-bit arp that i created and processed in DAW; This one is &quot;pli-pli-plim&quot; or whatever, sounds like some power-up use.  Ы.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/818/818671_17707799-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_powerup" data-fsid="566198"
+           data-name="Power flux"
+           data-dur="28.2" data-user="colorsCrimsonTears">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Power flux</div>
+    <div class="cand-info">
+      ⏱ 28.2s · ⭐ 5.0/5 ·
+      by colorsCrimsonTears
+    </div>
+    <div class="cand-tags">buzz, cc0, electronic, experimental, fluctuation</div>
+    <div class="cand-desc">Created from multiple sounds blended together in milkytracker and tweaked to have them pitch down, before being gradually brought back up. (</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/566/566198_11785387-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_powerup" data-fsid="582459"
+           data-name="formant riser"
+           data-dur="15.4" data-user="neopolitansixth">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">formant riser</div>
+    <div class="cand-info">
+      ⏱ 15.4s · ⭐ 5.0/5 ·
+      by neopolitansixth
+    </div>
+    <div class="cand-tags">ambience, ambient, edm, electronic, fx</div>
+    <div class="cand-desc">I was playing a bit in LMMS and I came up with a few risers</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/582/582459_7295304-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_levelup">
+  <header>
+    <h2>Level Up Fanfare <span class="count zero" id="count_vg_levelup">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_levelup</code> · target 2-3s ·
+      query: <em>"level up"</em>
+    </div>
+    <div class="hint">Subiste de nivel, celebración</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_levelup" data-fsid="611193"
+           data-name="Power Up Buff Positive / Level Up"
+           data-dur="4.3" data-user="EminYILDIRIM">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Power Up Buff Positive / Level Up</div>
+    <div class="cand-info">
+      ⏱ 4.3s · ⭐ 5.0/5 ·
+      by EminYILDIRIM
+    </div>
+    <div class="cand-tags">Buff, Game, Positive, Power, Up</div>
+    <div class="cand-desc">Hello and welcome everyone from Istanbul. This is Emin. I'm really happy if you like my audio recordings and sound effects. I'm trying so ha</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/611/611193_10912485-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_levelup" data-fsid="624882"
+           data-name="Old Video Game 5"
+           data-dur="3.0" data-user="sonically_sound">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Old Video Game 5</div>
+    <div class="cand-info">
+      ⏱ 3.0s · ⭐ 5.0/5 ·
+      by sonically_sound
+    </div>
+    <div class="cand-tags">8-bit, Achievement, Experience, Gain, Game</div>
+    <div class="cand-desc">Classical/retro video game level-up/victory/achievement music that I composed.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/624/624882_12946258-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_levelup" data-fsid="814044"
+           data-name="Creation Magic Blast"
+           data-dur="7.2" data-user="qubodup">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Creation Magic Blast</div>
+    <div class="cand-info">
+      ⏱ 7.2s · ⭐ 5.0/5 ·
+      by qubodup
+    </div>
+    <div class="cand-tags">arcane, blast, bright, burst, celestial</div>
+    <div class="cand-desc">A positive restorative magic blast.  Created by layering multiple piano notes and drums at the same time in FL Studio and passing the output</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/814/814044_71257-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_levelup" data-fsid="673522"
+           data-name="Notification (Retro Vibes) 3"
+           data-dur="6.0" data-user="SilverIllusionist">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Notification (Retro Vibes) 3</div>
+    <div class="cand-info">
+      ⏱ 6.0s · ⭐ 5.0/5 ·
+      by SilverIllusionist
+    </div>
+    <div class="cand-tags">area-discover, confirm-chime, confirm-effect, confirm-sound, echoey</div>
+    <div class="cand-desc">You MUST credit me if you use this! A lot of effort and time goes into making these sounds. Just write the following and include it somewher</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/673/673522_7395592-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_levelup" data-fsid="566502"
+           data-name="Lvl Up Sound"
+           data-dur="3.7" data-user="EminYILDIRIM">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Lvl Up Sound</div>
+    <div class="cand-info">
+      ⏱ 3.7s · ⭐ 5.0/5 ·
+      by EminYILDIRIM
+    </div>
+    <div class="cand-tags">exp, experience, level, lvl, rpg</div>
+    <div class="cand-desc">Hello and welcome everyone from Istanbul. This is Emin. I'm really happy if you like my audio recordings and sound efects.I'm trying so hard</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/566/566502_10912485-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_levelup" data-fsid="232018"
+           data-name="Clicker (clean)"
+           data-dur="0.6" data-user="DANMITCH3LL">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Clicker (clean)</div>
+    <div class="cand-info">
+      ⏱ 0.6s · ⭐ 5.0/5 ·
+      by DANMITCH3LL
+    </div>
+    <div class="cand-tags">Rode-NTG2, clean, click, clicker, dog</div>
+    <div class="cand-desc">Clicker device used for dog training. Clean recording with some compression to get the level up.  Featured in my dog training soundboard f</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/232/232018_4063700-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_jump">
+  <header>
+    <h2>Salto (Boing) <span class="count zero" id="count_vg_jump">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_jump</code> · target 1s ·
+      query: <em>"jump boing"</em>
+    </div>
+    <div class="hint">Salto tipo plataformero</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_jump" data-fsid="717769"
+           data-name="jump boing"
+           data-dur="0.4" data-user="1bob">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">jump boing</div>
+    <div class="cand-info">
+      ⏱ 0.4s · ⭐ 4.9/5 ·
+      by 1bob
+    </div>
+    <div class="cand-tags">boing, bounce, jump</div>
+    <div class="cand-desc">16 bit jump sound effect</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/717/717769_11611892-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_jump" data-fsid="334033"
+           data-name="Boing Spring Mouth harp 04-20-13 3.wav"
+           data-dur="0.8" data-user="Mossy4">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Boing Spring Mouth harp 04-20-13 3.wav</div>
+    <div class="cand-info">
+      ⏱ 0.8s · ⭐ 4.9/5 ·
+      by Mossy4
+    </div>
+    <div class="cand-tags">Cartoon, Harp, Mouth, Rabbit, boing</div>
+    <div class="cand-desc">Mouth harp sproing.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/334/334033_2064400-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_jump" data-fsid="802608"
+           data-name="SNES Jump - Tinyfarts"
+           data-dur="15.7" data-user="JelloApocalypse">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">SNES Jump - Tinyfarts</div>
+    <div class="cand-info">
+      ⏱ 15.7s · ⭐ 4.9/5 ·
+      by JelloApocalypse
+    </div>
+    <div class="cand-tags">8-bit, SNES, boing, cartoon, cartoony</div>
+    <div class="cand-desc">A silly noise my friend Will can make with his mouth that he affectionately refers to as &quot;tinyfarts&quot;. Somewhat resembles jumping SFX in olde</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/802/802608_3501916-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_jump" data-fsid="527779"
+           data-name="Boing Box 01.wav"
+           data-dur="6.3" data-user="D.jones">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Boing Box 01.wav</div>
+    <div class="cand-info">
+      ⏱ 6.3s · ⭐ 4.8/5 ·
+      by D.jones
+    </div>
+    <div class="cand-tags">Cartoon, Effect, Jump, Spring</div>
+    <div class="cand-desc">sound springing</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/527/527779_11431915-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_jump" data-fsid="540276"
+           data-name="trampoline bounce.wav"
+           data-dur="0.8" data-user="zepurple">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">trampoline bounce.wav</div>
+    <div class="cand-info">
+      ⏱ 0.8s · ⭐ 4.8/5 ·
+      by zepurple
+    </div>
+    <div class="cand-tags">boing, bounce, jump, spring</div>
+    <div class="cand-desc">Used in the Brown-RISD Game Design club's indie game, Turnin' Tail! :) Check it out here~~~ <a href=&quot;https://brownrisdgames.itch.io/turnin-t</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/540/540276_11242864-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_jump" data-fsid="825560"
+           data-name="Hop SFX"
+           data-dur="0.5" data-user="akelley6">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Hop SFX</div>
+    <div class="cand-info">
+      ⏱ 0.5s · ⭐ 4.8/5 ·
+      by akelley6
+    </div>
+    <div class="cand-tags">boing, bounce, hop, jump, leap</div>
+    <div class="cand-desc">'Boing!' Sounds exactly as described.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/825/825560_9415332-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_hit">
+  <header>
+    <h2>Golpe / Hit <span class="count zero" id="count_vg_hit">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_hit</code> · target 1s ·
+      query: <em>"hit punch arcade"</em>
+    </div>
+    <div class="hint">Pegada o impacto retro</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_hit" data-fsid="425347"
+           data-name="8bit_hit_14.wav"
+           data-dur="0.8" data-user="Soundholder">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">8bit_hit_14.wav</div>
+    <div class="cand-info">
+      ⏱ 0.8s · ⭐ 4.6/5 ·
+      by Soundholder
+    </div>
+    <div class="cand-tags">8-bit, 8bit, arcade, atari, attack</div>
+    <div class="cand-desc">This beep sound effect was created in Ableton Live in 96kHz and comes from a sound library called Retro Games which is pack of 646 designed </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/425/425347_4421503-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_hit" data-fsid="587384"
+           data-name="Hit / Land Sound Effect"
+           data-dur="1.4" data-user="TheLittleCrow">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Hit / Land Sound Effect</div>
+    <div class="cand-info">
+      ⏱ 1.4s · ⭐ 4.5/5 ·
+      by TheLittleCrow
+    </div>
+    <div class="cand-tags">arcade, chip, chiptune, classic, game</div>
+    <div class="cand-desc">Land or hit sound for a platformer.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/587/587384_5672786-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_hit" data-fsid="442325"
+           data-name="FX - HIT IMPACT - Retro Videogame"
+           data-dur="1.4" data-user="bolkmar">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">FX - HIT IMPACT - Retro Videogame</div>
+    <div class="cand-info">
+      ⏱ 1.4s · ⭐ 4.5/5 ·
+      by bolkmar
+    </div>
+    <div class="cand-tags">16-bit, 8-bit, arcade, clap, clip</div>
+    <div class="cand-desc">HIT IMPACT is a sound recorded with my own voice with a Tascam DR-05 V2 and processed on Adobe Audition CC. Based on old retro sounds from a</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/442/442325_2927958-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_hit" data-fsid="527525"
+           data-name="Vibrating Thud"
+           data-dur="0.5" data-user="Jerimee">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Vibrating Thud</div>
+    <div class="cand-info">
+      ⏱ 0.5s · ⭐ 4.5/5 ·
+      by Jerimee
+    </div>
+    <div class="cand-tags">8-bit, arcade, bang, bash, bleep</div>
+    <div class="cand-desc">A half second 8bit sound effect made with pico-8.  No rights reserved.  Notes to help me keep track: Jerimee Richir Pico-8 2017 sfx28.wav</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/527/527525_3202600-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_hit" data-fsid="425348"
+           data-name="8bit_hit_11.wav"
+           data-dur="0.9" data-user="Soundholder">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">8bit_hit_11.wav</div>
+    <div class="cand-info">
+      ⏱ 0.9s · ⭐ 4.1/5 ·
+      by Soundholder
+    </div>
+    <div class="cand-tags">8-bit, 8bit, arcade, atari, attack</div>
+    <div class="cand-desc">This beep sound effect was created in Ableton Live in 96kHz and comes from a sound library called Retro Games which is pack of 646 designed </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/425/425348_4421503-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_hit" data-fsid="332061"
+           data-name="Zoom Whip Hit Collision Reverb"
+           data-dur="1.9" data-user="qubodup">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Zoom Whip Hit Collision Reverb</div>
+    <div class="cand-info">
+      ⏱ 1.9s · ⭐ 4.0/5 ·
+      by qubodup
+    </div>
+    <div class="cand-tags">bash, bat, collision, echo, hit</div>
+    <div class="cand-desc">A hard to describe sound that might be useful for games, in particular pinball machines and similar arcade games.  Calf Reverb used in Aud</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/332/332061_71257-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_game_over">
+  <header>
+    <h2>Game Over <span class="count zero" id="count_vg_game_over">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_game_over</code> · target 2-3s ·
+      query: <em>"game over"</em>
+    </div>
+    <div class="hint">Perdiste — descendente sad</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_game_over" data-fsid="145421"
+           data-name="Haunted Organ 1"
+           data-dur="8.6" data-user="Soughtaftersounds">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Haunted Organ 1</div>
+    <div class="cand-info">
+      ⏱ 8.6s · ⭐ 5.0/5 ·
+      by Soughtaftersounds
+    </div>
+    <div class="cand-tags">bonus-sound, church-organ, film-production, game-development, halloween</div>
+    <div class="cand-desc">A professional quality end/intro/fill effect, in haunted organ stlye. Suited to game development, film production and media use.  The belo</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/145/145421_2615119-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_game_over" data-fsid="757485"
+           data-name="Rug Doll Footsteps"
+           data-dur="25.4" data-user="IENBA">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Rug Doll Footsteps</div>
+    <div class="cand-info">
+      ⏱ 25.4s · ⭐ 5.0/5 ·
+      by IENBA
+    </div>
+    <div class="cand-tags">character, doll, dull, fabric, floor</div>
+    <div class="cand-desc">Recording of finger tips over different surfaces (mostly fabric) to recreate the footsteps of a small rug doll.  Gear:  Sennheiser MKH50 Zoo</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/757/757485_9616576-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_game_over" data-fsid="488381"
+           data-name="UIHover1.wav"
+           data-dur="0.3" data-user="wobesound">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">UIHover1.wav</div>
+    <div class="cand-info">
+      ⏱ 0.3s · ⭐ 5.0/5 ·
+      by wobesound
+    </div>
+    <div class="cand-tags">Click, Hover, UI, videogame</div>
+    <div class="cand-desc">Sound played when hovering over an UI element in a videogame. Made for a cancelled student game. Created from other CC0 sounds from Freesoun</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/488/488381_10523948-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_game_over" data-fsid="337792"
+           data-name="Bosnian radio announcer female.wav"
+           data-dur="15.1" data-user="miradeshazer">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Bosnian radio announcer female.wav</div>
+    <div class="cand-info">
+      ⏱ 15.1s · ⭐ 5.0/5 ·
+      by miradeshazer
+    </div>
+    <div class="cand-tags">Bosnian, DJ, announcer, female, foreign</div>
+    <div class="cand-desc">Bosnian female radio announcer; a radio show welcome message. She says:  Dragi slušaoci, dobro došli u program. Ovo je još jedna emisija u k</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/337/337792_5994209-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_game_over" data-fsid="215605"
+           data-name="launch04.mp3"
+           data-dur="3.0" data-user="Taira Komori">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">launch04.mp3</div>
+    <div class="cand-info">
+      ⏱ 3.0s · ⭐ 5.0/5 ·
+      by Taira Komori
+    </div>
+    <div class="cand-tags">army, artillery, bomb, boom, destruction</div>
+    <div class="cand-desc">Hi, I'm Taira Komori and an amateur of making sound effects. There are over 1,800 sounds on my website.  <a href=&quot;https://taira-komori.net/f</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/215/215605_1979597-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_game_over" data-fsid="764046"
+           data-name="CRWDBatl_Battle Charge, No Words_ShaneVincent_GSC24_FUMA-Amb"
+           data-dur="10.7" data-user="ShangusBurger">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">CRWDBatl_Battle Charge, No Words_ShaneVincent_GSC24_FUMA-Amb</div>
+    <div class="cand-info">
+      ⏱ 10.7s · ⭐ 5.0/5 ·
+      by ShangusBurger
+    </div>
+    <div class="cand-tags">angry, battle, charge, crowd, fight</div>
+    <div class="cand-desc">Medium-sized crowd yells as if charging into battle  See all the packs here: <a href=&quot;https://freesound.org/people/ShangusBurger/packs/42099</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/764/764046_11744683-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_8bit_alert">
+  <header>
+    <h2>Alerta 8-bit <span class="count zero" id="count_vg_8bit_alert">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_8bit_alert</code> · target 1s ·
+      query: <em>"8 bit alert beep"</em>
+    </div>
+    <div class="hint">Pitido 8-bit notificación</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_8bit_alert" data-fsid="455856"
+           data-name="spaceship1.wav"
+           data-dur="0.4" data-user="Tissman">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">spaceship1.wav</div>
+    <div class="cand-info">
+      ⏱ 0.4s · ⭐ 5.0/5 ·
+      by Tissman
+    </div>
+    <div class="cand-tags">8bit, alert, beep, beeping, bleep</div>
+    <div class="cand-desc">computer alert</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/455/455856_5452388-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_8bit_alert" data-fsid="167337"
+           data-name="pup_alert.mp3"
+           data-dur="0.9" data-user="willy_ineedthatapp_com">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">pup_alert.mp3</div>
+    <div class="cand-info">
+      ⏱ 0.9s · ⭐ 4.8/5 ·
+      by willy_ineedthatapp_com
+    </div>
+    <div class="cand-tags">alarm, alert, beep</div>
+    <div class="cand-desc">8-Bit game alert.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/167/167337_3062051-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_8bit_alert" data-fsid="340941"
+           data-name="Alarming saw wave"
+           data-dur="1.2" data-user="AceOfSpadesProduc100">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Alarming saw wave</div>
+    <div class="cand-info">
+      ⏱ 1.2s · ⭐ 3.2/5 ·
+      by AceOfSpadesProduc100
+    </div>
+    <div class="cand-tags">8-bit, 8bit, BFXR, SFX, alarm</div>
+    <div class="cand-desc">A sawtooth wave that sounds like an alarm that warns about a dangerous presence or terrible damage to the ship.  Created using BFXR</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/340/340941_5858296-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_8bit_alert" data-fsid="514157"
+           data-name="Fast Beep"
+           data-dur="1.4" data-user="edwardszakal">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Fast Beep</div>
+    <div class="cand-info">
+      ⏱ 1.4s · ⭐ 3.0/5 ·
+      by edwardszakal
+    </div>
+    <div class="cand-tags">alarm, alert, beep, bleep, cell</div>
+    <div class="cand-desc">A major fifth alert sound for game, video. lo-fi, 8bit sounding.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/514/514157_1858328-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_8bit_alert" data-fsid="633190"
+           data-name="SCIAlrm8 bit sweep mid hi"
+           data-dur="1.5" data-user="anapb">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">SCIAlrm8 bit sweep mid hi</div>
+    <div class="cand-info">
+      ⏱ 1.5s · ⭐ 5.0/5 ·
+      by anapb
+    </div>
+    <div class="cand-tags">8bit, alarm, alert, beep, computer</div>
+    <div class="cand-desc">8-bit similar sounds generated on Pro Tools from a sawtooth wave signal modulated with some plug-ins</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/633/633190_2886338-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_8bit_alert" data-fsid="633187"
+           data-name="SCIAlrm_8 bit sweep low"
+           data-dur="2.0" data-user="anapb">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">SCIAlrm_8 bit sweep low</div>
+    <div class="cand-info">
+      ⏱ 2.0s · ⭐ 5.0/5 ·
+      by anapb
+    </div>
+    <div class="cand-tags">8bit, alarm, alert, beep, computer</div>
+    <div class="cand-desc">8-bit similar sounds generated on Pro Tools from a sawtooth wave signal modulated with some plug-ins</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/633/633187_2886338-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_zelda_secret">
+  <header>
+    <h2>Secreto Encontrado <span class="count zero" id="count_vg_zelda_secret">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_zelda_secret</code> · target 2-3s ·
+      query: <em>"secret discovery chime"</em>
+    </div>
+    <div class="hint">Estilo Zelda 'secret found'</div>
+  </header>
+  <div class="cards">
+    <div class="no-results">Sin resultados</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_arcade_select">
+  <header>
+    <h2>Menú Select Arcade <span class="count zero" id="count_vg_arcade_select">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_arcade_select</code> · target 1s ·
+      query: <em>"menu select arcade"</em>
+    </div>
+    <div class="hint">Click de seleccionar opción</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_arcade_select" data-fsid="288953"
+           data-name="Click_Electronic_07.wav"
+           data-dur="0.3" data-user="LittleRobotSoundFactory">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Click_Electronic_07.wav</div>
+    <div class="cand-info">
+      ⏱ 0.3s · ⭐ 5.0/5 ·
+      by LittleRobotSoundFactory
+    </div>
+    <div class="cand-tags">Button, Click, Clicks, Electronic, Game</div>
+    <div class="cand-desc">A simple electronic click sound useful for creating a nice tactile experience when selecting menu interfaces, or other kind of buttons - esp</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/288/288953_5123851-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_arcade_select" data-fsid="288958"
+           data-name="Click_Electronic_08.wav"
+           data-dur="0.5" data-user="LittleRobotSoundFactory">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Click_Electronic_08.wav</div>
+    <div class="cand-info">
+      ⏱ 0.5s · ⭐ 4.8/5 ·
+      by LittleRobotSoundFactory
+    </div>
+    <div class="cand-tags">Button, Click, Clicks, Electronic, Game</div>
+    <div class="cand-desc">A simple electronic click sound useful for creating a nice tactile experience when selecting menu interfaces, or other kind of buttons - esp</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/288/288958_5123851-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_arcade_select" data-fsid="243020"
+           data-name="Game Start"
+           data-dur="2.8" data-user="plasterbrain">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Game Start</div>
+    <div class="cand-info">
+      ⏱ 2.8s · ⭐ 4.6/5 ·
+      by plasterbrain
+    </div>
+    <div class="cand-tags">8bit, beep, chiptune, game, gui</div>
+    <div class="cand-desc">A cheerful sound for selecting start on a game menu! ... Or whatever you want to do with it. Made with various synthesizers in Mixcraft 6.  </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/243/243020_4284968-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_arcade_select" data-fsid="288956"
+           data-name="Click_Electronic_04.wav"
+           data-dur="0.3" data-user="LittleRobotSoundFactory">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Click_Electronic_04.wav</div>
+    <div class="cand-info">
+      ⏱ 0.3s · ⭐ 4.6/5 ·
+      by LittleRobotSoundFactory
+    </div>
+    <div class="cand-tags">Button, Click, Clicks, Electronic, Game</div>
+    <div class="cand-desc">A simple electronic click sound useful for creating a nice tactile experience when selecting menu interfaces, or other kind of buttons - esp</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/288/288956_5123851-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_arcade_select" data-fsid="443907"
+           data-name="menu click.wav"
+           data-dur="0.4" data-user="Tissman">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">menu click.wav</div>
+    <div class="cand-info">
+      ⏱ 0.4s · ⭐ 4.6/5 ·
+      by Tissman
+    </div>
+    <div class="cand-tags">8bit, arcade, computer, game, games</div>
+    <div class="cand-desc">8bit beepy menu sound</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/443/443907_5452388-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_arcade_select" data-fsid="288954"
+           data-name="Click_Electronic_06.wav"
+           data-dur="0.7" data-user="LittleRobotSoundFactory">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Click_Electronic_06.wav</div>
+    <div class="cand-info">
+      ⏱ 0.7s · ⭐ 4.3/5 ·
+      by LittleRobotSoundFactory
+    </div>
+    <div class="cand-tags">Button, Click, Clicks, Electronic, Game</div>
+    <div class="cand-desc">A simple electronic click sound useful for creating a nice tactile experience when selecting menu interfaces, or other kind of buttons - esp</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/288/288954_5123851-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="vg_victory">
+  <header>
+    <h2>Victoria <span class="count zero" id="count_vg_victory">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>vg_victory</code> · target 3-4s ·
+      query: <em>"victory fanfare"</em>
+    </div>
+    <div class="hint">Ganaste la partida</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_victory" data-fsid="677858"
+           data-name="Game Success Fanfare Short"
+           data-dur="3.4" data-user="el_boss">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Game Success Fanfare Short</div>
+    <div class="cand-info">
+      ⏱ 3.4s · ⭐ 5.0/5 ·
+      by el_boss
+    </div>
+    <div class="cand-tags">game, high-score, interface, positive, success</div>
+    <div class="cand-desc">A simple game victory sound to let the player know they did a good thing! This is a shorter version of another sound to allow for faster mov</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/677/677858_9129912-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_victory" data-fsid="812468"
+           data-name="Angelic Fanfare 2"
+           data-dur="6.3" data-user="qubodup">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Angelic Fanfare 2</div>
+    <div class="cand-info">
+      ⏱ 6.3s · ⭐ 5.0/5 ·
+      by qubodup
+    </div>
+    <div class="cand-tags">ambiance, angel, angelic, blissful, celebration</div>
+    <div class="cand-desc">Simple celebratory melody made with FL Studio / Kontakt / Vocalise.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/812/812468_71257-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_victory" data-fsid="672801"
+           data-name="Level Up/Mission Complete (Resistance)"
+           data-dur="4.8" data-user="SilverIllusionist">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Level Up/Mission Complete (Resistance)</div>
+    <div class="cand-info">
+      ⏱ 4.8s · ⭐ 5.0/5 ·
+      by SilverIllusionist
+    </div>
+    <div class="cand-tags">cinematic-hit, discover-location, discovery, dylan-kelk, fanfare</div>
+    <div class="cand-desc">You MUST credit me to use this. A lot of time and effort goes into producing this audio. To do so, please write the following somewhere in y</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/672/672801_7395592-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_victory" data-fsid="712642"
+           data-name="victory sound for videogames"
+           data-dur="7.4" data-user="ImATaco">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">victory sound for videogames</div>
+    <div class="cand-info">
+      ⏱ 7.4s · ⭐ 5.0/5 ·
+      by ImATaco
+    </div>
+    <div class="cand-tags">cartoon, fanfare, game, happy, victory</div>
+    <div class="cand-desc">made using fl studio 21. took me about 15 minutes to make this sound.  YouTube: <a href=&quot;https://www.youtube.com/@ItsABitGoofy&quot; rel=&quot;nofollo</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/712/712642_13478074-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_victory" data-fsid="669324"
+           data-name="Victory Fanfare (Light Wills Ever)"
+           data-dur="12.5" data-user="SilverIllusionist">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Victory Fanfare (Light Wills Ever)</div>
+    <div class="cand-info">
+      ⏱ 12.5s · ⭐ 5.0/5 ·
+      by SilverIllusionist
+    </div>
+    <div class="cand-tags">Dylan-Kelk, Hollywood, Metroid, celebration-theme, complete-quest</div>
+    <div class="cand-desc">You must credit me if you use this! A lot of effort and time goes into composing and mixing this music. Just write something like &quot;Victory F</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/669/669324_7395592-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="vg_victory" data-fsid="665205"
+           data-name="Level Up:Mission Complete (Primal) 2.wav"
+           data-dur="6.5" data-user="SilverIllusionist">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Level Up:Mission Complete (Primal) 2.wav</div>
+    <div class="cand-info">
+      ⏱ 6.5s · ⭐ 5.0/5 ·
+      by SilverIllusionist
+    </div>
+    <div class="cand-tags">fanfare, find-item, get-item, happy, intense</div>
+    <div class="cand-desc">You MUST credit me if you use this! A lot of effort and time goes into making these sounds. Just write &quot;Level Up/Mission Complete (Primal) 2</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/665/665205_7395592-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+<div class="actions">
+  <button type="button" onclick="generateJSON(); return false;">✓ Generar JSON</button>
+  <pre id="output">(marca arriba y haz click)</pre>
+  <button type="button" onclick="copyOutput(); return false;" style="background:var(--gold);">📋 Copiar</button>
+</div>
+</main>
+<script>
+// Prevenir navegación accidental por iframes audio o forms huérfanos
+window.addEventListener('beforeunload', e => {
+  if (window._allowExit) return;
+  const hasChecks = document.querySelector('input[type=checkbox]:checked');
+  if (hasChecks) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+function updateCounts() {
+  document.querySelectorAll('.slot').forEach(slot => {
+    const id = slot.dataset.slotId;
+    const n = slot.querySelectorAll('input[type=checkbox]:checked').length;
+    const badge = document.getElementById('count_' + id);
+    if (badge) {
+      badge.textContent = n === 0 ? '0 elegidos' : (n + ' elegido' + (n > 1 ? 's' : ''));
+      badge.classList.toggle('zero', n === 0);
+    }
+  });
+}
+document.addEventListener('change', e => {
+  if (e.target.matches('input[type=checkbox][data-slot]')) updateCounts();
+});
+window.addEventListener('load', updateCounts);
+
+function generateJSON() {
+  const bySlot = {};
+  document.querySelectorAll('input[type=checkbox][data-slot]:checked').forEach(cb => {
+    const slot = cb.dataset.slot;
+    if (!bySlot[slot]) bySlot[slot] = [];
+    bySlot[slot].push({
+      freesound_id: parseInt(cb.dataset.fsid),
+      name: cb.dataset.name,
+      duration: parseFloat(cb.dataset.dur),
+      user: cb.dataset.user
+    });
+  });
+  const ordered = {};
+  document.querySelectorAll('.slot').forEach(s => {
+    const id = s.dataset.slotId;
+    ordered[id] = bySlot[id] || [];
+  });
+  const total = Object.values(ordered).reduce((a,b) => a + b.length, 0);
+  const json = JSON.stringify(ordered, null, 2);
+  document.getElementById('output').textContent =
+    `// ${total} tonos en ${Object.keys(ordered).filter(k => ordered[k].length > 0).length} slots
+` + json;
+  return false;
+}
+function copyOutput() {
+  const text = document.getElementById('output').textContent;
+  if (!text || text.startsWith('(')) { alert('Primero "Generar JSON"'); return false; }
+  navigator.clipboard.writeText(text).then(() => alert('✓ Copiado'));
+  return false;
+}
+</script>
+</body>
+</html>

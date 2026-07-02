@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Internet Nostalgia · Audition</title>
+<style>
+  :root {
+    --bg: #0F0E1A;
+    --surf: #1A1B2E;
+    --surf2: #21223A;
+    --text: #E8E8EC;
+    --muted: #98989D;
+    --cyan: #00F0FF;
+    --gold: #E6B655;
+    --pink: #FF2BD6;
+    --border: #2C2C3E;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    line-height: 1.5;
+  }
+  header.top {
+    background: linear-gradient(180deg, #1A0033 0%, #0F0E1A 100%);
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+  }
+  h1 { margin: 0 0 4px; font-size: 28px; color: var(--cyan); letter-spacing: 1px; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 32px 80px; }
+  .slot {
+    background: var(--surf);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 18px 0;
+  }
+  .slot header { margin-bottom: 14px; }
+  .slot h2 { margin: 0 0 4px; color: var(--gold); font-size: 18px; }
+  .slot-meta { color: var(--muted); font-size: 12px; font-family: monospace; }
+  .hint { color: var(--text); font-size: 13px; margin-top: 6px; font-style: italic; opacity: 0.8; }
+  .cards { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+  .cand {
+    display: grid;
+    grid-template-columns: 36px 1fr 240px;
+    gap: 12px;
+    align-items: center;
+    background: var(--surf2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: border-color .2s;
+  }
+  .cand:has(input:checked) { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+  .pick { cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .pick input { display: none; }
+  .pick-mark {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 2px solid var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: transparent;
+    transition: all .2s;
+  }
+  .pick input:checked + .pick-mark {
+    border-color: var(--cyan);
+    background: var(--cyan);
+    color: var(--bg);
+    transform: scale(1.1);
+  }
+  .count {
+    background: var(--bg);
+    color: var(--cyan);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 400;
+    margin-left: 12px;
+    border: 1px solid var(--cyan);
+  }
+  .count.zero { color: var(--muted); border-color: var(--muted); }
+  .meta { min-width: 0; }
+  .cand-name { font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .cand-info { color: var(--muted); font-size: 12px; }
+  .cand-tags { color: var(--gold); font-size: 11px; margin-top: 4px; font-family: monospace; opacity: 0.6; }
+  .cand-desc { color: var(--text); font-size: 11px; margin-top: 4px; opacity: 0.6; max-height: 30px; overflow: hidden; }
+  audio { width: 240px; height: 36px; }
+  audio::-webkit-media-controls-panel {
+    background-color: var(--surf);
+  }
+  .skip { display: block; margin-top: 10px; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .no-results { color: #C2410C; padding: 20px; text-align: center; }
+  .actions {
+    position: sticky;
+    bottom: 0;
+    background: var(--surf);
+    border: 1px solid var(--cyan);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  button {
+    background: var(--cyan);
+    color: var(--bg);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button:hover { background: #00d0e0; }
+  #output {
+    flex: 1;
+    background: var(--bg);
+    color: var(--cyan);
+    padding: 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 11px;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    border: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>📞 INTERNET NOSTALGIA · Audition</h1>
+  <div class="subtitle">
+    Escucha cada candidato y selecciona el que mejor capture el feel original.
+    10 slots · solo CC0 (uso libre comercial)
+  </div>
+</header>
+<main>
+
+<section class="slot" data-slot-id="retro_modem_dialup">
+  <header>
+    <h2>Módem Dial-Up Clásico <span class="count" id="count_retro_modem_dialup">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_modem_dialup</code> · target 5-10s ·
+      query: <em>"modem"</em>
+    </div>
+    <div class="hint">El handshake completo, beepss-shhh-zzz característico</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_dialup" data-fsid="255314"
+           data-name="22050Hz, AMPLIFIED!.wav"
+           data-dur="30.0" data-user="xtrgamr">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">22050Hz, AMPLIFIED!.wav</div>
+    <div class="cand-info">
+      ⏱ 30.0s · ⭐ 5.0/5 ·
+      by xtrgamr · CC0
+    </div>
+    <div class="cand-tags">22050Hz, amplified, annoying, beeps, cool</div>
+    <div class="cand-desc">Something stupid I did tonight. I created a 22050Hz (the highest my version can) tone in Audacity (too high to be heard), then amplified it </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/255/255314_4157918-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_dialup" data-fsid="397084"
+           data-name="digitalradio_noise_853MHz.wav"
+           data-dur="7.2" data-user="relwin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">digitalradio_noise_853MHz.wav</div>
+    <div class="cand-info">
+      ⏱ 7.2s · ⭐ 5.0/5 ·
+      by relwin · CC0
+    </div>
+    <div class="cand-tags">electronic, modem, noise, radio, static</div>
+    <div class="cand-desc">Digital radio modem, FM audio conversion, around 853MHz, intermittent static and noise. Recorded with SDR# software and RTL DVB dongle tune</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/397/397084_1024769-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_dialup" data-fsid="546450"
+           data-name="The Sound of dial-up Internet"
+           data-dur="28.7" data-user="wtermini">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">The Sound of dial-up Internet</div>
+    <div class="cand-info">
+      ⏱ 28.7s · ⭐ 5.0/5 ·
+      by wtermini · CC0
+    </div>
+    <div class="cand-tags">america, communications, dial, dial-up, dtmf</div>
+    <div class="cand-desc">I recorded this many years ago on an iMac G3 in 2008,  the sound was recorded using the iMac headphone jack into my desktop PC at the times </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/546/546450_11279746-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_dialup" data-fsid="658932"
+           data-name="Dial-up_sound.mp3.flac"
+           data-dur="19.3" data-user="thearchiveguy99">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Dial-up_sound.mp3.flac</div>
+    <div class="cand-info">
+      ⏱ 19.3s · ⭐ 4.9/5 ·
+      by thearchiveguy99 · CC0
+    </div>
+    <div class="cand-tags">56k, 96khz, connection, dial, dialup</div>
+    <div class="cand-desc">uhq version of dial up noise</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/658/658932_14147481-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_dialup" data-fsid="118391"
+           data-name="Fax.mp3"
+           data-dur="19.6" data-user="Felfa">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Fax.mp3</div>
+    <div class="cand-info">
+      ⏱ 19.6s · ⭐ 4.8/5 ·
+      by Felfa · CC0
+    </div>
+    <div class="cand-tags">bleep, call, connect, fax, modem</div>
+    <div class="cand-desc">The sound of the fax being called by phone.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/118/118391_2103589-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_dialup" data-fsid="454651"
+           data-name="MODEM_1.aif"
+           data-dur="21.8" data-user="G_M_D_THREE">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">MODEM_1.aif</div>
+    <div class="cand-info">
+      ⏱ 21.8s · ⭐ 4.8/5 ·
+      by G_M_D_THREE · CC0
+    </div>
+    <div class="cand-tags">14k, 1999, dial, dial-up, internet</div>
+    <div class="cand-desc">14k Modem dail-up connecting to internet, recorder in 1999</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/454/454651_7005313-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_modem_connect">
+  <header>
+    <h2>Módem Conectando <span class="count" id="count_retro_modem_connect">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_modem_connect</code> · target 3-5s ·
+      query: <em>"dial up"</em>
+    </div>
+    <div class="hint">Solo los beeps iniciales de conexión, más corto</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_connect" data-fsid="556493"
+           data-name="Rotary Phone Pick up and Hang up Swiflty"
+           data-dur="4.3" data-user="cookies+policy">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Rotary Phone Pick up and Hang up Swiflty</div>
+    <div class="cand-info">
+      ⏱ 4.3s · ⭐ 5.0/5 ·
+      by cookies+policy · CC0
+    </div>
+    <div class="cand-tags">Antique, Dial, Mechanical, Telephone, hang-up</div>
+    <div class="cand-desc">Picking up, then hanging up swiftly on an old rotary phone.  <a href="https://freesound.org/people/cookies+policy/packs/31257/" rel="nofollo</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/556/556493_10713160-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_connect" data-fsid="332566"
+           data-name="HTX sound II.wav"
+           data-dur="18.6" data-user="sirplus">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">HTX sound II.wav</div>
+    <div class="cand-info">
+      ⏱ 18.6s · ⭐ 5.0/5 ·
+      by sirplus · CC0
+    </div>
+    <div class="cand-tags">THX, cinematic, film, massive, movie</div>
+    <div class="cand-desc">The 100% genuine and original HTX sound in stereo :P  3 merged samples featuring 21 group-panned notes with portamento and plenty dialed up </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/332/332566_30374-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_connect" data-fsid="197141"
+           data-name="Pay Phone.wav"
+           data-dur="21.0" data-user="everythingsounds">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Pay Phone.wav</div>
+    <div class="cand-info">
+      ⏱ 21.0s · ⭐ 5.0/5 ·
+      by everythingsounds · CC0
+    </div>
+    <div class="cand-tags">coin-return, dial, dialing, field-recording, hang-up</div>
+    <div class="cand-desc">I couldn't find the pay phone sounds I needed on FreeSound so I found a pay phone and recorded my own. In the attempt so that no one needs t</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/197/197141_3272432-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_connect" data-fsid="546450"
+           data-name="The Sound of dial-up Internet"
+           data-dur="28.7" data-user="wtermini">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">The Sound of dial-up Internet</div>
+    <div class="cand-info">
+      ⏱ 28.7s · ⭐ 5.0/5 ·
+      by wtermini · CC0
+    </div>
+    <div class="cand-tags">america, communications, dial, dial-up, dtmf</div>
+    <div class="cand-desc">I recorded this many years ago on an iMac G3 in 2008,  the sound was recorded using the iMac headphone jack into my desktop PC at the times </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/546/546450_11279746-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_connect" data-fsid="658932"
+           data-name="Dial-up_sound.mp3.flac"
+           data-dur="19.3" data-user="thearchiveguy99">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Dial-up_sound.mp3.flac</div>
+    <div class="cand-info">
+      ⏱ 19.3s · ⭐ 4.9/5 ·
+      by thearchiveguy99 · CC0
+    </div>
+    <div class="cand-tags">56k, 96khz, connection, dial, dialup</div>
+    <div class="cand-desc">uhq version of dial up noise</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/658/658932_14147481-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_modem_connect" data-fsid="806096"
+           data-name="1025 hz beep censor"
+           data-dur="0.4" data-user="Sadiquecat">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">1025 hz beep censor</div>
+    <div class="cand-info">
+      ⏱ 0.4s · ⭐ 4.9/5 ·
+      by Sadiquecat · CC0
+    </div>
+    <div class="cand-tags">1025hz, beep, bleep, censor, censoring</div>
+    <div class="cand-desc">A beep censor being one of the most popular sounds here, I decided to make my own for internet approval points. Made in Audacity by generati</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/806/806096_5287430-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_chat_uhoh">
+  <header>
+    <h2>Alerta 'Uh Oh' (estilo ICQ) <span class="count" id="count_retro_chat_uhoh">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_chat_uhoh</code> · target 1-2s ·
+      query: <em>"uh oh"</em>
+    </div>
+    <div class="hint">Voz corta tipo aviso, dos sílabas</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_uhoh" data-fsid="575339"
+           data-name="oh ohh191008_0073.wav"
+           data-dur="1.2" data-user="klankbeeld">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">oh ohh191008_0073.wav</div>
+    <div class="cand-info">
+      ⏱ 1.2s · ⭐ 5.0/5 ·
+      by klankbeeld · CC0
+    </div>
+    <div class="cand-tags">child, female, girl, kid, oh</div>
+    <div class="cand-desc">Two year old girl says “uh oh”. She says this to indicate that something has gone wrong.  Date/time: October 9th Wednesday 2019, start 6.21 </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/575/575339_1648170-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_uhoh" data-fsid="578797"
+           data-name="uh oh.mp3"
+           data-dur="6.7" data-user="nomiqbomi">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">uh oh.mp3</div>
+    <div class="cand-info">
+      ⏱ 6.7s · ⭐ 5.0/5 ·
+      by nomiqbomi · CC0
+    </div>
+    <div class="cand-tags">awkward, cartoon, cartoon-sound, comedic, comic</div>
+    <div class="cand-desc">A sting made with organ and modulated guitar.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/578/578797_10522382-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_uhoh" data-fsid="361255"
+           data-name="8-bit Uh-Oh Sound"
+           data-dur="0.4" data-user="JapanYoshiTheGamer">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">8-bit Uh-Oh Sound</div>
+    <div class="cand-info">
+      ⏱ 0.4s · ⭐ 4.9/5 ·
+      by JapanYoshiTheGamer · CC0
+    </div>
+    <div class="cand-tags">8-bit, 8bit, arcade, chip, chippy</div>
+    <div class="cand-desc">An unbalanced 8-bit sound, perfect for signifying something went mildly wrong in a video game.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/361/361255_2901280-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_uhoh" data-fsid="823530"
+           data-name="Uh oh"
+           data-dur="1.6" data-user="Thor_S">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Uh oh</div>
+    <div class="cand-info">
+      ⏱ 1.6s · ⭐ 4.8/5 ·
+      by Thor_S · CC0
+    </div>
+    <div class="cand-tags">human, male, man, uh-oh, voice</div>
+    <div class="cand-desc">Standard Uh-Oh sound effect</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/823/823530_3318854-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_uhoh" data-fsid="326260"
+           data-name="zombie uh oh.wav"
+           data-dur="2.5" data-user="iSaria">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">zombie uh oh.wav</div>
+    <div class="cand-info">
+      ⏱ 2.5s · ⭐ 4.7/5 ·
+      by iSaria · CC0
+    </div>
+    <div class="cand-tags">Apocalypse, Creature, Growl, Horror, Moaning</div>
+    <div class="cand-desc">Part of the sounds being used in The Lingering video game coming soon to PC. Created using Audacity and raw voice recording.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/326/326260_5479485-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_uhoh" data-fsid="801391"
+           data-name="Fear - uh ohh"
+           data-dur="0.9" data-user="Sadiquecat">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Fear - uh ohh</div>
+    <div class="cand-info">
+      ⏱ 0.9s · ⭐ 4.7/5 ·
+      by Sadiquecat · CC0
+    </div>
+    <div class="cand-tags">FR-AV2, Human, Male, Man, Mid-20s</div>
+    <div class="cand-desc">Subject : A mid20s male voice-acting for the first time. Check out the pack for more sounds. Objective was to do a generic NPC pack. Date YM</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/801/801391_5287430-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_chat_door_open">
+  <header>
+    <h2>Puerta Abrir (estilo MSN entrada) <span class="count" id="count_retro_chat_door_open">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_chat_door_open</code> · target 1s ·
+      query: <em>"door open"</em>
+    </div>
+    <div class="hint">Crujido o sonido de puerta abriéndose corto</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_open" data-fsid="316876"
+           data-name="Squeeky.wav"
+           data-dur="19.0" data-user="OldGuy67">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Squeeky.wav</div>
+    <div class="cand-info">
+      ⏱ 19.0s · ⭐ 5.0/5 ·
+      by OldGuy67 · CC0
+    </div>
+    <div class="cand-tags">Creaky, door, eerie, spooky, squeaky</div>
+    <div class="cand-desc">It was a dark and stormy night.  Suddenly the power went out and the cellar door opened... Actually it's the lid to my coffee pot.  Includes</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/316/316876_5086131-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_open" data-fsid="663390"
+           data-name="2022-12-07-forgotten-airlock.wav"
+           data-dur="8.9" data-user="ilmari_freesound">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">2022-12-07-forgotten-airlock.wav</div>
+    <div class="cand-info">
+      ⏱ 8.9s · ⭐ 5.0/5 ·
+      by ilmari_freesound · CC0
+    </div>
+    <div class="cand-tags">airlock, cinematic, cold, dark, door</div>
+    <div class="cand-desc">Opening an ancient airlock</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/663/663390_12458758-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_open" data-fsid="530307"
+           data-name="Old elevator ride"
+           data-dur="22.5" data-user="GreatCorn">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Old elevator ride</div>
+    <div class="cand-info">
+      ⏱ 22.5s · ⭐ 5.0/5 ·
+      by GreatCorn · CC0
+    </div>
+    <div class="cand-tags">button, door, elevator, old, ukrainian</div>
+    <div class="cand-desc">Composition of sounds of what an elevator ride sounds like in old Ukrainian buildings. 0,00 - 0,55: Button 0,55 - 3,60: Door close 3,60 - 19</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/530/530307_7989891-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_open" data-fsid="558144"
+           data-name="Vehicle_Car_Peugeot_Bipper_Sliding_Door_Mono.wav"
+           data-dur="15.9" data-user="Nox_Sound">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Vehicle_Car_Peugeot_Bipper_Sliding_Door_Mono.wav</div>
+    <div class="cand-info">
+      ⏱ 15.9s · ⭐ 5.0/5 ·
+      by Nox_Sound · CC0
+    </div>
+    <div class="cand-tags">automobile, bipper, car, clear, close</div>
+    <div class="cand-desc">Opening (x4) and Closing (x4) Sliding Door - Peugeot Bipper.   You can edit it with Reaper/Audacity/etc.  Gear: Rode NTG4+. File: 48khz, 24 </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/558/558144_9250976-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_open" data-fsid="403898"
+           data-name="uPVC_Door_Opening_And_Closing.wav"
+           data-dur="11.5" data-user="watercool">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">uPVC_Door_Opening_And_Closing.wav</div>
+    <div class="cand-info">
+      ⏱ 11.5s · ⭐ 5.0/5 ·
+      by watercool · CC0
+    </div>
+    <div class="cand-tags">close, closing, door, doors, front</div>
+    <div class="cand-desc">The sound of a upvc front door opening and closing. More of a slam as I let go of the door to shut it.  No attribution needed at all, free </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/403/403898_5882206-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_open" data-fsid="768656"
+           data-name="Foley_Door_Wood_Handle_Metal_Locked_Sequence_Stereo"
+           data-dur="11.3" data-user="Nox_Sound">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Foley_Door_Wood_Handle_Metal_Locked_Sequence_Stereo</div>
+    <div class="cand-info">
+      ⏱ 11.3s · ⭐ 5.0/5 ·
+      by Nox_Sound · CC0
+    </div>
+    <div class="cand-tags">block, blocked, close, closing, door</div>
+    <div class="cand-desc">Door (Wood, Metal Handle) - Locked - Sequence.  You can edit it with Reaper/Audacity/etc.  Gear: Sony PCM D100. File: 96khz, 24 bit, Stereo,</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/768/768656_9250976-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_chat_door_close">
+  <header>
+    <h2>Puerta Cerrar (estilo MSN salida) <span class="count" id="count_retro_chat_door_close">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_chat_door_close</code> · target 1s ·
+      query: <em>"door close"</em>
+    </div>
+    <div class="hint">Cierre seco de puerta</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_close" data-fsid="530307"
+           data-name="Old elevator ride"
+           data-dur="22.5" data-user="GreatCorn">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Old elevator ride</div>
+    <div class="cand-info">
+      ⏱ 22.5s · ⭐ 5.0/5 ·
+      by GreatCorn · CC0
+    </div>
+    <div class="cand-tags">button, door, elevator, old, ukrainian</div>
+    <div class="cand-desc">Composition of sounds of what an elevator ride sounds like in old Ukrainian buildings. 0,00 - 0,55: Button 0,55 - 3,60: Door close 3,60 - 19</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/530/530307_7989891-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_close" data-fsid="558144"
+           data-name="Vehicle_Car_Peugeot_Bipper_Sliding_Door_Mono.wav"
+           data-dur="15.9" data-user="Nox_Sound">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Vehicle_Car_Peugeot_Bipper_Sliding_Door_Mono.wav</div>
+    <div class="cand-info">
+      ⏱ 15.9s · ⭐ 5.0/5 ·
+      by Nox_Sound · CC0
+    </div>
+    <div class="cand-tags">automobile, bipper, car, clear, close</div>
+    <div class="cand-desc">Opening (x4) and Closing (x4) Sliding Door - Peugeot Bipper.   You can edit it with Reaper/Audacity/etc.  Gear: Rode NTG4+. File: 48khz, 24 </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/558/558144_9250976-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_close" data-fsid="814881"
+           data-name="Closing large metal door-003"
+           data-dur="6.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Closing large metal door-003</div>
+    <div class="cand-info">
+      ⏱ 6.3s · ⭐ 5.0/5 ·
+      by AudioPapkin · CC0
+    </div>
+    <div class="cand-tags">bunker, clang, closing, door, echoing</div>
+    <div class="cand-desc">A powerful and cinematic sound design impact, perfect for trailers, transitions, and dramatic moments. Effects recorded from the field. Reco</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/814/814881_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_close" data-fsid="403898"
+           data-name="uPVC_Door_Opening_And_Closing.wav"
+           data-dur="11.5" data-user="watercool">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">uPVC_Door_Opening_And_Closing.wav</div>
+    <div class="cand-info">
+      ⏱ 11.5s · ⭐ 5.0/5 ·
+      by watercool · CC0
+    </div>
+    <div class="cand-tags">close, closing, door, doors, front</div>
+    <div class="cand-desc">The sound of a upvc front door opening and closing. More of a slam as I let go of the door to shut it.  No attribution needed at all, free </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/403/403898_5882206-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_close" data-fsid="768656"
+           data-name="Foley_Door_Wood_Handle_Metal_Locked_Sequence_Stereo"
+           data-dur="11.3" data-user="Nox_Sound">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Foley_Door_Wood_Handle_Metal_Locked_Sequence_Stereo</div>
+    <div class="cand-info">
+      ⏱ 11.3s · ⭐ 5.0/5 ·
+      by Nox_Sound · CC0
+    </div>
+    <div class="cand-tags">block, blocked, close, closing, door</div>
+    <div class="cand-desc">Door (Wood, Metal Handle) - Locked - Sequence.  You can edit it with Reaper/Audacity/etc.  Gear: Sony PCM D100. File: 96khz, 24 bit, Stereo,</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/768/768656_9250976-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_door_close" data-fsid="700705"
+           data-name="Metal Door Squeaking 8 (Medium)"
+           data-dur="1.9" data-user="MathewHenry">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Metal Door Squeaking 8 (Medium)</div>
+    <div class="cand-info">
+      ⏱ 1.9s · ⭐ 5.0/5 ·
+      by MathewHenry · CC0
+    </div>
+    <div class="cand-tags">creak, creaking, door, hinges, metal</div>
+    <div class="cand-desc">An old, very squeaky fireproof metal door. Recorded in a basement in a room where oil tanks used to be stored.  Microphones: Beyerdynamic MC</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/700/700705_5544184-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_chat_msg">
+  <header>
+    <h2>Mensaje IM <span class="count" id="count_retro_chat_msg">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_chat_msg</code> · target 1s ·
+      query: <em>"notification ding"</em>
+    </div>
+    <div class="hint">Ding suave de notificación de mensaje retro</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_msg" data-fsid="651590"
+           data-name="Ding Station Annoucement Notification.wav"
+           data-dur="1.8" data-user="JotrainG">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Ding Station Annoucement Notification.wav</div>
+    <div class="cand-info">
+      ⏱ 1.8s · ⭐ 5.0/5 ·
+      by JotrainG · CC0
+    </div>
+    <div class="cand-tags">announcement, commuter, rail, railroad, railway</div>
+    <div class="cand-desc">Train Station Announcement Notification "Ding" Sound. Recorded in Queensland, Australia 2021.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/651/651590_14219512-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_msg" data-fsid="644943"
+           data-name="Quiz Gameshow Correct Ding 03.mp3"
+           data-dur="2.0" data-user="craigscottuk">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Quiz Gameshow Correct Ding 03.mp3</div>
+    <div class="cand-info">
+      ⏱ 2.0s · ⭐ 5.0/5 ·
+      by craigscottuk · CC0
+    </div>
+    <div class="cand-tags">answer, app, bleep, blip, correct</div>
+    <div class="cand-desc">A correct answer sound tone that I made for a trivia quiz app. The sound was made in Ableton Live 10 using Operator.  If you would like to l</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/644/644943_8358230-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_msg" data-fsid="644946"
+           data-name="Quiz Gameshow Correct Ping 03.mp3"
+           data-dur="0.8" data-user="craigscottuk">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Quiz Gameshow Correct Ping 03.mp3</div>
+    <div class="cand-info">
+      ⏱ 0.8s · ⭐ 5.0/5 ·
+      by craigscottuk · CC0
+    </div>
+    <div class="cand-tags">answer, app, bleep, blip, correct</div>
+    <div class="cand-desc">A correct answer sound tone that I made for a trivia quiz app. The sound was made in Ableton Live 10 using Operator.  If you would like to l</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/644/644946_8358230-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_msg" data-fsid="644944"
+           data-name="Quiz Gameshow Correct Ding 02.mp3"
+           data-dur="1.0" data-user="craigscottuk">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Quiz Gameshow Correct Ding 02.mp3</div>
+    <div class="cand-info">
+      ⏱ 1.0s · ⭐ 5.0/5 ·
+      by craigscottuk · CC0
+    </div>
+    <div class="cand-tags">answer, app, bleep, blip, correct</div>
+    <div class="cand-desc">A correct answer sound tone that I made for a trivia quiz app. The sound was made in Ableton Live 10 using Operator.  If you would like to l</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/644/644944_8358230-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_msg" data-fsid="699704"
+           data-name="Bubble Ding"
+           data-dur="3.2" data-user="SkyernAklea">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Bubble Ding</div>
+    <div class="cand-info">
+      ⏱ 3.2s · ⭐ 5.0/5 ·
+      by SkyernAklea · CC0
+    </div>
+    <div class="cand-tags">bell, bells, ding, dong, glocken</div>
+    <div class="cand-desc">Bubble notification bell, made with Mixcraft 10.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/699/699704_6998976-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_msg" data-fsid="644952"
+           data-name="Quiz Gameshow Correct Ping 16..mp3"
+           data-dur="2.0" data-user="craigscottuk">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Quiz Gameshow Correct Ping 16..mp3</div>
+    <div class="cand-info">
+      ⏱ 2.0s · ⭐ 5.0/5 ·
+      by craigscottuk · CC0
+    </div>
+    <div class="cand-tags">answer, app, bleep, blip, correct</div>
+    <div class="cand-desc">A correct answer sound tone that I made for a trivia quiz app. The sound was made in Ableton Live 10 using Operator.  If you would like to l</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/644/644952_8358230-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_chat_nudge">
+  <header>
+    <h2>Zumbido / Nudge <span class="count" id="count_retro_chat_nudge">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_chat_nudge</code> · target 1-2s ·
+      query: <em>"buzz alert"</em>
+    </div>
+    <div class="hint">Vibración corta tipo MSN nudge</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_nudge" data-fsid="692847"
+           data-name="False C"
+           data-dur="1.5" data-user="Beetlemuse">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">False C</div>
+    <div class="cand-info">
+      ⏱ 1.5s · ⭐ 4.8/5 ·
+      by Beetlemuse · CC0
+    </div>
+    <div class="cand-tags">alert, buzz, c, false, game</div>
+    <div class="cand-desc">Short harsh buzz for a wrong answer or incorrect selection. It is a C note that is pitched downward. CC0</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/692/692847_10334845-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_nudge" data-fsid="616405"
+           data-name="Brig Alarm Engaged"
+           data-dur="12.6" data-user="Raining-0n-Satrn">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Brig Alarm Engaged</div>
+    <div class="cand-info">
+      ⏱ 12.6s · ⭐ 4.8/5 ·
+      by Raining-0n-Satrn · CC0
+    </div>
+    <div class="cand-tags">Alarm, Beep, Buzz, Crunchy, Electric</div>
+    <div class="cand-desc">Electrical Alarm Buzzing, dry (small verb), crunchy noise, alarm beeping, old school sounding sci-fi alarm for sound effects, Spacecraft ale</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/616/616405_12396721-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_nudge" data-fsid="572541"
+           data-name="phone_buzz.ogg"
+           data-dur="1.3" data-user="birdOfTheNorth">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">phone_buzz.ogg</div>
+    <div class="cand-info">
+      ⏱ 1.3s · ⭐ 4.6/5 ·
+      by birdOfTheNorth · CC0
+    </div>
+    <div class="cand-tags">alert, phone, phone-buzz, telephone, vibration</div>
+    <div class="cand-desc">The vibration alert sound of my android phone on a soft surface</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/572/572541_12923717-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_nudge" data-fsid="205887"
+           data-name="Weather Advisory"
+           data-dur="20.0" data-user="bone666138">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Weather Advisory</div>
+    <div class="cand-info">
+      ⏱ 20.0s · ⭐ 4.5/5 ·
+      by bone666138 · CC0
+    </div>
+    <div class="cand-tags">advisory, alarm, alert, buzz, noaa</div>
+    <div class="cand-desc">My (detuned) voice recording of a fake winter weather advisory as heard on a radio station or CB including radio background noise and standa</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/205/205887_285997-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_nudge" data-fsid="670891"
+           data-name="Buzzer alert- Lux Kitchen Timer.wav"
+           data-dur="1.4" data-user="knufds">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Buzzer alert- Lux Kitchen Timer.wav</div>
+    <div class="cand-info">
+      ⏱ 1.4s · ⭐ 4.4/5 ·
+      by knufds · CC0
+    </div>
+    <div class="cand-tags">Alarm, Alert, Bell, Buzz, Buzzer</div>
+    <div class="cand-desc">Buzzer alert from Lux 'Minute Minder' mechanical kitchen timer.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/670/670891_191884-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_chat_nudge" data-fsid="244932"
+           data-name="short buzzer.wav"
+           data-dur="1.0" data-user="kwahmah_02">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">short buzzer.wav</div>
+    <div class="cand-info">
+      ⏱ 1.0s · ⭐ 4.4/5 ·
+      by kwahmah_02 · CC0
+    </div>
+    <div class="cand-tags">alarm, alert, buzz, buzzer, game-show</div>
+    <div class="cand-desc">A simple, short sound of a buzzer, perfect for game shows or whatever you'd rather. Recorded with fourth generation Apple iPod.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/244/244932_4486188-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_mail_alert">
+  <header>
+    <h2>Notificación de Email <span class="count" id="count_retro_mail_alert">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_mail_alert</code> · target 2s ·
+      query: <em>"mail chime"</em>
+    </div>
+    <div class="hint">Tipo 'You've got mail' clásico AOL</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_mail_alert" data-fsid="380482"
+           data-name="Chime Notification"
+           data-dur="0.3" data-user="Jofae">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Chime Notification</div>
+    <div class="cand-info">
+      ⏱ 0.3s · ⭐ 4.9/5 ·
+      by Jofae · CC0
+    </div>
+    <div class="cand-tags">alert, audio, call, cell, cell-phone</div>
+    <div class="cand-desc">To me, this just sounded like some kind of notification you might get on your phone or something - just use it however you like, though! It </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/380/380482_6512973-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_mail_alert" data-fsid="188012"
+           data-name="JapaneseCellPhoneEarthquakeWarning.mp3"
+           data-dur="11.9" data-user="gregconquest">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">JapaneseCellPhoneEarthquakeWarning.mp3</div>
+    <div class="cand-info">
+      ⏱ 11.9s · ⭐ 4.3/5 ·
+      by gregconquest · CC0
+    </div>
+    <div class="cand-tags">alarm, earthquake, japan, klaxon, warning</div>
+    <div class="cand-desc">This is the earthquake warning (called "Area Mail") chime on a Japanese phone.  Recorded on SONY UX-80. Built-in stereo mics. 192kbps mp3.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/188/188012_3488502-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_phone_ring_old">
+  <header>
+    <h2>Teléfono Antiguo <span class="count" id="count_retro_phone_ring_old">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_phone_ring_old</code> · target 3-5s ·
+      query: <em>"old telephone ring"</em>
+    </div>
+    <div class="hint">Timbre clásico de teléfono de rueda</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_phone_ring_old" data-fsid="610191"
+           data-name="Old Phone Ringing"
+           data-dur="11.6" data-user="BennettFilmTeacher">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Old Phone Ringing</div>
+    <div class="cand-info">
+      ⏱ 11.6s · ⭐ 5.0/5 ·
+      by BennettFilmTeacher · CC0
+    </div>
+    <div class="cand-tags">Phone, Ring, Ringing, Telephone</div>
+    <div class="cand-desc">An old telephone ringing. Recorded by our tech crew with a 1970's era phone for a theatrical play at our school.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/610/610191_7254895-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_phone_ring_old" data-fsid="101633"
+           data-name="CD STAND OF DOOM 079.wav"
+           data-dur="17.4" data-user="sandyrb">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">CD STAND OF DOOM 079.wav</div>
+    <div class="cand-info">
+      ⏱ 17.4s · ⭐ 5.0/5 ·
+      by sandyrb · CC0
+    </div>
+    <div class="cand-tags">alert, audio, ball, big, bizarre</div>
+    <div class="cand-desc">This 24bit 48KHz sample pack contains 84 samples of a metal CD stand being struck, strummed and rubbed with various objects.  The CD stand i</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/101/101633_14771-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_phone_ring_old" data-fsid="265491"
+           data-name="RotaryDialPhone.wav"
+           data-dur="18.9" data-user="Sailor55">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">RotaryDialPhone.wav</div>
+    <div class="cand-info">
+      ⏱ 18.9s · ⭐ 5.0/5 ·
+      by Sailor55 · CC0
+    </div>
+    <div class="cand-tags">Phone, phone-dial, phone-numbers, ring, rotary-dial</div>
+    <div class="cand-desc">In an antique store in LaConner, Washington I saw a old black desk rotary dial telephone.  I dialed the numbers 1 through 0 and recorded the</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/265/265491_529600-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_phone_ring_old" data-fsid="531049"
+           data-name="2 rings picking up.m4a"
+           data-dur="11.3" data-user="HaleyReeseCalhoun">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">2 rings picking up.m4a</div>
+    <div class="cand-info">
+      ⏱ 11.3s · ⭐ 5.0/5 ·
+      by HaleyReeseCalhoun · CC0
+    </div>
+    <div class="cand-tags">Sorry-Wrong-Number, The-New-Old-Time-Radio-Show, answer, drama, foley</div>
+    <div class="cand-desc">Two telephone rings and and an answer - used in THE NEW OLD-TIME RADIO SHOW production of Lucille Fetcher's "Sorry, Wrong Number." To show y</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/531/531049_10446304-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_phone_ring_old" data-fsid="663840"
+           data-name="1970 telephone ring 1-4 seconds cycle NL.wav"
+           data-dur="5.0" data-user="klankbeeld">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">1970 telephone ring 1-4 seconds cycle NL.wav</div>
+    <div class="cand-info">
+      ⏱ 5.0s · ⭐ 4.9/5 ·
+      by klankbeeld · CC0
+    </div>
+    <div class="cand-tags">antique, bell, fifties, home, nineties</div>
+    <div class="cand-desc">Ring tone old telephone. One cycle LOOP. The phone rings once; 1-4 second.  <a href="https://commons.wikimedia.org/wiki/File:Tischfernsprech</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/663/663840_1648170-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_phone_ring_old" data-fsid="332073"
+           data-name="Telephone Ring (old German W48)"
+           data-dur="5.2" data-user="meisterleise">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Telephone Ring (old German W48)</div>
+    <div class="cand-info">
+      ⏱ 5.2s · ⭐ 4.9/5 ·
+      by meisterleise · CC0
+    </div>
+    <div class="cand-tags">bell, german, phone, ring, ringing</div>
+    <div class="cand-desc">Old german W48 telephone ringing ringtone</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/332/332073_5832939-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="retro_dial_pulse">
+  <header>
+    <h2>Marcado de Rueda <span class="count" id="count_retro_dial_pulse">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>retro_dial_pulse</code> · target 2-3s ·
+      query: <em>"rotary phone dial"</em>
+    </div>
+    <div class="hint">Clicks rápidos del dial rotatorio</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_dial_pulse" data-fsid="556499"
+           data-name="Rotary Phone Ring loopable"
+           data-dur="5.7" data-user="cookies+policy">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Rotary Phone Ring loopable</div>
+    <div class="cand-info">
+      ⏱ 5.7s · ⭐ 5.0/5 ·
+      by cookies+policy · CC0
+    </div>
+    <div class="cand-tags">Antique, Dial, Mechanical, Telephone, phone</div>
+    <div class="cand-desc">Measured, and ready to be looped for a continuous ring. Or you can of course use it as is for a single ring as well.  <a href="https://frees</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/556/556499_10713160-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_dial_pulse" data-fsid="135901"
+           data-name="Rotary Telephone Dialing - 27 November 2011, 5:51:44 P.M."
+           data-dur="19.2" data-user="crz1990">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Rotary Telephone Dialing - 27 November 2011, 5:51:44 P.M.</div>
+    <div class="cand-info">
+      ⏱ 19.2s · ⭐ 5.0/5 ·
+      by crz1990 · CC0
+    </div>
+    <div class="cand-tags">Call, Dial, Dialing, Phone, Rotary</div>
+    <div class="cand-desc">recording of me dialing "1234567890" on my working late-1970s GTE automatic electric rotary telephone, using ZOOM H2, internal mics, 90 degr</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/135/135901_1428156-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_dial_pulse" data-fsid="556493"
+           data-name="Rotary Phone Pick up and Hang up Swiflty"
+           data-dur="4.3" data-user="cookies+policy">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Rotary Phone Pick up and Hang up Swiflty</div>
+    <div class="cand-info">
+      ⏱ 4.3s · ⭐ 5.0/5 ·
+      by cookies+policy · CC0
+    </div>
+    <div class="cand-tags">Antique, Dial, Mechanical, Telephone, hang-up</div>
+    <div class="cand-desc">Picking up, then hanging up swiftly on an old rotary phone.  <a href="https://freesound.org/people/cookies+policy/packs/31257/" rel="nofollo</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/556/556493_10713160-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_dial_pulse" data-fsid="265491"
+           data-name="RotaryDialPhone.wav"
+           data-dur="18.9" data-user="Sailor55">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">RotaryDialPhone.wav</div>
+    <div class="cand-info">
+      ⏱ 18.9s · ⭐ 5.0/5 ·
+      by Sailor55 · CC0
+    </div>
+    <div class="cand-tags">Phone, phone-dial, phone-numbers, ring, rotary-dial</div>
+    <div class="cand-desc">In an antique store in LaConner, Washington I saw a old black desk rotary dial telephone.  I dialed the numbers 1 through 0 and recorded the</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/265/265491_529600-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_dial_pulse" data-fsid="391980"
+           data-name="Full Room 4 rings.flac"
+           data-dur="21.2" data-user="billox30">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Full Room 4 rings.flac</div>
+    <div class="cand-info">
+      ⏱ 21.2s · ⭐ 5.0/5 ·
+      by billox30 · CC0
+    </div>
+    <div class="cand-tags">60s, 70s, 746, 80s, GPO</div>
+    <div class="cand-desc">Recorded with a stereo pair of Rode NT5s</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/391/391980_350703-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="retro_dial_pulse" data-fsid="676347"
+           data-name="push flash hook and release"
+           data-dur="21.2" data-user="alex36917">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">push flash hook and release</div>
+    <div class="cand-info">
+      ⏱ 21.2s · ⭐ 5.0/5 ·
+      by alex36917 · CC0
+    </div>
+    <div class="cand-tags">POTS, analog, dial, line, old</div>
+    <div class="cand-desc">This was recorded at a rotary phone connected to a traditional phone line. I pushed and released the hook a few times.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/676/676347_5838112-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+<div class="actions">
+  <button onclick="generateJSON()">✓ Generar selección JSON</button>
+  <pre id="output">(selecciona arriba y haz click)</pre>
+  <button onclick="copyOutput()" style="background:var(--gold);">📋 Copiar</button>
+</div>
+</main>
+<script>
+// Live counter por slot — actualiza badge cuando seleccionas/deseleccionas
+function updateCounts() {
+  document.querySelectorAll('.slot').forEach(slot => {
+    const id = slot.dataset.slotId;
+    const n = slot.querySelectorAll('input[type=checkbox]:checked').length;
+    const badge = document.getElementById('count_' + id);
+    if (badge) {
+      badge.textContent = n === 0 ? '0 elegidos' : (n + ' elegido' + (n > 1 ? 's' : ''));
+      badge.classList.toggle('zero', n === 0);
+    }
+  });
+}
+document.addEventListener('change', e => {
+  if (e.target.matches('input[type=checkbox][data-slot]')) updateCounts();
+});
+window.addEventListener('load', updateCounts);
+
+function generateJSON() {
+  const bySlot = {};
+  document.querySelectorAll('input[type=checkbox][data-slot]:checked').forEach(cb => {
+    const slot = cb.dataset.slot;
+    if (!bySlot[slot]) bySlot[slot] = [];
+    bySlot[slot].push({
+      freesound_id: parseInt(cb.dataset.fsid),
+      name: cb.dataset.name,
+      duration: parseFloat(cb.dataset.dur),
+      user: cb.dataset.user
+    });
+  });
+  // Ordenar por slot (orden del manifest)
+  const ordered = {};
+  document.querySelectorAll('.slot').forEach(s => {
+    const id = s.dataset.slotId;
+    ordered[id] = bySlot[id] || [];
+  });
+  const total = Object.values(ordered).reduce((a,b) => a + b.length, 0);
+  const json = JSON.stringify(ordered, null, 2);
+  document.getElementById('output').textContent =
+    `// ${total} tonos seleccionados en ${Object.keys(ordered).filter(k => ordered[k].length > 0).length} slots
+` + json;
+  return json;
+}
+function copyOutput() {
+  const text = document.getElementById('output').textContent;
+  if (!text || text.startsWith('(')) { alert('Primero "Generar selección"'); return; }
+  navigator.clipboard.writeText(text).then(() => alert('✓ Copiado al portapapeles'));
+}
+</script>
+</body>
+</html>

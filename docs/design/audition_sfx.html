@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>⚡ EFECTOS ESPECIALES · Audition · Audition</title>
+<style>
+  :root {
+    --bg: #0F0E1A;
+    --surf: #1A1B2E;
+    --surf2: #21223A;
+    --text: #E8E8EC;
+    --muted: #98989D;
+    --cyan: #00F0FF;
+    --gold: #E6B655;
+    --pink: #FF2BD6;
+    --border: #2C2C3E;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, 'Segoe UI', sans-serif; line-height: 1.5; }
+  header.top { background: linear-gradient(180deg, #1A0033 0%, #0F0E1A 100%);
+    padding: 28px 32px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
+  h1 { margin: 0 0 4px; font-size: 28px; color: var(--cyan); letter-spacing: 1px; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 32px 80px; }
+  .slot { background: var(--surf); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin: 18px 0; }
+  .slot header { margin-bottom: 14px; }
+  .slot h2 { margin: 0 0 4px; color: var(--gold); font-size: 18px; }
+  .slot-meta { color: var(--muted); font-size: 12px; font-family: monospace; }
+  .hint { color: var(--text); font-size: 13px; margin-top: 6px; font-style: italic; opacity: 0.8; }
+  .cards { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+  .cand { display: grid; grid-template-columns: 36px 1fr 240px; gap: 12px;
+    align-items: center; background: var(--surf2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; transition: border-color .2s; }
+  .cand:has(input:checked) { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+  .pick { cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .pick input { display: none; }
+  .pick-mark { width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; color: transparent; transition: all .2s; }
+  .pick input:checked + .pick-mark { border-color: var(--cyan); background: var(--cyan);
+    color: var(--bg); transform: scale(1.1); }
+  .count { background: var(--bg); color: var(--cyan); padding: 2px 10px;
+    border-radius: 12px; font-size: 11px; font-weight: 400; margin-left: 12px;
+    border: 1px solid var(--cyan); }
+  .count.zero { color: var(--muted); border-color: var(--muted); }
+  .meta { min-width: 0; }
+  .cand-name { font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .cand-info { color: var(--muted); font-size: 12px; }
+  .cand-tags { color: var(--gold); font-size: 11px; margin-top: 4px; font-family: monospace; opacity: 0.6; }
+  .cand-desc { color: var(--text); font-size: 11px; margin-top: 4px; opacity: 0.6; max-height: 30px; overflow: hidden; }
+  audio { width: 240px; height: 36px; }
+  .no-results { color: #C2410C; padding: 20px; text-align: center; }
+  .actions { position: sticky; bottom: 0; background: var(--surf); border: 1px solid var(--cyan);
+    border-radius: 12px; padding: 16px; margin-top: 24px;
+    display: flex; gap: 12px; align-items: center; }
+  button { background: var(--cyan); color: var(--bg); border: none; padding: 12px 24px;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px;
+    /* type=button por default sin form, pero forzamos no-submit */ }
+  button:hover { background: #00d0e0; }
+  #output { flex: 1; background: var(--bg); color: var(--cyan); padding: 10px;
+    border-radius: 6px; font-family: monospace; font-size: 11px; max-height: 240px;
+    overflow: auto; white-space: pre-wrap; border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>⚡ EFECTOS ESPECIALES · Audition</h1>
+  <div class="subtitle">
+    Escucha cada candidato y marca los que más te gusten (puedes elegir varios por slot).
+    Solo CC0 / CC-BY (uso libre comercial).
+  </div>
+</header>
+<main>
+
+<section class="slot" data-slot-id="sfx_laugh_track">
+  <header>
+    <h2>Risa Grupo (sitcom) <span class="count zero" id="count_sfx_laugh_track">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_laugh_track</code> · target 2-3s ·
+      query: <em>"laugh track sitcom"</em>
+    </div>
+    <div class="hint">Risas de público estilo TV</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_laugh_track" data-fsid="805442"
+           data-name="CRWDLaff-Samsung Galaxy Smartphone_Crowd, Laugh Track, Sitco"
+           data-dur="6.6" data-user="designerschoice">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">CRWDLaff-Samsung Galaxy Smartphone_Crowd, Laugh Track, Sitco</div>
+    <div class="cand-info">
+      ⏱ 6.6s · ⭐ 4.8/5 ·
+      by designerschoice
+    </div>
+    <div class="cand-tags">Phone-recording, audience, auditorium, canned-laughter, comedy</div>
+    <div class="cand-desc">A crowd laughing. Sitcom laugh track.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/805/805442_6951162-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_laugh_track" data-fsid="395407"
+           data-name="Laugh Track 4.mp3"
+           data-dur="2.1" data-user="LittleRainySeasons">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Laugh Track 4.mp3</div>
+    <div class="cand-info">
+      ⏱ 2.1s · ⭐ 4.7/5 ·
+      by LittleRainySeasons
+    </div>
+    <div class="cand-tags">chuckle, fake, female, group, human</div>
+    <div class="cand-desc">Apparently I made this for my animation which supposedly a parody of sitcom shows...and since I find the laugh tracks in the internet a litt</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/395/395407_5865517-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_laugh_track" data-fsid="467042"
+           data-name="Crowd Laugh.wav"
+           data-dur="2.9" data-user="kelsey_w">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Crowd Laugh.wav</div>
+    <div class="cand-info">
+      ⏱ 2.9s · ⭐ 4.3/5 ·
+      by kelsey_w
+    </div>
+    <div class="cand-tags">audience, crowd, laugh, laughtrack, sitcom</div>
+    <div class="cand-desc">A short laugh of several people. Could be used as a laugh track.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/467/467042_4176737-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_laugh_track" data-fsid="395413"
+           data-name="Laugh Track 5.mp3"
+           data-dur="3.7" data-user="LittleRainySeasons">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Laugh Track 5.mp3</div>
+    <div class="cand-info">
+      ⏱ 3.7s · ⭐ 4.3/5 ·
+      by LittleRainySeasons
+    </div>
+    <div class="cand-tags">chuckle, fake, female, group, human</div>
+    <div class="cand-desc">Apparently I made this for my animation which supposedly a parody of sitcom shows...and since I find the laugh tracks in the internet a litt</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/395/395413_5865517-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_laugh_track" data-fsid="395410"
+           data-name="Laugh Track 1.mp3"
+           data-dur="2.6" data-user="LittleRainySeasons">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Laugh Track 1.mp3</div>
+    <div class="cand-info">
+      ⏱ 2.6s · ⭐ 4.2/5 ·
+      by LittleRainySeasons
+    </div>
+    <div class="cand-tags">chuckle, fake, female, group, human</div>
+    <div class="cand-desc">Apparently I made this for my animation which supposedly a parody of sitcom shows...and since I find the laugh tracks in the internet a litt</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/395/395410_5865517-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_laugh_track" data-fsid="395409"
+           data-name="Laugh Track 2.mp3"
+           data-dur="5.6" data-user="LittleRainySeasons">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Laugh Track 2.mp3</div>
+    <div class="cand-info">
+      ⏱ 5.6s · ⭐ 4.0/5 ·
+      by LittleRainySeasons
+    </div>
+    <div class="cand-tags">chuckle, fake, female, group, human</div>
+    <div class="cand-desc">Apparently I made this for my animation which supposedly a parody of sitcom shows...and since I find the laugh tracks in the internet a litt</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/395/395409_5865517-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_applause">
+  <header>
+    <h2>Aplausos <span class="count zero" id="count_sfx_applause">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_applause</code> · target 3-4s ·
+      query: <em>"applause crowd"</em>
+    </div>
+    <div class="hint">Audiencia aplaudiendo</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_applause" data-fsid="763630"
+           data-name="240615-15_FR_Applause_indoor"
+           data-dur="16.8" data-user="kevp888">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">240615-15_FR_Applause_indoor</div>
+    <div class="cand-info">
+      ⏱ 16.8s · ⭐ 5.0/5 ·
+      by kevp888
+    </div>
+    <div class="cand-tags">France, Nanterre, ambience, applaud, applauding</div>
+    <div class="cand-desc">Applause in a medium sized  theatre / concert hall (13th file).  This sample is extracted from the video of the last biennial show held by t</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/763/763630_9034501-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_applause" data-fsid="742714"
+           data-name="240615_212435_FR_Cheering_indoor"
+           data-dur="12.8" data-user="kevp888">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">240615_212435_FR_Cheering_indoor</div>
+    <div class="cand-info">
+      ⏱ 12.8s · ⭐ 5.0/5 ·
+      by kevp888
+    </div>
+    <div class="cand-tags">France, Nanterre, ambience, applaud, applause</div>
+    <div class="cand-desc">Cheering recorded in a medium sized theatre hall located in Nanterre (suburbs of Paris, France).  Recorded in June 2024 with a Zoom H6essent</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/742/742714_9034501-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_applause" data-fsid="742553"
+           data-name="240615_201400_FR_Applause_indoor"
+           data-dur="11.6" data-user="kevp888">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">240615_201400_FR_Applause_indoor</div>
+    <div class="cand-info">
+      ⏱ 11.6s · ⭐ 5.0/5 ·
+      by kevp888
+    </div>
+    <div class="cand-tags">France, Nanterre, ambience, applaud, applause</div>
+    <div class="cand-desc">Applause recorded in a medium sized theatre hall located in Nanterre (suburbs of Paris, France).  Recorded in June 2024 with a Zoom H6essent</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/742/742553_9034501-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_applause" data-fsid="777709"
+           data-name="Synced applause edited 1"
+           data-dur="8.9" data-user="Sadiquecat">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Synced applause edited 1</div>
+    <div class="cand-info">
+      ⏱ 8.9s · ⭐ 5.0/5 ·
+      by Sadiquecat
+    </div>
+    <div class="cand-tags">Edited, Processed, aplause, applaud, applauding</div>
+    <div class="cand-desc">Subject : A crowd applauding. Was for a staged TV show with bands playing then being interviewed. Date YMD : 2024 12 19 Location : Up 10m or</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/777/777709_5287430-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_applause" data-fsid="435877"
+           data-name="Applause Clapping"
+           data-dur="5.6" data-user="dersuperanton">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Applause Clapping</div>
+    <div class="cand-info">
+      ⏱ 5.6s · ⭐ 5.0/5 ·
+      by dersuperanton
+    </div>
+    <div class="cand-tags">adults, applaud, applauding, applause, audience</div>
+    <div class="cand-desc">A crowd is applauding.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/435/435877_1992856-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_applause" data-fsid="267246"
+           data-name="BerlinGameScene.com Crowd Cheer 4"
+           data-dur="7.1" data-user="BerlinGameScene">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">BerlinGameScene.com Crowd Cheer 4</div>
+    <div class="cand-info">
+      ⏱ 7.1s · ⭐ 5.0/5 ·
+      by BerlinGameScene
+    </div>
+    <div class="cand-tags">applause, cheer, cheering, crowd, mass</div>
+    <div class="cand-desc">Crowd cheering at Talk & Play event in Berlin.  <strong>Please include &quot;BerlinGameScene.com&quot; in your credits!</strong>  Thank you and en</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/267/267246_5052946-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_glass_break">
+  <header>
+    <h2>Cristal Roto <span class="count zero" id="count_sfx_glass_break">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_glass_break</code> · target 1-2s ·
+      query: <em>"glass break shatter"</em>
+    </div>
+    <div class="hint">Vidrio quebrándose</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_glass_break" data-fsid="148073"
+           data-name="LIGHTBULB SMASH 003.wav"
+           data-dur="1.6" data-user="sandyrb">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">LIGHTBULB SMASH 003.wav</div>
+    <div class="cand-info">
+      ⏱ 1.6s · ⭐ 5.0/5 ·
+      by sandyrb
+    </div>
+    <div class="cand-tags">Sandyrb, break, bulb, crash, crunch</div>
+    <div class="cand-desc">This was the smashing of an indoor flood light bulb. Lights smashed by Lloyd Jackson, recorded by Brady Leduc at Pulsworks Audio Arts. Recor</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/148/148073_14771-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_glass_break" data-fsid="680148"
+           data-name="Creepy musical glass"
+           data-dur="27.0" data-user="xkeril">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Creepy musical glass</div>
+    <div class="cand-info">
+      ⏱ 27.0s · ⭐ 5.0/5 ·
+      by xkeril
+    </div>
+    <div class="cand-tags">ambiance, ambiant, ambience, anxious, break</div>
+    <div class="cand-desc">Short piece of ambiance, made by slowing down a glass breaking from bevibeldesign, giving it a cool horror tone. It reminds me of hanted cas</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/680/680148_13504080-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_glass_break" data-fsid="566448"
+           data-name="break01.wav"
+           data-dur="1.3" data-user="Johnny97">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">break01.wav</div>
+    <div class="cand-info">
+      ⏱ 1.3s · ⭐ 5.0/5 ·
+      by Johnny97
+    </div>
+    <div class="cand-tags">break, breaking, crack, destroy, glass</div>
+    <div class="cand-desc">Breaking some old ugly plates and mugs on the floor. Recorded with Zoom F4 and Sennheiser shotgun mic in a studio.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/566/566448_5409451-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_glass_break" data-fsid="566446"
+           data-name="break03.wav"
+           data-dur="1.5" data-user="Johnny97">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">break03.wav</div>
+    <div class="cand-info">
+      ⏱ 1.5s · ⭐ 5.0/5 ·
+      by Johnny97
+    </div>
+    <div class="cand-tags">break, breaking, crack, destroy, glass</div>
+    <div class="cand-desc">Breaking some old ugly plates and mugs on the floor. Recorded with Zoom F4 and Sennheiser shotgun mic in a studio.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/566/566446_5409451-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_glass_break" data-fsid="554564"
+           data-name="Glass Shatter 2.wav"
+           data-dur="2.4" data-user="Greg_Surr">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Glass Shatter 2.wav</div>
+    <div class="cand-info">
+      ⏱ 2.4s · ⭐ 5.0/5 ·
+      by Greg_Surr
+    </div>
+    <div class="cand-tags">Glass-break, break-glass, broken-glass, glass, glass-shatter</div>
+    <div class="cand-desc">Medium Pitched glass breaking in a concrete building with slight reverb/echo</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/554/554564_8198141-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_glass_break" data-fsid="736533"
+           data-name="Smashing Breaking Porcelain Clay Ceramic Pieces 5"
+           data-dur="1.6" data-user="Geoff-Bremner-Audio">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Smashing Breaking Porcelain Clay Ceramic Pieces 5</div>
+    <div class="cand-info">
+      ⏱ 1.6s · ⭐ 5.0/5 ·
+      by Geoff-Bremner-Audio
+    </div>
+    <div class="cand-tags">bottle, break, breakable, breaking, cement</div>
+    <div class="cand-desc">Shattering pieces of some delicate coffee mugs on cement  Recorded with a Sennheiser MKH 416  Part of my &quot;breakables&quot; pack</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/736/736533_10643461-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_record_scratch">
+  <header>
+    <h2>Rasca Disco (DJ) <span class="count zero" id="count_sfx_record_scratch">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_record_scratch</code> · target 1-2s ·
+      query: <em>"record scratch"</em>
+    </div>
+    <div class="hint">Disco rayado tipo meme</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_record_scratch" data-fsid="610676"
+           data-name="Scratch 4x.wav"
+           data-dur="3.7" data-user="LiftPizzas">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Scratch 4x.wav</div>
+    <div class="cand-info">
+      ⏱ 3.7s · ⭐ 5.0/5 ·
+      by LiftPizzas
+    </div>
+    <div class="cand-tags">record, scratch, turntable, vinyl</div>
+    <div class="cand-desc">Simple vinyl record scratches using a turntable.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/610/610676_8236910-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_record_scratch" data-fsid="469286"
+           data-name="itching a scratch.WAV"
+           data-dur="9.3" data-user="julietclarke">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">itching a scratch.WAV</div>
+    <div class="cand-info">
+      ⏱ 9.3s · ⭐ 5.0/5 ·
+      by julietclarke
+    </div>
+    <div class="cand-tags">itch, scratch, skin</div>
+    <div class="cand-desc">recording of finger nails scratching skin.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/469/469286_9018696-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_record_scratch" data-fsid="747417"
+           data-name="vinyl dust 2"
+           data-dur="8.5" data-user="obscure_sampology">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">vinyl dust 2</div>
+    <div class="cand-info">
+      ⏱ 8.5s · ⭐ 5.0/5 ·
+      by obscure_sampology
+    </div>
+    <div class="cand-tags">dj, dust, record, scratch, scratching</div>
+    <div class="cand-desc">vinyl dust from my numrk turntable</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/747/747417_10824955-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_record_scratch" data-fsid="398490"
+           data-name="writing - chalk - left to right 01.wav"
+           data-dur="6.5" data-user="Anthousai">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">writing - chalk - left to right 01.wav</div>
+    <div class="cand-info">
+      ⏱ 6.5s · ⭐ 5.0/5 ·
+      by Anthousai
+    </div>
+    <div class="cand-tags">chalk, chalk-board, chalkboard, left-to-right, scratch</div>
+    <div class="cand-desc">Writing with chalk on a chalkboard from the left mic to the right.  Recorded with a Tascam DR-40.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/398/398490_5923045-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_record_scratch" data-fsid="239075"
+           data-name="Scratch Classic Aaah! 4 - 2 bar - 96 BPM (swing).WAV"
+           data-dur="5.0" data-user="Bronxio">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Scratch Classic Aaah! 4 - 2 bar - 96 BPM (swing).WAV</div>
+    <div class="cand-info">
+      ⏱ 5.0s · ⭐ 5.0/5 ·
+      by Bronxio
+    </div>
+    <div class="cand-tags">90s, acid-sized, classic, dj, golden-era</div>
+    <div class="cand-desc">Acid-sized sample of a scratch made by me. Ready for drag'n'drop music production software.  I recommend you that, if you are going to use</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/239/239075_997039-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_record_scratch" data-fsid="238574"
+           data-name="Scratch Hit A 1 - 1 bar - 106 BPM (no swing).WAV"
+           data-dur="2.3" data-user="Bronxio">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Scratch Hit A 1 - 1 bar - 106 BPM (no swing).WAV</div>
+    <div class="cand-info">
+      ⏱ 2.3s · ⭐ 5.0/5 ·
+      by Bronxio
+    </div>
+    <div class="cand-tags">90, acid-sized, classic, dj, golden-era</div>
+    <div class="cand-desc">Acid-sized sample of a scratch made by me. Ready for drag'n'drop music production software.  I recommend you that, if you are going to use</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/238/238574_997039-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_drumroll">
+  <header>
+    <h2>Redoble de Tambor <span class="count zero" id="count_sfx_drumroll">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_drumroll</code> · target 3s ·
+      query: <em>"drum roll suspense"</em>
+    </div>
+    <div class="hint">Suspense antes del reveal</div>
+  </header>
+  <div class="cards">
+    <div class="no-results">Sin resultados</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_cricket">
+  <header>
+    <h2>Grillos (Silencio Awk) <span class="count zero" id="count_sfx_cricket">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_cricket</code> · target 3-4s ·
+      query: <em>"crickets chirping awkward"</em>
+    </div>
+    <div class="hint">Silencio incómodo</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_cricket" data-fsid="69439"
+           data-name="synth-cricket.wav"
+           data-dur="2.0" data-user="guitarguy1985">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">synth-cricket.wav</div>
+    <div class="cand-info">
+      ⏱ 2.0s · ⭐ 4.6/5 ·
+      by guitarguy1985
+    </div>
+    <div class="cand-tags">chirp, chirping, cricket</div>
+    <div class="cand-desc">Archetypal awkward silence filler.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/69/69439_533680-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_cricket" data-fsid="849901"
+           data-name="TOONAnml-Blue Snowball Microphone, CU_Cricket, Chirp, Quiet "
+           data-dur="29.8" data-user="designerschoice">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">TOONAnml-Blue Snowball Microphone, CU_Cricket, Chirp, Quiet </div>
+    <div class="cand-info">
+      ⏱ 29.8s · ⭐ 5.0/5 ·
+      by designerschoice
+    </div>
+    <div class="cand-tags">Blue-Snowball, Blue-brand, awkward, cartoon, chirp</div>
+    <div class="cand-desc">Cartoon cricket chirp. Quiet night or awkward silence.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/849/849901_6951162-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_air_horn">
+  <header>
+    <h2>Bocina de Aire <span class="count zero" id="count_sfx_air_horn">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_air_horn</code> · target 1s ·
+      query: <em>"air horn"</em>
+    </div>
+    <div class="hint">Horn estilo party</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_air_horn" data-fsid="741817"
+           data-name="air horn"
+           data-dur="4.8" data-user="the_mred">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">air horn</div>
+    <div class="cand-info">
+      ⏱ 4.8s · ⭐ 5.0/5 ·
+      by the_mred
+    </div>
+    <div class="cand-tags">bass, dancehall, effects, fx, jungle</div>
+    <div class="cand-desc">dancehall jungle soundclash siren sound system bass music fx effects production  i've nabbed sounds from here for years. here's a collection</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/741/741817_1803038-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_air_horn" data-fsid="539145"
+           data-name="Bicycle air horn 001 (1).wav"
+           data-dur="1.1" data-user="ristooooo1">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Bicycle air horn 001 (1).wav</div>
+    <div class="cand-info">
+      ⏱ 1.1s · ⭐ 5.0/5 ·
+      by ristooooo1
+    </div>
+    <div class="cand-tags">approach, bicycle, bike, cycling, pedaling</div>
+    <div class="cand-desc">Air Horn of a bicycle.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/539/539145_6205597-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_air_horn" data-fsid="783764"
+           data-name="Prague Metro 81-717 two-chime horn"
+           data-dur="5.5" data-user="chungus43A">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Prague Metro 81-717 two-chime horn</div>
+    <div class="cand-info">
+      ⏱ 5.5s · ⭐ 5.0/5 ·
+      by chungus43A
+    </div>
+    <div class="cand-tags">airhorn, chime, czech, horn, metro</div>
+    <div class="cand-desc">Sound made in <a href=&quot;http://beepbox.co&quot; rel=&quot;nofollow&quot;>beepbox.co</a>  The 2-chime airhorn used on Prague Metro 81-717 trains, it plays a </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/783/783764_12024110-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_air_horn" data-fsid="158521"
+           data-name="liberty line bike air.wav"
+           data-dur="25.2" data-user="HBSA">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">liberty line bike air.wav</div>
+    <div class="cand-info">
+      ⏱ 25.2s · ⭐ 5.0/5 ·
+      by HBSA
+    </div>
+    <div class="cand-tags">bell, bicycle, bike, cycle, horn</div>
+    <div class="cand-desc">Human Bike Sound Archive. Recording session of a DELMA &quot;Liberty line&quot; model.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/158/158521_2865338-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_air_horn" data-fsid="783823"
+           data-name="Saint-Petersburg metro train two chime horn"
+           data-dur="5.5" data-user="chungus43A">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Saint-Petersburg metro train two chime horn</div>
+    <div class="cand-info">
+      ⏱ 5.5s · ⭐ 5.0/5 ·
+      by chungus43A
+    </div>
+    <div class="cand-tags">airhorn, chime, horn, metro, petersburg</div>
+    <div class="cand-desc">Sound made in <a href=&quot;http://beepbox.co&quot; rel=&quot;nofollow&quot;>beepbox.co</a>  The two-chime air horns heard on practically all Saint-Petersburg m</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/783/783823_12024110-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_air_horn" data-fsid="324275"
+           data-name="horn 02"
+           data-dur="5.5" data-user="Kostrava">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">horn 02</div>
+    <div class="cand-info">
+      ⏱ 5.5s · ⭐ 4.9/5 ·
+      by Kostrava
+    </div>
+    <div class="cand-tags">aggressive, air, air-raid, alarm, ambient</div>
+    <div class="cand-desc">made with synth and reverb fx in Reason </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/324/324275_1134415-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_camera_shutter">
+  <header>
+    <h2>Click de Cámara <span class="count zero" id="count_sfx_camera_shutter">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_camera_shutter</code> · target 1s ·
+      query: <em>"camera shutter snap"</em>
+    </div>
+    <div class="hint">Foto tomada</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_camera_shutter" data-fsid="414040"
+           data-name="DSLM Shutter - Lumix GH5 - 1/30 Seconds"
+           data-dur="8.3" data-user="florianreichelt">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">DSLM Shutter - Lumix GH5 - 1/30 Seconds</div>
+    <div class="cand-info">
+      ⏱ 8.3s · ⭐ 5.0/5 ·
+      by florianreichelt
+    </div>
+    <div class="cand-tags">camera, camera-click, camera-click-sound, camera-sound, canon</div>
+    <div class="cand-desc">Sound of a Lumix GH5 DSLM Camera releasing the shutter @ 1/30th of a second. This sound has been recorded with the H4N Pro.  You can use t</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/414/414040_6253486-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_camera_shutter" data-fsid="649341"
+           data-name="loading film camera.wav"
+           data-dur="19.4" data-user="isaacburkevideo">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">loading film camera.wav</div>
+    <div class="cand-info">
+      ⏱ 19.4s · ⭐ 5.0/5 ·
+      by isaacburkevideo
+    </div>
+    <div class="cand-tags">35mm, analog, beep, beeps, camera</div>
+    <div class="cand-desc">The sounds of me loading up a roll of film in my Canon AE-1 and taking some snaps and then rewinding the camera and closing the door  Record</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/649/649341_11549673-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_camera_shutter" data-fsid="613884"
+           data-name="Canon 550D Shutter"
+           data-dur="0.4" data-user="iainmccurdy">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Canon 550D Shutter</div>
+    <div class="cand-info">
+      ⏱ 0.4s · ⭐ 5.0/5 ·
+      by iainmccurdy
+    </div>
+    <div class="cand-tags">camera, camera-click, canon, canon-550D, click</div>
+    <div class="cand-desc">The mechanical shutter release on a Canon 550D DSLR camera. Recorded with a Rode NT4 and a Sony PCM D50. 96 kHz, 24 bit.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/613/613884_3655844-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_camera_shutter" data-fsid="624930"
+           data-name="Four Camera Clicks.wav"
+           data-dur="1.7" data-user="theplax">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Four Camera Clicks.wav</div>
+    <div class="cand-info">
+      ⏱ 1.7s · ⭐ 5.0/5 ·
+      by theplax
+    </div>
+    <div class="cand-tags">burst, camera, canon, click, close</div>
+    <div class="cand-desc">Taking four continuous shots on a Canon EOS 2000D DSLR camera. Voice Record Pro with Pixel 6 internal mics &gt; Adobe Audition.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/624/624930_12172648-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_camera_shutter" data-fsid="784340"
+           data-name="Camera (Zenit)"
+           data-dur="0.6" data-user="HyperFoley">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Camera (Zenit)</div>
+    <div class="cand-info">
+      ⏱ 0.6s · ⭐ 5.0/5 ·
+      by HyperFoley
+    </div>
+    <div class="cand-tags">analogue, camera, picture, shutter, snap</div>
+    <div class="cand-desc">this was made with a Analogue Zenit camera, if there is any feedback please i would love to hear it</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/784/784340_16417082-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_camera_shutter" data-fsid="649339"
+           data-name="analog camera shutter rewind.wav"
+           data-dur="1.4" data-user="isaacburkevideo">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">analog camera shutter rewind.wav</div>
+    <div class="cand-info">
+      ⏱ 1.4s · ⭐ 5.0/5 ·
+      by isaacburkevideo
+    </div>
+    <div class="cand-tags">35mm, analog, camera, camera-click, canon</div>
+    <div class="cand-desc">The sound of a Canon AE-1 rewinding  Recorded on Zoom H6 with Sennheiser 416 P48</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/649/649339_11549673-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_typewriter">
+  <header>
+    <h2>Máquina de Escribir <span class="count zero" id="count_sfx_typewriter">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_typewriter</code> · target 2-3s ·
+      query: <em>"typewriter typing"</em>
+    </div>
+    <div class="hint">Teclas + ding del retorno</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_typewriter" data-fsid="793351"
+           data-name="typing-1920s-remington"
+           data-dur="18.6" data-user="rpnelson">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">typing-1920s-remington</div>
+    <div class="cand-info">
+      ⏱ 18.6s · ⭐ 5.0/5 ·
+      by rpnelson
+    </div>
+    <div class="cand-tags">typewriter, typing, vintage</div>
+    <div class="cand-desc">Typing on a 1920s Remington Typewriter. There is a carriage advance but no return. Recorded with a Zoom H1n.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/793/793351_10461586-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_typewriter" data-fsid="492151"
+           data-name="190135_typewriter buttons.wav"
+           data-dur="10.3" data-user="AlbertCoetser">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">190135_typewriter buttons.wav</div>
+    <div class="cand-info">
+      ⏱ 10.3s · ⭐ 5.0/5 ·
+      by AlbertCoetser
+    </div>
+    <div class="cand-tags">buttons, pressed, typewriter</div>
+    <div class="cand-desc">Please excuse the naming convention. It is for a university project that I had to begin with my student number  This is the sounds of type-w</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/492/492151_10634608-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_typewriter" data-fsid="387908"
+           data-name="Typewriter loop 5 93 bpm.wav"
+           data-dur="7.7" data-user="Owl">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Typewriter loop 5 93 bpm.wav</div>
+    <div class="cand-info">
+      ⏱ 7.7s · ⭐ 5.0/5 ·
+      by Owl
+    </div>
+    <div class="cand-tags">drum, groove, improvised, loop, loopable</div>
+    <div class="cand-desc">I found an old typewriter in a house where I stayed for a while. Recorded with a Zoom H1.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/387/387908_116691-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_typewriter" data-fsid="587910"
+           data-name="Typing computer.wav"
+           data-dur="24.8" data-user="Primitv094">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Typing computer.wav</div>
+    <div class="cand-info">
+      ⏱ 24.8s · ⭐ 5.0/5 ·
+      by Primitv094
+    </div>
+    <div class="cand-tags">computer, keyboard, typewriter, typing</div>
+    <div class="cand-desc">Typing in a computer keyboard</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/587/587910_9616274-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_typewriter" data-fsid="433597"
+           data-name="Typewriter Button SLIDE 2B.wav"
+           data-dur="1.0" data-user="mincedbeats">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Typewriter Button SLIDE 2B.wav</div>
+    <div class="cand-info">
+      ⏱ 1.0s · ⭐ 5.0/5 ·
+      by mincedbeats
+    </div>
+    <div class="cand-tags">Typewriter, Typing, Vintage</div>
+    <div class="cand-desc">Some sounds of a vintage typewriter i recorded in to do the sound design for the following short film: <a href=&quot;https://vimeo.com/121779274&quot;</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/433/433597_723858-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_typewriter" data-fsid="467188"
+           data-name="Key Strokes.wav"
+           data-dur="7.9" data-user="ThunderQuads">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Key Strokes.wav</div>
+    <div class="cand-info">
+      ⏱ 7.9s · ⭐ 5.0/5 ·
+      by ThunderQuads
+    </div>
+    <div class="cand-tags">Keyboard, Keystroke, Type, Typewriter, Typing</div>
+    <div class="cand-desc">Here is a singular keystroke for more controlled manipulation</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/467/467188_9871357-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_cash_register">
+  <header>
+    <h2>Caja Registradora <span class="count zero" id="count_sfx_cash_register">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_cash_register</code> · target 1-2s ·
+      query: <em>"cash register ding"</em>
+    </div>
+    <div class="hint">Venta hecha, ka-ching</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_cash_register" data-fsid="360453"
+           data-name="Cash Register"
+           data-dur="10.7" data-user="GowlerMusic">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Cash Register</div>
+    <div class="cand-info">
+      ⏱ 10.7s · ⭐ 4.6/5 ·
+      by GowlerMusic
+    </div>
+    <div class="cand-tags">Available-for-Musical-Works, bell, bellZ, bright, buy</div>
+    <div class="cand-desc">Cash register dings at four different pitches(take your pick) and a modern register - sound effect. These sounds were recorded into ableton </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/360/360453_4900575-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_cash_register" data-fsid="810738"
+           data-name="Old-fashioned cash register"
+           data-dur="3.0" data-user="mokasza">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Old-fashioned cash register</div>
+    <div class="cand-info">
+      ⏱ 3.0s · ⭐ 4.4/5 ·
+      by mokasza
+    </div>
+    <div class="cand-tags">antique, authentic, bell, cash, classic</div>
+    <div class="cand-desc">Important warning  “This sound was generated using an AI model (elevenlabs). No real-world recording was used .”  support me financially sim</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/810/810738_17437502-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_bell">
+  <header>
+    <h2>Campana <span class="count zero" id="count_sfx_bell">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_bell</code> · target 2s ·
+      query: <em>"bell ring chime"</em>
+    </div>
+    <div class="hint">Campana clásica</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_bell" data-fsid="834128"
+           data-name="Doorbell"
+           data-dur="3.2" data-user="Froey_">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Doorbell</div>
+    <div class="cand-info">
+      ⏱ 3.2s · ⭐ 5.0/5 ·
+      by Froey_
+    </div>
+    <div class="cand-tags">bell, chime, ding, door, doorbell</div>
+    <div class="cand-desc">Old styled doorbell ringing inside our house.  Recorded with Sony ICD-UX570.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/834/834128_8331855-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_bell" data-fsid="665944"
+           data-name="Ringing Analog Alarm Clock"
+           data-dur="17.0" data-user="oliwoli">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Ringing Analog Alarm Clock</div>
+    <div class="cand-info">
+      ⏱ 17.0s · ⭐ 5.0/5 ·
+      by oliwoli
+    </div>
+    <div class="cand-tags">alarm, alert, antique, apartment, bed</div>
+    <div class="cand-desc">Recorded up close with an Oktava MK12, Mixpre-6 II</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/665/665944_1472937-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_bell" data-fsid="660861"
+           data-name="Chime-Weak.flac"
+           data-dur="1.4" data-user="drooler">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Chime-Weak.flac</div>
+    <div class="cand-info">
+      ⏱ 1.4s · ⭐ 5.0/5 ·
+      by drooler
+    </div>
+    <div class="cand-tags">AE86, AW11, Cars, Chime, INITIAL-D</div>
+    <div class="cand-desc">The &quot;annoying&quot; speed chime, turned world famous drift hero by Initial D.  A common issue with these chimes is that the second impact is mute</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/660/660861_11110115-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_bell" data-fsid="275570"
+           data-name="Doorbell D"
+           data-dur="2.4" data-user="kwahmah_02">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Doorbell D</div>
+    <div class="cand-info">
+      ⏱ 2.4s · ⭐ 5.0/5 ·
+      by kwahmah_02
+    </div>
+    <div class="cand-tags">bell, bing, bong, chime, d</div>
+    <div class="cand-desc">I've edited my doorbell recording in Audacity to (sort of) tune it to an octave from C to B, complete with sharp notes.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/275/275570_4486188-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_bell" data-fsid="449947"
+           data-name="Single Chime 2"
+           data-dur="4.5" data-user="steffcaffrey">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Single Chime 2</div>
+    <div class="cand-info">
+      ⏱ 4.5s · ⭐ 5.0/5 ·
+      by steffcaffrey
+    </div>
+    <div class="cand-tags">bell, chime, fairy, fx, glockenspiel</div>
+    <div class="cand-desc">Another random single chime from garden set.  Low cut and X Noised for ya already.  Rode NTK mic.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/449/449947_1844073-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_bell" data-fsid="383602"
+           data-name="bicycle-bell_09.wav"
+           data-dur="2.9" data-user="newagesoup">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">bicycle-bell_09.wav</div>
+    <div class="cand-info">
+      ⏱ 2.9s · ⭐ 5.0/5 ·
+      by newagesoup
+    </div>
+    <div class="cand-tags">bell, bells, bicycle, bike, bright</div>
+    <div class="cand-desc">Just a sample pack of 3-4 different high-pitch bicycle bells being rung.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/383/383602_4067257-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="sfx_whistle">
+  <header>
+    <h2>Silbato Árbitro <span class="count zero" id="count_sfx_whistle">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>sfx_whistle</code> · target 1s ·
+      query: <em>"referee whistle"</em>
+    </div>
+    <div class="hint">Falta en el fut</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_whistle" data-fsid="568995"
+           data-name="metal whistle.wav"
+           data-dur="20.5" data-user="strongbot">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">metal whistle.wav</div>
+    <div class="cand-info">
+      ⏱ 20.5s · ⭐ 4.9/5 ·
+      by strongbot
+    </div>
+    <div class="cand-tags">coach, football, referee, soccer, sport</div>
+    <div class="cand-desc">Metal whistle in different durations for your project. Blown with high power and a tongued attack. I could not find the sound I wanted that </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/568/568995_313970-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_whistle" data-fsid="218318"
+           data-name="Referee whistle blow, gymnasium.wav"
+           data-dur="3.3" data-user="SpliceSound">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Referee whistle blow, gymnasium.wav</div>
+    <div class="cand-info">
+      ⏱ 3.3s · ⭐ 4.7/5 ·
+      by SpliceSound
+    </div>
+    <div class="cand-tags">auditorium, basketball, blow, coach, gym</div>
+    <div class="cand-desc">Referee's whistle blowing inside a gymnasium</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/218/218318_1480854-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_whistle" data-fsid="316746"
+           data-name="Large Creature or Machinery Sound.wav"
+           data-dur="4.1" data-user="Arcadium1">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Large Creature or Machinery Sound.wav</div>
+    <div class="cand-info">
+      ⏱ 4.1s · ⭐ 4.4/5 ·
+      by Arcadium1
+    </div>
+    <div class="cand-tags">animal, creature, dinosaur, growl, horror</div>
+    <div class="cand-desc">This is a sound I made by combining an elephant with a tiger and a referee whistle. To me, it works as a large monster, or the groans of str</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/316/316746_3995641-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_whistle" data-fsid="78508"
+           data-name="referee_whistle_01.wav"
+           data-dur="1.2" data-user="joedeshon">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">referee_whistle_01.wav</div>
+    <div class="cand-info">
+      ⏱ 1.2s · ⭐ 4.3/5 ·
+      by joedeshon
+    </div>
+    <div class="cand-tags">alarm, basketball, blast, football, foul</div>
+    <div class="cand-desc">A real referee whistle being blown at close range. Recorded by my camcorder. Post-processed to soften the initial attack and reduce backgrou</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/78/78508_1218676-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_whistle" data-fsid="90743"
+           data-name="referee-whistle.wav"
+           data-dur="2.1" data-user="Pablo-F">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">referee-whistle.wav</div>
+    <div class="cand-info">
+      ⏱ 2.1s · ⭐ 4.3/5 ·
+      by Pablo-F
+    </div>
+    <div class="cand-tags">batukada, football, referee, soccer, whistle</div>
+    <div class="cand-desc">This is a football (soccer) referee whistle. Recorded at home with a SAMSON C01 microphone and ardour. Good for batukada too.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/90/90743_1476665-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="sfx_whistle" data-fsid="538422"
+           data-name="Referee whistle sound.wav"
+           data-dur="0.5" data-user="Rosa-Orenes256">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Referee whistle sound.wav</div>
+    <div class="cand-info">
+      ⏱ 0.5s · ⭐ 4.1/5 ·
+      by Rosa-Orenes256
+    </div>
+    <div class="cand-tags">basketball, football, referee, sport, tennis</div>
+    <div class="cand-desc">A sound of a referee blowing his whistle  This can be played on sport games like football, basketball, tennis or ping pong  Of course, this </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/538/538422_11966684-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+<div class="actions">
+  <button type="button" onclick="generateJSON(); return false;">✓ Generar JSON</button>
+  <pre id="output">(marca arriba y haz click)</pre>
+  <button type="button" onclick="copyOutput(); return false;" style="background:var(--gold);">📋 Copiar</button>
+</div>
+</main>
+<script>
+// Prevenir navegación accidental por iframes audio o forms huérfanos
+window.addEventListener('beforeunload', e => {
+  if (window._allowExit) return;
+  const hasChecks = document.querySelector('input[type=checkbox]:checked');
+  if (hasChecks) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+function updateCounts() {
+  document.querySelectorAll('.slot').forEach(slot => {
+    const id = slot.dataset.slotId;
+    const n = slot.querySelectorAll('input[type=checkbox]:checked').length;
+    const badge = document.getElementById('count_' + id);
+    if (badge) {
+      badge.textContent = n === 0 ? '0 elegidos' : (n + ' elegido' + (n > 1 ? 's' : ''));
+      badge.classList.toggle('zero', n === 0);
+    }
+  });
+}
+document.addEventListener('change', e => {
+  if (e.target.matches('input[type=checkbox][data-slot]')) updateCounts();
+});
+window.addEventListener('load', updateCounts);
+
+function generateJSON() {
+  const bySlot = {};
+  document.querySelectorAll('input[type=checkbox][data-slot]:checked').forEach(cb => {
+    const slot = cb.dataset.slot;
+    if (!bySlot[slot]) bySlot[slot] = [];
+    bySlot[slot].push({
+      freesound_id: parseInt(cb.dataset.fsid),
+      name: cb.dataset.name,
+      duration: parseFloat(cb.dataset.dur),
+      user: cb.dataset.user
+    });
+  });
+  const ordered = {};
+  document.querySelectorAll('.slot').forEach(s => {
+    const id = s.dataset.slotId;
+    ordered[id] = bySlot[id] || [];
+  });
+  const total = Object.values(ordered).reduce((a,b) => a + b.length, 0);
+  const json = JSON.stringify(ordered, null, 2);
+  document.getElementById('output').textContent =
+    `// ${total} tonos en ${Object.keys(ordered).filter(k => ordered[k].length > 0).length} slots
+` + json;
+  return false;
+}
+function copyOutput() {
+  const text = document.getElementById('output').textContent;
+  if (!text || text.startsWith('(')) { alert('Primero "Generar JSON"'); return false; }
+  navigator.clipboard.writeText(text).then(() => alert('✓ Copiado'));
+  return false;
+}
+</script>
+</body>
+</html>

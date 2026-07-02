@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>🎬 PELÍCULAS ÉPICAS · Audition · Audition</title>
+<style>
+  :root {
+    --bg: #0F0E1A;
+    --surf: #1A1B2E;
+    --surf2: #21223A;
+    --text: #E8E8EC;
+    --muted: #98989D;
+    --cyan: #00F0FF;
+    --gold: #E6B655;
+    --pink: #FF2BD6;
+    --border: #2C2C3E;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, 'Segoe UI', sans-serif; line-height: 1.5; }
+  header.top { background: linear-gradient(180deg, #1A0033 0%, #0F0E1A 100%);
+    padding: 28px 32px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
+  h1 { margin: 0 0 4px; font-size: 28px; color: var(--cyan); letter-spacing: 1px; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 32px 80px; }
+  .slot { background: var(--surf); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin: 18px 0; }
+  .slot header { margin-bottom: 14px; }
+  .slot h2 { margin: 0 0 4px; color: var(--gold); font-size: 18px; }
+  .slot-meta { color: var(--muted); font-size: 12px; font-family: monospace; }
+  .hint { color: var(--text); font-size: 13px; margin-top: 6px; font-style: italic; opacity: 0.8; }
+  .cards { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+  .cand { display: grid; grid-template-columns: 36px 1fr 240px; gap: 12px;
+    align-items: center; background: var(--surf2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; transition: border-color .2s; }
+  .cand:has(input:checked) { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+  .pick { cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .pick input { display: none; }
+  .pick-mark { width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; color: transparent; transition: all .2s; }
+  .pick input:checked + .pick-mark { border-color: var(--cyan); background: var(--cyan);
+    color: var(--bg); transform: scale(1.1); }
+  .count { background: var(--bg); color: var(--cyan); padding: 2px 10px;
+    border-radius: 12px; font-size: 11px; font-weight: 400; margin-left: 12px;
+    border: 1px solid var(--cyan); }
+  .count.zero { color: var(--muted); border-color: var(--muted); }
+  .meta { min-width: 0; }
+  .cand-name { font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .cand-info { color: var(--muted); font-size: 12px; }
+  .cand-tags { color: var(--gold); font-size: 11px; margin-top: 4px; font-family: monospace; opacity: 0.6; }
+  .cand-desc { color: var(--text); font-size: 11px; margin-top: 4px; opacity: 0.6; max-height: 30px; overflow: hidden; }
+  audio { width: 240px; height: 36px; }
+  .no-results { color: #C2410C; padding: 20px; text-align: center; }
+  .actions { position: sticky; bottom: 0; background: var(--surf); border: 1px solid var(--cyan);
+    border-radius: 12px; padding: 16px; margin-top: 24px;
+    display: flex; gap: 12px; align-items: center; }
+  button { background: var(--cyan); color: var(--bg); border: none; padding: 12px 24px;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px;
+    /* type=button por default sin form, pero forzamos no-submit */ }
+  button:hover { background: #00d0e0; }
+  #output { flex: 1; background: var(--bg); color: var(--cyan); padding: 10px;
+    border-radius: 6px; font-family: monospace; font-size: 11px; max-height: 240px;
+    overflow: auto; white-space: pre-wrap; border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>🎬 PELÍCULAS ÉPICAS · Audition</h1>
+  <div class="subtitle">
+    Escucha cada candidato y marca los que más te gusten (puedes elegir varios por slot).
+    Solo CC0 / CC-BY (uso libre comercial).
+  </div>
+</header>
+<main>
+
+<section class="slot" data-slot-id="mov_orchestral_hit">
+  <header>
+    <h2>Hit Orquestal <span class="count zero" id="count_mov_orchestral_hit">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_orchestral_hit</code> · target 1-2s ·
+      query: <em>"orchestral hit cinematic"</em>
+    </div>
+    <div class="hint">Golpe dramático tipo trailer</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_orchestral_hit" data-fsid="246384"
+           data-name="[Boom SFX] cinematic/drop/bomb effect"
+           data-dur="19.3" data-user="waveplaySFX">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">[Boom SFX] cinematic/drop/bomb effect</div>
+    <div class="cand-info">
+      ⏱ 19.3s · ⭐ 5.0/5 ·
+      by waveplaySFX
+    </div>
+    <div class="cand-tags">background, bomb, cinema, cinematic, drama</div>
+    <div class="cand-desc">_</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/246/246384_1676145-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_orchestral_hit" data-fsid="578376"
+           data-name="Shock Stab 02"
+           data-dur="3.7" data-user="nomiqbomi">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Shock Stab 02</div>
+    <div class="cand-info">
+      ⏱ 3.7s · ⭐ 5.0/5 ·
+      by nomiqbomi
+    </div>
+    <div class="cand-tags">chord, cinematic, dissonant, drama, dramatic</div>
+    <div class="cand-desc">A loud orchestral stab for a horror reveal.  Credit is appreciated, but I understand that keeping track is kind of a pain.  If you use it in</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/578/578376_10522382-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_orchestral_hit" data-fsid="500658"
+           data-name="Vocal Bit.wav"
+           data-dur="19.1" data-user="Reg1n0ld">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Vocal Bit.wav</div>
+    <div class="cand-info">
+      ⏱ 19.1s · ⭐ 5.0/5 ·
+      by Reg1n0ld
+    </div>
+    <div class="cand-tags">action, awesome, budget, cinema, cinematic</div>
+    <div class="cand-desc">I would love to see what you can do with this! Send a link!</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/500/500658_10846245-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_orchestral_hit" data-fsid="580820"
+           data-name="Orchestral Hit 2"
+           data-dur="8.0" data-user="SilverIllusionist">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Orchestral Hit 2</div>
+    <div class="cand-info">
+      ⏱ 8.0s · ⭐ 5.0/5 ·
+      by SilverIllusionist
+    </div>
+    <div class="cand-tags">big-hit, big-hits, big-orchestral-hits, cinematic-drama, cinematic-hit</div>
+    <div class="cand-desc">Please credit me if you use this! A lot of effort and time goes into making these sounds. :)  An orchestral hit you might hear during a dram</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/580/580820_7395592-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_orchestral_hit" data-fsid="578378"
+           data-name="Shock Stab 08"
+           data-dur="3.7" data-user="nomiqbomi">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Shock Stab 08</div>
+    <div class="cand-info">
+      ⏱ 3.7s · ⭐ 5.0/5 ·
+      by nomiqbomi
+    </div>
+    <div class="cand-tags">chord, cinematic, dissonant, drama, dramatic</div>
+    <div class="cand-desc">A loud orchestral stab for a horror reveal.  Credit is appreciated, but I understand that keeping track is kind of a pain.  If you use it in</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/578/578378_10522382-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_orchestral_hit" data-fsid="578373"
+           data-name="Shock Stab 03"
+           data-dur="3.7" data-user="nomiqbomi">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Shock Stab 03</div>
+    <div class="cand-info">
+      ⏱ 3.7s · ⭐ 5.0/5 ·
+      by nomiqbomi
+    </div>
+    <div class="cand-tags">chord, cinematic, dissonant, drama, dramatic</div>
+    <div class="cand-desc">A loud orchestral stab for a horror reveal.  Credit is appreciated, but I understand that keeping track is kind of a pain.  If you use it in</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/578/578373_10522382-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_trailer_boom">
+  <header>
+    <h2>Trailer Boom <span class="count zero" id="count_mov_trailer_boom">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_trailer_boom</code> · target 2s ·
+      query: <em>"trailer boom impact"</em>
+    </div>
+    <div class="hint">Boom grave de teaser</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_trailer_boom" data-fsid="649445"
+           data-name="Cinematic Woosh SFX-015.wav"
+           data-dur="5.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Cinematic Woosh SFX-015.wav</div>
+    <div class="cand-info">
+      ⏱ 5.3s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, effect</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Cinematic </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/649/649445_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_trailer_boom" data-fsid="564809"
+           data-name="Oil convector hit_1(ovrdrv,Eq,cmpr,lmtr).wav"
+           data-dur="11.5" data-user="newlocknew">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Oil convector hit_1(ovrdrv,Eq,cmpr,lmtr).wav</div>
+    <div class="cand-info">
+      ⏱ 11.5s · ⭐ 5.0/5 ·
+      by newlocknew
+    </div>
+    <div class="cand-tags">bang, bass, boom, boomer, cinematic</div>
+    <div class="cand-desc">Low atmospheric impact sound made from a taped impact on an oil heating radiator. The pitch was lowered four octaves and EQ, overdrive, comp</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/564/564809_5828667-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_trailer_boom" data-fsid="749465"
+           data-name="Sound Design Elements Impact SFX PS 001"
+           data-dur="5.1" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Sound Design Elements Impact SFX PS 001</div>
+    <div class="cand-info">
+      ⏱ 5.1s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">action, beat, blow, bold, boom</div>
+    <div class="cand-desc">Sound design elements Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audi</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/749/749465_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_trailer_boom" data-fsid="755054"
+           data-name="Sound Design Elements Impact SFX PS 017"
+           data-dur="1.7" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Sound Design Elements Impact SFX PS 017</div>
+    <div class="cand-info">
+      ⏱ 1.7s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">action, beat, blow, bold, boom</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Impact eff</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/755/755054_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_trailer_boom" data-fsid="822419"
+           data-name="Riser Hit sfx 119"
+           data-dur="10.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser Hit sfx 119</div>
+    <div class="cand-info">
+      ⏱ 10.3s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, epic</div>
+    <div class="cand-desc">Riser Hit  powerful ,cinematic sound design elements, perfect for trailers, transitions, and dramatic moments. Effects recorded from the fie</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/822/822419_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_trailer_boom" data-fsid="564807"
+           data-name="Oil convector hit_3(ovrdrv,Eq,cmpr,lmtr).wav"
+           data-dur="10.5" data-user="newlocknew">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Oil convector hit_3(ovrdrv,Eq,cmpr,lmtr).wav</div>
+    <div class="cand-info">
+      ⏱ 10.5s · ⭐ 5.0/5 ·
+      by newlocknew
+    </div>
+    <div class="cand-tags">bang, bass, boom, boomer, cinematic</div>
+    <div class="cand-desc">Low atmospheric impact sound made from a taped impact on an oil heating radiator. The pitch was lowered four octaves and EQ, overdrive, comp</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/564/564807_5828667-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_riser_buildup">
+  <header>
+    <h2>Riser / Build-up <span class="count zero" id="count_mov_riser_buildup">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_riser_buildup</code> · target 3-4s ·
+      query: <em>"riser buildup tension"</em>
+    </div>
+    <div class="hint">Tensión que sube</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_riser_buildup" data-fsid="750605"
+           data-name="Dubstep Riser 3 [142bpm]"
+           data-dur="20.3" data-user="deadrobotmusic">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Dubstep Riser 3 [142bpm]</div>
+    <div class="cand-info">
+      ⏱ 20.3s · ⭐ 4.9/5 ·
+      by deadrobotmusic
+    </div>
+    <div class="cand-tags">bass, build, buildup, dead, dubstep</div>
+    <div class="cand-desc">Dubstep Riser 3 [142bpm] // cc0</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/750/750605_11532701-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_riser_buildup" data-fsid="750606"
+           data-name="Dubstep Riser 4 [142bpm]"
+           data-dur="20.3" data-user="deadrobotmusic">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Dubstep Riser 4 [142bpm]</div>
+    <div class="cand-info">
+      ⏱ 20.3s · ⭐ 4.7/5 ·
+      by deadrobotmusic
+    </div>
+    <div class="cand-tags">bass, build, buildup, dead, dubstep</div>
+    <div class="cand-desc">Dubstep Riser 4 [142bpm] // cc0</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/750/750606_11532701-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_riser_buildup" data-fsid="730112"
+           data-name="DSGNRiser_Cinematic Telemetry Tone Short 01"
+           data-dur="4.4" data-user="Riley_Garinger">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">DSGNRiser_Cinematic Telemetry Tone Short 01</div>
+    <div class="cand-info">
+      ⏱ 4.4s · ⭐ 4.7/5 ·
+      by Riley_Garinger
+    </div>
+    <div class="cand-tags">Buildup, Cinematic, Digita, Release, Riser</div>
+    <div class="cand-desc">Designed &quot;cinematic&quot; riser. Didn't want it to sit in my Design folder.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/730/730112_15172097-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_riser_buildup" data-fsid="810166"
+           data-name="Awesome cinematic intro"
+           data-dur="10.0" data-user="mokasza">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Awesome cinematic intro</div>
+    <div class="cand-info">
+      ⏱ 10.0s · ⭐ 4.4/5 ·
+      by mokasza
+    </div>
+    <div class="cand-tags">ambient, atmosphere, bass, boom, buildup</div>
+    <div class="cand-desc">Important warning  “This sound was generated using an AI model (elevenlabs). No real-world recording was used .”  support me financially sim</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/810/810166_17437502-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_riser_buildup" data-fsid="810167"
+           data-name="Awesome Riser"
+           data-dur="3.0" data-user="mokasza">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Awesome Riser</div>
+    <div class="cand-info">
+      ⏱ 3.0s · ⭐ 4.4/5 ·
+      by mokasza
+    </div>
+    <div class="cand-tags">ambient, awesome, bass, boom, buildup</div>
+    <div class="cand-desc">Important warning  “This sound was generated using an AI model (elevenlabs). No real-world recording was used .”  support me financially sim</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/810/810167_17437502-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_riser_buildup" data-fsid="833493"
+           data-name="Riser_ClosingIn"
+           data-dur="15.0" data-user="Wavewire">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser_ClosingIn</div>
+    <div class="cand-info">
+      ⏱ 15.0s · ⭐ 3.8/5 ·
+      by Wavewire
+    </div>
+    <div class="cand-tags">approaching, buildup, closing, dramatic, riser</div>
+    <div class="cand-desc">Dissonant tension rises and speeds up; 'something' is gaining momentum towards you. At peak tension, all sound abruptly ceases.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/833/833493_17559721-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_epic_brass">
+  <header>
+    <h2>Brass Épico <span class="count zero" id="count_mov_epic_brass">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_epic_brass</code> · target 2-3s ·
+      query: <em>"epic brass horn"</em>
+    </div>
+    <div class="hint">Cuerno tipo Lord of the Rings</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_epic_brass" data-fsid="848437"
+           data-name="Cinematic Trailer Horns"
+           data-dur="23.1" data-user="mikiko850">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Cinematic Trailer Horns</div>
+    <div class="cand-info">
+      ⏱ 23.1s · ⭐ 3.5/5 ·
+      by mikiko850
+    </div>
+    <div class="cand-tags">bass, blast, boom, braam, brass</div>
+    <div class="cand-desc">Made in Vital with a little help from Negativist's YT Tutorials/</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/848/848437_18554592-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_epic_brass" data-fsid="856173"
+           data-name="Apocalyptic Cinematic Brass Braam Impact"
+           data-dur="4.0" data-user="brktkrgll">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Apocalyptic Cinematic Brass Braam Impact</div>
+    <div class="cand-info">
+      ⏱ 4.0s · ⭐ 1.0/5 ·
+      by brktkrgll
+    </div>
+    <div class="cand-tags">GenAI, braam, brass, cinematic, drone</div>
+    <div class="cand-desc">Colossal trailer-grade deep brass braam horn drop. Perfect for massive cinematic impact, apocalyptic scene transitions, and shocking documen</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/856/856173_18901108-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_epic_brass" data-fsid="857698"
+           data-name="Cinematic Distorted Siren"
+           data-dur="8.5" data-user="mikiko850">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Cinematic Distorted Siren</div>
+    <div class="cand-info">
+      ⏱ 8.5s · ⭐ 0.0/5 ·
+      by mikiko850
+    </div>
+    <div class="cand-tags">aggression, apocalypse, bass, blast, blockbuster</div>
+    <div class="cand-desc">Good for trailers or adding suspense to your reel. Made in Vital. Check out the preset on my presetshare: @mikiko850</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/857/857698_18554592-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_drum_hit">
+  <header>
+    <h2>Tambor de Guerra <span class="count zero" id="count_mov_drum_hit">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_drum_hit</code> · target 1-2s ·
+      query: <em>"war drum cinematic"</em>
+    </div>
+    <div class="hint">Taiko/Hans Zimmer</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_drum_hit" data-fsid="816081"
+           data-name="Homer the Golden Retriever"
+           data-dur="3.2" data-user="LumaEros">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Homer the Golden Retriever</div>
+    <div class="cand-info">
+      ⏱ 3.2s · ⭐ 4.7/5 ·
+      by LumaEros
+    </div>
+    <div class="cand-tags">24-bit, 48, HD, animal, bark</div>
+    <div class="cand-desc">The recording was captured live directly using my smartphone — it is not AI generated.  Half-Serious Epic Description  Imagine a golden dawn</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/816/816081_17566383-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_drum_hit" data-fsid="248150"
+           data-name="Deepest Boom Yet"
+           data-dur="8.0" data-user="hykenfreak">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Deepest Boom Yet</div>
+    <div class="cand-info">
+      ⏱ 8.0s · ⭐ 4.6/5 ·
+      by hykenfreak
+    </div>
+    <div class="cand-tags">bass, boom, cinema, cinematic, dark</div>
+    <div class="cand-desc">Unlike my other cinematic boom, this one is of a Yamaha concert bass drum with a long tail reverb, bass enhancers, and a low pass filter for</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/248/248150_2605156-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_drum_hit" data-fsid="568857"
+           data-name="Military march music"
+           data-dur="17.3" data-user="humanoide9000">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Military march music</div>
+    <div class="cand-info">
+      ⏱ 17.3s · ⭐ 4.6/5 ·
+      by humanoide9000
+    </div>
+    <div class="cand-tags">army, attack, background, cinematic, dramatic</div>
+    <div class="cand-desc">Military march music made with several orchestral libraries in a DAW Studio One, the instrument section is composed by : Trumpet, trombone, </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/568/568857_4361321-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_drum_hit" data-fsid="209546"
+           data-name="warriordrums.wav"
+           data-dur="15.0" data-user="Sclolex">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">warriordrums.wav</div>
+    <div class="cand-info">
+      ⏱ 15.0s · ⭐ 4.4/5 ·
+      by Sclolex
+    </div>
+    <div class="cand-tags">battle, cinematic, drama, drums, military</div>
+    <div class="cand-desc">A sequence of war drum sounds that can be used to set off a battle scene or to evoke suspense. Built with Audacity 2.04.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/209/209546_985466-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_whoosh">
+  <header>
+    <h2>Whoosh Transición <span class="count zero" id="count_mov_whoosh">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_whoosh</code> · target 1s ·
+      query: <em>"whoosh cinematic"</em>
+    </div>
+    <div class="hint">Pasaje rápido de scene</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_whoosh" data-fsid="222493"
+           data-name="Digital Data Whoosh"
+           data-dur="6.0" data-user="qubodup">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Digital Data Whoosh</div>
+    <div class="cand-info">
+      ⏱ 6.0s · ⭐ 5.0/5 ·
+      by qubodup
+    </div>
+    <div class="cand-tags">air, dark, data, digital, drone</div>
+    <div class="cand-desc">Data transfer in cinematic whoosh style.  Incrementally sped up version of <a href=&quot;http://creativecommons.org/publicdomain/zero/1.0/&quot; rel</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/222/222493_71257-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_whoosh" data-fsid="649445"
+           data-name="Cinematic Woosh SFX-015.wav"
+           data-dur="5.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Cinematic Woosh SFX-015.wav</div>
+    <div class="cand-info">
+      ⏱ 5.3s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, effect</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Cinematic </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/649/649445_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_whoosh" data-fsid="827937"
+           data-name="Dark Sound Design Elements SFX PS 011"
+           data-dur="15.5" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Dark Sound Design Elements SFX PS 011</div>
+    <div class="cand-info">
+      ⏱ 15.5s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">cinematic, dark, effect, epic, game</div>
+    <div class="cand-desc">All samples used in the production of this sound effect were recorded by me. I designed this effect using the ASM Hydrasynth Deluxe and fiel</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/827/827937_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_whoosh" data-fsid="822419"
+           data-name="Riser Hit sfx 119"
+           data-dur="10.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser Hit sfx 119</div>
+    <div class="cand-info">
+      ⏱ 10.3s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, epic</div>
+    <div class="cand-desc">Riser Hit  powerful ,cinematic sound design elements, perfect for trailers, transitions, and dramatic moments. Effects recorded from the fie</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/822/822419_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_whoosh" data-fsid="500658"
+           data-name="Vocal Bit.wav"
+           data-dur="19.1" data-user="Reg1n0ld">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Vocal Bit.wav</div>
+    <div class="cand-info">
+      ⏱ 19.1s · ⭐ 5.0/5 ·
+      by Reg1n0ld
+    </div>
+    <div class="cand-tags">action, awesome, budget, cinema, cinematic</div>
+    <div class="cand-desc">I would love to see what you can do with this! Send a link!</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/500/500658_10846245-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_whoosh" data-fsid="757101"
+           data-name="Riser Hit sfx 101"
+           data-dur="8.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser Hit sfx 101</div>
+    <div class="cand-info">
+      ⏱ 8.3s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, effect</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Riser Hit </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/757/757101_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_lightsaber">
+  <header>
+    <h2>Espada Energía <span class="count zero" id="count_mov_lightsaber">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_lightsaber</code> · target 1-2s ·
+      query: <em>"energy sword swing"</em>
+    </div>
+    <div class="hint">Estilo lightsaber genérico</div>
+  </header>
+  <div class="cards">
+    <div class="no-results">Sin resultados</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_explosion_deep">
+  <header>
+    <h2>Explosión Profunda <span class="count zero" id="count_mov_explosion_deep">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_explosion_deep</code> · target 2-3s ·
+      query: <em>"explosion deep cinematic"</em>
+    </div>
+    <div class="hint">Boom de pelis de acción</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_explosion_deep" data-fsid="649445"
+           data-name="Cinematic Woosh SFX-015.wav"
+           data-dur="5.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Cinematic Woosh SFX-015.wav</div>
+    <div class="cand-info">
+      ⏱ 5.3s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, effect</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Cinematic </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/649/649445_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_explosion_deep" data-fsid="822419"
+           data-name="Riser Hit sfx 119"
+           data-dur="10.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser Hit sfx 119</div>
+    <div class="cand-info">
+      ⏱ 10.3s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, epic</div>
+    <div class="cand-desc">Riser Hit  powerful ,cinematic sound design elements, perfect for trailers, transitions, and dramatic moments. Effects recorded from the fie</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/822/822419_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_explosion_deep" data-fsid="757101"
+           data-name="Riser Hit sfx 101"
+           data-dur="8.3" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser Hit sfx 101</div>
+    <div class="cand-info">
+      ⏱ 8.3s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, effect</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Riser Hit </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/757/757101_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_explosion_deep" data-fsid="746553"
+           data-name="Riser Hit sfx 070"
+           data-dur="8.6" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser Hit sfx 070</div>
+    <div class="cand-info">
+      ⏱ 8.6s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, effect</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Riser Hit </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/746/746553_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_explosion_deep" data-fsid="758925"
+           data-name="Riser Hit sfx 112"
+           data-dur="25.4" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser Hit sfx 112</div>
+    <div class="cand-info">
+      ⏱ 25.4s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, effect</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Riser Hit </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/758/758925_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_explosion_deep" data-fsid="649825"
+           data-name="Riser Hit sfx 045.wav"
+           data-dur="24.5" data-user="AudioPapkin">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Riser Hit sfx 045.wav</div>
+    <div class="cand-info">
+      ⏱ 24.5s · ⭐ 5.0/5 ·
+      by AudioPapkin
+    </div>
+    <div class="cand-tags">bass, boom, cinematic, deep, effect</div>
+    <div class="cand-desc">Support me buy me coffee : <a href=&quot;https://buymeacoffee.com/audiopapkin&quot; rel=&quot;nofollow&quot;>https://buymeacoffee.com/audiopapkin</a> Riser Hit </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/649/649825_8698658-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_magic_chime">
+  <header>
+    <h2>Magia / Encantamiento <span class="count zero" id="count_mov_magic_chime">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_magic_chime</code> · target 2s ·
+      query: <em>"magic chime sparkle"</em>
+    </div>
+    <div class="hint">Brillo mágico fantasy</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_magic_chime" data-fsid="770116"
+           data-name="Magic - Fairy wings 01"
+           data-dur="20.0" data-user="Vrymaa">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Magic - Fairy wings 01</div>
+    <div class="cand-info">
+      ⏱ 20.0s · ⭐ 5.0/5 ·
+      by Vrymaa
+    </div>
+    <div class="cand-tags">AI, bell, bewitched, chimes, creature</div>
+    <div class="cand-desc">Fairy wings, flapped with a lot of chimes and bell jiggles.  *Generated with Artificial Intelligence. *Processed by me.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/770/770116_13973196-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_magic_chime" data-fsid="837145"
+           data-name="Door Jingle"
+           data-dur="2.0" data-user="aasd2">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Door Jingle</div>
+    <div class="cand-info">
+      ⏱ 2.0s · ⭐ 5.0/5 ·
+      by aasd2
+    </div>
+    <div class="cand-tags">bell, chimes, coins, fairy, jingle</div>
+    <div class="cand-desc">Door Jingle: Delicate, metallic twinkles, similar to small bells or wind chimes, activated by the opening/closing of a door. Created with a </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/837/837145_18001228-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_magic_chime" data-fsid="190133"
+           data-name="Key_Chimes_05_High-to-Low.wav"
+           data-dur="27.8" data-user="dheming">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Key_Chimes_05_High-to-Low.wav</div>
+    <div class="cand-info">
+      ⏱ 27.8s · ⭐ 4.9/5 ·
+      by dheming
+    </div>
+    <div class="cand-tags">airy, chimes, ethereal, fairy, jingle</div>
+    <div class="cand-desc">Close-mic of a chime bar made from various size house keys, strumming from high to low pitch. This was recorded with high quality gear.  S</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/190/190133_2035780-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_magic_chime" data-fsid="376745"
+           data-name="Fantasy_ui_Button_3.wav"
+           data-dur="1.3" data-user="ZenithInfinitiveStudios">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Fantasy_ui_Button_3.wav</div>
+    <div class="cand-info">
+      ⏱ 1.3s · ⭐ 4.9/5 ·
+      by ZenithInfinitiveStudios
+    </div>
+    <div class="cand-tags">Button, Fantasy, airy, bell, chime</div>
+    <div class="cand-desc">Fantasy_ui_Button ui  chimes crystal chime bell fairy sparkle jingle magic ethereal tinkle spell airy sparkly</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/376/376745_5968849-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_magic_chime" data-fsid="369610"
+           data-name="Metalliputket, helähdys / Small metal tubes, chimes, a short"
+           data-dur="7.5" data-user="YleArkisto">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Metalliputket, helähdys / Small metal tubes, chimes, a short</div>
+    <div class="cand-info">
+      ⏱ 7.5s · ⭐ 4.8/5 ·
+      by YleArkisto
+    </div>
+    <div class="cand-tags">Chimes, Fairy-dust, Field-Recording, Finland, Finnish-Broadcasting-Company</div>
+    <div class="cand-desc">Pieniä eripituisia putkia. Vedetään kerran putkiston läpi. Korkea, kirkas metallinen ääni. Kuin taika, taikasauva, satuolento, keiju, säihky</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/369/369610_4415905-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_magic_chime" data-fsid="817466"
+           data-name="Cliche Magic Spell Sound"
+           data-dur="2.2" data-user="qubodup">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Cliche Magic Spell Sound</div>
+    <div class="cand-info">
+      ⏱ 2.2s · ⭐ 4.7/5 ·
+      by qubodup
+    </div>
+    <div class="cand-tags">bells, cartoon, chime, chimes, cute</div>
+    <div class="cand-desc">Cliché magic spell sound effect. Cleanup/fadein/fadeout edit of <a href=&quot;https://freesound.org/people/Sailor55/sounds/817354/&quot; rel=&quot;nofollow</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/817/817466_71257-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+
+<section class="slot" data-slot-id="mov_villain_laugh">
+  <header>
+    <h2>Risa Villana <span class="count zero" id="count_mov_villain_laugh">0 elegidos</span></h2>
+    <div class="slot-meta">
+      <code>mov_villain_laugh</code> · target 2-3s ·
+      query: <em>"evil laugh maniacal"</em>
+    </div>
+    <div class="hint">Antagonista riendo</div>
+  </header>
+  <div class="cards">
+    
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_villain_laugh" data-fsid="700963"
+           data-name="Demon Witch Laughter, Ch and Rev.wav"
+           data-dur="15.8" data-user="beautifuldaymonster1968">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Demon Witch Laughter, Ch and Rev.wav</div>
+    <div class="cand-info">
+      ⏱ 15.8s · ⭐ 4.9/5 ·
+      by beautifuldaymonster1968
+    </div>
+    <div class="cand-tags">Halloween, cackle, crazy, demon, demons</div>
+    <div class="cand-desc">I created this for a campy horror movie I'm directing.  Provided absolutely free and you don't even have to credit me.  Because I got angry </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/700/700963_340588-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_villain_laugh" data-fsid="204706"
+           data-name="Evil Laugh 6"
+           data-dur="7.7" data-user="Nanakisan">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Evil Laugh 6</div>
+    <div class="cand-info">
+      ⏱ 7.7s · ⭐ 4.8/5 ·
+      by Nanakisan
+    </div>
+    <div class="cand-tags">cackle, demented, evil, halloween, laugh</div>
+    <div class="cand-desc">New pack of laughs! Have fun folks!</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/204/204706_875457-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_villain_laugh" data-fsid="401605"
+           data-name="laugh.wav"
+           data-dur="7.0" data-user="ShadowFlayer">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">laugh.wav</div>
+    <div class="cand-info">
+      ⏱ 7.0s · ⭐ 4.8/5 ·
+      by ShadowFlayer
+    </div>
+    <div class="cand-tags">OWI, Studio-Recording, cackle, evil, laugh</div>
+    <div class="cand-desc">Evil haunting laugh, Recorded in studio. Recording of amateur student at Open window school of visual design.</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/401/401605_7174657-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_villain_laugh" data-fsid="700964"
+           data-name="Demon Witch Laughter, No Effects.wav"
+           data-dur="15.8" data-user="beautifuldaymonster1968">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Demon Witch Laughter, No Effects.wav</div>
+    <div class="cand-info">
+      ⏱ 15.8s · ⭐ 4.8/5 ·
+      by beautifuldaymonster1968
+    </div>
+    <div class="cand-tags">Halloween, cackle, crazy, demon, demons</div>
+    <div class="cand-desc">I created this for a campy horror movie I'm directing.  Provided absolutely free and you don't even have to credit me.  Because I got angry </div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/700/700964_340588-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_villain_laugh" data-fsid="204704"
+           data-name="Evil Laugh 1"
+           data-dur="2.3" data-user="Nanakisan">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Evil Laugh 1</div>
+    <div class="cand-info">
+      ⏱ 2.3s · ⭐ 4.8/5 ·
+      by Nanakisan
+    </div>
+    <div class="cand-tags">cackle, demented, evil, halloween, laugh</div>
+    <div class="cand-desc">New pack of laughs! Have fun folks!</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/204/204704_875457-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+<div class="cand">
+  <label class="pick">
+    <input type="checkbox" data-slot="mov_villain_laugh" data-fsid="204703"
+           data-name="Evil Laugh 2"
+           data-dur="8.0" data-user="Nanakisan">
+    <span class="pick-mark">✓</span>
+  </label>
+  <div class="meta">
+    <div class="cand-name">Evil Laugh 2</div>
+    <div class="cand-info">
+      ⏱ 8.0s · ⭐ 4.7/5 ·
+      by Nanakisan
+    </div>
+    <div class="cand-tags">cackle, demented, evil, halloween, laugh</div>
+    <div class="cand-desc">New pack of laughs! Have fun folks!</div>
+  </div>
+  <audio controls preload="none" src="https://cdn.freesound.org/previews/204/204703_875457-hq.mp3?token=M6IZFaSp888PidFfz9MS5hvtTlrM878JccZrQlmc"></audio>
+</div>
+  </div>
+</section>
+
+<div class="actions">
+  <button type="button" onclick="generateJSON(); return false;">✓ Generar JSON</button>
+  <pre id="output">(marca arriba y haz click)</pre>
+  <button type="button" onclick="copyOutput(); return false;" style="background:var(--gold);">📋 Copiar</button>
+</div>
+</main>
+<script>
+// Prevenir navegación accidental por iframes audio o forms huérfanos
+window.addEventListener('beforeunload', e => {
+  if (window._allowExit) return;
+  const hasChecks = document.querySelector('input[type=checkbox]:checked');
+  if (hasChecks) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+function updateCounts() {
+  document.querySelectorAll('.slot').forEach(slot => {
+    const id = slot.dataset.slotId;
+    const n = slot.querySelectorAll('input[type=checkbox]:checked').length;
+    const badge = document.getElementById('count_' + id);
+    if (badge) {
+      badge.textContent = n === 0 ? '0 elegidos' : (n + ' elegido' + (n > 1 ? 's' : ''));
+      badge.classList.toggle('zero', n === 0);
+    }
+  });
+}
+document.addEventListener('change', e => {
+  if (e.target.matches('input[type=checkbox][data-slot]')) updateCounts();
+});
+window.addEventListener('load', updateCounts);
+
+function generateJSON() {
+  const bySlot = {};
+  document.querySelectorAll('input[type=checkbox][data-slot]:checked').forEach(cb => {
+    const slot = cb.dataset.slot;
+    if (!bySlot[slot]) bySlot[slot] = [];
+    bySlot[slot].push({
+      freesound_id: parseInt(cb.dataset.fsid),
+      name: cb.dataset.name,
+      duration: parseFloat(cb.dataset.dur),
+      user: cb.dataset.user
+    });
+  });
+  const ordered = {};
+  document.querySelectorAll('.slot').forEach(s => {
+    const id = s.dataset.slotId;
+    ordered[id] = bySlot[id] || [];
+  });
+  const total = Object.values(ordered).reduce((a,b) => a + b.length, 0);
+  const json = JSON.stringify(ordered, null, 2);
+  document.getElementById('output').textContent =
+    `// ${total} tonos en ${Object.keys(ordered).filter(k => ordered[k].length > 0).length} slots
+` + json;
+  return false;
+}
+function copyOutput() {
+  const text = document.getElementById('output').textContent;
+  if (!text || text.startsWith('(')) { alert('Primero "Generar JSON"'); return false; }
+  navigator.clipboard.writeText(text).then(() => alert('✓ Copiado'));
+  return false;
+}
+</script>
+</body>
+</html>

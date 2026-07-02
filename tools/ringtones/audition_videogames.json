@@ -1,0 +1,20 @@
+{
+  "title": "🎮 VIDEOJUEGOS · Audition",
+  "pack_id": "videogames_pack",
+  "pack_name": "Videojuegos Clásicos",
+  "pack_description": "Coin pickups, level ups, power-ups y efectos icónicos del mundo del gaming. Sonidos genéricos estilo retro.",
+  "pack_glow": "#FF2BD6",
+  "pack_category": "GAMING",
+  "slots": [
+    { "id": "vg_coin",          "name": "Moneda / Coin Pickup",     "query": "coin pickup",           "duration_target": "1s",   "hint": "Ding metálico tipo Mario" },
+    { "id": "vg_powerup",       "name": "Power Up",                  "query": "powerup",               "duration_target": "1-2s", "hint": "Sube de nivel, escala ascendente" },
+    { "id": "vg_levelup",       "name": "Level Up Fanfare",          "query": "level up",              "duration_target": "2-3s", "hint": "Subiste de nivel, celebración" },
+    { "id": "vg_jump",          "name": "Salto (Boing)",             "query": "jump boing",            "duration_target": "1s",   "hint": "Salto tipo plataformero" },
+    { "id": "vg_hit",           "name": "Golpe / Hit",               "query": "hit punch arcade",      "duration_target": "1s",   "hint": "Pegada o impacto retro" },
+    { "id": "vg_game_over",     "name": "Game Over",                 "query": "game over",             "duration_target": "2-3s", "hint": "Perdiste — descendente sad" },
+    { "id": "vg_8bit_alert",    "name": "Alerta 8-bit",              "query": "8 bit alert beep",      "duration_target": "1s",   "hint": "Pitido 8-bit notificación" },
+    { "id": "vg_zelda_secret",  "name": "Secreto Encontrado",        "query": "secret discovery chime","duration_target": "2-3s", "hint": "Estilo Zelda 'secret found'" },
+    { "id": "vg_arcade_select", "name": "Menú Select Arcade",        "query": "menu select arcade",    "duration_target": "1s",   "hint": "Click de seleccionar opción" },
+    { "id": "vg_victory",       "name": "Victoria",                  "query": "victory fanfare",       "duration_target": "3-4s", "hint": "Ganaste la partida" }
+  ]
+}

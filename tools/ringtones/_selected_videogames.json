@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "selected_by": "Eduardo",
+    "date": "2026-06-23",
+    "pack_id": "videogames_pack",
+    "pack_name": "Videojuegos Clásicos",
+    "pack_description": "Coins, power-ups, jumps, game overs y efectos icónicos del mundo del gaming. Sonidos retro 8-bit y modernos.",
+    "pack_glow": "#FF2BD6",
+    "pack_category": "GAMING"
+  },
+  "slots": {
+    "vg_coin": [
+      { "freesound_id": 646673, "name_human": "Coin Pickup",                 "target_sec": 2 },
+      { "freesound_id": 350869, "name_human": "Coin Pop Corto",              "target_sec": 1 },
+      { "freesound_id": 830029, "name_human": "Coin Designed Hi",            "target_sec": 1 },
+      { "freesound_id": 830027, "name_human": "Coin Tonal",                  "target_sec": 1 }
+    ],
+    "vg_powerup": [
+      { "freesound_id": 781125, "name_human": "Anime Power Up",              "target_sec": 3 },
+      { "freesound_id": 818671, "name_human": "8-bit Pli-Pli ARP",           "target_sec": 1 },
+      { "freesound_id": 566198, "name_human": "Power Flux",                  "target_sec": 4 },
+      { "freesound_id": 582459, "name_human": "Formant Riser",               "target_sec": 4 }
+    ],
+    "vg_levelup": [
+      { "freesound_id": 624882, "name_human": "Level Up Retro",              "target_sec": 3 },
+      { "freesound_id": 673522, "name_human": "Notificación Retro Vibes",    "target_sec": 4 }
+    ],
+    "vg_jump": [
+      { "freesound_id": 717769, "name_human": "Jump Boing",                  "target_sec": 1 },
+      { "freesound_id": 802608, "name_human": "SNES Jump Fart",              "target_sec": 4 },
+      { "freesound_id": 540276, "name_human": "Trampolín Bounce",            "target_sec": 1 }
+    ],
+    "vg_game_over": [
+      { "freesound_id": 145421, "name_human": "Órgano Espeluznante",         "target_sec": 4 },
+      { "freesound_id": 488381, "name_human": "UI Hover Click",              "target_sec": 1 }
+    ],
+    "vg_8bit_alert": [
+      { "freesound_id": 455856, "name_human": "Nave Espacial 8-bit",        "target_sec": 1 },
+      { "freesound_id": 167337, "name_human": "Pup Alert",                   "target_sec": 1 },
+      { "freesound_id": 514157, "name_human": "Fast Beep",                   "target_sec": 2 },
+      { "freesound_id": 633190, "name_human": "Alerta Sci-Fi Sweep",         "target_sec": 2 }
+    ],
+    "vg_arcade_select": [
+      { "freesound_id": 243020, "name_human": "Game Start Arcade",           "target_sec": 3 },
+      { "freesound_id": 288956, "name_human": "Click Electrónico",           "target_sec": 1 }
+    ]
+  }
+}

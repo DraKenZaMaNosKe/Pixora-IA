@@ -1,0 +1,20 @@
+{
+  "title": "🎬 PELÍCULAS ÉPICAS · Audition",
+  "pack_id": "movies_pack",
+  "pack_name": "Cine Épico",
+  "pack_description": "Stings cinematográficos, builds dramáticos, fanfares orquestales. El feel de las películas blockbuster.",
+  "pack_glow": "#E6B655",
+  "pack_category": "CINEMATIC",
+  "slots": [
+    { "id": "mov_orchestral_hit", "name": "Hit Orquestal",          "query": "orchestral hit cinematic", "duration_target": "1-2s", "hint": "Golpe dramático tipo trailer" },
+    { "id": "mov_trailer_boom",   "name": "Trailer Boom",           "query": "trailer boom impact",      "duration_target": "2s",   "hint": "Boom grave de teaser" },
+    { "id": "mov_riser_buildup",  "name": "Riser / Build-up",       "query": "riser buildup tension",    "duration_target": "3-4s", "hint": "Tensión que sube" },
+    { "id": "mov_epic_brass",     "name": "Brass Épico",            "query": "epic brass horn",          "duration_target": "2-3s", "hint": "Cuerno tipo Lord of the Rings" },
+    { "id": "mov_drum_hit",       "name": "Tambor de Guerra",       "query": "war drum cinematic",       "duration_target": "1-2s", "hint": "Taiko/Hans Zimmer" },
+    { "id": "mov_whoosh",         "name": "Whoosh Transición",      "query": "whoosh cinematic",         "duration_target": "1s",   "hint": "Pasaje rápido de scene" },
+    { "id": "mov_lightsaber",     "name": "Espada Energía",         "query": "energy sword swing",       "duration_target": "1-2s", "hint": "Estilo lightsaber genérico" },
+    { "id": "mov_explosion_deep", "name": "Explosión Profunda",     "query": "explosion deep cinematic", "duration_target": "2-3s", "hint": "Boom de pelis de acción" },
+    { "id": "mov_magic_chime",    "name": "Magia / Encantamiento",  "query": "magic chime sparkle",      "duration_target": "2s",   "hint": "Brillo mágico fantasy" },
+    { "id": "mov_villain_laugh",  "name": "Risa Villana",           "query": "evil laugh maniacal",      "duration_target": "2-3s", "hint": "Antagonista riendo" }
+  ]
+}
