@@ -362,7 +362,10 @@ class _MysteryCardWidgetState extends State<MysteryCardWidget>
                         letterSpacing: 4,
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    // 2026-07-02 — spacing reducido de 18 a 8 para eliminar
+                    // overflow de 9px en cards de 220. El emoji 🎁 (64px) ya
+                    // da separación visual natural del heading "BONUS".
+                    const SizedBox(height: 8),
                     const Text('🎁', style: TextStyle(fontSize: 64)),
                     const SizedBox(height: 18),
                     Padding(
