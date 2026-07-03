@@ -759,6 +759,146 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send_json(data, status)
 
+        # ─── Active devices analytics (testers monitoring) ────────
+        # Devices únicos con events en la ventana ?days=N. Cross-check
+        # con emails de Eduardo para excluir su ruido. Cada device viene
+        # con perfil: total events, breakdown por tipo, primera/ultima
+        # actividad, app_versions vistas, autenticacion. Detecta batches
+        # (>=5 devices misma fecha + misma version = pre-launch bots).
+        # 2026-07-02 — creado tras confirmacion PrimeTestLab activo.
+        if path == "/api/active-devices":
+            from datetime import datetime, timezone, timedelta as _td
+            from collections import defaultdict
+            days = int(query.get("days", ["7"])[0])
+            include_edu = query.get("include_eduardo", ["0"])[0] == "1"
+            since = (datetime.now(timezone.utc) - _td(days=days)).strftime("%Y-%m-%dT%H:%M:%S")
+
+            # Fetch all events in window (paginated)
+            events = []
+            offset = 0
+            while True:
+                batch, sc = self._proxy(
+                    f"wallpaper_events?ts=gte.{since}"
+                    f"&select=device_id,user_id,event_type,ts,app_version,wallpaper_id"
+                    f"&limit=1000&offset={offset}"
+                )
+                if sc >= 400 or not batch:
+                    break
+                events.extend(batch)
+                if len(batch) < 1000:
+                    break
+                offset += 1000
+            events = [e for e in events if e.get("device_id")]
+
+            # Identify Eduardo (users + devices)
+            edu_uids = set()
+            edu_devs = set()
+            if not include_edu:
+                edu_users, _ = self._proxy(
+                    "users?email=in.(eduardojcr@gmail.com,gameover.lalo.83@gmail.com,"
+                    "pixoramain@gmail.com,testerorbix@gmail.com)&select=id"
+                )
+                edu_uids = {u["id"] for u in (edu_users or [])}
+                for uid in edu_uids:
+                    likes, _ = self._proxy(f"wallpaper_likes?user_id=eq.{uid}&select=device_id&limit=1000")
+                    for r in (likes or []):
+                        if r.get("device_id"): edu_devs.add(r["device_id"])
+                    ev, _ = self._proxy(f"wallpaper_events?user_id=eq.{uid}&select=device_id&limit=1000")
+                    for r in (ev or []):
+                        if r.get("device_id"): edu_devs.add(r["device_id"])
+                events = [e for e in events if e.get("user_id") not in edu_uids and e["device_id"] not in edu_devs]
+
+            # Aggregate per device
+            by_dev = defaultdict(lambda: {"events":0,"install":0,"view":0,"download":0,"share":0,
+                                          "first":None,"last":None,"app_versions":set(),
+                                          "wallpapers":set(),"user_id":None})
+            for e in events:
+                d = e["device_id"]
+                b = by_dev[d]
+                b["events"] += 1
+                et = e["event_type"]
+                if et in b: b[et] += 1
+                ts = e["ts"]
+                if not b["first"] or ts < b["first"]: b["first"] = ts
+                if not b["last"] or ts > b["last"]: b["last"] = ts
+                if e.get("app_version"): b["app_versions"].add(e["app_version"])
+                if e.get("wallpaper_id"): b["wallpapers"].add(e["wallpaper_id"])
+                if e.get("user_id"): b["user_id"] = e["user_id"]
+
+            # Classify each device: CORE_TESTER / CASUAL / BOT_BATCH / SINGLE_HIT
+            # BOT_BATCH detection — pre-launch bots de Google Play tienen firma:
+            #   1) >=10 devices el mismo día con la misma app_version
+            #   2) promedio de events por device en el batch <= 2 (bots hacen 1
+            #      install + 1 view y ya)
+            # Sin la restriccion de events, un release day de app real (donde
+            # muchos testers instalan el mismo dia) daria falso positivo.
+            from collections import Counter, defaultdict
+            batch_events = defaultdict(list)
+            for d, b in by_dev.items():
+                if b["first"] and b["app_versions"]:
+                    key = (b["first"][:10], min(b["app_versions"]))
+                    batch_events[key].append(b["events"])
+            bot_keys = set()
+            for key, ev_list in batch_events.items():
+                if len(ev_list) >= 10:
+                    avg_events = sum(ev_list) / len(ev_list)
+                    if avg_events <= 2.0:
+                        bot_keys.add(key)
+
+            items = []
+            for d, b in by_dev.items():
+                key = (b["first"][:10], min(b["app_versions"])) if b["first"] and b["app_versions"] else None
+                is_bot = key in bot_keys if key else False
+                if is_bot:
+                    kind = "BOT_BATCH"
+                elif b["events"] >= 5 and b["install"] >= 2:
+                    kind = "CORE_TESTER"
+                elif b["events"] >= 2:
+                    kind = "CASUAL"
+                else:
+                    kind = "SINGLE_HIT"
+                # calc span in days
+                span_days = 0.0
+                if b["first"] and b["last"]:
+                    try:
+                        f_dt = datetime.fromisoformat(b["first"].replace("Z","+00:00"))
+                        l_dt = datetime.fromisoformat(b["last"].replace("Z","+00:00"))
+                        span_days = round((l_dt - f_dt).total_seconds() / 86400, 2)
+                    except Exception:
+                        pass
+                items.append({
+                    "device_id": d,
+                    "kind": kind,
+                    "events": b["events"],
+                    "install": b["install"],
+                    "view": b["view"],
+                    "download": b["download"],
+                    "share": b["share"],
+                    "app_version_latest": max(b["app_versions"]) if b["app_versions"] else None,
+                    "wallpapers_touched": len(b["wallpapers"]),
+                    "first": b["first"],
+                    "last": b["last"],
+                    "span_days": span_days,
+                    "authed": bool(b["user_id"]),
+                    "user_id": b["user_id"],
+                })
+            items.sort(key=lambda x: x["events"], reverse=True)
+
+            # Summary
+            kinds = Counter(i["kind"] for i in items)
+            return self._send_json({
+                "days": days,
+                "total_devices": len(items),
+                "eduardo_excluded": not include_edu,
+                "summary": {
+                    "CORE_TESTER": kinds.get("CORE_TESTER", 0),
+                    "CASUAL": kinds.get("CASUAL", 0),
+                    "SINGLE_HIT": kinds.get("SINGLE_HIT", 0),
+                    "BOT_BATCH": kinds.get("BOT_BATCH", 0),
+                },
+                "items": items,
+            }, 200)
+
         # ─── Recently added wallpapers (freshness monitoring) ─────
         # Wallpapers creados en los últimos ?days=N con stats mergeados
         # (likes/downloads/views/installs). Feeds panel "Últimos agregados"

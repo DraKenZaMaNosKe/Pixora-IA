@@ -1245,6 +1245,63 @@ button { white-space: nowrap; }
     </div>
   </div>
 
+  <!-- TESTERS ACTIVOS · devices únicos con actividad real (excl. Eduardo) -->
+  <div class="panel" style="margin-top:16px;">
+    <h3>
+      Testers activos <span class="count" id="testers-count">--</span>
+      <span class="dim" style="font-size:11px;font-weight:400;margin-left:8px;">últimos
+        <select id="testers-days" style="background:transparent;color:var(--accent);border:none;font-size:11px;">
+          <option value="7">7</option>
+          <option value="14" selected>14</option>
+          <option value="30">30</option>
+        </select>
+        días · excluye tus devices
+      </span>
+    </h3>
+    <div id="testers-summary" style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;font-size:12px;">
+      <div style="padding:8px 12px;background:rgba(0,240,255,0.08);border-radius:6px;border-left:3px solid #00f0ff;">
+        <div class="dim" style="font-size:10px;letter-spacing:1px;">CORE TESTERS</div>
+        <div id="testers-core" class="mono" style="font-size:20px;color:#00f0ff;">--</div>
+        <div class="dim" style="font-size:9px;">PrimeTestLab reales</div>
+      </div>
+      <div style="padding:8px 12px;background:rgba(230,182,85,0.08);border-radius:6px;border-left:3px solid #E6B655;">
+        <div class="dim" style="font-size:10px;letter-spacing:1px;">CASUAL</div>
+        <div id="testers-casual" class="mono" style="font-size:20px;color:#E6B655;">--</div>
+        <div class="dim" style="font-size:9px;">tocan menos</div>
+      </div>
+      <div style="padding:8px 12px;background:rgba(255,43,214,0.06);border-radius:6px;border-left:3px solid #ff2bd6;">
+        <div class="dim" style="font-size:10px;letter-spacing:1px;">SINGLE HIT</div>
+        <div id="testers-single" class="mono" style="font-size:20px;color:#ff2bd6;">--</div>
+        <div class="dim" style="font-size:9px;">visitantes puntuales</div>
+      </div>
+      <div style="padding:8px 12px;background:rgba(128,128,128,0.08);border-radius:6px;border-left:3px solid #666;">
+        <div class="dim" style="font-size:10px;letter-spacing:1px;">BOT BATCH</div>
+        <div id="testers-bot" class="mono" style="font-size:20px;color:#888;">--</div>
+        <div class="dim" style="font-size:9px;">Google pre-launch (descartar)</div>
+      </div>
+    </div>
+    <div class="scrollable">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>device_id</th>
+            <th>tipo</th>
+            <th class="num">events</th>
+            <th class="num">inst</th>
+            <th class="num">💖 DL</th>
+            <th class="num">vw</th>
+            <th class="num">wps</th>
+            <th class="num">app</th>
+            <th class="num">span</th>
+            <th class="num">auth</th>
+          </tr>
+        </thead>
+        <tbody id="testers-tbody"><tr><td colspan="11" class="loading">cargando</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- ÚLTIMOS AGREGADOS · monitoring de releases frescos -->
   <div class="panel" style="margin-top:16px;">
     <h3>
@@ -1997,6 +2054,61 @@ function renderCategoriesChart(byCat) {
     }
   });
 }
+
+// Colores por tipo de tester (para pintar la columna kind)
+const TESTER_KIND_COLORS = {
+  CORE_TESTER: '#00f0ff',
+  CASUAL: '#E6B655',
+  SINGLE_HIT: '#ff2bd6',
+  BOT_BATCH: '#888',
+};
+
+async function loadActiveTesters() {
+  const days = parseInt(document.getElementById('testers-days').value || '14');
+  const res = await api(`/api/active-devices?days=${days}`);
+  if (!res || !Array.isArray(res.items)) return;
+  $('#testers-count').textContent = res.total_devices;
+  $('#testers-core').textContent = res.summary.CORE_TESTER || 0;
+  $('#testers-casual').textContent = res.summary.CASUAL || 0;
+  $('#testers-single').textContent = res.summary.SINGLE_HIT || 0;
+  $('#testers-bot').textContent = res.summary.BOT_BATCH || 0;
+  const tbody = $('#testers-tbody');
+  tbody.innerHTML = '';
+  if (res.items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11" class="loading">sin actividad en ${days} días</td></tr>`;
+    return;
+  }
+  res.items.forEach((it, idx) => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = it.device_id;
+    // Filas de bots visualmente amortiguadas
+    if (it.kind === 'BOT_BATCH') tr.style.opacity = '0.5';
+    const kindClr = TESTER_KIND_COLORS[it.kind] || '#fff';
+    const authIcon = it.authed ? '✓' : '—';
+    const authClr = it.authed ? 'color:#4ade80' : 'color:var(--muted)';
+    tr.innerHTML = `
+      <td class="mono dim">${idx + 1}</td>
+      <td class="mono">${escape(it.device_id)}</td>
+      <td><span class="pill" style="background:${kindClr}22;color:${kindClr};border:1px solid ${kindClr}55;">${it.kind.replace('_',' ')}</span></td>
+      <td class="num mono">${it.events}</td>
+      <td class="num mono">${it.install}</td>
+      <td class="num mono">${it.download}</td>
+      <td class="num mono">${it.view}</td>
+      <td class="num mono">${it.wallpapers_touched}</td>
+      <td class="num mono dim" style="font-size:11px;">${it.app_version_latest || '?'}</td>
+      <td class="num mono dim">${it.span_days}d</td>
+      <td class="num mono" style="${authClr}">${authIcon}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Change handler para el selector de días de testers
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'testers-days') {
+    loadActiveTesters();
+  }
+});
 
 // Set de IDs de wallpapers "nuevos" (creados en ventana N días).
 // Poblado por loadRecentWallpapers() y consumido por loadTopWallpapers()
@@ -3041,7 +3153,8 @@ async function refreshAll() {
   // race: el top se pinta antes de conocer los nuevos y quedan sin badge.
   await loadRecentWallpapers();
   await Promise.all([
-    loadStats(), loadDaily(), loadTopWallpapers(), loadTopUsers(), loadFeed(),
+    loadStats(), loadDaily(), loadTopWallpapers(), loadActiveTesters(),
+    loadTopUsers(), loadFeed(),
     loadAdStats(), loadAdRevenueDaily(), loadAdTopUsers(), loadAdFeed(),
   ]);
   $('#last-refresh').textContent = new Date().toLocaleTimeString('es-MX');
