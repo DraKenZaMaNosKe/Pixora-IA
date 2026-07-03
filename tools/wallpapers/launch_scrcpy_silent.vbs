@@ -24,9 +24,16 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 ' necesita --no-audio (audio no soportado < Android 11) y
 ' --video-codec=h264 (h265 falla en encoders viejos), si no scrcpy tira
 ' "Server connection failed".
+' Samsung: en Android 16 (OTA de julio 2026) el demuxer de audio de scrcpy 4.0
+'   tira "connection error" porque el audio API cambió. --no-audio es la fix
+'   hasta que salga scrcpy 4.1+. El "controller error" es cosmético (no bloquea
+'   la ventana visual, solo interacción avanzada).
+' Huawei: Android 7 necesita --force-adb-forward porque scrcpy 4.0 usa reverse
+'   tunnel por default y Android <10 lo bloquea silencioso. Con este flag
+'   scrcpy hace forward manual (más lento pero funciona).
 DEVICES = Array( _
-  "RF8X903KZ3K|Samsung A155M (1080x2340)|", _
-  "G2R4C17516000149|Huawei (1080x1920)|--no-audio --video-codec=h264 --max-fps=30" _
+  "RF8X903KZ3K|Samsung A155M (1080x2340)|--no-audio", _
+  "G2R4C17516000149|Huawei (1080x1920)|--no-audio --video-codec=h264 --max-fps=30 --force-adb-forward" _
 )
 
 ' --- Localizar scrcpy.exe (mismas rutas que antes) --------------------
@@ -132,12 +139,21 @@ For Each entry In DEVICES
   pair = Split(entry, "|")
   serial = pair(0)
   label  = pair(1)
+  ' extraFlags (3er campo, opcional) — huawei necesita --no-audio +
+  ' --video-codec=h264 o scrcpy 4.0 tira "connection refused" contra
+  ' Android 7 porque h265 y audio no están disponibles. Si el bloque
+  ' anterior olvidaba pasar esto, el Huawei fallaba en silencio.
+  extraFlags = ""
+  If UBound(pair) >= 2 Then extraFlags = Trim(pair(2))
   If InStr(connectedSerials, "|" & serial & "|") > 0 Then
     ' Wrap in `cmd /c start "" ""` so scrcpy's window is decoupled from
     ' the wscript host and not suppressed.
     fullCmd = "cmd.exe /c start """" """ & scrcpyPath & """ " & _
               "--serial " & serial & " " & _
               "--window-title=""" & label & """"
+    If Len(extraFlags) > 0 Then
+      fullCmd = fullCmd & " " & extraFlags
+    End If
     sh.Run fullCmd, 0, False
     launched = launched + 1
     WScript.Sleep 350  ' tiny gap so two scrcpy startups don't race on adb

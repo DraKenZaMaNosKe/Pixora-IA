@@ -1457,9 +1457,17 @@ button { white-space: nowrap; }
 
   <!-- TOP USERS -->
   <div class="panel" style="margin-top:16px;">
-    <h3>Usuarios activos · últimos 30 días <span class="count" id="topu-count">--</span></h3>
+    <h3>
+      Usuarios activos · últimos 30 días
+      <span class="count" id="topu-count">--</span>
+      <button id="topu-live-toggle" type="button"
+        style="margin-left:12px;padding:4px 10px;font-size:11px;font-weight:600;letter-spacing:0.5px;background:transparent;border:1px solid #333;border-radius:12px;color:#666;cursor:pointer;vertical-align:middle;transition:all 0.2s;">
+        <span id="topu-live-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#444;margin-right:6px;vertical-align:middle;"></span>LIVE OFF
+      </button>
+      <span id="topu-live-hint" class="dim" style="font-size:10px;font-weight:400;margin-left:6px;">tap para refresh cada 30s</span>
+    </h3>
     <div class="dim" style="font-size:12px; margin-bottom:8px;">
-      Tap una fila para ver detalle (devices + breakdown por wallpaper). Usuarios autenticados se agrupan a través de todos sus devices.
+      Ordenado por última actividad · tap una fila para ver detalle (devices + breakdown por wallpaper).
     </div>
     <div class="scrollable">
       <table>
@@ -2195,6 +2203,63 @@ async function loadTopWallpapers() {
 // Pagination state for usuarios tab
 const topuPager = { rows: [], page: 1, size: 25 };
 
+// LIVE mode para el panel de usuarios activos.
+// Cada 30s dispara loadTopUsers() para monitorear testers PrimeTestLab
+// en tiempo casi-real durante el testing period de 14 días.
+// Solo corre mientras el toggle está ON — no consume batería si nadie mira.
+const topuLive = { intervalId: null, INTERVAL_MS: 30000 };
+
+function topuLiveStart() {
+  if (topuLive.intervalId) return;
+  topuLive.intervalId = setInterval(() => {
+    // Solo refrescar si la tab de usuarios está visible — evita traffic
+    // innecesario cuando el user está en otra tab del dashboard.
+    const usersTab = document.querySelector('.page[data-page="caballeros"]');
+    if (usersTab && usersTab.classList.contains('active')) {
+      loadTopUsers();
+    }
+  }, topuLive.INTERVAL_MS);
+  const btn = document.getElementById('topu-live-toggle');
+  const dot = document.getElementById('topu-live-dot');
+  const hint = document.getElementById('topu-live-hint');
+  if (btn) {
+    btn.style.borderColor = '#ff2bd6';
+    btn.style.color = '#ff2bd6';
+    btn.innerHTML = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff2bd6;margin-right:6px;vertical-align:middle;animation:topuBlink 1s infinite;"></span>LIVE ON`;
+  }
+  if (hint) hint.textContent = 'refrescando cada 30s · tap para pausar';
+}
+
+function topuLiveStop() {
+  if (topuLive.intervalId) {
+    clearInterval(topuLive.intervalId);
+    topuLive.intervalId = null;
+  }
+  const btn = document.getElementById('topu-live-toggle');
+  const hint = document.getElementById('topu-live-hint');
+  if (btn) {
+    btn.style.borderColor = '#333';
+    btn.style.color = '#666';
+    btn.innerHTML = `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#444;margin-right:6px;vertical-align:middle;"></span>LIVE OFF`;
+  }
+  if (hint) hint.textContent = 'tap para refresh cada 30s';
+}
+
+// Wire del toggle button + keyframes CSS para el dot que pulsa.
+document.addEventListener('click', (e) => {
+  if (e.target && (e.target.id === 'topu-live-toggle' || (e.target.closest && e.target.closest('#topu-live-toggle')))) {
+    if (topuLive.intervalId) topuLiveStop(); else topuLiveStart();
+  }
+});
+// Inyectar keyframes una sola vez (el dot ON pulsa)
+(() => {
+  if (document.getElementById('topu-live-kf')) return;
+  const s = document.createElement('style');
+  s.id = 'topu-live-kf';
+  s.textContent = '@keyframes topuBlink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }';
+  document.head.appendChild(s);
+})();
+
 // Cache of user_id -> {name, email, avatar} for cross-tab enrichment
 // (events feed shows user name when known, drilldown is cheaper, etc.)
 window._userInfo = {};
@@ -2203,6 +2268,15 @@ async function loadTopUsers() {
   // Fetch up to the view's max (200) so pagination is local — no extra server roundtrips on page change.
   const rows = await api('/api/top-users?limit=200');
   if (!Array.isArray(rows)) return;
+  // 2026-07-02 — ordenar por última actividad DESC (más recientes arriba).
+  // La vista Postgres viene ordenada por total_events por default, pero
+  // Eduardo quiere ver primero quien acaba de usar la app para pescar
+  // testers frescos de PrimeTestLab en tiempo casi-real.
+  rows.sort((a, b) => {
+    const ta = a.last_seen ? new Date(a.last_seen).getTime() : 0;
+    const tb = b.last_seen ? new Date(b.last_seen).getTime() : 0;
+    return tb - ta;
+  });
   topuPager.rows = rows;
   topuPager.page = 1;
   $('#topu-count').textContent = rows.length;
