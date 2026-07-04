@@ -209,9 +209,26 @@ class PixoraWallpaperService : WallpaperService() {
                     }
                     else -> return
                 }
-                val alpha = 0.12f
-                tiltXNorm += (rawX - tiltXNorm) * alpha
-                tiltYNorm += (rawY - tiltYNorm) * alpha
+                // 2026-07-04 — dead zone to eliminate sensor jitter. When
+                // the phone rests on a table, the raw sensor drifts by
+                // ~0.01-0.02 randomly, and the old lowpass would still
+                // integrate that drift into a slow "floating" motion of
+                // the subject. Snapping to zero below 0.03 kills the
+                // drift completely so the wallpaper is truly still when
+                // the phone is still. Real tilts (~0.1+) pass through
+                // untouched and get smoothed.
+                val zonedX = if (kotlin.math.abs(rawX) < 0.03f) 0f else rawX
+                val zonedY = if (kotlin.math.abs(rawY) < 0.03f) 0f else rawY
+                // Alpha 0.18 (was 0.12): faster convergence toward real
+                // tilts without adding jitter now that the dead zone
+                // filters out sensor noise before it hits the filter.
+                val alpha = 0.18f
+                tiltXNorm += (zonedX - tiltXNorm) * alpha
+                tiltYNorm += (zonedY - tiltYNorm) * alpha
+                // Snap to exact 0 when we're very close, so the wallpaper
+                // stops moving completely once the tilt returns to rest.
+                if (kotlin.math.abs(tiltXNorm) < 0.002f) tiltXNorm = 0f
+                if (kotlin.math.abs(tiltYNorm) < 0.002f) tiltYNorm = 0f
                 canvasSceneRenderer.tiltX = tiltXNorm * tiltAmpX
                 canvasSceneRenderer.tiltY = tiltYNorm * tiltAmpY
             }
@@ -422,11 +439,19 @@ class PixoraWallpaperService : WallpaperService() {
                     // floating turtle) MUST stay at marquee fps even when
                     // idle — at 1fps the bob looks like teleporting jumps
                     // instead of a smooth float.
-                    val sceneBobbing = isCanvasSceneMode &&
-                        canvasSceneRenderer.needsContinuousAnimation
+                    // 2026-07-04 — SAME thing for parallax-only scenes
+                    // (Broly, Sailor Moon, Ryu with bob=0): the renderer
+                    // LERPs toward the onOffsetsChanged target, so it
+                    // needs continuous frames to render the interpolation.
+                    // Without this, at 1fps the LERP snaps in fewer steps
+                    // and still looks like stutter. hasParallax=true when
+                    // ANY layer has parallax_factor > 0.
+                    val sceneNeedsFrames = isCanvasSceneMode &&
+                        (canvasSceneRenderer.needsContinuousAnimation ||
+                         canvasSceneRenderer.hasParallax)
                     val delay = when {
                         isFrameMode -> IDLE_FRAME_DELAY
-                        sceneBobbing -> deviceTier.idleMarqueeFrameDelay
+                        sceneNeedsFrames -> deviceTier.idleMarqueeFrameDelay
                         idleMode -> IDLE_FRAME_DELAY
                         equalizerRenderer.hasAudio -> deviceTier.activeFrameDelay
                         else -> deviceTier.idleMarqueeFrameDelay

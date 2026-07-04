@@ -346,13 +346,20 @@ class CanvasSceneRenderer(private val context: Context) {
         // Done BEFORE drawing so offsets/alpha applied this frame are fresh.
         updateInteractiveLayers()
 
-        // Direct one-shot follow — same model Samsung's ImageWallpaper
-        // uses for static panoramic wallpapers. Each onOffsetsChanged
-        // event from the launcher snaps to its xOffset; no lerp delay.
-        // Smoothness comes from event frequency (Samsung sends many per
-        // swipe when it considers us scrollable, which it now does
-        // thanks to suggestDesiredDimensions(2*W, H) + SET_WALLPAPER_HINTS).
-        scrollOffsetNorm = targetScrollOffsetNorm
+        // 2026-07-04 — LERP toward target instead of snapping. Samsung
+        // Android 16 delivers onOffsetsChanged sparsely (~1-2 per home
+        // page swipe) instead of the dense stream older Android versions
+        // produced, so the old "snap directly" model caused visible
+        // stutter (quiet → jump → quiet → jump). Interpolating with
+        // factor 0.18 (~200ms to settle at 60fps) turns those sparse
+        // targets into a smooth glide. If we're already within 0.5% of
+        // the target, snap to avoid infinite tiny deltas.
+        val delta = targetScrollOffsetNorm - scrollOffsetNorm
+        scrollOffsetNorm = if (kotlin.math.abs(delta) < 0.005f) {
+            targetScrollOffsetNorm
+        } else {
+            scrollOffsetNorm + delta * 0.18f
+        }
 
         // v1.7.47: sprites with an explicit `params.z` get INTERLEAVED with
         // image_layers sorted by z. Sprites WITHOUT params.z keep the legacy
