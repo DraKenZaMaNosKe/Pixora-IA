@@ -50,7 +50,6 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage>
     with TickerProviderStateMixin {
   bool _installing = false;
   String? _installingId;
-  bool _onboardingShown = false;
 
   late final AnimationController _glowCtrl;
   late final AnimationController _irisCtrl;
@@ -91,19 +90,10 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage>
   Future<void> _bootstrap() async {
     await UserProfileService.instance.init();
     if (!mounted) return;
-    _maybeShowOnboarding();
-  }
-
-  void _maybeShowOnboarding() {
-    if (_onboardingShown) return;
-    if (UserProfileService.instance.hasProfile) return;
-    _onboardingShown = true;
-    // Defer until after first frame so the page paints behind the modal.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
-      await ArcanoOnboardingSheet.show(context);
-      // hasProfile listener will refresh the page if they saved.
-    });
+    // 2026-07-04 — Eduardo: el onboarding NO debe salir al entrar a
+    // Arcano. Solo se abre cuando el usuario toca el botón "+" del
+    // header (llama a _openOnboarding). Si algún día se quiere
+    // reactivar el auto-prompt, agregar aquí _maybeShowOnboarding().
   }
 
   @override

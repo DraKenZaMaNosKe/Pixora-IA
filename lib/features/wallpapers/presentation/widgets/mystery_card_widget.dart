@@ -122,6 +122,25 @@ class _MysteryCardWidgetState extends State<MysteryCardWidget>
       await _flipCtrl.forward();
       widget.onRevealed?.call();
       _autoHideTimer = Timer(_autoHideAfter, _hideBackToMystery);
+      // 2026-07-04 — Eduardo: monetizar cada reveal, no solo los bonus.
+      // AdService alterna 1-yes/2-no internamente (ver ad_service.dart)
+      // así que en promedio ~50% de reveals disparan ad real. El
+      // interstitial de AdMob YA trae X para cerrar. Silent fail si
+      // no cargó — nunca penalizar al user por ad no disponible.
+      _showRevealAd();
+    }
+  }
+
+  Future<void> _showRevealAd() async {
+    if (!mounted) return;
+    try {
+      await AdService.instance.showInterstitialAd(
+        placement: 'mystery_reveal',
+        wallpaperId: widget.wallpaperId,
+        onAdDismissed: () {},
+      );
+    } catch (_) {
+      // Silent fail — el wallpaper ya se reveló, el ad es upside.
     }
   }
 
