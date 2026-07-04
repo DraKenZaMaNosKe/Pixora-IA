@@ -610,12 +610,27 @@ class Handler(BaseHTTPRequestHandler):
         path = urllib.parse.urlparse(self.path).path
         query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
 
+        # 2026-07-04 — Darkroom is the new default. The old dashboard
+        # stays available at /legacy so we can still access Text CMS
+        # and Reportes UI while those get migrated.
         if path in ("/", "/index.html"):
+            try:
+                body = (DASHBOARD_DIR / "darkroom.html").read_bytes()
+                return self._send(200, "text/html; charset=utf-8", body)
+            except FileNotFoundError:
+                # Fallback to legacy if darkroom is missing
+                try:
+                    body = DASHBOARD_HTML.read_bytes()
+                    return self._send(200, "text/html; charset=utf-8", body)
+                except FileNotFoundError:
+                    return self._send(404, "text/plain", b"no dashboard html found")
+
+        if path == "/legacy":
             try:
                 body = DASHBOARD_HTML.read_bytes()
                 return self._send(200, "text/html; charset=utf-8", body)
             except FileNotFoundError:
-                return self._send(404, "text/plain", b"dashboard html not found")
+                return self._send(404, "text/plain", b"legacy dashboard not found")
 
         # Sprite editor — visual drag/resize tool for canvas_scene sprites
         if path == "/sprite-editor.html":
@@ -624,6 +639,35 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, "text/html; charset=utf-8", body)
             except FileNotFoundError:
                 return self._send(404, "text/plain", b"sprite-editor.html not found")
+
+        # Darkroom rework — new admin UI for wallpaper management (2026-07-04)
+        if path == "/darkroom.html":
+            try:
+                body = (DASHBOARD_DIR / "darkroom.html").read_bytes()
+                return self._send(200, "text/html; charset=utf-8", body)
+            except FileNotFoundError:
+                return self._send(404, "text/plain", b"darkroom.html not found")
+
+        # Darkroom image assets (safelight, parchment, hero background, etc.)
+        # Serves anything under /img/ from dashboard/img/ with mime detection.
+        if path.startswith("/img/") and not path.endswith("/"):
+            fname = path[len("/img/"):]
+            if "/" in fname or ".." in fname:
+                return self._send(400, "text/plain", b"invalid asset path")
+            asset = DASHBOARD_DIR / "img" / fname
+            if not asset.is_file():
+                return self._send(404, "text/plain", b"asset not found")
+            ext = asset.suffix.lower()
+            mime = {
+                ".webp": "image/webp",
+                ".png":  "image/png",
+                ".jpg":  "image/jpeg",
+                ".jpeg": "image/jpeg",
+                ".svg":  "image/svg+xml",
+                ".gif":  "image/gif",
+            }.get(ext, "application/octet-stream")
+            return self._send(200, mime, asset.read_bytes(),
+                              extra_headers={"Cache-Control": "public, max-age=3600"})
 
         # Explicit support for editor support modules (ES modules loaded by sprite-editor.html)
         # These must be served from root because of how the HTML is loaded at /sprite-editor.html
@@ -758,6 +802,67 @@ class Handler(BaseHTTPRequestHandler):
                 f"wallpaper_events?select=id,ts,device_id,user_id,wallpaper_id,event_type,app_version&order=ts.desc&limit={limit}"
             )
             return self._send_json(data, status)
+
+        # ─── ALL content directly from Postgres (bypass catalog JSON) ──
+        # Reads the wallpapers table directly so we surface every row
+        # regardless of whether its type has a matching catalog JSON in
+        # Storage. Solves the "panoramicos invisibles" bug — panoramicos
+        # live only in Postgres (no separate JSON), so admin never saw
+        # them until now. Ordered created_at DESC so newest content is
+        # always on top. Optional ?type=static,live,panoramic,canvas_scene
+        # filter, no pagination by default (infinite scroll on client).
+        # 2026-07-04.
+        if path == "/api/all-wallpapers":
+            types_param = query.get("type", [""])[0].strip()
+            limit = int(query.get("limit", ["500"])[0])
+            offset = int(query.get("offset", ["0"])[0])
+            search = query.get("q", [""])[0].strip().lower()
+
+            # Build type filter
+            type_filter = ""
+            if types_param:
+                type_list = ",".join(t.strip() for t in types_param.split(","))
+                type_filter = f"&type=in.({type_list})"
+
+            data, status = self._proxy(
+                f"wallpapers?select=id,name,description,type,category,tags,"
+                f"image_path,preview_path,glow_color,badge,featured,published,"
+                f"daily_eligible,author_name,media_width,media_height,"
+                f"created_at,updated_at,sort_order"
+                f"&order=created_at.desc&limit={limit}&offset={offset}{type_filter}"
+            )
+            if status >= 400 or not isinstance(data, list):
+                return self._send_json({"error": data}, status)
+
+            # Enrich con URLs de preview + client-side search filter
+            for w in data:
+                if w.get("preview_path"):
+                    w["preview_url"] = (
+                        f"{SUPABASE_STORAGE}/object/public/"
+                        f"wallpaper-images/{w['preview_path']}"
+                    )
+                if w.get("image_path"):
+                    w["image_url"] = (
+                        f"{SUPABASE_STORAGE}/object/public/"
+                        f"wallpaper-images/{w['image_path']}"
+                    )
+            if search:
+                data = [
+                    w for w in data
+                    if search in (w.get("name") or "").lower()
+                    or search in (w.get("id") or "").lower()
+                    or search in (w.get("description") or "").lower()
+                    or any(search in (t or "").lower() for t in (w.get("tags") or []))
+                ]
+            return self._send_json({
+                "total": len(data),
+                "offset": offset,
+                "limit": limit,
+                "items": data,
+            }, 200)
+
+        # Note: /api/wallpaper-update-pg is a POST endpoint — it lives
+        # in do_POST below, not here.
 
         # ─── Active devices analytics (testers monitoring) ────────
         # Devices únicos con events en la ventana ?days=N. Cross-check
@@ -1520,6 +1625,59 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
+
+        # ─── Update wallpaper metadata directly in Postgres ────────
+        # Simple edit endpoint that touches ONLY Postgres for any
+        # wallpapers row (static/live/panoramic/canvas_scene). Fields
+        # allowed: name, description, tags, glow_color, badge, category,
+        # featured, published, daily_eligible. 2026-07-04 — for /TODOS
+        # admin view inline edit. Uses PATCH with Prefer=representation
+        # so the updated row comes back for verification.
+        if path == "/api/wallpaper-update-pg":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            wid = payload.get("id")
+            fields = payload.get("fields", {})
+            if not wid or not isinstance(fields, dict) or not fields:
+                return self._send_json({"error": "id + fields required"}, 400)
+            allowed = {"name", "description", "tags", "glow_color", "badge",
+                       "category", "featured", "published", "daily_eligible"}
+            clean = {k: v for k, v in fields.items() if k in allowed}
+            if not clean:
+                return self._send_json({"error": "no allowed fields"}, 400)
+
+            patch_url = (
+                f"{SUPABASE_REST}/wallpapers?id=eq."
+                f"{urllib.parse.quote(wid)}"
+            )
+            patch_body = json.dumps(clean).encode("utf-8")
+            req = urllib.request.Request(patch_url, data=patch_body, method="PATCH")
+            req.add_header("apikey", SERVICE_KEY)
+            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+            req.add_header("Content-Type", "application/json")
+            req.add_header("Prefer", "return=representation")
+            try:
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    data = json.loads(r.read().decode("utf-8") or "[]")
+                    status = r.status
+            except urllib.error.HTTPError as e:
+                data = {"error": e.read().decode()[:500]}
+                status = e.code
+            try:
+                pushed = _fcm_push_catalog_invalidate("wallpapers")
+            except Exception:
+                pushed = False
+            return self._send_json({
+                "id": wid,
+                "updated_fields": list(clean.keys()),
+                "postgres_status": status,
+                "postgres_response": data,
+                "fcm_pushed": pushed,
+            }, status if status < 400 else 500)
 
         # 2026-06-20 — Resolve a moderation report (Google Play AI policy).
         # Body: {id: uuid, status: "removed"|"reviewed"|"dismissed", admin_notes?: str}

@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixora · Cuarto de Revelado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Redaction:wght@400;700&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+
+<style>
+:root{
+  --void:#0B0507;
+  --void-2:#150A0B;
+  --safelight-dim:#4A0D0D;
+  --safelight:#8B1E1E;
+  --safelight-glow:#C93A2A;
+  --ember:#E85A3C;
+  --kraft:#D4B896;
+  --parchment:#EDD7A8;
+  --parchment-2:#E4C892;
+  --ink:#2A1F1A;
+  --ink-soft:rgba(42,31,26,.6);
+  --gilt:#B08641;
+  --wire:#7A6952;
+  --wood:#5C4A3A;
+  --wood-2:#8B6F47;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+
+body{
+  background:var(--void);
+  color:var(--kraft);
+  font-family:'Newsreader',Georgia,serif;
+  font-weight:300;
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+  /* Procedural darkroom ambient — replaced by darkroom_hero.webp when it arrives */
+  background:
+    radial-gradient(ellipse 40% 60% at 88% 12%, rgba(201,58,42,.28), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 15% 90%, rgba(139,30,30,.15), transparent 60%),
+    radial-gradient(ellipse 100% 60% at 50% 100%, rgba(11,5,7,1), transparent 40%),
+    linear-gradient(180deg, #0e0608 0%, #0a0507 60%, #050203 100%);
+}
+
+/* Faint concrete-wall grain */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+  background-image:
+    repeating-radial-gradient(circle at 20% 30%, rgba(160,110,90,.02) 0, rgba(160,110,90,.02) 1px, transparent 1px, transparent 3px),
+    repeating-linear-gradient(72deg, rgba(215,184,150,.015) 0 2px, transparent 2px 6px);
+  mix-blend-mode:overlay;
+}
+
+/* ============== SAFELIGHT SIGNATURE ============== */
+.safelight{
+  position:fixed;top:24px;right:80px;width:140px;height:220px;z-index:80;
+  pointer-events:none;
+}
+.safelight svg{width:100%;height:100%;filter:drop-shadow(0 0 40px rgba(232,90,60,.55))}
+.safelight-halo{
+  position:fixed;top:-40px;right:-40px;width:520px;height:520px;
+  background:radial-gradient(circle at 32% 26%, rgba(232,90,60,.35) 0%, rgba(201,58,42,.12) 30%, transparent 55%);
+  filter:blur(20px);pointer-events:none;z-index:2;
+  animation:breathe 5s ease-in-out infinite;
+}
+@keyframes breathe{
+  0%,100%{opacity:.85;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.04)}
+}
+.safelight.flash + .safelight-halo,.safelight-halo.flash{
+  animation:flash .6s ease-out;
+}
+@keyframes flash{
+  0%{opacity:.85;transform:scale(1)}
+  30%{opacity:1;transform:scale(1.5);filter:blur(6px)}
+  100%{opacity:.85;transform:scale(1);filter:blur(20px)}
+}
+
+/* ============== TOP SHELF (nav) ============== */
+.shelf{
+  position:sticky;top:0;z-index:60;
+  padding:22px 60px 20px;
+  background:
+    linear-gradient(180deg, rgba(20,10,10,.85), rgba(20,10,10,.55) 70%, transparent);
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid rgba(215,184,150,.08);
+  display:flex;align-items:center;gap:32px;
+}
+.brand{
+  font-family:'Redaction',serif;font-weight:700;font-size:22px;letter-spacing:6px;
+  color:var(--parchment);
+}
+.brand em{color:var(--safelight-glow);font-style:normal}
+
+.tabs{display:flex;gap:4px;flex:1}
+.tab{
+  padding:8px 18px;background:transparent;border:none;cursor:pointer;
+  font-family:'Caveat',cursive;font-size:20px;color:var(--kraft);
+  opacity:.55;transition:opacity .2s,transform .2s;
+  transform-origin:center bottom;
+}
+.tab:hover{opacity:.9;transform:translateY(-1px)}
+.tab.active{
+  opacity:1;color:var(--parchment);
+  text-decoration:underline;text-decoration-color:var(--safelight-glow);
+  text-decoration-thickness:2px;text-underline-offset:6px;
+}
+
+.loupe{
+  width:44px;height:44px;border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 30%, #7a6952, #2a1f1a);
+  border:3px solid var(--wood-2);
+  box-shadow:0 6px 14px rgba(0,0,0,.6), inset 0 0 12px rgba(0,0,0,.6);
+  cursor:pointer;position:relative;
+  transition:transform .15s;
+}
+.loupe::after{content:"";position:absolute;bottom:-14px;right:-10px;width:20px;height:6px;background:var(--wood);border-radius:2px;transform:rotate(45deg);box-shadow:0 2px 4px rgba(0,0,0,.6)}
+.loupe:hover{transform:scale(1.05)}
+
+/* ============== ROOM TITLE ============== */
+.room-title{
+  padding:44px 60px 12px;position:relative;z-index:5;
+}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:6px;
+  color:var(--safelight-glow);text-transform:uppercase;margin:0 0 12px;
+}
+.title{
+  font-family:'Redaction',serif;font-weight:700;font-size:64px;line-height:.95;
+  color:var(--parchment);margin:0 0 8px;letter-spacing:-1px;
+}
+.subtitle{
+  font-family:'Caveat',cursive;font-size:24px;color:var(--kraft);
+  opacity:.7;transform:rotate(-1.2deg);display:inline-block;margin:0;
+}
+
+/* ============== SEARCH LINE (typewriter feel) ============== */
+.search-line{
+  display:flex;align-items:center;gap:16px;
+  padding:20px 60px 8px;position:relative;z-index:5;
+}
+.search-input{
+  flex:1;max-width:520px;
+  background:transparent;border:none;
+  border-bottom:1px dashed rgba(215,184,150,.35);
+  padding:10px 4px;
+  font-family:'Newsreader',serif;font-size:20px;color:var(--parchment);
+  outline:none;transition:border-bottom .2s;
+}
+.search-input::placeholder{color:rgba(215,184,150,.35);font-style:italic}
+.search-input:focus{border-bottom-color:var(--safelight-glow);border-bottom-style:solid}
+
+.session-clock{
+  margin-left:auto;
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--kraft);opacity:.5;letter-spacing:2px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
+}
+.session-clock em{color:var(--safelight-glow);font-style:normal}
+
+/* ============== CANISTERS (category filter, floating left) ============== */
+.canisters{
+  position:fixed;left:24px;top:260px;z-index:40;
+  display:flex;flex-direction:column;gap:14px;
+}
+.canister{
+  position:relative;width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, #8a7863, #2a1f1a 70%);
+  border:3px solid #3b2d24;
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.7),
+    inset 0 -4px 8px rgba(0,0,0,.6),
+    inset 0 3px 6px rgba(215,184,150,.08);
+  cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;
+}
+.canister::before{
+  content:"";position:absolute;inset:12px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%, #4a3d30, #1a120e);
+  box-shadow:inset 0 0 8px rgba(0,0,0,.7);
+}
+.canister::after{
+  content:attr(data-count);
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--kraft);
+  font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,1);
+}
+.canister-label{
+  position:absolute;left:78px;top:50%;transform:translateY(-50%);
+  font-family:'Caveat',cursive;font-size:18px;color:var(--kraft);
+  white-space:nowrap;opacity:.75;pointer-events:none;
+  text-shadow:0 1px 2px rgba(0,0,0,.9);
+}
+.canister:hover{transform:translateX(4px)}
+.canister:hover .canister-label{opacity:1}
+.canister.active{
+  border-color:var(--gilt);
+  box-shadow:
+    0 0 0 2px var(--safelight-glow),
+    0 8px 20px rgba(232,90,60,.4),
+    inset 0 -4px 8px rgba(0,0,0,.6);
+}
+.canister.active .canister-label{color:var(--parchment);opacity:1}
+
+/* ============== ROOM (wires with polaroids) ============== */
+.room{
+  padding:24px 60px 60px 130px;
+  position:relative;z-index:4;
+}
+
+.wire-row{position:relative;margin:74px 0 40px}
+
+.wire-tag{
+  position:absolute;top:-18px;left:12px;z-index:8;
+  font-family:'Caveat',cursive;font-weight:600;font-size:26px;
+  color:var(--kraft);transform:rotate(-3deg);
+}
+.wire-tag em{color:var(--safelight-glow);font-style:normal;font-size:14px;margin-left:8px}
+
+/* The actual wire */
+.wire{
+  position:relative;height:2px;
+  background:linear-gradient(180deg, #a8927a 0%, var(--wire) 45%, #4a3d30 100%);
+  box-shadow:0 2px 3px rgba(0,0,0,.7);
+  border-radius:1px;
+  /* Sag curve using border-radius trick */
+  transform:perspective(600px) rotateX(1deg);
+  margin:0 20px;
+}
+.wire::before,.wire::after{
+  content:"";position:absolute;top:-6px;width:14px;height:14px;
+  background:radial-gradient(circle at 35% 30%, #d4a355, var(--gilt) 50%, #6e4f22 100%);
+  border-radius:50%;
+  box-shadow:0 3px 5px rgba(0,0,0,.7), inset 0 -2px 3px rgba(0,0,0,.5);
+}
+.wire::before{left:-8px}
+.wire::after{right:-8px}
+
+/* Polaroid strip riding on the wire */
+.strip{
+  display:flex;gap:30px;padding:0 40px;margin-top:-2px;
+  overflow-x:auto;overflow-y:visible;
+  scrollbar-width:thin;scrollbar-color:var(--wood) transparent;
+  padding-top:24px;padding-bottom:20px;
+}
+.strip::-webkit-scrollbar{height:6px}
+.strip::-webkit-scrollbar-thumb{background:var(--wood);border-radius:3px}
+
+.polaroid{
+  --sway:1.2deg;
+  --delay:0s;
+  flex:0 0 200px;
+  position:relative;
+  padding:12px 12px 40px;
+  background:linear-gradient(180deg, #F5F0E5 0%, #EFE8D6 100%);
+  box-shadow:
+    0 12px 20px rgba(0,0,0,.6),
+    0 4px 8px rgba(0,0,0,.4),
+    inset 0 0 0 1px rgba(0,0,0,.06);
+  transform-origin:top center;
+  animation:sway 5s ease-in-out infinite;
+  animation-delay:var(--delay);
+  cursor:pointer;
+  transition:box-shadow .25s, filter .25s;
+  z-index:5;
+}
+.polaroid:nth-child(2n){--sway:-0.9deg;--delay:-1.7s}
+.polaroid:nth-child(3n){--sway:1.4deg;--delay:-3.1s}
+.polaroid:nth-child(5n){--sway:-1.1deg;--delay:-2.4s}
+.polaroid:nth-child(7n){--sway:0.7deg;--delay:-4.2s}
+
+@keyframes sway{
+  0%,100%{transform:rotate(calc(var(--sway) * -0.6))}
+  50%{transform:rotate(var(--sway))}
+}
+
+.polaroid:hover{
+  z-index:20;
+  box-shadow:
+    0 24px 44px rgba(0,0,0,.75),
+    0 8px 16px rgba(0,0,0,.5),
+    0 0 40px rgba(232,90,60,.15);
+  filter:brightness(1.06);
+  animation-play-state:paused;
+}
+.polaroid:hover .clothespin{transform:translateX(-50%) rotate(-4deg)}
+
+.clothespin{
+  position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+  width:26px;height:38px;z-index:6;
+  transition:transform .2s;
+}
+.clothespin svg{width:100%;height:100%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+
+.polaroid-photo{
+  position:relative;width:100%;aspect-ratio:1;overflow:hidden;background:#111;
+}
+.polaroid-photo img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:contrast(.95) saturate(.88);
+}
+.polaroid-photo::after{
+  /* subtle vignette on print */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.35);
+}
+
+.polaroid-caption{
+  padding:8px 4px 0;text-align:center;color:var(--ink);
+}
+.polaroid-caption .name{
+  font-family:'Caveat',cursive;font-weight:600;font-size:16px;line-height:1.1;
+  color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.polaroid-caption .meta{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:rgba(42,31,26,.5);margin-top:3px;letter-spacing:1.5px;
+}
+
+.polaroid .type-chip{
+  position:absolute;top:6px;right:6px;
+  background:var(--ink);color:var(--parchment);
+  font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;
+  padding:2px 6px;border-radius:1px;
+  box-shadow:0 2px 4px rgba(0,0,0,.5);
+  font-weight:600;
+}
+.polaroid .type-chip.panoramic{background:#8a3d3d}
+.polaroid .type-chip.live{background:#8a1e1e}
+.polaroid .type-chip.canvas_scene{background:#5c4a3a}
+
+.polaroid.new::before{
+  content:"NUEVO";
+  position:absolute;top:-8px;right:-8px;z-index:7;
+  font-family:'Redaction',serif;font-weight:700;font-size:10px;letter-spacing:2px;
+  background:var(--safelight-glow);color:#fff;
+  padding:4px 8px;border-radius:1px;transform:rotate(6deg);
+  box-shadow:0 4px 8px rgba(232,90,60,.5), 0 2px 4px rgba(0,0,0,.6);
+}
+
+/* Develop-in effect for freshly loaded polaroids */
+.polaroid.developing .polaroid-photo{background:#F5F0E5}
+.polaroid.developing .polaroid-photo img{
+  animation:develop 1.4s ease-out;
+}
+@keyframes develop{
+  0%{opacity:0;filter:invert(.85) sepia(1) contrast(1.4)}
+  35%{opacity:.7;filter:sepia(.6) contrast(1.15)}
+  100%{opacity:1;filter:contrast(.95) saturate(.88)}
+}
+
+/* ============== TRAYS (type filter, footer) ============== */
+.trays{
+  position:sticky;bottom:0;z-index:50;
+  display:grid;grid-template-columns:repeat(4, 1fr);gap:20px;
+  padding:26px 60px 32px 130px;
+  background:linear-gradient(0deg, rgba(10,5,7,.95) 30%, transparent);
+  backdrop-filter:blur(4px);
+  border-top:1px solid rgba(215,184,150,.08);
+}
+.tray{
+  position:relative;padding:14px 20px 12px;cursor:pointer;
+  background:
+    linear-gradient(180deg, #F0E9D8 0%, #E1D5B8 100%);
+  border-radius:2px;
+  box-shadow:
+    0 12px 24px rgba(0,0,0,.65),
+    0 0 0 1px rgba(0,0,0,.35),
+    inset 0 -6px 10px rgba(139,30,30,.10),
+    inset 0 3px 6px rgba(255,255,255,.15);
+  transition:transform .2s, box-shadow .2s;
+}
+.tray:hover{transform:translateY(-2px)}
+.tray.active{
+  transform:translateY(-6px);
+  box-shadow:
+    0 20px 36px rgba(232,90,60,.28),
+    0 4px 8px rgba(0,0,0,.6),
+    inset 0 -6px 10px rgba(139,30,30,.22),
+    inset 0 0 0 2px rgba(232,90,60,.55);
+}
+.tray-plaque{
+  font-family:'Redaction',serif;font-weight:700;font-size:14px;letter-spacing:5px;
+  color:var(--ink);text-align:center;padding:6px 0;
+  border-top:1px solid rgba(0,0,0,.15);border-bottom:1px solid rgba(0,0,0,.15);
+  background:linear-gradient(180deg,#c9a961 0%,#a08037 100%);
+  color:#2a1f1a;
+  box-shadow:inset 0 -2px 3px rgba(0,0,0,.35), inset 0 1px 2px rgba(255,255,255,.2);
+}
+.tray-count{
+  font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;
+  text-align:center;color:var(--safelight);
+  padding-top:8px;
+}
+.tray-meaning{
+  font-family:'Caveat',cursive;font-size:14px;color:var(--ink-soft);
+  text-align:center;margin-top:-2px;
+}
+
+/* ============== DUST ============== */
+.dust{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.dust span{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:rgba(232,180,140,.35);filter:blur(1px);
+  animation:drift linear infinite;
+}
+@keyframes drift{
+  from{transform:translate3d(0,110vh,0);opacity:0}
+  10%{opacity:.6}
+  90%{opacity:.6}
+  to{transform:translate3d(40px,-10vh,0);opacity:0}
+}
+
+/* ============== JOURNAL MODAL ============== */
+.journal-modal{
+  position:fixed;inset:0;z-index:200;display:none;
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center, rgba(11,5,7,.7) 0%, rgba(11,5,7,.95) 100%);
+  backdrop-filter:blur(10px);padding:32px;
+}
+.journal-modal.open{display:flex;animation:fadeIn .3s ease-out}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.journal{
+  position:relative;
+  display:grid;grid-template-columns:1fr 1.05fr;
+  width:min(1120px, 92vw);height:min(720px, 88vh);
+  background:
+    /* light color banding to fake paper fibers when parchment.webp isn't loaded */
+    repeating-linear-gradient(85deg, rgba(200,170,120,.06) 0 2px, transparent 2px 5px),
+    radial-gradient(circle at 20% 20%, rgba(218,180,120,.4), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(180,140,80,.3), transparent 45%),
+    linear-gradient(160deg, #F0DBA6 0%, #E4C892 60%, #D2AC72 100%);
+  box-shadow:
+    0 40px 100px rgba(0,0,0,.85),
+    0 0 0 6px var(--wood),
+    0 0 0 9px var(--wood-2);
+  border-radius:2px;
+  animation:openBook .55s cubic-bezier(.34,1.32,.6,1);
+  transform-origin:center left;
+}
+@keyframes openBook{
+  0%{transform:perspective(1400px) rotateY(-30deg) scale(.94);opacity:0}
+  100%{transform:perspective(1400px) rotateY(0deg) scale(1);opacity:1}
+}
+
+.journal::before{
+  /* Spine crease */
+  content:"";position:absolute;top:0;bottom:0;left:50%;width:40px;transform:translateX(-50%);
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(70,50,30,.25) 45%, rgba(70,50,30,.35) 50%, rgba(70,50,30,.25) 55%, transparent 100%);
+  pointer-events:none;
+}
+.journal::after{
+  /* Bookmark ribbon */
+  content:"";position:absolute;top:-4px;right:80px;width:26px;height:120px;
+  background:linear-gradient(180deg, var(--safelight-glow) 0%, var(--safelight) 100%);
+  box-shadow:0 4px 8px rgba(0,0,0,.5);
+  clip-path:polygon(0 0, 100% 0, 100% 100%, 50% 88%, 0 100%);
+}
+
+.page{padding:50px 46px;overflow-y:auto;color:var(--ink);position:relative;z-index:1}
+.page-left{border-right:1px dashed rgba(90,60,30,.2)}
+
+.page-title{
+  font-family:'Redaction',serif;font-weight:700;font-size:32px;line-height:1;
+  color:var(--ink);margin:0 0 4px;letter-spacing:-.5px;
+}
+.page-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:4px;
+  color:var(--safelight);text-transform:uppercase;margin:0 0 20px;
+}
+
+.pinned-photo{
+  position:relative;transform:rotate(-2.5deg);
+  padding:10px 10px 32px;background:#F8F2E4;
+  box-shadow:
+    0 12px 24px rgba(60,30,10,.35),
+    inset 0 0 0 1px rgba(0,0,0,.08);
+  margin:8px 20px 24px;
+}
+.pinned-photo img{width:100%;aspect-ratio:1;object-fit:cover;display:block;filter:contrast(.95) saturate(.88)}
+.pinned-photo-caption{
+  padding-top:8px;text-align:center;
+  font-family:'Caveat',cursive;font-size:18px;color:var(--ink);
+}
+
+.wax{
+  position:absolute;bottom:-18px;right:-14px;
+  width:56px;height:56px;
+  background:
+    radial-gradient(circle at 40% 35%, #E85A3C 0%, #8B1E1E 60%, #4A0D0D 100%);
+  border-radius:50%;
+  box-shadow:0 4px 10px rgba(0,0,0,.6), inset 0 -3px 8px rgba(0,0,0,.5), inset 0 3px 6px rgba(255,150,120,.3);
+  transform:rotate(-14deg);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(0,0,0,.4);font-family:'Redaction',serif;font-weight:700;font-size:20px;
+  letter-spacing:1px;
+}
+
+.margin-note{
+  font-family:'Caveat',cursive;font-size:16px;color:var(--ink-soft);
+  padding-left:20px;border-left:2px solid rgba(139,30,30,.25);
+  margin:24px 8px 0;
+}
+
+.field{margin-bottom:22px}
+.field-label{
+  display:block;font-family:'Caveat',cursive;font-size:18px;color:var(--ink-soft);
+  margin-bottom:2px;
+}
+.field-label em{color:var(--safelight);font-style:normal;font-size:12px;margin-left:8px;font-family:'JetBrains Mono',monospace;letter-spacing:2px}
+
+.field-input,.field-textarea{
+  width:100%;border:none;background:transparent;
+  border-bottom:1px dashed rgba(42,31,26,.35);
+  padding:6px 2px;
+  font-family:'Newsreader',serif;font-size:17px;color:var(--ink);
+  outline:none;transition:border-bottom .2s;
+}
+.field-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field-input:focus,.field-textarea:focus{
+  border-bottom:1.5px solid var(--safelight);
+}
+
+.field-toggles{
+  display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;
+}
+.toggle{
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  padding:6px 12px;border:1.5px dashed rgba(42,31,26,.3);border-radius:2px;
+  font-family:'Caveat',cursive;font-size:17px;color:var(--ink-soft);
+  transition:all .15s;
+}
+.toggle input{margin:0}
+.toggle:has(input:checked){
+  border-style:solid;border-color:var(--safelight);color:var(--ink);
+  background:rgba(232,90,60,.06);
+}
+
+.stamps{
+  display:flex;gap:16px;justify-content:flex-end;margin-top:28px;
+  padding-top:20px;border-top:1px dashed rgba(42,31,26,.2);
+}
+.stamp{
+  border:3px double currentColor;padding:8px 22px;
+  font-family:'Redaction',serif;font-weight:700;font-size:16px;letter-spacing:5px;
+  background:transparent;cursor:pointer;transition:all .15s;
+}
+.stamp-approve{color:var(--safelight);transform:rotate(-2deg)}
+.stamp-approve:hover{background:var(--safelight);color:var(--parchment);transform:rotate(-2deg) scale(1.04)}
+.stamp-reject{color:rgba(42,31,26,.5);transform:rotate(1.5deg)}
+.stamp-reject:hover{background:var(--ink);color:var(--parchment)}
+
+.stamp:disabled{opacity:.35;cursor:not-allowed}
+
+.save-note{
+  font-family:'Caveat',cursive;font-size:16px;color:var(--ink-soft);
+  margin-top:12px;text-align:right;min-height:20px;
+}
+.save-note.ok{color:#5a7a3a}
+.save-note.err{color:var(--safelight)}
+
+/* ============== EMPTY / LOADING ============== */
+.empty-strip{
+  padding:40px 60px;color:var(--kraft);opacity:.5;font-family:'Caveat',cursive;font-size:20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Ambient: safelight signature + halo + dust -->
+<div class="safelight-halo" id="safelight-halo"></div>
+<div class="safelight" id="safelight" aria-hidden="true">
+  <svg viewBox="0 0 140 220">
+    <!-- Cord -->
+    <path d="M70 0 L70 90" stroke="#2a1a12" stroke-width="3"/>
+    <!-- Fixture cap -->
+    <ellipse cx="70" cy="95" rx="24" ry="10" fill="#1a0f0a"/>
+    <rect x="46" y="90" width="48" height="18" rx="3" fill="#2a1a12"/>
+    <!-- Bulb -->
+    <ellipse cx="70" cy="150" rx="42" ry="52" fill="url(#bulbGrad)"/>
+    <ellipse cx="60" cy="140" rx="14" ry="18" fill="rgba(255,180,140,.55)"/>
+    <defs>
+      <radialGradient id="bulbGrad" cx="0.4" cy="0.3" r="0.8">
+        <stop offset="0%" stop-color="#ffb397"/>
+        <stop offset="45%" stop-color="#e85a3c"/>
+        <stop offset="100%" stop-color="#6e1717"/>
+      </radialGradient>
+    </defs>
+  </svg>
+</div>
+
+<div class="dust" id="dust"></div>
+
+<!-- Top shelf: nav + loupe -->
+<header class="shelf">
+  <div class="brand">PIX<em>·</em>ORA <em>·</em> ADMIN</div>
+  <nav class="tabs">
+    <button class="tab">Resumen</button>
+    <button class="tab active">Revelado</button>
+    <button class="tab">Ingresos</button>
+    <button class="tab">Usuarios</button>
+    <button class="tab">Eventos</button>
+    <button class="tab">Textos</button>
+  </nav>
+  <div class="loupe" title="Buscar"></div>
+</header>
+
+<!-- Room title -->
+<div class="room-title">
+  <p class="eyebrow">CUARTO OSCURO · 04.07.2026</p>
+  <h1 class="title">Revelado</h1>
+  <p class="subtitle">— colgamos las fotos que salieron esta semana</p>
+</div>
+
+<!-- Search + session clock -->
+<div class="search-line">
+  <input class="search-input" type="text" placeholder="filtra por nombre, id, categoría…" id="search-input">
+  <div class="session-clock">
+    <span>SESIÓN <em id="clock">00:00</em></span>
+    <span id="save-status">último guardado: —</span>
+  </div>
+</div>
+
+<!-- Film canisters -->
+<aside class="canisters" id="canisters">
+  <!-- populated by JS -->
+</aside>
+
+<!-- The room content: wires with polaroids -->
+<main class="room" id="room">
+  <div class="empty-strip">cargando negativos…</div>
+</main>
+
+<!-- Development trays (type filter) -->
+<footer class="trays" id="trays">
+  <div class="tray" data-type="static">
+    <div class="tray-plaque">REVELADO</div>
+    <div class="tray-count" id="count-static">0</div>
+    <div class="tray-meaning">estáticos</div>
+  </div>
+  <div class="tray" data-type="live">
+    <div class="tray-plaque">PARO</div>
+    <div class="tray-count" id="count-live">0</div>
+    <div class="tray-meaning">live · video</div>
+  </div>
+  <div class="tray" data-type="panoramic">
+    <div class="tray-plaque">FIJADOR</div>
+    <div class="tray-count" id="count-panoramic">0</div>
+    <div class="tray-meaning">panorámicos</div>
+  </div>
+  <div class="tray" data-type="canvas_scene">
+    <div class="tray-plaque">LAVADO</div>
+    <div class="tray-count" id="count-canvas_scene">0</div>
+    <div class="tray-meaning">canvas · scenes</div>
+  </div>
+</footer>
+
+<!-- Journal modal -->
+<div class="journal-modal" id="modal">
+  <div class="journal">
+    <div class="page page-left">
+      <p class="page-eyebrow" id="modal-id">ID · —</p>
+      <h2 class="page-title" id="modal-title">—</h2>
+      <div class="pinned-photo">
+        <img id="modal-img" alt="">
+        <div class="pinned-photo-caption" id="modal-caption">—</div>
+        <div class="wax" id="modal-wax">P</div>
+      </div>
+      <p class="margin-note" id="modal-note">añadido el —</p>
+    </div>
+    <div class="page page-right">
+      <p class="page-eyebrow">FICHA · edición</p>
+      <h2 class="page-title" style="font-size:22px;margin-bottom:24px">Nota del revelador</h2>
+
+      <div class="field">
+        <label class="field-label" for="edit-name">Nombre <em>NAME</em></label>
+        <input class="field-input" id="edit-name" type="text">
+      </div>
+      <div class="field">
+        <label class="field-label" for="edit-desc">Descripción <em>DESCRIPTION</em></label>
+        <textarea class="field-textarea" id="edit-desc" rows="4"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="edit-tags">Etiquetas <em>TAGS · coma</em></label>
+        <input class="field-input" id="edit-tags" type="text">
+      </div>
+      <div class="field">
+        <label class="field-label">Marcas de la ficha</label>
+        <div class="field-toggles">
+          <label class="toggle"><input type="checkbox" id="edit-featured"> destacado</label>
+          <label class="toggle"><input type="checkbox" id="edit-published"> publicado</label>
+          <label class="toggle"><input type="checkbox" id="edit-daily"> daily</label>
+        </div>
+      </div>
+
+      <div class="save-note" id="save-note"></div>
+      <div class="stamps">
+        <button class="stamp stamp-reject" id="btn-cancel">CERRAR</button>
+        <button class="stamp stamp-approve" id="btn-save">GUARDAR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Config — set window.PIXORA_LIVE = true to hit the real admin
+// API at 127.0.0.1:5758; leave false for standalone preview.
+// ============================================================
+const PIXORA_LIVE = window.PIXORA_LIVE === true;
+const API = 'http://127.0.0.1:5758';
+
+// SVG clothespin
+const CLOTHESPIN_SVG = `
+<svg viewBox="0 0 26 38">
+  <rect x="4" y="4" width="18" height="30" rx="3" fill="#8b6f47"/>
+  <rect x="4" y="4" width="18" height="30" rx="3" fill="url(#pinGrad)"/>
+  <line x1="13" y1="4" x2="13" y2="30" stroke="rgba(0,0,0,.55)" stroke-width="1"/>
+  <ellipse cx="13" cy="8" rx="4" ry="2.5" fill="#3a2e1e"/>
+  <defs>
+    <linearGradient id="pinGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(255,220,180,.35)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,.3)"/>
+    </linearGradient>
+  </defs>
+</svg>`;
+
+// ============================================================
+// Sample data — used when not live. 12 items across 3 categories
+// and 3 types so the page has substance for preview.
+// ============================================================
+const SAMPLE = [
+  {id:'pano_bosque_encantado', name:'Bosque Encantado', category:'PAISAJES', type:'panoramic', created_at:'2026-07-04T08:22:00Z', featured:true, published:true, daily_eligible:true, tags:['paisaje','bosque','magico'], description:'Bosque bioluminiscente con savia turquesa y rayos prismáticos.', img_seed:'forest1'},
+  {id:'pano_ciudad_flotante', name:'Ciudad Flotante', category:'PAISAJES', type:'panoramic', created_at:'2026-07-04T08:22:00Z', featured:true, published:true, daily_eligible:false, tags:['paisaje','ciudad','fantasia'], description:'Ciudad-cascada colgando del cielo al atardecer.', img_seed:'city1'},
+  {id:'pano_fiordo_artico', name:'Fiordo Ártico', category:'PAISAJES', type:'panoramic', created_at:'2026-07-03T18:10:00Z', featured:false, published:true, daily_eligible:true, tags:['paisaje','artico','auroras'], description:'Fiordo con auroras verdes y ballena espectral emergiendo.', img_seed:'arctic1'},
+  {id:'pano_templo_perdido', name:'Templo Perdido', category:'PAISAJES', type:'panoramic', created_at:'2026-07-03T14:00:00Z', featured:false, published:true, daily_eligible:false, tags:['paisaje','ruinas','selva'], description:'Ruinas devoradas por selva con rayos golden hour.', img_seed:'temple1'},
+  {id:'ryu_hadouken', name:'Ryu Hadouken', category:'VIDEOJUEGOS', type:'canvas_scene', created_at:'2026-06-30T12:00:00Z', featured:true, published:true, daily_eligible:false, tags:['videojuegos','streetfighter','anime'], description:'Ryu cargando su Hadouken con parallax cinematográfico.', img_seed:'ryu1'},
+  {id:'morrigan_darkstalkers', name:'Morrigan', category:'VIDEOJUEGOS', type:'canvas_scene', created_at:'2026-07-01T02:00:00Z', featured:true, published:true, daily_eligible:false, tags:['videojuegos','darkstalkers','gothic'], description:'Morrigan con animación de cabello swing en castillo gótico.', img_seed:'morrigan1'},
+  {id:'superman_luisa', name:'Superman + Luisa', category:'VIDEOJUEGOS', type:'canvas_scene', created_at:'2026-07-01T06:52:00Z', featured:true, published:true, daily_eligible:false, tags:['peliculas','superman','snyder'], description:'Superman cargando a Luisa entre llamas — Snyder cut vibes.', img_seed:'super1'},
+  {id:'pano_castillo_dimitrescu', name:'Castillo Dimitrescu', category:'VIDEOJUEGOS', type:'panoramic', created_at:'2026-07-04T09:00:00Z', featured:false, published:true, daily_eligible:false, tags:['videojuegos','re8','gotico'], description:'Castillo Dimitrescu al claro de luna.', img_seed:'dimitrescu1'},
+  {id:'pano_hyrule_field', name:'Campo de Hyrule', category:'VIDEOJUEGOS', type:'panoramic', created_at:'2026-07-04T09:00:00Z', featured:false, published:true, daily_eligible:false, tags:['videojuegos','zelda','ocarina'], description:'Link sobre Epona al atardecer.', img_seed:'hyrule1'},
+  {id:'pano_yggdrasil', name:'Yggdrasil', category:'MITOLOGÍA', type:'panoramic', created_at:'2026-07-04T08:22:00Z', featured:true, published:true, daily_eligible:true, tags:['mitologia','nordico','arbol'], description:'Yggdrasil el árbol cósmico entre los nueve reinos.', img_seed:'yggdrasil1'},
+  {id:'pano_tenochtitlan', name:'Tenochtitlan', category:'MITOLOGÍA', type:'panoramic', created_at:'2026-07-04T08:22:00Z', featured:true, published:true, daily_eligible:true, tags:['mitologia','azteca','quetzalcoatl'], description:'Tenochtitlán con Quetzalcóatl entre nubes al amanecer.', img_seed:'tenochtitlan1'},
+  {id:'pano_amaterasu', name:'Amaterasu', category:'MITOLOGÍA', type:'panoramic', created_at:'2026-07-04T08:22:00Z', featured:false, published:true, daily_eligible:true, tags:['mitologia','japon','sintoismo'], description:'Santuario sintoísta al amanecer con Amaterasu.', img_seed:'amaterasu1'},
+];
+
+function sampleImg(seed, w=400, h=400){
+  // Picsum returns a random-ish image; the seed keeps it stable across renders
+  return `https://picsum.photos/seed/${encodeURIComponent(seed)}/${w}/${h}`;
+}
+
+// ============================================================
+// State
+// ============================================================
+const state = {
+  all: [],       // full list
+  visible: [],   // after filters
+  filterType: null,  // null | 'static' | 'live' | 'panoramic' | 'canvas_scene'
+  filterCat: null,   // null | 'PAISAJES' | ...
+  query: '',
+  editing: null,     // wallpaper being edited
+};
+
+// ============================================================
+// Data load
+// ============================================================
+async function loadWallpapers(){
+  if(PIXORA_LIVE){
+    try{
+      const r = await fetch(`${API}/api/all-wallpapers?limit=1000`);
+      const d = await r.json();
+      state.all = (d.items || []).map(w => ({
+        ...w,
+        img: w.preview_url || w.image_url || sampleImg(w.id),
+      }));
+    }catch(e){
+      console.warn('live fetch failed, falling back to sample', e);
+      state.all = SAMPLE.map(w => ({...w, img: sampleImg(w.img_seed)}));
+    }
+  } else {
+    state.all = SAMPLE.map(w => ({...w, img: sampleImg(w.img_seed)}));
+  }
+  buildCanisters();
+  updateTrayCounts();
+  applyFilters();
+}
+
+// ============================================================
+// Filters: canisters (category) + trays (type) + search
+// ============================================================
+function buildCanisters(){
+  const cats = {};
+  for(const w of state.all){
+    const c = (w.category || 'SIN CAT').toUpperCase();
+    cats[c] = (cats[c] || 0) + 1;
+  }
+  const wrap = document.getElementById('canisters');
+  wrap.innerHTML = '';
+  // "todo" canister
+  wrap.appendChild(makeCanister(null, 'todo', state.all.length));
+  Object.entries(cats)
+    .sort((a,b) => b[1] - a[1])
+    .forEach(([cat, count]) => wrap.appendChild(makeCanister(cat, cat.toLowerCase(), count)));
+}
+
+function makeCanister(cat, label, count){
+  const el = document.createElement('div');
+  el.className = 'canister' + (state.filterCat === cat ? ' active' : '');
+  el.dataset.count = count;
+  el.dataset.cat = cat || '';
+  el.innerHTML = `<span class="canister-label">— ${label}</span>`;
+  el.addEventListener('click', () => {
+    state.filterCat = state.filterCat === cat ? null : cat;
+    buildCanisters();
+    applyFilters();
+  });
+  return el;
+}
+
+function updateTrayCounts(){
+  const counts = {static:0, live:0, panoramic:0, canvas_scene:0};
+  for(const w of state.all){
+    if(counts[w.type] !== undefined) counts[w.type]++;
+  }
+  Object.entries(counts).forEach(([k, v]) => {
+    document.getElementById(`count-${k}`).textContent = v;
+  });
+}
+
+function applyFilters(){
+  state.visible = state.all.filter(w => {
+    if(state.filterType && w.type !== state.filterType) return false;
+    if(state.filterCat && (w.category || '').toUpperCase() !== state.filterCat) return false;
+    if(state.query){
+      const q = state.query.toLowerCase();
+      const blob = [w.id, w.name, w.description, (w.tags||[]).join(' '), w.category]
+        .join(' ').toLowerCase();
+      if(!blob.includes(q)) return false;
+    }
+    return true;
+  });
+  render();
+}
+
+// ============================================================
+// Render — group by category, one wire per category
+// ============================================================
+function render(){
+  const room = document.getElementById('room');
+  if(state.visible.length === 0){
+    room.innerHTML = `<div class="empty-strip">— sin negativos que cuadren con estos filtros</div>`;
+    return;
+  }
+  const groups = {};
+  for(const w of state.visible){
+    const cat = w.category || 'SIN CATEGORÍA';
+    (groups[cat] = groups[cat] || []).push(w);
+  }
+  // Order categories by newest content first
+  const catOrder = Object.entries(groups)
+    .map(([cat, items]) => [cat, items, Math.max(...items.map(i => new Date(i.created_at || 0).getTime()))])
+    .sort((a,b) => b[2] - a[2])
+    .map(([cat]) => cat);
+
+  room.innerHTML = catOrder.map(cat => {
+    const items = groups[cat];
+    return `
+      <div class="wire-row">
+        <div class="wire-tag">— ${cat.toLowerCase()} <em>${items.length}</em></div>
+        <div class="wire"></div>
+        <div class="strip">
+          ${items.map(w => polaroidHTML(w)).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Bind clicks & entrance animation
+  room.querySelectorAll('.polaroid').forEach((el, i) => {
+    el.style.setProperty('--delay', `${(-i * 0.3) % 5}s`);
+    el.addEventListener('click', () => openEdit(el.dataset.id));
+    // develop-in only on first paint, staggered
+    el.classList.add('developing');
+    setTimeout(() => el.classList.remove('developing'), 1500 + i * 60);
+  });
+}
+
+function polaroidHTML(w){
+  const isNew = w.created_at && (Date.now() - new Date(w.created_at).getTime()) < 14 * 86400000;
+  const shortDate = w.created_at ? new Date(w.created_at).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit'}) : '';
+  return `
+    <div class="polaroid ${isNew ? 'new' : ''}" data-id="${escapeHtml(w.id)}">
+      <div class="clothespin">${CLOTHESPIN_SVG}</div>
+      <div class="type-chip ${w.type}">${(w.type||'').toUpperCase().slice(0,4)}</div>
+      <div class="polaroid-photo">
+        <img src="${w.img}" alt="" loading="lazy">
+      </div>
+      <div class="polaroid-caption">
+        <div class="name" title="${escapeHtml(w.name || w.id)}">${escapeHtml(w.name || w.id)}</div>
+        <div class="meta">${shortDate} · ${escapeHtml((w.category||'').slice(0,10))}</div>
+      </div>
+    </div>`;
+}
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+// ============================================================
+// Modal — journal open/close/save
+// ============================================================
+function openEdit(id){
+  const w = state.all.find(x => x.id === id);
+  if(!w) return;
+  state.editing = w;
+  document.getElementById('modal-id').textContent = 'ID · ' + w.id;
+  document.getElementById('modal-title').textContent = w.name || w.id;
+  document.getElementById('modal-img').src = w.img;
+  document.getElementById('modal-caption').textContent = w.name || w.id;
+  document.getElementById('modal-wax').textContent = (w.type || '?').charAt(0).toUpperCase();
+  document.getElementById('modal-note').textContent = w.created_at
+    ? 'añadido el ' + new Date(w.created_at).toLocaleDateString('es-MX', {day:'numeric', month:'long', year:'numeric'})
+    : 'sin fecha';
+  document.getElementById('edit-name').value = w.name || '';
+  document.getElementById('edit-desc').value = w.description || '';
+  document.getElementById('edit-tags').value = (w.tags || []).join(', ');
+  document.getElementById('edit-featured').checked = !!w.featured;
+  document.getElementById('edit-published').checked = !!w.published;
+  document.getElementById('edit-daily').checked = !!w.daily_eligible;
+  document.getElementById('save-note').textContent = '';
+  document.getElementById('save-note').className = 'save-note';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeEdit(){
+  document.getElementById('modal').classList.remove('open');
+  state.editing = null;
+}
+
+async function saveEdit(){
+  const w = state.editing;
+  if(!w) return;
+  const note = document.getElementById('save-note');
+  const btn = document.getElementById('btn-save');
+  const fields = {
+    name: document.getElementById('edit-name').value.trim(),
+    description: document.getElementById('edit-desc').value.trim(),
+    tags: document.getElementById('edit-tags').value.split(',').map(s=>s.trim()).filter(Boolean),
+    featured: document.getElementById('edit-featured').checked,
+    published: document.getElementById('edit-published').checked,
+    daily_eligible: document.getElementById('edit-daily').checked,
+  };
+
+  btn.disabled = true;
+  note.textContent = 'anotando en el diario…';
+  note.className = 'save-note';
+
+  if(PIXORA_LIVE){
+    try{
+      const r = await fetch(`${API}/api/wallpaper-update-pg`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({id: w.id, fields}),
+      });
+      const d = await r.json();
+      if(r.ok && d.postgres_status < 400){
+        note.textContent = '✓ guardado en Postgres · FCM ' + (d.fcm_pushed ? 'notificado' : 'omitido');
+        note.className = 'save-note ok';
+        Object.assign(w, fields);
+        flashSafelight();
+        setTimeout(closeEdit, 900);
+        setSaveStatus(new Date());
+      } else {
+        note.textContent = '× ' + (d.error || 'error desconocido');
+        note.className = 'save-note err';
+      }
+    } catch(e){
+      note.textContent = '× red: ' + e.message;
+      note.className = 'save-note err';
+    }
+  } else {
+    // Demo mode — just update local state
+    await new Promise(r => setTimeout(r, 600));
+    Object.assign(w, fields);
+    note.textContent = '✓ guardado (demo) · sin API';
+    note.className = 'save-note ok';
+    flashSafelight();
+    render();
+    setTimeout(closeEdit, 900);
+    setSaveStatus(new Date());
+  }
+  btn.disabled = false;
+}
+
+// ============================================================
+// Ambient effects — safelight flash + session clock + dust
+// ============================================================
+function flashSafelight(){
+  const halo = document.getElementById('safelight-halo');
+  halo.classList.remove('flash');
+  void halo.offsetWidth; // reflow
+  halo.classList.add('flash');
+}
+
+const started = Date.now();
+function tickClock(){
+  const elapsed = Math.floor((Date.now() - started) / 1000);
+  const m = String(Math.floor(elapsed/60)).padStart(2,'0');
+  const s = String(elapsed%60).padStart(2,'0');
+  document.getElementById('clock').textContent = `${m}:${s}`;
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+function setSaveStatus(when){
+  document.getElementById('save-status').textContent = 'último guardado: ' +
+    when.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
+}
+
+function seedDust(n=14){
+  const wrap = document.getElementById('dust');
+  for(let i=0;i<n;i++){
+    const d = document.createElement('span');
+    d.style.left = Math.random() * 100 + '%';
+    d.style.animationDuration = (18 + Math.random() * 16) + 's';
+    d.style.animationDelay = (-Math.random() * 20) + 's';
+    d.style.opacity = String(0.35 + Math.random() * 0.35);
+    wrap.appendChild(d);
+  }
+}
+
+// ============================================================
+// Wire up
+// ============================================================
+document.getElementById('search-input').addEventListener('input', (e) => {
+  state.query = e.target.value.trim();
+  applyFilters();
+});
+
+document.querySelectorAll('.tray').forEach(el => {
+  el.addEventListener('click', () => {
+    const t = el.dataset.type;
+    state.filterType = state.filterType === t ? null : t;
+    document.querySelectorAll('.tray').forEach(x => x.classList.toggle('active', x.dataset.type === state.filterType));
+    applyFilters();
+  });
+});
+
+document.getElementById('btn-save').addEventListener('click', saveEdit);
+document.getElementById('btn-cancel').addEventListener('click', closeEdit);
+document.getElementById('modal').addEventListener('click', (e) => {
+  if(e.target.id === 'modal') closeEdit();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && document.getElementById('modal').classList.contains('open')) closeEdit();
+});
+
+seedDust(16);
+loadWallpapers();
+</script>
+</body>
+</html>

@@ -1101,6 +1101,11 @@ button { white-space: nowrap; }
     <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">image</span>
     Wallpapers
   </button>
+  <button class="nav-btn" data-page="todos">
+    <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">grid_view</span>
+    Todos
+    <span id="nav-todos-count" style="display:none;background:#E6B655;color:#000;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:6px;font-weight:700;">0</span>
+  </button>
   <button class="nav-btn" data-page="tesoro">
     <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;">payments</span>
     Ingresos
@@ -1358,6 +1363,112 @@ button { white-space: nowrap; }
 
   </section>
   <!-- ════ /PAGE: ARMADURAS ══════════════════════════════════════════════════ -->
+
+
+  <!-- ════ PAGE: TODOS · vista all-in-one con edit inline ══════════════════ -->
+  <section class="page" data-page="todos">
+    <div class="section-title">
+      <span>Contenido completo · edición inline sin paginación</span>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+      <input type="text" id="todos-search" placeholder="Filtrar por nombre, id, descripción o tag…"
+             style="flex:1;min-width:280px;padding:10px 14px;background:var(--panel);border:1px solid #333;color:#fff;border-radius:8px;font-size:14px;">
+      <div id="todos-type-filters" style="display:flex;gap:6px;flex-wrap:wrap;">
+        <label class="todos-type" data-type=""><input type="checkbox" checked> TODO</label>
+        <label class="todos-type" data-type="static"><input type="checkbox"> STATIC</label>
+        <label class="todos-type" data-type="live"><input type="checkbox"> LIVE</label>
+        <label class="todos-type" data-type="panoramic"><input type="checkbox"> PANORAMIC</label>
+        <label class="todos-type" data-type="canvas_scene"><input type="checkbox"> CANVAS</label>
+      </div>
+      <button id="todos-refresh" class="page-btn" title="Recargar">
+        <span class="material-symbols-rounded" style="font-size:16px;">refresh</span>
+      </button>
+    </div>
+
+    <div class="panel">
+      <h3>
+        Todo el contenido
+        <span class="count" id="todos-total">--</span>
+        <span class="dim" style="font-size:11px;font-weight:400;margin-left:8px;">
+          ordenados por más recientes · tap una carta para editar
+        </span>
+      </h3>
+      <div id="todos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px;">
+        <div class="loading" style="grid-column:1/-1;padding:40px;text-align:center;">cargando…</div>
+      </div>
+      <div id="todos-loadmore" style="display:none;text-align:center;margin-top:16px;">
+        <button class="page-btn" id="todos-loadmore-btn" style="padding:10px 24px;">
+          Cargar más
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Edit modal for /TODOS view — inline metadata editor -->
+  <div id="todos-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--panel);border-radius:14px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 80px rgba(0,0,0,0.6);border:1px solid #444;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px;">
+        <div>
+          <h3 id="todos-edit-title" style="margin:0;font-size:18px;">Editar wallpaper</h3>
+          <div id="todos-edit-id" class="dim mono" style="font-size:11px;margin-top:4px;"></div>
+        </div>
+        <button id="todos-edit-close" class="page-btn" style="padding:6px 12px;">✕</button>
+      </div>
+      <img id="todos-edit-preview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" alt="">
+      <div style="display:grid;gap:14px;">
+        <label style="display:block;">
+          <div class="dim" style="font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:4px;">NOMBRE</div>
+          <input type="text" id="todos-edit-name" style="width:100%;padding:10px 14px;background:#1a1a24;border:1px solid #333;color:#fff;border-radius:6px;font-size:14px;">
+        </label>
+        <label style="display:block;">
+          <div class="dim" style="font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:4px;">DESCRIPCIÓN</div>
+          <textarea id="todos-edit-description" rows="4" style="width:100%;padding:10px 14px;background:#1a1a24;border:1px solid #333;color:#fff;border-radius:6px;font-size:14px;resize:vertical;"></textarea>
+        </label>
+        <label style="display:block;">
+          <div class="dim" style="font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:4px;">TAGS <span class="dim" style="font-weight:400;">(separados por coma)</span></div>
+          <input type="text" id="todos-edit-tags" style="width:100%;padding:10px 14px;background:#1a1a24;border:1px solid #333;color:#fff;border-radius:6px;font-size:14px;">
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="todos-edit-featured" style="width:16px;height:16px;">
+            Featured
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="todos-edit-published" style="width:16px;height:16px;">
+            Publicado
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="todos-edit-daily" style="width:16px;height:16px;">
+            Daily eligible
+          </label>
+        </div>
+        <div id="todos-edit-status" class="dim" style="font-size:12px;min-height:16px;"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+          <button id="todos-edit-cancel" class="page-btn" style="padding:10px 20px;">Cancelar</button>
+          <button id="todos-edit-save" class="primary" style="padding:10px 24px;background:var(--accent);color:#000;border:none;border-radius:6px;font-weight:700;cursor:pointer;">Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .todos-type { padding:6px 12px; background:transparent; border:1px solid #333; border-radius:6px; font-size:11px; letter-spacing:0.8px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+    .todos-type input { margin:0; width:14px; height:14px; }
+    .todos-type:has(input:checked) { border-color:var(--accent); color:var(--accent); background:rgba(230,182,85,0.08); }
+    .todos-card { position:relative; background:#1a1a24; border:1px solid #333; border-radius:10px; overflow:hidden; cursor:pointer; transition:transform 0.15s, border-color 0.15s; }
+    .todos-card:hover { transform:translateY(-2px); border-color:var(--accent); }
+    .todos-card img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:#000; }
+    .todos-card-body { padding:8px 10px; }
+    .todos-card-name { font-size:12px; font-weight:600; margin:0 0 3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .todos-card-meta { font-size:10px; color:var(--muted); display:flex; justify-content:space-between; }
+    .todos-badge { position:absolute; top:6px; left:6px; padding:2px 6px; font-size:9px; font-weight:700; border-radius:3px; letter-spacing:0.5px; }
+    .todos-badge.static { background:#3B82F6; color:#fff; }
+    .todos-badge.live { background:#EF4444; color:#fff; }
+    .todos-badge.panoramic { background:#EC4899; color:#fff; }
+    .todos-badge.canvas_scene { background:#8B5CF6; color:#fff; }
+    .todos-new-chip { position:absolute; top:6px; right:6px; padding:2px 6px; font-size:9px; font-weight:700; background:linear-gradient(135deg,#E6B655,#FFD66B); color:#000; border-radius:3px; box-shadow:0 0 6px rgba(230,182,85,0.5); }
+  </style>
 
 
   <!-- ════ PAGE: TESORO (ads + revenue) ═════════════════════════════════════ -->
@@ -3498,6 +3609,208 @@ bindEvents();
 wireEditPanel();
 refreshAll().then(doSearch);
 startAutoRefresh();
+
+// ============================================================
+// === TODOS view — all-content grid with inline edit ==========
+// ============================================================
+const Todos = {
+  items: [],           // current filtered list
+  allItems: [],        // full fetch result
+  page: 0,             // pages of 60 shown so far (progressive rendering)
+  PAGE_SIZE: 60,
+  types: new Set(),    // active type filters (empty = all)
+  search: '',
+  editingId: null,
+
+  async load() {
+    const params = new URLSearchParams();
+    if (this.types.size && !this.types.has('')) {
+      params.set('type', [...this.types].join(','));
+    }
+    if (this.search) params.set('q', this.search);
+    params.set('limit', '1000');
+    const res = await api('/api/all-wallpapers?' + params.toString());
+    if (!res || !Array.isArray(res.items)) return;
+    this.allItems = res.items;
+    this.items = res.items;
+    this.page = 0;
+    document.getElementById('todos-total').textContent = res.total.toLocaleString();
+    document.getElementById('nav-todos-count').textContent = res.total;
+    document.getElementById('nav-todos-count').style.display = res.total ? 'inline-block' : 'none';
+    this.render();
+  },
+
+  render() {
+    const grid = document.getElementById('todos-grid');
+    const shown = (this.page + 1) * this.PAGE_SIZE;
+    const slice = this.items.slice(0, shown);
+    grid.innerHTML = slice.map(w => this.card(w)).join('');
+    const btn = document.getElementById('todos-loadmore');
+    btn.style.display = this.items.length > shown ? 'block' : 'none';
+    // Bind card clicks
+    grid.querySelectorAll('.todos-card').forEach(el => {
+      el.addEventListener('click', () => this.openEdit(el.dataset.id));
+    });
+  },
+
+  card(w) {
+    const isNew = w.created_at && (Date.now() - new Date(w.created_at).getTime()) < 14 * 86400000;
+    const badge = w.type ? `<span class="todos-badge ${w.type}">${w.type.toUpperCase().replace('_',' ')}</span>` : '';
+    const newChip = isNew ? '<span class="todos-new-chip">NEW</span>' : '';
+    const previewSrc = w.preview_url || w.image_url || '';
+    const name = escapeHtml(w.name || w.id || '?');
+    const dateStr = w.created_at ? new Date(w.created_at).toLocaleDateString('es-MX', {day:'2-digit',month:'2-digit'}) : '';
+    return `
+      <div class="todos-card" data-id="${escapeHtml(w.id)}">
+        ${badge}${newChip}
+        <img src="${previewSrc}" alt="" loading="lazy" onerror="this.style.display='none'">
+        <div class="todos-card-body">
+          <div class="todos-card-name" title="${name}">${name}</div>
+          <div class="todos-card-meta"><span>${w.category || ''}</span><span>${dateStr}</span></div>
+        </div>
+      </div>`;
+  },
+
+  openEdit(wid) {
+    const w = this.allItems.find(x => x.id === wid);
+    if (!w) return;
+    this.editingId = wid;
+    document.getElementById('todos-edit-title').textContent = 'Editar: ' + (w.name || wid);
+    document.getElementById('todos-edit-id').textContent = wid + ' · ' + (w.type || '?');
+    document.getElementById('todos-edit-preview').src = w.preview_url || w.image_url || '';
+    document.getElementById('todos-edit-name').value = w.name || '';
+    document.getElementById('todos-edit-description').value = w.description || '';
+    document.getElementById('todos-edit-tags').value = (w.tags || []).join(', ');
+    document.getElementById('todos-edit-featured').checked = !!w.featured;
+    document.getElementById('todos-edit-published').checked = !!w.published;
+    document.getElementById('todos-edit-daily').checked = !!w.daily_eligible;
+    document.getElementById('todos-edit-status').textContent = '';
+    document.getElementById('todos-edit-modal').style.display = 'flex';
+  },
+
+  closeEdit() {
+    document.getElementById('todos-edit-modal').style.display = 'none';
+    this.editingId = null;
+  },
+
+  async save() {
+    if (!this.editingId) return;
+    const statusEl = document.getElementById('todos-edit-status');
+    statusEl.textContent = 'guardando...';
+    statusEl.style.color = 'var(--muted)';
+    const tagsRaw = document.getElementById('todos-edit-tags').value;
+    const tags = tagsRaw.split(',').map(s => s.trim()).filter(Boolean);
+    const fields = {
+      name: document.getElementById('todos-edit-name').value,
+      description: document.getElementById('todos-edit-description').value,
+      tags,
+      featured: document.getElementById('todos-edit-featured').checked,
+      published: document.getElementById('todos-edit-published').checked,
+      daily_eligible: document.getElementById('todos-edit-daily').checked,
+    };
+    try {
+      const res = await fetch('/api/wallpaper-update-pg', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: this.editingId, fields}),
+      });
+      const data = await res.json();
+      if (res.ok && data.postgres_status < 400) {
+        statusEl.textContent = '✅ guardado · FCM ' + (data.fcm_pushed ? 'pushed' : 'skipped');
+        statusEl.style.color = '#22c55e';
+        // Update local cache immediately
+        const item = this.allItems.find(x => x.id === this.editingId);
+        if (item) Object.assign(item, fields);
+        this.render();
+        setTimeout(() => this.closeEdit(), 900);
+      } else {
+        statusEl.textContent = '❌ error: ' + (data.error || data.postgres_response?.message || 'unknown');
+        statusEl.style.color = '#ef4444';
+      }
+    } catch (e) {
+      statusEl.textContent = '❌ network: ' + e.message;
+      statusEl.style.color = '#ef4444';
+    }
+  },
+
+  bindEvents() {
+    // Type filter checkboxes
+    document.querySelectorAll('#todos-type-filters .todos-type input').forEach(chk => {
+      chk.addEventListener('change', () => {
+        const label = chk.closest('.todos-type');
+        const type = label.dataset.type;
+        // "TODO" is exclusive — checking it clears all others; checking any specific unchecks TODO
+        if (type === '') {
+          if (chk.checked) {
+            document.querySelectorAll('#todos-type-filters .todos-type input').forEach(c => {
+              if (c !== chk) c.checked = false;
+            });
+            this.types.clear();
+          } else {
+            chk.checked = true; // TODO cannot be unchecked alone; user must pick specifics
+            return;
+          }
+        } else {
+          const todoChk = document.querySelector('#todos-type-filters .todos-type[data-type=""] input');
+          if (chk.checked && todoChk.checked) todoChk.checked = false;
+          this.types.clear();
+          document.querySelectorAll('#todos-type-filters .todos-type input:checked').forEach(c => {
+            const t = c.closest('.todos-type').dataset.type;
+            if (t) this.types.add(t);
+          });
+          if (this.types.size === 0) { todoChk.checked = true; }
+        }
+        this.load();
+      });
+    });
+    // Search input debounced
+    let searchTimer;
+    document.getElementById('todos-search').addEventListener('input', (e) => {
+      clearTimeout(searchTimer);
+      this.search = e.target.value.trim();
+      searchTimer = setTimeout(() => this.load(), 250);
+    });
+    document.getElementById('todos-refresh').addEventListener('click', () => this.load());
+    document.getElementById('todos-loadmore-btn').addEventListener('click', () => {
+      this.page++;
+      this.render();
+    });
+    // Modal
+    document.getElementById('todos-edit-close').addEventListener('click', () => this.closeEdit());
+    document.getElementById('todos-edit-cancel').addEventListener('click', () => this.closeEdit());
+    document.getElementById('todos-edit-save').addEventListener('click', () => this.save());
+    document.getElementById('todos-edit-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'todos-edit-modal') this.closeEdit();
+    });
+    // ESC closes
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.getElementById('todos-edit-modal').style.display === 'flex') {
+        this.closeEdit();
+      }
+    });
+  },
+
+  init() {
+    this.bindEvents();
+    this.load();
+  },
+};
+
+// escapeHtml helper — falls back to a simple version if not already defined
+if (typeof escapeHtml !== 'function') {
+  window.escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+// Lazy init when user first visits the TODOS tab
+let todosInitialized = false;
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.nav-btn[data-page="todos"]');
+  if (btn && !todosInitialized) {
+    todosInitialized = true;
+    setTimeout(() => Todos.init(), 100);
+  }
+});
 
 // === TEXTOS tab — Text CMS editor ===
 // var (not const) so it gets hoisted as `undefined` instead of sitting in TDZ —
