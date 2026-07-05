@@ -71,7 +71,8 @@ class OrbitController(def: SpriteDef, sheet: SpriteSheet) :
         // Moving right when angularSpeed * sin(angle) < 0
         val movingRight = angularSpeed * sin(angle.toDouble()) < 0
         sheet.drawAt(canvas, x, y,
-            scale = surfaceW * scale,
+            scale = SceneCoords.REFERENCE_SURFACE_W * scale *
+                SceneCoords.subjectFactor(surfaceW, surfaceH),
             flipX = flipFor(movingRight),
             alpha = alpha)
     }
@@ -101,7 +102,8 @@ class WanderController(def: SpriteDef, sheet: SpriteSheet) :
             val bx = surfaceW * p.first + ox
             val by = surfaceH * p.second + oy
             sheet.drawAt(canvas, bx, by,
-                scale = surfaceW * scale,
+                scale = SceneCoords.REFERENCE_SURFACE_W * scale *
+                SceneCoords.subjectFactor(surfaceW, surfaceH),
                 flipX = flipFor(i % 2 == 0),
                 alpha = alpha)
         }
@@ -130,7 +132,8 @@ class TranslateController(def: SpriteDef, sheet: SpriteSheet) :
         val x = (from.first + (to.first - from.first) * t) * surfaceW
         val y = (from.second + (to.second - from.second) * t) * surfaceH
         sheet.drawAt(canvas, x, y,
-            scale = surfaceW * scale,
+            scale = SceneCoords.REFERENCE_SURFACE_W * scale *
+                SceneCoords.subjectFactor(surfaceW, surfaceH),
             flipX = flipFor(movingRight),
             alpha = alpha)
     }
@@ -155,6 +158,12 @@ class StaticController(def: SpriteDef, sheet: SpriteSheet) :
     private val alpha = def.params.i("alpha", 255)
     private val flipX = def.params.b("flip_x", false)
     private val fullscreen = def.params.b("fullscreen", false)
+    // 2026-07-04 — offset in TARGET (1080×2340) pixels, scaled by
+    // subjectFactor at draw time. Lets a sprite inherit the same
+    // positioning nudge its parent image_layer received in the sprite
+    // editor (e.g. Morrigan hair follows Morrigan's +40/+166 offset).
+    private val offsetXPx = def.params.f("offset_x_px", 0f)
+    private val offsetYPx = def.params.f("offset_y_px", 0f)
 
     override fun draw(canvas: Canvas, surfaceW: Int, surfaceH: Int, tick: Long) {
         sheet.advance()
@@ -175,14 +184,22 @@ class StaticController(def: SpriteDef, sheet: SpriteSheet) :
             // Positioned sprite (e.g. Pikachu, chimenea fire) — pre-scale
             // the frames to their final on-screen size so per-frame draw
             // becomes a pure blit (no GPU bilinear filter, no matrix scale).
-            val finalScale = surfaceW * scale
+            //
+            // 2026-07-04 — scale by REFERENCE_W × subjectFactor so the sprite
+            // shrinks in sync with its subject on shorter viewports (Huawei
+            // 1920) instead of staying visually oversized. Same factor as
+            // image_layers use in CanvasSceneRenderer.ensureLayersPrescaled.
+            val factor = SceneCoords.subjectFactor(surfaceW, surfaceH)
+            val finalScale = SceneCoords.REFERENCE_SURFACE_W * scale * factor
             val targetW = (sheet.width * finalScale).toInt().coerceAtLeast(1)
             val targetH = (sheet.height * finalScale).toInt().coerceAtLeast(1)
             sheet.ensurePrescaled(targetW, targetH)
             val (drawCx, drawCy) = SceneCoords.spriteDrawCenter(
                 x, y, anchorX, anchorY, targetW, targetH, surfaceW, surfaceH,
             )
-            sheet.drawAt(canvas, drawCx, drawCy,
+            sheet.drawAt(canvas,
+                drawCx + offsetXPx * factor,
+                drawCy + offsetYPx * factor,
                 scale = finalScale,
                 flipX = flipX, alpha = alpha)
         }

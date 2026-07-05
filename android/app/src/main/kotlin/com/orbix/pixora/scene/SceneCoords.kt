@@ -18,6 +18,14 @@ object SceneCoords {
         layerScale: Float = 1f,
     ): Float = maxOf(surfaceW.toFloat() / bmpW, surfaceH.toFloat() / bmpH) * layerScale
 
+    /** 2026-07-04 — Universal subject-fit factor.
+     *  Compresses the REFERENCE (1080×2340) inside the current viewport
+     *  proportionally. All layers AND sprites should scale by this so their
+     *  composition stays locked cross-aspect (Samsung 2340 vs Huawei 1920). */
+    fun subjectFactor(surfaceW: Int, surfaceH: Int): Float =
+        minOf(surfaceW.toFloat() / REFERENCE_SURFACE_W,
+              surfaceH.toFloat() / REFERENCE_SURFACE_H)
+
     fun layerLeftTop(
         bmpW: Int,
         bmpH: Int,
@@ -49,8 +57,16 @@ object SceneCoords {
         surfaceW: Int,
         surfaceH: Int,
     ): Pair<Float, Float> {
-        val cx = surfaceW * xNorm + (0.5f - anchorX) * targetW
-        val cy = surfaceH * yNorm + (0.5f - anchorY) * targetH
+        // 2026-07-04 — target-relative positioning so sprites STICK to
+        // the composition their author saw in the sprite editor. On a
+        // shorter viewport (Huawei 1920), the reference target shrinks
+        // by subjectFactor and the sprite follows it → orb stays on
+        // Ryu's hand, hair-tip stays on Morrigan's shoulder, etc.
+        val f = subjectFactor(surfaceW, surfaceH)
+        val cx = surfaceW / 2f + (xNorm - 0.5f) * REFERENCE_SURFACE_W * f +
+            (0.5f - anchorX) * targetW
+        val cy = surfaceH / 2f + (yNorm - 0.5f) * REFERENCE_SURFACE_H * f +
+            (0.5f - anchorY) * targetH
         return cx to cy
     }
 }

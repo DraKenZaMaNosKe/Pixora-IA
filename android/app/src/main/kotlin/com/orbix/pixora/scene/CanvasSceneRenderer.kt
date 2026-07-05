@@ -45,8 +45,19 @@ class CanvasSceneRenderer(private val context: Context) {
      *  surface resize via these computed properties. */
     private val pxScaleX: Float
         get() = if (surfaceWidth > 0) surfaceWidth / TARGET_W else 1f
+    // 2026-07-04 — pxScaleY now uses the SAME factor as pxScaleX (based
+    // on width, not height). Before this fix, devices with different
+    // aspect ratios applied the same offset_y with different magnitudes:
+    // Samsung 1080x2340 → factor 1.0 → offset_y=800 shifted 800px
+    // Huawei 1080x1920  → factor 0.821 → offset_y=800 shifted only 656px
+    // This made canvas_scenes look positioned inconsistently across
+    // devices. Now offset_y is applied in absolute pixels (scaled only
+    // by device DPI via pxScaleX = surfaceWidth/1080), so what you set
+    // in the sprite editor is what you get on any device. Subjects
+    // may extend past the bottom on shorter screens — that's the
+    // intended tradeoff (cover-fit behavior for the "bottom safe zone").
     private val pxScaleY: Float
-        get() = if (surfaceHeight > 0) surfaceHeight / TARGET_H else 1f
+        get() = pxScaleX
 
     private var spec: SceneSpec? = null
     private var loadedFor: String? = null  // sceneId of currently loaded spec
@@ -571,10 +582,17 @@ class CanvasSceneRenderer(private val context: Context) {
         // bitmap in editor-resolution and stay with scale=1.0/offset=0 — see
         // tools/wallpapers/dashboard/sprite-editor.html and ryu_hadouken
         // for the canonical pattern.
+        // 2026-07-04 — ALL layers use the same target-fit factor for their
+        // offsets, matching ensureLayersPrescaled's scale. This guarantees
+        // that on shorter viewports (Huawei 1080×1920) a subject with
+        // offset_y=684 lands at the same relative position as on Samsung
+        // 1080×2340, and stays aligned with the background it was authored
+        // against in the sprite editor.
+        val subjectFactor = minOf(sw / TARGET_W, sh / TARGET_H)
         val left = (sw - drawW) / 2f + tiltX * pf + scrollOffset + bobOffsetX +
-            interactiveDx + def.offsetXPx * pxScaleX
+            interactiveDx + def.offsetXPx * subjectFactor
         val top  = (sh - drawH) / 2f + tiltY * pf + bobOffsetY +
-            interactiveDy + def.offsetYPx * pxScaleY
+            interactiveDy + def.offsetYPx * subjectFactor
 
         // Skip draw if fully transparent (rise_fade end state, hidden layers).
         if (interactiveAlpha <= 0.005f) return
@@ -816,7 +834,19 @@ class CanvasSceneRenderer(private val context: Context) {
             // Goku) shrink to occupy less of the surface, revealing the layer
             // behind it. Multiplied INTO the cover-fit scale so prescale
             // already accounts for it → per-frame draw stays a pure blit.
-            val scale = maxOf(sw / bmp.width, sh / bmp.height) * def.scale
+            //
+            // 2026-07-04 — ALL layers scale by minOf(sw/TARGET_W, sh/TARGET_H)
+            // to preserve cross-device composition. Sprite editor authors
+            // against the TARGET reference (1080×2340). If background and
+            // subject used different factors (e.g. background cover-fit
+            // viewport vs subject fit target), they'd desync visually on
+            // devices with shorter aspects (Huawei 1080×1920) — castle
+            // decorations wouldn't line up with the character, etc.
+            //
+            // Backgrounds authored with scale=1.0 may show viewport gaps on
+            // shorter devices; the sprite editor now hints authors to use
+            // scale >= 1.22 to guarantee cover on 16:9 phones.
+            val scale = minOf(sw / TARGET_W, sh / TARGET_H) * def.scale
             val targetW = (bmp.width * scale).toInt().coerceAtLeast(1)
             val targetH = (bmp.height * scale).toInt().coerceAtLeast(1)
             val scaled = if (targetW == bmp.width && targetH == bmp.height) {

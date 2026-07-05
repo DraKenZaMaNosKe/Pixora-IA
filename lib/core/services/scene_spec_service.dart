@@ -219,9 +219,8 @@ class SceneSpecService {
         final out = File('${dir.path}/$key.webp');
         final fileFresh = out.existsSync() && out.lengthSync() > 1024;
         final entry = meta[key];
-        final cachedUrl = entry is Map
-            ? entry['url'] as String?
-            : entry as String?;
+        final cachedUrl =
+            entry is Map ? entry['url'] as String? : entry as String?;
         final cachedSize = entry is Map ? entry['size'] as int? : null;
         final cachedRevision =
             entry is Map ? (entry['revision'] as num?)?.toInt() : null;
@@ -293,9 +292,8 @@ class SceneSpecService {
   /// HEAD Content-Length for remote asset staleness checks.
   Future<int?> _remoteContentLength(String url) async {
     try {
-      final r = await http
-          .head(Uri.parse(url))
-          .timeout(const Duration(seconds: 10));
+      final r =
+          await http.head(Uri.parse(url)).timeout(const Duration(seconds: 10));
       if (r.statusCode < 200 || r.statusCode >= 300) return null;
       final len = r.contentLength;
       return (len != null && len > 0) ? len : null;
@@ -304,11 +302,17 @@ class SceneSpecService {
     }
   }
 
-  /// Re-fetch in background only if disk copy is older than the catalog's
-  /// own age (heuristic: if you reopen the app a week later, refresh).
+  /// Re-fetch in background if disk copy is older than the stale window.
+  /// 2026-07-04 — window reduced from 7 days to 5 minutes because the
+  /// old value made spec edits from the sprite editor invisible until
+  /// FCM push arrived (and FCM occasionally fails on Google-side SSL
+  /// issues). With 5 minutes, any edit becomes visible on the next open
+  /// of the wallpaper, without requiring the user to force-clear cache.
+  /// Trade-off: slightly more network requests on frequent app opens,
+  /// but each request is a small JSON (~1-3 KB) so the cost is minimal.
   Future<void> _refreshIfStale(
       CatalogIndexEntry entry, DateTime savedAt) async {
-    if (DateTime.now().difference(savedAt) < const Duration(days: 7)) return;
+    if (DateTime.now().difference(savedAt) < const Duration(minutes: 5)) return;
     if (!await Connectivity.hasInternet()) return;
     await _fetchAndCache(entry);
   }

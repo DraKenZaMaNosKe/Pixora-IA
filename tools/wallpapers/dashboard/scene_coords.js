@@ -44,12 +44,25 @@ export function coverFitScale(bmpW, bmpH, surfaceW = surface.w, surfaceH = surfa
   return Math.max(surfaceW / bmpW, surfaceH / bmpH) * layerScale;
 }
 
+/** 2026-07-04 — Universal target-fit factor.
+ *  Compresses the REFERENCE (1080×2340) inside the current viewport
+ *  proportionally. ALL layers AND sprites scale by this so their
+ *  composition stays locked cross-aspect (Samsung 2340 vs Huawei 1920).
+ *  Mirrors SceneCoords.kt subjectFactor. */
+export function subjectFactor(surfaceW = surface.w, surfaceH = surface.h) {
+  return Math.min(surfaceW / REFERENCE_SURFACE_W, surfaceH / REFERENCE_SURFACE_H);
+}
+
 export function layerDrawRect(bmpW, bmpH, layer, surfaceW = surface.w, surfaceH = surface.h) {
-  const scale = coverFitScale(bmpW, bmpH, surfaceW, surfaceH, layer.scale || 1);
+  // 2026-07-04 — mirrors CanvasSceneRenderer.ensureLayersPrescaled:
+  // ALL layers use subjectFactor × layer.scale so background and subject
+  // remain locked in the same composition on any aspect ratio.
+  const scale = subjectFactor(surfaceW, surfaceH) * (layer.scale || 1);
   const drawW = bmpW * scale;
   const drawH = bmpH * scale;
-  const left = (surfaceW - drawW) / 2 + (layer.offset_x_px || 0);
-  const top = (surfaceH - drawH) / 2 + (layer.offset_y_px || 0);
+  const factor = subjectFactor(surfaceW, surfaceH);
+  const left = (surfaceW - drawW) / 2 + (layer.offset_x_px || 0) * factor;
+  const top = (surfaceH - drawH) / 2 + (layer.offset_y_px || 0) * factor;
   return {
     left, top, drawW, drawH,
     centerX: left + drawW / 2,
@@ -62,15 +75,19 @@ export function layerWorldSize(bmpW, bmpH, layer, surfaceW = surface.w, surfaceH
   return { w: drawW, h: drawH };
 }
 
-export function layerMeshPosition(layer) {
+export function layerMeshPosition(layer, surfaceW = surface.w, surfaceH = surface.h) {
+  // 2026-07-04 — offsets scale by subjectFactor so a subject with
+  // offset_y=684 lands at the same relative position as authored,
+  // whether the editor is showing 2340 tall or 1920 tall.
+  const f = subjectFactor(surfaceW, surfaceH);
   return {
-    x: layer.offset_x_px || 0,
-    y: -(layer.offset_y_px || 0),
+    x: (layer.offset_x_px || 0) * f,
+    y: -(layer.offset_y_px || 0) * f,
   };
 }
 
-export function applyLayerMeshTransform(mesh, layer) {
-  const p = layerMeshPosition(layer);
+export function applyLayerMeshTransform(mesh, layer, surfaceW = surface.w, surfaceH = surface.h) {
+  const p = layerMeshPosition(layer, surfaceW, surfaceH);
   mesh.position.x = p.x;
   mesh.position.y = p.y;
 }
@@ -93,7 +110,10 @@ export function spriteRenderSize(params, natW, natH, surfaceW = surface.w, surfa
   }
   const { w: decW, h: decH } = spriteDecodedSize(natW, natH, params);
   const scale = params?.scale ?? 0.003;
-  const rw = decW * scale * surfaceW;
+  // 2026-07-04 — mirrors SpriteController: sprites scale by REFERENCE_W
+  // × scale × subjectFactor so they shrink with their subject on
+  // shorter viewports (Huawei 1920) instead of staying oversized.
+  const rw = decW * scale * REFERENCE_SURFACE_W * subjectFactor(surfaceW, surfaceH);
   return { w: rw, h: rw * (decH / decW) };
 }
 
@@ -120,9 +140,13 @@ export function spriteDrawCenterPx(params, renderW, renderH, surfaceW = surface.
   const xNorm = params?.x ?? 0.5;
   const yNorm = params?.y ?? 0.5;
   const anchor = spriteAnchor(params);
+  // 2026-07-04 — mirrors SceneCoords.spriteDrawCenter (target-relative):
+  // sprite sticks to the composition the author saw in the editor even
+  // when the device viewport is shorter than TARGET (Huawei 1080×1920).
+  const f = subjectFactor(surfaceW, surfaceH);
   return {
-    x: xNorm * surfaceW + (0.5 - anchor.x) * renderW,
-    y: yNorm * surfaceH + (0.5 - anchor.y) * renderH,
+    x: surfaceW / 2 + (xNorm - 0.5) * REFERENCE_SURFACE_W * f + (0.5 - anchor.x) * renderW,
+    y: surfaceH / 2 + (yNorm - 0.5) * REFERENCE_SURFACE_H * f + (0.5 - anchor.y) * renderH,
   };
 }
 

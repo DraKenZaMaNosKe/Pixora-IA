@@ -217,8 +217,8 @@ class PixoraWallpaperService : WallpaperService() {
                 // drift completely so the wallpaper is truly still when
                 // the phone is still. Real tilts (~0.1+) pass through
                 // untouched and get smoothed.
-                val zonedX = if (kotlin.math.abs(rawX) < 0.03f) 0f else rawX
-                val zonedY = if (kotlin.math.abs(rawY) < 0.03f) 0f else rawY
+                val zonedX = if (kotlin.math.abs(rawX) < 0.015f) 0f else rawX
+                val zonedY = if (kotlin.math.abs(rawY) < 0.015f) 0f else rawY
                 // Alpha 0.18 (was 0.12): faster convergence toward real
                 // tilts without adding jitter now that the dead zone
                 // filters out sensor noise before it hits the filter.
