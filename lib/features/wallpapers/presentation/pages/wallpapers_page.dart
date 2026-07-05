@@ -84,6 +84,8 @@ class WallpapersPage extends ConsumerWidget {
 
             // Curated sections — multi-category via tags. Un wallpaper
             // PANORAMIC con tag `arte` aparece aquí Y en su categoría natural.
+            // Amor NO va aquí: tiene su propio tab (AmorPage, skin Latido)
+            // en la bottom nav — Eduardo 2026-07-05.
             SliverToBoxAdapter(child: _ArteRow()),
             SliverToBoxAdapter(child: _MitologiaRow()),
 

@@ -57,6 +57,7 @@ class WallpaperCarouselRow extends StatefulWidget {
     required this.items,
     this.cardHeight = 260.0,
     this.cardWidth = 140.0,
+    this.customHeader,
     super.key,
   });
 
@@ -64,6 +65,11 @@ class WallpaperCarouselRow extends StatefulWidget {
   final List<Wallpaper> items;
   final double cardHeight;
   final double cardWidth;
+
+  /// Header alternativo al StampedFoilHeader estándar. Usado por secciones
+  /// con skin propio (ej. Amor → AmorLatidoHeader). Cuando es null se
+  /// renderiza el foil header de siempre con [title].
+  final Widget? customHeader;
 
   @override
   State<WallpaperCarouselRow> createState() => _WallpaperCarouselRowState();
@@ -120,13 +126,15 @@ class _WallpaperCarouselRowState extends State<WallpaperCarouselRow>
                 // Stamped Foil header (concept #01, Eduardo 2026-05-16) —
                 // metallic stamp with hairline outline + glyph + 4.5s shimmer.
                 // iOS: dark text + Apple Blue glyph. B&G: gold foil + gold star.
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: StampedFoilHeader(label: widget.title),
-                  ),
-                ),
+                // Secciones con skin propio pasan customHeader (ej. Amor).
+                widget.customHeader ??
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: StampedFoilHeader(label: widget.title),
+                      ),
+                    ),
                 // Horizontal list with scroll-driven effects
                 SizedBox(
                   height: widget.cardHeight,

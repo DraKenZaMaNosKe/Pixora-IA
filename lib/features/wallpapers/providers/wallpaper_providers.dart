@@ -49,10 +49,20 @@ bool _isMitologia(Wallpaper w) {
   return w.category.toUpperCase() == 'MITOLOGIA';
 }
 
+/// Match para sección "Amor" 💕: tag `amor` O categoría LOVE/AMOR.
+/// Transversal a todos los tipos (static, panoramic, canvas_scene) — un
+/// atardecer panorámico romántico y una pareja de anime con parallax
+/// conviven en la misma sección sin importar su `type`.
+bool _isAmor(Wallpaper w) {
+  if (_hasTag(w, 'amor')) return true;
+  final c = w.category.toUpperCase();
+  return c == 'LOVE' || c == 'AMOR';
+}
+
 /// Categorías que NO deben aparecer en _CategoryRows porque ya tienen su
-/// propio carousel curado arriba (Arte, Mitología). Evita duplicación
+/// propio carousel curado arriba (Arte, Mitología, Amor). Evita duplicación
 /// visual: un wallpaper "ARTE" no debe verse en 2 rows distintos.
-const _curatedSectionCategories = {'ART', 'ARTE', 'MITOLOGIA'};
+const _curatedSectionCategories = {'ART', 'ARTE', 'MITOLOGIA', 'LOVE', 'AMOR'};
 
 /// Raw catalog from Supabase (every wallpaper, used internally + by the
 /// ARCANO provider). UI feeds should consume `catalogPublicProvider`.
@@ -154,6 +164,16 @@ final mitologiaWallpapersProvider =
     FutureProvider<List<Wallpaper>>((ref) async {
   final wallpapers = await ref.watch(catalogPublicProvider.future);
   return wallpapers.where(_isMitologia).toList()
+    ..sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
+});
+
+/// Sección "Amor" 💕 — wallpapers cálidos/románticos (parejas, corazones,
+/// atardeceres, siluetas). Curados via tag `amor` o categoría LOVE/AMOR.
+/// Combina static + panorámico + canvas_scene: Pixora no es solo acción,
+/// suspenso y terror — también amor para alegrar la vida del usuario.
+final amorWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
+  final wallpapers = await ref.watch(catalogPublicProvider.future);
+  return wallpapers.where(_isAmor).toList()
     ..sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
 });
 

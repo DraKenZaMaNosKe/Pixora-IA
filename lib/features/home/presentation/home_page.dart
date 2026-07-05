@@ -19,6 +19,7 @@ import '../../stories/presentation/pages/stories_page.dart';
 import '../../day_cycle/presentation/pages/day_cycle_page.dart';
 import '../../hot_wallpapers/presentation/pages/hot_wallpapers_page.dart';
 import '../../parallax_wallpapers/presentation/pages/parallax_wallpapers_page.dart';
+import '../../amor/presentation/amor_page.dart';
 import '../../cultura/presentation/cultura_page.dart';
 import '../../events/presentation/eventos_page.dart';
 import '../../aura/presentation/pages/aura_page.dart';
@@ -213,6 +214,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     const WallpapersPage(),
     if (!Platform.isIOS) const HotWallpapersPage(),
     if (!Platform.isIOS) const ParallaxWallpapersPage(),
+    if (!Platform.isIOS) const AmorPage(),
     if (!Platform.isIOS) const CulturaPage(),
     if (!Platform.isIOS) const EventosPage(),
     if (!Platform.isIOS) const AuraPage(),
@@ -234,6 +236,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     'Pixora',
     if (!Platform.isIOS) 'Live',
     if (!Platform.isIOS) '3D',
+    if (!Platform.isIOS) 'Amor',
     if (!Platform.isIOS) 'Cultura',
     if (!Platform.isIOS) 'Eventos',
     if (!Platform.isIOS) 'Aura',
@@ -566,6 +569,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (!Platform.isIOS)
         const _NavItemData(
             Icons.threed_rotation_rounded, '3D', Color(0xFF8B5CF6)),
+      // AMOR — volunteer_activism (mano ofreciendo corazón): distinto del
+      // corazón simple de FAV para que no se confundan (Eduardo 2026-07-05).
+      if (!Platform.isIOS)
+        const _NavItemData(
+            Icons.volunteer_activism_outlined, 'AMOR', Color(0xFFD93A3A)),
       if (!Platform.isIOS)
         const _NavItemData(Icons.menu_book_outlined, 'CULT', Color(0xFFD9B14A)),
       if (!Platform.isIOS)
