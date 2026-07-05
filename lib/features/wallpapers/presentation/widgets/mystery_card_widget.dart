@@ -25,17 +25,27 @@ class MysteryCardWidget extends StatefulWidget {
     required this.revealedChild,
     required this.wallpaperId,
     this.onRevealed,
+    this.rewardNoun = 'wallpaper',
+    this.placement = 'mystery',
     super.key,
   });
 
-  /// El widget real que se mostrará después del tap (la card del wallpaper).
+  /// El widget real que se mostrará después del tap (la card del contenido).
   final Widget revealedChild;
 
-  /// ID del wallpaper — usado para hash (decisión bonus vs normal).
+  /// ID del item — usado para hash (decisión bonus vs normal) y AdService.
   final String wallpaperId;
 
   /// Callback opcional cuando el user revela. Útil para analytics.
   final VoidCallback? onRevealed;
+
+  /// Sustantivo del premio en el copy del bonus ("wallpaper", "tono",
+  /// "fondo"). Permite reusar la carta en LIVE/3D/TONOS con texto correcto.
+  final String rewardNoun;
+
+  /// Prefijo de placement para AdService (analytics por sección):
+  /// `${placement}_reveal` y `${placement}_bonus`. Ej: 'mystery_tono'.
+  final String placement;
 
   @override
   State<MysteryCardWidget> createState() => _MysteryCardWidgetState();
@@ -135,7 +145,7 @@ class _MysteryCardWidgetState extends State<MysteryCardWidget>
     if (!mounted) return;
     try {
       await AdService.instance.showInterstitialAd(
-        placement: 'mystery_reveal',
+        placement: '${widget.placement}_reveal',
         wallpaperId: widget.wallpaperId,
         onAdDismissed: () {},
       );
@@ -154,7 +164,7 @@ class _MysteryCardWidgetState extends State<MysteryCardWidget>
     // revelamos el wallpaper para no penalizar.
     try {
       await AdService.instance.showInterstitialAd(
-        placement: 'mystery_bonus',
+        placement: '${widget.placement}_bonus',
         wallpaperId: widget.wallpaperId,
         onAdDismissed: () {
           if (!mounted) return;
@@ -259,36 +269,45 @@ class _MysteryCardWidgetState extends State<MysteryCardWidget>
                   ),
                 ),
               ),
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                            color: const Color(0xFFE6B655), width: 1),
-                      ),
-                      child: Text(
-                        'MYSTERY',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFFE6B655),
-                          letterSpacing: 3,
+              // FittedBox scaleDown + padding-bottom reservado para el hint
+              // → nunca overflow, incluso en cards chicas de 3 columnas
+              // (TONOS). En cards grandes se ve idéntico. 2026-07-05.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 6, 6, 34),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                                color: const Color(0xFFE6B655), width: 1),
+                          ),
+                          child: Text(
+                            'MYSTERY',
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFFE6B655),
+                              letterSpacing: 3,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 16),
+                        _GlitchText(
+                          text: '???',
+                          offsetX: _glitchOffsetX,
+                          offsetY: _glitchOffsetY,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    _GlitchText(
-                      text: '???',
-                      offsetX: _glitchOffsetX,
-                      offsetY: _glitchOffsetY,
-                    ),
-                  ],
+                  ),
                 ),
               ),
               Positioned(
@@ -357,50 +376,56 @@ class _MysteryCardWidgetState extends State<MysteryCardWidget>
               ),
               // Sparkles
               ..._buildSparkles(),
-              // Content
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '✨ TESORO ✨',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black.withValues(alpha: 0.85),
-                        letterSpacing: 3,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'BONUS',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                        letterSpacing: 4,
-                      ),
-                    ),
-                    // 2026-07-02 — spacing reducido de 18 a 8 para eliminar
-                    // overflow de 9px en cards de 220. El emoji 🎁 (64px) ya
-                    // da separación visual natural del heading "BONUS".
-                    const SizedBox(height: 8),
-                    const Text('🎁', style: TextStyle(fontSize: 64)),
-                    const SizedBox(height: 18),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        'Apoya a Pixora\n+ desbloquea\nwallpaper sorpresa',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black.withValues(alpha: 0.75),
-                          height: 1.4,
+              // Content — FittedBox scaleDown + padding-bottom reservado para
+              // el CTA "DESCUBRIR" → sin overflow en cards de 3 columnas
+              // (TONOS). 2026-07-05.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 6, 6, 48),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '✨ TESORO ✨',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black.withValues(alpha: 0.85),
+                            letterSpacing: 3,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'BONUS',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black,
+                            letterSpacing: 4,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('🎁', style: TextStyle(fontSize: 64)),
+                        const SizedBox(height: 18),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Apoya a Pixora\n+ desbloquea\n'
+                            '${widget.rewardNoun} sorpresa',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black.withValues(alpha: 0.75),
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
               // CTA

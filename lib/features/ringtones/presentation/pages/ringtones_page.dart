@@ -7,9 +7,11 @@ import 'package:just_audio/just_audio.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/services/ad_service.dart';
+import '../../../../core/services/mystery_slot.dart';
 import '../../../../core/services/preview_player_service.dart';
 import '../../../../core/services/ringtone_service.dart';
 import '../../../../core/utils/locale_helper.dart';
+import '../../../wallpapers/presentation/widgets/mystery_card_widget.dart';
 import '../../../wallpapers/presentation/widgets/wallpaper_stats_bar.dart';
 import '../../providers/ringtone_providers.dart';
 import '../../data/models/ringtone_pack.dart';
@@ -647,6 +649,11 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
 
   // ── Tone Grid (3 columns, mini cassettes) ─────────────────────────
   Widget _buildToneGrid(List<RingtoneTone> tones) {
+    // El grid solo pinta 6 tonos → calcula el set proporcional sobre esos
+    // mismos (no sobre el pack completo), para que la cuenta sea coherente
+    // con lo que el usuario ve. 2026-07-05.
+    final visible = tones.length > 6 ? tones.sublist(0, 6) : tones;
+    final mysterySet = pickMysteryIds(visible.map((t) => t.id));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: GridView.builder(
@@ -661,10 +668,10 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
           // by ~23px on Samsung. 2026-05-16 fix.
           childAspectRatio: 0.82,
         ),
-        itemCount: tones.length > 6 ? 6 : tones.length,
+        itemCount: visible.length,
         itemBuilder: (_, i) {
-          final tone = tones[i];
-          return _TapeMini(
+          final tone = visible[i];
+          final tile = _TapeMini(
             title: tone.name,
             duration: tone.durationFormatted,
             isPlaying: _playingId == tone.id,
@@ -673,6 +680,17 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
             onLongPress: () => _showSetAsDialog(tone),
             statsId: 'tone_${tone.id}',
           );
+          // 2026-07-05 — Mystery card en TONOS (selección proporcional sobre
+          // los tonos visibles). Reveal = card del tono (sin auto-play).
+          if (mysterySet.contains(tone.id)) {
+            return MysteryCardWidget(
+              wallpaperId: tone.id,
+              placement: 'mystery_tono',
+              rewardNoun: 'tono',
+              revealedChild: tile,
+            );
+          }
+          return tile;
         },
       ),
     );

@@ -5,9 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/design/hud_tokens.dart';
 import '../../../../core/services/app_strings_service.dart';
 import '../../../../core/services/catalog_index_service.dart';
+import '../../../../core/services/mystery_slot.dart';
 import '../../../../core/utils/locale_helper.dart';
 import '../../../wallpapers/data/models/wallpaper.dart';
 import '../../../wallpapers/presentation/pages/wallpaper_preview_page.dart';
+import '../../../wallpapers/presentation/widgets/mystery_card_widget.dart';
 import '../../providers/parallax_wallpaper_providers.dart';
 
 /// "3D" tab — Holographic Tilt layout (concept #04, Eduardo 2026-05-16).
@@ -69,6 +71,10 @@ class _MagazineLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final h = context.hud;
+    // Set proporcional de Mystery cards para el grid 3D (mismo modelo
+    // Wallpaper → checa favoritos). Calculado una vez sobre `rest`.
+    final mysterySet =
+        pickMysteryIds(rest.map((w) => w.id), checkFavorites: true);
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
@@ -248,7 +254,19 @@ class _MagazineLayout extends StatelessWidget {
                 childAspectRatio: 0.62,
               ),
               delegate: SliverChildBuilderDelegate(
-                (ctx, i) => _GridCard(wallpaper: rest[i]),
+                (ctx, i) {
+                  final w = rest[i];
+                  final card = _GridCard(wallpaper: w);
+                  // 2026-07-05 — Mystery card en 3D (selección proporcional).
+                  if (mysterySet.contains(w.id)) {
+                    return MysteryCardWidget(
+                      wallpaperId: w.id,
+                      placement: 'mystery_3d',
+                      revealedChild: card,
+                    );
+                  }
+                  return card;
+                },
                 childCount: rest.length,
               ),
             ),

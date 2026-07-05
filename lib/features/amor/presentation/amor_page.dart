@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/services/catalog_service.dart';
+import '../../../core/services/mystery_slot.dart';
+import '../../wallpapers/data/models/wallpaper.dart';
 import '../../wallpapers/presentation/widgets/amor_latido_header.dart';
+import '../../wallpapers/presentation/widgets/mystery_card_widget.dart';
 import '../../wallpapers/presentation/widgets/wallpaper_card.dart';
 import '../../wallpapers/providers/wallpaper_providers.dart';
 
@@ -46,32 +49,56 @@ class AmorPage extends ConsumerWidget {
           error: (_, __) => _fullScreenScroll(_emptyBody()),
           data: (items) => items.isEmpty
               ? _fullScreenScroll(_emptyBody())
-              : CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    const SliverToBoxAdapter(child: AmorLatidoHeader()),
-                    const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(14, 4, 14, 8),
-                      sliver: SliverGrid(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 14,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 0.62,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (ctx, i) => WallpaperCard(wallpaper: items[i]),
-                          childCount: items.length,
-                        ),
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                  ],
-                ),
+              : _dataBody(items),
         ),
       ),
+    );
+  }
+
+  /// Grid de wallpapers de amor con Mystery cards proporcionales.
+  /// childAspectRatio 0.54 (antes 0.62 → 37px overflow, 0.58 → 18px): las
+  /// WallpaperCard traen stats bar + badges que desbordan en un grid apretado.
+  /// 2026-07-05.
+  Widget _dataBody(List<Wallpaper> items) {
+    // Set proporcional de Mystery cards. checkFavorites: true (modelo
+    // Wallpaper) — mismo helper que wallpapers/3D.
+    final mysterySet = pickMysteryIds(
+      items.map((w) => w.id),
+      checkFavorites: true,
+    );
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        const SliverToBoxAdapter(child: AmorLatidoHeader()),
+        const SliverToBoxAdapter(child: SizedBox(height: 10)),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(14, 4, 14, 8),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.54,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (ctx, i) {
+                final w = items[i];
+                final card = WallpaperCard(wallpaper: w);
+                if (mysterySet.contains(w.id)) {
+                  return MysteryCardWidget(
+                    wallpaperId: w.id,
+                    placement: 'mystery_amor',
+                    revealedChild: card,
+                  );
+                }
+                return card;
+              },
+              childCount: items.length,
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 32)),
+      ],
     );
   }
 

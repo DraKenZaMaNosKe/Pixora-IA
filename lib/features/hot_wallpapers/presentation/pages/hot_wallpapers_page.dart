@@ -7,12 +7,14 @@ import '../../../../core/widgets/section_hero_banner.dart';
 import '../../../../core/widgets/stamped_foil_header.dart';
 import '../../../../core/services/app_strings_service.dart';
 import '../../../../core/services/live_wallpaper_catalog_service.dart';
+import '../../../../core/services/mystery_slot.dart';
 import '../../../../core/widgets/aurora_waves_loading.dart';
 import '../../../../core/widgets/watch_card_pieces.dart';
 import '../../../realm/presentation/widgets/realm_grid_section.dart';
 import '../../../wallpapers/data/wallpaper_adapter.dart';
 import '../../../wallpapers/presentation/pages/wallpaper_viewer_hud_page.dart';
 import '../../../wallpapers/presentation/widgets/category_chip_hud.dart';
+import '../../../wallpapers/presentation/widgets/mystery_card_widget.dart';
 import '../../data/models/live_wallpaper.dart';
 import '../../providers/live_wallpaper_providers.dart';
 import '../widgets/live_grid_card_overlay.dart';
@@ -225,29 +227,48 @@ class _HotContent extends ConsumerWidget {
             SliverToBoxAdapter(
                 child: _buildSectionTitle(_formatCategory(entry.key), null)),
             const SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.65,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (_, i) => _LiveWallpaperCard(
-                    item: entry.value[i],
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
-                  childCount: entry.value.length,
-                ),
-              ),
-            ),
+            _buildLiveCategoryGrid(entry.value),
           ],
 
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
+      ),
+    );
+  }
+
+  /// Grid de una categoría LIVE con Mystery cards proporcionales.
+  /// El set se calcula UNA vez por categoría (no por item). LiveWallpaper no
+  /// comparte la box `favorites`, así que checkFavorites queda en false.
+  Widget _buildLiveCategoryGrid(List<LiveWallpaper> items) {
+    final mysterySet = pickMysteryIds(items.map((e) => e.id));
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.65,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (_, i) {
+            final item = items[i];
+            final live = _LiveWallpaperCard(
+              item: item,
+              width: double.infinity,
+              height: double.infinity,
+            );
+            if (mysterySet.contains(item.id)) {
+              return MysteryCardWidget(
+                wallpaperId: item.id,
+                placement: 'mystery_live',
+                revealedChild: live,
+              );
+            }
+            return live;
+          },
+          childCount: items.length,
+        ),
       ),
     );
   }
