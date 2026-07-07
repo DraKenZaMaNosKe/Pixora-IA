@@ -8,6 +8,7 @@ class Wallpaper {
     required this.id,
     required this.name,
     required this.description,
+    this.descriptionRich,
     required this.imageFile,
     required this.previewFile,
     required this.imageSize,
@@ -34,6 +35,19 @@ class Wallpaper {
   final String id;
   final String name;
   final String description;
+
+  /// Descripción con markup de color `[[rol:texto]]` para el TypewriterText.
+  /// Vive en una columna aparte (`description_rich`) para que las versiones
+  /// viejas de la app —que renderizan `description` como texto plano— nunca
+  /// vean el markup crudo. Null → se usa `description` tal cual.
+  final String? descriptionRich;
+
+  /// Texto para la vista de detalle: rich si existe, si no el plano.
+  String get displayDescription =>
+      (descriptionRich != null && descriptionRich!.isNotEmpty)
+          ? descriptionRich!
+          : description;
+
   final String imageFile;
   final String previewFile;
   final int imageSize;
@@ -123,6 +137,7 @@ class Wallpaper {
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String? ?? '',
+      descriptionRich: json['descriptionRich'] as String?,
       imageFile: json['imageFile'] as String? ?? '',
       previewFile: json['previewFile'] as String? ?? '',
       imageSize: json['imageSize'] as int? ?? 0,
@@ -160,6 +175,7 @@ class Wallpaper {
       id: row['id'] as String,
       name: row['name'] as String,
       description: row['description'] as String? ?? '',
+      descriptionRich: row['description_rich'] as String?,
       imageFile: row['image_path'] as String? ?? '',
       previewFile: row['preview_path'] as String? ?? '',
       imageSize: (row['image_size'] as num?)?.toInt() ?? 0,
@@ -272,6 +288,7 @@ class Wallpaper {
         'id': id,
         'name': name,
         'description': description,
+        'descriptionRich': descriptionRich,
         'imageFile': imageFile,
         'previewFile': previewFile,
         'imageSize': imageSize,

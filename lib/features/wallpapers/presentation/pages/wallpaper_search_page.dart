@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design/hud_tokens.dart';
+import '../../../../core/widgets/typewriter_text.dart';
 import '../../../../widgets/cached_wallpaper_image.dart';
 import '../../data/models/wallpaper.dart';
 import '../../providers/wallpaper_providers.dart';
@@ -17,7 +18,7 @@ final _searchResultsProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final wallpapers = await ref.watch(catalogProvider.future);
   return wallpapers.where((w) {
     return w.name.toLowerCase().contains(query) ||
-        w.description.toLowerCase().contains(query) ||
+        stripTypewriterMarkup(w.description).toLowerCase().contains(query) ||
         w.category.toLowerCase().contains(query) ||
         w.tags.any((t) => t.toLowerCase().contains(query));
   }).toList();
@@ -27,7 +28,8 @@ class WallpaperSearchPage extends ConsumerStatefulWidget {
   const WallpaperSearchPage({super.key});
 
   @override
-  ConsumerState<WallpaperSearchPage> createState() => _WallpaperSearchPageState();
+  ConsumerState<WallpaperSearchPage> createState() =>
+      _WallpaperSearchPageState();
 }
 
 class _WallpaperSearchPageState extends ConsumerState<WallpaperSearchPage> {
@@ -91,7 +93,8 @@ class _WallpaperSearchPageState extends ConsumerState<WallpaperSearchPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.search_off,
-                              color: Colors.white.withValues(alpha: 0.2), size: 64),
+                              color: Colors.white.withValues(alpha: 0.2),
+                              size: 64),
                           const SizedBox(height: 12),
                           Text(
                             'No results for "$query"',
@@ -102,8 +105,7 @@ class _WallpaperSearchPageState extends ConsumerState<WallpaperSearchPage> {
                       ),
                     )
                   : _buildResults(results),
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, __) => const SizedBox.shrink(),
             ),
     );

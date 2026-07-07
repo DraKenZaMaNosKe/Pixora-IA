@@ -17,6 +17,7 @@ import '../../../../core/services/download_service.dart';
 import '../../../../core/services/wallpaper_service.dart';
 import '../../../../core/widgets/codex_detail_layout.dart';
 import '../../../../core/widgets/loading_overlay.dart';
+import '../../../../core/widgets/typewriter_text.dart';
 import '../../../../core/widgets/microinteractions/heart_burst_button.dart';
 import '../../../../core/widgets/offline_badge.dart';
 import '../../../../core/widgets/offline_modal.dart';
@@ -56,6 +57,10 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   late final AnimationController _holoShine;
   late final AnimationController _holoSweep;
 
+  // Controlador del scroll del detalle — lo comparte el TypewriterText para
+  // hacer autoscroll y seguir la descripción mientras se escribe.
+  final ScrollController _detailScroll = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +79,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   void dispose() {
     _holoShine.dispose();
     _holoSweep.dispose();
+    _detailScroll.dispose();
     super.dispose();
   }
 
@@ -744,6 +750,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
                     const SizedBox(height: 4),
                     Expanded(
                       child: SingleChildScrollView(
+                        controller: _detailScroll,
                         child: Column(
                           children: [
                             _buildHoloCard(),
@@ -1080,31 +1087,69 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
     );
   }
 
+  /// 2026-07-05 — Efecto typewriter: la descripción se escribe sola para
+  /// que el usuario la vaya leyendo (cada wallpaper cuenta una historia).
+  /// Sin cap de líneas: las descripciones ricas (~400 chars) se muestran
+  /// completas; la página ya scrollea. TypewriterText reserva la altura
+  /// final desde el inicio, así el CTA no brinca mientras escribe.
   Widget _buildHoloDescription() {
     final h = context.hud;
     final isIos = h.isIosStyle;
     final w = widget.wallpaper;
-    final text = w.description.isNotEmpty ? w.description : w.name;
+    final text =
+        w.displayDescription.isNotEmpty ? w.displayDescription : w.name;
+    // Paleta de resaltado — 4 roles que contrastan pero combinan sobre el
+    // fondo oscuro (2 cálidos: oro + coral · 2 fríos: menta + celeste).
+    // El texto base sube a crema legible (antes usaba textDim, un dorado
+    // apagado difícil de leer). Roles:
+    //   name    → personajes / sagas (oro brillante)
+    //   place   → lugares / mundos (menta)
+    //   power   → poderes / energía / acción (celeste)
+    //   emotion → emociones / valores / la lección de la escena (coral)
+    // `key` queda como alias suave de `place` por compatibilidad.
+    final Map<String, Color> hc = isIos
+        ? const {
+            'name': Color(0xFFB8912E), // oro oscuro
+            'place': Color(0xFF00A878), // teal
+            'power': Color(0xFF2A7FC0), // azul
+            'emotion': Color(0xFFD9663B), // terracota
+          }
+        : const {
+            'name':
+                Color(0xFFF2C230), // ámbar dorado vivo (contrasta con crema)
+            'place': Color(0xFF6FE0C0), // menta agua
+            'power': Color(0xFF8FD3FF), // celeste
+            'emotion': Color(0xFFF6A07A), // coral cálido
+          };
+    TextStyle hl(String role) =>
+        TextStyle(color: hc[role], fontWeight: FontWeight.w600);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: Text(
+      child: TypewriterText(
         text,
         textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
+        scrollController: _detailScroll,
+        cursorColor: isIos ? const Color(0xFF0A84FF) : HudTokens.goldBright,
+        highlightStyles: {
+          'name': hl('name'),
+          'place': hl('place'),
+          'power': hl('power'),
+          'emotion': hl('emotion'),
+          'key': hl('place'),
+        },
         style: isIos
             ? GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w400,
-                color: h.textDim,
-                height: 1.4,
+                color: h.text,
+                height: 1.45,
               )
             : GoogleFonts.cormorantGaramond(
-                fontSize: 13,
+                fontSize: 14,
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w400,
-                color: h.textDim,
-                height: 1.4,
+                color: h.text,
+                height: 1.45,
               ),
       ),
     );
