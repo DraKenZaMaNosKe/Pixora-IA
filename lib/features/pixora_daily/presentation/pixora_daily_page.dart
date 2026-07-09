@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/services/ad_service.dart';
 import '../../../core/services/analytics_service.dart';
 import '../../../core/services/auto_rotate_service.dart';
 import '../../../core/services/catalog_service.dart';
@@ -134,6 +135,24 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
         _busy = false;
       });
     } else {
+      // Ad al activar Daily (2026-07-07 — monetización): el Daily es de lo más
+      // usado, así que activarlo dispara un interstitial. AdService alterna
+      // 1-sí/1-no y SIEMPRE llama onAdDismissed (aunque no muestre ad), así que
+      // la activación continúa sí o sí. _busy sigue true hasta que corra.
+      AdService.instance.showInterstitialAd(
+        placement: 'pixora_daily_activate',
+        onAdDismissed: () {
+          if (mounted) _activateDaily();
+        },
+      );
+    }
+  }
+
+  /// Activación real de Daily (offline-check + overlay synthwave + start).
+  /// Extraído de _toggle (2026-07-07) para dispararlo cuando el interstitial
+  /// de activación se cierra. _busy ya viene en true desde _toggle.
+  Future<void> _activateDaily() async {
+    {
       // Pre-check: si está offline + cache vacío, mostrar el Holographic
       // modal en vez de fallar silenciosamente. Si está cached, dejar pasar
       // (el primer tick puede recuperar desde el cache local).
@@ -266,6 +285,15 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
               es: 'Pixora Daily (curado)', en: 'Pixora Daily (curated)'),
         ),
         (
+          'SCENES_3D',
+          LocaleHelper.pick(
+              es: 'Escenas 3D (parallax)', en: '3D Scenes (parallax)'),
+        ),
+        (
+          'AMOR',
+          LocaleHelper.pick(es: 'Amor 💕', en: 'Love 💕'),
+        ),
+        (
           'PANORAMIC',
           LocaleHelper.pick(es: 'Solo panorámicos', en: 'Panoramic only'),
         ),
@@ -337,6 +365,8 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
   String _categoryLabel(String? c) {
     if (c == null) return LocaleHelper.pick(es: 'Todas', en: 'All');
     return switch (c) {
+      'SCENES_3D' => LocaleHelper.pick(es: 'Escenas 3D', en: '3D Scenes'),
+      'AMOR' => LocaleHelper.pick(es: 'Amor 💕', en: 'Love 💕'),
       'PANORAMIC' => LocaleHelper.pick(es: 'Panorámicos', en: 'Panoramic'),
       'NATURE' => LocaleHelper.pick(es: 'Naturaleza', en: 'Nature'),
       'PAISAJES' => LocaleHelper.pick(es: 'Paisajes', en: 'Landscapes'),

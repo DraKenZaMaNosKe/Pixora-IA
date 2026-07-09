@@ -330,11 +330,18 @@ class PixoraWallpaperService : WallpaperService() {
                 val newGlow = intent.getStringExtra("glow_color")
                 val newCaption = intent.getStringExtra("caption")
                 val clearScene = intent.getBooleanExtra("clear_scene", false)
+                val newSceneId = intent.getStringExtra("scene_id")
                 val prefs = applicationContext.getSharedPreferences("pixora_live", 0)
                 val editor = prefs.edit().putString("wallpaper_path", newPath)
                 if (newGlow != null) editor.putString("glow_color", newGlow)
                 editor.putString("caption", newCaption)
-                if (clearScene) {
+                if (newSceneId != null) {
+                    // Daily seeded a canvas_scene marker (2026-07-07): set the
+                    // scene so the parallax scene inits instead of rendering the
+                    // flat marker as a plain image.
+                    editor.putString("scene_id", newSceneId)
+                    editor.putBoolean("interactive", false)
+                } else if (clearScene) {
                     // AutoRotate sends this on every tick: drop the canvas scene
                     // (e.g. goku_genkidama) and any interactive flag so the rotated
                     // image renders clean instead of being overlaid by stale state.
@@ -522,6 +529,20 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         /**
+         * Daily scene support (2026-07-07). A canvas_scene enters the rotation
+         * pool as a real image file in auto_rotate_cache/ named
+         * "<sceneId>__scene.webp" — a flat composited copy that doubles as the
+         * visual fallback if the scene spec/assets are missing. This helper
+         * extracts the sceneId from such a marker, or null for a plain image.
+         * Canvas↔canvas_scene is Canvas↔Canvas (no MediaPlayer), so the soft
+         * transition is safe — no process kill. Only .mp4 needs the kill path.
+         */
+        private fun sceneIdOfCachedFile(f: File): String? =
+            f.name.takeIf { it.endsWith(SCENE_MARKER_SUFFIX) }
+                ?.removeSuffix(SCENE_MARKER_SUFFIX)
+                ?.takeIf { it.isNotBlank() }
+
+        /**
          * Pixora Daily rotation — called on wake (onVisibilityChanged true).
          * If we're in daily mode (current path lives in auto_rotate_cache/) AND
          * the interval has elapsed, pick a new cached wallpaper and swap to it.
@@ -637,6 +658,23 @@ class PixoraWallpaperService : WallpaperService() {
                 }
 
                 val next = candidates.randomOrNull() ?: return
+
+                // Scene marker validation (2026-07-07): if the candidate is a
+                // canvas_scene marker but its spec was swept (e.g. FCM
+                // clearCache), skip it this wake so we don't rotate to a scene
+                // that can't render. Cheap: one File.isFile per rotation. If
+                // the spec IS missing the marker still renders as a plain image
+                // (it's a flat copy), but we'd rather drop it and keep variety.
+                val nextSceneId = sceneIdOfCachedFile(next)
+                if (nextSceneId != null &&
+                    !File(applicationContext.filesDir, "scene_specs/$nextSceneId.json").isFile) {
+                    next.delete()
+                    seen.remove(next.name)
+                    livePrefs.edit().putStringSet(seenKey, seen).apply()
+                    Log.w(TAG, "Daily: orphan scene marker ${next.name} (no spec) — removed, skipping wake")
+                    return
+                }
+
                 dailyLastRotation = now
 
                 // ── Cache cleanup ─────────────────────────────────────────
@@ -675,9 +713,14 @@ class PixoraWallpaperService : WallpaperService() {
                 val editor = livePrefs.edit()
                     .putString("wallpaper_path", next.absolutePath)
                     .putLong("daily_last_rotation", now)
-                    .remove("scene_id")
                     .putBoolean("interactive", false)
                     .putStringSet(seenKey, seen)
+                // Scene-aware (2026-07-07): write scene_id when rotating to a
+                // canvas_scene marker so loadWallpaperImage() re-inits the
+                // parallax scene; clear it when rotating to a plain image so a
+                // previously-active scene doesn't overlay the new wallpaper.
+                if (nextSceneId != null) editor.putString("scene_id", nextSceneId)
+                else editor.remove("scene_id")
 
                 if (typeTransition) {
                     // CRITICAL: commit() (synchronous) is REQUIRED before
@@ -1104,7 +1147,13 @@ class PixoraWallpaperService : WallpaperService() {
                     if (fallback != null) {
                         Log.w(TAG, "Self-heal: stale wallpaper_path redirected to ${fallback.name}")
                         path = fallback.absolutePath
-                        prefs.edit().putString("wallpaper_path", path).apply()
+                        // Scene-aware self-heal (2026-07-07): sync scene_id with
+                        // the fallback so a stale scene doesn't paint over a
+                        // plain fallback (or a plain path leave a scene behind).
+                        val fbScene = sceneIdOfCachedFile(fallback)
+                        val e = prefs.edit().putString("wallpaper_path", path)
+                        if (fbScene != null) e.putString("scene_id", fbScene) else e.remove("scene_id")
+                        e.apply()
                     } else {
                         Log.w(TAG, "Self-heal: stale path but cache is empty — nothing to do")
                     }
@@ -2341,5 +2390,8 @@ class PixoraWallpaperService : WallpaperService() {
         // cache exceeds this, oldest already-seen files are deleted.
         // 25 × ~150 KB = ~4 MB upper bound. See maybeRotateDaily().
         const val DAILY_DISK_MAX = 25
+        // Daily scene marker suffix (2026-07-07). A cached file ending in this
+        // is a canvas_scene marker: rotating to it writes scene_id to prefs.
+        const val SCENE_MARKER_SUFFIX = "__scene.webp"
     }
 }

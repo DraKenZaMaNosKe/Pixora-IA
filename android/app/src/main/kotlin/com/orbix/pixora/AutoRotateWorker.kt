@@ -55,9 +55,28 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
 
         prefetchToCache(entries)
         enforceMaxCache(prefs)
+        sweepOrphanSceneMarkers()
         seedDailyIfNeeded()
         Log.d(TAG, "Prefetch tick done")
         return Result.success()
+    }
+
+    /**
+     * Remove scene markers whose spec is gone (2026-07-07). FCM clearCache can
+     * wipe scene_specs/ after a marker was written; such a marker can't render
+     * as a scene, so drop it from the pool. Dart's prefetch re-creates it on
+     * the next activation / cold start. Cheap: one File.isFile per marker.
+     */
+    private fun sweepOrphanSceneMarkers() {
+        val cacheDir = getWallpaperCacheDir()
+        cacheDir.listFiles()
+            ?.filter { it.name.endsWith(PixoraWallpaperService.SCENE_MARKER_SUFFIX) }
+            ?.forEach { m ->
+                val id = m.name.removeSuffix(PixoraWallpaperService.SCENE_MARKER_SUFFIX)
+                if (!File(applicationContext.filesDir, "scene_specs/$id.json").isFile) {
+                    if (m.delete()) Log.d(TAG, "Swept orphan scene marker: ${m.name}")
+                }
+            }
     }
 
     /**
@@ -75,25 +94,34 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
         if (currentPath.contains("auto_rotate_cache")) return // already seeded
 
         val cacheDir = getWallpaperCacheDir()
-        val first = cacheDir.listFiles()
+        val all = cacheDir.listFiles()
             ?.filter { it.extension != "tmp" && it.length() > 0 }
-            ?.randomOrNull() ?: return
+            ?: return
+        if (all.isEmpty()) return
+        // 2026-07-07 — prefer a plain image for the seed (cheapest, no scene
+        // init). Only seed a scene marker if the pool is scenes-only.
+        val suffix = PixoraWallpaperService.SCENE_MARKER_SUFFIX
+        val plain = all.filter { !it.name.endsWith(suffix) }
+        val first = (plain.ifEmpty { all }).randomOrNull() ?: return
+        val seedSceneId = first.name.takeIf { it.endsWith(suffix) }?.removeSuffix(suffix)
 
         val now = System.currentTimeMillis()
-        livePrefs.edit()
+        val prefEditor = livePrefs.edit()
             .putString("wallpaper_path", first.absolutePath)
-            .remove("scene_id")
             .putBoolean("interactive", false)
             .putLong("changed_at", now)
             .putLong("daily_last_rotation", now)
-            .apply()
+        if (seedSceneId != null) prefEditor.putString("scene_id", seedSceneId)
+        else prefEditor.remove("scene_id")
+        prefEditor.apply()
 
         val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
             .setPackage(applicationContext.packageName)
             .putExtra("wallpaper_path", first.absolutePath)
-            .putExtra("clear_scene", true)
+        if (seedSceneId != null) notify.putExtra("scene_id", seedSceneId)
+        else notify.putExtra("clear_scene", true)
         applicationContext.sendBroadcast(notify)
-        Log.d(TAG, "Daily seeded with ${first.name}")
+        Log.d(TAG, "Daily seeded with ${first.name}${if (seedSceneId != null) " (scene)" else ""}")
     }
 
     /**
@@ -123,7 +151,12 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             // even if the Dart layer accidentally sent a "live" entry, we
             // refuse to download it so the on-device cache stays mp4-free
             // and the maybeRotateDaily filter has nothing to defend against.
-            if (type == "live") continue
+            // 2026-07-07 — skip scenes too. canvas_scene content (spec + layers
+            // + sprites) is downloaded by Dart's SceneSpecService, and Dart
+            // writes the "<id>__scene.webp" marker into this cache. The worker
+            // never downloads scenes. Cross-version safe: an old worker seeing
+            // type=scene skips here (or would 404 on the image bucket anyway).
+            if (type == "live" || type == "scene") continue
             val targetName = file.replace("/", "_")
             if (targetName in cachedNames) continue // already cached
 
