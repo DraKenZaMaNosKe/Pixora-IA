@@ -206,11 +206,16 @@ class AutoRotateService {
       _buildCatalogData(String? category) async {
     if (category == 'SCENES_3D' || category == 'AMOR') {
       final index = await CatalogIndexService.instance.getItems();
-      final scenes = index
-          .where((e) =>
-              e.type == 'canvas_scene' &&
-              (category == 'SCENES_3D' ||
-                  e.tags.map((t) => t.toLowerCase()).contains('amor')))
+      // Shuffle BEFORE take so every user gets a DIFFERENT random subset of
+      // scenes (not the same first N). Combined with the native randomOrNull
+      // rotation + per-device seen-tracking, no two users share the same order.
+      final scenes = (index
+              .where((e) =>
+                  e.type == 'canvas_scene' &&
+                  (category == 'SCENES_3D' ||
+                      e.tags.map((t) => t.toLowerCase()).contains('amor')))
+              .toList()
+            ..shuffle())
           .take(kMaxDailyScenes)
           .toList();
       final data = <String>[
