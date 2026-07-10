@@ -1759,10 +1759,11 @@ class Handler(BaseHTTPRequestHandler):
             scene_id = payload.get("scene_id")
             new_sprites = payload.get("sprites")
             new_layers = payload.get("image_layers")
+            new_cycles = payload.get("cycles")
             if not scene_id:
                 return self._send_json({"error": "scene_id required"}, 400)
-            if new_sprites is None and new_layers is None:
-                return self._send_json({"error": "sprites or image_layers required"}, 400)
+            if new_sprites is None and new_layers is None and new_cycles is None:
+                return self._send_json({"error": "sprites, image_layers or cycles required"}, 400)
             if not self._SAFE_ID_RE.match(scene_id):
                 return self._send_json({"error": "invalid scene_id format"}, 400)
             try:
@@ -1775,6 +1776,10 @@ class Handler(BaseHTTPRequestHandler):
             if isinstance(new_layers, list):
                 bumped_layers = bump_layers_with_url_changes(spec, new_layers)
                 spec["image_layers"] = new_layers
+            # Frame cycles — animation sequence order (e.g. sunburst spin).
+            # The order/windows come pre-computed from the editor.
+            if isinstance(new_cycles, list):
+                spec["cycles"] = new_cycles
             try:
                 put_scene_spec(scene_id, spec, SERVICE_KEY)
             except Exception as e:

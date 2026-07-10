@@ -1385,6 +1385,38 @@ function tick() {
       o.mesh.position.x = o.layer.offset_x_px || 0;
     });
   }
+  // Frame cycles — multiplex layer visibility exactly like the device
+  // (CanvasSceneRenderer Pass 1.5): at time t (mod duration_s) show the
+  // frame whose [from_s, to_s) window contains t, hide the rest of the
+  // cycle. Lets the editor PREVIEW animated backgrounds (e.g. the Samurai
+  // Pizza Cats sunburst spin) with ▶, so layer order can be validated.
+  const cycles = state.spec.cycles || [];
+  if (cycles.length) {
+    const tC = performance.now() / 1000;
+    cycles.forEach(cy => {
+      // Hidden frames (👁 off): their layers never show — excluded from anim.
+      const hiddenKeys = new Set((cy._hidden_frames || []).map(f => f.layer_key));
+      layerMeshes.forEach(o => { if (hiddenKeys.has(o.layer.key)) o.mesh.visible = false; });
+      const frames = cy.frames || [];
+      if (!frames.length) return;
+      if (!state.animPaused) {
+        const dur = cy.duration_s || 1;
+        const tIn = tC % dur;
+        let activeKey = frames[0].layer_key;
+        for (const f of frames) {
+          if (tIn >= (f.from_s || 0) && tIn < (f.to_s || 0)) { activeKey = f.layer_key; break; }
+        }
+        const cycleKeys = new Set(frames.map(f => f.layer_key));
+        layerMeshes.forEach(o => {
+          if (cycleKeys.has(o.layer.key)) o.mesh.visible = (o.layer.key === activeKey);
+        });
+      } else {
+        // Paused: reveal ACTIVE cycle layers (hidden stay hidden) for editing.
+        const activeKeys = new Set(frames.map(f => f.layer_key));
+        layerMeshes.forEach(o => { if (activeKeys.has(o.layer.key)) o.mesh.visible = true; });
+      }
+    });
+  }
   updateTransformBox();
   renderer.render(scene, camera);
 }
@@ -1891,6 +1923,35 @@ function renderItemsPanel() {
       html += layerCardHtml(l, i, hidden);
     });
   }
+  // Frame cycles — animation SEQUENCE order (distinct from layer stacking).
+  // Reorder which background frame transitions to which (e.g. sunburst spin
+  // fondo_00 → fondo_02 → fondo_01) WITHOUT touching z-order. Windows are
+  // recomputed evenly across duration_s on every reorder.
+  const cycles = state.spec.cycles || [];
+  if (cycles.length) {
+    html += '<div class="section-title">SECUENCIA DE ANIMACIÓN</div>';
+    cycles.forEach((cy, ci) => {
+      html += `<div style="padding:6px 8px;font-size:11px;opacity:.8">🔄 ${cy.name || 'cycle'} · <input type="number" step="0.05" min="0.1" value="${cy.duration_s || 1}" data-cycdur="${ci}" style="width:56px;background:#111;color:#eee;border:1px solid #444;border-radius:4px;padding:2px 4px"> s (velocidad total)</div>`;
+      const frames = cy.frames || [];
+      frames.forEach((f, fi) => {
+        html += `<div class="item-card" style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px">
+          <span style="font-size:12px">${fi + 1}. <b>${f.layer_key}</b></span>
+          <span style="display:flex;gap:4px">
+            <button class="btn" data-cychide="${ci}" data-frm="${fi}" title="Ocultar de la animación" style="padding:2px 7px">👁</button>
+            <button class="btn" data-cycmove="-1" data-cyc="${ci}" data-frm="${fi}" ${fi === 0 ? 'disabled' : ''} style="padding:2px 7px">▲</button>
+            <button class="btn" data-cycmove="1" data-cyc="${ci}" data-frm="${fi}" ${fi === frames.length - 1 ? 'disabled' : ''} style="padding:2px 7px">▼</button>
+          </span>
+        </div>`;
+      });
+      const hiddenFrames = cy._hidden_frames || [];
+      hiddenFrames.forEach((f, hi) => {
+        html += `<div class="item-card" style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;opacity:.45">
+          <span style="font-size:12px"><s>${f.layer_key}</s> · oculto</span>
+          <button class="btn" data-cycshow="${ci}" data-frm="${hi}" title="Mostrar en la animación" style="padding:2px 7px">🚫</button>
+        </div>`;
+      });
+    });
+  }
   const wysiwyg = SC.hasParallaxLayers(state.spec) && !state.showReferenceBg;
   html += `<div class="hint-bar">rueda = zoom · pan vacío/Espacio · Alt+rueda = escala · ${wysiwyg ? 'WYSIWYG cel (sin flat bg)' : 'REF = comparar flat'} · ◎ centro visual = anchor</div>`;
   panel.innerHTML = html;
@@ -1935,6 +1996,32 @@ function renderItemsPanel() {
       e.stopPropagation();
       calibrateSpriteAnchor(+btn.dataset.calAnchor);
       pushHistory();
+    };
+  });
+  // Cycle animation-order controls
+  panel.querySelectorAll('[data-cycmove]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      moveCycleFrame(+btn.dataset.cyc, +btn.dataset.frm, +btn.dataset.cycmove);
+    };
+  });
+  panel.querySelectorAll('[data-cychide]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      toggleCycleFrame(+btn.dataset.cychide, false, +btn.dataset.frm);
+    };
+  });
+  panel.querySelectorAll('[data-cycshow]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      toggleCycleFrame(+btn.dataset.cycshow, true, +btn.dataset.frm);
+    };
+  });
+  panel.querySelectorAll('[data-cycdur]').forEach(inp => {
+    inp.onchange = () => {
+      const cy = state.spec.cycles?.[+inp.dataset.cycdur];
+      const v = parseFloat(inp.value);
+      if (cy && v > 0.05) { cy.duration_s = v; recalcCycleWindows(cy); markDirty(); }
     };
   });
   // v1.7.47: z reorder buttons — bump z up (▲) brings the layer/sprite
@@ -2172,6 +2259,53 @@ function undo() {
   markDirty();
 }
 
+// ── Cycle animation order ──────────────────────────────────────────────
+// Reorder the transition SEQUENCE of a frame cycle without touching layer
+// z-order. After any change, windows are recomputed evenly so the frames
+// tile [0, duration_s) contiguously (matches the device's Pass 1.5).
+function recalcCycleWindows(cy) {
+  const n = (cy.frames || []).length;
+  if (!n) return;
+  const step = (cy.duration_s || 1) / n;
+  cy.frames.forEach((f, i) => {
+    f.from_s = +(i * step).toFixed(4);
+    f.to_s = +((i + 1) * step).toFixed(4);
+  });
+}
+
+function moveCycleFrame(cycIdx, frameIdx, dir) {
+  const cy = state.spec?.cycles?.[cycIdx];
+  if (!cy || !cy.frames) return;
+  const j = frameIdx + dir;
+  if (j < 0 || j >= cy.frames.length) return;
+  [cy.frames[frameIdx], cy.frames[j]] = [cy.frames[j], cy.frames[frameIdx]];
+  recalcCycleWindows(cy);
+  markDirty();
+  renderItemsPanel();
+}
+
+// 👁 toggle — move a frame between the active sequence (cy.frames, what the
+// device animates) and the hidden pool (cy._hidden_frames, which the device
+// ignores since it only reads "frames"). Lets the user exclude/include a
+// background frame without deleting the layer. Windows recomputed on active.
+function toggleCycleFrame(cycIdx, fromHidden, idx) {
+  const cy = state.spec?.cycles?.[cycIdx];
+  if (!cy) return;
+  cy.frames = cy.frames || [];
+  cy._hidden_frames = cy._hidden_frames || [];
+  if (fromHidden) {
+    const [f] = cy._hidden_frames.splice(idx, 1);
+    if (f) cy.frames.push(f);
+  } else {
+    if (cy.frames.length <= 1) { toast('Debe quedar al menos 1 frame activo', 'error'); return; }
+    const [f] = cy.frames.splice(idx, 1);
+    if (f) cy._hidden_frames.push(f);
+  }
+  recalcCycleWindows(cy);
+  markDirty();
+  renderItemsPanel();
+}
+
 async function save() {
   if (!state.dirty) return;
   if (state.mode === '3d' && state.spec) {
@@ -2182,6 +2316,7 @@ async function save() {
         scene_id: state.selectedId,
         sprites: state.spec.sprites || [],
         image_layers: state.spec.image_layers || [],
+        cycles: state.spec.cycles || [],
       }),
     });
     if (r.ok) {
