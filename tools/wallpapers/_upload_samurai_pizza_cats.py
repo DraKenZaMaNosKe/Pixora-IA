@@ -183,13 +183,24 @@ def url(name):
 url_flat = url(f"{SCENE_ID}.webp")
 url_prev = url(f"{SCENE_ID}_preview.webp")
 
-# 3 fondo layers (z=0, low parallax) + cat layer (z=1, high parallax).
+# Auto-bump revision so devices re-download replaced assets. The client skips
+# layer re-download when the spec revision is unchanged (SceneSpecService
+# _fetchImageLayers), so reusing the same file name + same revision serves
+# STALE cached images. Read the current spec's max revision and increment.
+try:
+    _existing = get_json(SCENES_BUCKET, f"{SCENE_ID}.json")
+    REVISION = max((int(l.get("revision", 1)) for l in _existing.get("image_layers", [])), default=1) + 1
+except Exception:
+    REVISION = 1
+print(f"    revision -> {REVISION} (forces device re-download)")
+
+# fondo layers (z=0, low parallax) + cat layer (z=1, high parallax).
 image_layers = []
 for key in FONDO_KEYS:
     image_layers.append({
         "key": key, "url": url(f"{SCENE_ID}_{key}.webp"), "z": 0,
         "parallax_factor": 0.25, "scroll_factor": 0.0, "scale": 1.22,
-        "offset_x_px": 0, "offset_y_px": 0, "revision": 1,
+        "offset_x_px": 0, "offset_y_px": 0, "revision": REVISION,
     })
 image_layers.append({
     "key": "gato", "url": url(f"{SCENE_ID}_gato.webp"), "z": 1,
