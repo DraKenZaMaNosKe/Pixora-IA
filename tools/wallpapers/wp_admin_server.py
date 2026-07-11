@@ -56,6 +56,22 @@ PORT = int(os.environ.get("PIXORA_PORT", 5758))
 KEYS_PATH = Path(r"D:/Orbix/Pixora-IA/KEYS_LOCAL.md")
 DASHBOARD_DIR = Path(__file__).parent / "dashboard"
 DASHBOARD_HTML = DASHBOARD_DIR / "index.html"
+# Micro-cache for the live-presence endpoints (polled by the dashboard).
+# {full_path: (epoch_ts, payload)} — 10s TTL caps Supabase load regardless
+# of how many tabs poll.
+_PRESENCE_CACHE = {}
+
+
+def _device_alias(did):
+    """Deterministic memorable label for an anonymous device_id, so the admin
+    sees 'Tigre Solar' instead of 'hjy5bjwndv'. Stable per device."""
+    _N = ["Puma", "Halcón", "Tigre", "Lobo", "Águila", "Zorro", "Búho",
+          "León", "Cuervo", "Dragón", "Lince", "Jaguar", "Gato", "Coyote"]
+    _A = ["Dorado", "Plateado", "Rojo", "Azul", "Solar", "Lunar", "Ágil",
+          "Sabio", "Feroz", "Nocturno", "Veloz", "Sombrío", "Místico", "Real"]
+    did = did or "x"
+    h = sum(ord(c) * (i + 1) for i, c in enumerate(did))
+    return f"{_N[h % len(_N)]} {_A[(h // 7) % len(_A)]}"
 PROJECT_REF = "vzuwvsmlyigjtsearxym"
 SUPABASE_REST = f"https://{PROJECT_REF}.supabase.co/rest/v1"
 SUPABASE_STORAGE = f"https://{PROJECT_REF}.supabase.co/storage/v1"
@@ -863,6 +879,97 @@ class Handler(BaseHTTPRequestHandler):
 
         # Note: /api/wallpaper-update-pg is a POST endpoint — it lives
         # in do_POST below, not here.
+
+        # ═══ Presence + real usage tracking (F0, 2026-07-11) ═══════════
+        # Supersedes /api/active-devices. Sources device_presence (heartbeat,
+        # once F1 ships) with fallback to app_events/wallpaper_events (marked
+        # estimated) so the panel works TODAY. 10s micro-cache for polling.
+        if path in ("/api/live-devices", "/api/device-detail", "/api/usage-stats"):
+            import time as _t
+            ck = self.path
+            hit = _PRESENCE_CACHE.get(ck)
+            if hit and (_t.time() - hit[0]) < 10:
+                return self._send_json(hit[1], 200)
+
+            from datetime import datetime, timezone
+            if path == "/api/live-devices":
+                window = int(query.get("window_min", ["90"])[0])
+                limit = int(query.get("limit", ["300"])[0])
+                rows, _ = self._proxy(f"admin_live_devices?order=last_seen_at.desc&limit={limit}")
+                rows = rows or []
+                seen = {r["device_id"] for r in rows}
+                est, _ = self._proxy(f"admin_presence_proxy?order=last_seen_at.desc&limit={limit}")
+                for e in (est or []):
+                    if e.get("device_id") and e["device_id"] not in seen:
+                        e["estimated"] = True
+                        e["active_wallpaper_id"] = e.get("est_wallpaper_id")
+                        rows.append(e)
+                now = datetime.now(timezone.utc)
+
+                def _tier(last):
+                    if not last:
+                        return "offline"
+                    try:
+                        dt = datetime.fromisoformat(str(last).replace("Z", "+00:00"))
+                    except Exception:
+                        return "offline"
+                    mins = (now - dt).total_seconds() / 60
+                    if mins < 3:
+                        return "online"
+                    if mins < window:
+                        return "alive"
+                    if mins < 43200:  # 30 días
+                        return "offline"
+                    return "churned"
+
+                # Human label: email if the device ever logged in, else a
+                # deterministic memorable alias. (Phone MODEL comes with F1.)
+                emails = {}
+                erows, _ = self._proxy("admin_device_email?select=device_id,email&limit=2000")
+                for e in (erows or []):
+                    emails[e.get("device_id")] = e.get("email")
+                counts = {}
+                for r in rows:
+                    r["tier"] = _tier(r.get("last_seen_at"))
+                    counts[r["tier"]] = counts.get(r["tier"], 0) + 1
+                    did = r.get("device_id", "")
+                    r["email"] = emails.get(did)
+                    r["label"] = emails.get(did) or _device_alias(did)
+                payload = {"devices": rows, "counts": counts, "total": len(rows)}
+
+            elif path == "/api/device-detail":
+                did = query.get("device_id", [""])[0]
+                if not did:
+                    return self._send_json({"error": "device_id required"}, 400)
+                pres, _ = self._proxy(f"admin_live_devices?device_id=eq.{did}")
+                totals, _ = self._proxy(
+                    f"usage_totals?device_id=eq.{did}&order=total_seconds.desc&limit=20")
+                viewed, _ = self._proxy(
+                    f"wallpaper_events?device_id=eq.{did}&event_type=eq.view"
+                    f"&select=wallpaper_id,ts&order=ts.desc&limit=50")
+                recent, _ = self._proxy(
+                    f"app_events?device_id=eq.{did}&select=event_name,ts&order=ts.desc&limit=30")
+                em, _ = self._proxy(f"admin_device_email?device_id=eq.{did}&select=email")
+                presence = (pres[0] if pres else {})
+                email = (em[0].get("email") if em else None)
+                presence["email"] = email
+                presence["label"] = email or _device_alias(did)
+                payload = {
+                    "presence": presence,
+                    "usage_totals": totals or [],
+                    "viewed": viewed or [],
+                    "recent_events": recent or [],
+                }
+
+            else:  # /api/usage-stats
+                days = int(query.get("days", ["30"])[0])
+                data, _ = self._proxy(
+                    "rpc/admin_usage_stats", "POST",
+                    json.dumps({"p_days": days}).encode("utf-8"))
+                payload = data if isinstance(data, dict) else {"stats": data}
+
+            _PRESENCE_CACHE[ck] = (_t.time(), payload)
+            return self._send_json(payload, 200)
 
         # ─── Active devices analytics (testers monitoring) ────────
         # Devices únicos con events en la ventana ?days=N. Cross-check

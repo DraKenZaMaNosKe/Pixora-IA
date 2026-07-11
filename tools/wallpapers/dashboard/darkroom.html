@@ -463,12 +463,173 @@ body::after{
     <button class="tab-btn" data-tab="eventos">Eventos</button>
     <button class="tab-btn" data-tab="escenas">Escenas</button>
     <button class="tab-btn" data-tab="textos">Textos</button>
+    <button class="tab-btn" data-tab="envivo">En Vivo</button>
+    <button class="tab-btn" data-tab="stats">Estadísticas</button>
   </nav>
   <div class="session-clock">
     <span>SESIÓN <em id="clock">00:00</em></span>
     <span id="save-status">último guardado: —</span>
   </div>
 </header>
+
+<!-- =============================================================== -->
+<!-- EN VIVO + ESTADÍSTICAS (presencia/uso, cuarto oscuro)            -->
+<!-- =============================================================== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  .dr-filters{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 10px}
+  .dr-filters button{background:rgba(20,12,10,.5);border:1px solid var(--wood,#4a3d30);color:#c9b499;border-radius:14px;padding:4px 13px;font-size:12px;cursor:pointer;font-family:inherit}
+  .dr-filters button.active{background:radial-gradient(circle at 35% 30%,#ff8a70,#c93a2a 65%);color:#fff;border-color:#E85A3C;font-weight:700}
+  .dr-counters{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:4px}
+  .dr-pill{font-size:12px;color:#c9b499;display:inline-flex;align-items:center;gap:6px}
+  .dr-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .dr-dot.on{animation:drpulse 1.4s infinite}
+  @keyframes drpulse{0%,100%{box-shadow:0 0 5px currentColor}50%{box-shadow:0 0 13px 3px currentColor}}
+  .dr-note-line{font-size:11px;color:#8a7563;font-style:italic;margin:2px 0 14px}
+  .dr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px}
+  .dr-phone{aspect-ratio:9/18;border-radius:18px;background-size:cover;background-position:center;position:relative;overflow:hidden;cursor:pointer;border:3px solid #1a1410;box-shadow:0 7px 20px rgba(0,0,0,.6),inset 0 0 0 1px rgba(232,180,140,.14);transition:transform .16s,box-shadow .16s}
+  .dr-phone:hover{transform:translateY(-4px) rotate(-.6deg);box-shadow:0 12px 28px rgba(232,90,60,.32)}
+  .dr-notch{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:30px;height:5px;border-radius:3px;background:rgba(0,0,0,.72);z-index:2}
+  .dr-livedot{position:absolute;top:8px;right:9px;width:9px;height:9px;border-radius:50%;z-index:3}
+  .dr-est{position:absolute;top:7px;left:9px;background:rgba(0,0,0,.6);color:#E8B48C;font-size:9px;padding:1px 5px;border-radius:6px;z-index:3;font-style:italic}
+  .dr-ov{position:absolute;bottom:0;left:0;right:0;padding:8px 8px 9px;background:linear-gradient(0deg,rgba(15,8,6,.95) 32%,rgba(15,8,6,.4) 72%,transparent);color:#f0e0d0;z-index:2}
+  .dr-devlabel{font-size:10px;color:#E8B48C;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+  .dr-daily{display:inline-block;background:#c93a2a;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;margin-bottom:3px}
+  .dr-wp{font-family:'Caveat',cursive;font-size:19px;font-weight:600;color:#F0DBA6;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dr-tone{font-size:10px;color:#c9b499;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dr-meta{font-size:9px;color:#9a8574;margin-top:2px}
+  .dr-empty{opacity:.5;padding:40px;text-align:center;grid-column:1/-1;color:#c9b499}
+  #envivo-detail{position:fixed;right:22px;top:90px;width:320px;max-height:78vh;overflow:auto;background:linear-gradient(180deg,#F5E9C3,#E4D19C);color:var(--ink,#2A1F1A);border-radius:6px;padding:18px;z-index:60;box-shadow:0 14px 44px rgba(0,0,0,.6);transform:rotate(-.6deg);display:none}
+  #envivo-detail h3{font-family:'Caveat',cursive;font-size:24px;margin:0 0 8px}
+  .dr-close{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--ink,#2A1F1A);cursor:pointer;font-size:16px}
+  .dd-row{font-size:12px;margin:4px 0}
+  .dd-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+  .dd-table th,.dd-table td{text-align:left;padding:4px 6px;border-bottom:1px solid rgba(42,31,26,.2)}
+  .dr-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:10px}
+  .dr-stat{background:rgba(20,12,10,.45);border:1px solid var(--wood,#4a3d30);border-radius:10px;padding:14px}
+  .dr-stat h4{color:#E8B48C;margin:0 0 10px;font-size:13px;font-weight:600}
+  .dr-stat canvas{max-height:260px}
+  #stats-time-note{display:none;font-size:11px;color:#E85A3C;margin-top:6px;font-style:italic}
+</style>
+
+<section class="page" data-page="envivo">
+  <div class="room-title">
+    <p class="eyebrow">MONITOR DE SALA · EN VIVO</p>
+    <h1 class="title">En Vivo</h1>
+    <p class="subtitle">— los teléfonos encendidos ahora mismo, con lo que traen puesto</p>
+  </div>
+  <div class="dr-counters" id="envivo-counters"></div>
+  <div class="dr-filters" id="envivo-filters">
+    <button data-envivo-filter="all" class="active">Todos</button>
+    <button data-envivo-filter="online">En línea</button>
+    <button data-envivo-filter="alive">Activos</button>
+    <button data-envivo-filter="offline">Inactivos</button>
+    <button data-envivo-filter="churned">Perdidos</button>
+  </div>
+  <p class="dr-note-line">Auto-refresca cada 15s · los <b>~est</b> son estimados de actividad histórica (se vuelven exactos con el heartbeat) · sin ubicación</p>
+  <div id="envivo-grid" class="dr-grid" data-filter="all"></div>
+  <div id="envivo-detail"></div>
+</section>
+
+<section class="page" data-page="stats">
+  <div class="room-title">
+    <p class="eyebrow">BITÁCORA DEL LABORATORIO · 30 DÍAS</p>
+    <h1 class="title">Estadísticas</h1>
+    <p class="subtitle">— qué se revela, qué se queda, cuándo hay movimiento</p>
+  </div>
+  <div class="dr-stats-grid">
+    <div class="dr-stat"><h4>Dispositivos activos por día</h4><canvas id="chart-dau"></canvas></div>
+    <div class="dr-stat"><h4>Wallpapers más vistos</h4><canvas id="chart-viewed"></canvas></div>
+    <div class="dr-stat"><h4>Wallpapers más instalados</h4><canvas id="chart-installed"></canvas></div>
+    <div class="dr-stat"><h4>Tipo de wallpaper activo</h4><canvas id="chart-kind"></canvas></div>
+    <div class="dr-stat"><h4>Tiempo de uso + retención por wallpaper</h4><canvas id="chart-time"></canvas><div id="stats-time-note">⏳ Se llena con datos del heartbeat (F1).</div></div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const $$ = s => document.querySelector(s);
+  let liveTimer = null, charts = {};
+  const TIER = {online:{c:'#2ecc71',l:'En línea'},alive:{c:'#E8B48C',l:'Activo'},offline:{c:'#7a6a5a',l:'Inactivo'},churned:{c:'#c93a2a',l:'Perdido'}};
+  function secToHuman(s){s=Math.floor(s||0);if(s<60)return s+'s';const d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60);if(d>0)return d+'d '+h+'h';if(h>0)return h+'h '+m+'m';return m+'m';}
+  function esc(x){return String(x==null?'':x).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+
+  async function loadLive(){
+    try{
+      const d = await (await fetch('/api/live-devices?window_min=90')).json();
+      const counts = d.counts||{};
+      $$('#envivo-counters').innerHTML = ['online','alive','offline','churned'].map(t=>
+        `<span class="dr-pill"><i class="dr-dot ${t==='online'?'on':''}" style="background:${TIER[t].c};color:${TIER[t].c}"></i>${TIER[t].l}: <b>${counts[t]||0}</b></span>`).join('');
+      const grid=$$('#envivo-grid'), filter=grid.dataset.filter||'all';
+      let devs=(d.devices||[]); if(filter!=='all') devs=devs.filter(x=>x.tier===filter);
+      grid.innerHTML = devs.map(dev=>{
+        const t=TIER[dev.tier]||TIER.offline;
+        const bg=dev.wallpaper_preview?`background-image:url('${esc(dev.wallpaper_preview)}')`:'background:linear-gradient(160deg,#2a1f1a,#120a08)';
+        const daily=dev.daily_enabled?'<span class="dr-daily">⟳ Pixora Daily</span>':'';
+        const est=dev.estimated?'<span class="dr-est">~est</span>':'';
+        const wp=esc(dev.wallpaper_title||dev.active_wallpaper_id||(dev.daily_enabled?'Daily':'—'));
+        const tone=dev.active_ringtone_title?`<div class="dr-tone">🔔 ${esc(dev.active_ringtone_title)}</div>`:'';
+        const label=esc(dev.label||dev.device_id||'—');
+        const licon=dev.email?'📧':'🏷️';
+        return `<div class="dr-phone" style="${bg}" onclick="__envivoDetail('${esc(dev.device_id)}')">
+          <span class="dr-notch"></span>${est}
+          <i class="dr-livedot ${dev.tier==='online'?'dr-dot on':''}" style="background:${t.c};color:${t.c}"></i>
+          <div class="dr-ov"><div class="dr-devlabel" title="${label}">${licon} ${label}</div>${daily}<div class="dr-wp" title="${wp}">${wp}</div>${tone}
+            <div class="dr-meta">⏱ ${secToHuman(dev.wp_seconds_total)} · 👁 ${dev.wallpapers_seen||0} · ${esc(dev.app_version||'?')}</div></div>
+        </div>`;
+      }).join('') || '<div class="dr-empty">Sin dispositivos en esta vista.</div>';
+    }catch(e){console.warn('live-devices',e);}
+  }
+
+  window.__envivoDetail = async function(id){
+    const panel=$$('#envivo-detail'); panel.style.display='block';
+    panel.innerHTML='<div style="padding:16px">Revelando…</div>';
+    try{
+      const d=await (await fetch('/api/device-detail?device_id='+encodeURIComponent(id))).json();
+      const p=d.presence||{};
+      const tops=(d.usage_totals||[]).map(u=>`<tr><td>${esc(u.content_id)}</td><td>${esc(u.content_kind)}</td><td>${secToHuman(u.total_seconds)}</td></tr>`).join('')||'<tr><td colspan=3 style="opacity:.55">Sin tiempo aún (llega con el heartbeat)</td></tr>';
+      const viewed=[...new Set((d.viewed||[]).map(v=>v.wallpaper_id))].slice(0,20).map(esc).join(', ')||'—';
+      panel.innerHTML=`<button class="dr-close" onclick="this.parentNode.style.display='none'">✕</button>
+        <h3>${p.email?'📧':'🏷️'} ${esc(p.label||id)}</h3>
+        <div class="dd-row" style="opacity:.45;font-size:10px;margin-top:-6px">${esc(id)}</div>
+        <div class="dd-row">Wallpaper: <b>${esc(p.wallpaper_title||p.active_wallpaper_id||'—')}</b> ${p.daily_enabled?'⟳ Daily':''}</div>
+        <div class="dd-row">Tono: <b>${esc(p.active_ringtone_title||'—')}</b></div>
+        <div class="dd-row">Versión: <b>${esc(p.app_version||'?')}</b> · ${esc(p.device_model||'?')}</div>
+        <div class="dd-row">Vistos: ${viewed}</div>
+        <table class="dd-table"><tr><th>Contenido</th><th>Tipo</th><th>Tiempo</th></tr>${tops}</table>`;
+    }catch(e){panel.innerHTML='<button class="dr-close" onclick="this.parentNode.style.display=\'none\'">✕</button><div style="padding:16px">Error</div>';}
+  };
+
+  function startLive(){loadLive();if(liveTimer)clearInterval(liveTimer);liveTimer=setInterval(()=>{if(!document.hidden)loadLive();},15000);}
+
+  function mkChart(id,cfg){if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(el&&window.Chart)charts[id]=new Chart(el,cfg);}
+  const RED='#E85A3C',GILT='#D9BE86';
+  const AX={x:{ticks:{color:'#a89078'},grid:{color:'rgba(168,144,120,.12)'}},y:{ticks:{color:'#a89078'},grid:{color:'rgba(168,144,120,.12)'}}};
+  async function loadStats(){
+    try{
+      const s=await (await fetch('/api/usage-stats?days=30')).json();
+      const dau=s.dau_curve||[];
+      mkChart('chart-dau',{type:'line',data:{labels:dau.map(x=>x.day),datasets:[{label:'Activos',data:dau.map(x=>x.devices),borderColor:RED,backgroundColor:'rgba(232,90,60,.18)',fill:true,tension:.3}]},options:{plugins:{legend:{labels:{color:'#c9b499'}}},scales:AX}});
+      const tv=s.top_viewed||[];
+      mkChart('chart-viewed',{type:'bar',data:{labels:tv.map(x=>x.wallpaper_id),datasets:[{label:'Vistas',data:tv.map(x=>x.views),backgroundColor:GILT}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:AX.x,y:{ticks:{color:'#c9b499',font:{size:10}},grid:{display:false}}}}});
+      const ti=s.top_installed||[];
+      mkChart('chart-installed',{type:'bar',data:{labels:ti.map(x=>x.wallpaper_id),datasets:[{label:'Instalados',data:ti.map(x=>x.installs),backgroundColor:RED}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:AX.x,y:{ticks:{color:'#c9b499',font:{size:10}},grid:{display:false}}}}});
+      const km=s.kind_mix||[];
+      mkChart('chart-kind',{type:'doughnut',data:{labels:km.map(x=>x.active_kind),datasets:[{data:km.map(x=>x.devices),backgroundColor:['#E85A3C','#D9BE86','#c98a2e','#8a6f4d','#5c4a3a','#a8927a']}]},options:{plugins:{legend:{labels:{color:'#c9b499'}}}}});
+      const tt=s.top_wallpapers_time||[]; const note=$$('#stats-time-note'); if(note) note.style.display=tt.length?'none':'block';
+      mkChart('chart-time',{type:'bar',data:{labels:tt.map(x=>x.content_id),datasets:[{label:'Horas',data:tt.map(x=>x.hours),backgroundColor:GILT},{label:'Retención prom (h)',data:tt.map(x=>x.avg_retention_hours),backgroundColor:RED}]},options:{indexAxis:'y',plugins:{legend:{labels:{color:'#c9b499'}}},scales:{x:AX.x,y:{ticks:{color:'#c9b499',font:{size:10}},grid:{display:false}}}}});
+    }catch(e){console.warn('stats',e);}
+  }
+
+  document.querySelector('[data-tab="envivo"]')?.addEventListener('click',startLive);
+  document.querySelector('[data-tab="stats"]')?.addEventListener('click',loadStats);
+  document.addEventListener('click',e=>{
+    const f=e.target.closest('[data-envivo-filter]'); if(!f)return;
+    document.querySelectorAll('[data-envivo-filter]').forEach(b=>b.classList.remove('active'));
+    f.classList.add('active'); $$('#envivo-grid').dataset.filter=f.dataset.envivoFilter; loadLive();
+  });
+})();
+</script>
 
 <!-- =============================================================== -->
 <!-- RESUMEN                                                          -->
