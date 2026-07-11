@@ -6,7 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/subscription_service.dart';
-import '../../../core/services/theme_service.dart';
 import '../../../core/services/wallpaper_service.dart';
 import '../../../core/utils/locale_helper.dart';
 import '../../favorites/providers/favorites_provider.dart';
@@ -130,6 +129,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ListView(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 40),
             children: [
+              const _GrimorioPageHeader(),
               const _HudSectionHeader('SYSTEM', 'ACCOUNT'),
               _buildAccountSection(),
               const SizedBox(height: 14),
@@ -147,7 +147,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               _buildOverlaysSection(),
               const _HudDivider(),
               const _HudSectionHeader('GENERAL', 'PREFERENCES'),
-              const _ThemePickerSection(),
               _SettingsTile(
                 icon: Icons.school_outlined,
                 title: LocaleHelper.pick(
@@ -806,15 +805,65 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // Pickers for AutoRotate config moved to PixoraDailyPage.
 }
 
-// ── HUD palette (Control Deck) ─────────────────────────────────────
-const _hudGreen = Color(0xFF5BFF8E);
-const _hudCyan = Color(0xFF19F0FF);
-const _hudRed = Color(0xFFFF4D4D);
-const _hudInk = Color(0xFFD9F8E6);
-const _hudInkDim = Color(0x99D9F8E6);
-const _hudGrid = Color(0x1419F0FF);
+/// Grimorio page header — an illuminated chapter title: a Caveat kicker over
+/// a large Cinzel Decorative "Ajustes", closed by a fleuron rule.
+class _GrimorioPageHeader extends StatelessWidget {
+  const _GrimorioPageHeader();
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 6, 2, 8),
+      child: Column(
+        children: [
+          Text(
+            LocaleHelper.pick(es: 'el tomo de', en: 'the tome of'),
+            style: GoogleFonts.caveat(
+              fontSize: 20,
+              color: const Color(0xFFA8763E),
+            ),
+          ),
+          Text(
+            LocaleHelper.pick(es: 'Ajustes', en: 'Settings'),
+            style: GoogleFonts.cinzelDecorative(
+              fontSize: 30,
+              fontWeight: FontWeight.w900,
+              color: HudTokens.goldBright,
+              shadows: const [
+                Shadow(color: Color(0xFF6E4A1E), offset: Offset(0, 1)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 130,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color: HudTokens.gold.withValues(alpha: 0.3),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6),
+                  child: Text('❧',
+                      style: TextStyle(color: Color(0xFF8B2E2E), fontSize: 12)),
+                ),
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    color: HudTokens.gold.withValues(alpha: 0.3),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-/// CRT background — scanlines + cyan grid + faint green glow at top.
 class _HudCrtBg extends StatelessWidget {
   const _HudCrtBg();
   @override
@@ -822,112 +871,134 @@ class _HudCrtBg extends StatelessWidget {
 }
 
 class _CrtPainter extends CustomPainter {
+  // Grimorio parchment glow — warm gold haze at the top + a faint seal-red
+  // ember low-left, over the near-black ink. No grid, no scanlines.
   @override
   void paint(Canvas canvas, Size size) {
-    // Faint green halo top
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, 120),
+      Rect.fromLTWH(0, 0, size.width, 240),
       Paint()
-        ..shader = const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0x1A5BFF8E), Color(0x00000000)],
-        ).createShader(Rect.fromLTWH(0, 0, size.width, 120)),
+        ..shader = const RadialGradient(
+          center: Alignment.topCenter,
+          radius: 1.1,
+          colors: [Color(0x24C9A650), Color(0x00000000)],
+        ).createShader(Rect.fromLTWH(0, 0, size.width, 240)),
     );
-    // Cyan grid
-    final grid = Paint()
-      ..color = _hudGrid
-      ..strokeWidth = 0.4;
-    const step = 22.0;
-    for (var x = 0.0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid);
-    }
-    for (var y = 0.0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
-    }
-    // Horizontal scanlines (CRT)
-    final scan = Paint()..color = const Color(0x0E000000);
-    for (var y = 0.0; y < size.height; y += 3) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), scan);
-    }
+    final emberC = Offset(size.width * 0.16, size.height * 0.82);
+    canvas.drawCircle(
+      emberC,
+      size.width * 0.55,
+      Paint()
+        ..shader = const RadialGradient(
+          colors: [Color(0x168B2E2E), Color(0x00000000)],
+        ).createShader(
+            Rect.fromCircle(center: emberC, radius: size.width * 0.55)),
+    );
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
 
-/// Thin cyan-dim divider between HUD sections.
+/// Grimorio divider — a gold hairline broken by a fleuron (❧).
 class _HudDivider extends StatelessWidget {
   const _HudDivider();
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Container(
-          height: 1,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                _hudCyan.withValues(alpha: 0.0),
-                _hudCyan.withValues(alpha: 0.35),
-                _hudCyan.withValues(alpha: 0.0),
-              ],
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 1,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                    HudTokens.gold.withValues(alpha: 0.0),
+                    HudTokens.gold.withValues(alpha: 0.35),
+                  ]),
+                ),
+              ),
             ),
-          ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text('❧',
+                  style: TextStyle(color: HudTokens.gold, fontSize: 14)),
+            ),
+            Expanded(
+              child: Container(
+                height: 1,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                    HudTokens.gold.withValues(alpha: 0.35),
+                    HudTokens.gold.withValues(alpha: 0.0),
+                  ]),
+                ),
+              ),
+            ),
+          ],
         ),
       );
 }
 
-/// Terminal header — `> CATEGORY // TITLE_NAME` mono with LED dot.
+/// Grimorio section header — a fleuron seal (❧) + a Cinzel Decorative title
+/// in warm gold, trailed by a fading gold rule. Reads like a chapter mark in
+/// an illuminated tome.
 class _HudSectionHeader extends StatelessWidget {
   const _HudSectionHeader(this.category, this.title);
   final String category;
   final String title;
 
+  static const Color _seal = Color(0xFF8B2E2E);
+
+  String _pretty() {
+    switch (title.toUpperCase()) {
+      case 'ACCOUNT':
+        return LocaleHelper.pick(es: 'Cuenta', en: 'Account');
+      case 'HUD_STYLE':
+        return LocaleHelper.pick(es: 'Estilo de HUD', en: 'HUD Style');
+      case 'TOUCH_EFFECT':
+        return LocaleHelper.pick(es: 'Efecto táctil', en: 'Touch Effect');
+      case 'OVERLAYS':
+        return LocaleHelper.pick(es: 'Overlays', en: 'Overlays');
+      case 'PREFERENCES':
+        return LocaleHelper.pick(es: 'Preferencias', en: 'Preferences');
+      case 'ABOUT':
+        return LocaleHelper.pick(es: 'Acerca de', en: 'About');
+      case 'DANGER_ZONE':
+        return LocaleHelper.pick(es: 'Zona crítica', en: 'Danger Zone');
+      default:
+        return title;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(2, 14, 0, 12),
+      padding: const EdgeInsets.fromLTRB(2, 16, 0, 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _hudGreen,
-              boxShadow: [
-                BoxShadow(
-                  color: _hudGreen.withValues(alpha: 0.6),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-          ),
+          const Text('❧', style: TextStyle(color: _seal, fontSize: 16)),
           const SizedBox(width: 8),
           Text(
-            '> $category ',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
+            _pretty(),
+            style: GoogleFonts.cinzelDecorative(
+              fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: _hudGreen,
-              letterSpacing: 1.4,
+              color: HudTokens.goldBright,
+              letterSpacing: 0.5,
             ),
           ),
-          Text(
-            '// ${title.toUpperCase()}',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: _hudCyan,
-              letterSpacing: 1.4,
-            ),
-          ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: Container(
-              height: 0.6,
-              color: _hudCyan.withValues(alpha: 0.25),
+              height: 1,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+                  HudTokens.gold.withValues(alpha: 0.4),
+                  HudTokens.gold.withValues(alpha: 0.0),
+                ]),
+              ),
             ),
           ),
         ],
@@ -954,69 +1025,90 @@ class _SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDanger = iconColor == HudTokens.goldDeep;
-    final accent = isDanger ? _hudRed : (iconColor ?? _hudGreen);
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
-        decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Color(0x1419F0FF), width: 0.6),
-          ),
-        ),
-        child: Row(
-          children: [
-            // Bracketed icon panel — like a hardware indicator
-            Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.08),
-                border: Border.all(color: accent.withValues(alpha: 0.4)),
-              ),
-              child: Icon(icon, color: accent, size: 18),
+    const seal = Color(0xFF8B2E2E);
+    final accent = isDanger ? seal : HudTokens.gold;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.all(11),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFF23180D).withValues(alpha: 0.7),
+                const Color(0xFF120C07).withValues(alpha: 0.6),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title.toUpperCase(),
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: isDanger ? _hudRed : _hudInk,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  if (subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: accent.withValues(alpha: isDanger ? 0.55 : 0.3),
+            ),
+            boxShadow: const [
+              BoxShadow(
+                  color: Color(0x33000000),
+                  blurRadius: 6,
+                  offset: Offset(0, 2)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: accent.withValues(alpha: 0.12),
+                  border: Border.all(color: accent.withValues(alpha: 0.5)),
+                ),
+                child: Icon(icon,
+                    color: isDanger
+                        ? const Color(0xFFD98A8A)
+                        : HudTokens.goldBright,
+                    size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle,
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 9.5,
-                        color: _hudInkDim,
-                        letterSpacing: 0.6,
-                        height: 1.4,
+                      title,
+                      style: GoogleFonts.cinzel(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: isDanger
+                            ? const Color(0xFFD98A8A)
+                            : HudTokens.nightText,
+                        letterSpacing: 0.3,
                       ),
                     ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 1),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.caveat(
+                          fontSize: 15,
+                          color: const Color(0xFFA8763E),
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
-              ),
-            ),
-            if (onTap != null) ...[
-              const SizedBox(width: 8),
-              Text(
-                '►',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 12,
-                  color: accent.withValues(alpha: 0.7),
                 ),
               ),
+              if (onTap != null) ...[
+                const SizedBox(width: 8),
+                Text('›',
+                    style: TextStyle(
+                        fontSize: 20, color: accent.withValues(alpha: 0.8))),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -1063,164 +1155,6 @@ class _PlusPill extends StatelessWidget {
   }
 }
 
-/// "Tema visual" — three-option theme picker (Black & Gold / Cream Day / iOS White).
-/// Phase 1 of iOS theme implementation.
-class _ThemePickerSection extends StatelessWidget {
-  const _ThemePickerSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: ThemeService.instance,
-      builder: (context, _) {
-        final activeId = ThemeService.instance.activeId;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 0, 8),
-              child: Text(
-                LocaleHelper.pick(es: '── THEME_MODE', en: '── THEME_MODE'),
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  letterSpacing: 1.4,
-                  fontWeight: FontWeight.w700,
-                  color: _hudCyan.withValues(alpha: 0.65),
-                ),
-              ),
-            ),
-            for (final id in ThemeService.allIds)
-              _ThemeOption(
-                id: id,
-                active: id == activeId,
-                onTap: () => ThemeService.instance.setTheme(id),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _ThemeOption extends StatelessWidget {
-  const _ThemeOption({
-    required this.id,
-    required this.active,
-    required this.onTap,
-  });
-  final String id;
-  final bool active;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(4, 10, 4, 10),
-        decoration: BoxDecoration(
-          border: const Border(
-            bottom: BorderSide(color: Color(0x1419F0FF), width: 0.6),
-          ),
-          color:
-              active ? _hudGreen.withValues(alpha: 0.06) : Colors.transparent,
-        ),
-        child: Row(
-          children: [
-            // Bracketed selector "[ • ]" / "[   ]"
-            Text(
-              active ? '[ ● ]' : '[   ]',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: active ? _hudGreen : _hudInkDim,
-                letterSpacing: 0.8,
-                shadows: active
-                    ? [
-                        Shadow(
-                          color: _hudGreen.withValues(alpha: 0.7),
-                          blurRadius: 8,
-                        ),
-                      ]
-                    : null,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    ThemeService.labelFor(id).toUpperCase(),
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: active ? _hudGreen : _hudInk,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    ThemeService.taglineFor(id),
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 9.5,
-                      letterSpacing: 0.6,
-                      color: _hudInkDim,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _SwatchPreview(themeId: id),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SwatchPreview extends StatelessWidget {
-  const _SwatchPreview({required this.themeId});
-  final String themeId;
-
-  @override
-  Widget build(BuildContext context) {
-    HudTheme preview;
-    switch (themeId) {
-      case 'iosWhite':
-        preview = HudTheme.iosWhite;
-        break;
-      default:
-        preview = HudTheme.night;
-    }
-    return Container(
-      width: 44,
-      height: 28,
-      decoration: BoxDecoration(
-        color: preview.bg,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: preview.divider, width: 1),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: 6,
-            top: 6,
-            bottom: 6,
-            child: Container(
-              width: 10,
-              decoration: BoxDecoration(
-                color: preview.accent,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ── HUD Overlay row — hardware switch with LED indicator ──────────
 class _HudOverlayRow extends StatelessWidget {
   const _HudOverlayRow({
@@ -1238,64 +1172,81 @@ class _HudOverlayRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => onChanged(!enabled),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
-        decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Color(0x1419F0FF), width: 0.6),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: InkWell(
+        onTap: () => onChanged(!enabled),
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.all(11),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFF23180D).withValues(alpha: 0.7),
+                const Color(0xFF120C07).withValues(alpha: 0.6),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: HudTokens.gold.withValues(alpha: enabled ? 0.35 : 0.18),
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: enabled
-                    ? _hudGreen.withValues(alpha: 0.10)
-                    : _hudInkDim.withValues(alpha: 0.05),
-                border: Border.all(
-                  color: enabled
-                      ? _hudGreen.withValues(alpha: 0.5)
-                      : _hudInkDim.withValues(alpha: 0.2),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color:
+                      HudTokens.gold.withValues(alpha: enabled ? 0.14 : 0.06),
+                  border: Border.all(
+                    color:
+                        HudTokens.gold.withValues(alpha: enabled ? 0.5 : 0.22),
+                  ),
+                ),
+                child: Icon(icon,
+                    color:
+                        enabled ? HudTokens.goldBright : HudTokens.nightTextDim,
+                    size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.cinzel(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: enabled
+                            ? HudTokens.nightText
+                            : HudTokens.nightTextDim,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 1),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.caveat(
+                          fontSize: 15,
+                          color: const Color(0xFFA8763E),
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              child:
-                  Icon(icon, color: enabled ? _hudGreen : _hudInkDim, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title.toUpperCase(),
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: enabled ? _hudInk : _hudInkDim,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 9.5,
-                      color: _hudInkDim,
-                      letterSpacing: 0.6,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            _HudSwitch(enabled: enabled),
-          ],
+              const SizedBox(width: 10),
+              _HudSwitch(enabled: enabled),
+            ],
+          ),
         ),
       ),
     );
@@ -1311,21 +1262,23 @@ class _HudSwitch extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       width: 44,
-      height: 22,
+      height: 24,
       padding: const EdgeInsets.symmetric(horizontal: 3),
       decoration: BoxDecoration(
-        color: enabled
-            ? _hudGreen.withValues(alpha: 0.18)
-            : _hudInkDim.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        gradient: enabled
+            ? const LinearGradient(colors: [HudTokens.gold, Color(0xFFA8763E)])
+            : null,
+        color: enabled ? null : const Color(0xFF2A1D10),
         border: Border.all(
-          color: enabled ? _hudGreen : _hudInkDim.withValues(alpha: 0.4),
+          color: enabled ? HudTokens.goldBright : const Color(0xFF5A4526),
           width: 1,
         ),
         boxShadow: enabled
             ? [
                 BoxShadow(
-                  color: _hudGreen.withValues(alpha: 0.35),
-                  blurRadius: 8,
+                  color: HudTokens.gold.withValues(alpha: 0.35),
+                  blurRadius: 7,
                 ),
               ]
             : null,
@@ -1335,18 +1288,11 @@ class _HudSwitch extends StatelessWidget {
             enabled ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           Container(
-            width: 14,
-            height: 14,
-            decoration: BoxDecoration(
-              color: enabled ? _hudGreen : _hudInkDim,
-              boxShadow: enabled
-                  ? [
-                      BoxShadow(
-                        color: _hudGreen.withValues(alpha: 0.8),
-                        blurRadius: 6,
-                      ),
-                    ]
-                  : null,
+            width: 16,
+            height: 16,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0xFFECDCB8),
             ),
           ),
         ],
