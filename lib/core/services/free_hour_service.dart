@@ -188,11 +188,12 @@ class FreeHourService {
         ),
       );
 
-      final now = _now();
+      final nowUtc = _nowUtc();
       final debugSoon = !kReleaseMode && _debugStart != null;
-      final startToday = debugSoon ? _debugStart! : _scheduleForDay(now).start;
+      final startToday =
+          debugSoon ? _debugStart!.toUtc() : _scheduleForCst(nowUtc).start;
       // Today's window (or the debug one), only if still ahead.
-      if (startToday.isAfter(now)) {
+      if (startToday.isAfter(nowUtc)) {
         await plugin.zonedSchedule(
           _notifIdToday,
           title,
@@ -207,7 +208,7 @@ class FreeHourService {
       // Tomorrow's — so a user who doesn't open the app tomorrow still gets it.
       // Skipped in debug 'soon' (we only want the one imminent test notif).
       if (!debugSoon) {
-        final tomorrow = _scheduleForDay(now.add(const Duration(days: 1)));
+        final tomorrow = _scheduleForCst(nowUtc.add(const Duration(days: 1)));
         await plugin.zonedSchedule(
           _notifIdTomorrow,
           title,
@@ -224,20 +225,23 @@ class FreeHourService {
     }
   }
 
-  // ── Clock (anti-cheat, pragmatic) ──
-  // Uses a server-time offset only if it's big (>5 min) — normal jitter trusts
-  // the local clock. Airplane-mode + clock tampering can still force a window,
-  // but the downside is 30 ad-free minutes, not worth more engineering.
-  DateTime _now() {
-    if (_clockOffsetMs.abs() > 5 * 60 * 1000) {
-      return DateTime.now().add(Duration(milliseconds: _clockOffsetMs));
-    }
-    return DateTime.now();
-  }
+  // ── Server-synced clock (anti-cheat + cross-device consistency) ──
+  // Device clock + the offset measured from Supabase's Date header, applied
+  // ALWAYS. Every phone converges to SERVER time, so the countdown is IDENTICAL
+  // on all devices and CAN'T be gamed by changing the phone clock. Offline with
+  // no cached offset → falls back to the device clock (best-effort).
+  DateTime _nowUtc() =>
+      DateTime.now().toUtc().add(Duration(milliseconds: _clockOffsetMs));
 
-  // ── Fixed daily happy hour at _cfgHour:_cfgMinute LOCAL time ──
-  ({DateTime start, DateTime end}) _scheduleForDay(DateTime day) {
-    final start = DateTime(day.year, day.month, day.day, _cfgHour, _cfgMinute);
+  // Mexico is CST (UTC-6, no DST). The Free Hour fires at _cfgHour:_cfgMinute
+  // CST as an ABSOLUTE instant → SIMULTANEOUS worldwide. For MX users that's
+  // their local 8 PM; elsewhere it's the equivalent moment. Returns UTC.
+  static const _cstOffset = Duration(hours: 6);
+  ({DateTime start, DateTime end}) _scheduleForCst(DateTime serverUtc) {
+    final cst = serverUtc.subtract(_cstOffset);
+    final start =
+        DateTime.utc(cst.year, cst.month, cst.day, _cfgHour, _cfgMinute)
+            .add(_cstOffset);
     return (start: start, end: start.add(Duration(minutes: _cfgDurationMin)));
   }
 
@@ -279,42 +283,36 @@ class FreeHourService {
     }
 
     if (!_cfgEnabled) {
-      return FreeHourState(
-        enabled: false,
-        isActive: false,
-        nextStart: _now(),
-        timeToNext: Duration.zero,
-        remaining: Duration.zero,
-      );
+      return FreeHourState.disabled;
     }
 
-    final now = _now();
-    final today = _scheduleForDay(now);
-    if (now.isBefore(today.start)) {
+    final nowUtc = _nowUtc();
+    final today = _scheduleForCst(nowUtc);
+    if (nowUtc.isBefore(today.start)) {
       return FreeHourState(
         enabled: true,
         isActive: false,
-        nextStart: today.start,
-        timeToNext: today.start.difference(now),
+        nextStart: today.start.toLocal(),
+        timeToNext: today.start.difference(nowUtc),
         remaining: Duration.zero,
       );
     }
-    if (now.isBefore(today.end)) {
+    if (nowUtc.isBefore(today.end)) {
       return FreeHourState(
         enabled: true,
         isActive: true,
-        nextStart: today.start,
+        nextStart: today.start.toLocal(),
         timeToNext: Duration.zero,
-        remaining: today.end.difference(now),
+        remaining: today.end.difference(nowUtc),
       );
     }
-    // Past today's window → tomorrow at the same fixed time.
-    final tomorrow = _scheduleForDay(now.add(const Duration(days: 1)));
+    // Past today's window → tomorrow at the same fixed CST time.
+    final tomorrow = _scheduleForCst(nowUtc.add(const Duration(days: 1)));
     return FreeHourState(
       enabled: true,
       isActive: false,
-      nextStart: tomorrow.start,
-      timeToNext: tomorrow.start.difference(now),
+      nextStart: tomorrow.start.toLocal(),
+      timeToNext: tomorrow.start.difference(nowUtc),
       remaining: Duration.zero,
     );
   }
