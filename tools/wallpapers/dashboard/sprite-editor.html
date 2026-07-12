@@ -1179,6 +1179,9 @@ async function buildSpriteMesh(sp, idx) {
     const pos = SC.spriteMeshPosition(sp.params, renderW, renderH);
     mesh.position.set(pos.x, pos.y, spriteZ);
   }
+  // Apply rotation at BUILD time — otherwise the sprite loads unrotated and
+  // only snaps into place after the first manual edit (bug Eduardo spotted).
+  mesh.rotation.z = -spriteRotateDeg(sp) * Math.PI / 180;
   const alphaBbox = computeAlphaBbox(firstTex.image) || {
     x: 0, y: 0, w: natW, h: natH, texW: natW, texH: natH,
   };
@@ -1198,6 +1201,51 @@ async function buildSpriteMesh(sp, idx) {
   return obj;
 }
 
+// A "translate" sprite crosses the scene from->to; it has no x/y. Treat it
+// like a positioned sprite by sampling the point at normalized time t.
+function isTranslate(sp) {
+  return !!(sp && sp.behavior === 'translate' && sp.params &&
+            Array.isArray(sp.params.from) && Array.isArray(sp.params.to));
+}
+function translateParamsAt(sp, t) {
+  const f = sp.params.from, to = sp.params.to;
+  return {...sp.params,
+    x: f[0] + (to[0] - f[0]) * t,
+    y: f[1] + (to[1] - f[1]) * t};
+}
+// Endpoint editing for translate sprites: SALE (from) and ENTRA (to).
+const TRANSLATE_COMPS = ['from_x', 'from_y', 'to_x', 'to_y'];
+function translateComp(sp, key) {
+  const f = sp.params.from || [1.1, 0.5];
+  const to = sp.params.to || [-0.1, 0.5];
+  return ({from_x: f[0], from_y: f[1], to_x: to[0], to_y: to[1]})[key];
+}
+function setTranslateComp(sp, key, val) {
+  sp.params.from = Array.isArray(sp.params.from) ? [...sp.params.from] : [1.1, 0.5];
+  sp.params.to = Array.isArray(sp.params.to) ? [...sp.params.to] : [-0.1, 0.5];
+  if (key === 'from_x') sp.params.from[0] = val;
+  else if (key === 'from_y') sp.params.from[1] = val;
+  else if (key === 'to_x') sp.params.to[0] = val;
+  else if (key === 'to_y') sp.params.to[1] = val;
+}
+// Degrees the sprite art is rotated (mirrors TranslateController). With
+// orient_to_motion, the sprite points along from->to and `rotation` is a
+// correction offset for the art's native facing. Screen space = Y down.
+function spriteRotateDeg(sp) {
+  const rot = sp.params?.rotation || 0;
+  if (isTranslate(sp) && sp.params.orient_to_motion) {
+    // Physical-pixel angle (matches TranslateController) so the sprite points
+    // along the VISUAL path regardless of aspect ratio (Samsung 2340 vs
+    // Huawei 1920). A normalized angle would tilt differently per device.
+    const dx = (sp.params.to[0] - sp.params.from[0]) * SC.surface.w;
+    const dy = (sp.params.to[1] - sp.params.from[1]) * SC.surface.h;
+    const motion = Math.atan2(dy, dx) * 180 / Math.PI;
+    // Subtract the art's native facing so the nose points ALONG the motion.
+    return motion - (sp.params.art_angle || 0) + rot;
+  }
+  return rot;
+}
+
 function updateSpriteMeshSize(o) {
   const sp = o.spriteDef;
   const natW = o.mesh.userData.natW;
@@ -1205,12 +1253,18 @@ function updateSpriteMeshSize(o) {
   const {w: renderW, h: renderH} = SC.spriteRenderSize(sp.params, natW, natH);
   if (sp.params?.fullscreen) {
     o.mesh.position.set(0, 0, o.mesh.position.z);
+  } else if (isTranslate(sp)) {
+    const t = o.mesh.userData.translateT ?? 0.5;
+    const pos = SC.spriteMeshPosition(translateParamsAt(sp, t), renderW, renderH);
+    o.mesh.position.set(pos.x, pos.y, o.mesh.position.z);
   } else {
     const pos = SC.spriteMeshPosition(sp.params, renderW, renderH);
     o.mesh.position.set(pos.x, pos.y, o.mesh.position.z);
   }
   o.mesh.geometry.dispose();
   o.mesh.geometry = new THREE.PlaneGeometry(renderW, renderH);
+  // Three.js Y is up, device canvas Y is down → negate to match on-device.
+  o.mesh.rotation.z = -spriteRotateDeg(sp) * Math.PI / 180;
 }
 
 function calibrateSpriteAnchor(idx) {
@@ -1237,6 +1291,46 @@ function cycleGroupPrefix(key) {
   return m ? m[1] : null;
 }
 
+// A blink cycle has open/half/shut frames. We model it as two states: REPOSO
+// (eyes open, idle) and PARPADEO (the quick close-open transition). This lets
+// the user tune "how often" and "how fast" independently instead of one
+// confusing total duration.
+function blinkKeys(cy) {
+  const k = {};
+  for (const f of (cy.frames || [])) {
+    const m = (f.layer_key || '').match(/_(open|half|shut|closed)$/i);
+    if (m) k[m[1].toLowerCase()] = f.layer_key;
+  }
+  if (k.closed && !k.shut) k.shut = k.closed;
+  return k;
+}
+function isBlinkCycle(cy) {
+  const k = blinkKeys(cy);
+  return !!(k.open && k.shut);
+}
+function blinkTimings(cy) {
+  const dur = cy.duration_s || 1;
+  let idle = 0;
+  for (const f of (cy.frames || [])) {
+    if (/_open$/i.test(f.layer_key || '')) idle = Math.max(idle, (f.to_s || 0) - (f.from_s || 0));
+  }
+  if (idle <= 0) idle = Math.max(0.2, dur - 0.4);
+  return {idle: +idle.toFixed(2), blink: +Math.max(0.06, dur - idle).toFixed(2)};
+}
+function applyBlinkTimings(cy, idleS, blinkS) {
+  const k = blinkKeys(cy);
+  const i = Math.max(0.1, idleS);
+  const b = Math.max(0.06, blinkS);
+  const half = k.half || k.open;
+  cy.duration_s = +(i + b).toFixed(3);
+  cy.frames = [
+    {layer_key: k.open, from_s: 0,                          to_s: +i.toFixed(3)},
+    {layer_key: half,   from_s: +i.toFixed(3),              to_s: +(i + b * 0.30).toFixed(3)},
+    {layer_key: k.shut, from_s: +(i + b * 0.30).toFixed(3), to_s: +(i + b * 0.65).toFixed(3)},
+    {layer_key: half,   from_s: +(i + b * 0.65).toFixed(3), to_s: +(i + b).toFixed(3)},
+  ];
+}
+
 function spriteGroupKey(sp) {
   if (!sp) return '';
   if (sp.manifest_key) {
@@ -1248,7 +1342,11 @@ function spriteGroupKey(sp) {
 
 function getCycleSiblingKeys(key) {
   const p = cycleGroupPrefix(key);
-  if (!p || !state.syncCycleLayers) return [key];
+  if (!p) return [key];
+  // Blink variants (open/half/shut) are the SAME character in different eye
+  // states — their position/scale/parallax MUST always match, otherwise the
+  // character jumps to a different spot when it blinks. So group them ALWAYS,
+  // regardless of the SYNC toggle (SYNC only governs unrelated cycle groups).
   return (state.spec?.image_layers || [])
     .filter(l => l.key.startsWith(p + '_'))
     .map(l => l.key);
@@ -1279,6 +1377,12 @@ function setSpriteParam(idx, key, value) {
     if (key === 'frame_skip') {
       const v = parseFloat(value);
       sp.frame_skip = isNaN(v) ? 2 : (Math.abs(v) < 0.05 ? (v < 0 ? -0.05 : 0.05) : v);
+    }
+    else if (TRANSLATE_COMPS.includes(key)) {
+      if (!isNaN(value)) setTranslateComp(sp, key, value);
+    }
+    else if (key === 'duration_s') {
+      if (!isNaN(value)) sp.params.duration_s = Math.max(1, value);
     }
     else sp.params[key] = value;
     if (spriteMeshes[i]) updateSpriteMeshSize(spriteMeshes[i]);
@@ -1369,6 +1473,27 @@ function tick() {
       }
     });
   }
+  // Animate translate sprites along from->to (loops = respawn), so the
+  // crossing is visible in the preview. Frozen at translateT when paused so
+  // the user can grab and drag the trajectory.
+  spriteMeshes.forEach(o => {
+    const sp = o.spriteDef;
+    if (!isTranslate(sp)) return;
+    const dur = Math.max(1, sp.params.duration_s || 22);
+    let t;
+    if (state.animPaused) {
+      t = o.mesh.userData.translateT ?? 0.5;
+    } else {
+      t = (performance.now() / 1000 % dur) / dur;
+      o.mesh.userData.translateT = t;
+    }
+    const {w: rw, h: rh} = SC.spriteRenderSize(sp.params, o.mesh.userData.natW, o.mesh.userData.natH);
+    const pos = SC.spriteMeshPosition(translateParamsAt(sp, t), rw, rh);
+    o.mesh.position.set(pos.x, pos.y, o.mesh.position.z);
+    // Keep rotation live too (updates instantly when from/to/ROT change).
+    o.mesh.rotation.z = -spriteRotateDeg(sp) * Math.PI / 180;
+  });
+
   // Apply bob to layer meshes
   if (state.spec.image_layers) {
     const tSec = performance.now() / 1000;
@@ -1399,22 +1524,34 @@ function tick() {
       layerMeshes.forEach(o => { if (hiddenKeys.has(o.layer.key)) o.mesh.visible = false; });
       const frames = cy.frames || [];
       if (!frames.length) return;
-      if (!state.animPaused) {
-        const dur = cy.duration_s || 1;
-        const tIn = tC % dur;
-        let activeKey = frames[0].layer_key;
-        for (const f of frames) {
-          if (tIn >= (f.from_s || 0) && tIn < (f.to_s || 0)) { activeKey = f.layer_key; break; }
-        }
+      // Blink-edit mode: the variant meshes (_half/_shut) aren't created, so
+      // don't let the cycle try to show them (it would hide the base _open
+      // layer and the character blinks out). Keep the cycle's existing base
+      // layers visible; turn OFF blink-hide (👁 tool) to preview the blink.
+      if (state.hideBlinkFrames) {
         const cycleKeys = new Set(frames.map(f => f.layer_key));
-        layerMeshes.forEach(o => {
-          if (cycleKeys.has(o.layer.key)) o.mesh.visible = (o.layer.key === activeKey);
-        });
-      } else {
-        // Paused: reveal ACTIVE cycle layers (hidden stay hidden) for editing.
-        const activeKeys = new Set(frames.map(f => f.layer_key));
-        layerMeshes.forEach(o => { if (activeKeys.has(o.layer.key)) o.mesh.visible = true; });
+        layerMeshes.forEach(o => { if (cycleKeys.has(o.layer.key)) o.mesh.visible = true; });
+        return;
       }
+      // Preview mode: multiplex layer visibility like the device. When paused,
+      // freeze on the frame showing at pause time (inspect a single blink
+      // frame) instead of revealing all layers stacked on top of each other.
+      const dur = cy.duration_s || 1;
+      let tIn;
+      if (state.animPaused) {
+        tIn = cy._pausedT ?? 0;
+      } else {
+        tIn = tC % dur;
+        cy._pausedT = tIn;
+      }
+      let activeKey = frames[0].layer_key;
+      for (const f of frames) {
+        if (tIn >= (f.from_s || 0) && tIn < (f.to_s || 0)) { activeKey = f.layer_key; break; }
+      }
+      const cycleKeys = new Set(frames.map(f => f.layer_key));
+      layerMeshes.forEach(o => {
+        if (cycleKeys.has(o.layer.key)) o.mesh.visible = (o.layer.key === activeKey);
+      });
     });
   }
   updateTransformBox();
@@ -1553,6 +1690,10 @@ function snapshotSelectionForDrag() {
         ox0: l.offset_x_px || 0, oy0: l.offset_y_px || 0, scale0: l.scale || 1};
     }
     const sp = state.spec.sprites[s.idx];
+    if (isTranslate(sp)) {
+      return {kind: 'sprite', idx: s.idx, translate: true,
+        from0: [...sp.params.from], to0: [...sp.params.to], scale0: sp.params.scale};
+    }
     return {kind: 'sprite', idx: s.idx,
       sp0x: sp.params.x, sp0y: sp.params.y, scale0: sp.params.scale};
   });
@@ -1561,7 +1702,14 @@ function snapshotSelectionForDrag() {
 function applyDragDelta(snapshots, dx, dy) {
   snapshots.forEach(item => {
     if (item.kind === 'layer') {
-      setLayerOffsetKeys([item.key], item.ox0 + dx, item.oy0 - dy);
+      setLayerOffsetKeys(getCycleSiblingKeys(item.key), item.ox0 + dx, item.oy0 - dy);
+    } else if (item.translate) {
+      // Shift the whole trajectory (from + to) by the same delta.
+      const ndx = dx / phoneW(), ndy = -dy / phoneH();
+      const sp = state.spec.sprites[item.idx];
+      sp.params.from = [item.from0[0] + ndx, item.from0[1] + ndy];
+      sp.params.to = [item.to0[0] + ndx, item.to0[1] + ndy];
+      updateSpriteMeshSize(spriteMeshes[item.idx]);
     } else {
       const sp = state.spec.sprites[item.idx];
       sp.params.x = Math.max(-0.1, Math.min(1.1, item.sp0x + dx / phoneW()));
@@ -1574,7 +1722,7 @@ function applyDragDelta(snapshots, dx, dy) {
 function applyScaleFactor(snapshots, factor) {
   snapshots.forEach(item => {
     if (item.kind === 'layer') {
-      setLayerScaleKeys([item.key], Math.max(0.05, item.scale0 * factor));
+      setLayerScaleKeys(getCycleSiblingKeys(item.key), Math.max(0.05, item.scale0 * factor));
     } else {
       const sp = state.spec.sprites[item.idx];
       sp.params.scale = Math.max(0.0001, item.scale0 * factor);
@@ -1687,6 +1835,10 @@ let dragging = null;
 let panning = null;
 let pinch = null;
 let resizing = null;
+// "Draw route A→B" mode for translate sprites. routeDrawFor = sprite idx armed
+// for the next click-drag; routeDrawing = live drag in progress.
+let routeDrawFor = null;
+let routeDrawing = null;
 
 function panWorldPerPixel() {
   const rect = canvasEl.getBoundingClientRect();
@@ -1764,6 +1916,20 @@ function onPointerDown(e) {
 
   if (!isSceneEditing()) return;
 
+  // Draw-route mode: this click sets point A; drag to point B.
+  if (routeDrawFor != null) {
+    const sp = state.spec.sprites[routeDrawFor];
+    if (sp && isTranslate(sp)) {
+      const w = screenToWorld(pt.clientX, pt.clientY);
+      const a = SC.worldToSpriteNorm(w.x, w.y);
+      routeDrawing = {idx: routeDrawFor, ax: a.x, ay: a.y};
+      e.preventDefault();
+      return;
+    }
+    routeDrawFor = null;
+    $('#stage').classList.remove('route-arming');
+  }
+
   if (e.touches && e.touches.length === 2) {
     const a = e.touches[0], b = e.touches[1];
     const d = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
@@ -1795,6 +1961,20 @@ function onPointerDown(e) {
 }
 
 function onPointerMove(e) {
+  if (routeDrawing) {
+    const pt = e.touches ? e.touches[0] : e;
+    const w = screenToWorld(pt.clientX, pt.clientY);
+    const b = SC.worldToSpriteNorm(w.x, w.y);
+    const sp = state.spec.sprites[routeDrawing.idx];
+    if (sp) {
+      sp.params.from = [routeDrawing.ax, routeDrawing.ay];
+      sp.params.to = [b.x, b.y];
+      if (spriteMeshes[routeDrawing.idx]) updateSpriteMeshSize(spriteMeshes[routeDrawing.idx]);
+      markDirty(); updateStatusBar();
+    }
+    e.preventDefault();
+    return;
+  }
   if (resizing) {
     const pt = e.touches ? e.touches[0] : e;
     const w = screenToWorld(pt.clientX, pt.clientY);
@@ -1848,6 +2028,18 @@ function onPointerMove(e) {
 }
 
 function onPointerUp(e) {
+  if (routeDrawing) {
+    const sp = state.spec.sprites[routeDrawing.idx];
+    if (sp) {
+      sp.params.orient_to_motion = true;   // point along the drawn route
+      if (spriteMeshes[routeDrawing.idx]) updateSpriteMeshSize(spriteMeshes[routeDrawing.idx]);
+    }
+    routeDrawing = null; routeDrawFor = null;
+    $('#stage').classList.remove('route-arming');
+    renderItemsPanel(); updateStatusBar(); pushHistory();
+    toast('Ruta lista ✓ — si va en reversa, dale ↔ VOLTEAR', 'ok');
+    return;
+  }
   if (dragging || pinch || resizing) { renderItemsPanel(); pushHistory(); }
   dragging = null; panning = null; pinch = null; resizing = null;
   $('#stage').classList.remove('panning');
@@ -1931,7 +2123,17 @@ function renderItemsPanel() {
   if (cycles.length) {
     html += '<div class="section-title">SECUENCIA DE ANIMACIÓN</div>';
     cycles.forEach((cy, ci) => {
-      html += `<div style="padding:6px 8px;font-size:11px;opacity:.8">🔄 ${cy.name || 'cycle'} · <input type="number" step="0.05" min="0.1" value="${cy.duration_s || 1}" data-cycdur="${ci}" style="width:56px;background:#111;color:#eee;border:1px solid #444;border-radius:4px;padding:2px 4px"> s (velocidad total)</div>`;
+      const playBtn = `<button class="btn" data-cycplay="${ci}" style="padding:3px 9px;font-size:10px" title="reproduce la transición (o vuelve a modo edición)">${state.hideBlinkFrames ? '▶ ver animación' : '✏️ editar'}</button>`;
+      const inS = 'width:50px;background:#111;color:#eee;border:1px solid #444;border-radius:4px;padding:2px 4px';
+      if (isBlinkCycle(cy)) {
+        const t = blinkTimings(cy);
+        html += `<div style="padding:6px 8px;font-size:11px;opacity:.85">🔄 ${cy.name || 'blink'} · dos estados:<br>
+          <span title="tiempo con los ojos abiertos entre parpadeos">😐 REPOSO <input type="number" step="0.5" min="0.2" value="${t.idle}" data-blinkidle="${ci}" style="${inS}"> s</span>
+          · <span title="qué tan rápido es el pestañeo">😉 PARPADEO <input type="number" step="0.02" min="0.06" value="${t.blink}" data-blinkspeed="${ci}" style="${inS}"> s</span>
+          <br style="margin-top:4px">${playBtn}</div>`;
+      } else {
+        html += `<div style="padding:6px 8px;font-size:11px;opacity:.8">🔄 ${cy.name || 'cycle'} · <input type="number" step="0.05" min="0.1" value="${cy.duration_s || 1}" data-cycdur="${ci}" style="width:56px;background:#111;color:#eee;border:1px solid #444;border-radius:4px;padding:2px 4px"> s (velocidad total) ${playBtn}</div>`;
+      }
       const frames = cy.frames || [];
       frames.forEach((f, fi) => {
         html += `<div class="item-card" style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px">
@@ -1998,11 +2200,61 @@ function renderItemsPanel() {
       pushHistory();
     };
   });
+  // Toggle "point along trajectory" (orient_to_motion) for translate sprites.
+  panel.querySelectorAll('[data-orient]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const idx = +btn.dataset.orient;
+      const sp = state.spec.sprites[idx];
+      if (!sp) return;
+      sp.params.orient_to_motion = !sp.params.orient_to_motion;
+      if (spriteMeshes[idx]) updateSpriteMeshSize(spriteMeshes[idx]);
+      markDirty(); renderItemsPanel(); updateStatusBar(); pushHistory();
+    };
+  });
+  // Arm "draw route A→B": next click-drag on the stage sets from→to.
+  panel.querySelectorAll('[data-route]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      routeDrawFor = +btn.dataset.route;
+      $('#stage').classList.add('route-arming');
+      toast('Dibuja la ruta: clic en el inicio (A) y arrastra hasta el fin (B) sobre el fondo', 'ok');
+    };
+  });
+  // Flip the sprite 180° (fixes "flying in reverse").
+  panel.querySelectorAll('[data-flip180]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const idx = +btn.dataset.flip180;
+      const sp = state.spec.sprites[idx];
+      if (!sp) return;
+      sp.params.rotation = ((sp.params.rotation || 0) + 180) % 360;
+      if (spriteMeshes[idx]) updateSpriteMeshSize(spriteMeshes[idx]);
+      markDirty(); renderItemsPanel(); updateStatusBar(); pushHistory();
+    };
+  });
   // Cycle animation-order controls
   panel.querySelectorAll('[data-cycmove]').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
       moveCycleFrame(+btn.dataset.cyc, +btn.dataset.frm, +btn.dataset.cycmove);
+    };
+  });
+  // Play the blink transition (or go back to edit mode). Toggling blink-hide
+  // needs a scene rebuild so the variant meshes are (un)created.
+  panel.querySelectorAll('[data-cycplay]').forEach(btn => {
+    btn.onclick = async (e) => {
+      e.stopPropagation();
+      state.hideBlinkFrames = !state.hideBlinkFrames;
+      $('#tool-blink')?.classList.toggle('active', state.hideBlinkFrames);
+      if (!state.hideBlinkFrames) {
+        state.animPaused = false;                 // play so the blink runs
+        const anim = $('#ctrl-anim'); if (anim) anim.textContent = '⏸';
+      }
+      await rebuildScene();
+      renderItemsPanel(); updateStatusBar();
+      toast(state.hideBlinkFrames ? 'Modo edición — Marvin fijo (ojos abiertos)'
+                                  : 'Reproduciendo el parpadeo ▶', 'ok');
     };
   });
   panel.querySelectorAll('[data-cychide]').forEach(btn => {
@@ -2022,6 +2274,26 @@ function renderItemsPanel() {
       const cy = state.spec.cycles?.[+inp.dataset.cycdur];
       const v = parseFloat(inp.value);
       if (cy && v > 0.05) { cy.duration_s = v; recalcCycleWindows(cy); markDirty(); }
+    };
+  });
+  // Blink two-state controls: REPOSO (eyes-open idle) + PARPADEO (blink speed).
+  panel.querySelectorAll('[data-blinkidle]').forEach(inp => {
+    inp.onchange = () => {
+      const cy = state.spec.cycles?.[+inp.dataset.blinkidle];
+      if (!cy) return;
+      const t = blinkTimings(cy);
+      applyBlinkTimings(cy, parseFloat(inp.value) || t.idle, t.blink);
+      markDirty(); updateStatusBar();
+      toast(`Reposo ${(parseFloat(inp.value)||t.idle)}s · parpadeo ${t.blink}s`, 'ok');
+    };
+  });
+  panel.querySelectorAll('[data-blinkspeed]').forEach(inp => {
+    inp.onchange = () => {
+      const cy = state.spec.cycles?.[+inp.dataset.blinkspeed];
+      if (!cy) return;
+      const t = blinkTimings(cy);
+      applyBlinkTimings(cy, t.idle, parseFloat(inp.value) || t.blink);
+      markDirty(); updateStatusBar();
     };
   });
   // v1.7.47: z reorder buttons — bump z up (▲) brings the layer/sprite
@@ -2084,6 +2356,9 @@ function renderItemsPanel() {
           if (Math.abs(nv) < 0.05) nv = nv < 0 ? -0.05 : 0.05;
         }
         else if (key === 'scale') nv = sp.params[key] * (1 + factor);
+        else if (TRANSLATE_COMPS.includes(key)) nv = translateComp(sp, key) + factor;
+        else if (key === 'duration_s') nv = Math.max(1, (sp.params.duration_s ?? 22) + factor);
+        else if (key === 'rotation') nv = (sp.params.rotation || 0) + factor;
         else nv = sp.params[key] + factor;
         setSpriteParam(idx, key, nv);
       }
@@ -2098,7 +2373,53 @@ function spriteCardHtml(sp, i) {
   const grpBadge = state.syncCycleLayers ? 'GRP' : 'SPR';
   const fs = !!sp.params?.fullscreen;
   const posFields = fs ? `
-    <div class="hint-bar" style="margin:6px 0 0">FULLSCREEN · overlay transparente cover-fit (sin X/Y/SCALE)</div>` : `
+    <div class="hint-bar" style="margin:6px 0 0">FULLSCREEN · overlay transparente cover-fit (sin X/Y/SCALE)</div>`
+    : isTranslate(sp) ? `
+    <div class="hint-bar" style="margin:6px 0 0">CRUZA · SALE = por dónde aparece · ENTRA = a dónde va (fuera de 0–1 = fuera de pantalla) · pausa ⏸ para acomodar</div>
+    <div class="field"><label>SALE X</label>
+      <input type="number" step="0.05" value="${translateComp(sp,'from_x').toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="from_x">
+      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="from_x">−</button>
+      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="from_x">+</button>
+    </div>
+    <div class="field"><label>SALE Y</label>
+      <input type="number" step="0.05" value="${translateComp(sp,'from_y').toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="from_y">
+      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="from_y">−</button>
+      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="from_y">+</button>
+    </div>
+    <div class="field"><label>ENTRA X</label>
+      <input type="number" step="0.05" value="${translateComp(sp,'to_x').toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="to_x">
+      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="to_x">−</button>
+      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="to_x">+</button>
+    </div>
+    <div class="field"><label>ENTRA Y</label>
+      <input type="number" step="0.05" value="${translateComp(sp,'to_y').toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="to_y">
+      <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="to_y">−</button>
+      <button class="bump" data-bump="0.05" data-idx="${i}" data-key="to_y">+</button>
+    </div>
+    <div class="field"><label>DUR s</label>
+      <input type="number" step="1" value="${(sp.params.duration_s ?? 22).toFixed(1)}" data-kind="sprite" data-idx="${i}" data-key="duration_s" title="segundos por vuelta · mayor = pasa menos seguido">
+      <button class="bump" data-bump="-1" data-idx="${i}" data-key="duration_s">−</button>
+      <button class="bump" data-bump="1" data-idx="${i}" data-key="duration_s">+</button>
+    </div>
+    <div class="field"><label>ROT °</label>
+      <input type="number" step="5" value="${(sp.params.rotation ?? 0).toFixed(0)}" data-kind="sprite" data-idx="${i}" data-key="rotation" title="rotación del sprite en grados (con APUNTA = ajuste fino)">
+      <button class="bump" data-bump="-5" data-idx="${i}" data-key="rotation">−</button>
+      <button class="bump" data-bump="5" data-idx="${i}" data-key="rotation">+</button>
+    </div>
+    <div class="field"><label>APUNTA</label>
+      <button class="btn" type="button" data-orient="${i}" style="padding:3px 8px;font-size:10px" title="que el sprite apunte hacia donde se dirige (SALE→ENTRA)">${sp.params.orient_to_motion ? '🧭 a su ruta' : '○ fija'}</button>
+    </div>
+    <div class="field"><label>RUTA</label>
+      <button class="btn" type="button" data-route="${i}" style="padding:3px 8px;font-size:10px" title="dibuja la ruta con el mouse: clic en el inicio A y arrastra hasta el fin B sobre el fondo">✏️ dibujar A→B</button>
+    </div>
+    <div class="field"><label>VOLTEAR</label>
+      <button class="btn" type="button" data-flip180="${i}" style="padding:3px 8px;font-size:10px" title="gira el sprite 180° — úsalo si vuela en reversa">↔ 180°</button>
+    </div>
+    <div class="field"><label>SCALE</label>
+      <input type="number" step="0.0001" value="${(sp.params.scale ?? 0.003).toFixed(4)}" data-kind="sprite" data-idx="${i}" data-key="scale">
+      <button class="bump" data-bump="-0.1" data-idx="${i}" data-key="scale">−</button>
+      <button class="bump" data-bump="0.1" data-idx="${i}" data-key="scale">+</button>
+    </div>` : `
     <div class="field"><label>X</label>
       <input type="number" step="0.005" value="${(sp.params.x ?? 0.5).toFixed(3)}" data-kind="sprite" data-idx="${i}" data-key="x">
       <button class="bump" data-bump="-0.01" data-idx="${i}" data-key="x">−</button>

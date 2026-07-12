@@ -158,6 +158,18 @@ export function spriteMeshPosition(params, renderW, renderH, surfaceW = surface.
   };
 }
 
+/** Inverse of spriteMeshPosition for a bare point (no anchor/size): converts
+ *  a Three.js world coordinate back to a normalized 0..1 sprite position.
+ *  Used by the editor's "draw route A→B" tool to turn mouse clicks into
+ *  from/to. Mirrors the (xNorm-0.5)·REFERENCE·factor mapping exactly. */
+export function worldToSpriteNorm(worldX, worldY, surfaceW = surface.w, surfaceH = surface.h) {
+  const f = subjectFactor(surfaceW, surfaceH) || 1;
+  return {
+    x: 0.5 + worldX / (REFERENCE_SURFACE_W * f),
+    y: 0.5 - worldY / (REFERENCE_SURFACE_H * f),
+  };
+}
+
 export function spriteAnchorWorld(params, renderW, renderH, surfaceW = surface.w, surfaceH = surface.h) {
   const anchor = spriteAnchor(params);
   const mesh = spriteMeshPosition(params, renderW, renderH, surfaceW, surfaceH);

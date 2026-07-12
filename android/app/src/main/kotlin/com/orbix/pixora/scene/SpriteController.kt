@@ -2,6 +2,7 @@ package com.orbix.pixora.scene
 
 import android.graphics.Canvas
 import com.orbix.pixora.renderers.SpriteSheet
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -115,6 +116,11 @@ class WanderController(def: SpriteDef, sheet: SpriteSheet) :
  * Useful for an owl crossing the screen, a fish swimming straight.
  *
  * params: from:[x,y], to:[x,y], duration_s, scale, alpha
+ *         rotation (deg, default 0) — fixed extra rotation of the art.
+ *         orient_to_motion (bool, default false) — when true the sprite
+ *           rotates to point along the from->to vector; `rotation` then acts
+ *           as a correction offset for the art's native facing. Flip is
+ *           disabled in this mode (the rotation covers full orientation).
  */
 class TranslateController(def: SpriteDef, sheet: SpriteSheet) :
     SpriteController(def, sheet) {
@@ -125,16 +131,31 @@ class TranslateController(def: SpriteDef, sheet: SpriteSheet) :
     private val scale = def.params.f("scale", 0.0009f)
     private val alpha = def.params.i("alpha", 255)
     private val movingRight = to.first > from.first
+    private val rotation = def.params.f("rotation", 0f)
+    private val orientToMotion = def.params.b("orient_to_motion", false)
+    // Native facing of the art (degrees, screen space Y-down): captured by the
+    // editor when orient_to_motion is turned on, so we subtract it and the
+    // nose points ALONG the motion instead of art_native + motion (reversed).
+    private val artAngle = def.params.f("art_angle", 0f)
 
     override fun draw(canvas: Canvas, surfaceW: Int, surfaceH: Int, tick: Long) {
         sheet.advance()
         val t = (tick % durationTicks.toLong()) / durationTicks
         val x = (from.first + (to.first - from.first) * t) * surfaceW
         val y = (from.second + (to.second - from.second) * t) * surfaceH
+        // Motion angle in PHYSICAL pixels so the sprite points along the VISUAL
+        // path on any aspect ratio (Samsung 2340 vs Huawei 1920). A normalized
+        // angle would skew because 1 y-unit ≠ 1 x-unit in pixels on non-ref
+        // viewports, making the rocket look tilted differently per device.
+        val motionAngle = Math.toDegrees(atan2(
+            ((to.second - from.second) * surfaceH).toDouble(),
+            ((to.first - from.first) * surfaceW).toDouble())).toFloat()
+        val rotateDeg = if (orientToMotion) motionAngle - artAngle + rotation else rotation
         sheet.drawAt(canvas, x, y,
             scale = SceneCoords.REFERENCE_SURFACE_W * scale *
                 SceneCoords.subjectFactor(surfaceW, surfaceH),
-            flipX = flipFor(movingRight),
+            flipX = if (orientToMotion) false else flipFor(movingRight),
+            rotateDeg = rotateDeg,
             alpha = alpha)
     }
 }
@@ -157,6 +178,7 @@ class StaticController(def: SpriteDef, sheet: SpriteSheet) :
     private val scale = def.params.f("scale", 0.0010f)
     private val alpha = def.params.i("alpha", 255)
     private val flipX = def.params.b("flip_x", false)
+    private val rotation = def.params.f("rotation", 0f)
     private val fullscreen = def.params.b("fullscreen", false)
     // 2026-07-04 — offset in TARGET (1080×2340) pixels, scaled by
     // subjectFactor at draw time. Lets a sprite inherit the same
@@ -201,7 +223,7 @@ class StaticController(def: SpriteDef, sheet: SpriteSheet) :
                 drawCx + offsetXPx * factor,
                 drawCy + offsetYPx * factor,
                 scale = finalScale,
-                flipX = flipX, alpha = alpha)
+                flipX = flipX, rotateDeg = rotation, alpha = alpha)
         }
     }
 }
