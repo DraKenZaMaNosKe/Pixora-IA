@@ -8,6 +8,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'credit_service.dart';
+import 'free_hour_service.dart';
 import 'grace_pass_service.dart';
 import 'subscription_service.dart';
 
@@ -99,7 +100,9 @@ class AdService {
   /// and native ad surfaces should consult this so the sub bypass + dev kill
   /// switch behave identically everywhere.
   static bool get adsDisabledForUser =>
-      _debugDisableAds || SubscriptionService.instance.hasAccess;
+      _debugDisableAds ||
+      SubscriptionService.instance.hasAccess ||
+      FreeHourService.instance.isActive;
 
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;
@@ -230,6 +233,23 @@ class AdService {
         wallpaperId: wallpaperId,
         shown: false,
         metadata: {'reason': 'subscriber_skip'},
+      );
+      onAdDismissed();
+      return;
+    }
+
+    // ─── Free Hour gate ─────────────────────────────────────────────────────
+    // During the daily 30-min ad-free "happy hour", skip interstitials. Placed
+    // BEFORE the welcome grace pass so a new user doesn't burn their one-time
+    // ad-free gift during a Free Hour (they'd get nothing for it). Early-return
+    // before _actionCount++ so the alternating cadence isn't contaminated.
+    if (FreeHourService.instance.isActive) {
+      _logAd(
+        adKind: 'interstitial',
+        placement: placement,
+        wallpaperId: wallpaperId,
+        shown: false,
+        metadata: {'reason': 'free_hour'},
       );
       onAdDismissed();
       return;

@@ -58,6 +58,14 @@ class PushNotificationService {
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
+  /// Exposes the local-notifications plugin so FreeHourService can schedule
+  /// the Free Hour notification without instantiating a second plugin (which
+  /// would fight over channels/init). Single owner of initialization.
+  FlutterLocalNotificationsPlugin get localPlugin => _local;
+
+  /// True once init() completed (channels created, plugin ready).
+  bool get isReady => _initialized;
+
   Future<void> init() async {
     debugPrint('[PixoraFCM] init() called');
     if (_initialized) {
@@ -88,6 +96,18 @@ class PushNotificationService {
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(channel);
+
+      // Free Hour channel — the daily ad-free happy-hour notification.
+      const freeHourChannel = AndroidNotificationChannel(
+        'pixora_free_hour',
+        'Pixora · Hora Free',
+        description: 'Aviso cuando empieza tu Hora Free sin anuncios',
+        importance: Importance.high,
+      );
+      await _local
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(freeHourChannel);
 
       // Request OS-level permission (Android 13+ requires POST_NOTIFICATIONS)
       final settings = await FirebaseMessaging.instance.requestPermission(

@@ -10,6 +10,7 @@ import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/auto_rotate_service.dart';
 import 'core/services/analytics_service.dart';
+import 'core/services/free_hour_service.dart';
 import 'core/services/presence_service.dart';
 import 'core/services/app_strings_service.dart';
 import 'core/services/catalog_cache_store.dart';
@@ -143,6 +144,10 @@ Future<void> main() async {
     // hardcoded strings in each widget.
     unawaited(AppStringsService.instance.initialize());
     AdService.instance.initialize();
+    // Free Hour — daily ad-free "happy hour". Ships DORMANT (remote flag OFF by
+    // default); init just opens a Hive box + a 404-safe config fetch, so it's
+    // launch-safe. Enabled later by uploading free_hour_config.json.
+    unawaited(FreeHourService.instance.init());
     // Hive-backed catalog cache (Tier 3, 2026-05-18) — initialize before any
     // catalog service tries to read from it. Non-blocking: if Hive fails,
     // the cache helper just no-ops and services fall back to network.
@@ -240,6 +245,8 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
       unawaited(PushNotificationService.instance.processPendingInvalidates());
       // Reconcile active canvas_scene spec + layers after remote edits.
       unawaited(WallpaperService.instance.refreshActiveSceneIfNeeded());
+      // Free Hour: re-sync remote config + server clock offset on resume.
+      unawaited(FreeHourService.instance.onAppResumed());
     }
   }
 

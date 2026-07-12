@@ -12,6 +12,7 @@ import '../../../core/services/auth_service.dart';
 import '../../../core/widgets/offline_indicator.dart';
 import '../../../core/services/credit_service.dart';
 import '../../../core/services/subscription_service.dart';
+import 'widgets/free_hour_chip.dart';
 import '../../ai_generate/presentation/pages/ai_generate_page.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../settings/presentation/settings_page.dart';
@@ -538,6 +539,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       title: _title,
       avatar: _buildAvatar(),
       creditsBadge: _buildCreditsBadge(),
+      freeHourChip: const FreeHourChip(),
       trailing: _isWallpapersTab
           ? IconButton(
               icon:
@@ -998,12 +1000,14 @@ class _HoloRibbonAppBar extends StatefulWidget implements PreferredSizeWidget {
     required this.title,
     required this.avatar,
     required this.creditsBadge,
+    this.freeHourChip = const SizedBox.shrink(),
     this.trailing,
   });
 
   final String title;
   final Widget avatar;
   final Widget creditsBadge;
+  final Widget freeHourChip;
   final Widget? trailing;
 
   // Inkwell Dark Solid — `#1F1B17` warm charcoal, ALWAYS dark regardless
@@ -1129,6 +1133,9 @@ class _HoloRibbonAppBarState extends State<_HoloRibbonAppBar>
                   widget.trailing!,
                   const SizedBox(width: 2),
                 ],
+                // Free Hour chip — hides itself (zero space) when off/premium.
+                widget.freeHourChip,
+                const SizedBox(width: 6),
                 _HoloPillBorder(
                   controller: _foilCtrl,
                   child: widget.creditsBadge,
