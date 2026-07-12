@@ -626,6 +626,19 @@ class Handler(BaseHTTPRequestHandler):
         path = urllib.parse.urlparse(self.path).path
         query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
 
+        # Free Hour current config (reads free_hour_config.json from Storage).
+        if path == "/api/free-hour":
+            import time as _t
+            url = (f"{SUPABASE_STORAGE}/object/public/wallpaper-images/"
+                   f"free_hour_config.json?t={int(_t.time())}")
+            try:
+                with urllib.request.urlopen(url, timeout=10) as r:
+                    cfg = json.loads(r.read().decode("utf-8"))
+            except Exception:
+                cfg = {"enabled": False, "duration_min": 7, "hour": 20,
+                       "minute": 0, "notify": True}
+            return self._send_json(cfg)
+
         # 2026-07-04 — Darkroom is the new default. The old dashboard
         # stays available at /legacy so we can still access Text CMS
         # and Reportes UI while those get migrated.
@@ -1760,6 +1773,44 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
+
+        # ─── Free Hour: enable/disable the daily ad-free happy hour ────────
+        # Writes free_hour_config.json to Storage. App reads it (TTL 30min /
+        # on resume). Default in the app is OFF, so absence = current behavior.
+        if path == "/api/free-hour":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            try:
+                enabled = bool(payload.get("enabled", False))
+                hour = int(payload.get("hour", 20))
+                minute = int(payload.get("minute", 0))
+                dur = int(payload.get("duration_min", 7))
+                notify = payload.get("notify", True) is not False
+            except Exception:
+                return self._send_json({"error": "bad fields"}, 400)
+            if not (0 <= hour <= 23 and 0 <= minute < 60 and 1 <= dur <= 240
+                    and (hour * 60 + minute + dur) <= 1440):
+                return self._send_json({"error": "invalid time/duration"}, 400)
+            cfg = {"enabled": enabled, "duration_min": dur, "hour": hour,
+                   "minute": minute, "notify": notify}
+            put_url = f"{SUPABASE_STORAGE}/object/wallpaper-images/free_hour_config.json"
+            req = urllib.request.Request(
+                put_url, data=json.dumps(cfg, indent=2).encode("utf-8"), method="PUT")
+            req.add_header("apikey", SERVICE_KEY)
+            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+            req.add_header("Content-Type", "application/json")
+            req.add_header("x-upsert", "true")
+            req.add_header("Cache-Control", "no-cache, max-age=0")
+            try:
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    st = r.status
+            except urllib.error.HTTPError as e:
+                return self._send_json({"error": e.read().decode()[:500]}, e.code)
+            return self._send_json({"ok": True, "config": cfg, "storage_status": st})
 
         # ─── Update wallpaper metadata directly in Postgres ────────
         # Simple edit endpoint that touches ONLY Postgres for any

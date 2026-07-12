@@ -11,7 +11,6 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../constants/supabase_config.dart';
 import '../utils/locale_helper.dart';
-import 'analytics_service.dart';
 import 'push_notification_service.dart';
 
 /// Immutable snapshot of the Free Hour state, consumed by the UI chip.
@@ -70,11 +69,13 @@ class FreeHourService {
   static String get _configUrl =>
       '${SupabaseConfig.storageBase}/${SupabaseConfig.imagesBucket}/free_hour_config.json';
 
-  // Config (defaults = OFF / launch-safe).
+  // Config (defaults = OFF / launch-safe). Fixed daily happy hour at
+  // _cfgHour:_cfgMinute LOCAL time (8:00 PM) — same wall-clock everywhere, so
+  // across Mexico/LATAM it lands in each user's evening at home.
   bool _cfgEnabled = false;
-  int _cfgDurationMin = 30;
-  int _cfgStartHour = 7;
-  int _cfgEndHour = 23;
+  int _cfgDurationMin = 7;
+  int _cfgHour = 20;
+  int _cfgMinute = 0;
   bool _cfgNotify = true;
 
   Box<dynamic>? _box;
@@ -82,7 +83,12 @@ class FreeHourService {
   int _clockOffsetMs = 0;
   bool _initialized = false;
   bool _tzReady = false;
-  String _deviceId = 'unknown';
+  // Debug 'soon' mode: forces a Free Hour to start ~1 min from app launch, so
+  // the whole flow (notification → active window → no ads) can be tested now.
+  DateTime? _debugStart;
+  // True once we've fired the "window started" notification for the current
+  // window (reset when it ends). Prevents duplicates on every 30s tick.
+  bool _notifiedThisWindow = false;
 
   static const _notifIdToday = 9101;
   static const _notifIdTomorrow = 9102;
@@ -112,10 +118,16 @@ class FreeHourService {
       _clockOffsetMs = (_box?.get(_kClockOffset) as int?) ?? 0;
       _loadCachedConfig();
     } catch (_) {}
-    try {
-      _deviceId = AnalyticsService.instance.deviceId;
-    } catch (_) {}
     _initialized = true;
+    // Debug modes (debug/profile only): force the feature on for testing.
+    if (!kReleaseMode && _debugOverride == 'soon') {
+      _cfgEnabled = true;
+      _cfgNotify = true;
+      // Start in ~1 min to test the full flow (countdown → notif → no ads).
+      _debugStart = DateTime.now().add(const Duration(minutes: 1));
+    } else if (!kReleaseMode && _debugOverride == 'active') {
+      _cfgEnabled = true;
+    }
     // Fire-and-forget: refresh remote config + clock offset, then schedule
     // notifications once the config is known. Doesn't block startup.
     unawaited(
@@ -177,14 +189,15 @@ class FreeHourService {
       );
 
       final now = _now();
-      final today = _scheduleFor(now);
-      // Today's, only if still ahead.
-      if (now.isBefore(today.start)) {
+      final debugSoon = !kReleaseMode && _debugStart != null;
+      final startToday = debugSoon ? _debugStart! : _scheduleForDay(now).start;
+      // Today's window (or the debug one), only if still ahead.
+      if (startToday.isAfter(now)) {
         await plugin.zonedSchedule(
           _notifIdToday,
           title,
           body,
-          tz.TZDateTime.from(today.start, tz.local),
+          tz.TZDateTime.from(startToday, tz.local),
           details,
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
@@ -192,17 +205,20 @@ class FreeHourService {
         );
       }
       // Tomorrow's — so a user who doesn't open the app tomorrow still gets it.
-      final tomorrow = _scheduleFor(now.add(const Duration(days: 1)));
-      await plugin.zonedSchedule(
-        _notifIdTomorrow,
-        title,
-        body,
-        tz.TZDateTime.from(tomorrow.start, tz.local),
-        details,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
+      // Skipped in debug 'soon' (we only want the one imminent test notif).
+      if (!debugSoon) {
+        final tomorrow = _scheduleForDay(now.add(const Duration(days: 1)));
+        await plugin.zonedSchedule(
+          _notifIdTomorrow,
+          title,
+          body,
+          tz.TZDateTime.from(tomorrow.start, tz.local),
+          details,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+      }
     } catch (e) {
       if (kDebugMode) debugPrint('[FreeHour] schedule notifs failed: $e');
     }
@@ -219,44 +235,47 @@ class FreeHourService {
     return DateTime.now();
   }
 
-  // ── Deterministic schedule for a given local calendar day ──
-  ({DateTime start, DateTime end}) _scheduleFor(DateTime day) {
-    final dateKey =
-        '${day.year.toString().padLeft(4, '0')}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
-    final h = _fnv1a('$_deviceId|$dateKey');
-    final minStart = _cfgStartHour * 60;
-    final maxStart = _cfgEndHour * 60 - _cfgDurationMin;
-    final span = (maxStart - minStart) <= 0 ? 1 : (maxStart - minStart + 1);
-    final startMin = minStart + (h % span);
-    final midnight = DateTime(day.year, day.month, day.day);
-    final start = midnight.add(Duration(minutes: startMin));
+  // ── Fixed daily happy hour at _cfgHour:_cfgMinute LOCAL time ──
+  ({DateTime start, DateTime end}) _scheduleForDay(DateTime day) {
+    final start = DateTime(day.year, day.month, day.day, _cfgHour, _cfgMinute);
     return (start: start, end: start.add(Duration(minutes: _cfgDurationMin)));
   }
 
   FreeHourState _compute() {
-    // Debug override wins (debug/profile only).
-    if (!kReleaseMode && _debugOverride.isNotEmpty) {
+    // Debug 'active' wins — always inside the window (debug/profile only).
+    if (!kReleaseMode && _debugOverride == 'active') {
       final now = DateTime.now();
-      if (_debugOverride == 'active') {
+      return FreeHourState(
+        enabled: true,
+        isActive: true,
+        nextStart: now,
+        timeToNext: Duration.zero,
+        remaining: Duration(minutes: _cfgDurationMin),
+      );
+    }
+    // Debug 'soon' — real countdown to _debugStart, then a real window, so the
+    // whole flow (notif → active → no ads) plays out in ~2 min.
+    if (!kReleaseMode && _debugStart != null) {
+      final now = DateTime.now();
+      final start = _debugStart!;
+      final end = start.add(Duration(minutes: _cfgDurationMin));
+      if (now.isBefore(start)) {
         return FreeHourState(
-          enabled: true,
-          isActive: true,
-          nextStart: now,
-          timeToNext: Duration.zero,
-          remaining: Duration(minutes: _cfgDurationMin),
-        );
+            enabled: true,
+            isActive: false,
+            nextStart: start,
+            timeToNext: start.difference(now),
+            remaining: Duration.zero);
       }
-      if (_debugOverride == 'soon') {
-        final s = now.add(const Duration(minutes: 2));
+      if (now.isBefore(end)) {
         return FreeHourState(
-          enabled: true,
-          isActive: false,
-          nextStart: s,
-          timeToNext: s.difference(now),
-          remaining: Duration.zero,
-        );
+            enabled: true,
+            isActive: true,
+            nextStart: start,
+            timeToNext: Duration.zero,
+            remaining: end.difference(now));
       }
-      // 'off' falls through to disabled below.
+      // Past the debug window → fall through (disabled unless remote cfg on).
     }
 
     if (!_cfgEnabled) {
@@ -270,7 +289,7 @@ class FreeHourService {
     }
 
     final now = _now();
-    final today = _scheduleFor(now);
+    final today = _scheduleForDay(now);
     if (now.isBefore(today.start)) {
       return FreeHourState(
         enabled: true,
@@ -289,8 +308,8 @@ class FreeHourService {
         remaining: today.end.difference(now),
       );
     }
-    // Past today's window → tomorrow's (different hash → different time).
-    final tomorrow = _scheduleFor(now.add(const Duration(days: 1)));
+    // Past today's window → tomorrow at the same fixed time.
+    final tomorrow = _scheduleForDay(now.add(const Duration(days: 1)));
     return FreeHourState(
       enabled: true,
       isActive: false,
@@ -309,6 +328,37 @@ class FreeHourService {
         prev.timeToNext.inMinutes != s.timeToNext.inMinutes ||
         prev.remaining.inMinutes != s.remaining.inMinutes;
     if (changed) state.value = s;
+
+    // Window just started (app is alive) → fire an IMMEDIATE local notification.
+    // This is the reliable path on MIUI/Huawei where scheduled-inexact notifs
+    // get killed; the scheduled one is a best-effort fallback for app-closed.
+    if (!prev.isActive && s.isActive && shouldNotify && !_notifiedThisWindow) {
+      _notifiedThisWindow = true;
+      unawaited(_showNowNotif());
+    }
+    if (prev.isActive && !s.isActive) _notifiedThisWindow = false;
+  }
+
+  Future<void> _showNowNotif() async {
+    try {
+      await PushNotificationService.instance.localPlugin.show(
+        9103,
+        LocaleHelper.pick(
+            es: '¡Ya es tu Hora Free! 🎉', en: 'Your Free Hour is on! 🎉'),
+        LocaleHelper.pick(
+            es: '$_cfgDurationMin minutos sin anuncios. Aprovecha.',
+            en: '$_cfgDurationMin ad-free minutes. Enjoy.'),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'pixora_free_hour',
+            'Pixora · Hora Free',
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+        ),
+      );
+    } catch (_) {}
   }
 
   // ── Remote config + clock offset ──
@@ -351,25 +401,26 @@ class FreeHourService {
     try {
       final j = jsonDecode(raw) as Map<String, dynamic>;
       final enabled = j['enabled'] == true;
-      final dur = (j['duration_min'] as num?)?.toInt() ?? 30;
-      final sh = (j['window_start_hour'] as num?)?.toInt() ?? 7;
-      final eh = (j['window_end_hour'] as num?)?.toInt() ?? 23;
+      final dur = (j['duration_min'] as num?)?.toInt() ?? 7;
+      final hour = (j['hour'] as num?)?.toInt() ?? 20;
+      final minute = (j['minute'] as num?)?.toInt() ?? 0;
       final notify = j['notify'] != false;
-      // Validate — invalid config = OFF (structurally prevents cross-midnight).
-      final valid = dur >= 5 &&
-          dur <= 120 &&
-          sh >= 0 &&
-          sh < eh &&
-          eh <= 24 &&
-          (eh * 60 - dur) > (sh * 60);
+      // Validate — invalid config = OFF. Window must fit before midnight.
+      final valid = dur >= 1 &&
+          dur <= 240 &&
+          hour >= 0 &&
+          hour <= 23 &&
+          minute >= 0 &&
+          minute < 60 &&
+          (hour * 60 + minute + dur) <= 24 * 60;
       if (!valid) {
         _cfgEnabled = false;
         return;
       }
       _cfgEnabled = enabled;
       _cfgDurationMin = dur;
-      _cfgStartHour = sh;
-      _cfgEndHour = eh;
+      _cfgHour = hour;
+      _cfgMinute = minute;
       _cfgNotify = notify;
     } catch (_) {
       _cfgEnabled = false;
@@ -378,16 +429,6 @@ class FreeHourService {
 
   bool get shouldNotify => _cfgEnabled && _cfgNotify;
   int get durationMin => _cfgDurationMin;
-
-  // FNV-1a 32-bit — stable across Dart SDK versions (String.hashCode isn't).
-  int _fnv1a(String s) {
-    var hash = 0x811c9dc5;
-    for (final c in s.codeUnits) {
-      hash ^= c;
-      hash = (hash * 0x01000193) & 0xFFFFFFFF;
-    }
-    return hash;
-  }
 }
 
 /// Minimal RFC-1123 HTTP date parser (e.g. "Sun, 12 Jul 2026 20:40:35 GMT").

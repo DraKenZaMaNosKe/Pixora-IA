@@ -641,6 +641,25 @@ body::after{
     <p class="subtitle">— cómo va el laboratorio esta semana</p>
   </div>
 
+  <!-- Hora Free control -->
+  <div id="freehour-panel" style="background:linear-gradient(135deg,#2a2018,#1a140e);border:1px solid rgba(224,180,140,.25);border-radius:14px;padding:16px 18px;margin:14px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#E0B47A">🎉 Hora Free
+          <span id="fh-state" style="font-size:11px;padding:2px 10px;border-radius:20px;margin-left:8px">—</span></div>
+        <div style="font-size:12px;color:#c9b499;margin-top:4px">Happy hour diario sin anuncios · para todos los usuarios · propaga en ≤30 min</div>
+      </div>
+      <button id="fh-toggle" class="btn" style="padding:8px 18px;font-size:14px;font-weight:700">—</button>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center;margin-top:12px;flex-wrap:wrap">
+      <label style="font-size:12px;color:#c9b499">Hora <input type="time" id="fh-time" value="20:00" style="background:#111;color:#eee;border:1px solid #444;border-radius:6px;padding:4px 8px;margin-left:6px"></label>
+      <label style="font-size:12px;color:#c9b499">Duración (min) <input type="number" id="fh-dur" value="7" min="1" max="240" style="width:60px;background:#111;color:#eee;border:1px solid #444;border-radius:6px;padding:4px 8px;margin-left:6px"></label>
+      <label style="font-size:12px;color:#c9b499"><input type="checkbox" id="fh-notify" checked> notificar</label>
+      <button id="fh-save" class="btn" style="padding:6px 14px;font-size:12px">Guardar cambios</button>
+    </div>
+    <div id="fh-msg" style="font-size:11px;color:#8fbf7f;margin-top:8px;min-height:14px"></div>
+  </div>
+
   <div class="corkboard" id="kpi-board">
     <div class="loading">— revisando el tablero…</div>
   </div>
@@ -933,9 +952,52 @@ function showTab(name){
 }
 
 // ============================================================
+// HORA FREE (control remoto del happy hour sin ads)
+// ============================================================
+function fhRender(c){
+  const on = c.enabled === true;
+  const st = document.getElementById('fh-state');
+  st.textContent = on ? 'ENCENDIDA' : 'apagada';
+  st.style.background = on ? 'rgba(120,200,120,.2)' : 'rgba(200,90,60,.2)';
+  st.style.color = on ? '#8fbf7f' : '#e5a08c';
+  const tog = document.getElementById('fh-toggle');
+  tog.textContent = on ? '⏻ APAGAR' : '▶ ENCENDER';
+  tog.dataset.enabled = on ? '1' : '0';
+  document.getElementById('fh-time').value =
+    String(c.hour ?? 20).padStart(2,'0') + ':' + String(c.minute ?? 0).padStart(2,'0');
+  document.getElementById('fh-dur').value = c.duration_min ?? 7;
+  document.getElementById('fh-notify').checked = c.notify !== false;
+}
+async function loadFreeHour(){
+  try { fhRender(await (await fetch('/api/free-hour')).json()); } catch(e){}
+}
+async function fhSave(enabled){
+  const t = (document.getElementById('fh-time').value || '20:00').split(':');
+  const body = { enabled, hour: parseInt(t[0]||'20'), minute: parseInt(t[1]||'0'),
+    duration_min: parseInt(document.getElementById('fh-dur').value||'7'),
+    notify: document.getElementById('fh-notify').checked };
+  const msg = document.getElementById('fh-msg');
+  msg.style.color = '#c9b499'; msg.textContent = 'guardando…';
+  try {
+    const d = await (await fetch('/api/free-hour',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+    if(d.ok){ fhRender(d.config); msg.style.color='#8fbf7f';
+      msg.textContent = enabled ? '✓ Hora Free ENCENDIDA · llega a usuarios en ≤30 min'
+                                : '✓ Hora Free apagada'; }
+    else { msg.style.color='#e5a08c'; msg.textContent = '✗ ' + (d.error||'error'); }
+  } catch(e){ msg.style.color='#e5a08c'; msg.textContent = '✗ ' + e; }
+}
+document.addEventListener('click', (e)=>{
+  if(!e.target) return;
+  if(e.target.id==='fh-toggle') fhSave(e.target.dataset.enabled !== '1');
+  if(e.target.id==='fh-save') fhSave(document.getElementById('fh-toggle').dataset.enabled === '1');
+});
+
+// ============================================================
 // RESUMEN
 // ============================================================
 async function loadResumen(){
+  loadFreeHour();
   const board = document.getElementById('kpi-board');
   const feed = document.getElementById('feed-notes');
   const stats = await api('/api/stats');

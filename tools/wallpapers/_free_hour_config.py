@@ -5,9 +5,9 @@ reads it (TTL 30 min + on resume). Default in the app is OFF, so the feature
 only turns on once this JSON exists with "enabled": true.
 
 Usage:
-  python _free_hour_config.py on          # enable (30 min, 7-23h, notify)
+  python _free_hour_config.py on          # enable (8pm local, 7 min, notify)
   python _free_hour_config.py off         # KILL-SWITCH: disable everywhere
-  python _free_hour_config.py on --dur 45 --start 8 --end 22 --no-notify
+  python _free_hour_config.py on --hour 20 --dur 10 --no-notify
 """
 import argparse
 import json
@@ -43,23 +43,23 @@ def put(body: bytes):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("state", choices=["on", "off"])
-    ap.add_argument("--dur", type=int, default=30, help="duration minutes (5-120)")
-    ap.add_argument("--start", type=int, default=7, help="window start hour (0-23)")
-    ap.add_argument("--end", type=int, default=23, help="window end hour (1-24)")
+    ap.add_argument("--dur", type=int, default=7, help="duration minutes (1-240)")
+    ap.add_argument("--hour", type=int, default=20, help="start hour local (0-23), 8pm=20")
+    ap.add_argument("--minute", type=int, default=0, help="start minute (0-59)")
     ap.add_argument("--no-notify", action="store_true")
     a = ap.parse_args()
 
     cfg = {
         "enabled": a.state == "on",
         "duration_min": a.dur,
-        "window_start_hour": a.start,
-        "window_end_hour": a.end,
+        "hour": a.hour,
+        "minute": a.minute,
         "notify": not a.no_notify,
     }
     # Sanity (mirrors the app's validation — invalid = OFF client-side anyway).
-    assert 5 <= a.dur <= 120, "dur out of range"
-    assert 0 <= a.start < a.end <= 24, "window invalid"
-    assert (a.end * 60 - a.dur) > (a.start * 60), "window too small for duration"
+    assert 1 <= a.dur <= 240, "dur out of range"
+    assert 0 <= a.hour <= 23 and 0 <= a.minute < 60, "time invalid"
+    assert (a.hour * 60 + a.minute + a.dur) <= 24 * 60, "window crosses midnight"
 
     print(json.dumps(cfg, indent=2))
     put(json.dumps(cfg, indent=2).encode("utf-8"))
