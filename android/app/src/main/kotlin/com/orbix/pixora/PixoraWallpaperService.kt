@@ -350,6 +350,9 @@ class PixoraWallpaperService : WallpaperService() {
                 }
                 editor.putLong("changed_at", System.currentTimeMillis())
                 editor.apply()
+                // Prefs now reflect the new wallpaper — re-attribute usage so the
+                // old wallpaper's segment closes and a new one opens.
+                if (!isPreview) UsageAccountant.wallpaperChanged()
             }
         }
 
@@ -366,6 +369,10 @@ class PixoraWallpaperService : WallpaperService() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val visible = intent?.getBooleanExtra("visible", false) ?: return
                 idleMode = visible
+                // The :wallpaper renders BEHIND the translucent AdActivity, so
+                // onVisibilityChanged never fires false during an ad. Pause usage
+                // accounting explicitly or we'd bill ~30s of ad time per ad.
+                if (!isPreview) UsageAccountant.setOccluded(visible)
                 Log.d(TAG, "adVisibilityReceiver: ad ${if (visible) "visible → idle" else "dismissed → normal"}")
             }
         }
@@ -495,6 +502,12 @@ class PixoraWallpaperService : WallpaperService() {
             registerWallpaperPathReceiver()
             registerAdVisibilityReceiver()
             loadDailyConfig()
+            // Real usage-time accounting (F1). Preview engines never count —
+            // the wallpaper picker's preview isn't real usage.
+            if (!isPreview) {
+                UsageAccountant.init(applicationContext)
+                UsageAccountant.recoverAndMaybeFlush()
+            }
             Log.d(TAG, "Engine onCreate")
         }
 
@@ -740,6 +753,8 @@ class PixoraWallpaperService : WallpaperService() {
                 // Same-type rotation: apply() (async) is fine and faster.
                 editor.apply()
                 currentWallpaperPath = next.absolutePath
+                // Re-attribute usage to the freshly rotated wallpaper.
+                if (!isPreview) UsageAccountant.wallpaperChanged()
                 Log.d(TAG, "Daily rotated → ${next.name} (seen ${seen.size}/${files.size}, interval ${dailyIntervalMs / 60000}min)")
             } catch (e: Exception) {
                 Log.w(TAG, "maybeRotateDaily failed: ${e.message}")
@@ -1897,6 +1912,11 @@ class PixoraWallpaperService : WallpaperService() {
 
         override fun onVisibilityChanged(visible: Boolean) {
             Log.d(TAG, "visibility=$visible isVideo=$isVideoWallpaper isFrame=$isFrameMode videoStarting=$videoStarting")
+            // Usage accounting — before the early returns below so every visible
+            // path (video, frame, canvas) opens a segment.
+            if (!isPreview) {
+                if (visible) UsageAccountant.engineVisible() else UsageAccountant.engineHidden()
+            }
             if (visible) {
                 batteryIndicator.registerBatteryReceiver()
                 // Re-register parallax sensor only if a parallax scene is loaded.
@@ -2344,6 +2364,7 @@ class PixoraWallpaperService : WallpaperService() {
         }
 
         override fun onDestroy() {
+            if (!isPreview) UsageAccountant.engineGone()
             drawing = false
             unregisterGyro()
             handler.removeCallbacks(drawRunnable)

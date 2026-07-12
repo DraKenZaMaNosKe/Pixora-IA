@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../constants/supabase_config.dart';
 
 /// Generic engagement analytics. One singleton, one queue, one flush loop.
 ///
@@ -69,6 +74,42 @@ class AnalyticsService {
     } catch (_) {}
     _timer = Timer.periodic(_flushInterval, (_) => _flush());
     _log('init session=$_sessionId device=$deviceId version=$_appVersion');
+    // Bridge our identity (device_id) + Supabase config to the isolated
+    // :wallpaper process, which can't reach Hive. The UsageAccountant there
+    // reads this flat file to attribute + report real usage time.
+    unawaited(_writeIdentityFile());
+  }
+
+  /// Writes `pixora_identity.json` into the app support dir (== Android
+  /// `context.filesDir`, the same dir the native side already reads for
+  /// `auto_rotate_cache/` and `scene_specs/`). The isolated `:wallpaper`
+  /// process reads it to get our `device_id` + the anon key needed to POST
+  /// to the `usage_report` RPC — so the secret stays in one place (Supabase
+  /// config) and never lands in a committed `.kt`.
+  ///
+  /// Atomic (tmp + rename). Rewritten every cold start so a regenerated
+  /// device_id or a rotated anon key propagates. Best-effort: failures are
+  /// swallowed — usage tracking degrades to offline accumulation, never a
+  /// crash.
+  Future<void> _writeIdentityFile() async {
+    if (!Platform.isAndroid) return;
+    try {
+      final dir = await getApplicationSupportDirectory();
+      final payload = <String, dynamic>{
+        'v': 1,
+        'device_id': deviceId,
+        'supabase_url': SupabaseConfig.projectUrl,
+        'anon_key': SupabaseConfig.anonKey,
+        'app_version': _appVersion,
+        'written_at': DateTime.now().millisecondsSinceEpoch,
+      };
+      final tmp = File('${dir.path}/pixora_identity.json.tmp');
+      await tmp.writeAsString(jsonEncode(payload), flush: true);
+      await tmp.rename('${dir.path}/pixora_identity.json');
+      _log('identity file written');
+    } catch (e) {
+      _log('identity file write failed: $e');
+    }
   }
 
   String get deviceId {

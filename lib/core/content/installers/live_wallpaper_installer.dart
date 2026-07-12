@@ -14,6 +14,7 @@ class LiveWallpaperInstaller extends ContentInstaller {
         localPath,
         item.glowColor,
         interactive: item.interactive,
+        contentId: item.id,
       );
       return true;
     } catch (_) {

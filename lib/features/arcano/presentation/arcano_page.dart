@@ -686,6 +686,7 @@ class _ArcanoPageState extends ConsumerState<ArcanoPage>
       final ok = await WallpaperService.instance.setLiveWallpaper(
         localPath,
         iah.glowColor.isEmpty ? '#D4AF37' : iah.glowColor,
+        contentId: iah.id,
       );
       // Track the install in analytics — this was previously missing, so
       // ARCANO installs never showed up in the admin dashboard. Fire-and-forget;

@@ -17,6 +17,7 @@ class StaticWallpaperInstaller extends ContentInstaller {
           item.glowColor,
           interactive: item.interactive,
           sceneId: sceneId,
+          contentId: item.id,
         );
       }
     }

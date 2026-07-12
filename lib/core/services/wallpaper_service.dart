@@ -83,8 +83,14 @@ class WallpaperService {
   /// method derives it from the wallpaper filename by looking up the
   /// catalog index — if the matching entry is a `canvas_scene`, the spec
   /// is cached to filesDir and `sceneId` is passed to the native engine.
+  ///
+  /// [contentId] — the logical catalog id of this wallpaper (the row id in
+  /// the `wallpapers` table). Passed through to the native side so the
+  /// `:wallpaper` process can attribute real usage time to the right id.
+  /// For canvas_scenes the resolved scene id already serves as the content
+  /// id, so this is mainly for static/video applies.
   Future<bool> setLiveWallpaper(String filePath, String glowColor,
-      {bool interactive = false, String? sceneId}) async {
+      {bool interactive = false, String? sceneId, String? contentId}) async {
     if (!Platform.isAndroid) return false;
     // Defensive: stop any rotation engine first (manual apply prioridad).
     try {
@@ -102,6 +108,14 @@ class WallpaperService {
       };
       if (resolvedScene != null && resolvedScene.isNotEmpty) {
         args['sceneId'] = resolvedScene;
+      }
+      // Prefer explicit contentId; fall back to the scene id so canvas_scenes
+      // are always attributable even when the caller didn't pass one.
+      final effectiveContentId = (contentId != null && contentId.isNotEmpty)
+          ? contentId
+          : resolvedScene;
+      if (effectiveContentId != null && effectiveContentId.isNotEmpty) {
+        args['contentId'] = effectiveContentId;
       }
       final result =
           await _channel.invokeMethod<bool>('setLiveWallpaper', args);
@@ -157,8 +171,6 @@ class WallpaperService {
       debugPrint('[WallpaperService] refreshActiveScene error: $e');
     }
   }
-
-
 
   /// Look up the wallpaper filename in the catalog index. If it's a
   /// canvas_scene, fetch the spec to filesDir and return the scene id

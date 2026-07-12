@@ -89,12 +89,15 @@ class MainActivity : AudioServiceActivity() {
                         // spec previously cached at filesDir/scene_specs/<id>.json
                         // by Dart's SceneSpecService.
                         val sceneId = call.argument<String>("sceneId")
+                        // Optional: logical catalog id so the :wallpaper process can
+                        // attribute real usage time to the right wallpaper.
+                        val contentId = call.argument<String>("contentId")
                         if (path != null) {
                             // Stop AutoRotate before applying a single live wallpaper.
                             // Otherwise the next AutoRotate tick clears scene_id and
                             // overwrites the user's manual canvas-scene choice.
                             AutoRotateWorker.stop(applicationContext)
-                            setLiveWallpaper(path, glowColor, interactive, sceneId)
+                            setLiveWallpaper(path, glowColor, interactive, sceneId, contentId)
                             result.success(true)
                         } else {
                             result.error("INVALID_ARG", "Path is required", null)
@@ -224,6 +227,7 @@ class MainActivity : AudioServiceActivity() {
                                 .putString("glow_color", glowColor)
                                 .putString("caption", firstCaption)
                                 .remove("scene_id")
+                                .remove("content_id")
                                 .putBoolean("interactive", false)
                                 .putLong("changed_at", System.currentTimeMillis())
                                 .commit()
@@ -687,6 +691,7 @@ class MainActivity : AudioServiceActivity() {
         glowColor: String,
         interactive: Boolean = false,
         sceneId: String? = null,
+        contentId: String? = null,
     ) {
         // Stop any active story/day cycle to prevent them from overriding this wallpaper
         StoryWorker.stopStory(applicationContext)
@@ -706,6 +711,11 @@ class MainActivity : AudioServiceActivity() {
         // explicitly when null so previous scene mode doesn't persist.
         if (sceneId.isNullOrBlank()) edit.remove("scene_id")
         else edit.putString("scene_id", sceneId)
+        // Logical catalog id for usage-time attribution (read by
+        // UsageAccountant in the :wallpaper process). Cleared when null so a
+        // previous wallpaper's id doesn't bleed into this one.
+        if (contentId.isNullOrBlank()) edit.remove("content_id")
+        else edit.putString("content_id", contentId)
         edit.commit()
 
         // For canvas_scene wallpapers with image_layers (parallax scenes

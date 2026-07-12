@@ -230,6 +230,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
         framesDir.path,
         w.glowColor,
         interactive: true,
+        contentId: w.id,
       );
       // Track install to wallpaper_events
       WallpaperStatsService.instance.trackInstall(_statsId);
