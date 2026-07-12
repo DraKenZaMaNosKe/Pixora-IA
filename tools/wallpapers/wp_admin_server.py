@@ -904,6 +904,34 @@ class Handler(BaseHTTPRequestHandler):
                         e["estimated"] = True
                         e["active_wallpaper_id"] = e.get("est_wallpaper_id")
                         rows.append(e)
+
+                # Resolve the wallpaper preview image for any device that carries
+                # a wallpaper id but no preview yet. F1 devices with a REAL id
+                # already get the image via the admin_live_devices join, but
+                # estimated devices only carry est_wallpaper_id (no join), so
+                # their card was blank. One batched lookup fills them in. `file:*`
+                # fallback ids (pre-F1 wallpapers) have no catalog row → skipped.
+                need_ids = set()
+                for r in rows:
+                    wid = r.get("active_wallpaper_id")
+                    if wid and not str(wid).startswith("file:") \
+                            and not r.get("wallpaper_preview"):
+                        need_ids.add(str(wid))
+                if need_ids:
+                    id_list = ",".join(need_ids)
+                    wps, _ = self._proxy(
+                        f"wallpapers?id=in.({id_list})&select=id,name,preview_path")
+                    wpmap = {w["id"]: w for w in (wps or [])}
+                    for r in rows:
+                        wid = r.get("active_wallpaper_id")
+                        w = wpmap.get(wid) if wid else None
+                        if w and not r.get("wallpaper_preview"):
+                            if w.get("preview_path"):
+                                r["wallpaper_preview"] = (
+                                    f"{SUPABASE_STORAGE}/object/public/"
+                                    f"wallpaper-images/{w['preview_path']}")
+                            r["wallpaper_title"] = w.get("name") or r.get("wallpaper_title")
+
                 now = datetime.now(timezone.utc)
 
                 def _tier(last):
