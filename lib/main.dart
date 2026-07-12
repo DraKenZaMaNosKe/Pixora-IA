@@ -10,6 +10,7 @@ import 'core/constants/supabase_config.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/auto_rotate_service.dart';
 import 'core/services/analytics_service.dart';
+import 'core/services/presence_service.dart';
 import 'core/services/app_strings_service.dart';
 import 'core/services/catalog_cache_store.dart';
 import 'core/services/catalog_service.dart';
@@ -118,6 +119,7 @@ Future<void> main() async {
     await ThemeService.instance.init();
     await LegalService.instance.init();
     await AnalyticsService.instance.init();
+    unawaited(PresenceService.instance.init());
     await CreditService.instance.init();
     await GracePassService.instance.init();
     await AuraPlayerService.instance.init();
