@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Rediseño de Navegación — 5 direcciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#D4AF37; --gold-hi:#F4D774; --gold-deep:#A67C1A;
+    --char:#17140F; --char-2:#1F1B17; --ink:#0C0A08;
+    --line:rgba(212,175,55,.22); --text:#F3ECDD; --mut:#9A8E77;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #2a2114 0%, transparent 60%),
+      radial-gradient(900px 700px at 90% 110%, #241a2e 0%, transparent 55%),
+      #0b0907;
+    color:var(--text); font-family:"Space Grotesk",system-ui,sans-serif;
+    min-height:100vh; padding:38px 22px 70px;
+  }
+  .head{max-width:1500px; margin:0 auto 34px}
+  .head h1{
+    font-family:"Playfair Display",serif; font-weight:700; font-size:34px;
+    letter-spacing:.5px; background:linear-gradient(90deg,#fff,var(--gold-hi),var(--gold));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .head p{color:var(--mut); margin-top:8px; font-size:14.5px; max-width:760px; line-height:1.55}
+  .head .tag{color:var(--gold); font-weight:600}
+  .row{
+    max-width:1500px; margin:0 auto; display:flex; gap:26px;
+    flex-wrap:wrap; justify-content:center; align-items:flex-start;
+  }
+  .cell{width:286px}
+  .cap{margin:14px 4px 0}
+  .cap b{font-size:15px; color:var(--gold-hi); font-weight:600; letter-spacing:.3px}
+  .cap span{display:block; color:var(--mut); font-size:12.5px; margin-top:4px; line-height:1.5}
+
+  /* ---- phone shell ---- */
+  .phone{
+    position:relative; width:286px; height:604px; border-radius:34px;
+    background:var(--ink); padding:8px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.05),
+      inset 0 0 0 2px rgba(212,175,55,.10);
+  }
+  .screen{
+    position:relative; width:100%; height:100%; border-radius:27px; overflow:hidden;
+    background:linear-gradient(180deg,#141109,#0e0b07); display:flex; flex-direction:column;
+  }
+  .sbar{
+    height:26px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; font-size:11px; color:#cfc4ac; font-weight:600; flex:0 0 auto;
+  }
+  .sbar .r{display:flex; gap:5px; align-items:center; opacity:.85}
+  .apphead{padding:6px 16px 2px; display:flex; align-items:center; justify-content:space-between; flex:0 0 auto}
+  .apphead .ttl{font-family:"Playfair Display",serif; font-size:22px; font-weight:700; color:#fff}
+  .apphead .cr{
+    font-size:11px; font-weight:600; color:var(--gold-hi);
+    border:1px solid var(--line); border-radius:20px; padding:4px 9px;
+    display:flex; gap:4px; align-items:center; background:rgba(212,175,55,.06)
+  }
+  .body{flex:1 1 auto; overflow:hidden; padding:0 14px}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:10px}
+  .th{border-radius:14px; height:104px; position:relative; overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  .th::after{content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.45))}
+  .th b{position:absolute; left:8px; bottom:7px; z-index:2; font-size:10px; font-weight:600;
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .g1{background:radial-gradient(120% 90% at 30% 20%,#6d3bb8,#2a1450 70%,#160a2e)}
+  .g2{background:linear-gradient(140deg,#0f6f8f,#0a2a3a 80%)}
+  .g3{background:radial-gradient(120% 100% at 70% 10%,#e0567a,#7a1f45 70%,#2a0f1e)}
+  .g4{background:linear-gradient(150deg,#caa23a,#6b4a12 85%)}
+  .g5{background:radial-gradient(120% 100% at 40% 30%,#2f7d5b,#0f3a2a 75%)}
+  .g6{background:linear-gradient(140deg,#c24a2a,#5a1e10 85%)}
+
+  /* ---- chips base ---- */
+  .chips{display:flex; gap:8px; overflow-x:auto; padding:10px 0 4px; scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto; white-space:nowrap; cursor:default}
+
+  /* ---- nav base ---- */
+  .nav{flex:0 0 auto; height:62px; display:flex; align-items:center; justify-content:space-around;
+    padding:0 6px; position:relative}
+  .nav .it{display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; position:relative}
+  .nav .it svg{width:22px; height:22px; stroke:#8a8069; fill:none; stroke-width:1.7}
+  .nav .it span{font-size:9.5px; color:#8a8069; font-weight:600; letter-spacing:.2px}
+  .nav .it.on svg{stroke:var(--gold-hi)}
+  .nav .it.on span{color:var(--gold-hi)}
+
+  /* ============ V1 · LINGOTE (solid gold pills) ============ */
+  .v1 .chip{padding:9px 15px; border-radius:12px; font-size:12.5px; font-weight:600;
+    color:var(--gold-hi); background:rgba(212,175,55,.08); border:1px solid var(--line)}
+  .v1 .chip.on{color:#231a06; font-weight:700;
+    background:linear-gradient(180deg,var(--gold-hi),var(--gold-deep));
+    border-color:var(--gold-hi); box-shadow:0 4px 14px -3px rgba(212,175,55,.6)}
+  .v1 .nav{background:linear-gradient(180deg,#211c15,#171309); border-top:1px solid var(--line)}
+  .v1 .nav .it.on::before{content:""; position:absolute; top:-1px; width:34px; height:3px;
+    border-radius:3px; background:var(--gold-hi); box-shadow:0 0 10px var(--gold-hi)}
+
+  /* ============ V2 · NEÓN UNDERLINE (editorial) ============ */
+  .v2 .chips{gap:16px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .v2 .chip{padding:8px 2px 12px; font-family:"Space Grotesk"; font-size:13px; font-weight:500;
+    color:var(--mut); position:relative; letter-spacing:.2px}
+  .v2 .chip.on{color:#fff; font-weight:600}
+  .v2 .chip.on::after{content:""; position:absolute; left:0; right:0; bottom:0; height:2.5px;
+    border-radius:3px; background:linear-gradient(90deg,var(--gold),var(--gold-hi));
+    box-shadow:0 0 10px var(--gold)}
+  .v2 .nav{background:#100d08; border-top:1px solid rgba(255,255,255,.05)}
+  .v2 .nav .it.on span{position:relative}
+  .v2 .nav .it.on::after{content:""; position:absolute; bottom:6px; width:5px; height:5px;
+    border-radius:50%; background:var(--gold-hi); box-shadow:0 0 8px var(--gold-hi)}
+
+  /* ============ V3 · CONSTELACIÓN (icon cards, cosmic) ============ */
+  .v3 .chip{display:flex; flex-direction:column; align-items:center; gap:5px; width:60px;
+    padding:9px 4px; border-radius:14px; font-size:10px; font-weight:600; color:var(--mut);
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06)}
+  .v3 .chip i{width:26px; height:26px; border-radius:9px; display:grid; place-items:center;
+    background:rgba(212,175,55,.10); font-style:normal; font-size:14px}
+  .v3 .chip.on{color:#fff; border-color:var(--line);
+    background:radial-gradient(120% 120% at 50% 0%,rgba(212,175,55,.22),transparent)}
+  .v3 .chip.on i{background:linear-gradient(180deg,var(--gold-hi),var(--gold-deep));
+    box-shadow:0 0 14px rgba(212,175,55,.55)}
+  .v3 .nav{background:linear-gradient(180deg,#191423,#0e0b13); border-top:1px solid rgba(150,120,220,.18)}
+  .v3 .nav .it.on svg{stroke:var(--gold-hi); filter:drop-shadow(0 0 6px rgba(212,175,55,.6))}
+
+  /* ============ V4 · VIDRIO SEGMENTADO (frosted glass) ============ */
+  .v4 .chips{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09);
+    border-radius:16px; padding:5px; gap:3px; backdrop-filter:blur(8px); margin-top:12px}
+  .v4 .chip{padding:8px 13px; border-radius:11px; font-size:12px; font-weight:600; color:var(--mut)}
+  .v4 .chip.on{color:#231a06;
+    background:linear-gradient(180deg,rgba(244,215,116,.95),rgba(212,175,55,.85));
+    box-shadow:0 2px 8px -2px rgba(0,0,0,.4)}
+  .v4 .nav{margin:8px 12px 10px; height:56px; border-radius:20px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); backdrop-filter:blur(12px)}
+  .v4 .nav .it.on{}
+  .v4 .nav .it.on svg{stroke:#231a06}
+  .v4 .nav .it.on span{color:#f4d774}
+  .v4 .nav .it.on::before{content:""; position:absolute; top:8px; width:40px; height:40px; z-index:-1;
+    border-radius:14px; background:linear-gradient(180deg,var(--gold-hi),var(--gold));
+    box-shadow:0 0 16px rgba(212,175,55,.5)}
+  .v4 .nav .it.on svg,.v4 .nav .it.on span{position:relative; z-index:1}
+
+  /* ============ V5 · CINTILLO GRABADO (art-deco brass ticker) ============ */
+  .v5 .chips{gap:0; background:linear-gradient(180deg,#241d10,#181206);
+    border-top:1px solid var(--gold-deep); border-bottom:1px solid #000;
+    padding:0; margin-top:10px; border-radius:8px; overflow:hidden}
+  .v5 .chip{padding:11px 14px; font-family:"Cinzel",serif; font-size:11px; font-weight:600;
+    letter-spacing:1.2px; text-transform:uppercase; color:#b39a63;
+    border-right:1px solid rgba(0,0,0,.4)}
+  .v5 .chip.on{color:#fff; background:linear-gradient(180deg,rgba(244,215,116,.18),transparent);
+    text-shadow:0 0 12px var(--gold-hi)}
+  .v5 .nav{background:linear-gradient(180deg,#241d10,#140f06); border-top:2px solid var(--gold-deep)}
+  .v5 .nav .it span{font-family:"Cinzel",serif; letter-spacing:.6px; text-transform:uppercase; font-size:8.5px}
+  .v5 .nav .it.on svg{stroke:var(--gold-hi)}
+  .v5 .nav .it.on::after{content:"◆"; position:absolute; top:-2px; font-size:6px; color:var(--gold-hi)}
+
+  /* ============ V6 · MARQUESINA (Fable 5 pick: estructura V5 + activo V1 + Space Grotesk) ============ */
+  .v6 .chips{gap:0; margin-top:12px; padding:0; border-radius:11px; overflow:hidden;
+    background:linear-gradient(180deg,#251e11,#150f06);
+    border-top:1px solid var(--gold-deep); border-bottom:1px solid #000;
+    box-shadow:inset 0 1px 0 rgba(244,215,116,.15), 0 6px 16px -8px rgba(0,0,0,.7);
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 22px),transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 22px),transparent)}
+  .v6 .chip{display:flex; align-items:center; min-height:48px; padding:0 16px; line-height:1.5;
+    font-family:"Space Grotesk"; font-size:12px; font-weight:600; letter-spacing:1.6px;
+    text-transform:uppercase; color:#b39a63; border-right:1px solid rgba(212,175,55,.12)}
+  .v6 .chip.on{color:#231a06; border-right-color:transparent; position:relative;
+    background:linear-gradient(180deg,var(--gold-hi),var(--gold-deep));
+    box-shadow:0 0 16px rgba(212,175,55,.35)}
+  .v6 .chip.on::before{content:""; position:absolute; top:0; left:0; right:0; height:2px; background:var(--gold-hi)}
+  .v6 .nav{background:linear-gradient(180deg,#251e11,#140f06); border-top:2px solid var(--gold-deep)}
+  .v6 .nav .it span{font-family:"Space Grotesk"; letter-spacing:.4px; font-size:10px}
+  .v6 .nav .it.on svg{stroke:var(--gold-hi); filter:drop-shadow(0 0 5px rgba(212,175,55,.5))}
+  .v6 .nav .it.on::after{content:"◆"; position:absolute; top:-3px; font-size:6px; color:var(--gold-hi)}
+
+  /* highlight de la recomendada */
+  .cell.pick .phone{box-shadow:0 30px 60px -18px rgba(0,0,0,.8), 0 0 0 2px var(--gold-hi),
+    0 0 34px -4px rgba(212,175,55,.45)}
+  .badge{display:inline-flex; align-items:center; gap:5px; margin-bottom:9px; padding:5px 11px;
+    border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.4px; color:#231a06;
+    background:linear-gradient(180deg,var(--gold-hi),var(--gold)); box-shadow:0 4px 12px -3px rgba(212,175,55,.5)}
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>Pixora · Rediseño de Navegación</h1>
+    <p>5 direcciones para el nuevo hub <span class="tag">Fondos</span> (bottom nav de 5 tabs + chips grandes de secciones). Todas resuelven los hallazgos de QA #3 y #4 — puros HTML/CSS, misma familia dorada, personalidades distintas. Escoge una y la construyo en Flutter.</p>
+  </div>
+  <div class="row" id="row"></div>
+
+<script>
+const CHIPS = ["Estáticos","Live","3D","Amor","Cultura","Eventos","Arcano","Día"];
+const NAV = [
+  {l:"Fondos", d:"M4 5h16v11H4z M4 16l5-5 3 3 4-5 4 5"},
+  {l:"Aura",   d:"M12 3c3 3 3 7 0 9-3-2-3-6 0-9z M7 13c4 2 6 6 5 8 M17 13c-4 2-6 6-5 8"},
+  {l:"Crear",  d:"M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"},
+  {l:"Favoritos", d:"M12 20s-7-4.5-7-9a4 4 0 017-2.5A4 4 0 0119 11c0 4.5-7 9-7 9z"},
+  {l:"Más",    d:"M5 12h.01 M12 12h.01 M19 12h.01"},
+];
+const THUMBS = [["g1","Thanos"],["g2","Marina"],["g3","Amor"],["g4","Oro"],["g5","Bosque"],["g6","Ryu"]];
+const VARIANTS = [
+  ["v1","Lingote","Píldoras de oro sólido, la activa se levanta y brilla. Táctil, robusto, premium."],
+  ["v2","Neón Editorial","Solo texto con subrayado neón dorado que se desliza. Limpio, elegante, tipo revista."],
+  ["v3","Constelación","Cada sección con su ícono en tarjeta, la activa con halo cósmico. Visual y temático."],
+  ["v4","Vidrio Segmentado","Control segmentado en vidrio esmerilado + nav flotante. Moderno, iOS-premium dorado."],
+  ["v5","Cintillo Grabado","Tipografía Cinzel grabada en latón, art-decó. La activa encendida. Lujo retro único."],
+  ["v6","Marquesina","Banda continua tipo marquesina de cine: la sección activa se ENCIENDE con oro sólido. Space Grotesk uppercase (no serif), tap targets 48dp, rombo ◆, cero blur. Se desliza al cambiar."],
+];
+const CHIP_ICON = ["▦","▶","◈","♥","☰","✦","☾","☀"];
+
+function chipsHTML(v){
+  return CHIPS.map((c,i)=>{
+    const on = i===2 ? " on" : "";
+    if(v==="v3") return `<div class="chip${on}"><i>${CHIP_ICON[i]}</i>${c}</div>`;
+    return `<div class="chip${on}">${c}</div>`;
+  }).join("");
+}
+function gridHTML(){
+  let cells=[];
+  for(let i=0;i<6;i++){const t=THUMBS[i]; cells.push(`<div class="th ${t[0]}"><b>${t[1]}</b></div>`);}
+  return cells.join("");
+}
+function navHTML(){
+  return NAV.map((n,i)=>{
+    const on = i===0 ? " on":"";
+    const paths = n.d.split(" M").map((p,k)=>`<path d="${k? "M"+p : p}"/>`).join("");
+    return `<div class="it${on}"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${paths}</svg><span>${n.l}</span></div>`;
+  }).join("");
+}
+document.getElementById("row").innerHTML = VARIANTS.map(v=>{
+  const pick = v[0]==="v6";
+  const badge = pick ? `<div class="badge">★ Recomendada por Fable 5</div>` : "";
+  return `
+  <div class="cell${pick?" pick":""}">
+    ${badge}
+    <div class="phone ${v[0]}">
+      <div class="screen">
+        <div class="sbar"><span>9:41</span><span class="r">● ▂▄▆ ⚡</span></div>
+        <div class="apphead"><div class="ttl">Fondos</div><div class="cr">◆ 3000</div></div>
+        <div class="body">
+          <div class="chips">${chipsHTML(v[0])}</div>
+          <div class="grid">${gridHTML()}</div>
+        </div>
+        <div class="nav">${navHTML()}</div>
+      </div>
+    </div>
+    <div class="cap"><b>${VARIANTS.indexOf(v)+1}. ${v[1]}</b><span>${v[2]}</span></div>
+  </div>`;
+}).join("");
+</script>
+</body>
+</html>

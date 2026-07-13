@@ -3,6 +3,40 @@
 Handoff de la sesión de casa (madrugada 13 jul). Sigue estos pasos al llegar a
 la PC del trabajo para retomar sin perder contexto (secretos, memorias, código).
 
+## 0. LO ÚLTIMO que estábamos haciendo (retomar aquí) 👈
+
+Llegó el **reporte de QA de PrimeTestLab** (testearon v1.7.55; ya vamos en v1.7.58).
+Veredicto: **0 críticos, app APROBADA** para seguir en closed testing. 5 hallazgos de
+pulido que se arreglan en UN solo release (Google pide 1 update en los 14 días):
+
+- **#1+#2 Status bar** (Major): la barra de Android se encima con la UI, y en el
+  onboarding los íconos no se ven. Fix: `SafeArea` + `statusBarIconBrightness` dinámico
+  según el fondo de cada pantalla (hoy está hardcodeado a `light` en `home_page.dart:~622`).
+- **#3+#4 Bottom nav sobrecargado** (Major): tiene **14 tabs** (máx UX = 5); rompe el
+  tutorial (#4 es consecuencia de #3). Fix: rediseño a 5 tabs (abajo).
+- **#5 Spacing de listas** (Minor): definir una constante de spacing compartida (8/12dp).
+- **+ HUDs off por default** (decisión de Eduardo, NO es del reporte): reloj/ecualizador/
+  monitores apagados al aplicar wallpaper; se prenden en Settings→Overlays. Respetar a
+  quien YA los tiene encendidos (solo cambiar el default de instalaciones nuevas).
+
+**Rediseño de navegación (EN CURSO):** elegimos la **Opción A** — bottom nav de 5 tabs
+`[Fondos · Aura · Crear · Favoritos · Más]` donde **Fondos** es un hub con chips grandes
+scrollables (Estáticos·Live·3D·Amor·Cultura·Eventos·Arcano·Día). "Más" = Stories·Tonos·Ajustes.
+
+Hice **6 variantes visuales** en `docs/design/nav_redesign_variants.html` (ábrelo o mándaselo
+a Eduardo con SendUserFile — ojo: si está en sesión remota, NO abras Chrome local, mándale el
+archivo). **Fable 5 eligió la #6 "Marquesina"**: estructura de cintillo de cine (V5) + píldora
+de oro sólido activa (V1) + **Space Grotesk uppercase** (NO Cinzel, que es cliché de AI).
+Correcciones de Fable a aplicar al construir en Flutter: tap targets **48dp**, separadores
+hairline dorados, el relleno dorado se **DESLIZA** entre secciones + micro-flicker de
+"encendido" (no loop), rombo ◆ como indicador del tab activo, **CERO blur** (jank en Samsung
+gama media).
+
+**PENDIENTE inmediato:** Eduardo escoge la variante final (revisando el HTML) → construir el
+nav elegido en Flutter (`home_page.dart` → `_buildBottomNav` + el hub de Fondos con chips y el
+menú "Más") → juntarlo con los fixes de status bar + HUDs off + spacing en el release **v1.7.59**.
+Se recomienda frontend-design skill + think hard (o delegar diseño a Fable 5 y revisar).
+
 ## 1. Sincroniza secretos + memorias (orbixprivate) — PRIMERO
 
 `KEYS_LOCAL.md` NO vive en este repo (gitignored). Sin él, el cuarto obscuro
