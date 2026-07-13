@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Dial Conservador</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap');
+
+/* ============ TOKENS — sobrio, banco premium ============ */
+:root{
+  --bone:      #f5f3ee;   /* fondo de página */
+  --paper:     #fdfcf9;   /* superficies */
+  --ink:       #21262d;   /* texto principal */
+  --ink-soft:  #5b6470;   /* texto secundario */
+  --ink-faint: #97907f;   /* kickers, metadatos */
+  --hairline:  #e2ddd2;   /* bordes finos */
+  --navy:      #21395c;   /* ÚNICO acento */
+  --navy-deep: #182a45;
+  --frame:     #2b2e33;   /* marco grafito del teléfono */
+  --shadow-lg: 0 24px 60px -18px rgba(33,38,45,.28), 0 4px 14px rgba(33,38,45,.10);
+  --shadow-sm: 0 2px 8px rgba(33,38,45,.08), 0 1px 2px rgba(33,38,45,.06);
+  --r-card: 14px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(120% 90% at 50% -10%, #fbfaf6 0%, var(--bone) 55%, #ece8df 100%);
+  font-family:'Libre Franklin',sans-serif;
+  color:var(--ink);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:44px 20px 72px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ============ ENCABEZADO ============ */
+header{max-width:520px;text-align:center;margin-bottom:38px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:11px;font-weight:600;letter-spacing:.24em;
+  color:var(--navy);text-transform:uppercase;
+  padding:7px 16px;border:1px solid var(--hairline);
+  border-radius:999px;background:var(--paper);
+  box-shadow:var(--shadow-sm);
+}
+.eyebrow::before,.eyebrow::after{
+  content:'';width:16px;height:1px;background:var(--hairline);
+}
+header h1{
+  font-family:'Newsreader',serif;
+  font-weight:500;font-size:clamp(28px,4.5vw,38px);
+  line-height:1.12;letter-spacing:-.01em;
+  margin:20px 0 12px;color:var(--ink);
+}
+header h1 em{font-style:italic;color:var(--navy)}
+header p{
+  font-size:14.5px;font-weight:400;line-height:1.55;color:var(--ink-soft);
+}
+header p b{font-weight:600;color:var(--ink)}
+.rule{
+  width:56px;height:1px;background:var(--hairline);
+  margin:22px auto 0;position:relative;
+}
+.rule::after{
+  content:'';position:absolute;left:50%;top:50%;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--navy);transform:translate(-50%,-50%);
+}
+
+/* ============ TELÉFONO ============ */
+#phone{
+  width:340px;height:710px;
+  background:linear-gradient(155deg,#34373c,var(--frame) 40%,#212429);
+  border-radius:46px;
+  padding:11px;
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 1px rgba(255,255,255,.14),
+    inset 0 -1px 1px rgba(0,0,0,.35);
+  position:relative;
+  flex:none;
+}
+/* botón físico lateral, detalle del marco */
+#phone::before{
+  content:'';position:absolute;right:-2.5px;top:170px;
+  width:2.5px;height:64px;border-radius:0 2px 2px 0;
+  background:linear-gradient(180deg,#43464c,#26292e);
+}
+
+#screen{
+  position:relative;
+  width:100%;height:100%;
+  border-radius:36px;
+  overflow:hidden;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  background:#0e1117;
+  cursor:default;
+}
+
+.notch{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:96px;height:24px;border-radius:14px;
+  background:#0c0e12;z-index:40;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+}
+.notch::after{
+  content:'';position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  width:8px;height:8px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #2c3644, #10151d 70%);
+}
+
+/* ============ WALLPAPERS (6 fondos sobrios) ============ */
+.wall{
+  position:absolute;inset:0;
+  transition:filter .5s ease;
+}
+.wall::after{ /* velo tonal común: pátina suave, unifica los 6 */
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(130% 90% at 50% 0%, rgba(255,255,255,.14), transparent 55%),
+    linear-gradient(180deg, transparent 55%, rgba(12,16,24,.34));
+}
+.wall.bgA{ /* Estáticos — niebla de porcelana */
+  background:
+    radial-gradient(90% 70% at 78% 18%, #f0ede6 0%, transparent 60%),
+    linear-gradient(168deg,#d9dde2 0%,#aeb9c4 48%,#7e8c9b 100%);
+}
+.wall.bgB{ /* Live / AURA — marea de pizarra */
+  background:
+    radial-gradient(85% 60% at 22% 12%, rgba(214,226,226,.5) 0%, transparent 55%),
+    linear-gradient(165deg,#4c6a70 0%,#33505a 52%,#1f3640 100%);
+}
+.wall.bgC{ /* Amor — rosa empolvado */
+  background:
+    radial-gradient(80% 60% at 70% 15%, rgba(244,232,226,.75) 0%, transparent 58%),
+    linear-gradient(170deg,#d7bfb9 0%,#b39089 55%,#84625f 100%);
+}
+.wall.bgD{ /* 3D / Favoritos — azul de medianoche */
+  background:
+    radial-gradient(90% 65% at 30% 10%, rgba(150,170,200,.35) 0%, transparent 55%),
+    linear-gradient(166deg,#41526e 0%,#2b3a54 50%,#1a2438 100%);
+}
+.wall.bgE{ /* Eventos / Día — arena dorada tenue */
+  background:
+    radial-gradient(85% 60% at 75% 12%, rgba(251,246,233,.8) 0%, transparent 55%),
+    linear-gradient(168deg,#e5d9bf 0%,#c8b48c 52%,#96805c 100%);
+}
+.wall.bgF{ /* Cultura / Arcano — ciruela de biblioteca */
+  background:
+    radial-gradient(85% 60% at 25% 12%, rgba(200,190,205,.35) 0%, transparent 55%),
+    linear-gradient(167deg,#544b5c 0%,#3c3545 52%,#272231 100%);
+}
+
+/* ============ UI DEL HOME ============ */
+.statusbar{
+  position:absolute;top:0;left:0;right:0;height:48px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 26px 0;z-index:5;
+  color:rgba(255,255,255,.94);
+  font-size:12.5px;font-weight:600;letter-spacing:.02em;
+  text-shadow:0 1px 3px rgba(10,14,20,.35);
+  pointer-events:none;
+}
+.statusbar .sig{display:flex;align-items:center;gap:5px}
+.statusbar svg{display:block;opacity:.94;filter:drop-shadow(0 1px 2px rgba(10,14,20,.3))}
+
+.brandrow{
+  position:absolute;top:64px;left:24px;right:24px;z-index:5;
+  display:flex;align-items:baseline;justify-content:space-between;
+  pointer-events:none;
+}
+.brand{
+  font-family:'Newsreader',serif;font-style:italic;font-weight:500;
+  font-size:24px;color:#fff;letter-spacing:.01em;
+  text-shadow:0 1px 6px rgba(10,14,20,.4);
+}
+.brand-date{
+  font-size:10.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.78);
+  text-shadow:0 1px 3px rgba(10,14,20,.35);
+}
+
+/* tarjeta de sección activa */
+#capCard{
+  position:absolute;left:20px;right:20px;bottom:22px;z-index:6;
+  background:rgba(253,252,249,.94);
+  border:1px solid rgba(255,255,255,.6);
+  border-radius:var(--r-card);
+  padding:14px 18px 15px;
+  box-shadow:0 10px 30px -8px rgba(12,16,24,.35);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  transition:transform .45s cubic-bezier(.2,.9,.3,1);
+  pointer-events:none;
+}
+#capKick{
+  display:block;font-size:10px;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:3px;
+}
+#capName{
+  display:block;font-family:'Newsreader',serif;font-weight:500;
+  font-size:22px;line-height:1.05;color:var(--ink);
+}
+.cap-mark{
+  flex:none;width:38px;height:38px;border-radius:50%;
+  border:1px solid var(--hairline);
+  display:grid;place-items:center;color:var(--navy);
+}
+.cap-mark svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#phone.open #capCard{transform:translateY(-68px)}
+
+/* ============ FAB — pestaña lateral discreta ============ */
+#fab{
+  position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:42px;height:92px;z-index:10;
+  background:rgba(253,252,249,.95);
+  border:1px solid rgba(255,255,255,.55);
+  border-left:none;
+  border-radius:0 24px 24px 0;
+  box-shadow:4px 6px 20px -4px rgba(12,16,24,.3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;
+  transition:opacity .3s ease, transform .35s cubic-bezier(.2,.9,.3,1);
+}
+#fab .fab-line{width:3px;height:26px;border-radius:2px;background:var(--hairline)}
+#fab .fab-chev{color:var(--navy)}
+#fab .fab-chev svg{display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#fab:hover{transform:translateY(-50%) translateX(3px)}
+#phone.open #fab{opacity:0;pointer-events:none;transform:translateY(-50%) translateX(-14px)}
+
+/* ============ SCRIM — velo claro ============ */
+#scrim{
+  position:absolute;inset:0;z-index:15;
+  background:linear-gradient(90deg,
+    rgba(245,243,238,.96) 0%,
+    rgba(245,243,238,.86) 42%,
+    rgba(245,243,238,.55) 100%);
+  opacity:0;visibility:hidden;
+  transition:opacity .35s ease, visibility .35s;
+}
+#phone.open #scrim{opacity:1;visibility:visible}
+
+/* ============ DIAL ============ */
+#dialWrap{
+  position:absolute;inset:0;z-index:20;
+  pointer-events:none;
+  opacity:0;visibility:hidden;
+  transition:opacity .4s ease, visibility .4s;
+}
+#phone.open #dialWrap{opacity:1;visibility:visible}
+
+/* perilla decorativa — disco de cerámica con estrías */
+.hub{
+  position:absolute;left:-148px;top:50%;transform:translateY(-50%);
+  width:216px;height:216px;border-radius:50%;
+  background:
+    radial-gradient(circle at 62% 38%, #ffffff 0%, #f4f1ea 45%, #e5e0d4 100%);
+  border:1px solid var(--hairline);
+  box-shadow:
+    8px 0 28px -6px rgba(33,38,45,.18),
+    inset -3px 0 10px rgba(33,38,45,.06);
+}
+.hub::before{ /* estrías de agarre, solo en la orilla */
+  content:'';position:absolute;inset:6px;border-radius:50%;
+  background:repeating-conic-gradient(
+    from 0deg,
+    rgba(33,38,45,.14) 0deg 1.1deg,
+    transparent 1.1deg 7.5deg);
+  -webkit-mask:radial-gradient(circle, transparent 62%, #000 63%, #000 96%, transparent 97%);
+          mask:radial-gradient(circle, transparent 62%, #000 63%, #000 96%, transparent 97%);
+}
+.hub::after{ /* eje central */
+  content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:54px;height:54px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%, #fdfcf9, #e8e3d7);
+  border:1px solid var(--hairline);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.9), 0 1px 4px rgba(33,38,45,.12);
+}
+
+/* aguja — trazo fino azul marino con remate romboidal (~96px del borde) */
+.needle{
+  position:absolute;left:62px;top:50%;transform:translateY(-50%);
+  width:66px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg, rgba(33,57,92,.15), var(--navy));
+}
+.needle::after{
+  content:'';position:absolute;right:-5px;top:50%;
+  width:8px;height:8px;background:var(--navy);
+  transform:translateY(-50%) rotate(45deg);
+  border-radius:1.5px;
+  box-shadow:0 0 0 3px rgba(33,57,92,.12);
+}
+
+/* ============ OPCIONES (el motor las inyecta y posiciona) ============ */
+.opt{
+  position:absolute;
+  display:flex;align-items:center;gap:11px;
+  white-space:nowrap;
+  will-change:transform,opacity;
+  cursor:pointer;
+  pointer-events:auto;
+}
+.opt.snap{
+  transition:
+    transform .4s cubic-bezier(.2,.9,.3,1),
+    opacity .3s,
+    left .4s cubic-bezier(.2,.9,.3,1),
+    top .4s cubic-bezier(.2,.9,.3,1);
+}
+.opt .ic{
+  flex:none;width:42px;height:42px;border-radius:50%;
+  background:var(--paper);
+  border:1px solid var(--hairline);
+  box-shadow:var(--shadow-sm);
+  display:grid;place-items:center;
+  color:var(--ink-soft);
+  transition:background .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+.opt .ic svg{
+  width:19px;height:19px;display:block;
+  fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.opt .lb{
+  font-size:15px;font-weight:500;color:var(--ink-soft);
+  line-height:1.15;letter-spacing:.005em;
+  transition:color .3s ease;
+}
+.opt .lb small{
+  display:block;font-size:9.5px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-faint);margin-top:2px;
+  transition:color .3s ease, opacity .3s ease;
+  opacity:.85;
+}
+.opt.active .ic{
+  background:var(--navy);color:#fdfcf9;border-color:var(--navy-deep);
+  box-shadow:0 6px 16px -4px rgba(33,57,92,.45), inset 0 1px 1px rgba(255,255,255,.18);
+}
+.opt.active .lb{color:var(--ink);font-weight:700}
+.opt.active .lb small{color:var(--navy);opacity:1}
+
+/* ============ BOTÓN APLICAR ============ */
+#apply{
+  position:absolute;left:50%;bottom:26px;transform:translateX(-50%) translateY(16px);
+  z-index:25;pointer-events:auto;
+  min-width:170px;height:48px;
+  border:none;border-radius:999px;
+  background:linear-gradient(180deg,#2a4770,var(--navy) 55%,var(--navy-deep));
+  color:#fdfcf9;
+  font-family:'Libre Franklin',sans-serif;
+  font-size:14px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  cursor:pointer;
+  box-shadow:0 10px 24px -6px rgba(24,42,69,.5), inset 0 1px 1px rgba(255,255,255,.22);
+  opacity:0;visibility:hidden;
+  transition:opacity .35s ease .1s, transform .45s cubic-bezier(.2,.9,.3,1) .1s,
+             visibility .45s, box-shadow .25s ease;
+}
+#apply:hover{box-shadow:0 14px 30px -6px rgba(24,42,69,.6), inset 0 1px 1px rgba(255,255,255,.22)}
+#apply:active{transform:translateX(-50%) translateY(1px)}
+#phone.open #apply{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+
+/* ============ PIE ============ */
+.foot{
+  margin-top:30px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:500;text-align:center;
+}
+.foot b{color:var(--navy);font-weight:600}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="eyebrow">Pixora · Estilo conservador</span>
+  <h1>Un dial serio, <em>de traje sastre</em></h1>
+  <p>Nada de neón, puro material honesto. <b>Toca el botón lateral</b> → <b>arrastra la perilla ↑↓</b> → <b>Aplicar</b>. Así de tranquilo.</p>
+  <div class="rule"></div>
+</header>
+
+<div id="phone">
+  <div id="screen">
+
+    <!-- wallpaper preview -->
+    <div id="wall" class="wall bgA"></div>
+
+    <!-- notch -->
+    <div class="notch"></div>
+
+    <!-- status bar -->
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="sig">
+        <svg width="15" height="11" viewBox="0 0 15 11"><path d="M1 10h2V7H1zM4.5 10h2V5h-2zM8 10h2V3H8zM11.5 10h2V1h-2z" fill="currentColor"/></svg>
+        <svg width="21" height="11" viewBox="0 0 21 11"><rect x=".5" y=".5" width="17" height="10" rx="2.5" fill="none" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="12" height="7" rx="1.2" fill="currentColor"/><path d="M19 3.5v4a2 2 0 000-4z" fill="currentColor" opacity=".5"/></svg>
+      </span>
+    </div>
+
+    <!-- marca -->
+    <div class="brandrow">
+      <span class="brand">Pixora</span>
+      <span class="brand-date">Lun · 13 Jul</span>
+    </div>
+
+    <!-- tarjeta de sección activa -->
+    <div id="capCard">
+      <div>
+        <span id="capKick">Fondos fijos</span>
+        <span id="capName">Estáticos</span>
+      </div>
+      <div class="cap-mark">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+    </div>
+
+    <!-- botón lateral que abre el dial -->
+    <div id="fab" role="button" aria-label="Abrir selector de secciones">
+      <span class="fab-line"></span>
+      <span class="fab-chev">
+        <svg width="12" height="12" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </span>
+      <span class="fab-line"></span>
+    </div>
+
+    <!-- velo claro -->
+    <div id="scrim"></div>
+
+    <!-- dial -->
+    <div id="dialWrap">
+      <div class="hub"></div>
+      <div class="needle"></div>
+      <div id="dial"></div>
+      <button id="apply">Aplicar</button>
+    </div>
+
+  </div>
+</div>
+
+<p class="foot">Prototipo interactivo · <b>Orbix Studio</b> · Arrastra dentro de la pantalla</p>
+
+<script src="_dial_engine.js"></script>
+</body>
+</html>

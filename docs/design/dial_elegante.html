@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Dial Elegante</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Jost:wght@200;300;400;500&display=swap');
+
+:root{
+  --ink:      #0a0906;
+  --ink-2:    #14110a;
+  --gold:     #c8a45f;
+  --gold-hi:  #e9d6a4;
+  --gold-dim: rgba(200,164,95,.38);
+  --hairline: rgba(200,164,95,.22);
+  --cream:    #f2ead8;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans:  'Jost', 'Segoe UI', sans-serif;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html,body{ height:100%; }
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, #1a1508 0%, transparent 60%),
+    radial-gradient(900px 600px at 85% 110%, #120e06 0%, transparent 55%),
+    var(--ink);
+  color:var(--cream);
+  font-family:var(--sans);
+  font-weight:300;
+  display:flex; flex-direction:column; align-items:center;
+  padding:52px 24px 72px;
+  position:relative;
+  overflow-x:hidden;
+}
+/* grano sutil de papel de algodón */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+/* filigrana de fondo — anillos de guilloché apenas visibles */
+body::after{
+  content:''; position:fixed; z-index:0; pointer-events:none;
+  width:1100px; height:1100px; left:50%; top:52%;
+  transform:translate(-50%,-50%);
+  background:repeating-radial-gradient(circle at center,
+    transparent 0 46px, rgba(200,164,95,.028) 46px 47px);
+  border-radius:50%;
+}
+
+/* ══════════ ENCABEZADO EDITORIAL ══════════ */
+header{
+  position:relative; z-index:1;
+  text-align:center; max-width:560px; margin-bottom:46px;
+}
+.eyebrow{
+  font-family:var(--sans); font-weight:400;
+  font-size:10.5px; letter-spacing:.52em; text-indent:.52em;
+  color:var(--gold); text-transform:uppercase;
+  display:flex; align-items:center; justify-content:center; gap:18px;
+}
+.eyebrow::before, .eyebrow::after{
+  content:''; width:44px; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold-dim));
+}
+.eyebrow::after{ transform:scaleX(-1); }
+header h1{
+  font-family:var(--serif); font-weight:300; font-style:italic;
+  font-size:clamp(34px, 5.4vw, 52px); line-height:1.08;
+  letter-spacing:.01em; margin:20px 0 14px;
+  color:var(--cream);
+}
+header h1 em{
+  font-style:normal;
+  background:linear-gradient(105deg, #a8853f 0%, var(--gold-hi) 45%, #b3924c 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+header p{
+  font-size:13.5px; font-weight:300; letter-spacing:.14em;
+  color:rgba(242,234,216,.52); line-height:1.9;
+}
+header p b{ font-weight:400; color:rgba(233,214,164,.85); }
+
+/* ══════════ TELÉFONO ══════════ */
+#phone{
+  position:relative; z-index:1;
+  width:340px; height:710px; flex:none;
+  padding:9px;
+  border-radius:46px;
+  background:linear-gradient(160deg, #201a0f 0%, #0c0a06 40%, #060503 100%);
+  border:1px solid rgba(200,164,95,.3);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.85),
+    0 40px 90px -20px rgba(0,0,0,.85),
+    0 4px 24px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(233,214,164,.14);
+}
+/* corona lateral (guiño relojero) */
+#phone::after{
+  content:''; position:absolute; right:-4px; top:180px;
+  width:4px; height:58px; border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg, #7d6330, #c8a45f 50%, #7d6330);
+  opacity:.75;
+}
+
+#screen{
+  position:relative; overflow:hidden;
+  width:100%; height:100%;
+  border-radius:38px;
+  touch-action:none; user-select:none; -webkit-user-select:none;
+  background:var(--ink);
+  isolation:isolate;
+}
+
+/* notch — pastilla mínima */
+.notch{
+  position:absolute; z-index:40; top:12px; left:50%;
+  transform:translateX(-50%);
+  width:86px; height:22px; border-radius:12px;
+  background:#050403;
+  border:1px solid rgba(200,164,95,.14);
+}
+
+/* ══════════ WALLPAPERS — 6 fondos de lujo ══════════ */
+.wall{ position:absolute; inset:0; z-index:0; }
+.wall::before{ /* veladura para legibilidad del pie */
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg,
+    rgba(5,4,2,.34) 0%, transparent 26%, transparent 55%,
+    rgba(5,4,2,.62) 100%);
+}
+.wall::after{ /* hilo de luz diagonal, como satén */
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(118deg, transparent 42%,
+    rgba(233,214,164,.07) 50%, transparent 58%);
+}
+.wall.bgA{ /* Noir & Or — negro profundo con aliento dorado */
+  background:
+    radial-gradient(120% 68% at 78% -6%, rgba(200,164,95,.42) 0%, rgba(122,94,40,.14) 38%, transparent 66%),
+    radial-gradient(90% 50% at 12% 108%, rgba(94,72,30,.3) 0%, transparent 60%),
+    linear-gradient(172deg, #171208 0%, #0b0906 46%, #050403 100%);
+}
+.wall.bgB{ /* Esmeralda Imperial — joya verde noche */
+  background:
+    radial-gradient(110% 62% at 24% -4%, rgba(38,102,78,.6) 0%, transparent 62%),
+    radial-gradient(80% 46% at 88% 104%, rgba(200,164,95,.2) 0%, transparent 58%),
+    linear-gradient(168deg, #08201a 0%, #041210 52%, #020807 100%);
+}
+.wall.bgC{ /* Borgoña de Cava — vino y oro rosa */
+  background:
+    radial-gradient(115% 66% at 74% -8%, rgba(148,44,66,.6) 0%, rgba(90,24,40,.24) 44%, transparent 68%),
+    radial-gradient(84% 46% at 8% 106%, rgba(214,158,120,.22) 0%, transparent 60%),
+    linear-gradient(170deg, #2a0c14 0%, #150609 54%, #090304 100%);
+}
+.wall.bgD{ /* Medianoche Zafiro — azul de alta joyería */
+  background:
+    radial-gradient(112% 64% at 28% -6%, rgba(46,74,138,.62) 0%, rgba(24,38,80,.26) 44%, transparent 68%),
+    radial-gradient(80% 44% at 90% 106%, rgba(200,164,95,.18) 0%, transparent 58%),
+    linear-gradient(170deg, #0a1226 0%, #050a18 54%, #02040b 100%);
+}
+.wall.bgE{ /* Crema Vendôme — marfil cálido, luz de vitrina */
+  background:
+    radial-gradient(120% 70% at 50% -12%, #f7efdd 0%, #e9dcc0 46%, transparent 78%),
+    radial-gradient(90% 52% at 82% 110%, rgba(174,140,78,.5) 0%, transparent 62%),
+    linear-gradient(174deg, #e6d9bc 0%, #cdbc96 58%, #a8956c 100%);
+}
+.wall.bgF{ /* Ónix Arcano — piedra negra con vetas de bronce */
+  background:
+    radial-gradient(96% 56% at 82% -6%, rgba(112,84,42,.5) 0%, transparent 60%),
+    radial-gradient(70% 40% at 10% 30%, rgba(64,54,66,.5) 0%, transparent 62%),
+    conic-gradient(from 210deg at 50% 120%, #0c0a08, #17120c, #0a0808, #14100a, #0c0a08),
+    linear-gradient(170deg, #100d09 0%, #060504 100%);
+}
+
+/* ══════════ CONTENIDO HOME (decorativo) ══════════ */
+.homeUi{
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  display:flex; flex-direction:column; align-items:center;
+  padding-top:64px;
+  transition:opacity .6s ease, transform .7s cubic-bezier(.2,.8,.3,1);
+}
+#phone.open .homeUi{ opacity:0; transform:translateY(-10px); }
+.wordmark{
+  font-family:var(--sans); font-weight:400; font-size:9px;
+  letter-spacing:.62em; text-indent:.62em; text-transform:uppercase;
+  color:rgba(233,214,164,.66);
+}
+.clock{
+  margin-top:26px;
+  font-family:var(--serif); font-weight:300;
+  font-size:74px; line-height:1; letter-spacing:.015em;
+  color:rgba(248,242,228,.94);
+  text-shadow:0 2px 26px rgba(0,0,0,.35);
+  font-feature-settings:'lnum';
+}
+.dateline{
+  margin-top:12px;
+  font-size:10.5px; font-weight:300;
+  letter-spacing:.42em; text-indent:.42em; text-transform:uppercase;
+  color:rgba(242,234,216,.55);
+  text-shadow:0 1px 12px rgba(0,0,0,.4);
+}
+.homeRule{
+  margin-top:20px; width:54px; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(200,164,95,.7), transparent);
+}
+
+/* ══════════ PIE — sección activa ══════════ */
+.caption{
+  position:absolute; z-index:3; left:28px; bottom:38px;
+  pointer-events:none;
+  transition:opacity .55s ease, transform .6s ease;
+}
+#phone.open .caption{ opacity:0; transform:translateY(8px); }
+#capKick{
+  display:block;
+  font-family:var(--sans); font-weight:400;
+  font-size:9px; letter-spacing:.5em; text-transform:uppercase;
+  color:var(--gold-hi);
+  margin-bottom:8px;
+  text-shadow:0 1px 10px rgba(0,0,0,.5);
+}
+#capName{
+  display:block;
+  font-family:var(--serif); font-weight:300; font-style:italic;
+  font-size:36px; line-height:1;
+  color:rgba(250,245,233,.96);
+  text-shadow:0 2px 22px rgba(0,0,0,.45);
+}
+.caption::after{
+  content:''; display:block; margin-top:14px;
+  width:38px; height:1px;
+  background:linear-gradient(90deg, var(--gold), transparent);
+}
+
+/* ══════════ FAB — pestaña lateral de oro ══════════ */
+#fab{
+  position:absolute; z-index:20; left:0; top:50%;
+  transform:translateY(-50%);
+  width:42px; height:118px;
+  border:0; cursor:pointer;
+  background:transparent;
+  display:flex; align-items:center; justify-content:flex-start;
+  padding:0;
+  transition:opacity .45s ease, transform .55s cubic-bezier(.2,.8,.3,1);
+}
+#fab .blade{
+  width:22px; height:100%;
+  border-radius:0 16px 16px 0;
+  background:linear-gradient(180deg, rgba(20,16,9,.78), rgba(8,7,4,.78));
+  border:1px solid var(--hairline); border-left:0;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:7px;
+  box-shadow:2px 6px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(233,214,164,.12);
+  transition:width .45s cubic-bezier(.2,.8,.3,1), border-color .45s ease;
+}
+#fab .blade i{
+  display:block; width:7px; height:1px;
+  background:var(--gold);
+  opacity:.85;
+  transition:width .4s ease;
+}
+#fab .blade i:nth-child(2){ width:11px; }
+#fab:hover .blade{ width:28px; border-color:rgba(200,164,95,.5); }
+#fab:hover .blade i{ width:13px; }
+#phone.open #fab{ opacity:0; pointer-events:none; transform:translateY(-50%) translateX(-12px); }
+
+/* ══════════ SCRIM — velo de terciopelo ══════════ */
+#scrim{
+  position:absolute; inset:0; z-index:8;
+  background:
+    radial-gradient(140% 100% at -10% 50%, rgba(4,3,2,.86) 0%, rgba(5,4,3,.6) 46%, rgba(6,5,3,.34) 100%);
+  backdrop-filter:blur(7px) saturate(.86);
+  -webkit-backdrop-filter:blur(7px) saturate(.86);
+  opacity:0; pointer-events:none;
+  transition:opacity .65s ease;
+}
+#phone.open #scrim{ opacity:1; pointer-events:auto; }
+
+/* ══════════ DIAL ══════════ */
+#dialWrap{
+  position:absolute; inset:0; z-index:10;
+  opacity:0; pointer-events:none;
+  transition:opacity .6s ease;
+}
+#phone.open #dialWrap{ opacity:1; pointer-events:auto; }
+
+/* — la perilla: dial de reloj suizo / caja fuerte — */
+.hub{
+  position:absolute;
+  width:330px; height:330px; border-radius:50%;
+  left:-235px; top:calc(50% + 8px);
+  transform:translateY(-50%) scale(.92) rotate(-8deg);
+  background:
+    radial-gradient(circle at 62% 38%, #241d10 0%, #14100a 42%, #0a0806 74%, #060504 100%);
+  border:1px solid rgba(200,164,95,.55);
+  box-shadow:
+    0 0 0 6px rgba(6,5,3,.85),
+    0 0 0 7px rgba(200,164,95,.16),
+    10px 0 60px rgba(0,0,0,.7),
+    inset 0 0 46px rgba(0,0,0,.8),
+    inset -3px 0 14px rgba(233,214,164,.06);
+  transition:transform .8s cubic-bezier(.2,.8,.25,1);
+}
+#phone.open .hub{ transform:translateY(-50%) scale(1) rotate(0deg); }
+/* minutería — marcas finas de oro en el canto */
+.hub::before{
+  content:''; position:absolute; inset:6px; border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,
+    rgba(233,214,164,.75) 0deg .45deg,
+    transparent .45deg 4.5deg);
+  -webkit-mask:radial-gradient(circle, transparent 0 88.5%, #000 89% 96%, transparent 96.5%);
+          mask:radial-gradient(circle, transparent 0 88.5%, #000 89% 96%, transparent 96.5%);
+  opacity:.75;
+}
+/* guilloché interior + anillo grabado */
+.hub::after{
+  content:''; position:absolute; inset:34px; border-radius:50%;
+  border:1px solid rgba(200,164,95,.22);
+  background:
+    repeating-radial-gradient(circle at center,
+      transparent 0 7px, rgba(233,214,164,.035) 7px 8px),
+    radial-gradient(circle at 60% 36%, rgba(233,214,164,.07), transparent 58%);
+  box-shadow:inset 0 0 30px rgba(0,0,0,.65);
+}
+
+/* — la aguja: índice de oro — */
+.needle{
+  position:absolute; left:96px; top:calc(50% + 8px);
+  transform:translateY(-50%);
+  width:1px; height:58px;
+  background:linear-gradient(180deg, transparent, var(--gold-hi) 30%, var(--gold-hi) 70%, transparent);
+  box-shadow:0 0 14px rgba(233,214,164,.5);
+  pointer-events:none;
+}
+.needle::before{ /* rombo engastado al centro */
+  content:''; position:absolute; left:50%; top:50%;
+  width:6px; height:6px;
+  transform:translate(-50%,-50%) rotate(45deg);
+  background:linear-gradient(135deg, var(--gold-hi), #8f7134);
+  box-shadow:0 0 10px rgba(233,214,164,.85);
+}
+.needle::after{ /* estela hairline hacia la opción */
+  content:''; position:absolute; left:5px; top:50%;
+  width:26px; height:1px;
+  background:linear-gradient(90deg, rgba(233,214,164,.55), transparent);
+}
+
+#dial{ position:absolute; inset:0; }
+
+/* ══════════ OPCIONES ══════════ */
+.opt{
+  position:absolute;
+  display:flex; align-items:center; gap:15px;
+  cursor:pointer;
+  min-height:44px;
+  will-change:transform, opacity;
+}
+.snap{
+  transition:transform .5s cubic-bezier(.2,.9,.3,1), opacity .35s;
+}
+.opt .ic{
+  flex:none;
+  width:46px; height:46px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  color:rgba(242,234,216,.62);
+  background:radial-gradient(circle at 34% 28%, rgba(36,29,16,.85), rgba(8,7,4,.85));
+  border:1px solid rgba(200,164,95,.26);
+  box-shadow:inset 0 1px 0 rgba(233,214,164,.1), 0 4px 18px rgba(0,0,0,.5);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  transition:border-color .5s ease, color .5s ease, box-shadow .5s ease;
+}
+.opt .ic svg{
+  width:19px; height:19px;
+  fill:none; stroke:currentColor;
+  stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round;
+}
+.opt .lb{
+  font-family:var(--serif); font-weight:400;
+  font-size:19px; line-height:1.06;
+  letter-spacing:.02em;
+  color:rgba(242,234,216,.6);
+  white-space:nowrap;
+  text-shadow:0 2px 12px rgba(0,0,0,.6);
+  transition:color .5s ease, letter-spacing .5s ease;
+}
+.opt .lb small{
+  display:block; margin-top:5px;
+  font-family:var(--sans); font-weight:400;
+  font-size:8.5px; letter-spacing:.4em; text-transform:uppercase;
+  color:rgba(200,164,95,.5);
+  transition:color .5s ease;
+}
+/* estado activo — engaste de oro, sin estridencia */
+.opt.active .ic{
+  color:var(--gold-hi);
+  border-color:rgba(233,214,164,.85);
+  box-shadow:
+    0 0 0 4px rgba(6,5,3,.6),
+    0 0 0 5px rgba(200,164,95,.35),
+    0 0 26px rgba(200,164,95,.28),
+    inset 0 1px 0 rgba(233,214,164,.22);
+}
+.opt.active .lb{
+  color:#faf5e9;
+  font-style:italic;
+  letter-spacing:.035em;
+}
+.opt.active .lb small{ color:var(--gold-hi); }
+
+/* ══════════ APLICAR ══════════ */
+#apply{
+  position:absolute; z-index:12;
+  left:50%; bottom:30px; transform:translateX(-50%);
+  min-height:44px;
+  padding:13px 40px 12px;
+  cursor:pointer;
+  font-family:var(--sans); font-weight:400;
+  font-size:11px; letter-spacing:.5em; text-indent:.5em;
+  text-transform:uppercase;
+  color:var(--gold-hi);
+  background:rgba(8,7,4,.62);
+  border:1px solid rgba(200,164,95,.5);
+  border-radius:999px;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  box-shadow:0 10px 34px rgba(0,0,0,.55), inset 0 1px 0 rgba(233,214,164,.14);
+  transition:border-color .5s ease, box-shadow .5s ease, color .5s ease, background .5s ease;
+}
+#apply:hover{
+  color:#fbf6ea;
+  border-color:rgba(233,214,164,.9);
+  background:rgba(20,16,9,.75);
+  box-shadow:0 10px 40px rgba(0,0,0,.6), 0 0 24px rgba(200,164,95,.22), inset 0 1px 0 rgba(233,214,164,.22);
+}
+#apply:active{ transform:translateX(-50%) scale(.985); }
+
+/* ══════════ NOTA AL PIE ══════════ */
+.colophon{
+  position:relative; z-index:1;
+  margin-top:40px;
+  font-size:9.5px; font-weight:300;
+  letter-spacing:.4em; text-indent:.4em; text-transform:uppercase;
+  color:rgba(242,234,216,.28);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Pixora · Estilo Elegante</div>
+  <h1>La colección, en <em>un solo giro</em></h1>
+  <p>Toca el <b>botón lateral</b> → arrastra la <b>perilla ↑↓</b> hasta que tu sección
+  caiga en la aguja de oro → <b>Aplicar</b>. Así de fino, así de simple.</p>
+</header>
+
+<div id="phone">
+  <div id="screen">
+
+    <div id="wall" class="wall bgA"></div>
+
+    <div class="notch"></div>
+
+    <div class="homeUi">
+      <div class="wordmark">Pixora</div>
+      <div class="clock">10:08</div>
+      <div class="dateline">Lunes · 13 de Julio</div>
+      <div class="homeRule"></div>
+    </div>
+
+    <div class="caption">
+      <span id="capKick">Fondos fijos</span>
+      <span id="capName">Estáticos</span>
+    </div>
+
+    <button id="fab" aria-label="Abrir selector de secciones">
+      <span class="blade"><i></i><i></i><i></i></span>
+    </button>
+
+    <div id="scrim"></div>
+
+    <div id="dialWrap">
+      <div class="hub"></div>
+      <div class="needle"></div>
+      <div id="dial"></div>
+      <button id="apply">Aplicar</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="colophon">Orbix Studio · Maison Pixora · MMXXVI</div>
+
+<script src="_dial_engine.js"></script>
+</body>
+</html>

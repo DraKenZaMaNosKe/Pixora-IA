@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cuarto-obscuro",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/wallpapers/wp_admin_server.py"],
+      "port": 5758
+    }
+  ]
+}

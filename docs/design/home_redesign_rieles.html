@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixora · Home Redesign — Rieles Laterales</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sora:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#07070d; --bg2:#0d0e18; --ink:#eef0ff; --mut:#8a8ba6;
+  --cyan:#25e6da; --red:#ff2e57; --gold:#e8c15a; --violet:#7b6cff;
+  --line:rgba(255,255,255,.08);
+  --font-ui:'Sora',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-ui);-webkit-font-smoothing:antialiased}
+body{
+  background:
+    radial-gradient(1200px 700px at 80% -10%, rgba(123,108,255,.14), transparent 60%),
+    radial-gradient(900px 600px at 10% 110%, rgba(37,230,218,.10), transparent 55%),
+    var(--bg);
+  min-height:100vh; padding:56px 24px 90px;
+}
+.grain{position:fixed;inset:0;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");}
+
+/* ---- header ---- */
+.wrap{max-width:1220px;margin:0 auto}
+.eyebrow{font-family:'Chakra Petch';letter-spacing:.42em;text-transform:uppercase;font-size:11px;color:var(--cyan);margin-bottom:14px}
+h1{font-family:'Chakra Petch';font-weight:700;font-size:clamp(30px,5vw,52px);line-height:1.02;letter-spacing:-.01em}
+h1 .b{color:var(--red)}
+.sub{color:var(--mut);max-width:640px;margin-top:16px;font-size:15px;line-height:1.65}
+.note{margin-top:26px;border:1px solid var(--line);border-left:3px solid var(--gold);
+  background:linear-gradient(90deg,rgba(232,193,90,.06),transparent);border-radius:12px;padding:16px 20px;max-width:760px;font-size:13.5px;color:#d6d8ec;line-height:1.6}
+.note b{color:var(--gold)}
+
+/* ---- grid ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:34px;margin-top:52px}
+.card{display:flex;flex-direction:column;gap:20px}
+.cap{}
+.cap .tag{font-family:'Chakra Petch';font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--mut)}
+.cap h3{font-family:'Chakra Petch';font-weight:600;font-size:22px;margin-top:6px}
+.cap h3 span{color:var(--cyan)}
+.cap p{color:var(--mut);font-size:13px;line-height:1.6;margin-top:8px}
+.cap .tradeoff{margin-top:10px;font-size:12px;color:#c9a24b;display:flex;gap:7px;align-items:flex-start}
+.cap .tradeoff b{color:var(--gold);font-weight:600}
+
+/* ---- phone frame ---- */
+.phone{width:300px;height:620px;margin:0 auto;border-radius:38px;padding:8px;
+  background:linear-gradient(160deg,#26283a,#0c0d15);box-shadow:0 30px 70px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.06);position:relative}
+.screen{position:relative;width:100%;height:100%;border-radius:31px;overflow:hidden;background:var(--bg2)}
+.notch{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:96px;height:20px;background:#000;border-radius:0 0 14px 14px;z-index:40}
+.stat{position:absolute;top:0;left:0;right:0;height:34px;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-size:10px;color:#cfd2ea;z-index:35;font-family:'Chakra Petch'}
+
+/* generic wallpaper tiles */
+.w1{background:radial-gradient(120% 90% at 30% 20%,#3a2b7a,#0b0a1e),conic-gradient(from 200deg at 70% 80%,#ff2e57,transparent 40%)}
+.w2{background:linear-gradient(200deg,#0c3b3a,#22e6da 160%),radial-gradient(80% 60% at 80% 10%,rgba(255,255,255,.25),transparent)}
+.w3{background:radial-gradient(100% 80% at 60% 40%,#ff5e3a,#2a0d1e 90%)}
+.w4{background:linear-gradient(160deg,#101838,#0a0a14),radial-gradient(60% 50% at 50% 30%,rgba(123,108,255,.6),transparent)}
+.w5{background:radial-gradient(90% 70% at 40% 60%,#e8c15a,#3a2400 90%)}
+.w6{background:linear-gradient(140deg,#1a1030,#3b0f45),radial-gradient(50% 40% at 70% 20%,#25e6da,transparent)}
+
+/* rail atoms */
+.railseg{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#c9cbe6;position:relative}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--cyan)}
+.icn{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6}
+.arrow{opacity:.4}
+
+/* =========================================================
+   V1 — ÓRBITA (glass rails, thin)
+========================================================= */
+.v1 .stat{color:#eef}
+.v1-body{position:absolute;inset:0;background:var(--bg2)}
+.v1-hero{position:absolute;inset:34px 8px auto 8px;height:150px;border-radius:20px;overflow:hidden}
+.v1-hero .lbl{position:absolute;left:14px;bottom:12px;font-family:'Chakra Petch';font-weight:600;font-size:15px;text-shadow:0 2px 8px #000}
+.v1-hero .lbl small{display:block;font-family:var(--font-ui);font-weight:400;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan)}
+.railL,.railR{position:absolute;top:196px;bottom:16px;width:46px;border-radius:24px;
+  background:rgba(16,17,28,.55);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);
+  display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:0;z-index:20;justify-content:space-between}
+.railL{left:10px}.railR{right:10px}
+.railL .items,.railR .items{display:flex;flex-direction:column;gap:16px;align-items:center}
+.railL .railseg.on::before{content:"";position:absolute;left:-12px;width:3px;height:20px;border-radius:2px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.railL .railseg.on,.railR .railseg.on{color:#fff}
+.v1-carou{position:absolute;top:196px;bottom:16px;left:66px;right:66px;display:flex;gap:10px;overflow:hidden}
+.v1-carou .tile{flex:0 0 78%;border-radius:18px;position:relative;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.v1-carou .tile:nth-child(2){flex-basis:40%}
+.v1-carou .tile .heart{position:absolute;top:10px;right:10px;color:#fff;opacity:.85}
+
+/* =========================================================
+   V2 — CINEMÁTICO (left vertical tabs + right FAB drawer)
+========================================================= */
+.v2-body{position:absolute;inset:0;background:linear-gradient(180deg,#0a0b14,#111325)}
+.v2-top{position:absolute;top:40px;left:64px;right:16px;display:flex;justify-content:space-between;align-items:center}
+.v2-top .logo{font-family:'Fraunces';font-weight:900;font-size:20px;letter-spacing:.02em}
+.v2-top .logo i{color:var(--red);font-style:normal}
+.v2-top .opts{display:flex;gap:12px;color:var(--mut)}
+.v2-tabs{position:absolute;left:0;top:34px;bottom:0;width:52px;background:rgba(0,0,0,.3);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:2px;z-index:20}
+.v2-tabs .vt{writing-mode:vertical-rl;transform:rotate(180deg);font-family:'Chakra Petch';font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut);padding:14px 0;cursor:pointer}
+.v2-tabs .vt.on{color:var(--ink)}
+.v2-tabs .vt.on::after{content:"";position:absolute;}
+.v2-tabs .marker{position:absolute;left:0;width:3px;height:64px;background:linear-gradient(var(--cyan),var(--violet));border-radius:2px;top:120px;box-shadow:0 0 12px rgba(37,230,218,.6)}
+.v2-hero{position:absolute;left:64px;right:16px;top:82px;height:190px;border-radius:22px;overflow:hidden}
+.v2-hero .g{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent 60%)}
+.v2-hero .t{position:absolute;left:16px;bottom:16px}
+.v2-hero .t b{font-family:'Fraunces';font-weight:600;font-size:22px;display:block;line-height:1.05}
+.v2-hero .t small{color:var(--cyan);font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+.v2-strip{position:absolute;left:64px;right:16px;top:288px;font-family:'Chakra Petch';font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.v2-carou{position:absolute;left:64px;right:0;top:312px;display:flex;gap:10px}
+.v2-carou .tile{flex:0 0 110px;height:200px;border-radius:16px;position:relative;box-shadow:0 12px 26px rgba(0,0,0,.5)}
+.v2-fab{position:absolute;right:16px;bottom:22px;width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(145deg,var(--red),#b3123a);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 26px rgba(255,46,87,.45);z-index:30;color:#fff;font-size:22px}
+.v2-fab small{position:absolute;top:-6px;right:-4px;width:16px;height:16px;background:var(--cyan);color:#04202a;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-family:'Chakra Petch';font-weight:700}
+
+/* =========================================================
+   V3 — HUD GAMER (full-bleed content, floating capsules)
+========================================================= */
+.v3-body{position:absolute;inset:0}
+.v3-bleed{position:absolute;inset:0}
+.v3-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px 4px);opacity:.4;z-index:5}
+.v3-grad{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,6,12,.85),transparent 22%,transparent 78%,rgba(4,6,12,.85)),linear-gradient(0deg,rgba(4,6,12,.9),transparent 40%);z-index:6}
+.v3-top{position:absolute;top:40px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:center;z-index:20;font-family:'Chakra Petch'}
+.v3-top .lg{font-weight:700;letter-spacing:.14em;font-size:15px}
+.v3-top .lg i{color:var(--cyan);font-style:normal}
+.v3-top .credits{font-size:11px;color:var(--gold);border:1px solid rgba(232,193,90,.4);padding:4px 9px;border-radius:20px;letter-spacing:.1em}
+.capsuleL,.capsuleR{position:absolute;top:50%;transform:translateY(-50%);z-index:22;display:flex;flex-direction:column;gap:12px}
+.capsuleL{left:12px}.capsuleR{right:12px}
+.hudbtn{width:40px;height:40px;position:relative;display:flex;align-items:center;justify-content:center;color:#dfe2ff;
+  background:rgba(10,14,24,.55);backdrop-filter:blur(8px);border:1px solid rgba(37,230,218,.28);
+  clip-path:polygon(22% 0,100% 0,100% 78%,78% 100%,0 100%,0 22%)}
+.hudbtn.on{border-color:var(--cyan);box-shadow:0 0 14px rgba(37,230,218,.5);color:#fff}
+.capsuleR .hudbtn{border-color:rgba(255,46,87,.3)}
+.capsuleR .hudbtn.on{border-color:var(--red);box-shadow:0 0 14px rgba(255,46,87,.5)}
+.v3-title{position:absolute;left:16px;bottom:104px;z-index:20}
+.v3-title b{font-family:'Chakra Petch';font-weight:700;font-size:26px;line-height:1;text-shadow:0 3px 12px #000;display:block}
+.v3-title small{font-family:'Chakra Petch';color:var(--cyan);letter-spacing:.28em;font-size:10px;text-transform:uppercase}
+.v3-carou{position:absolute;left:16px;right:16px;bottom:20px;display:flex;gap:8px;z-index:20}
+.v3-carou .tile{flex:1;height:64px;border-radius:8px;border:1px solid rgba(255,255,255,.14);position:relative;clip-path:polygon(0 0,100% 0,100% 82%,88% 100%,0 100%)}
+.v3-carou .tile.sel{border-color:var(--cyan);box-shadow:0 0 12px rgba(37,230,218,.4)}
+
+/* =========================================================
+   V4 — ÍNDICE (single left rail + top bar) — safest UX
+========================================================= */
+.v4-body{position:absolute;inset:0;background:var(--bg2)}
+.v4-top{position:absolute;top:34px;left:56px;right:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.v4-top .lg{font-family:'Rajdhani';font-weight:700;font-size:20px;letter-spacing:.04em}
+.v4-top .lg i{color:var(--red);font-style:normal}
+.v4-top .row{display:flex;gap:14px;color:var(--mut);align-items:center}
+.v4-top .ia{color:var(--bg);background:linear-gradient(90deg,var(--cyan),var(--violet));font-family:'Rajdhani';font-weight:700;font-size:12px;padding:5px 12px;border-radius:20px;letter-spacing:.08em}
+.v4-rail{position:absolute;left:0;top:34px;bottom:0;width:56px;background:linear-gradient(180deg,#0b0c16,#0a0a12);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:20px;z-index:20}
+.v4-rail .r{font-family:'Rajdhani';font-weight:600;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:5px}
+.v4-rail .r.on{color:var(--ink)}
+.v4-rail .r.on .ic{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 12px rgba(37,230,218,.35)}
+.v4-rail .ic{width:34px;height:34px;border-radius:11px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.v4-hero{position:absolute;left:56px;right:0;top:90px;height:150px;overflow:hidden}
+.v4-hero .g{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent 55%)}
+.v4-hero .t{position:absolute;left:16px;bottom:12px;font-family:'Rajdhani';font-weight:700;font-size:20px}
+.v4-hero .t small{display:block;font-weight:500;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan)}
+.v4-sec{position:absolute;left:70px;right:16px;top:254px;font-family:'Rajdhani';font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--mut);display:flex;justify-content:space-between}
+.v4-grid{position:absolute;left:64px;right:12px;top:280px;bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.v4-grid .tile{border-radius:14px;position:relative;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+
+.icn-svg{width:19px;height:19px}
+footer{max-width:1220px;margin:70px auto 0;padding-top:26px;border-top:1px solid var(--line);color:var(--mut);font-size:12.5px;line-height:1.7}
+footer b{color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.legend span{font-family:'Chakra Petch';font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border:1px solid var(--line);border-radius:20px;color:var(--mut)}
+.legend span b{color:var(--cyan);font-weight:600}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="wrap">
+  <div class="eyebrow">Pixora · Home Redesign</div>
+  <h1>Rieles laterales<br>— <span class="b">4 interpretaciones</span> de tu boceto</h1>
+  <p class="sub">Tomé tu idea (menú de secciones a la izquierda, más opciones a la derecha, hero + carrusel al centro) y la resolví de 4 maneras distintas. El reto técnico es el mismo en todas: <b>dos rieles fijos comen ancho en un teléfono</b>, y el wallpaper necesita protagonismo. Cada variante negocia ese reto diferente.</p>
+  <div class="note">⚠️ <b>El trade-off honesto:</b> mientras más "riel fijo" mantenemos, menos ancho le queda al wallpaper. Las variantes van de <b>más fiel a tu boceto</b> (V1, V2) a <b>más seguro en UX móvil</b> (V4). Ninguna es "la correcta" todavía — son para que sientas cuál es Pixora.</p>
+
+  <div class="grid">
+
+    <!-- ===== V1 ÓRBITA ===== -->
+    <div class="card">
+      <div class="phone v1">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="stat"><span>9:41</span><span>◐ ▮▮▮ 84%</span></div>
+          <div class="v1-body"></div>
+          <div class="v1-hero w1"><div class="lbl"><small>Destacado hoy</small>Nebulosa Kairó</div></div>
+          <div class="railL">
+            <div class="items">
+              <div class="railseg on" title="Estáticos"><svg class="icn" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 15l4-4 4 4 3-3 5 5"/></svg></div>
+              <div class="railseg" title="Live"><svg class="icn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></div>
+              <div class="railseg" title="3D"><svg class="icn" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 3v18M4 7.5l8 4.5 8-4.5"/></svg></div>
+              <div class="railseg" title="Amor"><svg class="icn" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.4-7 9-7 9z"/></svg></div>
+            </div>
+            <svg class="icn arrow" viewBox="0 0 24 24"><path d="M8 10l4 4 4-4"/></svg>
+          </div>
+          <div class="v1-carou">
+            <div class="tile w4"><svg class="icn heart" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 20s-7-4.6-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.4-7 9-7 9z"/></svg></div>
+            <div class="tile w6"></div>
+          </div>
+          <div class="railR">
+            <div class="items">
+              <div class="railseg" title="Buscar"><svg class="icn" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg></div>
+              <div class="railseg on" title="IA"><svg class="icn" viewBox="0 0 24 24"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></div>
+              <div class="railseg" title="AURA"><svg class="icn" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/></svg></div>
+              <div class="railseg" title="Ajustes"><svg class="icn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></div>
+            </div>
+            <svg class="icn arrow" viewBox="0 0 24 24"><path d="M8 10l4 4 4-4"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="tag">Variante 01</div>
+        <h3>Órbita <span>· rieles de vidrio</span></h3>
+        <p>Dos rieles finos (46dp) de puro ícono, con glassmorphism sutil flotando sobre el fondo. El carrusel respira al centro. Minimal, elegante, "Pixora Cosmos". Indicador activo = barra de luz cian.</p>
+        <div class="tradeoff">◆ <span><b>Trade-off:</b> solo caben íconos (sin texto). Requiere que el usuario aprenda los símbolos. Blur = ojo con jank en Samsung gama media.</span></div>
+      </div>
+    </div>
+
+    <!-- ===== V2 CINEMÁTICO ===== -->
+    <div class="card">
+      <div class="phone v2">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="stat"><span>9:41</span><span>◐ ▮▮▮ 84%</span></div>
+          <div class="v2-body"></div>
+          <div class="v2-tabs">
+            <div class="marker"></div>
+            <div class="vt">Estáticos</div>
+            <div class="vt on">Live</div>
+            <div class="vt">3D</div>
+            <div class="vt">Amor</div>
+          </div>
+          <div class="v2-top"><div class="logo">PIX<i>O</i>RA</div><div class="opts">
+            <svg class="icn" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+            <svg class="icn" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0114 0"/></svg>
+          </div></div>
+          <div class="v2-hero w6"><div class="g"></div><div class="t"><small>Colección · Live</small><b>Ciudad Neón</b></div></div>
+          <div class="v2-strip">Tendencia esta semana</div>
+          <div class="v2-carou">
+            <div class="tile w2"></div>
+            <div class="tile w3"></div>
+            <div class="tile w1"></div>
+          </div>
+          <div class="v2-fab">•••<small>9</small></div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="tag">Variante 02</div>
+        <h3>Cinemático <span>· pestañas verticales</span></h3>
+        <p>El riel izquierdo es el protagonista: secciones como pestañas de texto vertical (tu boceto puro) con un marcador que se desliza. La derecha se colapsa en un botón <b>•••</b> que abre un drawer con las demás opciones. Hero grande, editorial.</p>
+        <div class="tradeoff">◆ <span><b>Trade-off:</b> el texto vertical se lee peor de reojo; el drawer derecho añade un tap extra para llegar a Favoritos/Ajustes.</span></div>
+      </div>
+    </div>
+
+    <!-- ===== V3 HUD GAMER ===== -->
+    <div class="card">
+      <div class="phone v3">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="v3-body w1"></div>
+          <div class="v3-scan"></div>
+          <div class="v3-grad"></div>
+          <div class="stat"><span>9:41</span><span>◐ ▮▮▮ 84%</span></div>
+          <div class="v3-top"><div class="lg">PIXORA<i>//</i></div><div class="credits">◆ 240</div></div>
+          <div class="capsuleL">
+            <div class="hudbtn on"><svg class="icn" viewBox="0 0 24 24" style="width:17px;height:17px"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 15l4-4 4 4 3-3 5 5"/></svg></div>
+            <div class="hudbtn"><svg class="icn" viewBox="0 0 24 24" style="width:17px;height:17px"><circle cx="12" cy="12" r="8"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></div>
+            <div class="hudbtn"><svg class="icn" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/></svg></div>
+            <div class="hudbtn"><svg class="icn" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M12 20s-7-4.6-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.4-7 9-7 9z"/></svg></div>
+          </div>
+          <div class="capsuleR">
+            <div class="hudbtn"><svg class="icn" viewBox="0 0 24 24" style="width:17px;height:17px"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg></div>
+            <div class="hudbtn on"><svg class="icn" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></div>
+            <div class="hudbtn"><svg class="icn" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/></svg></div>
+          </div>
+          <div class="v3-title"><small>Marvel · 3D Live</small><b>THANOS</b></div>
+          <div class="v3-carou">
+            <div class="tile w1 sel"></div><div class="tile w4"></div><div class="tile w6"></div><div class="tile w3"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="tag">Variante 03</div>
+        <h3>HUD Gamer <span>· overlay flotante</span></h3>
+        <p>El wallpaper va <b>edge-to-edge</b> a pantalla completa (máximo protagonismo). Los rieles no ocupan layout: flotan como cápsulas HUD translúcidas con esquinas cortadas, scanlines y el brand cian/rojo de <b>red.team</b>. Créditos ◆ arriba. Muy gamer.</p>
+        <div class="tradeoff">◆ <span><b>Trade-off:</b> las cápsulas tapan orillas del wallpaper; en fondos claros hay que reforzar contraste. El más "arriesgado" visualmente.</span></div>
+      </div>
+    </div>
+
+    <!-- ===== V4 ÍNDICE ===== -->
+    <div class="card">
+      <div class="phone v4">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="stat"><span>9:41</span><span>◐ ▮▮▮ 84%</span></div>
+          <div class="v4-body"></div>
+          <div class="v4-rail">
+            <div class="r on"><span class="ic"><svg class="icn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 15l4-4 4 4 3-3 5 5"/></svg></span>Fotos</div>
+            <div class="r"><span class="ic"><svg class="icn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></span>Live</div>
+            <div class="r"><span class="ic"><svg class="icn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 3v18M4 7.5l8 4.5 8-4.5"/></svg></span>3D</div>
+            <div class="r"><span class="ic"><svg class="icn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20s-7-4.6-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.4-7 9-7 9z"/></svg></span>Amor</div>
+            <div class="r"><span class="ic"><svg class="icn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M5 8l7-5 7 5"/></svg></span>Más</div>
+          </div>
+          <div class="v4-top"><div class="lg">PIX<i>O</i>RA</div><div class="row">
+            <svg class="icn" viewBox="0 0 24 24" style="width:18px;height:18px;color:#8a8ba6"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+            <span class="ia">✦ IA</span>
+          </div></div>
+          <div class="v4-hero w4"><div class="g"></div><div class="t"><small>Editorial</small>Galaxia Índigo</div></div>
+          <div class="v4-sec"><span>Estáticos</span><span style="color:#25e6da">Ver todo →</span></div>
+          <div class="v4-grid">
+            <div class="tile w2"></div><div class="tile w5"></div>
+            <div class="tile w6"></div><div class="tile w3"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="tag">Variante 04 · más segura</div>
+        <h3>Índice <span>· un riel + top bar</span></h3>
+        <p>La versión pragmática: <b>un solo riel</b> izquierdo con ícono + etiqueta corta (se lee sin adivinar) y "Más" al final. Las opciones de la derecha suben a la <b>barra top</b> (buscar, IA, perfil). Grid de 2 columnas en vez de carrusel = ves más wallpapers de un jalón.</p>
+        <div class="tradeoff">◆ <span><b>Trade-off:</b> se aleja más de tu boceto original (adiós riel derecho fijo). A cambio: la mejor UX en móvil y la que menos rompe el tutorial.</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <b>Cómo escoger, amigo:</b> ¿Quieres máximo protagonismo del wallpaper y vibra gamer? → <b>V3 HUD</b>. ¿Elegante y fiel a tu dibujo? → <b>V1 Órbita</b> o <b>V2 Cinemático</b>. ¿Lo más seguro para Play Store y el tutorial de onboarding? → <b>V4 Índice</b>.
+    <div class="legend">
+      <span>Font UI · <b>Chakra Petch + Sora</b></span>
+      <span>Brand · <b>cian #25e6da</b></span>
+      <span>Accent · <b>rojo #ff2e57</b></span>
+      <span>Tap targets · <b>≥40dp</b></span>
+      <span>Cero · <b>morado/cyan cliché</b></span>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

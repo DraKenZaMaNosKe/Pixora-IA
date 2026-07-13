@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Dial Curvo — GAMER / HUD</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Chakra+Petch:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
+
+:root{
+  --cy:#00e5ff;
+  --cy-dim:#0a6b7a;
+  --rd:#ff2440;
+  --rd-dim:#7a1020;
+  --ink:#04060a;
+  --panel:#0a0f16;
+  --steel:#131a24;
+  --txt:#d9f6ff;
+  --txt-dim:#5e7f8c;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  min-height:100vh;
+  background:
+    linear-gradient(rgba(0,229,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,.035) 1px, transparent 1px),
+    radial-gradient(900px 500px at 85% -10%, rgba(255,36,64,.10), transparent 60%),
+    radial-gradient(900px 600px at 10% 110%, rgba(0,229,255,.08), transparent 60%),
+    var(--ink);
+  background-size:44px 44px, 44px 44px, auto, auto, auto;
+  color:var(--txt);
+  font-family:'Chakra Petch', monospace;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:34px 16px 60px;
+  overflow-x:hidden;
+}
+
+/* ============ HEADER ============ */
+header{
+  text-align:center;
+  margin-bottom:30px;
+  max-width:560px;
+  position:relative;
+}
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Chakra Petch', monospace;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.42em;
+  color:var(--cy);
+  text-transform:uppercase;
+  padding:6px 18px;
+  border:1px solid rgba(0,229,255,.35);
+  clip-path:polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  background:rgba(0,229,255,.05);
+  margin-bottom:16px;
+}
+.eyebrow::before,.eyebrow::after{
+  content:'';
+  width:6px;height:6px;
+  background:var(--rd);
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+}
+header h1{
+  font-family:'Orbitron', sans-serif;
+  font-weight:900;
+  font-size:clamp(26px,5vw,38px);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  line-height:1.05;
+  background:linear-gradient(100deg, #eafcff 30%, var(--cy) 55%, #eafcff 75%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 14px rgba(0,229,255,.28));
+}
+header h1 em{
+  font-style:normal;
+  -webkit-text-fill-color:var(--rd);
+  filter:drop-shadow(0 0 10px rgba(255,36,64,.5));
+}
+header p{
+  margin-top:12px;
+  font-family:'Rajdhani', sans-serif;
+  font-weight:600;
+  font-size:15px;
+  color:var(--txt-dim);
+  letter-spacing:.04em;
+}
+header p b{color:var(--cy);font-weight:700}
+header p .rd{color:var(--rd);font-weight:700}
+
+/* ============ PHONE FRAME ============ */
+.stage{position:relative}
+/* corner brackets around the phone */
+.stage::before,.stage::after{
+  content:'';
+  position:absolute;
+  width:34px;height:34px;
+  pointer-events:none;
+}
+.stage::before{
+  top:-14px;left:-14px;
+  border-top:2px solid var(--rd);
+  border-left:2px solid var(--rd);
+}
+.stage::after{
+  bottom:-14px;right:-14px;
+  border-bottom:2px solid var(--cy);
+  border-right:2px solid var(--cy);
+}
+
+#phone{
+  width:340px;height:710px;
+  position:relative;
+  background:linear-gradient(160deg,#1b2330,#0b1017 45%,#161e2a);
+  border-radius:34px;
+  padding:9px;
+  box-shadow:
+    0 0 0 1px #2a3648,
+    0 0 0 3px #05080d,
+    0 24px 70px rgba(0,0,0,.75),
+    0 0 44px rgba(0,229,255,.10),
+    0 0 90px rgba(255,36,64,.06);
+}
+/* side hardware nubs */
+#phone::before{
+  content:'';
+  position:absolute;
+  right:-3px;top:150px;
+  width:3px;height:88px;
+  background:linear-gradient(var(--cy-dim),#1e2b38);
+  border-radius:0 2px 2px 0;
+}
+#phone::after{
+  content:'';
+  position:absolute;
+  left:-3px;top:190px;
+  width:3px;height:50px;
+  background:linear-gradient(#3a1420,var(--rd-dim));
+  border-radius:2px 0 0 2px;
+}
+
+#screen{
+  position:relative;
+  width:100%;height:100%;
+  border-radius:26px;
+  overflow:hidden;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  background:#000;
+  cursor:grab;
+}
+#screen:active{cursor:grabbing}
+
+.notch{
+  position:absolute;
+  top:10px;left:50%;
+  transform:translateX(-50%);
+  width:88px;height:20px;
+  background:#04060a;
+  border:1px solid #1c2836;
+  border-radius:12px;
+  z-index:9;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.notch i{
+  width:5px;height:5px;border-radius:50%;
+  background:#152230;
+  box-shadow:inset 0 0 2px #000;
+}
+.notch i:first-child{background:var(--rd);box-shadow:0 0 5px var(--rd);animation:blink 2.4s steps(1) infinite}
+@keyframes blink{0%,88%{opacity:1}89%,100%{opacity:.2}}
+
+/* ============ WALLPAPERS (bgA..bgF) ============ */
+.wall{
+  position:absolute;inset:0;
+  z-index:0;
+}
+/* A — NEON ABYSS (cyan) */
+.wall.bgA{
+  background:
+    linear-gradient(115deg, transparent 42%, rgba(0,229,255,.14) 42.5%, transparent 43.5%),
+    linear-gradient(115deg, transparent 58%, rgba(0,229,255,.10) 58.5%, transparent 60%),
+    radial-gradient(140% 90% at 50% 118%, #00c3dd 0%, #06527e 34%, #071a30 62%, #030711 100%);
+}
+/* B — RED PROTOCOL (brand red.team) */
+.wall.bgB{
+  background:
+    linear-gradient(65deg, transparent 30%, rgba(255,36,64,.16) 30.5%, transparent 32%),
+    linear-gradient(65deg, transparent 66%, rgba(255,80,100,.12) 66.5%, transparent 68%),
+    radial-gradient(120% 80% at 78% 8%, #ff2440 0%, #8e0f26 30%, #2a0611 62%, #08030a 100%);
+}
+/* C — SYNTH ROMANCE (magenta·red) */
+.wall.bgC{
+  background:
+    linear-gradient(150deg, transparent 48%, rgba(255,70,140,.16) 48.5%, transparent 50%),
+    radial-gradient(90% 60% at 20% 90%, #ff2d78 0%, #a01048 34%, #35082e 64%, #0a0314 100%);
+}
+/* D — MATRIX SECTOR (green) */
+.wall.bgD{
+  background:
+    repeating-linear-gradient(90deg, transparent 0 26px, rgba(57,255,136,.06) 26px 27px),
+    linear-gradient(180deg, transparent 55%, rgba(57,255,136,.12)),
+    radial-gradient(120% 90% at 50% -12%, #1fdd7a 0%, #0b6e42 30%, #06251c 62%, #020a08 100%);
+}
+/* E — EMBER RUSH (orange·violet) */
+.wall.bgE{
+  background:
+    linear-gradient(25deg, transparent 38%, rgba(255,150,40,.16) 38.5%, transparent 40%),
+    radial-gradient(110% 75% at 85% 92%, #ff7a18 0%, #b0330e 32%, #3c0e33 66%, #0a0416 100%);
+}
+/* F — ARCANE GRID (violet·cyan) */
+.wall.bgF{
+  background:
+    linear-gradient(115deg, transparent 52%, rgba(0,229,255,.12) 52.5%, transparent 54%),
+    radial-gradient(130% 85% at 22% 6%, #7a3bff 0%, #3a1c96 32%, #131044 62%, #05040f 100%);
+}
+
+/* scanlines + vignette over the wallpaper */
+.scanlines{
+  position:absolute;inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 100% at 50% 50%, transparent 58%, rgba(0,0,0,.5) 100%);
+}
+
+/* ============ HUD OVERLAYS ============ */
+.hud{position:absolute;inset:0;z-index:2;pointer-events:none;font-family:'Chakra Petch',monospace}
+.hud .row-top{
+  position:absolute;
+  top:40px;left:14px;right:14px;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.hud .fps{
+  font-size:10px;font-weight:600;letter-spacing:.14em;
+  color:var(--cy);
+  border-left:2px solid var(--cy);
+  padding:2px 0 2px 8px;
+  text-shadow:0 0 8px rgba(0,229,255,.6);
+}
+.hud .fps small{display:block;color:var(--txt-dim);font-size:8px;letter-spacing:.2em}
+.hud .credits{
+  font-family:'Orbitron',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:.1em;
+  color:#fff;
+  background:rgba(4,8,14,.72);
+  border:1px solid rgba(0,229,255,.4);
+  padding:5px 12px;
+  clip-path:polygon(8px 0,100% 0,100% 100%,0 100%,0 8px);
+}
+.hud .credits b{color:var(--cy);text-shadow:0 0 8px rgba(0,229,255,.7)}
+.hud .coords{
+  position:absolute;
+  bottom:14px;right:14px;
+  font-size:9px;font-weight:500;
+  letter-spacing:.18em;
+  color:var(--txt-dim);
+  text-align:right;
+  line-height:1.7;
+}
+.hud .coords b{color:var(--rd)}
+/* targeting reticle, top third */
+.hud .reticle{
+  position:absolute;
+  top:31%;left:50%;
+  width:52px;height:52px;
+  transform:translate(-50%,-50%);
+  opacity:.5;
+}
+.hud .reticle::before,.hud .reticle::after{
+  content:'';position:absolute;background:var(--cy);
+}
+.hud .reticle::before{left:50%;top:0;width:1px;height:100%;transform:translateX(-.5px)}
+.hud .reticle::after{top:50%;left:0;height:1px;width:100%;transform:translateY(-.5px)}
+.hud .reticle i{
+  position:absolute;inset:8px;
+  border:1px solid rgba(0,229,255,.55);
+  clip-path:polygon(0 0,30% 0,30% 2px,2px 2px,2px 30%,0 30%, 0 0,
+                    100% 0,70% 0,70% 2px,calc(100% - 2px) 2px,calc(100% - 2px) 30%,100% 30%,100% 0,
+                    100% 100%,100% 70%,calc(100% - 2px) 70%,calc(100% - 2px) calc(100% - 2px),70% calc(100% - 2px),70% 100%,100% 100%,
+                    0 100%,0 70%,2px 70%,2px calc(100% - 2px),30% calc(100% - 2px),30% 100%,0 100%);
+  animation:retspin 6s linear infinite;
+}
+@keyframes retspin{to{transform:rotate(360deg)}}
+
+/* ============ ACTIVE SECTION CAPTION ============ */
+.caption{
+  position:absolute;
+  left:14px;bottom:52px;
+  z-index:2;
+  pointer-events:none;
+}
+.caption .tag{
+  font-size:8px;font-weight:700;letter-spacing:.34em;
+  color:var(--rd);
+  margin-bottom:4px;
+}
+#capName{
+  display:inline-block;
+  font-family:'Orbitron',sans-serif;
+  font-size:22px;font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#fff;
+  background:rgba(4,8,14,.7);
+  border-left:3px solid var(--cy);
+  padding:6px 16px 6px 10px;
+  clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,0 100%);
+  text-shadow:0 0 12px rgba(0,229,255,.5);
+  animation:glitchtxt 5s steps(1) infinite;
+}
+@keyframes glitchtxt{
+  0%,93%{transform:none;text-shadow:0 0 12px rgba(0,229,255,.5)}
+  94%{transform:translateX(-2px) skewX(-8deg);text-shadow:2px 0 var(--rd),-2px 0 var(--cy)}
+  95%{transform:translateX(2px);text-shadow:-2px 0 var(--rd),2px 0 var(--cy)}
+  96%,100%{transform:none;text-shadow:0 0 12px rgba(0,229,255,.5)}
+}
+#capKick{
+  display:block;
+  margin-top:5px;
+  font-size:10px;font-weight:600;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  color:var(--cy);
+}
+#capKick::before{content:'▸ ';color:var(--rd)}
+
+/* ============ FAB (abre el dial) ============ */
+#fab{
+  position:absolute;
+  left:0;top:50%;
+  transform:translateY(-50%);
+  z-index:5;
+  width:46px;height:96px;
+  border:none;
+  cursor:pointer;
+  background:linear-gradient(160deg,#12202c,#081018);
+  clip-path:polygon(0 0,58% 0,100% 18%,100% 82%,58% 100%,0 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  box-shadow:0 0 24px rgba(0,229,255,.35);
+  transition:transform .3s cubic-bezier(.2,.9,.3,1), opacity .25s;
+  animation:fabpulse 2.2s ease-in-out infinite;
+}
+@keyframes fabpulse{
+  0%,100%{filter:drop-shadow(0 0 4px rgba(0,229,255,.5))}
+  50%{filter:drop-shadow(0 0 14px rgba(0,229,255,.9))}
+}
+#fab .chev{
+  width:14px;height:14px;
+  border-top:3px solid var(--cy);
+  border-right:3px solid var(--cy);
+  transform:rotate(45deg);
+}
+#fab .chev.r{border-color:var(--rd);width:10px;height:10px}
+#fab .flab{
+  font-family:'Chakra Petch',monospace;
+  font-size:8px;font-weight:700;letter-spacing:.3em;
+  color:var(--cy);
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+}
+#fab:hover{transform:translateY(-50%) translateX(4px)}
+#phone.open #fab{
+  opacity:0;
+  transform:translateY(-50%) translateX(-52px);
+  pointer-events:none;
+  animation:none;
+}
+
+/* ============ SCRIM ============ */
+#scrim{
+  position:absolute;inset:0;
+  z-index:6;
+  background:linear-gradient(90deg, rgba(2,5,10,.92) 0%, rgba(2,5,10,.78) 46%, rgba(2,5,10,.30) 100%);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .28s;
+}
+#phone.open #scrim{opacity:1;pointer-events:auto}
+
+/* ============ DIAL / LOADOUT SELECTOR ============ */
+#dialWrap{
+  position:absolute;inset:0;
+  z-index:7;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .18s;
+}
+#phone.open #dialWrap{
+  opacity:1;
+  visibility:visible;
+  animation:powerOn .34s steps(4) both;
+}
+@keyframes powerOn{
+  0%{opacity:0;transform:scaleY(.02)}
+  40%{opacity:.6;transform:scaleY(1.02) skewX(3deg)}
+  70%{opacity:.9;transform:skewX(-2deg)}
+  100%{opacity:1;transform:none}
+}
+
+/* label del modo selector arriba */
+#dialWrap::before{
+  content:'⟨ SELECTOR DE LOADOUT ⟩';
+  position:absolute;
+  top:42px;left:14px;
+  font-family:'Chakra Petch',monospace;
+  font-size:9px;font-weight:700;
+  letter-spacing:.3em;
+  color:var(--rd);
+  text-shadow:0 0 8px rgba(255,36,64,.6);
+}
+#dialWrap::after{
+  content:'DRAG ↑↓';
+  position:absolute;
+  top:58px;left:14px;
+  font-family:'Chakra Petch',monospace;
+  font-size:8px;font-weight:600;
+  letter-spacing:.34em;
+  color:var(--txt-dim);
+}
+
+/* --- HUB: perilla mecánica, centro fuera de pantalla --- */
+.hub{
+  position:absolute;
+  width:300px;height:300px;
+  left:-220px;top:50%;
+  transform:translateY(-50%);
+  border-radius:50%;
+  background:
+    repeating-conic-gradient(from 0deg, #1d2936 0deg 4deg, #0b131d 4deg 12deg),
+    radial-gradient(circle, #16202c 30%, #0a1119 70%);
+  border:2px solid rgba(0,229,255,.55);
+  box-shadow:
+    0 0 30px rgba(0,229,255,.30),
+    inset 0 0 40px rgba(0,0,0,.8);
+}
+/* anillo de ticks girando lento (feedback de máquina viva) */
+.hub::before{
+  content:'';
+  position:absolute;inset:14px;
+  border-radius:50%;
+  border:1px dashed rgba(0,229,255,.4);
+  animation:hubspin 14s linear infinite;
+}
+@keyframes hubspin{to{transform:rotate(360deg)}}
+/* núcleo rojo tipo tornillo/core */
+.hub::after{
+  content:'';
+  position:absolute;
+  left:50%;top:50%;
+  width:66px;height:66px;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle, var(--rd) 0%, #6e0d1e 55%, #240409 100%);
+  border-radius:50%;
+  border:2px solid rgba(255,120,140,.5);
+  box-shadow:0 0 22px rgba(255,36,64,.7);
+}
+
+/* --- NEEDLE: aguja/línea de targeting a ~96px --- */
+.needle{
+  position:absolute;
+  left:96px;top:50%;
+  transform:translateY(-50%);
+  width:0;height:0;
+  border-top:9px solid transparent;
+  border-bottom:9px solid transparent;
+  border-left:14px solid var(--cy);
+  filter:drop-shadow(0 0 8px var(--cy));
+  animation:needlepulse 1.6s ease-in-out infinite;
+}
+@keyframes needlepulse{
+  0%,100%{filter:drop-shadow(0 0 5px var(--cy))}
+  50%{filter:drop-shadow(0 0 13px var(--cy))}
+}
+/* línea que conecta la aguja con la opción activa */
+.needle::before{
+  content:'';
+  position:absolute;
+  left:14px;top:-1px;
+  width:58px;height:2px;
+  background:linear-gradient(90deg, var(--cy), transparent);
+}
+/* brackets del carril de la aguja */
+.needle::after{
+  content:'[ ◆ ]';
+  position:absolute;
+  left:-34px;top:-7px;
+  font-family:'Chakra Petch',monospace;
+  font-size:10px;font-weight:700;
+  letter-spacing:.05em;
+  color:var(--rd);
+  text-shadow:0 0 6px rgba(255,36,64,.8);
+}
+
+#dial{position:absolute;inset:0}
+
+/* ============ OPCIONES (.opt inyectadas por el motor) ============ */
+.opt{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:44px;
+  cursor:pointer;
+  will-change:transform,opacity;
+}
+.snap{transition:transform .4s cubic-bezier(.2,.9,.3,1),opacity .3s}
+
+.opt .ic{
+  position:relative;
+  flex:0 0 auto;
+  width:44px;height:44px;
+  background:linear-gradient(160deg, rgba(0,229,255,.75), rgba(0,90,110,.6));
+  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);
+  display:flex;align-items:center;justify-content:center;
+}
+.opt .ic::before{
+  content:'';
+  position:absolute;inset:2px;
+  background:linear-gradient(160deg,#0c1720,#060b12);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+}
+.opt .ic svg{
+  position:relative;
+  width:22px;height:22px;
+  fill:none;
+  stroke:var(--cy);
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  opacity:.85;
+}
+.opt .lb{
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px;font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(217,246,255,.82);
+  line-height:1.05;
+  white-space:nowrap;
+  text-shadow:0 1px 3px rgba(0,0,0,.8);
+}
+.opt .lb small{
+  display:block;
+  font-family:'Chakra Petch',monospace;
+  font-size:8px;font-weight:600;
+  letter-spacing:.3em;
+  color:var(--txt-dim);
+  margin-top:2px;
+}
+
+/* estado ACTIVO: cae en la aguja */
+.opt.active .ic{
+  background:linear-gradient(160deg, var(--rd), #7a1020);
+  filter:drop-shadow(0 0 10px rgba(255,36,64,.8)) drop-shadow(0 0 22px rgba(0,229,255,.35));
+}
+.opt.active .ic::before{
+  background:linear-gradient(160deg,#1a0d14,#0a0509);
+}
+.opt.active .ic svg{
+  stroke:#fff;
+  opacity:1;
+  filter:drop-shadow(0 0 4px var(--cy));
+}
+.opt.active .lb{
+  color:#fff;
+  text-shadow:0 0 12px rgba(0,229,255,.8), 0 0 4px rgba(0,229,255,.9);
+}
+.opt.active .lb small{
+  color:var(--rd);
+  text-shadow:0 0 6px rgba(255,36,64,.7);
+}
+
+/* ============ APPLY / EQUIPAR ============ */
+#apply{
+  position:absolute;
+  left:50%;bottom:26px;
+  transform:translateX(-38%);
+  z-index:8;
+  min-width:172px;height:48px;
+  border:none;
+  cursor:pointer;
+  font-family:'Orbitron',sans-serif;
+  font-size:14px;font-weight:700;
+  letter-spacing:.24em;
+  color:#fff;
+  text-transform:uppercase;
+  background:linear-gradient(100deg, var(--rd) 0%, #b0142c 60%, #7a1020 100%);
+  clip-path:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%);
+  box-shadow:0 0 26px rgba(255,36,64,.55);
+  transition:transform .15s, box-shadow .2s;
+}
+#apply::after{content:' ▸';color:var(--cy)}
+#apply:hover{
+  transform:translateX(-38%) scale(1.05);
+  box-shadow:0 0 36px rgba(255,36,64,.85), 0 0 18px rgba(0,229,255,.35);
+}
+#apply:active{transform:translateX(-38%) scale(.96)}
+
+/* ============ FOOTER META ============ */
+.meta{
+  margin-top:26px;
+  font-size:10px;font-weight:600;
+  letter-spacing:.3em;
+  color:var(--txt-dim);
+  text-transform:uppercase;
+}
+.meta b{color:var(--cy)}
+.meta i{font-style:normal;color:var(--rd)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Pixora · Estilo Gamer</div>
+  <h1>Dial de <em>Loadout</em> HUD</h1>
+  <p>Toca el <b>botón lateral</b> → arrastra la <span class="rd">perilla ↑↓</span> → <b>Aplicar</b>. Como cambiar de arma a mitad de partida, amigo.</p>
+</header>
+
+<div class="stage">
+  <div id="phone">
+    <div id="screen">
+
+      <!-- wallpaper edge-to-edge -->
+      <div id="wall" class="wall bgA"></div>
+      <div class="scanlines"></div>
+
+      <!-- HUD overlays -->
+      <div class="hud">
+        <div class="row-top">
+          <div class="fps">240 FPS<small>PING 12MS</small></div>
+          <div class="credits">◆ <b>240</b></div>
+        </div>
+        <div class="reticle"><i></i></div>
+        <div class="coords">SEC.<b>07</b> // GDL.MX<br>X:1080 · Y:2340</div>
+      </div>
+
+      <!-- sección activa -->
+      <div class="caption">
+        <div class="tag">◤ SECTOR ACTIVO</div>
+        <span id="capName">Estáticos</span>
+        <span id="capKick">Fondos fijos</span>
+      </div>
+
+      <!-- notch -->
+      <div class="notch"><i></i><i></i><i></i></div>
+
+      <!-- botón lateral que abre el dial -->
+      <button id="fab" aria-label="Abrir selector de secciones">
+        <span class="chev"></span>
+        <span class="flab">MENU</span>
+        <span class="chev r"></span>
+      </button>
+
+      <!-- scrim -->
+      <div id="scrim"></div>
+
+      <!-- dial curvo -->
+      <div id="dialWrap">
+        <div class="hub"></div>
+        <div class="needle"></div>
+        <div id="dial"></div>
+        <button id="apply">Aplicar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<p class="meta">Pixora // <b>red.team</b> HUD <i>v0.1</i> · prototipo dial curvo</p>
+
+<script src="_dial_engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixora · Dial Curvo — PIXORA COSMOS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sora:wght@300;400;600&display=swap');
+
+:root{
+  --void:#07070d;
+  --void-2:#0b0c16;
+  --cyan:#25e6da;
+  --violet:#7b6cff;
+  --red:#ff2e57;
+  --gold:#e8c15a;
+  --ink:#eef2ff;
+  --ink-dim:rgba(238,242,255,.55);
+  --line:rgba(123,108,255,.22);
+  --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(1100px 600px at 82% -8%, rgba(123,108,255,.16), transparent 60%),
+    radial-gradient(900px 700px at 8% 100%, rgba(37,230,218,.10), transparent 55%),
+    radial-gradient(600px 400px at 55% 45%, rgba(255,46,87,.05), transparent 60%),
+    var(--void);
+  color:var(--ink);
+  font-family:'Sora',sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:34px 18px 60px;
+  overflow-x:hidden;
+  position:relative;
+}
+/* campo de estrellas de la página */
+body::before{
+  content:'';
+  position:fixed; inset:0; pointer-events:none;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 22%, rgba(238,242,255,.8), transparent 55%),
+    radial-gradient(1px 1px at 78% 14%, rgba(37,230,218,.9), transparent 55%),
+    radial-gradient(1.6px 1.6px at 88% 68%, rgba(238,242,255,.55), transparent 55%),
+    radial-gradient(1px 1px at 32% 80%, rgba(123,108,255,.8), transparent 55%),
+    radial-gradient(1.2px 1.2px at 62% 42%, rgba(238,242,255,.5), transparent 55%),
+    radial-gradient(1px 1px at 45% 8%, rgba(232,193,90,.7), transparent 55%),
+    radial-gradient(1.2px 1.2px at 5% 55%, rgba(238,242,255,.45), transparent 55%),
+    radial-gradient(1px 1px at 93% 35%, rgba(238,242,255,.6), transparent 55%);
+}
+body::after{
+  content:'';
+  position:fixed; inset:0; pointer-events:none;
+  background:var(--noise);
+  opacity:.035;
+  mix-blend-mode:overlay;
+}
+
+/* ============ ENCABEZADO ============ */
+header{ text-align:center; margin-bottom:30px; max-width:560px; position:relative; z-index:2; }
+.eyebrow{
+  font-family:'Chakra Petch',sans-serif;
+  font-size:11px; font-weight:600;
+  letter-spacing:.42em; text-transform:uppercase;
+  color:var(--cyan);
+  text-shadow:0 0 18px rgba(37,230,218,.55);
+  margin-bottom:14px;
+}
+h1{
+  font-family:'Chakra Petch',sans-serif;
+  font-size:clamp(26px,5vw,38px);
+  font-weight:700;
+  line-height:1.12;
+  letter-spacing:.02em;
+  background:linear-gradient(100deg,#fff 15%, var(--cyan) 48%, var(--violet) 85%);
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:12px;
+}
+header p{
+  font-size:13.5px; font-weight:300;
+  color:var(--ink-dim);
+  line-height:1.65;
+}
+header p b{ color:var(--ink); font-weight:600; }
+header p .k{
+  font-family:'Chakra Petch',sans-serif;
+  font-size:11.5px; font-weight:600;
+  color:var(--cyan);
+  border:1px solid rgba(37,230,218,.35);
+  border-radius:6px;
+  padding:2px 7px;
+  white-space:nowrap;
+  background:rgba(37,230,218,.06);
+}
+
+/* ============ TELÉFONO ============ */
+#phone{
+  width:340px; height:710px;
+  border-radius:44px;
+  padding:10px;
+  position:relative;
+  z-index:2;
+  background:linear-gradient(160deg,#181a2b,#0a0b14 40%,#05060b);
+  border:1px solid rgba(123,108,255,.28);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.7),
+    0 34px 90px rgba(0,0,0,.75),
+    0 0 70px rgba(123,108,255,.12),
+    0 0 130px rgba(37,230,218,.07);
+}
+/* notch */
+#phone::before{
+  content:'';
+  position:absolute; top:22px; left:50%;
+  transform:translateX(-50%);
+  width:110px; height:26px;
+  background:#04040a;
+  border:1px solid rgba(123,108,255,.18);
+  border-radius:15px;
+  z-index:60;
+}
+#phone::after{
+  content:'';
+  position:absolute; top:31px; left:50%;
+  transform:translateX(calc(-50% + 34px));
+  width:7px; height:7px; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #3d4570, #05060d 70%);
+  box-shadow:0 0 6px rgba(37,230,218,.35);
+  z-index:61;
+}
+
+#screen{
+  position:relative;
+  width:100%; height:100%;
+  border-radius:35px;
+  overflow:hidden;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  background:var(--void);
+  cursor:grab;
+}
+#phone.open #screen{ cursor:grabbing; }
+
+/* ============ WALLPAPERS CÓSMICOS (bgA…bgF) ============ */
+.wall{
+  position:absolute; inset:0;
+  transition:filter .45s ease;
+}
+/* estrellas compartidas de todos los fondos */
+.wall::before{
+  content:'';
+  position:absolute; inset:0;
+  background-image:
+    radial-gradient(1.3px 1.3px at 18% 16%, rgba(255,255,255,.95), transparent 60%),
+    radial-gradient(1px 1px at 72% 9%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(1.6px 1.6px at 85% 30%, rgba(37,230,218,.9), transparent 60%),
+    radial-gradient(1px 1px at 40% 26%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(1.2px 1.2px at 10% 46%, rgba(255,255,255,.65), transparent 60%),
+    radial-gradient(1px 1px at 60% 52%, rgba(123,108,255,.85), transparent 60%),
+    radial-gradient(1.5px 1.5px at 30% 66%, rgba(255,255,255,.8), transparent 60%),
+    radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1.2px 1.2px at 50% 82%, rgba(232,193,90,.75), transparent 60%),
+    radial-gradient(1px 1px at 14% 88%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1.4px 1.4px at 78% 86%, rgba(255,255,255,.7), transparent 60%);
+  animation:twinkle 5.5s ease-in-out infinite alternate;
+}
+@keyframes twinkle{ from{opacity:.55} to{opacity:1} }
+/* grano fino */
+.wall::after{
+  content:'';
+  position:absolute; inset:0;
+  background:var(--noise);
+  opacity:.05;
+  mix-blend-mode:overlay;
+}
+
+/* A — Nébula Índigo (Estáticos) */
+.wall.bgA{background:
+  radial-gradient(150% 90% at 80% 0%, rgba(123,108,255,.55), transparent 55%),
+  radial-gradient(120% 80% at 10% 95%, rgba(37,230,218,.4), transparent 52%),
+  radial-gradient(80% 55% at 50% 55%, rgba(38,32,88,.9), transparent 70%),
+  linear-gradient(175deg,#0a0a1c 0%, #121034 45%, #07070d 100%);}
+/* B — Corriente Cian (Live / AURA) */
+.wall.bgB{background:
+  radial-gradient(130% 70% at 15% 10%, rgba(37,230,218,.55), transparent 55%),
+  radial-gradient(100% 90% at 90% 80%, rgba(20,110,140,.7), transparent 60%),
+  radial-gradient(60% 40% at 60% 40%, rgba(123,108,255,.25), transparent 65%),
+  linear-gradient(200deg,#04141c 0%, #062530 50%, #05060f 100%);}
+/* C — Nébula Carmesí (Amor) */
+.wall.bgC{background:
+  radial-gradient(120% 75% at 75% 15%, rgba(255,46,87,.5), transparent 55%),
+  radial-gradient(110% 80% at 15% 90%, rgba(123,40,120,.65), transparent 58%),
+  radial-gradient(50% 35% at 55% 55%, rgba(232,193,90,.14), transparent 70%),
+  linear-gradient(190deg,#170512 0%, #2b0a24 48%, #07070d 100%);}
+/* D — Abismo Violeta (3D / Favoritos) */
+.wall.bgD{background:
+  radial-gradient(140% 85% at 50% -10%, rgba(123,108,255,.62), transparent 55%),
+  radial-gradient(90% 60% at 85% 90%, rgba(37,230,218,.28), transparent 55%),
+  radial-gradient(70% 50% at 15% 60%, rgba(60,35,140,.7), transparent 65%),
+  linear-gradient(170deg,#0d0824 0%, #1a1145 50%, #06060e 100%);}
+/* E — Llamarada Solar (Eventos / Día) */
+.wall.bgE{background:
+  radial-gradient(110% 65% at 50% 105%, rgba(232,193,90,.5), transparent 55%),
+  radial-gradient(90% 65% at 85% 10%, rgba(255,46,87,.32), transparent 58%),
+  radial-gradient(70% 45% at 20% 35%, rgba(123,108,255,.3), transparent 62%),
+  linear-gradient(185deg,#0c0716 0%, #241028 55%, #170c05 100%);}
+/* F — Vórtice Arcano (Cultura / Arcano) */
+.wall.bgF{background:
+  radial-gradient(120% 80% at 20% 15%, rgba(84,60,190,.55), transparent 55%),
+  radial-gradient(100% 70% at 85% 85%, rgba(20,150,130,.42), transparent 58%),
+  radial-gradient(45% 30% at 60% 45%, rgba(232,193,90,.16), transparent 68%),
+  linear-gradient(160deg,#0a0718 0%, #101c2c 55%, #05070c 100%);}
+
+/* viñeta para legibilidad */
+.vignette{
+  position:absolute; inset:0; pointer-events:none; z-index:2;
+  background:
+    linear-gradient(to bottom, rgba(4,4,10,.55) 0%, transparent 22%),
+    linear-gradient(to top, rgba(4,4,10,.72) 0%, transparent 38%);
+}
+
+/* ============ UI HOME DEL WALLPAPER ============ */
+.statusbar{
+  position:absolute; top:14px; left:0; right:0; z-index:5;
+  display:flex; justify-content:space-between;
+  padding:0 26px;
+  font-family:'Chakra Petch',sans-serif;
+  font-size:11px; font-weight:600;
+  letter-spacing:.08em;
+  color:rgba(238,242,255,.85);
+  pointer-events:none;
+}
+.clock{
+  position:absolute; top:84px; left:0; right:0; z-index:5;
+  text-align:center; pointer-events:none;
+}
+.clock .hora{
+  font-family:'Chakra Petch',sans-serif;
+  font-size:54px; font-weight:600;
+  letter-spacing:.04em;
+  color:var(--ink);
+  text-shadow:0 0 26px rgba(37,230,218,.4), 0 2px 18px rgba(0,0,0,.6);
+}
+.clock .fecha{
+  font-size:11.5px; font-weight:300;
+  letter-spacing:.32em; text-transform:uppercase;
+  color:rgba(238,242,255,.65);
+  margin-top:4px;
+}
+
+/* placa de sección activa */
+.caption{
+  position:absolute; left:20px; right:20px; bottom:22px; z-index:5;
+  display:flex; align-items:center; gap:13px;
+  padding:13px 16px;
+  border-radius:18px;
+  background:linear-gradient(120deg, rgba(12,13,26,.78), rgba(18,16,40,.62));
+  border:1px solid var(--line);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  box-shadow:0 12px 34px rgba(0,0,0,.45), inset 0 1px 0 rgba(238,242,255,.07);
+  pointer-events:none;
+  transition:opacity .3s ease, transform .3s ease;
+}
+#phone.open .caption{ opacity:0; transform:translateY(12px); }
+.caption .dot{
+  width:38px; height:38px; flex:none;
+  border-radius:12px;
+  background:
+    radial-gradient(circle at 32% 30%, rgba(37,230,218,.55), transparent 60%),
+    radial-gradient(circle at 70% 75%, rgba(123,108,255,.6), transparent 60%),
+    #0b0c1a;
+  border:1px solid rgba(37,230,218,.4);
+  box-shadow:0 0 16px rgba(37,230,218,.3), inset 0 0 10px rgba(123,108,255,.35);
+  position:relative;
+}
+.caption .dot::after{
+  content:'';
+  position:absolute; inset:11px;
+  border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 12px var(--cyan);
+  animation:pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse{ 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(.72);opacity:.6} }
+#capKick{
+  display:block;
+  font-family:'Chakra Petch',sans-serif;
+  font-size:9.5px; font-weight:600;
+  letter-spacing:.34em; text-transform:uppercase;
+  color:var(--cyan);
+  margin-bottom:3px;
+}
+#capName{
+  display:block;
+  font-family:'Chakra Petch',sans-serif;
+  font-size:19px; font-weight:700;
+  letter-spacing:.05em;
+  color:var(--ink);
+  text-shadow:0 0 20px rgba(123,108,255,.5);
+}
+
+/* ============ FAB — aleta lateral de nave ============ */
+#fab{
+  position:absolute; left:0; top:50%; z-index:20;
+  transform:translateY(-50%);
+  width:46px; height:104px;
+  border:none; cursor:pointer;
+  border-radius:0 60px 60px 0;
+  background:
+    linear-gradient(105deg, rgba(37,230,218,.2), rgba(123,108,255,.14) 55%, transparent),
+    linear-gradient(180deg, #10182a, #0a0e1e);
+  border-top:1px solid rgba(37,230,218,.5);
+  border-right:1px solid rgba(37,230,218,.35);
+  border-bottom:1px solid rgba(123,108,255,.35);
+  box-shadow:
+    0 0 22px rgba(37,230,218,.35),
+    0 0 55px rgba(37,230,218,.12),
+    inset -6px 0 14px rgba(37,230,218,.12);
+  display:flex; align-items:center; justify-content:center;
+  transition:opacity .28s ease, transform .32s cubic-bezier(.2,.9,.3,1);
+}
+#fab:hover{ transform:translateY(-50%) translateX(3px); box-shadow:0 0 30px rgba(37,230,218,.55), inset -6px 0 16px rgba(37,230,218,.2); }
+#phone.open #fab{ opacity:0; pointer-events:none; transform:translateY(-50%) translateX(-52px); }
+#fab svg{
+  width:20px; height:20px;
+  stroke:var(--cyan); stroke-width:2; fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+  filter:drop-shadow(0 0 6px rgba(37,230,218,.8));
+}
+/* vetas del fab */
+#fab::before{
+  content:'';
+  position:absolute; left:6px; top:16px; bottom:16px;
+  width:2px; border-radius:2px;
+  background:linear-gradient(180deg, transparent, rgba(37,230,218,.6), transparent);
+}
+
+/* ============ SCRIM ============ */
+#scrim{
+  position:absolute; inset:0; z-index:9;
+  background:
+    radial-gradient(120% 70% at -10% 50%, rgba(37,230,218,.10), transparent 45%),
+    linear-gradient(90deg, rgba(4,4,10,.88) 0%, rgba(4,4,10,.62) 55%, rgba(4,4,10,.3) 100%);
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+}
+#phone.open #scrim{ opacity:1; pointer-events:auto; }
+
+/* ============ DIAL ============ */
+#dialWrap{
+  position:absolute; inset:0; z-index:10;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .28s ease;
+}
+#phone.open #dialWrap{ opacity:1; }
+
+/* la perilla — instrumento de nave */
+.hub{
+  position:absolute;
+  left:-118px; top:50%;
+  width:236px; height:236px;
+  margin-top:-118px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 62% 40%, #1c2138 0%, #10131f 42%, #080a12 78%);
+  border:1px solid rgba(37,230,218,.32);
+  box-shadow:
+    0 0 40px rgba(37,230,218,.22),
+    0 0 100px rgba(123,108,255,.14),
+    inset 0 0 34px rgba(0,0,0,.85),
+    inset 0 0 12px rgba(37,230,218,.1);
+  transform:translateX(-36px) rotate(-14deg);
+  transition:transform .45s cubic-bezier(.2,.9,.3,1);
+}
+#phone.open .hub{ transform:translateX(0) rotate(0deg); }
+/* grip dentado del borde */
+.hub::before{
+  content:'';
+  position:absolute; inset:7px;
+  border-radius:50%;
+  background:repeating-conic-gradient(
+    from 0deg,
+    rgba(37,230,218,.4) 0deg 1.6deg,
+    transparent 1.6deg 7.5deg
+  );
+  -webkit-mask:radial-gradient(circle, transparent 62%, #000 63%, #000 100%);
+  mask:radial-gradient(circle, transparent 62%, #000 63%, #000 100%);
+  animation:hubSpin 40s linear infinite;
+}
+@keyframes hubSpin{ to{ transform:rotate(360deg); } }
+/* núcleo con anillos */
+.hub::after{
+  content:'';
+  position:absolute; inset:34px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 60% 38%, rgba(123,108,255,.3), transparent 55%),
+    radial-gradient(circle at 45% 60%, #131628, #090b13 75%);
+  border:1px solid rgba(123,108,255,.4);
+  box-shadow:
+    inset 0 0 20px rgba(0,0,0,.9),
+    inset 0 0 8px rgba(37,230,218,.15),
+    0 0 18px rgba(123,108,255,.2);
+}
+.hub .core{
+  position:absolute; inset:86px; z-index:2;
+  border-radius:50%;
+  background:radial-gradient(circle at 40% 35%, rgba(37,230,218,.9), rgba(37,230,218,.25) 45%, rgba(11,12,22,.9) 70%);
+  box-shadow:0 0 24px rgba(37,230,218,.65), inset 0 0 12px rgba(4,4,10,.8);
+  animation:pulse 3.2s ease-in-out infinite;
+}
+
+/* la aguja / indicador */
+.needle{
+  position:absolute;
+  left:96px; top:50%;
+  transform:translateY(-50%);
+  width:34px; height:16px;
+  pointer-events:none;
+  z-index:3;
+}
+.needle::before{
+  content:'';
+  position:absolute; left:0; top:50%;
+  transform:translateY(-50%);
+  width:0; height:0;
+  border-top:8px solid transparent;
+  border-bottom:8px solid transparent;
+  border-left:15px solid var(--cyan);
+  filter:drop-shadow(0 0 8px rgba(37,230,218,.9)) drop-shadow(0 0 22px rgba(37,230,218,.5));
+}
+.needle::after{
+  content:'';
+  position:absolute; left:-32px; top:50%;
+  transform:translateY(-50%);
+  width:30px; height:2px;
+  background:linear-gradient(90deg, transparent, var(--cyan));
+  box-shadow:0 0 10px rgba(37,230,218,.7);
+}
+
+/* ============ OPCIONES (.opt las inyecta el motor) ============ */
+.opt{
+  position:absolute;
+  display:flex; align-items:center; gap:11px;
+  cursor:pointer;
+  pointer-events:auto;
+  padding:5px 14px 5px 5px;
+  border-radius:999px;
+  min-height:48px;
+  will-change:transform,opacity;
+}
+.opt.snap{
+  transition:transform .4s cubic-bezier(.2,.9,.3,1), opacity .3s;
+}
+.opt .ic{
+  width:44px; height:44px; flex:none;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(123,108,255,.22), transparent 60%),
+    linear-gradient(150deg, #141830, #0a0c16);
+  border:1px solid rgba(123,108,255,.35);
+  box-shadow:0 4px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(238,242,255,.08);
+  transition:border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.opt .ic svg{
+  width:21px; height:21px;
+  stroke:rgba(238,242,255,.72); stroke-width:1.7; fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+  transition:stroke .25s ease, filter .25s ease;
+}
+.opt .lb{
+  font-family:'Chakra Petch',sans-serif;
+  font-size:15px; font-weight:600;
+  letter-spacing:.06em;
+  color:rgba(238,242,255,.66);
+  line-height:1.18;
+  white-space:nowrap;
+  text-shadow:0 2px 10px rgba(0,0,0,.7);
+  transition:color .25s ease, text-shadow .25s ease;
+}
+.opt .lb small{
+  display:block;
+  font-family:'Sora',sans-serif;
+  font-size:9px; font-weight:300;
+  letter-spacing:.26em; text-transform:uppercase;
+  color:rgba(238,242,255,.34);
+  margin-top:2px;
+  transition:color .25s ease;
+}
+
+/* — activa: cae en la aguja — */
+.opt.active .ic{
+  background:
+    radial-gradient(circle at 35% 30%, rgba(37,230,218,.4), transparent 62%),
+    linear-gradient(150deg, #14263a, #0a1220);
+  border-color:var(--cyan);
+  box-shadow:
+    0 0 20px rgba(37,230,218,.55),
+    0 0 50px rgba(37,230,218,.18),
+    inset 0 0 10px rgba(37,230,218,.25);
+}
+.opt.active .ic svg{
+  stroke:var(--cyan);
+  filter:drop-shadow(0 0 6px rgba(37,230,218,.9));
+}
+.opt.active .lb{
+  color:#fff;
+  text-shadow:0 0 16px rgba(37,230,218,.75), 0 2px 10px rgba(0,0,0,.7);
+}
+.opt.active .lb small{ color:rgba(37,230,218,.85); }
+
+/* ============ BOTÓN APLICAR ============ */
+#apply{
+  position:absolute; left:50%; bottom:26px; z-index:12;
+  transform:translateX(-50%) translateY(70px);
+  min-width:190px; height:50px;
+  border:none; cursor:pointer;
+  border-radius:999px;
+  font-family:'Chakra Petch',sans-serif;
+  font-size:14px; font-weight:700;
+  letter-spacing:.3em; text-transform:uppercase;
+  color:#04121a;
+  background:linear-gradient(100deg, var(--cyan), #6ff2e8 55%, var(--violet) 140%);
+  box-shadow:
+    0 0 26px rgba(37,230,218,.5),
+    0 0 70px rgba(37,230,218,.18),
+    0 10px 26px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.55);
+  opacity:0; pointer-events:none;
+  transition:transform .38s cubic-bezier(.2,.9,.3,1), opacity .3s ease, box-shadow .25s ease;
+}
+#phone.open #apply{
+  opacity:1; pointer-events:auto;
+  transform:translateX(-50%) translateY(0);
+}
+#apply:hover{
+  box-shadow:0 0 38px rgba(37,230,218,.8), 0 0 90px rgba(37,230,218,.3), 0 10px 26px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.6);
+}
+#apply:active{ transform:translateX(-50%) translateY(2px); }
+
+/* nota de pie */
+.foot{
+  margin-top:26px;
+  font-family:'Chakra Petch',sans-serif;
+  font-size:10px; font-weight:500;
+  letter-spacing:.3em; text-transform:uppercase;
+  color:rgba(238,242,255,.28);
+  position:relative; z-index:2;
+}
+.foot i{ color:rgba(37,230,218,.6); font-style:normal; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Pixora · Estilo Pixora Cosmos</div>
+  <h1>Dial de navegación<br>curvo</h1>
+  <p>El menú es una <b>perilla de instrumento espacial</b> anclada al borde izquierdo.
+  <span class="k">Toca el botón lateral</span> → <span class="k">arrastra la perilla ↑↓</span> → <span class="k">Aplicar</span>.
+  La sección que cae en la aguja cian es la que queda activa, así de fácil.</p>
+</header>
+
+<div id="phone">
+  <div id="screen">
+
+    <!-- wallpaper preview -->
+    <div id="wall" class="wall bgA"></div>
+    <div class="vignette"></div>
+
+    <!-- home UI -->
+    <div class="statusbar">
+      <span>PIXORA</span>
+      <span>▲ ● 98%</span>
+    </div>
+    <div class="clock">
+      <div class="hora">21:07</div>
+      <div class="fecha">Dom · 13 Jul</div>
+    </div>
+
+    <div class="caption">
+      <div class="dot"></div>
+      <div>
+        <span id="capKick">Fondos fijos</span>
+        <span id="capName">Estáticos</span>
+      </div>
+    </div>
+
+    <!-- fab: aleta lateral -->
+    <button id="fab" aria-label="Abrir dial de secciones">
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+
+    <!-- scrim -->
+    <div id="scrim"></div>
+
+    <!-- dial -->
+    <div id="dialWrap">
+      <div class="hub"><div class="core"></div></div>
+      <div class="needle"></div>
+      <div id="dial"></div>
+    </div>
+
+    <button id="apply">Aplicar</button>
+
+  </div>
+</div>
+
+<div class="foot">Prototipo <i>dial curvo</i> · Orbix Studio · Cosmos v1</div>
+
+<script src="_dial_engine.js"></script>
+</body>
+</html>

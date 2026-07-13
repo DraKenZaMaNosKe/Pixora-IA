@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixora · Dial Curvo — perilla de secciones</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sora:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#07070d;--ink:#eef0ff;--mut:#8a8ba6;
+  --cyan:#25e6da;--red:#ff2e57;--gold:#e8c15a;--violet:#7b6cff;
+  --line:rgba(255,255,255,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Sora',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:26px;padding:48px 20px 80px;
+  background:radial-gradient(1000px 600px at 80% -10%,rgba(123,108,255,.14),transparent 60%),radial-gradient(800px 500px at 10% 110%,rgba(37,230,218,.10),transparent 55%),var(--bg)}
+.head{max-width:820px;text-align:center}
+.eyebrow{font-family:'Chakra Petch';letter-spacing:.4em;text-transform:uppercase;font-size:11px;color:var(--cyan);margin-bottom:12px}
+h1{font-family:'Chakra Petch';font-weight:700;font-size:clamp(26px,4vw,40px);line-height:1.05}
+h1 b{color:var(--red)}
+.sub{color:var(--mut);font-size:14px;line-height:1.6;margin-top:14px}
+.hint{margin-top:16px;display:inline-flex;gap:8px;align-items:center;font-family:'Chakra Petch';font-size:12px;letter-spacing:.06em;color:var(--gold);border:1px solid rgba(232,193,90,.35);border-radius:22px;padding:8px 16px}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(232,193,90,.6);animation:pl 1.8s infinite}
+@keyframes pl{0%{box-shadow:0 0 0 0 rgba(232,193,90,.5)}70%{box-shadow:0 0 0 10px rgba(232,193,90,0)}100%{box-shadow:0 0 0 0 rgba(232,193,90,0)}}
+
+/* phone */
+.phone{width:340px;height:710px;border-radius:44px;padding:9px;background:linear-gradient(160deg,#26283a,#0c0d15);
+  box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.06);position:relative}
+.screen{position:relative;width:100%;height:100%;border-radius:36px;overflow:hidden;background:#0a0b14;touch-action:none;user-select:none}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:104px;height:22px;background:#000;border-radius:0 0 15px 15px;z-index:60}
+
+/* wallpaper */
+.wall{position:absolute;inset:0;transition:filter .4s,transform .5s}
+.wall.bgA{background:radial-gradient(120% 90% at 35% 25%,#3a2b7a,#0b0a1e),conic-gradient(from 200deg at 72% 82%,#ff2e57,transparent 42%)}
+.wall.bgB{background:linear-gradient(200deg,#0c3b3a,#22e6da 170%),radial-gradient(80% 60% at 80% 12%,rgba(255,255,255,.22),transparent)}
+.wall.bgC{background:radial-gradient(100% 80% at 60% 40%,#ff5e3a,#2a0d1e 92%)}
+.wall.bgD{background:linear-gradient(160deg,#101838,#0a0a14),radial-gradient(60% 50% at 50% 30%,rgba(123,108,255,.6),transparent)}
+.wall.bgE{background:radial-gradient(90% 70% at 42% 60%,#e8c15a,#3a2400 92%)}
+.wall.bgF{background:linear-gradient(140deg,#1a1030,#3b0f45),radial-gradient(50% 40% at 70% 22%,#25e6da,transparent)}
+.wgrad{position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,6,12,.72),transparent 45%),linear-gradient(90deg,rgba(5,6,12,.55),transparent 40%)}
+
+/* top bar */
+.top{position:absolute;top:36px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center;z-index:30}
+.logo{font-family:'Chakra Petch';font-weight:700;font-size:17px;letter-spacing:.06em}
+.logo i{color:var(--red);font-style:normal}
+.credits{font-family:'Chakra Petch';font-size:11px;color:var(--gold);border:1px solid rgba(232,193,90,.4);padding:4px 10px;border-radius:20px}
+
+/* current-section caption */
+.caption{position:absolute;left:24px;bottom:150px;z-index:25;transition:.3s}
+.caption small{font-family:'Chakra Petch';color:var(--cyan);letter-spacing:.26em;font-size:10px;text-transform:uppercase;display:block;margin-bottom:4px}
+.caption b{font-family:'Chakra Petch';font-weight:700;font-size:30px;text-shadow:0 3px 14px #000;line-height:1}
+
+/* bottom mini carousel */
+.mini{position:absolute;left:20px;right:20px;bottom:26px;display:flex;gap:8px;z-index:25}
+.mini .t{flex:1;height:70px;border-radius:12px;border:1px solid rgba(255,255,255,.12);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+
+/* FAB — aerodynamic teardrop */
+.fab{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:52px;height:66px;z-index:45;cursor:pointer;
+  background:linear-gradient(145deg,rgba(20,22,34,.82),rgba(10,11,18,.9));backdrop-filter:blur(10px);
+  border:1px solid rgba(37,230,218,.4);border-radius:14px 30px 30px 14px/30px 40px 40px 30px;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(0,0,0,.5),inset 0 0 12px rgba(37,230,218,.12);
+  transition:transform .35s cubic-bezier(.34,1.4,.5,1),opacity .3s}
+.fab svg{width:22px;height:22px;stroke:var(--cyan);fill:none;stroke-width:1.7}
+.fab:active{transform:translateY(-50%) scale(.92)}
+.fab .arc{position:absolute;left:6px;top:8px;bottom:8px;width:3px;border-radius:3px;background:linear-gradient(var(--cyan),var(--violet));opacity:.7}
+.open .fab{opacity:0;pointer-events:none;transform:translateY(-50%) translateX(-30px)}
+
+/* scrim */
+.scrim{position:absolute;inset:0;background:radial-gradient(120% 90% at 0% 50%,rgba(4,5,10,.86),rgba(4,5,10,.5) 60%);z-index:35;opacity:0;pointer-events:none;transition:.35s}
+.open .scrim{opacity:1;pointer-events:auto}
+
+/* DIAL */
+.dial-wrap{position:absolute;inset:0;z-index:40;pointer-events:none;opacity:0;transition:opacity .3s}
+.open .dial-wrap{opacity:1;pointer-events:auto}
+.dial{position:absolute;inset:0}
+/* knob hub at left edge */
+.hub{position:absolute;left:-96px;top:50%;transform:translateY(-50%);width:170px;height:170px;border-radius:50%;
+  background:conic-gradient(from 0deg,#15161f,#22242f,#15161f,#0e0f16,#22242f,#15161f);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08),0 0 40px rgba(37,230,218,.18),inset -8px 0 20px rgba(0,0,0,.6);z-index:41}
+.hub::after{content:"";position:absolute;inset:14px;border-radius:50%;border:1px dashed rgba(37,230,218,.25)}
+.hub .grip{position:absolute;inset:0;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.05) 0 3deg,transparent 3deg 9deg)}
+
+/* needle / active indicator */
+.needle{position:absolute;left:96px;top:50%;transform:translateY(-50%);z-index:44;display:flex;align-items:center;gap:8px;pointer-events:none}
+.needle .tick{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-right:12px solid var(--cyan);filter:drop-shadow(0 0 6px var(--cyan))}
+.needle .ring{width:74px;height:74px;border-radius:50%;border:1.5px solid rgba(37,230,218,.45);box-shadow:0 0 20px rgba(37,230,218,.25),inset 0 0 16px rgba(37,230,218,.1);position:absolute;left:16px}
+
+/* options */
+.opt{position:absolute;left:0;top:0;transform-origin:center;pointer-events:auto;cursor:pointer;
+  display:flex;align-items:center;gap:10px;will-change:transform,opacity}
+.opt .ic{width:44px;height:44px;flex:0 0 44px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:rgba(14,16,26,.7);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12)}
+.opt .ic svg{width:22px;height:22px;stroke:#cfd2ea;fill:none;stroke-width:1.6}
+.opt .lb{font-family:'Chakra Petch';font-weight:600;font-size:15px;letter-spacing:.03em;white-space:nowrap;color:#dfe1f2;text-shadow:0 2px 8px #000}
+.opt .lb small{display:block;font-family:'Sora';font-weight:400;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+.opt.active .ic{border-color:var(--cyan);background:rgba(37,230,218,.14);box-shadow:0 0 20px rgba(37,230,218,.4)}
+.opt.active .ic svg{stroke:#fff}
+.opt.active .lb{color:#fff}
+.opt.active .lb small{color:var(--cyan)}
+
+.snap{transition:transform .4s cubic-bezier(.2,.9,.3,1),opacity .3s}
+
+/* apply pill */
+.apply{position:absolute;left:96px;bottom:40px;z-index:44;font-family:'Chakra Petch';font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#04202a;background:linear-gradient(90deg,var(--cyan),#5fe0d0);padding:10px 18px;border-radius:24px;box-shadow:0 8px 22px rgba(37,230,218,.4);pointer-events:auto;cursor:pointer;
+  display:flex;align-items:center;gap:7px;transform:translateY(6px) scale(.96);opacity:0;transition:.25s}
+.open .apply{transform:translateY(0) scale(1);opacity:1;transition-delay:.15s}
+.apply svg{width:14px;height:14px;stroke:#04202a;fill:none;stroke-width:2.4}
+.hintline{position:absolute;left:96px;top:calc(50% - 66px);z-index:44;font-family:'Sora';font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(207,210,230,.55);pointer-events:none;opacity:0;transition:.3s}
+.open .hintline{opacity:1;transition-delay:.3s}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="eyebrow">Pixora · Home Redesign</div>
+    <h1>Dial curvo <b>— perilla de secciones</b></h1>
+    <p class="sub">Riel curvo y aerodinámico (no lineal). Toca el botón de la izquierda → se despliega el dial. <b>Gíralo como perilla de volumen</b> (arrastra arriba/abajo) o toca una sección; la que cae en la aguja es la activa. Toca <b>“Aplicar”</b> (o la sección centrada) y el menú se oculta.</p>
+    <div class="hint"><span class="pulse"></span> Toca el botón cian a la izquierda del teléfono para abrir el dial</div>
+  </div>
+
+  <div class="phone" id="phone">
+    <div class="notch"></div>
+    <div class="screen" id="screen">
+      <div class="wall bgA" id="wall"></div>
+      <div class="wgrad"></div>
+
+      <div class="top">
+        <div class="logo">PIX<i>O</i>RA</div>
+        <div class="credits">◆ 240</div>
+      </div>
+
+      <div class="caption" id="caption">
+        <small id="capKick">Sección</small>
+        <b id="capName">Estáticos</b>
+      </div>
+
+      <div class="mini">
+        <div class="t bgD"></div><div class="t bgF"></div><div class="t bgB"></div><div class="t bgC"></div>
+      </div>
+
+      <!-- FAB -->
+      <div class="fab" id="fab">
+        <div class="arc"></div>
+        <svg viewBox="0 0 24 24"><path d="M4 7c6 0 10 5 16 5M4 12c6 0 10 5 16 5M4 17c6 0 8 2 14 2"/></svg>
+      </div>
+
+      <div class="scrim" id="scrim"></div>
+
+      <!-- DIAL -->
+      <div class="dial-wrap" id="dialWrap">
+        <div class="hub"><div class="grip"></div></div>
+        <div class="needle"><span class="ring"></span><span class="tick"></span></div>
+        <div class="hintline">Arrastra ↑↓ para girar</div>
+        <div class="dial" id="dial"></div>
+        <div class="apply" id="apply"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Aplicar</div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+const SECTIONS = [
+  {name:'Estáticos', kick:'Fondos fijos', bg:'bgA', ic:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 15l4-4 4 4 3-3 5 5"/>'},
+  {name:'Live',      kick:'Video vivo',   bg:'bgB', ic:'<circle cx="12" cy="12" r="8"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/>'},
+  {name:'3D',        kick:'Parallax',     bg:'bgD', ic:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 3v18M4 7.5l8 4.5 8-4.5"/>'},
+  {name:'Amor',      kick:'Para dos',     bg:'bgC', ic:'<path d="M12 20s-7-4.6-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.4-7 9-7 9z"/>'},
+  {name:'Cultura',   kick:'Arte & mito',  bg:'bgF', ic:'<circle cx="12" cy="12" r="4"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/>'},
+  {name:'Eventos',   kick:'Temporada',    bg:'bgE', ic:'<path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.2l1-5.8L3.5 9.2l5.9-.9z"/>'},
+  {name:'Arcano',    kick:'Místico',      bg:'bgF', ic:'<path d="M20 14a8 8 0 11-8-11 6 6 0 008 11z"/>'},
+  {name:'Día',       kick:'Ciclo solar',  bg:'bgE', ic:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'},
+  {name:'AURA',      kick:'Bienestar',    bg:'bgB', ic:'<path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/>'},
+  {name:'Favoritos', kick:'Tus guardados',bg:'bgD', ic:'<path d="M7 4h10v16l-5-3-5 3z"/>'},
+];
+
+const dial = document.getElementById('dial');
+const screen = document.getElementById('screen');
+const phone = document.getElementById('phone');
+const STEP = 25;                 // grados entre secciones
+const CX = -70;                  // centro X del knob (fuera de pantalla izq)
+const R = 250;                   // radio del arco
+let rot = 0;                     // rotación actual (grados)
+let activeIdx = 0;
+
+// build option elements
+const els = SECTIONS.map((s,i)=>{
+  const el = document.createElement('div');
+  el.className='opt';
+  el.innerHTML = `<div class="ic"><svg viewBox="0 0 24 24">${s.ic}</svg></div>
+    <div class="lb">${s.name}<small>${s.kick}</small></div>`;
+  el.addEventListener('click',(e)=>{ e.stopPropagation(); onOptClick(i); });
+  dial.appendChild(el);
+  return el;
+});
+
+function layout(){
+  const cy = screen.clientHeight/2 + 8;
+  els.forEach((el,i)=>{
+    const ang = (i*STEP - rot);            // 0 => en la aguja
+    const th = ang*Math.PI/180;
+    const x = CX + R*Math.cos(th);
+    const y = cy + R*Math.sin(th);
+    const d = Math.abs(ang);
+    const scale = Math.max(.5, 1 - d/150);
+    const op = d>78 ? 0 : Math.max(0, 1 - d/72);
+    el.style.left = x+'px';
+    el.style.top  = y+'px';
+    el.style.transform = `translate(-6px,-50%) scale(${scale})`;
+    el.style.opacity = op;
+    el.style.pointerEvents = op<.15 ? 'none':'auto';
+    el.classList.toggle('active', d < STEP/2);
+  });
+  const idx = Math.round(rot/STEP);
+  if(idx!==activeIdx && idx>=0 && idx<SECTIONS.length){ activeIdx = idx; previewSection(idx); }
+}
+
+function previewSection(i){
+  const s = SECTIONS[i];
+  const wall = document.getElementById('wall');
+  wall.className = 'wall '+s.bg;
+  document.getElementById('capName').textContent = s.name;
+  document.getElementById('capKick').textContent = s.kick;
+}
+
+/* ---- drag como perilla ---- */
+let dragging=false, lastY=0, moved=false;
+function down(e){
+  if(!phone.classList.contains('open')) return;
+  dragging=true; moved=false;
+  lastY = (e.touches?e.touches[0].clientY:e.clientY);
+  els.forEach(el=>el.classList.remove('snap'));
+}
+function move(e){
+  if(!dragging) return;
+  const y = (e.touches?e.touches[0].clientY:e.clientY);
+  const dy = y-lastY; lastY=y;
+  if(Math.abs(dy)>1) moved=true;
+  rot += dy*0.42;                          // arrastra ↓ => avanza
+  rot = Math.max(-STEP*0.5, Math.min((SECTIONS.length-1)*STEP+STEP*0.5, rot));
+  layout();
+}
+function up(){
+  if(!dragging) return; dragging=false;
+  snapTo(Math.round(rot/STEP));
+}
+function snapTo(idx){
+  idx = Math.max(0, Math.min(SECTIONS.length-1, idx));
+  els.forEach(el=>el.classList.add('snap'));
+  rot = idx*STEP; layout();
+}
+function onOptClick(i){
+  if(i===activeIdx && !moved){ applyAndClose(); }
+  else { snapTo(i); }
+}
+
+screen.addEventListener('pointerdown',down);
+window.addEventListener('pointermove',move);
+window.addEventListener('pointerup',up);
+
+/* ---- abrir / cerrar ---- */
+const fab=document.getElementById('fab');
+const scrim=document.getElementById('scrim');
+const apply=document.getElementById('apply');
+fab.addEventListener('click',()=>{ phone.classList.add('open'); layout(); });
+scrim.addEventListener('click',()=>{ phone.classList.remove('open'); });
+apply.addEventListener('click',(e)=>{ e.stopPropagation(); applyAndClose(); });
+function applyAndClose(){
+  previewSection(activeIdx);
+  phone.classList.remove('open');
+}
+
+// init
+previewSection(0);
+window.addEventListener('resize',layout);
+layout();
+</script>
+</body>
+</html>

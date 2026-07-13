@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixora · Nav Variante 3 — Perilla central abajo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Jost:wght@300;400;500;600&display=swap');
+:root{
+  --gold:#e8c15a; --gold2:#c99a3e; --cream:#efe7d2; --ink:#f4efe4;
+  --jewel:#0a0906; --mut:#9a927f;
+  --line:rgba(232,193,90,.28);
+  --font:'Jost',system-ui,sans-serif; --serif:'Fraunces',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050505;color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;
+  background:radial-gradient(800px 500px at 85% -10%,rgba(232,193,90,.08),transparent 60%),#050505;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:22px;padding:40px 18px 70px}
+.head{max-width:760px;text-align:center}
+.eyebrow{font-family:var(--font);letter-spacing:.42em;text-transform:uppercase;font-size:11px;color:var(--gold);margin-bottom:12px}
+h1{font-family:var(--serif);font-style:italic;font-weight:600;font-size:clamp(24px,4vw,38px);line-height:1.1}
+h1 b{color:var(--gold);font-style:normal;font-weight:400}
+.sub{color:var(--mut);font-size:14px;margin-top:12px;line-height:1.6}
+.sub b{color:var(--cream)}
+.hint{margin-top:14px;display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.05em;color:var(--gold);border:1px solid var(--line);border-radius:22px;padding:8px 16px}
+
+/* phone */
+.phone{width:360px;height:750px;border-radius:46px;padding:9px;position:relative;
+  background:linear-gradient(150deg,#3a3320,#0c0b08 55%);
+  box-shadow:0 40px 90px rgba(0,0,0,.65),inset 0 0 0 1px rgba(232,193,90,.22)}
+.screen{position:relative;width:100%;height:100%;border-radius:38px;overflow:hidden;background:#08080c;touch-action:none;user-select:none}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:22px;background:#000;border-radius:0 0 15px 15px;z-index:60}
+
+/* ===== base tint que cambia por sección (detrás de toda la UI) ===== */
+.wall{position:absolute;inset:0;z-index:0;transition:background .5s}
+.wall.bgA{background:radial-gradient(90% 60% at 50% 20%,rgba(90,110,170,.12),transparent 60%),#08080c}
+.wall.bgB{background:radial-gradient(90% 60% at 50% 20%,rgba(60,150,150,.14),transparent 60%),#07090b}
+.wall.bgC{background:radial-gradient(90% 60% at 50% 20%,rgba(180,70,90,.14),transparent 60%),#0b0708}
+.wall.bgD{background:radial-gradient(90% 60% at 50% 20%,rgba(120,100,180,.14),transparent 60%),#09080c}
+.wall.bgE{background:radial-gradient(90% 60% at 50% 20%,rgba(200,160,80,.14),transparent 60%),#0a0906}
+.wall.bgF{background:radial-gradient(90% 60% at 50% 20%,rgba(150,90,170,.13),transparent 60%),#0a070b}
+
+/* ===== HOME REAL (aprox. tu interfaz) ===== */
+.appui{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;padding:0 14px 96px;overflow:hidden}
+.statusbar{display:flex;justify-content:space-between;align-items:center;height:34px;padding:0 8px;font-size:11px;color:#cfc9ba;font-weight:500}
+.statusbar .r{display:flex;gap:6px;align-items:center;font-size:10px}
+.topbar{display:flex;align-items:center;gap:9px;padding:6px 2px 12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3ad07a,#0b6b3a);border:1.5px solid var(--gold);flex:0 0 34px;position:relative}
+.avatar::after{content:"";position:absolute;inset:8px;border-radius:50%;background:#e33}
+.brand{font-family:var(--serif);font-style:italic;font-weight:600;font-size:19px;color:var(--cream);letter-spacing:.01em}
+.topbar .sp{flex:1}
+.ic-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#d8d1c0}
+.ic-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7}
+.pill{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;border-radius:20px;padding:5px 10px;white-space:nowrap}
+.pill.time{color:#d8d1c0;border:1px solid rgba(255,255,255,.14)}
+.pill.dia{color:#1c1608;background:linear-gradient(90deg,var(--gold),#f0d074);font-weight:600}
+
+/* current-section label (lo actualiza el motor) */
+.seclabel{display:flex;align-items:baseline;gap:8px;padding:0 4px 10px}
+.seclabel small{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--mut)}
+.seclabel b{font-family:var(--serif);font-style:italic;font-weight:600;font-size:14px;color:var(--gold)}
+
+/* featured */
+.feature{position:relative;height:300px;border-radius:20px;overflow:hidden;border:1px solid rgba(232,193,90,.18);
+  background:radial-gradient(120% 90% at 50% 25%,#2a3a66,#0a1224 70%)}
+.moon{position:absolute;top:34px;left:50%;transform:translateX(-50%);width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#dfe6f2,#9fb0cc 60%,#6d80a4);box-shadow:0 0 60px rgba(180,200,240,.35)}
+.silo{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);width:90px;height:150px;
+  background:linear-gradient(#1c7a2e,#124f20);clip-path:polygon(40% 0,60% 0,66% 22%,58% 30%,72% 40%,72% 70%,60% 100%,40% 100%,28% 70%,28% 40%,42% 30%,34% 22%);opacity:.92}
+.silo::after{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:44px;height:30px;background:#0d0d0d;border-radius:50%}
+.badge{position:absolute;top:14px;left:14px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#1c1608;background:linear-gradient(90deg,var(--gold),#f0d074);padding:4px 9px;border-radius:6px;font-weight:600;z-index:3}
+.fg{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,8,16,.9),transparent 55%);z-index:2}
+.fmeta{position:absolute;left:16px;right:16px;bottom:16px;z-index:3;display:flex;justify-content:space-between;align-items:flex-end}
+.fmeta .t b{font-family:var(--serif);font-style:italic;font-weight:600;font-size:22px;display:block;line-height:1;color:var(--cream)}
+.fmeta .t small{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.explore{font-size:11px;letter-spacing:.08em;color:var(--gold);border:1px solid var(--line);border-radius:20px;padding:7px 13px;white-space:nowrap}
+.dots{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;gap:5px;z-index:3}
+.dots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3)}
+.dots i.on{width:16px;border-radius:3px;background:var(--gold)}
+
+/* daily */
+.daily{margin-top:12px;display:flex;align-items:center;gap:12px;border:1px solid rgba(232,193,90,.22);border-radius:16px;padding:12px 14px;
+  background:linear-gradient(90deg,rgba(232,193,90,.08),rgba(232,193,90,.02))}
+.daily .rr{width:42px;height:42px;border-radius:12px;background:linear-gradient(145deg,var(--gold),#b8892f);display:flex;align-items:center;justify-content:center;color:#1c1608}
+.daily .rr svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2}
+.daily .tx b{font-family:var(--serif);font-style:italic;font-weight:600;font-size:15px;color:var(--cream);display:flex;align-items:center;gap:7px}
+.daily .tx b em{font-style:normal;font-size:8px;letter-spacing:.16em;background:var(--gold);color:#1c1608;padding:2px 6px;border-radius:5px;font-family:var(--font);font-weight:600}
+.daily .tx small{font-size:11px;color:var(--mut)}
+.daily .sp{flex:1}
+.daily .cv{color:var(--gold)}
+
+/* chips */
+.chips{display:flex;gap:8px;margin-top:14px;overflow:hidden}
+.chip{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#cfc9ba;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:8px 12px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.chip .d{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.sechdr{margin-top:14px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:6px}
+.wgrid{margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.wgrid .t{height:88px;border-radius:12px;border:1px solid rgba(255,255,255,.08)}
+.t.g1{background:radial-gradient(80% 70% at 40% 30%,#3a2b7a,#0b0a1e)}
+.t.g2{background:linear-gradient(200deg,#0c3b3a,#22a89e)}
+.t.g3{background:radial-gradient(80% 70% at 60% 40%,#ff5e3a,#2a0d1e)}
+.t.g4{background:linear-gradient(160deg,#241a3a,#0a0a14)}
+.t.g5{background:radial-gradient(80% 70% at 42% 60%,#e8c15a,#3a2400)}
+.t.g6{background:linear-gradient(140deg,#2a1030,#3b0f45)}
+
+/* ===== fade inferior para que la zona de acción respire ===== */
+.botfade{position:absolute;left:0;right:0;bottom:0;height:120px;z-index:8;pointer-events:none;
+  background:linear-gradient(0deg,rgba(5,5,4,.88) 20%,rgba(5,5,4,.4) 60%,transparent);
+  transition:opacity .35s}
+.open .botfade{opacity:0}
+
+/* ===== FAB — PERILLA CENTRAL ABAJO (abre el dial) ===== */
+.fab{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:66px;height:66px;border-radius:50%;z-index:20;cursor:pointer;
+  background:
+    repeating-conic-gradient(from 0deg,rgba(28,20,6,.32) 0 2.5deg,transparent 2.5deg 7deg),
+    radial-gradient(circle at 34% 28%,#f6dc90,#e8c15a 42%,#c99a3e 68%,#8a6420);
+  border:1px solid rgba(255,238,190,.6);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 14px 32px rgba(0,0,0,.65),0 0 28px rgba(232,193,90,.35),
+    inset 0 2px 5px rgba(255,255,255,.4),inset 0 -7px 14px rgba(55,36,4,.55);
+  transition:transform .4s cubic-bezier(.34,1.4,.5,1),opacity .35s}
+.fab::before{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid rgba(232,193,90,.35);
+  box-shadow:0 0 18px rgba(232,193,90,.15)}
+.fab::after{content:"";position:absolute;inset:9px;border-radius:50%;border:1px dashed rgba(60,42,8,.45)}
+.fab .edge{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:3px;height:12px;border-radius:2px;
+  background:linear-gradient(#2a1d06,#6b4d14);box-shadow:0 0 6px rgba(0,0,0,.4)}
+.fab svg{width:22px;height:22px;stroke:#1c1608;fill:none;stroke-width:1.6;position:relative;z-index:1}
+.open .fab{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(28px) scale(.8)}
+
+/* ===== 2 acciones globales flanqueando la perilla ===== */
+.gact{position:absolute;bottom:32px;z-index:19;width:40px;height:40px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--gold);
+  border:1px solid rgba(232,193,90,.22);background:rgba(16,13,7,.35);backdrop-filter:blur(5px);
+  transition:opacity .3s,transform .3s}
+.gact svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:.85}
+.gact small{position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);white-space:nowrap}
+.gact.search{left:calc(50% - 108px)}
+.gact.fav{left:calc(50% + 68px)}
+.open .gact{opacity:0;pointer-events:none;transform:translateY(14px)}
+
+/* ===== SCRIM GLASS (deja ver la home borrosa detrás) ===== */
+.scrim{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;transition:opacity .4s;
+  background:radial-gradient(130% 100% at 0% 50%,rgba(8,7,4,.62),rgba(8,7,4,.30) 62%);
+  backdrop-filter:blur(11px) saturate(.85);-webkit-backdrop-filter:blur(11px) saturate(.85)}
+.open .scrim{opacity:1;pointer-events:auto}
+
+/* ===== DIAL (arco de oro glass — sigue anclado a la izquierda) ===== */
+.dial-wrap{position:absolute;inset:0;z-index:12;pointer-events:none;opacity:0;transition:opacity .4s}
+.open .dial-wrap{opacity:1;pointer-events:auto}
+.dial{position:absolute;inset:0}
+.hub{position:absolute;left:-104px;top:50%;transform:translateY(-50%);width:184px;height:184px;border-radius:50%;z-index:11;
+  background:
+    repeating-conic-gradient(from 0deg,rgba(232,193,90,.16) 0 2deg,transparent 2deg 6deg),
+    radial-gradient(circle at 60% 40%,#2a2415,#100d07 70%);
+  box-shadow:0 0 0 1px rgba(232,193,90,.35),0 0 46px rgba(232,193,90,.18),inset -10px 0 26px rgba(0,0,0,.7)}
+.hub::before{content:"";position:absolute;inset:16px;border-radius:50%;border:1px solid rgba(232,193,90,.4)}
+.hub::after{content:"";position:absolute;inset:30px;border-radius:50%;border:1px dashed rgba(232,193,90,.25)}
+.needle{position:absolute;left:88px;top:50%;transform:translateY(-50%);z-index:14;display:flex;align-items:center;gap:8px;pointer-events:none}
+.needle .rhomb{width:12px;height:12px;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 12px var(--gold)}
+.needle .ring{position:absolute;left:14px;width:78px;height:78px;border-radius:50%;border:1px solid rgba(232,193,90,.5);box-shadow:0 0 22px rgba(232,193,90,.22),inset 0 0 18px rgba(232,193,90,.08)}
+.needle .line{width:40px;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+
+.opt{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:12px;will-change:transform,opacity}
+.opt .ic{width:46px;height:46px;flex:0 0 46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(20,17,10,.5);backdrop-filter:blur(6px);border:1px solid rgba(232,193,90,.3)}
+.opt .ic svg{width:20px;height:20px;stroke:#cbb98f;fill:none;stroke-width:1.5}
+.opt .lb{font-family:var(--serif);font-style:italic;font-weight:600;font-size:17px;color:#d9cfb8;white-space:nowrap;text-shadow:0 2px 10px #000}
+.opt .lb small{display:block;font-family:var(--font);font-style:normal;font-weight:400;font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);margin-top:2px}
+.opt.active .ic{border-color:var(--gold);background:rgba(232,193,90,.14);box-shadow:0 0 22px rgba(232,193,90,.4)}
+.opt.active .ic svg{stroke:var(--cream)}
+.opt.active .lb{color:var(--cream)}
+.opt.active .lb small{color:var(--gold)}
+.snap{transition:transform .5s cubic-bezier(.2,.9,.3,1),opacity .35s}
+
+.apply{position:absolute;left:88px;bottom:40px;z-index:14;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+  border:1px solid var(--gold);border-radius:26px;padding:11px 26px;pointer-events:auto;cursor:pointer;
+  background:rgba(20,17,10,.4);backdrop-filter:blur(6px);transform:translateY(6px);opacity:0;transition:.3s}
+.open .apply{transform:translateY(0);opacity:1;transition-delay:.15s}
+.hintline{position:absolute;left:88px;top:calc(50% - 70px);z-index:14;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(232,193,90,.55);pointer-events:none;opacity:0;transition:.3s}
+.open .hintline{opacity:1;transition-delay:.3s}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="eyebrow">Pixora · Nav Variante 3</div>
+    <h1>Perilla <b>central abajo</b></h1>
+    <p class="sub">El bottom nav de 14 íconos ya no existe: abajo solo queda una <b>perilla de oro</b> al centro (acción principal que despliega el dial glass con todas las secciones) flanqueada por <b>dos acciones globales</b> — Buscar y Favoritos. Nada más estorba.</p>
+    <div class="hint">◆ Toca la perilla dorada al centro, abajo del teléfono</div>
+  </div>
+
+  <div class="phone" id="phone">
+    <div class="notch"></div>
+    <div class="screen" id="screen">
+      <div class="wall bgA" id="wall"></div>
+
+      <!-- HOME REAL -->
+      <div class="appui">
+        <div class="statusbar"><span>12:51</span><span class="r">M ◈ &nbsp;·&nbsp; ▮▮▮ 70</span></div>
+        <div class="topbar">
+          <div class="avatar"></div>
+          <div class="brand">Pixora</div>
+          <div class="sp"></div>
+          <div class="ic-btn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg></div>
+          <div class="pill time">⏱ 7h 8m</div>
+          <div class="pill dia">◆ 3030</div>
+        </div>
+        <div class="seclabel"><small>Sección</small><b id="capName">Estáticos</b><small id="capKick" style="opacity:.7">Fondos fijos</small></div>
+
+        <div class="feature">
+          <div class="badge">Featured</div>
+          <div class="moon"></div>
+          <div class="silo"></div>
+          <div class="fg"></div>
+          <div class="fmeta">
+            <div class="t"><b>Marvin el Marcia…</b><small>Scenes · Vol XII</small></div>
+            <div class="explore">Explore →</div>
+          </div>
+          <div class="dots"><i></i><i class="on"></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="daily">
+          <div class="rr"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5"/><path d="M18 3v4h-4M6 21v-4h4"/></svg></div>
+          <div class="tx"><b>Pixora Daily <em>NUEVO</em></b><small>Wallpapers aleatorios</small></div>
+          <div class="sp"></div>
+          <div class="cv">›</div>
+        </div>
+
+        <div class="chips">
+          <div class="chip"><span class="d"></span>Trending</div>
+          <div class="chip"><span class="d"></span>New</div>
+          <div class="chip"><span class="d"></span>Panoramic</div>
+        </div>
+        <div class="sechdr">★ Trending</div>
+        <div class="wgrid">
+          <div class="t g1"></div><div class="t g2"></div><div class="t g3"></div>
+          <div class="t g4"></div><div class="t g5"></div><div class="t g6"></div>
+        </div>
+      </div>
+
+      <!-- fade inferior -->
+      <div class="botfade"></div>
+
+      <!-- ACCIONES GLOBALES (solo 2: buscar / favoritos) -->
+      <div class="gact search" title="Buscar">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+        <small>Buscar</small>
+      </div>
+      <div class="gact fav" title="Favoritos">
+        <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9.2-8.6C1.2 8.4 3 5 6.4 5c2.1 0 3.4 1.1 4.1 2.3h3c.7-1.2 2-2.3 4.1-2.3 3.4 0 5.2 3.4 3.6 6.4C19 15.4 12 20 12 20z" transform="scale(.92) translate(1 1)"/></svg>
+        <small>Favoritos</small>
+      </div>
+
+      <!-- FAB: PERILLA CENTRAL -->
+      <div class="fab" id="fab">
+        <div class="edge"></div>
+        <svg viewBox="0 0 24 24"><path d="M4 7c6 0 10 5 16 5M4 12c6 0 10 5 16 5M4 17c6 0 8 2 14 2"/></svg>
+      </div>
+
+      <!-- GLASS SCRIM -->
+      <div class="scrim" id="scrim"></div>
+
+      <!-- DIAL -->
+      <div class="dial-wrap" id="dialWrap">
+        <div class="hub"></div>
+        <div class="needle"><span class="ring"></span><span class="rhomb"></span><span class="line"></span></div>
+        <div class="hintline">Arrastra ↑↓ para girar</div>
+        <div class="dial" id="dial"></div>
+        <div class="apply" id="apply">Aplicar</div>
+      </div>
+
+    </div>
+  </div>
+
+<script src="_dial_engine.js"></script>
+</body>
+</html>

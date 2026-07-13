@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixora · Los 5 Diales — comparador</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Sora:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07070d;color:#eef0ff;font-family:'Sora',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(1000px 600px at 80% -10%,rgba(123,108,255,.12),transparent 60%),radial-gradient(800px 500px at 5% 110%,rgba(37,230,218,.09),transparent 55%),#07070d;
+  padding:40px 20px 80px}
+.head{max-width:1400px;margin:0 auto 30px;text-align:center}
+.eyebrow{font-family:'Chakra Petch';letter-spacing:.42em;text-transform:uppercase;font-size:11px;color:#25e6da;margin-bottom:12px}
+h1{font-family:'Chakra Petch';font-weight:700;font-size:clamp(26px,4vw,42px)}
+h1 b{color:#ff2e57}
+.sub{color:#8a8ba6;font-size:14px;margin-top:12px;line-height:1.6}
+.grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:26px}
+.cell{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;display:flex;flex-direction:column}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.bar .name{font-family:'Chakra Petch';font-weight:600;font-size:15px;display:flex;align-items:center;gap:9px}
+.bar .em{font-size:18px}
+.bar a{font-family:'Chakra Petch';font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#25e6da;text-decoration:none;border:1px solid rgba(37,230,218,.35);padding:5px 11px;border-radius:20px;transition:.2s}
+.bar a:hover{background:rgba(37,230,218,.12)}
+.frame{position:relative;width:100%;height:840px;background:#0a0b14}
+iframe{border:0;width:200%;height:1680px;transform:scale(.5);transform-origin:top left}
+.tip{max-width:1400px;margin:26px auto 0;text-align:center;color:#8a8ba6;font-size:13px;line-height:1.6}
+.tip b{color:#e8c15a}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="eyebrow">Pixora · Home Redesign</div>
+    <h1>Los 5 diales <b>— míralos juntos</b></h1>
+    <p class="sub">Cada marco es un prototipo vivo. Toca el botón lateral de cualquiera y <b>arrastra la perilla ↑↓</b> para girarla. ¿Quieres uno a pantalla completa? Toca "Abrir".</p>
+  </div>
+
+  <div class="grid">
+    <div class="cell">
+      <div class="bar"><div class="name"><span class="em">🌸</span> Anime</div><a href="dial_anime.html" target="_blank">Abrir ↗</a></div>
+      <div class="frame"><iframe src="dial_anime.html" title="Anime"></iframe></div>
+    </div>
+    <div class="cell">
+      <div class="bar"><div class="name"><span class="em">🏛️</span> Conservador</div><a href="dial_conservador.html" target="_blank">Abrir ↗</a></div>
+      <div class="frame"><iframe src="dial_conservador.html" title="Conservador"></iframe></div>
+    </div>
+    <div class="cell">
+      <div class="bar"><div class="name"><span class="em">🌌</span> Pixora Cosmos</div><a href="dial_pixora.html" target="_blank">Abrir ↗</a></div>
+      <div class="frame"><iframe src="dial_pixora.html" title="Pixora"></iframe></div>
+    </div>
+    <div class="cell">
+      <div class="bar"><div class="name"><span class="em">🎮</span> Gamer</div><a href="dial_gamer.html" target="_blank">Abrir ↗</a></div>
+      <div class="frame"><iframe src="dial_gamer.html" title="Gamer"></iframe></div>
+    </div>
+    <div class="cell">
+      <div class="bar"><div class="name"><span class="em">💎</span> Elegante</div><a href="dial_elegante.html" target="_blank">Abrir ↗</a></div>
+      <div class="frame"><iframe src="dial_elegante.html" title="Elegante"></iframe></div>
+    </div>
+  </div>
+
+  <p class="tip">💡 Tip: los marcos están al 50% para que quepan los 5. Para probar bien la perilla, usa <b>“Abrir ↗”</b> y velo a tamaño real.</p>
+</body>
+</html>
