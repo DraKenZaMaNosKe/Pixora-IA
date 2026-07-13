@@ -218,8 +218,9 @@ def _supabase_rest(method: str, table_path: str, body=None, query: str = "") -> 
 # ─── HTTP handler ─────────────────────────────────────────────────────────────
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
-        # quieter logs
-        if "/api/" in args[0] if args else False:
+        # quieter logs — guard against non-str args (e.g. log_error passes an
+        # HTTPStatus as args[0], which isn't iterable and crashed the logger).
+        if args and isinstance(args[0], str) and "/api/" in args[0]:
             return
         sys.stderr.write(f"  {self.address_string()} - {fmt % args}\n")
 
