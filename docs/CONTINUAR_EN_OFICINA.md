@@ -1,18 +1,20 @@
-# Continuar en la oficina — pickup 2026-07-06
+# Continuar en la oficina — pickup 2026-07-13
 
-Handoff de la sesión de casa. Sigue estos pasos al llegar a la PC del trabajo
-para retomar sin perder contexto (secretos, memorias, código).
+Handoff de la sesión de casa (madrugada 13 jul). Sigue estos pasos al llegar a
+la PC del trabajo para retomar sin perder contexto (secretos, memorias, código).
 
-## 1. Sincroniza secretos + memorias (orbixprivate)
+## 1. Sincroniza secretos + memorias (orbixprivate) — PRIMERO
 
-`KEYS_LOCAL.md` NO vive en este repo (gitignored). Sin él, el pixora-admin y
-el sprite editor NO arrancan (no leen el SERVICE_KEY). Restáuralo primero:
+`KEYS_LOCAL.md` NO vive en este repo (gitignored). Sin él, el cuarto obscuro
+(pixora-admin) y el sprite editor NO arrancan (no leen el SERVICE_KEY ni el
+password de Postgres). Restáuralo primero:
 
 ```bash
 cd /d/Orbix/orbixprivate && git pull && bash scripts/bootstrap.sh
 ```
 
-Esto deja `KEYS_LOCAL.md`, `settings.local.json` y las memorias en su lugar.
+Esto deja `KEYS_LOCAL.md`, `settings.local.json`, el agente y las memorias en
+su lugar (`~/.claude/...` y `D:/Orbix/Pixora-IA/`).
 
 ## 2. Trae el código nuevo (Pixora-IA)
 
@@ -21,63 +23,115 @@ cd /d/Orbix/Pixora-IA && git pull
 flutter pub get
 ```
 
-Rama de trabajo: `play-store-estable`. El último commit trae las descripciones
-con color + typewriter autoscroll (v1.7.53).
+Rama de trabajo: `play-store-estable`. Último commit del día trae el uploader
+de Thanos (`tools/wallpapers/_upload_thanos.py`) + la Hora Free con reloj del
+servidor.
 
-## 3. Lanza pixora-admin / sprite editor
+## 3. Recrear el CUARTO OBSCURO (pixora-admin + sprite editor)
 
-Los dos son el MISMO servidor (`tools/wallpapers/wp_admin_server.py`, puerto
-**5758**). Formas de arrancarlo:
+Los dos son el MISMO servidor: `tools/wallpapers/wp_admin_server.py`, Python
+stdlib, puerto **5758**. NO es un repo aparte — vive dentro de Pixora-IA. Lee
+`SERVICE_KEY` de `KEYS_LOCAL.md`, así que el paso 1 es obligatorio antes.
 
-- **Sprite editor** (para afinar posiciones de sprites/parejas):
-  doble click a `tools/wallpapers/launch_sprite_editor.vbs`
-  → abre `http://127.0.0.1:5758/sprite-editor.html`
-- **Admin dashboard** (RESUMEN, WALLPAPERS, INGRESOS, TEXTOS, etc.):
+Formas de arrancarlo:
+
+- **Admin dashboard** (RESUMEN, WALLPAPERS, INGRESOS, USUARIOS, EVENTOS,
+  ENGAGEMENT, TEXTOS, y el panel de **Hora Free**):
   doble click a `tools/wallpapers/launch_admin_silent.vbs`
   → abre `http://127.0.0.1:5758/`
-- **Manual** (si prefieres consola):
+- **Sprite editor** (afinar posición/escala/timings de sprites y cycles):
+  doble click a `tools/wallpapers/launch_sprite_editor.vbs`
+  → abre `http://127.0.0.1:5758/sprite-editor.html`
+- **Manual** (consola, si prefieres ver logs):
   ```bash
   python tools/wallpapers/wp_admin_server.py
   # luego abre http://127.0.0.1:5758/  o  /sprite-editor.html
   ```
 
-> Los `.lnk` del escritorio son locales de cada PC. En la oficina corre los
-> `.vbs` directo (o créate accesos directos apuntando a ellos).
+> Los `.lnk`/accesos del escritorio son locales de cada PC. En la oficina corre
+> los `.vbs` directo, o créate accesos directos apuntando a ellos.
+> El puerto es configurable con la env `PIXORA_PORT` si el 5758 está ocupado.
 
-## 4. Estado del proyecto (dónde quedamos)
+## 4. Flujo de trabajo con Grok (el que funcionó bien — repítelo igual)
 
-**v1.7.53+96 — lista, AAB construido, PENDIENTE de subir a Play Store.**
+Grok corre en SU propia terminal; Claude (aquí) NO le habla directo. El puente
+eres tú (copiar/pegar). Reparto que quedó chido:
 
-Hecho en esta sesión:
-- 7 parejas anime parallax publicadas en la sección **Amor** (canvas_scene).
-- Descripciones con **resaltado por colores** (name/place/power/emotion) en
-  **451** wallpapers del catálogo. El markup vive en `description_rich`;
-  `description` quedó en texto plano (las versiones viejas no se rompen).
-- **TypewriterText** con **autoscroll** que sigue la lectura.
-- Bump a `1.7.53+96`.
+1. **Claude redacta el prompt** para Grok (reglas de chroma-key, consistencia,
+   nombres de archivo, carpeta destino). Clave: pedirle a Grok que use
+   `imagine-edit` sobre UNA base para que el cuerpo quede pixel-locked y solo
+   cambien ojos/mano → así la animación NO salta.
+2. **Tú pegas el prompt en Grok**, Grok genera/guarda/renombra en la carpeta
+   que le indicaste (ej. `C:/Users/lalo/Desktop/wallPapers_repo/nuevos/<tema>`).
+3. **Tú limpias el chroma verde** (CapCut) O Claude lo hace con un chroma
+   automático en Python (PIL) desde las versiones verdes — quedó igual de limpio
+   que CapCut y ahorra trabajo. Ver `_upload_thanos.py` (función `chroma`).
+4. **Claude arma el canvas_scene** (fondo + frames + cycle) y lo sube: imágenes
+   a Storage, spec a `wallpaper-scenes`, entrada en `catalog_index.json`, filas
+   en Postgres, y FCM `wallpapers` para invalidar cache.
 
-## 5. Pendientes (en orden)
+Plantillas de uploader: `_upload_marvin.py` (blink + sprite cohete) y
+`_upload_thanos.py` (cycle ping-pong sin sprite). Copia una y ajústala.
 
-1. **Subir el AAB** a Play Console:
-   `build/app/outputs/bundle/release/app-release.aab` (144.9 MB, v1.7.53+96).
-   Ojo: si haces `flutter clean`, tendrás que reconstruirlo (`flutter build
-   appbundle`) — Windows necesita "Modo de desarrollador" activo para los
-   symlinks de plugins.
-2. **Invalidar cache FCM** del catálogo (broadcast a todos) para que los
-   usuarios que actualicen vean los 451 textos con color sin esperar el TTL.
-   Es un broadcast deliberado — confirmar antes de dispararlo.
-3. **Doc maestro** §12 (Registro de Versiones): agregar v1.7.53.
-4. (Opcional) Afinar en el **sprite editor** las posiciones de las 7 parejas
-   si alguna no quedó bien centrada.
+**Tip de alineación cross-aspect**: si el personaje viene en 720x1280 y el
+fondo en 1080x1920 (ambos 9:16), pre-escala el personaje a 1080x1920 ANTES del
+cover-fit para que ambos escalen por el mismo factor y el personaje caiga en su
+lugar (si no, queda gigante/corrido). Ver comentario en `_upload_thanos.py`.
 
-## 6. Rollback disponible (por si algo)
+## 5. Estado del proyecto (dónde quedamos)
+
+**v1.7.58+101 — AAB construido, Eduardo lo está subiendo a Play Store (prueba
+cerrada).** Ruta: `build/app/outputs/bundle/release/app-release.aab` (145 MB).
+
+Hecho en esta sesión (13 jul madrugada):
+- **Hora Free** (happy hour diario 7 min sin ads, 8PM CST fija) — ships
+  DORMANT (default OFF, cero riesgo). Reloj del SERVIDOR anti-trampa: cambiar la
+  hora del celular ya no la mueve; countdown idéntico en todos los devices
+  (validado Samsung vs Huawei). Control on/off en el darkroom (panel Hora Free).
+- **Sprites**: rotación + `orient_to_motion` + `art_angle` en px físicos +
+  draw-route A→B en el sprite editor. (Requirió AAB nuevo; el contenido no.)
+- **Marvin el Marciano** — static + canvas_scene 3D (parpadeo + cohete).
+- **Thanos** (`thanos_infinito`) — static + canvas_scene 3D. Cycle del
+  guantelete abriéndose/cerrándose con las gemas (6s ping-pong). Frames
+  limpiados con chroma automático. Categoría `movies`.
+- **Tono Mario 1-UP** (`mario_1up`) subido al pack Gaming (contenido remoto,
+  sin release).
+
+## 6. Pendientes (en orden)
+
+1. **Terminar de subir el AAB v1.7.58** a Play Console (Eduardo en eso).
+   Notas de versión en el chat (ES + EN, sin mencionar Hora Free porque va
+   dormida).
+2. **PRODUCCIÓN con ads REALES (martes/miércoles)** — cuando Google autorice
+   producción hay que preparar una versión NUEVA (1.7.59+102) con:
+   - `ad_service.dart:31` → cambiar el ad unit de TEST
+     (`ca-app-pub-3940256099942544/1033173712`) al REAL
+     (`ca-app-pub-6734758230109098/6687118537`).
+   - **CRÍTICO**: agregar el **Huawei** a `_testDeviceIds` (`ad_service.dart:155`)
+     — hoy solo está el Samsung. Sin esto, un tap tuyo en un ad real desde el
+     Huawei = self-click = suspensión de AdMob (2da ofensa = ban permanente).
+     Falta capturar el device-id de AdMob del Huawei (sale en logcat como
+     `setTestDeviceIds(...)` al correr un ad).
+   - Bump versión, rebuild AAB, subir a producción.
+   - Es difícil de revertir → hacerlo con calma + checklist (proponer think hard).
+3. **Activar Hora Free** después de que el lanzamiento respire:
+   `python tools/wallpapers/_free_hour_config.py on`  (kill-switch: `off`).
+4. **Probar Thanos** en device (3D LIVE → pull-to-refresh → aplicar). Si el
+   personaje quedó grande/corrido, afinar en el sprite editor (sin resubir).
+5. **Doc maestro** §12: ya se agregó v1.7.58 (§12.53). Sync del board GitHub si
+   se shippeó a producción.
+
+## 7. Rollback disponible (por si algo)
 
 - `tools/wallpapers/_markup_backup_2026_07_05.json` — descripciones planas
   previas al markup (por id).
 - `tools/wallpapers/_redesc_backup_2026_07_05.json` — nombres/descripciones
   previos a la re-descripción masiva.
+- Assets de Thanos originales (verdes + limpios) en
+  `C:/Users/lalo/Desktop/wallPapers_repo/nuevos/thanos_new/` (esa carpeta es
+  LOCAL, no se sincroniza — cópiala a un USB/Drive si la quieres en la oficina).
 
-## 7. Al cerrar la sesión de la oficina
+## 8. Al cerrar la sesión de la oficina
 
 ```bash
 cd /d/Orbix/orbixprivate && bash scripts/sync-to-private.sh

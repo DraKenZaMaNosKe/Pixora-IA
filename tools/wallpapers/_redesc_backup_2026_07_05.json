@@ -1,0 +1,958 @@
+{
+ "matrix_code_rain": {
+  "name": "Matrix Code Rain",
+  "description": "Matrix Code Rain wallpaper."
+ },
+ "b3_010_mortal_kombat_jade_fatality": {
+  "name": "Mortal Kombat UltraCombo",
+  "description": "GAMING wallpaper"
+ },
+ "new2_019_chunli_pixel_kick_arcade": {
+  "name": "Chunli Pixel Kick Arcade",
+  "description": "GAMING wallpaper - shunli collection"
+ },
+ "pixel_cyberpunk_city": {
+  "name": "Pixel Cyberpunk City",
+  "description": "Pixel Cyberpunk City wallpaper."
+ },
+ "optimus_prime": {
+  "name": "Optimus Prime",
+  "description": "Optimus Prime wallpaper."
+ },
+ "oliver_atom_tsubasa": {
+  "name": "Oliver Atom Tsubasa",
+  "description": "Oliver Atom Tsubasa wallpaper."
+ },
+ "leo_gold_aiolia": {
+  "name": "Leo Gold Saint Aiolia",
+  "description": "Leo Gold Saint Aiolia wallpaper."
+ },
+ "charizard_fire": {
+  "name": "Charizard Fire",
+  "description": "Charizard Fire wallpaper."
+ },
+ "horror_abandoned_asylum": {
+  "name": "Horror Abandoned Asylum",
+  "description": "Horror Abandoned Asylum wallpaper."
+ },
+ "new2_018_chunli_high_kick_neon_night": {
+  "name": "Chunli High Kick Neon Night",
+  "description": "GAMING wallpaper - shunli collection"
+ },
+ "b3_008_divine_mercy_jesus_sacred_hear": {
+  "name": "Divine Mercy Jesus Sacred Heart",
+  "description": "CULTURE wallpaper"
+ },
+ "b3_007_van_gogh_cafe_terrace_starry_n": {
+  "name": "Van Gogh Cafe Terrace Starry Night",
+  "description": "ART wallpaper"
+ },
+ "b3_006_matisse_joy_of_living_framed": {
+  "name": "Matisse Joy Of Living Framed",
+  "description": "ART wallpaper"
+ },
+ "b3_005_chagall_i_and_the_village_libr": {
+  "name": "Chagall I And The Village Library",
+  "description": "ART wallpaper"
+ },
+ "b3_004_van_gogh_night_cafe_billiard_r": {
+  "name": "Van Gogh Night Cafe Billiard Room",
+  "description": "ART wallpaper"
+ },
+ "new2_020_chunli_lightning_kick_chinatow": {
+  "name": "Chunli Lightning Kick Chinatown",
+  "description": "GAMING wallpaper - shunli collection"
+ },
+ "new2_017_saga_vs_goku_ultra_instinct_cl": {
+  "name": "Saga Vs Goku Ultra Instinct Clash",
+  "description": "ANIME wallpaper - sagavsgoku collection"
+ },
+ "new2_006_animaniacs_water_tower_gang": {
+  "name": "Hooola !! Enfermeraa",
+  "description": "La hermosa enfermera de animaniacs"
+ },
+ "new2_008_animaniacs_retro_madness": {
+  "name": "Animaniacs",
+  "description": "una muy linda escena de Animaniacs"
+ },
+ "b3_003_monet_water_lilies_golden_salo": {
+  "name": "Monet Water Lilies Golden Salon",
+  "description": "ART wallpaper"
+ },
+ "hell_landscape": {
+  "name": "Hell Landscape",
+  "description": "Hell Landscape wallpaper."
+ },
+ "new2_009_animaniacs_playing_in_chaos": {
+  "name": "Pinky y cerebro.",
+  "description": "WPinky y cerebro , muy cool como siempre"
+ },
+ "new2_016_saga_vs_goku_galaxy_explosion": {
+  "name": "Saga Vs Goku Galaxy Explosion",
+  "description": "ANIME wallpaper - sagavsgoku collection"
+ },
+ "new2_015_majin_buu_chocolate_paradise": {
+  "name": "Majin Buu Chocolate Paradise",
+  "description": "ANIME wallpaper - maginbuu collection"
+ },
+ "new2_014_goku_super_saiyan_lightning_ra": {
+  "name": "Goku Super Saiyan Lightning Rage",
+  "description": "ANIME wallpaper - goku collection"
+ },
+ "new2_013_goku_super_saiyan_3_thundersto": {
+  "name": "Goku Super Saiyan 3 Thunderstorm",
+  "description": "ANIME wallpaper - goku collection"
+ },
+ "new2_012_freddy_vs_jason_nightmare_clas": {
+  "name": "Freddy Vs Jason Nightmare Clash",
+  "description": "HORROR wallpaper - freddyvsjason collection"
+ },
+ "new_041_museum_hall_classic_paintings": {
+  "name": "Museum Hall Classic Paintings",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_040_museum_hall_baroque_wide": {
+  "name": "Museum Hall Baroque Wide",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_039_museum_entrance_grand_hall": {
+  "name": "Museum Entrance Grand Hall",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "halloween_spooky": {
+  "name": "Halloween Spooky",
+  "description": "Halloween Spooky wallpaper."
+ },
+ "god_light_divine": {
+  "name": "God Light Divine",
+  "description": "God Light Divine wallpaper."
+ },
+ "new_038_museum_corridor_masterpieces": {
+  "name": "Museum Corridor Masterpieces",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_044_private_collection_dark_room": {
+  "name": "Private Collection Dark Room",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_043_orbix_gallery_futuristic_dark_": {
+  "name": "Orbix Gallery Futuristic Dark Neon",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_046_surreal_dali_dreamscape_galler": {
+  "name": "Surreal Dali Dreamscape Gallery",
+  "description": "Escenas con obras de arte famosas"
+ },
+ "new2_001_elmira_and_furball_kitchen": {
+  "name": "Elvira y su gatito",
+  "description": "Mira como disfruta el gatito estar con Elvira"
+ },
+ "new2_002_warner_brothers_animation_squa": {
+  "name": "Un gran equipo",
+  "description": "El equipo de trabajo completo"
+ },
+ "new_033_lunar_station_gallery_earth_vi": {
+  "name": "Lunar Station Gallery Earth View",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_031_grande_galerie_louvre_masterpi": {
+  "name": "Grande Galerie Louvre Masterpieces",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "b3_002_the_last_supper_panoramic": {
+  "name": "La ultima cena , panoramico",
+  "description": "Panoramico de la ultima cena"
+ },
+ "new_013_dia_de_muertos_panoramic_wide": {
+  "name": "Dia De Muertos Panoramic Wide",
+  "description": "CULTURE wallpaper - panteon collection"
+ },
+ "b3_033_tinkerbell_magic_sparkle": {
+  "name": "Orchid de Killer Instinct.",
+  "description": "Orchid de Killer Instinct con sables de luz en la ciudad"
+ },
+ "new_011_dia_de_muertos_panoramic_full_": {
+  "name": "Dia De Muertos Panoramic Full Moon",
+  "description": "CULTURE wallpaper - panteon collection"
+ },
+ "b3_028_garfield_odie_orange_chill": {
+  "name": "Garfield Odie Orange Chill",
+  "description": "ANIME wallpaper"
+ },
+ "heman_grayskull_static": {
+  "name": "He-Man · Amos del Universo · Estatico",
+  "description": "He-Man — imagen estatica sin parallax"
+ },
+ "b3_018_aristocats_kittens_railroad_wa": {
+  "name": "En el bar Western Cards",
+  "description": "ANIME wallpaper"
+ },
+ "b3_029_aristocats_trio_barn_peek": {
+  "name": "Los aristogatitos",
+  "description": "ANIME wallpaper"
+ },
+ "new_010_dia_de_muertos_moonlight_calav": {
+  "name": "Dia De Muertos Moonlight Calaveras",
+  "description": "CULTURE wallpaper - panteon collection"
+ },
+ "b3_016_garfield_and_odie_lazy_day": {
+  "name": "Cafe de noche Van gogh",
+  "description": "ANIME wallpaper"
+ },
+ "b3_031_garfield_monday_mood": {
+  "name": "Garfield Monday Mood",
+  "description": "ANIME wallpaper"
+ },
+ "b3_026_tinkerbell_fairy_glow": {
+  "name": "Los aristogatos!",
+  "description": "FANTASY wallpaper"
+ },
+ "cal_doctor_v2_jan_jun": {
+  "name": "Calendar Doctor V2 (Jan-Jun)",
+  "description": "Medical consultation desk calendar 2026 variant"
+ },
+ "cal_doctor_jul_dec": {
+  "name": "Calendar Doctor (Jul-Dec)",
+  "description": "Medical office desk calendar 2026 - July to December"
+ },
+ "evangelion_city": {
+  "name": "Evangelion City",
+  "description": "Dystopian industrial city at sunset"
+ },
+ "gemelos_tachibana": {
+  "name": "Tachibana Twins",
+  "description": "Tachibana Twins wallpaper."
+ },
+ "futuristic_city_day": {
+  "name": "Futuristic City Day",
+  "description": "Futuristic City Day wallpaper."
+ },
+ "dia_reyes_magos": {
+  "name": "DÃ­a de Reyes Magos",
+  "description": "DÃ­a de Reyes Magos wallpaper."
+ },
+ "b3_027_tinkerbell_pixie_dust_flight": {
+  "name": "The room",
+  "description": "FANTASY wallpaper"
+ },
+ "mai_shiranui_neon": {
+  "name": "Mai Shiranui —",
+  "description": "Mai Shiranui en el escenario"
+ },
+ "new_019_botanical_greenhouse_gallery": {
+  "name": "Botanical Greenhouse Gallery",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_002_bikini_bottom_fun_day": {
+  "name": "Bikini Bottom Fun Day",
+  "description": "ANIME wallpaper - bobsponja collection"
+ },
+ "new_015_dia_de_muertos_tombstones_dusk": {
+  "name": "Dia De Muertos Tombstones Dusk",
+  "description": "CULTURE wallpaper - panteon collection"
+ },
+ "new_003_forbidden_treasure_cave": {
+  "name": "Forbidden Treasure Cave",
+  "description": "FANTASY wallpaper - cuevaconoro collection"
+ },
+ "new_020_continental_hotel_john_wick_ga": {
+  "name": "Continental Hotel John Wick Gallery",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_018_art_gallery_velvet_walls": {
+  "name": "Art Gallery Velvet Walls",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "cyberpunk_city_night": {
+  "name": "Cyberpunk City Night",
+  "description": "Cyberpunk City Night wallpaper."
+ },
+ "vampire_lord": {
+  "name": "Vampire Lord",
+  "description": "Dark vampire lord in gothic cathedral"
+ },
+ "dark_samurai2": {
+  "name": "Dark Samurai",
+  "description": "Dark samurai under cherry blossoms"
+ },
+ "ki_glacius": {
+  "name": "KI Glacius",
+  "description": "KI Glacius wallpaper."
+ },
+ "new2_003_animaniacs_chaos_unleashed": {
+  "name": "Elvira",
+  "description": "Elvira de animaniacs, cuidado!! esconde a tus mascotas"
+ },
+ "new2_004_pinky_and_the_brain_lab_night": {
+  "name": "El mimo",
+  "description": "mia al mimo recargado en su pared invisible"
+ },
+ "new2_005_yakko_wakko_dot_tower_escape": {
+  "name": "Bobby, Pesto y Squit",
+  "description": "Bobby, Pesto y Squit las 3 palomas de Animaniacs"
+ },
+ "kratos_gow": {
+  "name": "Kratos God of War",
+  "description": "Kratos with flaming axe"
+ },
+ "terminator": {
+  "name": "Terminator",
+  "description": "T-800 endoskeleton in flames"
+ },
+ "predator": {
+  "name": "Predator",
+  "description": "Predator warrior in the jungle"
+ },
+ "titanic_sinking": {
+  "name": "Titanic Sinking",
+  "description": "The Titanic sinking under moonlight"
+ },
+ "cyber_cat": {
+  "name": "Cyber Cat",
+  "description": "Neon cyber kitten in the city"
+ },
+ "finn_jake_galaxy": {
+  "name": "Finn & Jake Galaxy",
+  "description": "Finn and Jake watching the galaxy with sword"
+ },
+ "gundam_rx78": {
+  "name": "Gundam RX-78",
+  "description": "Battle-damaged Gundam in a burning city"
+ },
+ "mvc_clash": {
+  "name": "Marvel vs Capcom Clash",
+  "description": "Hulk vs Iron Man vs Morrigan epic clash"
+ },
+ "mvc_epic_battle": {
+  "name": "Marvel vs Capcom Battle",
+  "description": "Captain America, Wolverine, Ryu epic battle"
+ },
+ "ironman_vs_ryu": {
+  "name": "Iron Man vs Ryu",
+  "description": "Iron Man vs Ryu energy clash"
+ },
+ "sf_pixel_fight": {
+  "name": "Street Fighter Pixel",
+  "description": "Ryu vs Ken pixel art street fight"
+ },
+ "dhalsim_temple": {
+  "name": "Dhalsim Temple",
+  "description": "Mystical Indian temple with yoga fire"
+ },
+ "orcs_vs_humans": {
+  "name": "Orcs vs Humans",
+  "description": "Epic medieval battle between armies"
+ },
+ "cyberpunk_city": {
+  "name": "Cyberpunk City",
+  "description": "Neon-lit futuristic city at night"
+ },
+ "aurora_borealis": {
+  "name": "Aurora Borealis",
+  "description": "Northern lights over polar ice"
+ },
+ "christmas_village": {
+  "name": "Christmas Village",
+  "description": "Magical Christmas village at night"
+ },
+ "b3_011_tekken_werewolf_temple_fight": {
+  "name": "Jago vs Sabrewolf",
+  "description": "GAMING wallpaper"
+ },
+ "new_016_abandoned_gallery_post_apocaly": {
+  "name": "Abandoned Gallery Post Apocalyptic",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "astronaut_moon": {
+  "name": "Astronaut on the Moon",
+  "description": "Astronaut contemplating Earth from the Moon"
+ },
+ "spaceship_bridge": {
+  "name": "Spaceship Bridge",
+  "description": "Futuristic spaceship command bridge"
+ },
+ "pixel_train": {
+  "name": "Pixel Art Train",
+  "description": "Retro pixel art train journey"
+ },
+ "finn_jake_ooo": {
+  "name": "Finn & Jake Ooo",
+  "description": "Finn and Jake overlooking the Land of Ooo"
+ },
+ "subzero_vs_liukang": {
+  "name": "Sub-Zero vs Liu Kang",
+  "description": "Ice and fire clash on a lava bridge"
+ },
+ "epic_desert": {
+  "name": "Epic Desert",
+  "description": "Ancient Egyptian ruins in a vast desert"
+ },
+ "mha_battlefield": {
+  "name": "MHA Battlefield",
+  "description": "Destroyed city with ice crystals and UA building"
+ },
+ "wisteria_forest": {
+  "name": "Wisteria Forest",
+  "description": "Magical purple wisteria trees with glowing lanterns"
+ },
+ "cell_tournament": {
+  "name": "Cell Tournament",
+  "description": "Desert battle arena with cosmic vortex sky"
+ },
+ "minas_tirith": {
+  "name": "Minas Tirith",
+  "description": "White city under siege at twilight"
+ },
+ "cell_arena": {
+  "name": "Cell Arena",
+  "description": "Epic battle arena with explosive energy"
+ },
+ "cell_games_arena": {
+  "name": "Cell Games Arena",
+  "description": "Massive crater battlefield with colliding energy beams"
+ },
+ "tsubasa_vs_misaki": {
+  "name": "Tsubasa vs Misaki",
+  "description": "Los supercampeones! Tsubasa vs Misaki."
+ },
+ "vegeta_ultra_ego": {
+  "name": "Vegeta Ultra Ego",
+  "description": "Vegeta Ultra Ego wallpaper."
+ },
+ "vegeta_final_flash": {
+  "name": "Vegeta Final Flash",
+  "description": "Vegeta Final Flash wallpaper."
+ },
+ "tifa_ff7": {
+  "name": "Tifa FF7",
+  "description": "Tifa FF7 wallpaper."
+ },
+ "spartan_warrior": {
+  "name": "Spartan Warrior",
+  "description": "Spartan Warrior wallpaper."
+ },
+ "ki_fulgore": {
+  "name": "KI Fulgore",
+  "description": "KI Fulgore wallpaper."
+ },
+ "sunset_mountains": {
+  "name": "Sunset Mountains",
+  "description": "Minimalist purple sunset over mountains"
+ },
+ "spartan_300": {
+  "name": "300 Spartans",
+  "description": "300 Spartans wallpaper."
+ },
+ "slimer_ghostbusters": {
+  "name": "Slimer Ghostbusters",
+  "description": "Slimer Ghostbusters wallpaper."
+ },
+ "shredder_tmnt": {
+  "name": "Shredder TMNT",
+  "description": "Shredder TMNT wallpaper."
+ },
+ "samurai_ronin": {
+  "name": "Samurai Ronin",
+  "description": "Samurai Ronin wallpaper."
+ },
+ "sagitarius_gold": {
+  "name": "Sagittarius Gold Saint",
+  "description": "Sagittarius Gold Saint wallpaper."
+ },
+ "relax_japanese_garden": {
+  "name": "Relax Japanese Garden",
+  "description": "Relax Japanese Garden wallpaper."
+ },
+ "re_nemesis": {
+  "name": "RE Nemesis",
+  "description": "RE Nemesis wallpaper."
+ },
+ "re_leon_kennedy": {
+  "name": "RE Leon Kennedy",
+  "description": "RE Leon Kennedy wallpaper."
+ },
+ "re_claire_redfield": {
+  "name": "RE Claire Redfield",
+  "description": "RE Claire Redfield wallpaper."
+ },
+ "pixel_warrior_rpg": {
+  "name": "Pixel Warrior RPG",
+  "description": "Pixel Warrior RPG wallpaper."
+ },
+ "pixel_vegeta": {
+  "name": "Pixel Vegeta",
+  "description": "Pixel Vegeta wallpaper."
+ },
+ "felix_neon": {
+  "name": "Felix Neon",
+  "description": "Felix the cat in neon synthwave pixel art"
+ },
+ "pixel_super_campeones": {
+  "name": "Pixel Super Campeones",
+  "description": "Pixel Super Campeones wallpaper."
+ },
+ "relax_beach_sunset": {
+  "name": "Relax Beach Sunset",
+  "description": "Relax Beach Sunset wallpaper."
+ },
+ "pixel_re_zombies": {
+  "name": "Pixel RE Zombies",
+  "description": "Pixel RE Zombies wallpaper."
+ },
+ "pixel_pacman": {
+  "name": "Pixel Pac-Man",
+  "description": "Pixel Pac-Man wallpaper."
+ },
+ "pixel_optimus": {
+  "name": "Pixel Optimus Prime",
+  "description": "Pixel Optimus Prime wallpaper."
+ },
+ "pixel_mk_fight": {
+  "name": "Pixel MK Fight",
+  "description": "Pixel MK Fight wallpaper."
+ },
+ "pixel_kof_rugal": {
+  "name": "Pixel KOF Rugal",
+  "description": "Pixel KOF Rugal wallpaper."
+ },
+ "pixel_horror_scene": {
+  "name": "Pixel Horror Scene",
+  "description": "Pixel Horror Scene wallpaper."
+ },
+ "pixel_ghostbusters": {
+  "name": "Pixel Ghostbusters",
+  "description": "Pixel Ghostbusters wallpaper."
+ },
+ "pixel_evil_clown": {
+  "name": "Pixel Evil Clown",
+  "description": "Pixel Evil Clown wallpaper."
+ },
+ "pixel_seiya": {
+  "name": "Pixel Seiya",
+  "description": "Pixel Seiya wallpaper."
+ },
+ "pacman_classic": {
+  "name": "Pac-Man Classic",
+  "description": "Pac-Man Classic wallpaper."
+ },
+ "mk_scorpion_vs_subzero": {
+  "name": "MK Scorpion vs Sub-Zero",
+  "description": "MK Scorpion vs Sub-Zero wallpaper."
+ },
+ "mk_scorpion": {
+  "name": "MK Scorpion",
+  "description": "MK Scorpion wallpaper."
+ },
+ "mk_kitana": {
+  "name": "MK Kitana",
+  "description": "MK Kitana wallpaper."
+ },
+ "megatron_dark": {
+  "name": "Megatron Dark",
+  "description": "Megatron Dark wallpaper."
+ },
+ "medusa_greek": {
+  "name": "Medusa Greek",
+  "description": "Medusa Greek wallpaper."
+ },
+ "pixel_dragon": {
+  "name": "Pixel Dragon",
+  "description": "Cute pixel dragon breathing rainbow fire"
+ },
+ "city_underwater": {
+  "name": "City Underwater",
+  "description": "City Underwater wallpaper."
+ },
+ "cal_fridge_mx_jul_dec": {
+  "name": "Calendar Fridge MX (Jul-Dec)",
+  "description": "Mexican household fridge calendar 2026 - July to December"
+ },
+ "pixel_relax_sunset": {
+  "name": "Pixel Relax Sunset",
+  "description": "Pixel Relax Sunset wallpaper."
+ },
+ "pixel_tmnt": {
+  "name": "Pixel TMNT",
+  "description": "Pixel TMNT wallpaper."
+ },
+ "b3_020_stressed_stickman_couch_potato": {
+  "name": "En la sala",
+  "description": "ANIME wallpaper"
+ },
+ "pixel_space_explorer": {
+  "name": "Pixel Space Explorer",
+  "description": "Pixel Space Explorer wallpaper."
+ },
+ "clown_dark_circus": {
+  "name": "Clown Dark Circus",
+  "description": "Clown Dark Circus wallpaper."
+ },
+ "city_from_above": {
+  "name": "City From Above",
+  "description": "City From Above wallpaper."
+ },
+ "christmas_magical": {
+  "name": "Christmas Magical",
+  "description": "Christmas Magical wallpaper."
+ },
+ "angel_warrior": {
+  "name": "Angel Warrior",
+  "description": "Angel Warrior wallpaper."
+ },
+ "bronze_saints_team": {
+  "name": "Bronze Saints Team",
+  "description": "Bronze Saints Team wallpaper."
+ },
+ "bayonetta": {
+  "name": "Bayonetta",
+  "description": "Bayonetta wallpaper."
+ },
+ "angel_peaceful": {
+  "name": "Angel Peaceful",
+  "description": "Angel Peaceful wallpaper."
+ },
+ "seiya_pegasus": {
+  "name": "Seiya Pegasus",
+  "description": "Seiya Pegasus wallpaper."
+ },
+ "relax_forest_river": {
+  "name": "Relax Forest River",
+  "description": "Relax Forest River wallpaper."
+ },
+ "relax_cozy_cabin": {
+  "name": "Relax Cozy Cabin",
+  "description": "Relax Cozy Cabin wallpaper."
+ },
+ "re_village_dimitrescu": {
+  "name": "RE Village Dimitrescu",
+  "description": "RE Village Dimitrescu wallpaper."
+ },
+ "re_tyrant_mr_x": {
+  "name": "RE Tyrant Mr. X",
+  "description": "RE Tyrant Mr. X wallpaper."
+ },
+ "cyberpunk_tokyo": {
+  "name": "Cyberpunk Tokyo",
+  "description": "Rainy neon cyberpunk Tokyo street"
+ },
+ "frankenstein_storm": {
+  "name": "Frankenstein Storm",
+  "description": "Frankenstein monster in the storm"
+ },
+ "pixel_battle": {
+  "name": "Pixel Battle",
+  "description": "Epic pixel art medieval battle with fire and lightning"
+ },
+ "titanic_night": {
+  "name": "Titanic Night",
+  "description": "Titanic sailing through starry night seas"
+ },
+ "sf_arcade": {
+  "name": "Street Fighter Arcade",
+  "description": "Street Fighter classic arcade pixel art"
+ },
+ "finn_jake_stars": {
+  "name": "Finn & Jake Stars",
+  "description": "Finn and Jake on a cliff under the cosmos"
+ },
+ "african_savanna": {
+  "name": "African Savanna",
+  "description": "African savanna with wildlife"
+ },
+ "b3_015_goku_ssj4_cosmic_arena": {
+  "name": "Goku Ssj4 Cosmic Arena",
+  "description": "goku ssj4"
+ },
+ "new_030_grande_galerie_louvre_golden": {
+  "name": "Grande Galerie Louvre Golden",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "terminator_closeup": {
+  "name": "T-800 Close Up",
+  "description": "Terminator T-800 half face in fire"
+ },
+ "cyber_rabbit": {
+  "name": "Cyber Rabbit",
+  "description": "Dark cyberpunk rabbit warrior in neon city"
+ },
+ "orc_warrior": {
+  "name": "Orc Warrior",
+  "description": "Armored orc with axe in enchanted swamp"
+ },
+ "ki_jago": {
+  "name": "KI Jago",
+  "description": "KI Jago wallpaper."
+ },
+ "dante_inferno": {
+  "name": "Dante Inferno",
+  "description": "Dante Inferno wallpaper."
+ },
+ "enchanted_forest": {
+  "name": "Enchanted Forest",
+  "description": "Abstract enchanted forest with flowing colors"
+ },
+ "b3_012_cyberpunk_warrior_neon_blades": {
+  "name": "Orchid KI",
+  "description": "SCIFI wallpaper"
+ },
+ "mountain_sunrise": {
+  "name": "Mountain Sunrise",
+  "description": "Mountain range at golden sunrise"
+ },
+ "horror_forest_night": {
+  "name": "Horror Forest Night",
+  "description": "Horror Forest Night wallpaper."
+ },
+ "horror_deep_sea": {
+  "name": "Horror Deep Sea",
+  "description": "Horror Deep Sea wallpaper."
+ },
+ "horror_clown_pennywise": {
+  "name": "Horror Clown",
+  "description": "Horror Clown wallpaper."
+ },
+ "demon_dark_lord": {
+  "name": "Demon Dark Lord",
+  "description": "Demon Dark Lord wallpaper."
+ },
+ "all_gold_saints": {
+  "name": "All Gold Saints",
+  "description": "All Gold Saints wallpaper."
+ },
+ "2b_nier_automata": {
+  "name": "2B Nier Automata",
+  "description": "2B Nier Automata wallpaper."
+ },
+ "lara_croft": {
+  "name": "Lara Croft",
+  "description": "Lara Croft wallpaper."
+ },
+ "ryu_vs_ken": {
+  "name": "Ryu vs Ken",
+  "description": "Epic rooftop battle at sunset"
+ },
+ "kof_team_fatal_fury": {
+  "name": "KOF Fatal Fury Team",
+  "description": "KOF Fatal Fury Team wallpaper."
+ },
+ "kof_rugal_vs_kyo": {
+  "name": "KOF Rugal vs Kyo",
+  "description": "KOF Rugal vs Kyo wallpaper."
+ },
+ "kof_kyo_flames": {
+  "name": "KOF Kyo Flames",
+  "description": "KOF Kyo Flames wallpaper."
+ },
+ "kof_iori_purple": {
+  "name": "KOF Iori Purple",
+  "description": "KOF Iori Purple wallpaper."
+ },
+ "kof_mai_shiranui": {
+  "name": "KOF Mai Shiranui",
+  "description": "KOF Mai Shiranui wallpaper."
+ },
+ "b3_021_dog_washing_dishes_apron": {
+  "name": "Firulais",
+  "description": "ANIME wallpaper"
+ },
+ "mai_shiranui": {
+  "name": "Mai Shiranui",
+  "description": "Fire dance at a Japanese festival"
+ },
+ "jungle_waterfall": {
+  "name": "Jungle Waterfall",
+  "description": "Misty tropical rainforest with cascading waterfall"
+ },
+ "aot_walls": {
+  "name": "Attack on Titan Walls",
+  "description": "Massive walls and city under dark red sky"
+ },
+ "one_piece_sea": {
+  "name": "One Piece Sea",
+  "description": "Thousand Sunny sailing through epic waves with sea monsters"
+ },
+ "zodiac_cosmos": {
+  "name": "Zodiac Cosmos",
+  "description": "Golden zodiac constellations across the galaxy"
+ },
+ "cal_spongebob_jan_jun": {
+  "name": "Calendar SpongeBob (Jan-Jun)",
+  "description": "SpongeBob Bikini Bottom calendar 2026 with all characters"
+ },
+ "kaiju_shibuya": {
+  "name": "Kaiju Shibuya",
+  "description": "Tentacle kaiju destroying Shibuya at night"
+ },
+ "cal_scifi_amoled": {
+  "name": "Calendario 2026",
+  "description": "Calendario con los meses a partir de Junio del 2026"
+ },
+ "new_004_enchanted_forest_fairy_ferns": {
+  "name": "Enchanted Forest Fairy Ferns",
+  "description": "FANTASY wallpaper - hadas collection"
+ },
+ "new_009_dia_de_muertos_cemetery_candle": {
+  "name": "Dia De Muertos Cemetery Candles",
+  "description": "CULTURE wallpaper - panteon collection"
+ },
+ "new_006_lions_vs_hyenas_savanna_battle": {
+  "name": "Lions Vs Hyenas Savanna Battle",
+  "description": "NATURE wallpaper - lyonvshienas collection"
+ },
+ "new2_022_walle_eva_sunset_junkyard": {
+  "name": "Walle Eva Sunset Junkyard",
+  "description": "ANIME wallpaper - walle collection"
+ },
+ "new_014_dia_de_muertos_sunset_marigold": {
+  "name": "Dia De Muertos Sunset Marigolds",
+  "description": "CULTURE wallpaper - panteon collection"
+ },
+ "new_007_pillars_of_creation_nebula_glo": {
+  "name": "Pillars Of Creation Nebula Glow",
+  "description": "SCIFI wallpaper - pilaresdelacreacion collection"
+ },
+ "new_012_dia_de_muertos_panoramic_pixel": {
+  "name": "Dia De Muertos Panoramic Pixel Art",
+  "description": "CULTURE wallpaper - panteon collection"
+ },
+ "new_017_art_gallery_mini_panoramic": {
+  "name": "Art Gallery Mini Panoramic",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_025_gallery_evening_spotlight_wide": {
+  "name": "Gallery Evening Spotlight Wide",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_024_gallery_corridor_golden_wide": {
+  "name": "Gallery Corridor Golden Wide",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_022_dark_gallery_classic_art": {
+  "name": "Dark Gallery Classic Art",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_021_continental_hotel_private_coll": {
+  "name": "Continental Hotel Private Collection",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_023_elegant_gallery_warm_light": {
+  "name": "Elegant Gallery Warm Light",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_036_modern_gallery_white_walls": {
+  "name": "Modern Gallery White Walls",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_034_modern_art_gallery_minimal_wid": {
+  "name": "Modern Art Gallery Minimal Wide",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_037_modern_museum_wide_shot": {
+  "name": "Modern Museum Wide Shot",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_035_modern_gallery_dali_scream_kli": {
+  "name": "Modern Gallery Dali Scream Klimt",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_032_japanese_temple_ukiyo_e_galler": {
+  "name": "Japanese Temple Ukiyo E Gallery",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_029_gothic_castle_medieval_gallery": {
+  "name": "Gothic Castle Medieval Gallery",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_028_gallery_spotlight_golden_frame": {
+  "name": "Gallery Spotlight Golden Frames",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_027_gallery_panoramic_renaissance_": {
+  "name": "Gallery Panoramic Renaissance Wide",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_026_gallery_panoramic_classic_wide": {
+  "name": "Gallery Panoramic Classic Wide",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_045_renaissance_gallery_chandelier": {
+  "name": "Renaissance Gallery Chandelier",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new_042_museum_wing_impressionist_wide": {
+  "name": "Museum Wing Impressionist Wide",
+  "description": "ART wallpaper - salasdearte collection"
+ },
+ "new2_010_dot_warner_pink_stage": {
+  "name": "Ella es Dot",
+  "description": "mira a dot, de animaniacs"
+ },
+ "new2_011_animaniacs_movie_night": {
+  "name": "Hola enfermera",
+  "description": "La hermosa enfermera de la serie Animaniacs"
+ },
+ "new2_007_animaniacs_classic_cartoon_vib": {
+  "name": "El mimo",
+  "description": "el mimo de animaniacs"
+ },
+ "b3_014_barbie_angry_face_closeup": {
+  "name": "La barbie",
+  "description": "ANIME wallpaper"
+ },
+ "b3_009_divine_mercy_priest_chamber": {
+  "name": "Divine Mercy Priest Chamber",
+  "description": "La divina misericordia."
+ },
+ "new2_021_chunli_vs_honda_spinning_vorte": {
+  "name": "Chunli Vs Honda Spinning Vortex",
+  "description": "GAMING wallpaper - shunli collection"
+ },
+ "ryu_hadouken_static": {
+  "name": "Ryu Cargando Poder · Estatico",
+  "description": "Ryu con Hadouken — imagen estatica sin parallax"
+ },
+ "b3_022_psychedelic_frog_rainbow_galax": {
+  "name": "Psychedelic Frog Rainbow Galaxy",
+  "description": "FANTASY wallpaper"
+ },
+ "b3_032_green_goblin_battle_stance": {
+  "name": "Orchid  de KI",
+  "description": "GAMING wallpaper"
+ },
+ "b3_019_ratatouille_kitchen_master": {
+  "name": "Marilyn monroe poster",
+  "description": "ANIME wallpaper"
+ },
+ "b3_023_creation_of_cat_sistine_chapel": {
+  "name": "La creacion del naranjoso",
+  "description": "ART wallpaper"
+ },
+ "b3_030_aristocats_kittens_train_track": {
+  "name": "Los aristogatos",
+  "description": "ANIME wallpaper"
+ },
+ "b3_017_aristocats_kittens_barn_door": {
+  "name": "Obra de arte de Dali Melting Time",
+  "description": "ANIME wallpaper"
+ },
+ "b3_025_cute_blue_lizard_enchanted_for": {
+  "name": "Blue",
+  "description": "FANTASY wallpaper"
+ },
+ "b3_024_vampire_cat_moonlight_forest": {
+  "name": "Vampi",
+  "description": "FANTASY wallpaper"
+ },
+ "marina_sailor_moon_static": {
+  "name": "Marina · Poder de Agua · Estatico",
+  "description": "Sailor Mercury (Marina) — imagen estatica sin parallax"
+ },
+ "cosmic_arena": {
+  "name": "Cosmic Arena",
+  "description": "Floating battle arena with blue energy in space"
+ },
+ "b3_001_school_of_athens_panoramic": {
+  "name": "School Of Athens Panoramic",
+  "description": "ART wallpaper"
+ }
+}
