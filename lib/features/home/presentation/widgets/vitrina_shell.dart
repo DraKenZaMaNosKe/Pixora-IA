@@ -97,11 +97,12 @@ class _VitrinaShellState extends State<VitrinaShell> {
           ),
           // Floating top bar.
           Positioned(top: 0, left: 0, right: 0, child: widget.topBar),
-          // Perilla — left edge, vertically centered (hidden while dial is open).
+          // Perilla — a tab flush to the left edge, vertically centered
+          // (hidden while the dial is open).
           if (!_dialOpen)
             Positioned(
-              left: 12,
-              top: mq.size.height * 0.5 - 28,
+              left: 0,
+              top: mq.size.height * 0.5 - 36,
               child: _PerillaButton(onTap: _openDial),
             ),
           // Perilla dial overlay.
@@ -200,8 +201,8 @@ class _PerillaButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 56,
-        height: 56,
+        width: 34,
+        height: 72,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -209,22 +210,27 @@ class _PerillaButton extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [Color(0xFFF4D774), Color(0xFFA67C1A)],
           ),
-          borderRadius: BorderRadius.circular(18),
+          // Rounded only on the right — reads as a tab growing from the edge.
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFD4AF37).withValues(alpha: 0.45),
-              blurRadius: 16,
-              spreadRadius: -2,
+              color: const Color(0xFFD4AF37).withValues(alpha: 0.6),
+              blurRadius: 20,
+              spreadRadius: -1,
             ),
             const BoxShadow(
               color: Color(0x66000000),
               blurRadius: 8,
-              offset: Offset(0, 3),
+              offset: Offset(2, 3),
             ),
           ],
         ),
+        // Up/down chevrons signal "drag me vertically".
         child:
-            const Icon(Icons.menu_rounded, color: Color(0xFF231A06), size: 26),
+            const Icon(Icons.unfold_more, color: Color(0xFF231A06), size: 22),
       ),
     );
   }
