@@ -52,15 +52,23 @@ class _DialOverlayState extends State<DialOverlay>
   late double _rot;
   late int _activeIdx;
   late final AnimationController _snapCtrl;
-  Animation<double>? _snapAnim;
+  double _snapFrom = 0;
+  double _snapTarget = 0;
 
   @override
   void initState() {
     super.initState();
     _activeIdx = widget.initialIdx.clamp(0, widget.items.length - 1);
     _rot = _activeIdx * _step;
+    // ONE permanent listener — interpolate rot from the stored from/target.
+    // (Creating a fresh Tween+addListener per snap leaked listeners onto the
+    // controller, so old tweens fought over rot → the erratic "jumps".)
     _snapCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 420));
+        vsync: this, duration: const Duration(milliseconds: 360))
+      ..addListener(() {
+        final t = Curves.easeOutCubic.transform(_snapCtrl.value);
+        setState(() => _rot = _snapFrom + (_snapTarget - _snapFrom) * t);
+      });
   }
 
   @override
@@ -74,7 +82,9 @@ class _DialOverlayState extends State<DialOverlay>
   void _onDragUpdate(DragUpdateDetails d) {
     if (_snapCtrl.isAnimating) _snapCtrl.stop();
     setState(() {
-      _rot = (_rot + d.delta.dy * 0.42).clamp(-_step * 0.5, _maxRot);
+      // Natural grab: drag up brings lower sections toward the center (like a
+      // scroll). delta.dy>0 is downward, so subtract.
+      _rot = (_rot - d.delta.dy * 0.5).clamp(-_step * 0.5, _maxRot);
       final idx = (_rot / _step).round().clamp(0, widget.items.length - 1);
       if (idx != _activeIdx) {
         _activeIdx = idx;
@@ -87,11 +97,8 @@ class _DialOverlayState extends State<DialOverlay>
 
   void _snapTo(int idx) {
     idx = idx.clamp(0, widget.items.length - 1);
-    final from = _rot;
-    final to = idx * _step;
-    _snapAnim = Tween<double>(begin: from, end: to).animate(
-      CurvedAnimation(parent: _snapCtrl, curve: Curves.easeOutCubic),
-    )..addListener(() => setState(() => _rot = _snapAnim!.value));
+    _snapFrom = _rot;
+    _snapTarget = idx * _step;
     _activeIdx = idx;
     _snapCtrl.forward(from: 0);
   }
