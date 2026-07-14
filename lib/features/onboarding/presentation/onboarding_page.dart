@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../core/design/hud_tokens.dart';
 
@@ -133,97 +134,109 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final h = context.hud;
-    return Scaffold(
-      backgroundColor: h.bg,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button (top right)
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
-                child: AnimatedOpacity(
-                  opacity: _currentIndex == _slides.length - 1 ? 0 : 1,
-                  duration: const Duration(milliseconds: 200),
-                  child: TextButton(
-                    onPressed: _skip,
-                    child: Text(
-                      'Saltar',
-                      style: TextStyle(
-                        color: h.textDim,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+    // QA #2 — status bar icons must contrast with the onboarding background.
+    final bgIsDark =
+        ThemeData.estimateBrightnessForColor(h.bg) == Brightness.dark;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            bgIsDark ? Brightness.light : Brightness.dark, // Android
+        statusBarBrightness:
+            bgIsDark ? Brightness.dark : Brightness.light, // iOS
+      ),
+      child: Scaffold(
+        backgroundColor: h.bg,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Skip button (top right)
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
+                  child: AnimatedOpacity(
+                    opacity: _currentIndex == _slides.length - 1 ? 0 : 1,
+                    duration: const Duration(milliseconds: 200),
+                    child: TextButton(
+                      onPressed: _skip,
+                      child: Text(
+                        'Saltar',
+                        style: TextStyle(
+                          color: h.textDim,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            // Slides
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (i) => setState(() => _currentIndex = i),
-                itemCount: _slides.length,
-                itemBuilder: (_, i) => _Slide(data: _slides[i], h: h),
+              // Slides
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (i) => setState(() => _currentIndex = i),
+                  itemCount: _slides.length,
+                  itemBuilder: (_, i) => _Slide(data: _slides[i], h: h),
+                ),
               ),
-            ),
 
-            // Dots indicator
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(_slides.length, (i) {
-                  final active = i == _currentIndex;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: active ? 24 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: active ? h.accent : h.divider,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  );
-                }),
+              // Dots indicator
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(_slides.length, (i) {
+                    final active = i == _currentIndex;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: active ? 24 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: active ? h.accent : h.divider,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    );
+                  }),
+                ),
               ),
-            ),
 
-            // CTA button
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _next,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: h.accent,
-                    foregroundColor: h.bg,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              // CTA button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _next,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: h.accent,
+                      foregroundColor: h.bg,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    _currentIndex == _slides.length - 1
-                        ? '¡Comenzar!'
-                        : 'Siguiente',
-                    style: TextStyle(
-                      fontFamily: 'Fraunces',
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.3,
-                      color: h.isDark ? Colors.black : Colors.white,
+                    child: Text(
+                      _currentIndex == _slides.length - 1
+                          ? '¡Comenzar!'
+                          : 'Siguiente',
+                      style: TextStyle(
+                        fontFamily: 'Fraunces',
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                        color: h.isDark ? Colors.black : Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
