@@ -51,11 +51,13 @@ class _HomePageState extends ConsumerState<HomePage> {
   int _currentIndex = 0;
   bool _protectPromptOpen = false;
 
-  /// Vitrina + Perilla navigation (Release A) — ships behind a flag OFF by
-  /// default so the app stays identical to today (zero launch risk). Enable
-  /// with `--dart-define=VITRINA=true` to test the full-bleed shell on device.
-  /// When it's polished, flip the default and delete the old AppBar/bottom nav.
-  static const bool _useVitrina = bool.fromEnvironment('VITRINA');
+  /// Vitrina + Perilla navigation — ACTIVE in production by default (resolves
+  /// PrimeTest #3/#4, the crowded 14-tab bottom nav). The old AppBar + Ember
+  /// bottom nav stay in build()'s else branch as a kill-switch: rebuild with
+  /// `--dart-define=VITRINA=false` to fall back to them in a hotfix.
+  /// (fromEnvironment keeps the else branch reachable, so no dead-code warning.)
+  static const bool _useVitrina =
+      bool.fromEnvironment('VITRINA', defaultValue: true);
 
   /// Per-tab GlobalKeys for the coach-mark spotlights. The bottom nav has
   /// 13 tabs on Android right now (WALL/LIVE/3D/CULT/EVNT/AURA/ARC/STOR/
@@ -192,7 +194,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await TrainingService.instance.init();
       if (!mounted) return;
-      if (!TrainingService.instance.seen) {
+      // The legacy coach-mark tour spotlights the old bottom-nav tabs, which
+      // don't exist under the Vitrina shell — skip it there so it can't break
+      // (PrimeTest #4). A Vitrina-native hint comes later.
+      if (!_useVitrina && !TrainingService.instance.seen) {
         // Wait one more frame so all tab widgets are laid out
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _showCoachMarks();

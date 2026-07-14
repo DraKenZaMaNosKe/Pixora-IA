@@ -419,9 +419,9 @@ class _DialHubPainter extends CustomPainter {
       c,
       r,
       Paint()
-        ..shader = RadialGradient(
-          center: const Alignment(0.3, -0.2),
-          colors: const [Color(0xFF2A2415), Color(0xFF100D07)],
+        ..shader = const RadialGradient(
+          center: Alignment(0.3, -0.2),
+          colors: [Color(0xFF2A2415), Color(0xFF100D07)],
         ).createShader(Rect.fromCircle(center: c, radius: r)),
     );
     // Radial notches every 6° — the knob "teeth".
