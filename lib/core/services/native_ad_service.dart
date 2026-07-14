@@ -25,9 +25,10 @@ class NativeAdService {
   /// accidental taps. Production replaces this with the real unit ID.
   static const _testAdUnitIdAndroid = 'ca-app-pub-3940256099942544/2247696110';
 
-  /// Production native ad unit ID — TODO add when ready for release.
-  /// Until then, all builds use the test unit ID.
-  static const _prodAdUnitIdAndroid = '';
+  /// Production native ad unit ID (Pixora_Native_Carrusel, created 2026-07-14
+  /// for the Play Store launch). Release builds use this; debug builds still
+  /// fall back to the test unit via [_adUnitId] (kDebugMode guard).
+  static const _prodAdUnitIdAndroid = 'ca-app-pub-6734758230109098/9644077378';
 
   String get _adUnitId {
     if (kDebugMode || _prodAdUnitIdAndroid.isEmpty) return _testAdUnitIdAndroid;

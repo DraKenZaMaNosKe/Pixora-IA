@@ -21,14 +21,13 @@ class AdService {
   AdService._();
   static final instance = AdService._();
 
-  // 2026-05-09 TEMPORAL — Google test interstitial ad unit ID for diagnosing
-  // whether ad stuttering is caused by Pixora's inventory quality (config)
-  // or by device capacity. Test ads are ALWAYS lightweight static creatives
-  // served directly by Google. If they fluyen perfectly = real production
-  // ID's inventory problem (Closed Testing + missing app-ads.txt). If they
-  // ALSO stutter = something else.
-  // REVERTIR a 'ca-app-pub-6734758230109098/6687118537' cuando confirmemos.
-  static const _interstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
+  // 2026-07-14 PRODUCTION — real interstitial unit for the Play Store launch.
+  // Revenue is now live. Eduardo's own devices (Samsung + Huawei) are both in
+  // _testDeviceIds below, so his taps are flagged as test impressions and can
+  // never trigger a self-click suspension. Any NEW dev device MUST be added to
+  // _testDeviceIds before installing a build with this production ID.
+  // Test ID for reference: 'ca-app-pub-3940256099942544/1033173712'.
+  static const _interstitialAdUnitId = 'ca-app-pub-6734758230109098/6687118537';
 
   /// Channel to invoke native handlers — currently used to broadcast
   /// ad-visibility to the `:wallpaper` process so it drops to idle (1 fps)
@@ -154,6 +153,7 @@ class AdService {
   /// inicializa, loguea el hint con el ID exacto. Agrégalo aquí.
   static const _testDeviceIds = <String>[
     '6EE9F3D60B4F39A34BA3308FE533F24F', // Samsung RF8X903KZ3K (Eduardo principal)
+    '6A586AD63419A924C043A270C880C788', // Huawei VNS-L53 G2R4C17516000149 (Eduardo)
   ];
 
   /// Initialize Mobile Ads SDK. Call once at app startup.
