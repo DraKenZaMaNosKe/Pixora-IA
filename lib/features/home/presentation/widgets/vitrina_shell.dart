@@ -68,54 +68,60 @@ class VitrinaShell extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: const Color(0xFF17140F),
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 14),
-                  decoration: BoxDecoration(
-                    color: const Color(0x33D4AF37),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const Text(
-                  'SECCIONES',
-                  style: TextStyle(
-                    color: Color(0xFFD4AF37),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 2,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                // Dial sections first, then the "Más" group.
-                ..._sectionTiles(ctx, kDialSections),
-                if (kMoreSections.isNotEmpty) ...[
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 4),
-                    child: Text(
-                      'MÁS',
-                      style: TextStyle(
-                        color: Color(0x99E8E6E0),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                      ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.72,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0x33D4AF37),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  ..._sectionTiles(ctx, kMoreSections),
+                  const Text(
+                    'SECCIONES',
+                    style: TextStyle(
+                      color: Color(0xFFD4AF37),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Dial sections first, then the "Más" group.
+                  ..._sectionTiles(ctx, kDialSections),
+                  if (kMoreSections.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 4),
+                      child: Text(
+                        'MÁS',
+                        style: TextStyle(
+                          color: Color(0x99E8E6E0),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ),
+                    ..._sectionTiles(ctx, kMoreSections),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         );
