@@ -157,8 +157,74 @@ class _DialOverlayState extends State<DialOverlay>
               ),
             ),
           ),
+          // Hub — big notched gold disc peeking from the left edge; it ROTATES
+          // with the drag so it reads as a physical knob (the "ruedita").
+          Positioned(
+            left: -size.width * 0.46,
+            top: size.height / 2 + 8 - size.width * 0.34,
+            child: IgnorePointer(
+              child: Transform.rotate(
+                angle: _rot * math.pi / 180,
+                child: Container(
+                  width: size.width * 0.68,
+                  height: size.width * 0.68,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFE8C15A).withValues(alpha: 0.20),
+                        blurRadius: 44,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: CustomPaint(painter: _DialHubPainter()),
+                ),
+              ),
+            ),
+          ),
           // Curved dial options.
           for (int i = 0; i < widget.items.length; i++) _buildOption(i, size),
+          // Needle — fixed ring highlighting whichever option sits at center.
+          Positioned(
+            left: size.width * 0.515,
+            top: size.height / 2 + 8 - 40,
+            child: IgnorePointer(
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFE8C15A).withValues(alpha: 0.5),
+                    width: 1.3,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFE8C15A).withValues(alpha: 0.22),
+                      blurRadius: 22,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Drag hint.
+          Positioned(
+            left: size.width * 0.22,
+            top: size.height / 2 - 96,
+            child: IgnorePointer(
+              child: Text(
+                'ARRASTRA ↑↓ PARA GIRAR',
+                style: TextStyle(
+                  color: const Color(0xFFE8C15A).withValues(alpha: 0.55),
+                  fontSize: 9,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
           // Big active label (bottom-left), Fraunces italic like the app title.
           Positioned(
             left: 24,
@@ -339,4 +405,52 @@ class _DialOption extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Paints the rotating knob — a notched gold disc with concentric rings. The
+/// disc is static; the parent Transform.rotate spins it with the drag.
+class _DialHubPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = Offset(size.width / 2, size.height / 2);
+    final r = size.width / 2;
+    // Body — dark-gold radial.
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(0.3, -0.2),
+          colors: const [Color(0xFF2A2415), Color(0xFF100D07)],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
+    // Radial notches every 6° — the knob "teeth".
+    final tick = Paint()
+      ..color = const Color(0xFFE8C15A).withValues(alpha: 0.16)
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    for (double a = 0; a < 360; a += 6) {
+      final th = a * math.pi / 180;
+      final dir = Offset(math.cos(th), math.sin(th));
+      canvas.drawLine(c + dir * (r * 0.74), c + dir * (r * 0.94), tick);
+    }
+    // Concentric rings.
+    final ring = Paint()
+      ..style = PaintingStyle.stroke
+      ..color = const Color(0xFFE8C15A).withValues(alpha: 0.4)
+      ..strokeWidth = 1.2;
+    canvas.drawCircle(c, r - 2, ring);
+    canvas.drawCircle(c, r * 0.66, ring);
+    canvas.drawCircle(
+      c,
+      r * 0.5,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..color = const Color(0xFFE8C15A).withValues(alpha: 0.22)
+        ..strokeWidth = 1,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _DialHubPainter oldDelegate) => false;
 }
