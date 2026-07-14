@@ -1,7 +1,7 @@
 name: pixora
 description: "Pixora IA - Wallpapers, Ringtones & Icon Packs"
 publish_to: 'none'
-version: 1.7.59+102
+version: 1.7.60+103
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
@@ -73,6 +73,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/onboarding/
   fonts:
     - family: Geist
       fonts:
