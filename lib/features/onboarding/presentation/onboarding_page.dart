@@ -347,41 +347,46 @@ class _SlideView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
         children: [
-          const Spacer(flex: 2),
-          // Hero art with accent glow + gentle float
-          AspectRatio(
-            aspectRatio: 1,
-            child: FractionallySizedBox(
-              widthFactor: 0.82,
-              child: AnimatedBuilder(
-                animation: floatCtrl,
-                builder: (context, child) {
-                  final dy = reduce
-                      ? 0.0
-                      : math.sin(floatCtrl.value * 2 * math.pi) * 7;
-                  return Transform.translate(
-                      offset: Offset(0, -dy), child: child);
-                },
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        data.accent.withValues(alpha: 0.30),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.35, 0.72],
+          // Hero art — flexible so it shrinks on short screens (Huawei 1920)
+          // instead of overflowing. Center + AspectRatio fits the largest
+          // square the available height allows.
+          Expanded(
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: FractionallySizedBox(
+                  widthFactor: 0.82,
+                  child: AnimatedBuilder(
+                    animation: floatCtrl,
+                    builder: (context, child) {
+                      final dy = reduce
+                          ? 0.0
+                          : math.sin(floatCtrl.value * 2 * math.pi) * 7;
+                      return Transform.translate(
+                          offset: Offset(0, -dy), child: child);
+                    },
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            data.accent.withValues(alpha: 0.30),
+                            Colors.transparent,
+                          ],
+                          stops: const [0.35, 0.72],
+                        ),
+                      ),
+                      child: data.isDial
+                          ? CustomPaint(
+                              painter: _DialKnobPainter(accent: data.accent))
+                          : _MaskedArt(image: data.image!),
                     ),
                   ),
-                  child: data.isDial
-                      ? CustomPaint(
-                          painter: _DialKnobPainter(accent: data.accent))
-                      : _MaskedArt(image: data.image!),
                 ),
               ),
             ),
           ),
-          const Spacer(flex: 1),
+          const SizedBox(height: 10),
           // Kicker
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -403,7 +408,7 @@ class _SlideView extends StatelessWidget {
           Text.rich(
             TextSpan(
               style: GoogleFonts.fraunces(
-                fontSize: 31,
+                fontSize: 30,
                 height: 1.07,
                 fontWeight: FontWeight.w600,
                 fontStyle: FontStyle.italic,
@@ -422,14 +427,14 @@ class _SlideView extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           // Body
           Text(
             data.body,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(color: _dim, fontSize: 14, height: 1.6),
+            style: GoogleFonts.inter(color: _dim, fontSize: 13.5, height: 1.55),
           ),
-          const Spacer(flex: 2),
+          const SizedBox(height: 10),
         ],
       ),
     );

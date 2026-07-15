@@ -161,7 +161,7 @@ class AdService {
   /// `adb logcat | grep "setTestDeviceIds"` — la primera vez que el SDK
   /// inicializa, loguea el hint con el ID exacto. Agrégalo aquí.
   static const _testDeviceIds = <String>[
-    '6EE9F3D60B4F39A34BA3308FE533F24F', // Samsung RF8X903KZ3K (Eduardo principal)
+    '5B655AE2367833A19C9FD6920E3788F8', // Samsung RF8X903KZ3K (Eduardo principal)
     '6A586AD63419A924C043A270C880C788', // Huawei VNS-L53 G2R4C17516000149 (Eduardo)
   ];
 
