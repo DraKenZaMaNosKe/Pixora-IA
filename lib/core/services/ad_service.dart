@@ -21,13 +21,22 @@ class AdService {
   AdService._();
   static final instance = AdService._();
 
-  // 2026-07-14 PRODUCTION — real interstitial unit for the Play Store launch.
-  // Revenue is now live. Eduardo's own devices (Samsung + Huawei) are both in
-  // _testDeviceIds below, so his taps are flagged as test impressions and can
-  // never trigger a self-click suspension. Any NEW dev device MUST be added to
-  // _testDeviceIds before installing a build with this production ID.
-  // Test ID for reference: 'ca-app-pub-3940256099942544/1033173712'.
-  static const _interstitialAdUnitId = 'ca-app-pub-6734758230109098/6687118537';
+  /// ── MASTER AD SWITCH ──────────────────────────────────────────────────
+  /// The single flag that flips ALL three ad formats (interstitial, banner,
+  /// native) between Google TEST units and Pixora PRODUCTION units.
+  ///
+  /// Keep this `false` while the app is in closed/internal testing so testers
+  /// only ever see test creatives — zero risk of an invalid-activity strike
+  /// before we're officially in production. Flip to `true` the day Google
+  /// approves production access, then rebuild. Banner + native read this same
+  /// flag (see wallpaper_viewer_hud_page.dart and native_ad_service.dart).
+  static const useProductionAds = false;
+
+  // Interstitial unit IDs. Prod = Pixora_Interstitial_ApplyWallpaper.
+  static const _prodInterstitialId = 'ca-app-pub-6734758230109098/6687118537';
+  static const _testInterstitialId = 'ca-app-pub-3940256099942544/1033173712';
+  static String get _interstitialAdUnitId =>
+      useProductionAds ? _prodInterstitialId : _testInterstitialId;
 
   /// Channel to invoke native handlers — currently used to broadcast
   /// ad-visibility to the `:wallpaper` process so it drops to idle (1 fps)

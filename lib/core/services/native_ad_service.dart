@@ -31,7 +31,13 @@ class NativeAdService {
   static const _prodAdUnitIdAndroid = 'ca-app-pub-6734758230109098/9644077378';
 
   String get _adUnitId {
-    if (kDebugMode || _prodAdUnitIdAndroid.isEmpty) return _testAdUnitIdAndroid;
+    // Debug builds and any non-production track use the test unit. Production
+    // unit only serves when the master switch is on (AdService.useProductionAds).
+    if (kDebugMode ||
+        !AdService.useProductionAds ||
+        _prodAdUnitIdAndroid.isEmpty) {
+      return _testAdUnitIdAndroid;
+    }
     return _prodAdUnitIdAndroid;
   }
 

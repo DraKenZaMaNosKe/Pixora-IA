@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/report_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -67,12 +68,12 @@ class WallpaperViewerHudPage extends StatefulWidget {
   static const amberDeep = Color(0xFFB07A00);
   static const bone = Color(0xFFE8EEF5);
 
-  // Production banner ad unit (Pixora_Banner_WallpaperViewer, created
-  // 2026-07-14 for the Play Store launch). Eduardo's Samsung + Huawei are in
-  // _testDeviceIds below, so his own taps are flagged as test impressions —
-  // no self-click suspension risk. Test ID for reference:
-  // 'ca-app-pub-3940256099942544/6300978111'.
-  static const _bannerAdUnitId = 'ca-app-pub-6734758230109098/2960762292';
+  // Banner ad unit — follows AdService.useProductionAds so all three ad
+  // formats flip together. Prod = Pixora_Banner_WallpaperViewer (2026-07-14).
+  static const _prodBannerAdUnitId = 'ca-app-pub-6734758230109098/2960762292';
+  static const _testBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
+  static String get _bannerAdUnitId =>
+      AdService.useProductionAds ? _prodBannerAdUnitId : _testBannerAdUnitId;
 
   @override
   State<WallpaperViewerHudPage> createState() => _WallpaperViewerHudPageState();
@@ -396,7 +397,7 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
                   liked: _currentWallpaper != null &&
                       _likedIds.contains(_currentWallpaper!.id),
                 ),
-                const _BannerAdHost(
+                _BannerAdHost(
                   adUnitId: WallpaperViewerHudPage._bannerAdUnitId,
                 ),
               ],
