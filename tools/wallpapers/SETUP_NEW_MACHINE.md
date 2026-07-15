@@ -36,8 +36,13 @@ service account JSON) a `D:/Orbix/Pixora-IA/KEYS_LOCAL.md`.
 
 ### 3. Dependencias Python (una vez por PC)
 ```bash
-pip install psycopg2-binary requests python-docx
+pip install psycopg2-binary requests python-docx google-auth
 ```
+⚠️ `google-auth` es fácil de olvidar y **falla en silencio**: sin él,
+`_fcm_push.py` no importa y el server cae a un stub que devuelve `False`.
+Los cambios de catálogo se guardan bien pero **nunca invalidan el cache de
+los devices** — se quedan esperando el TTL de 6 h. Si ves
+`FCM push helper unavailable` en el arranque, es esto.
 
 ### 4. Crear shortcut de escritorio
 ```bash
@@ -66,6 +71,8 @@ https://supabase.com/dashboard/project/vzuwvsmlyigjtsearxym/settings/addons
 | `KEYS_LOCAL.md not found` en logs | Bootstrap no corrió | Repetir paso 2 |
 | `psycopg2 module not found` | Python sin libs | Repetir paso 3 |
 | `ERR_EMPTY_RESPONSE` en browser | Server no arrancó / atorado | `tail tools/wallpapers/admin_server.log` |
+| Cambios de código del server que "no toman efecto" | **Varios servers en el 5758 a la vez** — Windows deja bindear el puerto a más de un proceso y el viejo contesta | `powershell -Command "Get-NetTCPConnection -LocalPort 5758 -State Listen \| Select -Expand OwningProcess -Unique \| ForEach { Stop-Process -Id $_ -Force }"` y relanzar |
+| `fcm_pushed: false` en las respuestas | Falta `google-auth` (ver paso 3) o hay un server viejo sin la lib | Instalar + relanzar server limpio |
 | `Tenant or user not found` | IPv4 apagado en Supabase | Reactivar en dashboard de Supabase |
 | Browser abre `localhost:5758` y no `127.0.0.1` | DNS resuelve a IPv6 sin escuchar IPv4 | Editar URL a 127.0.0.1 manualmente o dejar que el .vbs lo abra correctamente |
 | Error `22P02 invalid_text_representation` al guardar wallpaper | Categoría no existe en el enum `wallpaper_category` | Ver §"Agregar categorías nuevas" abajo |

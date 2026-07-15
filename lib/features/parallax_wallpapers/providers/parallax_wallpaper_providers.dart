@@ -18,27 +18,31 @@ import '../../wallpapers/providers/wallpaper_providers.dart';
 /// engine lives). Until those two are merged into one file, this provider
 /// bridges them so any new parallax-capable scene shows up in the 3D tab
 /// automatically — zero recompile, zero tag bookkeeping.
-/// Ids hidden from the 3D tab without removing them from the underlying
-/// catalogs. Existing installs keep working (install flow still resolves
-/// the scene_id), they just stop appearing in the 3D listing.
-/// User-curated 2026-04-29 (extended 2026-05-04).
-/// Section keeps only: volcano_dragon, goku_genkidama, bosque_lluvioso,
-/// dusk_fortress, mictlantecuhtli, iah_egyptian_giza, plus the two
-/// aquarium-style wallpapers that get auto-promoted via tag bumping.
-const _hiddenFromTab = <String>{
-  'anime_drive',
-  'carretera_nocturna',
-  'pilot_drive_snowy',
-};
-
+/// Curation for this tab is data now: a scene carries `hidden_in` in its spec
+/// (see [CatalogSurface]), edited from pixora-admin. This replaces the old
+/// hardcoded `_hiddenFromTab` const, which needed an AAB for every change.
+///
+/// Hiding here is tab-scoped on purpose: Daily rotation, Cultura and Events
+/// don't consult it, so a curated-out scene stays reachable there. To remove
+/// a scene from the app entirely, unpublish it instead (the admin drops it
+/// from catalog_index, which every surface reads).
 final parallaxWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
   final all = await ref.watch(catalogProvider.future);
   final byId = <String, Wallpaper>{for (final w in all) w.id: w};
 
+  // Resolve curation first: it has to gate BOTH sources below. Some ids exist
+  // on both sides (e.g. iah_egyptian_giza is a wallpapers row AND a scene),
+  // so filtering only the scene branch would let the Postgres twin back in.
+  final scenes = await CatalogIndexService.instance.getItems();
+  final hiddenHere = <String>{
+    for (final e in scenes)
+      if (e.isHiddenIn(CatalogSurface.parallaxTab)) e.id,
+  };
+
   // Start with dynamic_catalog items already tagged 3d/parallax.
   final result = <String, Wallpaper>{};
   for (final w in all) {
-    if (_hiddenFromTab.contains(w.id)) continue;
+    if (hiddenHere.contains(w.id)) continue;
     final t = w.tags.map((s) => s.toLowerCase()).toSet();
     if (t.contains('3d') || t.contains('parallax')) {
       result[w.id] = w;
@@ -47,10 +51,9 @@ final parallaxWallpapersProvider = FutureProvider<List<Wallpaper>>((ref) async {
 
   // Union with catalog_index canvas_scenes. Prefer the dynamic_catalog
   // version when both exist (richer metadata).
-  final scenes = await CatalogIndexService.instance.getItems();
   for (final e in scenes) {
     if (e.type != 'canvas_scene') continue;
-    if (_hiddenFromTab.contains(e.id)) continue;
+    if (hiddenHere.contains(e.id)) continue;
     if (result.containsKey(e.id)) continue;
     final richer = byId[e.id];
     result[e.id] = richer ?? _wallpaperFromCatalogIndex(e);

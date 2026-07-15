@@ -144,13 +144,24 @@ class CatalogIndexService {
     return _items!;
   }
 
-  /// Parses raw JSON, filtering out items unsupported by this app build.
+  /// Parses raw JSON, filtering out items unsupported by this app build and
+  /// items the admin has unpublished.
+  ///
+  /// This is the single chokepoint every consumer funnels through (getItems,
+  /// findById, ofType, disk and network alike), so filtering here covers them
+  /// all — and any future consumer is protected by default. Per-consumer
+  /// filtering is what produced the hardcoded hide-lists this replaces.
+  ///
+  /// Note the admin normally OMITS unpublished items from the index entirely,
+  /// which is what makes hiding work on already-shipped clients. This check is
+  /// defence in depth for an index written by an older tool.
   List<CatalogIndexEntry> _parseItems(Map<String, dynamic> json) {
     final raw = (json['items'] as List?) ?? const [];
     final out = <CatalogIndexEntry>[];
     for (final entry in raw) {
       if (entry is! Map) continue;
       final m = entry.cast<String, dynamic>();
+      if (m['published'] == false) continue;
       if (!CapabilityRegistry.itemSupported(m)) continue;
       try {
         out.add(CatalogIndexEntry.fromJson(m));
@@ -160,6 +171,20 @@ class CatalogIndexService {
     }
     return out;
   }
+}
+
+/// Surfaces a catalog item can be curated out of, one at a time, without
+/// hiding it everywhere. Values are the strings stored in the scene spec's
+/// `hidden_in` array — keep them in sync with the admin's scene editor.
+///
+/// Distinct from `published:false`, which removes an item from the app
+/// entirely. These let a scene stay reachable (e.g. Cultura, Daily) while
+/// disappearing from a browsing tab it doesn't fit.
+abstract final class CatalogSurface {
+  static const parallaxTab = 'parallax_tab';
+  static const cultura = 'cultura';
+  static const daily = 'daily';
+  static const events = 'events';
 }
 
 class CatalogIndexEntry {
@@ -173,6 +198,9 @@ class CatalogIndexEntry {
   final bool featured;
   final String? specUrl;
   final String? minAppVersion;
+
+  /// Surfaces this item is curated out of. See [CatalogSurface].
+  final Set<String> hiddenIn;
   // Pass-through for type-specific simple fields (e.g. videoFile for
   // video_wallpaper). Keeps the index extensible without subclassing.
   final Map<String, dynamic> raw;
@@ -188,10 +216,14 @@ class CatalogIndexEntry {
     required this.featured,
     required this.specUrl,
     required this.minAppVersion,
+    required this.hiddenIn,
     required this.raw,
   });
 
   String titleFor(String lang) => title[lang] ?? title['en'] ?? id;
+
+  /// True when this item should not be listed on [surface].
+  bool isHiddenIn(String surface) => hiddenIn.contains(surface);
 
   factory CatalogIndexEntry.fromJson(Map<String, dynamic> j) {
     final titleField = j['title'];
@@ -218,6 +250,9 @@ class CatalogIndexEntry {
       featured: j['featured'] as bool? ?? false,
       specUrl: j['spec_url']?.toString(),
       minAppVersion: j['min_app_version']?.toString(),
+      hiddenIn: ((j['hidden_in'] as List?) ?? const [])
+          .map((e) => e.toString())
+          .toSet(),
       raw: Map<String, dynamic>.from(j),
     );
   }

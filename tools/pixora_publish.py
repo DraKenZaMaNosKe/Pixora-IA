@@ -199,6 +199,11 @@ def cmd_rebuild_index() -> int:
         sid = spec.get("id"); stype = spec.get("type")
         if not sid or not stype:
             print(f"  SKIP {f['name']} — missing id/type"); continue
+        # The spec is the source of truth for visibility. Omitting unpublished
+        # scenes from the index is what hides them on already-shipped clients,
+        # which never learned to read a `published` field.
+        if spec.get("published") is False:
+            print(f"  HIDDEN {sid} — published:false in spec"); continue
         bg = spec.get("background", {})
         items.append({
             "id": sid, "type": stype,
@@ -210,6 +215,10 @@ def cmd_rebuild_index() -> int:
             "category": spec.get("category"),
             "featured": spec.get("featured", False),
             "spec_url": _public_url("wallpaper-scenes", f["name"]),
+            # Per-surface curation (see CatalogSurface in Dart). Omitted when
+            # empty so the index stays diff-friendly.
+            **({"hidden_in": spec["hidden_in"]}
+               if spec.get("hidden_in") else {}),
         })
     items.sort(key=lambda it: (it["type"], it["id"]))
     idx = {

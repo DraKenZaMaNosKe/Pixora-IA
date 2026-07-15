@@ -840,6 +840,85 @@ class Handler(BaseHTTPRequestHandler):
         # live only in Postgres (no separate JSON), so admin never saw
         # them until now. Ordered created_at DESC so newest content is
         # always on top. Optional ?type=static,live,panoramic,canvas_scene
+        # ─── List every canvas_scene, including hidden ones ────────
+        # 2026-07-15. The editor cannot list scenes from catalog_index.json:
+        # hiding a scene OMITS it from that file, so an admin who hid one
+        # would have no way to find it again and unhide it. Source the list
+        # from the wallpaper-scenes bucket instead, which always has them all.
+        #
+        # Cheap by construction: the index gives us published scenes and their
+        # metadata for free, so we only fetch specs for the ones missing from
+        # it (i.e. the hidden few).
+        if path == "/api/scenes":
+            list_url = f"{SUPABASE_STORAGE}/object/list/wallpaper-scenes"
+            req = urllib.request.Request(
+                list_url, data=json.dumps({"prefix": "", "limit": 1000}).encode(),
+                method="POST")
+            req.add_header("apikey", SERVICE_KEY)
+            req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+            req.add_header("Content-Type", "application/json")
+            try:
+                with urllib.request.urlopen(req, timeout=25) as r:
+                    files = json.loads(r.read())
+            except Exception as e:
+                return self._send_json({"error": f"bucket list: {e}"}, 502)
+            ids = {f["name"][:-5] for f in files
+                   if isinstance(f, dict) and str(f.get("name", "")).endswith(".json")}
+
+            try:
+                iurl = f"{SUPABASE_STORAGE}/object/public/wallpaper-images/catalog_index.json"
+                with urllib.request.urlopen(iurl, timeout=20) as r:
+                    idx = json.loads(r.read())
+            except Exception as e:
+                return self._send_json({"error": f"index fetch: {e}"}, 502)
+            indexed = {i.get("id"): i for i in idx.get("items", [])
+                       if i.get("type") == "canvas_scene"}
+
+            # Not every spec lives in wallpaper-scenes/ — iah_egyptian_giza
+            # sits in wallpaper-images/scenes/. Union both sides and trust each
+            # entry's own spec_url rather than assuming a path.
+            rows = []
+            for sid in sorted(ids | set(indexed)):
+                hit = indexed.get(sid)
+                if hit:
+                    rows.append({
+                        "id": sid,
+                        "title": hit.get("title", {}),
+                        "type": hit.get("type"),
+                        "tags": hit.get("tags", []),
+                        "preview_url": hit.get("preview_url"),
+                        "published": True,
+                        "hidden_in": hit.get("hidden_in", []),
+                        "spec_url": hit.get("spec_url"),
+                        "orphan_spec": sid not in ids,
+                    })
+                    continue
+                # Absent from the index → hidden. Read its spec for the label.
+                try:
+                    surl = f"{SUPABASE_STORAGE}/object/public/wallpaper-scenes/{sid}.json"
+                    with urllib.request.urlopen(surl, timeout=15) as r:
+                        spec = json.loads(r.read())
+                except Exception:
+                    spec = {}
+                bg = spec.get("background", {}) or {}
+                rows.append({
+                    "id": sid,
+                    "title": spec.get("title", {"en": sid}),
+                    "type": spec.get("type", "canvas_scene"),
+                    "tags": spec.get("tags", []),
+                    "preview_url": bg.get("preview_url",
+                        bg.get("url", "").replace(".webp", "_preview.webp")),
+                    "published": spec.get("published") is not False,
+                    "hidden_in": spec.get("hidden_in", []),
+                    "spec_url": f"{SUPABASE_STORAGE}/object/public/wallpaper-scenes/{sid}.json",
+                    "orphan_spec": False,
+                })
+            return self._send_json({
+                "total": len(rows),
+                "index_version": idx.get("version"),
+                "rows": rows,
+            })
+
         # filter, no pagination by default (infinite scroll on client).
         # 2026-07-04.
         if path == "/api/all-wallpapers":
@@ -1865,6 +1944,154 @@ class Handler(BaseHTTPRequestHandler):
                 "postgres_response": data,
                 "fcm_pushed": pushed,
             }, status if status < 400 else 500)
+
+        # (see GET /api/scenes for the listing that survives hiding)
+        # ─── canvas_scene visibility ───────────────────────────────
+        # 2026-07-15. Two independent switches, both stored in the scene spec
+        # (wallpaper-scenes/<id>.json), which is the source of truth that
+        # `pixora_publish.py rebuild-index` derives the index from — so these
+        # survive a rebuild by construction.
+        #
+        #   published:false  → hard hide. The item is OMITTED from
+        #       catalog_index.json, which is the only thing that hides content
+        #       on ALREADY-SHIPPED clients (they never learned to read a flag).
+        #   hidden_in:[...]  → per-surface curation ("parallax_tab", "cultura",
+        #       "daily", "events"). Item stays in the index; the app filters it
+        #       per surface. Needs the 1.7.59+ build to take effect.
+        #
+        # NOTE: the `published` column on the `wallpapers` table does NOT
+        # govern scenes — a scene and its static twin are separate products
+        # with separate ids (pilot_drive vs pilot_drive_snowy). See
+        # /api/wallpaper-update-pg for the static side.
+        # Body: {id, published?: bool, hidden_in?: [str]}
+        if path == "/api/scene-visibility":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            sid = payload.get("id")
+            if not sid:
+                return self._send_json({"error": "id required"}, 400)
+            has_pub = "published" in payload
+            has_hidden = "hidden_in" in payload
+            if not has_pub and not has_hidden:
+                return self._send_json(
+                    {"error": "published and/or hidden_in required"}, 400)
+            published = payload.get("published")
+            if has_pub and not isinstance(published, bool):
+                return self._send_json({"error": "published must be bool"}, 400)
+            hidden_in = payload.get("hidden_in")
+            if has_hidden:
+                valid = {"parallax_tab", "cultura", "daily", "events"}
+                if (not isinstance(hidden_in, list)
+                        or not all(isinstance(s, str) for s in hidden_in)
+                        or not set(hidden_in) <= valid):
+                    return self._send_json(
+                        {"error": f"hidden_in must be a list from {sorted(valid)}"}, 400)
+
+            def _storage_get(bucket, key):
+                url = f"{SUPABASE_STORAGE}/object/public/{bucket}/{key}"
+                with urllib.request.urlopen(url, timeout=20) as r:
+                    return json.loads(r.read())
+
+            def _storage_put(bucket, key, obj):
+                url = f"{SUPABASE_STORAGE}/object/{bucket}/{key}"
+                req = urllib.request.Request(
+                    url, data=json.dumps(obj, indent=2, ensure_ascii=False).encode("utf-8"),
+                    method="PUT")
+                req.add_header("apikey", SERVICE_KEY)
+                req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+                req.add_header("Content-Type", "application/json")
+                req.add_header("x-upsert", "true")
+                req.add_header("Cache-Control", "no-cache, max-age=0")
+                with urllib.request.urlopen(req, timeout=25) as r:
+                    return r.status
+
+            # Specs are not all in one bucket (iah_egyptian_giza lives in
+            # wallpaper-images/scenes/), so resolve the location from the
+            # index's spec_url and only fall back to the common path.
+            spec_bucket, spec_key = "wallpaper-scenes", f"{sid}.json"
+            try:
+                _idx_probe = _storage_get("wallpaper-images", "catalog_index.json")
+                for _i in _idx_probe.get("items", []):
+                    if _i.get("id") == sid and _i.get("spec_url"):
+                        _tail = str(_i["spec_url"]).split("/object/public/", 1)[-1]
+                        spec_bucket, spec_key = _tail.split("/", 1)
+                        break
+            except Exception:
+                pass
+
+            # 1) Patch the spec — the source of truth.
+            try:
+                spec = _storage_get(spec_bucket, spec_key)
+            except Exception as e:
+                return self._send_json(
+                    {"error": f"spec fetch ({spec_bucket}/{spec_key}): {e}"}, 404)
+            if has_pub:
+                spec["published"] = published
+            if has_hidden:
+                if hidden_in:
+                    spec["hidden_in"] = hidden_in
+                else:
+                    spec.pop("hidden_in", None)
+            try:
+                _storage_put(spec_bucket, spec_key, spec)
+            except Exception as e:
+                return self._send_json({"error": f"spec write: {e}"}, 502)
+
+            # 2) Mirror into the index, matching rebuild-index's derivation so
+            #    a later rebuild produces byte-identical entries.
+            try:
+                idx = _storage_get("wallpaper-images", "catalog_index.json")
+            except Exception as e:
+                return self._send_json({"error": f"index fetch: {e}"}, 502)
+            items = [i for i in idx.get("items", []) if i.get("id") != sid]
+            is_published = spec.get("published") is not False
+            if is_published:
+                bg = spec.get("background", {}) or {}
+                entry = {
+                    "id": sid,
+                    "type": spec.get("type"),
+                    "schema": spec.get("schema_version", 1),
+                    "title": spec.get("title", {"en": sid}),
+                    "preview_url": bg.get("preview_url",
+                        bg.get("url", "").replace(".webp", "_preview.webp")),
+                    "tags": spec.get("tags", []),
+                    "category": spec.get("category"),
+                    "featured": spec.get("featured", False),
+                    "spec_url": f"{SUPABASE_STORAGE}/object/public/{spec_bucket}/{spec_key}",
+                }
+                if spec.get("hidden_in"):
+                    entry["hidden_in"] = spec["hidden_in"]
+                items.append(entry)
+            import time as _t
+            items.sort(key=lambda it: (it.get("type") or "", it.get("id") or ""))
+            idx["items"] = items
+            idx["version"] = int(idx.get("version", 0)) + 1
+            idx["updated_at"] = _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime())
+            try:
+                _storage_put("wallpaper-images", "catalog_index.json", idx)
+            except Exception as e:
+                return self._send_json({"error": f"index write: {e}"}, 502)
+
+            # 3) Tell devices to drop their cached catalog. This also re-fetches
+            #    specs in place and nudges Daily rotation (v1.7.43 behaviour).
+            try:
+                pushed = _fcm_push_catalog_invalidate("wallpapers")
+            except Exception:
+                pushed = False
+
+            return self._send_json({
+                "ok": True,
+                "id": sid,
+                "published": is_published,
+                "hidden_in": spec.get("hidden_in", []),
+                "in_index": is_published,
+                "index_version": idx["version"],
+                "fcm_pushed": pushed,
+            })
 
         # 2026-06-20 — Resolve a moderation report (Google Play AI policy).
         # Body: {id: uuid, status: "removed"|"reviewed"|"dismissed", admin_notes?: str}
