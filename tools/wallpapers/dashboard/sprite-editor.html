@@ -327,6 +327,100 @@
     pointer-events: none;
   }
   .stage-status strong { color: var(--cyan); font-weight: 700; }
+
+  /* ── Visibility switches — darkroom safelight toggles ───────────────── */
+  /* Sits under the scene name, left-aligned: the centre of the top strip is
+     the toolbar's, and overlapping it made the note unreadable. */
+  .vis-panel {
+    position: absolute; top: 52px; left: 14px;
+    z-index: 17; display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap; max-width: 460px;
+  }
+  .vis-sw {
+    display: flex; align-items: center; gap: 7px; cursor: pointer;
+    padding: 6px 12px; border-radius: 999px;
+    background: rgba(11,11,20,.85); backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 9.5px; letter-spacing: .1em; color: var(--dim);
+    transition: border-color .2s ease, color .2s ease, opacity .2s ease;
+  }
+  .vis-sw:hover { border-color: var(--line-hi); color: #E8E8F0; }
+  .vis-sw[disabled] { opacity: .4; cursor: progress; }
+  .vis-led {
+    width: 7px; height: 7px; border-radius: 50%; flex: none;
+    background: #3A3A48; box-shadow: none;
+    transition: background .25s ease, box-shadow .25s ease;
+  }
+  /* lit = visible to users */
+  .vis-sw.on { color: #E8E8F0; border-color: rgba(53,208,127,.4); }
+  .vis-sw.on .vis-led { background: #35D07F; box-shadow: 0 0 8px #35D07F; }
+  /* dark = hidden. The red safelight reads as "not for the public" */
+  .vis-sw.off { color: #FF8A9B; border-color: rgba(255,90,110,.4); }
+  .vis-sw.off .vis-led { background: #FF5A6E; box-shadow: 0 0 8px #FF5A6E; }
+  .vis-sw.danger.off .vis-led { animation: vis-blink 1.4s ease-in-out infinite; }
+  @keyframes vis-blink { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
+  .vis-note {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 9px; color: var(--dim); letter-spacing: .06em;
+    max-width: 240px; opacity: 0; transition: opacity .3s ease;
+  }
+  .vis-note.show { opacity: 1; }
+  .vis-note.err { color: #FF5A6E; }
+
+  /* ── Load HUD — live view of what's downloading behind the scenes ───── */
+  .load-hud {
+    position: absolute; top: 92px; left: 14px; z-index: 16; width: 250px;
+    background: rgba(11,11,20,.9); backdrop-filter: blur(12px);
+    border: 1px solid var(--line-hi); border-radius: 8px;
+    padding: 9px 11px; pointer-events: none;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px;
+    transition: opacity .45s ease;
+  }
+  .load-hud.done { opacity: 0; }
+  .load-hud-head {
+    display: flex; align-items: center; gap: 7px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
+  }
+  .load-hud-head .lh-scene {
+    color: var(--cyan); font-weight: 700; flex: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .load-hud-head .lh-pct { color: var(--dim); font-variant-numeric: tabular-nums; }
+  .lh-spin {
+    width: 7px; height: 7px; border-radius: 50%; flex: none;
+    background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
+    animation: lh-pulse 1s ease-in-out infinite;
+  }
+  .load-hud.done .lh-spin { animation: none; background: #35D07F; box-shadow: 0 0 6px #35D07F; }
+  @keyframes lh-pulse { 0%,100% { opacity: .25 } 50% { opacity: 1 } }
+  .load-hud-bar {
+    height: 2px; margin: 7px 0; border-radius: 2px;
+    background: rgba(255,255,255,.08); overflow: hidden;
+  }
+  .load-hud-bar i {
+    display: block; height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--cyan), #7B61FF);
+    transition: width .25s ease;
+  }
+  .load-hud-list { list-style: none; margin: 0; padding: 0; max-height: 232px; overflow: hidden; }
+  .load-hud-list li {
+    display: flex; align-items: center; gap: 6px; padding: 1.5px 0;
+    color: var(--dim); white-space: nowrap;
+  }
+  .load-hud-list li .lh-ico { width: 9px; flex: none; text-align: center; }
+  .load-hud-list li .lh-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+  .load-hud-list li .lh-ms { font-variant-numeric: tabular-nums; opacity: .55; }
+  .load-hud-list li.wait { opacity: .35; }
+  .load-hud-list li.busy .lh-ico { color: var(--cyan); }
+  .load-hud-list li.busy .lh-name { color: #E8E8F0; }
+  .load-hud-list li.ok .lh-ico { color: #35D07F; }
+  .load-hud-list li.err .lh-ico { color: #FF5A6E; }
+  .load-hud-list li.err .lh-name { color: #FF5A6E; }
+  .load-hud-group {
+    margin-top: 5px; padding-top: 4px; border-top: 1px solid var(--line);
+    color: var(--dim); opacity: .5; letter-spacing: .1em; text-transform: uppercase;
+  }
   #transform-box {
     position: absolute; z-index: 12; pointer-events: none;
     border: 2px dashed var(--cyan); border-radius: 4px;
@@ -461,6 +555,17 @@
   <main class="stage" id="stage">
     <div class="grid-overlay" id="grid-overlay"></div>
     <div class="stage-info" id="stage-info"></div>
+    <div class="vis-panel" id="vis-panel" style="display:none">
+      <button class="vis-sw" id="vis-tab" title="Mostrar u ocultar esta escena en la pestaña 3D de la app">
+        <span class="vis-led"></span>
+        <span class="vis-txt">EN LA PESTAÑA 3D</span>
+      </button>
+      <button class="vis-sw danger" id="vis-pub" title="Publicar o retirar la escena de TODA la app (3D, Daily, Cultura, Eventos)">
+        <span class="vis-led"></span>
+        <span class="vis-txt">PUBLICADA</span>
+      </button>
+      <span class="vis-note" id="vis-note"></span>
+    </div>
     <div class="stage-toolbar" id="stage-toolbar" style="display:none">
       <button class="btn active" id="tool-select" title="Seleccionar / mover">◎ SEL</button>
       <button class="btn" id="tool-grid" title="Cuadrícula 54px">▦ GRID</button>
@@ -473,6 +578,15 @@
       <button class="btn" id="tool-selall" title="Seleccionar todo (Ctrl+A)">⊞ ALL</button>
     </div>
     <div class="stage-status" id="stage-status" style="display:none"></div>
+    <div class="load-hud" id="load-hud" style="display:none">
+      <div class="load-hud-head">
+        <span class="lh-spin"></span>
+        <span class="lh-scene" id="lh-scene">—</span>
+        <span class="lh-pct" id="lh-pct">0%</span>
+      </div>
+      <div class="load-hud-bar"><i id="lh-fill"></i></div>
+      <ul class="load-hud-list" id="lh-list"></ul>
+    </div>
     <div id="transform-box">
       <div class="xhandle move" data-handle="move" style="left:50%;top:50%"></div>
       <div class="xhandle corner nw" data-handle="nw" style="left:0;top:0"></div>
@@ -632,6 +746,193 @@ let phoneFrame = null;          // visual border of the phone screen
 let bgMesh = null;
 let layerMeshes = [];           // {mesh, layer}
 let spriteMeshes = [];          // {mesh, spriteDef, frames: [Texture], idx, framesLoaded}
+
+// Every scene load/rebuild claims a generation. Async work checks it after each
+// await and bails if a newer load started — otherwise textures from the previous
+// scene keep resolving and get added to the scene that replaced it.
+let sceneGen = 0;
+const isStaleGen = (gen) => gen !== sceneGen;
+
+// ── Load HUD ──────────────────────────────────────────────────────────
+// Live readout of every asset the scene pulls, so it's never a mystery why
+// the stage is still empty — and so it's obvious when the load has settled
+// (switching scenes mid-load is what used to bleed assets across scenes).
+const lh = {gen: -1, rows: new Map(), hideTimer: null};
+
+function lhReset(gen, sceneId) {
+  clearTimeout(lh.hideTimer);
+  lh.gen = gen;
+  lh.rows = new Map();
+  const hud = $('#load-hud');
+  hud.style.display = 'block';
+  hud.classList.remove('done');
+  $('#lh-scene').textContent = sceneId || '—';
+  $('#lh-list').innerHTML = '';
+  lhPaint();
+}
+
+// ── Visibility switches ───────────────────────────────────────────────
+// Two independent switches, both persisted into the scene's spec:
+//   hidden_in:['parallax_tab'] → curated out of the 3D tab only. Stays in
+//     Daily rotation, Cultura and Events. Needs the 1.7.59+ build.
+//   published:false → dropped from catalog_index entirely, so it vanishes
+//     everywhere — including on already-shipped builds.
+// NOTE: the `published` column on the wallpapers table does NOT control a
+// scene (a scene and its static twin are separate ids). Don't wire this to
+// /api/wallpaper-update-pg; that silent no-op is the bug this replaces.
+const vis = {id: null, published: true, hiddenIn: []};
+
+function visRender() {
+  const panel = $('#vis-panel');
+  if (!vis.id) { panel.style.display = 'none'; return; }
+  panel.style.display = 'flex';
+  const inTab = !vis.hiddenIn.includes('parallax_tab');
+  const tab = $('#vis-tab'), pub = $('#vis-pub');
+  tab.classList.toggle('on', inTab);
+  tab.classList.toggle('off', !inTab);
+  tab.querySelector('.vis-txt').textContent = inTab ? 'EN LA PESTAÑA 3D' : 'FUERA DE LA PESTAÑA 3D';
+  pub.classList.toggle('on', vis.published);
+  pub.classList.toggle('off', !vis.published);
+  pub.querySelector('.vis-txt').textContent = vis.published ? 'PUBLICADA' : 'RETIRADA DE LA APP';
+  // A scene curated out of the tab is still reachable elsewhere — say so,
+  // otherwise "hidden" reads as a lie when it shows up in Daily.
+  visNote(!vis.published
+    ? 'fuera de toda la app · los archivos siguen ahí'
+    : (!inTab ? 'sigue viva en Daily · Cultura · Eventos' : ''));
+}
+
+function visNote(msg, isErr) {
+  const n = $('#vis-note');
+  n.textContent = msg || '';
+  n.classList.toggle('show', !!msg);
+  n.classList.toggle('err', !!isErr);
+}
+
+async function visSet(patch) {
+  const btns = [$('#vis-tab'), $('#vis-pub')];
+  btns.forEach(b => b.disabled = true);
+  visNote('guardando…');
+  try {
+    const r = await fetch('/api/scene-visibility', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id: vis.id, ...patch}),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    vis.published = d.published;
+    vis.hiddenIn = d.hidden_in || [];
+    visRender();
+    if (!d.fcm_pushed) visNote('guardado · sin push FCM (cache hasta 6 h)', true);
+  } catch (e) {
+    visNote('error: ' + e.message, true);
+  } finally {
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+async function visLoad(sceneId) {
+  vis.id = null;
+  visRender();
+  try {
+    const r = await fetch('/api/scenes');
+    const d = await r.json();
+    const row = (d.rows || []).find(x => x.id === sceneId);
+    if (!row) return;
+    vis.id = sceneId;
+    vis.published = row.published !== false;
+    vis.hiddenIn = row.hidden_in || [];
+    visRender();
+  } catch (e) { /* switches stay hidden; editing still works */ }
+}
+
+$('#vis-tab').addEventListener('click', () => {
+  if (!vis.id) return;
+  const inTab = !vis.hiddenIn.includes('parallax_tab');
+  const next = inTab
+    ? [...new Set([...vis.hiddenIn, 'parallax_tab'])]
+    : vis.hiddenIn.filter(s => s !== 'parallax_tab');
+  visSet({hidden_in: next});
+});
+
+$('#vis-pub').addEventListener('click', () => {
+  if (!vis.id) return;
+  if (vis.published &&
+      !confirm('Retirar esta escena de TODA la app (3D, Daily, Cultura, Eventos).\n\n' +
+               'Los archivos no se borran y puedes revertirlo.\n' +
+               'Si alguien la trae puesta ahorita, se le queda funcionando.\n\n¿Le seguimos?')) return;
+  visSet({published: !vis.published});
+});
+
+function lhOwns(gen) { return gen === lh.gen && !isStaleGen(gen); }
+
+function lhHide() {
+  clearTimeout(lh.hideTimer);
+  lh.gen = -1;
+  const hud = $('#load-hud');
+  if (hud) { hud.style.display = 'none'; hud.classList.remove('done'); }
+}
+
+function lhGroup(gen, label) {
+  if (!lhOwns(gen)) return;
+  const li = document.createElement('li');
+  li.className = 'load-hud-group';
+  li.textContent = label;
+  $('#lh-list').appendChild(li);
+}
+
+function lhAdd(gen, id, name) {
+  if (!lhOwns(gen)) return;
+  const li = document.createElement('li');
+  li.className = 'wait';
+  li.innerHTML = `<span class="lh-ico">·</span><span class="lh-name"></span><span class="lh-ms"></span>`;
+  li.querySelector('.lh-name').textContent = name;
+  $('#lh-list').appendChild(li);
+  lh.rows.set(id, {li, t0: 0, state: 'wait'});
+  lhPaint();
+}
+
+function lhSet(gen, id, state, note) {
+  if (!lhOwns(gen)) return;
+  const r = lh.rows.get(id);
+  if (!r) return;
+  const ico = {busy: '◌', ok: '✓', err: '✕'}[state] || '·';
+  if (state === 'busy') r.t0 = performance.now();
+  r.state = state;
+  r.li.className = state;
+  r.li.querySelector('.lh-ico').textContent = ico;
+  if (note != null) r.li.querySelector('.lh-name').textContent = note;
+  if (state === 'ok' || state === 'err') {
+    r.li.querySelector('.lh-ms').textContent = r.t0 ? Math.round(performance.now() - r.t0) + 'ms' : '';
+  }
+  lhPaint();
+}
+
+function lhNote(gen, id, note) {
+  if (!lhOwns(gen)) return;
+  const r = lh.rows.get(id);
+  if (r) r.li.querySelector('.lh-ms').textContent = note;
+}
+
+function lhPaint() {
+  const all = [...lh.rows.values()];
+  const done = all.filter(r => r.state === 'ok' || r.state === 'err').length;
+  const pct = all.length ? Math.round(done / all.length * 100) : 0;
+  $('#lh-pct').textContent = pct + '%';
+  $('#lh-fill').style.width = pct + '%';
+}
+
+function lhFinish(gen) {
+  if (!lhOwns(gen)) return;
+  const all = [...lh.rows.values()];
+  const errs = all.filter(r => r.state === 'err').length;
+  $('#lh-pct').textContent = errs ? `${errs} ✕` : '100%';
+  $('#lh-fill').style.width = '100%';
+  $('#load-hud').classList.add('done');
+  // Errors stay up longer — they're the whole point of having this.
+  lh.hideTimer = setTimeout(() => {
+    if (gen === lh.gen) $('#load-hud').style.display = 'none';
+  }, errs ? 6000 : 1600);
+}
 
 function makePhoneFrame(w, h) {
   const g = new THREE.PlaneGeometry(w + 24, h + 24);
@@ -893,6 +1194,8 @@ async function loadItem(it) {
   $('#canvas-static').style.display = 'none';
   $('#stage-ctrl').style.display = 'none';
   $('#stage-toolbar').style.display = 'none';
+  lhHide();  // stale readout from the previous scene must not linger
+  vis.id = null; visRender();   // switches are scene-scoped; LIVE/STATIC have none
   $('#stage-status').style.display = 'none';
   $('#transform-box').classList.remove('visible');
   $('#stage-info').innerHTML = '';
@@ -905,9 +1208,16 @@ async function loadItem(it) {
 }
 
 async function loadSceneSpec(it) {
+  // Claim this load. Anything still in flight from the previously selected
+  // scene becomes stale and will bail instead of drawing into this one.
+  const gen = ++sceneGen;
   state.selection = [];
   viewZoom = 1;
   resetViewPan();
+  lhReset(gen, it.id);
+  lhAdd(gen, 'spec', 'spec.json');
+  lhSet(gen, 'spec', 'busy');
+  visLoad(it.id);   // fire-and-forget: switches appear once resolved
   const devTag = state.device?.connected && state.device?.source === 'device'
     ? `${state.device.model || state.device.serial} ${phoneW()}×${phoneH()}`
     : `${phoneW()}×${phoneH()} ref`;
@@ -921,13 +1231,21 @@ async function loadSceneSpec(it) {
   try {
     const r = await fetch(`${SUPA_STORAGE}/wallpaper-scenes/${it.id}.json`);
     if (!r.ok) throw new Error('spec HTTP ' + r.status);
-    state.spec = await r.json();
+    const spec = await r.json();
+    // Specs can resolve out of order; only the newest selection may commit.
+    if (isStaleGen(gen)) return;
+    state.spec = spec;
+    lhSet(gen, 'spec', 'ok');
   } catch (e) {
+    if (isStaleGen(gen)) return;
+    lhSet(gen, 'spec', 'err');
+    lhFinish(gen);
     $('#items-panel').innerHTML = `<div class="loading">error: ${escapeHtml(e.message)}</div>`;
     return;
   }
   try {
-    await rebuildScene();
+    await rebuildScene(gen);
+    if (isStaleGen(gen)) return;
     renderItemsPanel();
     fitCanvas();
     pushHistory();
@@ -1067,7 +1385,17 @@ function getSubjectScreenRect(mesh) {
   };
 }
 
-async function rebuildScene() {
+// `gen` is passed by loadSceneSpec so the fetch+rebuild share one generation.
+// Direct callers (toolbar buttons, undo, import) claim a fresh one, which
+// correctly cancels any scene load still in flight.
+async function rebuildScene(gen) {
+  if (gen == null) {
+    // Manual rebuild (toolbar / undo / import): claims a generation, which
+    // cancels any in-flight scene load, so the HUD it was filling is moot.
+    gen = ++sceneGen;
+    lhHide();
+  }
+
   // Cleanup
   if (bgMesh) disposeMesh(bgMesh);
   layerMeshes.forEach(o => disposeMesh(o.mesh));
@@ -1077,9 +1405,13 @@ async function rebuildScene() {
   });
   bgMesh = null; layerMeshes = []; spriteMeshes = [];
 
-  if (!state.spec) return;
+  // Snapshot: state.spec can change under us while we await textures, and
+  // reading it again after an await would build the *new* scene's assets a
+  // second time on top of the rebuild that already owns them.
+  const spec = state.spec;
+  if (!spec) return;
 
-  const parallaxMode = SC.hasParallaxLayers(state.spec);
+  const parallaxMode = SC.hasParallaxLayers(spec);
 
   // Parallax scenes: device clears BLACK and only draws image_layers (no flat bg).
   // Editor matches that by default; REF toggle shows background.url for comparison.
@@ -1090,10 +1422,14 @@ async function rebuildScene() {
     bgMesh.position.z = -0.5;
     scene.add(bgMesh);
   } else {
-    const bgUrl = state.spec.background?.url;
+    const bgUrl = spec.background?.url;
     if (bgUrl) {
+      lhAdd(gen, 'bg', 'fondo');
+      lhSet(gen, 'bg', 'busy');
       try {
         const tex = await loadTexture(bgUrl);
+        if (isStaleGen(gen)) { tex.dispose(); return; }
+        lhSet(gen, 'bg', 'ok');
         const {w, h} = SC.spriteRenderSize({fullscreen: true}, tex.image.width, tex.image.height);
         const g = new THREE.PlaneGeometry(w, h);
         const m = new THREE.MeshBasicMaterial({
@@ -1104,20 +1440,38 @@ async function rebuildScene() {
         bgMesh = new THREE.Mesh(g, m);
         bgMesh.position.z = 0;
         scene.add(bgMesh);
-      } catch (e) { console.warn('bg load failed', e); }
+      } catch (e) { lhSet(gen, 'bg', 'err'); console.warn('bg load failed', e); }
     }
   }
 
   // image_layers (z>0 above bg)
-  const imgLayers = state.spec.image_layers || [];
+  const imgLayers = spec.image_layers || [];
+  const drawLayers = imgLayers.filter(l =>
+    !(l.key === 'bg' && !bgMesh) && !(state.hideBlinkFrames && isBlinkVariant(l.key)));
+  if (drawLayers.length) lhGroup(gen, `capas · ${drawLayers.length}`);
+  drawLayers.forEach((l, i) => lhAdd(gen, 'L' + i, l.key || ('capa ' + i)));
+
+  // Declare sprites up front too: the spec already tells us the full inventory,
+  // so the percentage counts against the real total instead of walking backwards
+  // as each new row appears.
+  const sprites = spec.sprites || [];
+  if (sprites.length) lhGroup(gen, `sprites · ${sprites.length}`);
+  sprites.forEach((sp, i) => lhAdd(gen, 'S' + i, sp.name || sp.manifest_key || ('sprite ' + i)));
+
+  let li = -1;
   for (let i = 0; i < imgLayers.length; i++) {
+    if (isStaleGen(gen)) return;
     const layer = imgLayers[i];
     if (layer.key === 'bg' && !bgMesh) continue;
     if (state.hideBlinkFrames && isBlinkVariant(layer.key)) continue;
+    li++;
     if (layer.offset_x_px == null) layer.offset_x_px = 0;
     if (layer.offset_y_px == null) layer.offset_y_px = 0;
+    lhSet(gen, 'L' + li, 'busy');
     try {
       const tex = await loadTexture(assetUrlWithBust(layer.url, layer.revision));
+      if (isStaleGen(gen)) { tex.dispose(); return; }
+      lhSet(gen, 'L' + li, 'ok');
       const {w, h} = SC.layerWorldSize(tex.image.width, tex.image.height, layer);
       const g = new THREE.PlaneGeometry(w, h);
       const m = new THREE.MeshBasicMaterial({map: tex, transparent: true});
@@ -1128,16 +1482,25 @@ async function rebuildScene() {
       mesh.userData = {kind: 'layer', layerIdx: i, layerKey: layer.key, alphaBbox};
       scene.add(mesh);
       layerMeshes.push({mesh, layer, layerIdx: i, alphaBbox});
-    } catch (e) { console.warn('layer load failed', layer.key, e); }
+    } catch (e) { lhSet(gen, 'L' + li, 'err'); console.warn('layer load failed', layer.key, e); }
   }
 
-  // Sprites — each is a Plane with animated frame texture
-  const sprites = state.spec.sprites || [];
+  // Sprites — each is a Plane with animated frame texture (declared above)
   for (let i = 0; i < sprites.length; i++) {
+    if (isStaleGen(gen)) return;
     const sp = sprites[i];
-    const obj = await buildSpriteMesh(sp, i);
+    lhSet(gen, 'S' + i, 'busy');
+    const obj = await buildSpriteMesh(sp, i, gen);
+    if (isStaleGen(gen)) { if (obj) disposeSpriteObj(obj); return; }
+    lhSet(gen, 'S' + i, obj ? 'ok' : 'err');
     if (obj) spriteMeshes.push(obj);
   }
+  lhFinish(gen);
+}
+
+function disposeSpriteObj(o) {
+  disposeMesh(o.mesh);
+  (o.frames || []).forEach(t => t && t.dispose && t.dispose());
 }
 
 async function fetchSpriteFrameCount(manifestKey) {
@@ -1154,12 +1517,16 @@ function spriteFrameUrl(manifestKey, frame, bust) {
   return `/api/sprite-frame?manifest_key=${encodeURIComponent(manifestKey)}&frame=${frame}&t=${b}`;
 }
 
-async function buildSpriteMesh(sp, idx) {
+async function buildSpriteMesh(sp, idx, gen) {
   const frameCount = await fetchSpriteFrameCount(sp.manifest_key);
+  if (gen != null && isStaleGen(gen)) return null;
   let firstTex;
   try {
     firstTex = await loadTexture(spriteFrameUrl(sp.manifest_key, 1));
   } catch (e) { console.warn('sprite frame load failed', sp.name, e); return null; }
+  // The scene we were building is gone — dropping the texture here is what
+  // keeps the previous scene's sprites out of the current one.
+  if (gen != null && isStaleGen(gen)) { firstTex.dispose(); return null; }
   const natW = firstTex.image.width;
   const natH = firstTex.image.height;
   const {w: renderW, h: renderH} = SC.spriteRenderSize(sp.params, natW, natH);
@@ -1194,7 +1561,11 @@ async function buildSpriteMesh(sp, idx) {
     for (let f = 2; f <= frameCount; f++) {
       try {
         const t = await loadTexture(spriteFrameUrl(sp.manifest_key, f));
+        // Fire-and-forget loop: without this it keeps fetching frames for a
+        // scene the user already left, and piles them onto a dead mesh.
+        if (gen != null && isStaleGen(gen)) { t.dispose(); break; }
         obj.frames.push(t); obj.framesLoaded++;
+        lhNote(gen, 'S' + idx, `${obj.framesLoaded}/${frameCount}`);
       } catch (e) { break; }
     }
   })();
