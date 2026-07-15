@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/services/credit_service.dart';
 import '../../../../core/services/report_service.dart';
 import '../../../../core/services/wallpaper_stats_service.dart';
@@ -67,10 +68,12 @@ class WallpaperViewerHudPage extends StatefulWidget {
   static const amberDeep = Color(0xFFB07A00);
   static const bone = Color(0xFFE8EEF5);
 
-  // Google test banner ad unit (safe to use while _debugDisableAds is true
-  // in AdService). Replace with the production banner unit ID when the rest
-  // of AdMob is flipped on for Production.
+  // Banner ad unit — follows AdService.useProductionAds so all three ad
+  // formats flip together. Prod = Pixora_Banner_WallpaperViewer (2026-07-14).
+  static const _prodBannerAdUnitId = 'ca-app-pub-6734758230109098/2960762292';
   static const _testBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
+  static String get _bannerAdUnitId =>
+      AdService.useProductionAds ? _prodBannerAdUnitId : _testBannerAdUnitId;
 
   @override
   State<WallpaperViewerHudPage> createState() => _WallpaperViewerHudPageState();
@@ -394,8 +397,8 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
                   liked: _currentWallpaper != null &&
                       _likedIds.contains(_currentWallpaper!.id),
                 ),
-                const _BannerAdHost(
-                  adUnitId: WallpaperViewerHudPage._testBannerAdUnitId,
+                _BannerAdHost(
+                  adUnitId: WallpaperViewerHudPage._bannerAdUnitId,
                 ),
               ],
             ),
@@ -1331,7 +1334,8 @@ class _BannerAdHostState extends State<_BannerAdHost> {
   /// because AdService._testDeviceIds is private. Update both lists together
   /// when adding a new test device.
   static const _testDeviceIds = <String>[
-    '6EE9F3D60B4F39A34BA3308FE533F24F', // Samsung RF8X903KZ3K (Eduardo principal)
+    '5B655AE2367833A19C9FD6920E3788F8', // Samsung RF8X903KZ3K (Eduardo principal)
+    '6A586AD63419A924C043A270C880C788', // Huawei VNS-L53 G2R4C17516000149 (Eduardo)
   ];
 
   @override

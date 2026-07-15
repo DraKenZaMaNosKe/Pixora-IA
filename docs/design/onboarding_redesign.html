@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pixora · Onboarding rediseñado (imágenes reales)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600;1,9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0E0E13;
+    --bg2: #17131E;
+    --gold: #D4AF37;
+    --gold-lt: #F4D774;
+    --gold-dp: #A67C1A;
+    --ink: #F5F1E6;
+    --dim: #9A9080;
+    --stage: #05050A;
+    --accent: #6AA9FF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: radial-gradient(1200px 700px at 50% -10%, #191622 0%, transparent 60%), var(--stage);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    min-height: 100%;
+    display: grid; place-items: center; gap: 20px;
+    padding: 26px 16px 40px;
+  }
+  .caption {
+    text-align: center; max-width: 400px; color: var(--dim);
+    font-size: 12.5px; line-height: 1.7;
+  }
+  .caption b { color: var(--gold-lt); font-weight: 600; }
+
+  .phone {
+    position: relative; width: 384px; max-width: 94vw;
+    aspect-ratio: 9 / 19.3; border-radius: 44px; padding: 12px;
+    background: linear-gradient(160deg, #2a2718, #0c0b0e 40%);
+    box-shadow: 0 0 0 2px rgba(212,175,55,0.18), 0 40px 90px -30px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .screen {
+    position: relative; width: 100%; height: 100%;
+    border-radius: 34px; overflow: hidden;
+    background: radial-gradient(120% 80% at 50% 0%, var(--bg2) 0%, var(--bg) 55%);
+    display: flex; flex-direction: column; isolation: isolate;
+  }
+  .screen::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1.4px 1.4px at 20% 18%, rgba(255,255,255,.35), transparent),
+      radial-gradient(1.2px 1.2px at 68% 12%, rgba(255,255,255,.28), transparent),
+      radial-gradient(1.5px 1.5px at 84% 30%, rgba(255,255,255,.22), transparent),
+      radial-gradient(1.1px 1.1px at 32% 42%, rgba(255,255,255,.18), transparent),
+      radial-gradient(1.3px 1.3px at 12% 62%, rgba(255,255,255,.16), transparent);
+    opacity: .6; z-index: 0; pointer-events: none;
+  }
+  .statusbar {
+    position: relative; z-index: 3;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 22px 0; font-size: 12px; color: var(--ink); opacity: .82;
+    font-variant-numeric: tabular-nums;
+  }
+  .skip {
+    position: absolute; top: 12px; right: 16px; z-index: 6;
+    background: none; border: none; cursor: pointer; color: var(--dim);
+    font-family: 'Inter'; font-size: 13px; font-weight: 600;
+    padding: 8px 10px; border-radius: 10px;
+    transition: color .2s, background .2s, opacity .3s;
+  }
+  .skip:hover { color: var(--ink); background: rgba(255,255,255,0.05); }
+  .skip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .skip.hide { opacity: 0; pointer-events: none; }
+
+  .stage {
+    position: relative; z-index: 2; flex: 1 1 auto;
+    display: grid; place-items: center; padding: 10px 22px 0; min-height: 0;
+  }
+  .artbox {
+    position: relative; width: min(74%, 268px); aspect-ratio: 1;
+    display: grid; place-items: center;
+  }
+  .artbox::after {
+    content: ""; position: absolute; inset: -14%;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 34%, transparent) 0%, transparent 64%);
+    filter: blur(8px); z-index: -1;
+  }
+  .artbox img {
+    width: 100%; height: 100%; object-fit: contain;
+    border-radius: 26px;
+    -webkit-mask: radial-gradient(circle at 50% 48%, #000 62%, transparent 84%);
+            mask: radial-gradient(circle at 50% 48%, #000 62%, transparent 84%);
+    animation: floaty 6.5s ease-in-out infinite;
+  }
+  .artbox svg { width: 100%; height: 100%; overflow: visible; animation: floaty 6.5s ease-in-out infinite; }
+  @keyframes floaty { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-8px) rotate(-1deg); } }
+
+  .copy {
+    position: relative; z-index: 2; padding: 2px 30px 0; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .kicker {
+    font-family: 'JetBrains Mono', monospace; font-weight: 700;
+    font-size: 10.5px; letter-spacing: 3.5px; color: var(--gold);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .kicker::before { content: "◈"; color: var(--accent); font-size: 10px; }
+  .title {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 600;
+    font-size: 30px; line-height: 1.07; color: var(--ink);
+    letter-spacing: -0.3px; max-width: 15ch;
+  }
+  .title .hl { color: var(--accent); font-weight: 700; font-style: italic; }
+  .body { font-size: 14px; line-height: 1.62; color: var(--dim); max-width: 30ch; }
+  .body b { color: var(--ink); font-weight: 600; }
+
+  .footer {
+    position: relative; z-index: 4; padding: 4px 26px 26px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .dialwrap { position: relative; width: 230px; height: 60px; }
+  .dialwrap svg { width: 100%; height: 100%; overflow: visible; }
+  .dial-hint {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 3px;
+    color: var(--dim); opacity: .5; margin: -2px 0 10px;
+  }
+  .cta {
+    width: 100%; height: 54px; border: none; cursor: pointer; border-radius: 16px;
+    background: linear-gradient(135deg, var(--gold-lt) 0%, var(--gold) 45%, var(--gold-dp) 100%);
+    color: #201803; font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px;
+    letter-spacing: 0.2px;
+    box-shadow: 0 12px 30px -12px color-mix(in srgb, var(--gold) 70%, transparent);
+    transition: transform .12s ease, box-shadow .2s ease, filter .2s;
+  }
+  .cta:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .cta:active { transform: translateY(1px) scale(.995); }
+  .cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  .tapzone { position: absolute; top: 60px; bottom: 130px; width: 32%; z-index: 5; cursor: pointer; background: transparent; }
+  .tapzone.left { left: 0; } .tapzone.right { right: 0; }
+  .fade { animation: fadein .5s ease both; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .hintrow { display: flex; gap: 8px; align-items: center; color: var(--dim); font-size: 12px; }
+  .hintrow kbd {
+    font-family: 'JetBrains Mono'; font-size: 11px; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 2px 7px; color: var(--ink);
+  }
+  @media (prefers-reduced-motion: reduce) { .artbox img, .artbox svg { animation: none; } .fade { animation: none; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="caption">
+      <b>Pixora · Onboarding rediseñado</b> — con tus imágenes reales de Grok + copy de marketing <b>encima</b> (nítido, editable, bilingüe).
+      Slide 2 = la <b>Perilla</b>. El progreso es una ruedita con muescas. Toca los lados, usa ← → o el botón.
+    </p>
+
+    <div class="phone">
+      <div class="screen" id="screen">
+        <div class="statusbar"><span>9:41</span><span>▼ ᯤ 🔋</span></div>
+        <button class="skip" id="skip">Saltar</button>
+        <div class="tapzone left" id="prev"></div>
+        <div class="tapzone right" id="next"></div>
+
+        <div class="stage"><div class="artbox"><div class="fade" id="art" style="width:100%;height:100%;display:grid;place-items:center"></div></div></div>
+
+        <div class="copy fade" id="copy">
+          <span class="kicker" id="kicker"></span>
+          <h1 class="title" id="title"></h1>
+          <p class="body" id="bodytext"></p>
+        </div>
+
+        <div class="footer">
+          <div class="dialwrap"><svg id="dial" viewBox="0 0 230 60" aria-hidden="true"></svg></div>
+          <div class="dial-hint">GIRA PARA AVANZAR</div>
+          <button class="cta" id="cta">Siguiente</button>
+        </div>
+      </div>
+    </div>
+    <div class="hintrow"><kbd>←</kbd> <kbd>→</kbd> navegar · <kbd>R</kbd> reinicia</div>
+  </div>
+
+<script>
+  const IMG = './onboarding_img/';
+  // Perilla SVG — the real dial (teaching UI, not abstract art)
+  const dialArt = (c) => `
+    <svg viewBox="0 0 200 200" style="width:82%;height:82%">
+      <defs><radialGradient id="pg" cx="42%" cy="38%" r="70%">
+        <stop offset="0%" stop-color="var(--gold-lt)"/><stop offset="55%" stop-color="var(--gold)"/><stop offset="100%" stop-color="#2A2415"/>
+      </radialGradient></defs>
+      <g stroke="${c}" stroke-width="3" stroke-linecap="round">
+        ${Array.from({length:24},(_,i)=>{const a=(i/24)*Math.PI*2,x1=100+Math.cos(a)*78,y1=100+Math.sin(a)*78,x2=100+Math.cos(a)*88,y2=100+Math.sin(a)*88;return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" opacity="${i%6===0?1:.4}"/>`}).join('')}
+      </g>
+      <circle cx="100" cy="100" r="66" fill="url(#pg)" stroke="var(--gold-lt)" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="46" fill="none" stroke="#00000055" stroke-width="8"/>
+      <circle cx="100" cy="100" r="10" fill="#1a1712"/>
+      <path d="M100 54 l7 20 -14 0z" fill="${c}"/>
+      <path d="M150 96 a54 54 0 0 1 -10 34" fill="none" stroke="var(--gold-lt)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M140 124 l9 8 -13 3z" fill="var(--gold-lt)"/>
+    </svg>`;
+
+  // 8 slides — welcome, PERILLA, then the 6 content pillars using Grok art.
+  const SLIDES = [
+    { img:'01_bienvenida.png', accent:'#6AA9FF', kicker:'BIENVENIDO A PIXORA', title:'Tu pantalla, <span class="hl">viva</span>',
+      body:'Miles de wallpapers, sonidos y experiencias que cobran vida. Prepárate para <b>presumir tu teléfono</b>.' },
+    { svg:dialArt, accent:'#F4D774', kicker:'LO PRIMERO', title:'Gira la <span class="hl">perilla</span>',
+      body:'Desliza la ruedita dorada del borde y salta entre secciones al instante. <b>Una mano, todo Pixora</b>.' },
+    { img:'02_wallpapers.png', accent:'#7FB3FF', kicker:'GALERÍA INFINITA', title:'Fondos de <span class="hl">otro nivel</span>',
+      body:'Cientos de wallpapers en alta resolución, curados uno por uno. Aplícalos a inicio, bloqueo o ambos.' },
+    { img:'03_live.png', accent:'#FF5A47', kicker:'EN MOVIMIENTO', title:'Que <span class="hl">cobren vida</span>',
+      body:'Wallpapers animados que reaccionan a tu toque. Tu pantalla <b>nunca se queda quieta</b>.' },
+    { img:'04_parallax.png', accent:'#B15CE0', kicker:'PROFUNDIDAD REAL', title:'Un mundo en <span class="hl">3D</span>',
+      body:'Inclina el teléfono y las capas se mueven contigo. Efecto parallax que <b>hipnotiza</b>.' },
+    { img:'05_cultura.png', accent:'#E0A24A', kicker:'CON HISTORIA', title:'Arte que <span class="hl">enseña</span>',
+      body:'Cada fondo trae su relato: mitología, símbolos y datos. Decora tu pantalla y <b>aprende algo nuevo</b>.' },
+    { img:'06_aura.png', accent:'#46C7E0', kicker:'TU MOMENTO ZEN', title:'Relaja y <span class="hl">duerme mejor</span>',
+      body:'Frecuencias y sonidos de naturaleza para concentrarte o dormir. Con temporizador integrado.' },
+    { img:'07_arcano.png', accent:'#8AA0D8', kicker:'ESCRITO EN LAS ESTRELLAS', title:'La <span class="hl">luna</span> en tu pantalla',
+      body:'Un wallpaper que cambia con la fase real de la luna y tu signo del zodiaco. <b>Empieza tu viaje</b>.' },
+  ];
+
+  let idx = 0;
+  const N = SLIDES.length;
+  const $ = (id) => document.getElementById(id);
+
+  function drawDial() {
+    const cx = 115, cy = 54, r = 46;
+    const start = Math.PI * 1.18, end = Math.PI * 1.82;
+    let out = '';
+    const ax = cx+Math.cos(start)*r, ay = cy+Math.sin(start)*r, bx = cx+Math.cos(end)*r, by = cy+Math.sin(end)*r;
+    out += `<path d="M${ax.toFixed(1)} ${ay.toFixed(1)} A ${r} ${r} 0 0 1 ${bx.toFixed(1)} ${by.toFixed(1)}" fill="none" stroke="#3a3527" stroke-width="1.5"/>`;
+    out += `<circle cx="${cx}" cy="${cy}" r="4" fill="#5a5240"/>`;
+    for (let i=0;i<N;i++){
+      const t=i/(N-1), a=start+(end-start)*t, x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+      const done=i<=idx, rad=i===idx?6.5:3.4, fill=i===idx?'var(--accent)':(done?'var(--gold)':'#4a4433');
+      if(i===idx){
+        const kx=cx+Math.cos(a)*(r-15), ky=cy+Math.sin(a)*(r-15);
+        out+=`<line x1="${cx}" y1="${cy}" x2="${kx.toFixed(1)}" y2="${ky.toFixed(1)}" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" opacity=".8"/>`;
+        out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".5"/>`;
+      }
+      out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad}" fill="${fill}"/>`;
+    }
+    $('dial').innerHTML = out;
+  }
+
+  function render() {
+    const s = SLIDES[idx];
+    document.documentElement.style.setProperty('--accent', s.accent);
+    const art = $('art'), copy = $('copy');
+    art.classList.remove('fade'); copy.classList.remove('fade'); void art.offsetWidth;
+    art.innerHTML = s.img ? `<img src="${IMG}${s.img}" alt="">` : s.svg(s.accent);
+    $('kicker').textContent = s.kicker;
+    $('title').innerHTML = s.title;
+    $('bodytext').innerHTML = s.body;
+    $('cta').textContent = idx === N-1 ? '¡Comenzar!' : 'Siguiente';
+    $('skip').classList.toggle('hide', idx === N-1);
+    art.classList.add('fade'); copy.classList.add('fade');
+    drawDial();
+  }
+  function go(n){ const ni=Math.max(0,Math.min(N-1,n)); if(ni===idx)return; idx=ni; render(); }
+  function nextOrFinish(){ if(idx===N-1){ const c=$('cta'); c.textContent='✦ ¡Listo!'; setTimeout(()=>{idx=0;render();},900); return; } go(idx+1); }
+
+  $('next').addEventListener('click', nextOrFinish);
+  $('prev').addEventListener('click', () => go(idx-1));
+  $('cta').addEventListener('click', nextOrFinish);
+  $('skip').addEventListener('click', () => { idx=0; render(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight')nextOrFinish(); else if(e.key==='ArrowLeft')go(idx-1); else if(e.key.toLowerCase()==='r'){idx=0;render();} });
+  let tx=0; const scr=$('screen');
+  scr.addEventListener('touchstart',(e)=>tx=e.touches[0].clientX,{passive:true});
+  scr.addEventListener('touchend',(e)=>{ const dx=e.changedTouches[0].clientX-tx; if(dx<-40)nextOrFinish(); else if(dx>40)go(idx-1); });
+  render();
+</script>
+</body>
+</html>

@@ -21,14 +21,22 @@ class AdService {
   AdService._();
   static final instance = AdService._();
 
-  // 2026-05-09 TEMPORAL — Google test interstitial ad unit ID for diagnosing
-  // whether ad stuttering is caused by Pixora's inventory quality (config)
-  // or by device capacity. Test ads are ALWAYS lightweight static creatives
-  // served directly by Google. If they fluyen perfectly = real production
-  // ID's inventory problem (Closed Testing + missing app-ads.txt). If they
-  // ALSO stutter = something else.
-  // REVERTIR a 'ca-app-pub-6734758230109098/6687118537' cuando confirmemos.
-  static const _interstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
+  /// ── MASTER AD SWITCH ──────────────────────────────────────────────────
+  /// The single flag that flips ALL three ad formats (interstitial, banner,
+  /// native) between Google TEST units and Pixora PRODUCTION units.
+  ///
+  /// Keep this `false` while the app is in closed/internal testing so testers
+  /// only ever see test creatives — zero risk of an invalid-activity strike
+  /// before we're officially in production. Flip to `true` the day Google
+  /// approves production access, then rebuild. Banner + native read this same
+  /// flag (see wallpaper_viewer_hud_page.dart and native_ad_service.dart).
+  static const useProductionAds = false;
+
+  // Interstitial unit IDs. Prod = Pixora_Interstitial_ApplyWallpaper.
+  static const _prodInterstitialId = 'ca-app-pub-6734758230109098/6687118537';
+  static const _testInterstitialId = 'ca-app-pub-3940256099942544/1033173712';
+  static String get _interstitialAdUnitId =>
+      useProductionAds ? _prodInterstitialId : _testInterstitialId;
 
   /// Channel to invoke native handlers — currently used to broadcast
   /// ad-visibility to the `:wallpaper` process so it drops to idle (1 fps)
@@ -153,7 +161,8 @@ class AdService {
   /// `adb logcat | grep "setTestDeviceIds"` — la primera vez que el SDK
   /// inicializa, loguea el hint con el ID exacto. Agrégalo aquí.
   static const _testDeviceIds = <String>[
-    '6EE9F3D60B4F39A34BA3308FE533F24F', // Samsung RF8X903KZ3K (Eduardo principal)
+    '5B655AE2367833A19C9FD6920E3788F8', // Samsung RF8X903KZ3K (Eduardo principal)
+    '6A586AD63419A924C043A270C880C788', // Huawei VNS-L53 G2R4C17516000149 (Eduardo)
   ];
 
   /// Initialize Mobile Ads SDK. Call once at app startup.

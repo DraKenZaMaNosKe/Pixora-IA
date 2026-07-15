@@ -1,0 +1,456 @@
+import 'dart:math' as math;
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+/// One selectable entry in the Perilla dial.
+class DialItemData {
+  const DialItemData(
+      this.label, this.kicker, this.icon, this.color, this.onApply);
+
+  final String label;
+  final String kicker;
+  final IconData icon;
+  final Color color;
+
+  /// Called when this entry is committed (drag-to-center + Ir, or tap the
+  /// centered option).
+  final VoidCallback onApply;
+}
+
+/// The Perilla dial overlay — a glass scrim with a curved radial dial anchored
+/// off the left edge. Drag up/down to rotate; the centered option is "active"
+/// and live-previews (scrim tint + big Fraunces label). Committing fires the
+/// item's [DialItemData.onApply]; tapping empty space cancels.
+///
+/// Geometry ported 1:1 from `docs/design/_dial_engine.js` (authored for a
+/// ~340px phone; expressed as fractions of device width so it scales).
+class DialOverlay extends StatefulWidget {
+  const DialOverlay({
+    super.key,
+    required this.items,
+    required this.initialIdx,
+    required this.onClose,
+  });
+
+  final List<DialItemData> items;
+  final int initialIdx;
+
+  /// Cancel — tap outside / scrim. Reverts nothing (no commit happened).
+  final VoidCallback onClose;
+
+  @override
+  State<DialOverlay> createState() => _DialOverlayState();
+}
+
+class _DialOverlayState extends State<DialOverlay>
+    with SingleTickerProviderStateMixin {
+  static const double _step = 25; // degrees between options
+
+  late double _rot;
+  late int _activeIdx;
+  late final AnimationController _snapCtrl;
+  double _snapFrom = 0;
+  double _snapTarget = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _activeIdx = widget.initialIdx.clamp(0, widget.items.length - 1);
+    _rot = _activeIdx * _step;
+    // ONE permanent listener — interpolate rot from the stored from/target.
+    // (Creating a fresh Tween+addListener per snap leaked listeners onto the
+    // controller, so old tweens fought over rot → the erratic "jumps".)
+    _snapCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 360))
+      ..addListener(() {
+        final t = Curves.easeOutCubic.transform(_snapCtrl.value);
+        setState(() => _rot = _snapFrom + (_snapTarget - _snapFrom) * t);
+      });
+  }
+
+  @override
+  void dispose() {
+    _snapCtrl.dispose();
+    super.dispose();
+  }
+
+  double get _maxRot => (widget.items.length - 1) * _step + _step * 0.5;
+
+  void _onDragUpdate(DragUpdateDetails d) {
+    if (_snapCtrl.isAnimating) _snapCtrl.stop();
+    setState(() {
+      // Natural grab: drag up brings lower sections toward the center (like a
+      // scroll). delta.dy>0 is downward, so subtract.
+      _rot = (_rot - d.delta.dy * 0.5).clamp(-_step * 0.5, _maxRot);
+      final idx = (_rot / _step).round().clamp(0, widget.items.length - 1);
+      if (idx != _activeIdx) {
+        _activeIdx = idx;
+        HapticFeedback.selectionClick();
+      }
+    });
+  }
+
+  void _onDragEnd(DragEndDetails d) => _snapTo((_rot / _step).round());
+
+  void _snapTo(int idx) {
+    idx = idx.clamp(0, widget.items.length - 1);
+    _snapFrom = _rot;
+    _snapTarget = idx * _step;
+    _activeIdx = idx;
+    _snapCtrl.forward(from: 0);
+  }
+
+  void _apply() {
+    HapticFeedback.selectionClick();
+    widget.items[_activeIdx].onApply();
+  }
+
+  Offset _optPos(int i, Size size) {
+    final w = size.width;
+    final cx = -0.206 * w;
+    final r = 0.735 * w;
+    final cy = size.height / 2 + 8;
+    final ang = i * _step - _rot;
+    final th = ang * math.pi / 180;
+    return Offset(cx + r * math.cos(th), cy + r * math.sin(th));
+  }
+
+  void _onTapUp(TapUpDetails d, Size size) {
+    // Tap near the centered option commits it; tap on empty space cancels.
+    final activePos = _optPos(_activeIdx, size);
+    if ((d.localPosition - activePos).distance < 110) {
+      _apply();
+    } else {
+      widget.onClose();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final active = widget.items[_activeIdx];
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onVerticalDragUpdate: _onDragUpdate,
+      onVerticalDragEnd: _onDragEnd,
+      onTapUp: (d) => _onTapUp(d, size),
+      child: Stack(
+        children: [
+          // Glass scrim, tinted with the active section's brand color.
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 11, sigmaY: 11),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(-1.1, 0),
+                    radius: 1.3,
+                    colors: [
+                      active.color.withValues(alpha: 0.34),
+                      Colors.black.withValues(alpha: 0.58),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Hub — big notched gold disc peeking from the left edge; it ROTATES
+          // with the drag so it reads as a physical knob (the "ruedita").
+          Positioned(
+            left: -size.width * 0.46,
+            top: size.height / 2 + 8 - size.width * 0.34,
+            child: IgnorePointer(
+              child: Transform.rotate(
+                angle: _rot * math.pi / 180,
+                child: Container(
+                  width: size.width * 0.68,
+                  height: size.width * 0.68,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFE8C15A).withValues(alpha: 0.20),
+                        blurRadius: 44,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: CustomPaint(painter: _DialHubPainter()),
+                ),
+              ),
+            ),
+          ),
+          // Curved dial options.
+          for (int i = 0; i < widget.items.length; i++) _buildOption(i, size),
+          // Needle — fixed ring highlighting whichever option sits at center.
+          Positioned(
+            left: size.width * 0.515,
+            top: size.height / 2 + 8 - 40,
+            child: IgnorePointer(
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFE8C15A).withValues(alpha: 0.5),
+                    width: 1.3,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFE8C15A).withValues(alpha: 0.22),
+                      blurRadius: 22,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Drag hint.
+          Positioned(
+            left: size.width * 0.22,
+            top: size.height / 2 - 96,
+            child: IgnorePointer(
+              child: Text(
+                'ARRASTRA ↑↓ PARA GIRAR',
+                style: TextStyle(
+                  color: const Color(0xFFE8C15A).withValues(alpha: 0.55),
+                  fontSize: 9,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          // Big active label (bottom-left), Fraunces italic like the app title.
+          Positioned(
+            left: 24,
+            right: 24,
+            bottom: 116,
+            child: IgnorePointer(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    active.kicker.toUpperCase(),
+                    style: const TextStyle(
+                      color: Color(0xFFD4AF37),
+                      fontSize: 12,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    active.label,
+                    style: GoogleFonts.fraunces(
+                      fontSize: 40,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      height: 1.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Commit button.
+          Positioned(
+            left: 24,
+            right: 24,
+            bottom: 44,
+            child: GestureDetector(
+              onTap: _apply,
+              child: Container(
+                height: 52,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFF4D774), Color(0xFFD4AF37)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
+                      blurRadius: 16,
+                      spreadRadius: -3,
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'Ir a ${active.label}',
+                  style: const TextStyle(
+                    color: Color(0xFF231A06),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOption(int i, Size size) {
+    final ang = i * _step - _rot;
+    final d = ang.abs();
+    final op = d > 78 ? 0.0 : math.max(0.0, 1 - d / 72);
+    if (op <= 0.01) return const SizedBox.shrink();
+    final scale = math.max(0.5, 1 - d / 150);
+    final pos = _optPos(i, size);
+    final activeOpt = d < _step / 2;
+    return Positioned(
+      left: pos.dx - 6,
+      top: pos.dy - 24,
+      child: IgnorePointer(
+        child: Opacity(
+          opacity: op,
+          child: Transform.scale(
+            scale: scale,
+            alignment: Alignment.centerLeft,
+            child: _DialOption(item: widget.items[i], active: activeOpt),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A single dial option: icon disc + label + kicker.
+class _DialOption extends StatelessWidget {
+  const _DialOption({required this.item, required this.active});
+
+  final DialItemData item;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 210,
+      height: 48,
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: active
+                  ? const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFF4D774), Color(0xFFA67C1A)],
+                    )
+                  : null,
+              color: active ? null : Colors.white.withValues(alpha: 0.08),
+              border: Border.all(
+                color: active ? Colors.transparent : Colors.white24,
+                width: 1,
+              ),
+              boxShadow: active
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFFD4AF37).withValues(alpha: 0.5),
+                        blurRadius: 14,
+                        spreadRadius: -2,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Icon(
+              item.icon,
+              size: 21,
+              color: active ? const Color(0xFF231A06) : Colors.white70,
+            ),
+          ),
+          const SizedBox(width: 11),
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: active ? Colors.white : Colors.white70,
+                    fontSize: active ? 17 : 15,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  item.kicker,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: const Color(0xFFD4AF37)
+                        .withValues(alpha: active ? 1.0 : 0.5),
+                    fontSize: 10,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Paints the rotating knob — a notched gold disc with concentric rings. The
+/// disc is static; the parent Transform.rotate spins it with the drag.
+class _DialHubPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = Offset(size.width / 2, size.height / 2);
+    final r = size.width / 2;
+    // Body — dark-gold radial.
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..shader = const RadialGradient(
+          center: Alignment(0.3, -0.2),
+          colors: [Color(0xFF2A2415), Color(0xFF100D07)],
+        ).createShader(Rect.fromCircle(center: c, radius: r)),
+    );
+    // Radial notches every 6° — the knob "teeth".
+    final tick = Paint()
+      ..color = const Color(0xFFE8C15A).withValues(alpha: 0.16)
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    for (double a = 0; a < 360; a += 6) {
+      final th = a * math.pi / 180;
+      final dir = Offset(math.cos(th), math.sin(th));
+      canvas.drawLine(c + dir * (r * 0.74), c + dir * (r * 0.94), tick);
+    }
+    // Concentric rings.
+    final ring = Paint()
+      ..style = PaintingStyle.stroke
+      ..color = const Color(0xFFE8C15A).withValues(alpha: 0.4)
+      ..strokeWidth = 1.2;
+    canvas.drawCircle(c, r - 2, ring);
+    canvas.drawCircle(c, r * 0.66, ring);
+    canvas.drawCircle(
+      c,
+      r * 0.5,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..color = const Color(0xFFE8C15A).withValues(alpha: 0.22)
+        ..strokeWidth = 1,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _DialHubPainter oldDelegate) => false;
+}

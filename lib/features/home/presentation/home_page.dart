@@ -13,6 +13,9 @@ import '../../../core/widgets/offline_indicator.dart';
 import '../../../core/services/credit_service.dart';
 import '../../../core/services/subscription_service.dart';
 import 'widgets/free_hour_chip.dart';
+import 'models/home_section.dart';
+import 'widgets/vitrina_shell.dart';
+import 'widgets/vitrina_top_bar.dart';
 import '../../ai_generate/presentation/pages/ai_generate_page.dart';
 import '../../favorites/presentation/favorites_page.dart';
 import '../../settings/presentation/settings_page.dart';
@@ -47,6 +50,14 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   int _currentIndex = 0;
   bool _protectPromptOpen = false;
+
+  /// Vitrina + Perilla navigation — ACTIVE in production by default (resolves
+  /// PrimeTest #3/#4, the crowded 14-tab bottom nav). The old AppBar + Ember
+  /// bottom nav stay in build()'s else branch as a kill-switch: rebuild with
+  /// `--dart-define=VITRINA=false` to fall back to them in a hotfix.
+  /// (fromEnvironment keeps the else branch reachable, so no dead-code warning.)
+  static const bool _useVitrina =
+      bool.fromEnvironment('VITRINA', defaultValue: true);
 
   /// Per-tab GlobalKeys for the coach-mark spotlights. The bottom nav has
   /// 13 tabs on Android right now (WALL/LIVE/3D/CULT/EVNT/AURA/ARC/STOR/
@@ -183,7 +194,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await TrainingService.instance.init();
       if (!mounted) return;
-      if (!TrainingService.instance.seen) {
+      // The legacy coach-mark tour spotlights the old bottom-nav tabs, which
+      // don't exist under the Vitrina shell — skip it there so it can't break
+      // (PrimeTest #4). A Vitrina-native hint comes later.
+      if (!_useVitrina && !TrainingService.instance.seen) {
         // Wait one more frame so all tab widgets are laid out
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _showCoachMarks();
@@ -613,6 +627,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_useVitrina) return _buildVitrina();
     final h = context.hud;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // The Ember Reactive nav uses warm charcoal `#1F1B17`. The system
@@ -630,6 +645,44 @@ class _HomePageState extends ConsumerState<HomePage> {
         appBar: _buildAppBar(),
         body: IndexedStack(index: _currentIndex, children: _pages),
         bottomNavigationBar: _buildBottomNav(),
+      ),
+    );
+  }
+
+  /// Vitrina + Perilla home (Release A, behind [_useVitrina]). Reuses the exact
+  /// same pages, avatar, credits badge and Free Hour chip; only the chrome
+  /// changes (full-bleed shell + floating top bar + Perilla selector instead of
+  /// the AppBar + Ember bottom nav). Analytics keys and the apply flows are
+  /// preserved 1:1 so the ENGAGEMENT dashboard stays continuous.
+  Widget _buildVitrina() {
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: VitrinaShell(
+        currentIndex: _currentIndex,
+        topBar: VitrinaTopBar(
+          avatar: _buildAvatar(),
+          creditsBadge: _buildCreditsBadge(),
+          freeHourChip: const FreeHourChip(),
+          trailingIcon: _isWallpapersTab ? Icons.search : null,
+          onTrailingTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const WallpaperSearchPage()),
+            );
+          },
+          onSettingsTap: () =>
+              setState(() => _currentIndex = HomeSection.settings.index),
+        ),
+        onSelectSection: (i) {
+          AnalyticsService.instance.trackTabView(kHomeSections[i].analyticsKey);
+          setState(() => _currentIndex = i);
+        },
+        children: _pages,
       ),
     );
   }
