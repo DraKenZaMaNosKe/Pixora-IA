@@ -237,6 +237,52 @@ body::after{
 .strip::-webkit-scrollbar{height:6px}
 .strip::-webkit-scrollbar-thumb{background:var(--wood);border-radius:3px}
 
+/* ── Safelight edge-scroll ──────────────────────────────────────────────
+   Approach the edge of a wire and the darkroom's safelight warms up over
+   that side while the line runs. Intensity and speed both track how close
+   the cursor is, so the lamp IS the speedometer. --glow is driven by JS. */
+.edge-zone{
+  position:absolute;top:0;bottom:14px;width:132px;z-index:9;
+  pointer-events:none;opacity:var(--glow,0);
+  display:flex;align-items:center;
+  transition:opacity .3s ease;
+}
+.edge-zone.left{left:0;justify-content:flex-start;padding-left:10px;
+  background:linear-gradient(90deg,
+    rgba(201,58,42,.30) 0%, rgba(139,30,30,.14) 42%, transparent 78%);
+}
+.edge-zone.right{right:0;justify-content:flex-end;padding-right:10px;
+  background:linear-gradient(270deg,
+    rgba(201,58,42,.30) 0%, rgba(139,30,30,.14) 42%, transparent 78%);
+}
+/* the bulb — bleeds its glow onto the wire above it */
+.edge-zone::before{
+  content:"";position:absolute;top:-9px;width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle at 50% 45%, #FF7A5C, var(--safelight-glow) 45%, rgba(139,30,30,0) 72%);
+  filter:blur(1px);
+  box-shadow:0 0 22px 8px rgba(201,58,42,.5);
+}
+.edge-zone.left::before{left:-6px}
+.edge-zone.right::before{right:-6px}
+.edge-arrow{
+  font-family:'JetBrains Mono',monospace;font-size:30px;line-height:1;
+  color:#FFD9C8;text-shadow:0 0 14px var(--ember),0 0 4px rgba(0,0,0,.8);
+  transform:translateX(var(--nudge,0));
+  transition:transform .22s cubic-bezier(.22,1,.36,1);
+}
+.wire-row.running .edge-zone.left  .edge-arrow{--nudge:-5px}
+.wire-row.running .edge-zone.right .edge-arrow{--nudge:5px}
+/* the line itself heats up while it runs */
+.wire-row.running .wire{
+  box-shadow:0 2px 3px rgba(0,0,0,.7), 0 0 16px rgba(201,58,42,.45);
+}
+/* at the end of the line the lamp dims — nothing left to pull */
+.edge-zone.spent{filter:grayscale(1) brightness(.45)}
+
+@media (prefers-reduced-motion: reduce){
+  .edge-zone,.edge-arrow{transition:none}
+}
+
 .polaroid{
   --sway:1.2deg;--delay:0s;
   flex:0 0 200px;position:relative;padding:12px 12px 40px;
@@ -1128,8 +1174,11 @@ function renderRevelado(){
         <div class="wire-tag">— ${cat.toLowerCase()} <em>${items.length}</em></div>
         <div class="wire"></div>
         <div class="strip">${items.slice(0, 60).map(polaroidHTML).join('')}</div>
+        <div class="edge-zone left"><span class="edge-arrow">‹</span></div>
+        <div class="edge-zone right"><span class="edge-arrow">›</span></div>
       </div>`;
   }).join('');
+  room.querySelectorAll('.wire-row').forEach(wireEdgeScroll);
   room.querySelectorAll('.polaroid').forEach((el, i) => {
     el.style.setProperty('--delay', `${(-i * 0.3) % 5}s`);
     el.addEventListener('click', () => openEdit(el.dataset.id));
@@ -1137,6 +1186,116 @@ function renderRevelado(){
     setTimeout(() => el.classList.remove('developing'), 1500 + i * 40);
   });
 }
+// ── Safelight edge-scroll engine ───────────────────────────────────────
+// One rAF drives whichever wire the cursor is working. Speed is quadratic
+// in proximity, so you feather it: hover the outer rim to creep along and
+// look at every photo, push into the edge to fly to the far end.
+const EDGE_W = 132;    // px — the reactive band at each end
+const V_MAX  = 26;     // px/frame at full press
+const EASE   = 0.14;   // velocity lerp — gives weight instead of snapping
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function wireEdgeScroll(row){
+  const strip = row.querySelector('.strip');
+  const zL = row.querySelector('.edge-zone.left');
+  const zR = row.querySelector('.edge-zone.right');
+  if (!strip || !zL || !zR) return;
+
+  let target = 0, vel = 0, raf = 0, inside = false;
+
+  const overflows = () => strip.scrollWidth - strip.clientWidth > 4;
+
+  function paint(){
+    // A lamp with nowhere left to pull reads as broken, so show it spent.
+    const atStart = strip.scrollLeft <= 1;
+    const atEnd = strip.scrollLeft >= strip.scrollWidth - strip.clientWidth - 1;
+    zL.classList.toggle('spent', atStart);
+    zR.classList.toggle('spent', atEnd);
+    zL.style.setProperty('--glow', inside && target < 0 ? Math.min(1, -target * 1.25) : 0);
+    zR.style.setProperty('--glow', inside && target > 0 ? Math.min(1, target * 1.25) : 0);
+    row.classList.toggle('running', Math.abs(vel) > 0.4);
+  }
+
+  function tick(){
+    vel += (target * V_MAX - vel) * EASE;
+    if (Math.abs(vel) > 0.08) {
+      strip.scrollLeft += vel;
+      paint();
+      raf = requestAnimationFrame(tick);
+    } else {
+      vel = 0; raf = 0; paint();   // settle, then stop burning frames
+    }
+  }
+
+  function drive(t){
+    target = t;
+    if (t !== 0 && !raf) raf = requestAnimationFrame(tick);
+    paint();
+  }
+
+  row.addEventListener('mousemove', (e) => {
+    if (!overflows() || reducedMotion) return;
+    const r = strip.getBoundingClientRect();
+    // Ignore the vertical gutters so leaving the row upward doesn't latch it.
+    if (e.clientY < r.top || e.clientY > r.bottom) { inside = false; return drive(0); }
+    inside = true;
+    const dL = e.clientX - r.left;
+    const dR = r.right - e.clientX;
+    let t = 0;
+    if (dL < EDGE_W)      t = -Math.pow(1 - dL / EDGE_W, 2);   // quadratic: gentle rim, hard edge
+    else if (dR < EDGE_W) t =  Math.pow(1 - dR / EDGE_W, 2);
+    // Deadzone: the outermost sliver of the band computes to a ~12px/s creep —
+    // useless to read by, yet enough to keep the rAF alive forever. Snap to 0.
+    if (Math.abs(t) < 0.04) t = 0;
+    drive(t);
+  });
+
+  row.addEventListener('mouseleave', () => { inside = false; drive(0); });
+
+  // Vertical wheel over a wire scrolls it sideways — the reflex most people
+  // try first, and it costs nothing to honour.
+  strip.addEventListener('wheel', (e) => {
+    if (!overflows() || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+    e.preventDefault();
+    strip.scrollLeft += e.deltaY;
+    paint();
+  }, {passive: false});
+
+  paint();
+}
+
+// Vertical twin: same feel, applied to the page. Deliberately narrower and
+// slower than the horizontal one — the wheel already does this job, so this
+// only has to help, never hijack. Ignores the sticky shelf and trays, or it
+// would fire every time you reach for the nav.
+function pageEdgeScroll(){
+  const BAND = 76, V = 15;
+  let target = 0, vel = 0, raf = 0;
+
+  function tick(){
+    vel += (target * V - vel) * 0.14;
+    if (Math.abs(vel) > 0.08) {
+      window.scrollBy(0, vel);
+      raf = requestAnimationFrame(tick);
+    } else { vel = 0; raf = 0; }
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    if (reducedMotion) return;
+    const overShelfOrTrays = e.target.closest?.('.shelf, .trays, .canisters, .modal, .sheet');
+    const dTop = e.clientY, dBot = innerHeight - e.clientY;
+    let t = 0;
+    if (!overShelfOrTrays) {
+      if (dTop < BAND)      t = -Math.pow(1 - dTop / BAND, 2);
+      else if (dBot < BAND) t =  Math.pow(1 - dBot / BAND, 2);
+      if (Math.abs(t) < 0.06) t = 0;
+    }
+    target = t;
+    if (t !== 0 && !raf) raf = requestAnimationFrame(tick);
+  }, {passive: true});
+}
+pageEdgeScroll();
+
 function polaroidHTML(w){
   const isNew = w.created_at && (Date.now() - new Date(w.created_at).getTime()) < 14 * 86400000;
   const img = w.preview_url || w.image_url || '';
