@@ -54,11 +54,21 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
         }
 
         prefetchToCache(entries)
+        // Scene content (canvas_scene): downloaded AND verified by the
+        // supervisor in THIS process. WorkManager survives app death and
+        // retries — which is exactly why static wallpapers already work on
+        // OEMs like the ZTE Axon that kill the Flutter app. The supervisor
+        // seeds Daily itself the moment a scene commits, killing the old race
+        // where the worker seeded before Dart's markers existed.
+        val scenesPending = DailyDownloadSupervisor.runOnce(applicationContext)
         enforceMaxCache(prefs)
         sweepOrphanSceneMarkers()
-        seedDailyIfNeeded()
-        Log.d(TAG, "Prefetch tick done")
-        return Result.success()
+        seedDailyIfNeeded(applicationContext)
+        Log.d(TAG, "Prefetch tick done (scenesPending=$scenesPending)")
+        // Bounded retry with backoff: if scene hydration is mid-flight (partial
+        // download, slow network), let WorkManager re-run us instead of waiting
+        // for the 6h periodic. Capped so we never burn WorkManager quota.
+        return if (scenesPending && runAttemptCount < 5) Result.retry() else Result.success()
     }
 
     /**
@@ -79,50 +89,8 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             }
     }
 
-    /**
-     * Seed daily mode on first activation. The in-service rotation only kicks
-     * in when the current wallpaper_path lives in auto_rotate_cache/. On a
-     * fresh activation that path still points at whatever the user had before,
-     * so we do ONE soft apply (broadcast, never kill) to point it at a cached
-     * file. After this, PixoraWallpaperService takes over rotation on-wake.
-     * No-op if already seeded (path already in the cache).
-     */
-    private fun seedDailyIfNeeded() {
-        val livePrefs = applicationContext
-            .getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
-        val currentPath = livePrefs.getString("wallpaper_path", "") ?: ""
-        if (currentPath.contains("auto_rotate_cache")) return // already seeded
-
-        val cacheDir = getWallpaperCacheDir()
-        val all = cacheDir.listFiles()
-            ?.filter { it.extension != "tmp" && it.length() > 0 }
-            ?: return
-        if (all.isEmpty()) return
-        // 2026-07-07 — prefer a plain image for the seed (cheapest, no scene
-        // init). Only seed a scene marker if the pool is scenes-only.
-        val suffix = PixoraWallpaperService.SCENE_MARKER_SUFFIX
-        val plain = all.filter { !it.name.endsWith(suffix) }
-        val first = (plain.ifEmpty { all }).randomOrNull() ?: return
-        val seedSceneId = first.name.takeIf { it.endsWith(suffix) }?.removeSuffix(suffix)
-
-        val now = System.currentTimeMillis()
-        val prefEditor = livePrefs.edit()
-            .putString("wallpaper_path", first.absolutePath)
-            .putBoolean("interactive", false)
-            .putLong("changed_at", now)
-            .putLong("daily_last_rotation", now)
-        if (seedSceneId != null) prefEditor.putString("scene_id", seedSceneId)
-        else prefEditor.remove("scene_id")
-        prefEditor.apply()
-
-        val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
-            .setPackage(applicationContext.packageName)
-            .putExtra("wallpaper_path", first.absolutePath)
-        if (seedSceneId != null) notify.putExtra("scene_id", seedSceneId)
-        else notify.putExtra("clear_scene", true)
-        applicationContext.sendBroadcast(notify)
-        Log.d(TAG, "Daily seeded with ${first.name}${if (seedSceneId != null) " (scene)" else ""}")
-    }
+    // seedDailyIfNeeded moved to the companion object (2026-07-16) so
+    // DailyDownloadSupervisor can seed the instant a scene commits its marker.
 
     /**
      * Download up to [maxNew] catalog images that aren't cached yet, so the
@@ -294,6 +262,55 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             .build()
 
         /**
+         * Seed daily mode on first activation (or the instant a scene commits).
+         * The in-service rotation only kicks in when the current wallpaper_path
+         * lives in auto_rotate_cache/. On a fresh activation that path still
+         * points at whatever the user had before, so we do ONE soft apply
+         * (broadcast, never kill) to point it at a cached file. After this,
+         * PixoraWallpaperService takes over rotation on-wake. No-op if already
+         * seeded (path already in the cache).
+         *
+         * Moved to the companion (2026-07-16) so DailyDownloadSupervisor can
+         * call it the moment scene content is fully downloaded + verified —
+         * closing the race where the worker seeded before any marker existed.
+         */
+        fun seedDailyIfNeeded(context: Context) {
+            val livePrefs = context.getSharedPreferences("pixora_live", Context.MODE_PRIVATE)
+            val currentPath = livePrefs.getString("wallpaper_path", "") ?: ""
+            if (currentPath.contains("auto_rotate_cache")) return // already seeded
+
+            val cacheDir = File(context.filesDir, "auto_rotate_cache")
+            val all = cacheDir.listFiles()
+                ?.filter { it.extension != "tmp" && it.length() > 0 }
+                ?: return
+            if (all.isEmpty()) return
+            // Prefer a plain image for the seed (cheapest, no scene init). Only
+            // seed a scene marker if the pool is scenes-only.
+            val suffix = PixoraWallpaperService.SCENE_MARKER_SUFFIX
+            val plain = all.filter { !it.name.endsWith(suffix) }
+            val first = (plain.ifEmpty { all }).randomOrNull() ?: return
+            val seedSceneId = first.name.takeIf { it.endsWith(suffix) }?.removeSuffix(suffix)
+
+            val now = System.currentTimeMillis()
+            val prefEditor = livePrefs.edit()
+                .putString("wallpaper_path", first.absolutePath)
+                .putBoolean("interactive", false)
+                .putLong("changed_at", now)
+                .putLong("daily_last_rotation", now)
+            if (seedSceneId != null) prefEditor.putString("scene_id", seedSceneId)
+            else prefEditor.remove("scene_id")
+            prefEditor.apply()
+
+            val notify = Intent("com.orbix.pixora.WALLPAPER_PATH_CHANGED")
+                .setPackage(context.packageName)
+                .putExtra("wallpaper_path", first.absolutePath)
+            if (seedSceneId != null) notify.putExtra("scene_id", seedSceneId)
+            else notify.putExtra("clear_scene", true)
+            context.sendBroadcast(notify)
+            Log.d(TAG, "Daily seeded with ${first.name}${if (seedSceneId != null) " (scene)" else ""}")
+        }
+
+        /**
          * Activate Pixora Daily. Stores the catalog + interval + enabled flag
          * (the interval is read by PixoraWallpaperService for the actual
          * rotation), fires an immediate prefetch so the cache is stocked, and
@@ -352,11 +369,20 @@ class AutoRotateWorker(context: Context, params: WorkerParameters) : Worker(cont
             else editor.remove("category")
             editor.apply()
 
+            // Rebuild the scene download plan for this activation/category.
+            // Bumps the supervisor generation (any in-flight pass with the old
+            // one aborts) and drops state for scenes no longer in the catalog.
+            DailyDownloadSupervisor.syncCatalog(context, catalogData, category)
+
             val wm = WorkManager.getInstance(context)
 
             // Immediate prefetch — stock the cache for the first rotations.
+            // Exponential backoff feeds the supervisor's Result.retry() path so
+            // a mid-flight scene hydration resumes without waiting for the 6h
+            // periodic.
             val immediate = OneTimeWorkRequestBuilder<AutoRotateWorker>()
                 .setConstraints(networkConstraints())
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                 .addTag(WORK_NAME)
                 .build()
             wm.enqueueUniqueWork(WORK_NAME, ExistingWorkPolicy.REPLACE, immediate)

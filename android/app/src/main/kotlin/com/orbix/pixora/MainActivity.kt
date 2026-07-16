@@ -356,6 +356,14 @@ class MainActivity : AudioServiceActivity() {
                         val status = AutoRotateWorker.getStatus(applicationContext)
                         result.success(status)
                     }
+                    // Per-resource download state of Daily's canvas_scenes
+                    // (spec/layers/sprites/marker + progress + error taxonomy).
+                    // Pure read — the remote-diagnosis channel for devices we
+                    // can't attach adb to (e.g. the ZTE Axon).
+                    "getDailyDownloadStatus" -> {
+                        result.success(
+                            DailyDownloadSupervisor.statusSnapshot(applicationContext))
+                    }
                     "clearAutoRotateCache" -> {
                         AutoRotateWorker.clearCache(applicationContext)
                         result.success(true)

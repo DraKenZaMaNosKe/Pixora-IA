@@ -218,10 +218,17 @@ class AutoRotateService {
             ..shuffle())
           .take(kMaxDailyScenes)
           .toList();
+      // Wire format for scenes carries two extra fields (5: flat/marker URL,
+      // 6: spec URL) so the native DailyDownloadSupervisor can hydrate + verify
+      // the scene from WorkManager (survives app death — the ZTE fix). Older
+      // native parsers only read fields 0..3, so the extra fields are inert for
+      // them, and Dart+Kotlin ship together in the APK — no version skew.
       final data = <String>[
         for (final e in scenes)
           '${e.id}|${e.id}$_sceneMarkerSuffix|'
-              '${(e.raw['glow_color'] as String?) ?? '#C9A650'}|scene',
+              '${(e.raw['glow_color'] as String?) ?? '#C9A650'}|scene|'
+              '${(e.raw['image_url'] as String?) ?? ''}|'
+              '${e.specUrl ?? ''}',
       ];
       // AMOR also mixes in static amor wallpapers (sunsets, silhouettes…).
       if (category == 'AMOR') {
