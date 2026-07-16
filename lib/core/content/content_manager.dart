@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../services/ad_service.dart';
+import '../services/rate_service.dart';
 import '../services/sprite_download_service.dart';
 import '../services/wallpaper_stats_service.dart';
 import 'content_cache.dart';
@@ -137,6 +138,10 @@ class ContentManager {
     if (success) {
       // Track the install event AFTER native call succeeded.
       WallpaperStatsService.instance.trackInstall(item.id);
+      // Ask for a review if this is a good moment. unawaited: the install
+      // flow must not wait on a prompt, and RateService decides internally
+      // whether anything is shown at all.
+      unawaited(RateService.instance.recordApplied());
       onPhase?.call('done');
     } else {
       onError?.call('Installation failed');
