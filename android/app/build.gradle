@@ -72,6 +72,13 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+            // R8 already runs on release builds (Flutter enables it). Make it
+            // explicit and feed our keep rules so flutter_local_notifications'
+            // Gson-based boot receiver stops crashing with "Missing type
+            // parameter" on reboot / app update. shrinkResources left off to
+            // avoid touching resource stripping.
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             ndk {
                 debugSymbolLevel 'FULL'
             }
