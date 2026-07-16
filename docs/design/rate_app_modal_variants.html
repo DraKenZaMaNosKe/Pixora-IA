@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixora · Modal "Califícanos" — 5 variantes</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Jost:wght@300;400;500;600&display=swap');
+:root{
+  --gold:#e8c15a; --gold2:#c99a3e; --cream:#efe7d2; --ink:#f4efe4;
+  --mut:#9a927f; --line:rgba(232,193,90,.28);
+  --font:'Jost',system-ui,sans-serif; --serif:'Fraunces','Georgia',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(900px 560px at 85% -12%,rgba(232,193,90,.08),transparent 60%),#050505;
+  color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;padding:34px 0 80px}
+.head{max-width:900px;margin:0 auto 26px;text-align:center;padding:0 18px}
+.eyebrow{letter-spacing:.42em;text-transform:uppercase;font-size:11px;color:var(--gold);margin-bottom:12px}
+h1{font-family:var(--serif);font-style:italic;font-weight:600;font-size:clamp(24px,4vw,40px);line-height:1.08}
+h1 b{color:var(--gold);font-style:normal;font-weight:400}
+.sub{color:var(--mut);font-size:14px;margin-top:12px;line-height:1.6}
+.rail{display:flex;gap:30px;overflow-x:auto;padding:6px 40px 30px}
+.col{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+.vtag{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--mut);text-align:center}
+.vtag b{font-family:var(--serif);font-style:italic;font-weight:600;font-size:16px;color:var(--gold);display:block;letter-spacing:0;text-transform:none;margin-bottom:3px}
+.vdesc{max-width:300px;text-align:center;font-size:11px;color:#7c7666;line-height:1.5}
+
+.phone{width:320px;height:690px;border-radius:44px;padding:8px;position:relative;
+  background:linear-gradient(150deg,#3a3320,#0c0b08 55%);
+  box-shadow:0 40px 90px rgba(0,0,0,.65),inset 0 0 0 1px rgba(232,193,90,.22)}
+.screen{position:relative;width:100%;height:100%;border-radius:37px;overflow:hidden;background:#08080c}
+.notch{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:100px;height:20px;background:#000;border-radius:0 0 14px 14px;z-index:60}
+
+/* home borroso de fondo */
+.bg{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(120% 80% at 50% 18%,#2a3a66,#0a1224 72%)}
+.bg .moon{position:absolute;top:14%;left:50%;transform:translateX(-50%);width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#dfe6f2,#9fb0cc 60%,#6d80a4);box-shadow:0 0 50px rgba(180,200,240,.3)}
+.bg .grid{position:absolute;left:14px;right:14px;bottom:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.bg .grid i{height:70px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06)}
+.scrim{position:absolute;inset:0;z-index:1;background:rgba(5,5,7,.62);backdrop-filter:blur(7px)}
+
+/* estrellas */
+.stars{display:flex;gap:6px;justify-content:center}
+.stars svg{width:26px;height:26px}
+.stars .on{fill:var(--gold);stroke:var(--gold)}
+.stars .off{fill:none;stroke:rgba(232,193,90,.4)}
+.stars.sm svg{width:20px;height:20px}
+
+/* botones */
+.cta{display:block;width:100%;text-align:center;border-radius:26px;padding:13px;font-size:13px;font-weight:600;letter-spacing:.02em;
+  color:#1c1608;background:linear-gradient(90deg,var(--gold),#f0d074);box-shadow:0 8px 24px rgba(232,193,90,.28)}
+.ghost{display:block;width:100%;text-align:center;padding:11px;font-size:12px;color:var(--mut);letter-spacing:.04em}
+.modalTitle{font-family:var(--serif);font-style:italic;font-weight:600;color:var(--cream);line-height:1.1}
+.modalSub{color:var(--mut);font-size:12.5px;line-height:1.55;text-align:center}
+
+/* ===== V1 Estrellas doradas (centrado clásico) ===== */
+.v1 .card{position:absolute;z-index:2;left:22px;right:22px;top:50%;transform:translateY(-50%);
+  background:linear-gradient(160deg,#17140d,#0b0906);border:1px solid var(--line);border-radius:24px;padding:28px 22px 22px;
+  box-shadow:0 30px 70px rgba(0,0,0,.6),inset 0 0 0 1px rgba(232,193,90,.06);text-align:center;display:flex;flex-direction:column;gap:16px}
+.v1 .badge{width:56px;height:56px;margin:0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 40% 35%,#2a2415,#100d07);border:1px solid var(--gold);color:var(--gold);font-size:24px}
+.v1 .modalTitle{font-size:22px}
+
+/* ===== V2 Holo-card (estilo carta rara) ===== */
+.v2 .card{position:absolute;z-index:2;left:24px;right:24px;top:50%;transform:translateY(-50%);
+  border-radius:20px;padding:5px;background:linear-gradient(145deg,var(--gold),#7a5c1e 45%,var(--gold));
+  box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.v2 .inner{border-radius:16px;background:linear-gradient(170deg,#12100a,#0a0806);padding:22px 20px;text-align:center;display:flex;flex-direction:column;gap:14px}
+.v2 .rare{font-size:9px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase}
+.v2 .modalTitle{font-size:20px}
+.v2 .art{height:96px;border-radius:12px;background:radial-gradient(80% 80% at 50% 35%,#3a2b7a,#0b0a1e);position:relative;overflow:hidden;border:1px solid rgba(232,193,90,.2)}
+.v2 .art::after{content:"◆";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:30px;opacity:.9}
+
+/* ===== V3 Glass minimal ===== */
+.v3 .card{position:absolute;z-index:2;left:30px;right:30px;top:50%;transform:translateY(-50%);
+  background:rgba(20,17,10,.55);backdrop-filter:blur(16px);border:1px solid rgba(232,193,90,.34);border-radius:22px;padding:24px 20px;
+  text-align:center;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.v3 .modalTitle{font-size:19px}
+
+/* ===== V4 Diamante / recompensa ===== */
+.v4 .card{position:absolute;z-index:2;left:22px;right:22px;top:50%;transform:translateY(-50%);
+  background:linear-gradient(160deg,#171208,#0b0906);border:1px solid var(--line);border-radius:24px;padding:24px 22px;
+  text-align:center;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.v4 .diamond{font-size:34px;color:var(--gold);text-shadow:0 0 24px rgba(232,193,90,.5)}
+.v4 .modalTitle{font-size:20px}
+.v4 .reward{display:inline-flex;align-items:center;gap:6px;margin:0 auto;font-size:11px;color:var(--gold);
+  border:1px solid var(--line);border-radius:20px;padding:6px 14px;background:rgba(232,193,90,.06)}
+
+/* ===== V5 Bottom sheet cálido ===== */
+.v5 .sheet{position:absolute;z-index:2;left:0;right:0;bottom:0;
+  background:linear-gradient(0deg,#14110b,#0d0b07);border-top:1px solid rgba(232,193,90,.24);border-radius:26px 26px 0 0;
+  padding:16px 22px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 -20px 60px rgba(0,0,0,.5)}
+.v5 .grab{width:40px;height:4px;border-radius:4px;background:rgba(232,193,90,.4);margin:0 auto 6px}
+.v5 .emoji{font-size:38px;text-align:center}
+.v5 .modalTitle{font-size:21px;text-align:center}
+.v5 .row{display:flex;gap:10px}
+.v5 .row .cta{flex:1}
+.v5 .row .ghostbtn{flex:1;text-align:center;border-radius:26px;padding:13px;font-size:13px;color:var(--cream);border:1px solid var(--line)}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="eyebrow">Pixora · Feature nuevo</div>
+    <h1>Modal <b>"Califícanos"</b> — 5 estilos</h1>
+    <p class="sub">Ventana flotante que aparece de vez en cuando pidiendo calificar la app. El botón manda directo a Play Store (<code>market://details?id=com.orbix.pixora</code>) — se activa solo al salir a producción.</p>
+  </div>
+
+  <div class="rail" id="rail"></div>
+
+<script>
+const STARS = (n=5, cls='') => `<div class="stars ${cls}">${
+  Array.from({length:5},(_,i)=>`<svg viewBox="0 0 24 24" class="${i<n?'on':'off'}" stroke-width="1.5"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.2l1-5.8L3.5 9.2l5.9-.9z"/></svg>`).join('')
+}</div>`;
+
+const BG = `<div class="bg"><div class="moon"></div><div class="grid"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="scrim"></div>`;
+
+const VARIANTS = [
+  { tag:'Variante 1', name:'Estrellas doradas', desc:'Modal centrado clásico y elegante. Insignia de corona, título Fraunces, 5 estrellas grandes y CTA dorado. Directo y confiable.',
+    html:`${BG}<div class="card v1-card">
+      <div class="badge">♛</div>
+      <div class="modalTitle" style="font-size:22px">¿Te encanta<br>Pixora?</div>
+      ${STARS(5)}
+      <div class="modalSub">Tu calificación nos ayuda a llegar a más personas y seguir creando fondos chidos.</div>
+      <a class="cta">Calificar en Play Store</a>
+      <span class="ghost">Ahora no</span>
+    </div>`, cls:'v1' },
+
+  { tag:'Variante 2', name:'Holo-card', desc:'Estilo carta rara (como tus holocards): marco dorado foil, mini-arte y estrellas. Lúdico, muy identidad Pixora.',
+    html:`${BG}<div class="card v2-outer"><div class="inner">
+      <div class="rare">★★★ Tu opinión es RARE</div>
+      <div class="art"></div>
+      <div class="modalTitle">Colecciona buena vibra</div>
+      ${STARS(5,'sm')}
+      <div class="modalSub">Deja tu reseña y ayúdanos a subir de nivel.</div>
+      <a class="cta">Calificar ahora</a>
+      <span class="ghost">Luego</span>
+    </div></div>`, cls:'v2' },
+
+  { tag:'Variante 3', name:'Glass minimal', desc:'Discreto y ligero: vidrio esmerilado, poco texto, no invade. Ideal para no molestar — aparece suave sobre la interfaz.',
+    html:`${BG}<div class="card v3-card">
+      ${STARS(5)}
+      <div class="modalTitle" style="font-size:19px">¿Nos das 5 estrellas?</div>
+      <div class="modalSub">Toma 10 segundos y nos ayuda un montón.</div>
+      <a class="cta">Sí, calificar</a>
+      <span class="ghost">Ya la califiqué · Ahora no</span>
+    </div>`, cls:'v3' },
+
+  { tag:'Variante 4', name:'Diamante / recompensa', desc:'Usa tu moneda (diamantes) como gancho: "gana 50 💎 por calificar". Sube muchísimo la tasa de reseñas. Ojo: no condiciones la reseña a 5★ (contra políticas).',
+    html:`${BG}<div class="card v4-card">
+      <div class="diamond">◆</div>
+      <div class="modalTitle" style="font-size:20px">Ayúdanos a brillar</div>
+      ${STARS(5,'sm')}
+      <div class="modalSub">Deja tu reseña honesta en Play Store.</div>
+      <div class="reward">◆ +50 diamantes de regalo</div>
+      <a class="cta">Calificar y reclamar</a>
+      <span class="ghost">Ahora no</span>
+    </div>`, cls:'v4' },
+
+  { tag:'Variante 5', name:'Bottom sheet cálido', desc:'Hoja inferior amistosa con emoji y tono cercano. Dos botones lado a lado (Calificar / Ahora no). Menos formal, muy humano.',
+    html:`${BG}<div class="sheet v5-sheet">
+      <div class="grab"></div>
+      <div class="emoji">🥹</div>
+      <div class="modalTitle">¿Nos echas la mano?</div>
+      ${STARS(5)}
+      <div class="modalSub">Una reseña tuya vale oro para un estudio chiquito como el nuestro.</div>
+      <div class="row">
+        <span class="ghostbtn">Ahora no</span>
+        <a class="cta">¡Calificar!</a>
+      </div>
+    </div>`, cls:'v5' },
+];
+
+const rail = document.getElementById('rail');
+VARIANTS.forEach(v=>{
+  const col = document.createElement('div'); col.className='col';
+  col.innerHTML = `
+    <div class="vtag">${v.tag}<b>${v.name}</b></div>
+    <div class="phone"><div class="notch"></div>
+      <div class="screen ${v.cls}">${v.html}</div>
+    </div>
+    <div class="vdesc">${v.desc}</div>`;
+  rail.appendChild(col);
+});
+</script>
+</body>
+</html>

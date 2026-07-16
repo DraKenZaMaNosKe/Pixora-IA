@@ -134,13 +134,28 @@ class AdService {
 
   bool get isAdLoaded => _isAdLoaded;
 
-  /// Whether the NEXT action will be ad-free (alternating skip kicks in).
-  /// Returns true when [_actionCount] is even, meaning the next increment
-  /// will land on an odd value (=> shows ad). Restored 2026-05-08 after
-  /// v1.7.5's "always show" change made playable AdMob ads stutter on
-  /// memory-pressed Samsung devices because users hit them every other
-  /// wallpaper apply.
-  bool get isNextActionFree => _actionCount.isEven;
+  /// Whether the NEXT action will be ad-free. Drives the "SIN AD"/"CON AD"
+  /// badge and the diamonds line, so it has to answer the same question
+  /// [showInterstitialAd] is about to answer — every gate included, not just
+  /// the alternating cadence.
+  ///
+  /// Mirrors [showInterstitialAd] in order: the gates below return before the
+  /// counter is touched, so they make an action ad-free whatever its parity.
+  /// The cadence increments FIRST and shows on odd, so the next action is
+  /// ad-free exactly when the counter is currently ODD (it lands on even =>
+  /// skip).
+  ///
+  /// Was `_actionCount.isEven` until 2026-07-15, which inverted it: the badge
+  /// promised "SIN AD" and then showed one, and offered "+N por ver" on the
+  /// action that skips the ad (so nothing was earned). Subscribers, who never
+  /// see an ad at all, got "CON AD" half the time.
+  bool get isNextActionFree {
+    if (SubscriptionService.instance.hasAccess) return true;
+    if (FreeHourService.instance.isActive) return true;
+    if (GracePassService.instance.hasGrace) return true;
+    if (_debugDisableAds) return true;
+    return _actionCount.isOdd;
+  }
 
   /// Current flag value for debugging.
   int get debugFlag => _actionCount;
