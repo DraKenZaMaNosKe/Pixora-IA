@@ -157,7 +157,13 @@ class _PixoraDailyPageState extends State<PixoraDailyPage>
       // modal en vez de fallar silenciosamente. Si está cached, dejar pasar
       // (el primer tick puede recuperar desde el cache local).
       if (!ConnectivityService.instance.isOnline) {
-        final cacheDir = await getApplicationDocumentsDirectory();
+        // Must match where the cache actually lives: AutoRotateService writes
+        // to getApplicationSupportDirectory() (= filesDir) and the native
+        // worker to filesDir too — NOT getApplicationDocumentsDirectory()
+        // (app_flutter/). Using the wrong dir made this pre-check always see
+        // an empty cache and wrongly show the offline modal even when the
+        // cache was full.
+        final cacheDir = await getApplicationSupportDirectory();
         final autoRotateCache = Directory('${cacheDir.path}/auto_rotate_cache');
         final cached = autoRotateCache.existsSync() &&
             autoRotateCache
