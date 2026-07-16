@@ -202,6 +202,15 @@ class AutoRotateService {
   /// Scene entries emit a "scene" type + a "<id>__scene.webp" marker file
   /// (written later by _prefetchSceneMarkers). The native worker skips
   /// downloading them; Dart owns scene downloads via SceneSpecService.
+  /// A scene the admin hid from the 3D/parallax tab (its `hidden_in` contains
+  /// 'parallax_tab') must not appear in Pixora Daily's scene rotation either —
+  /// keeps Daily aligned with the tab curation without a second switch.
+  bool _hiddenFromParallaxTab(CatalogIndexEntry e) {
+    final hidden = e.raw['hidden_in'];
+    return hidden is List &&
+        hidden.map((x) => x.toString()).contains('parallax_tab');
+  }
+
   Future<({List<String> data, List<CatalogIndexEntry> scenes})>
       _buildCatalogData(String? category) async {
     if (category == 'SCENES_3D' || category == 'AMOR') {
@@ -212,6 +221,11 @@ class AutoRotateService {
       final scenes = (index
               .where((e) =>
                   e.type == 'canvas_scene' &&
+                  // Curation: a scene the admin hid from the 3D/parallax tab
+                  // (e.g. the video-scroll ones like the Chun-Li frames) must
+                  // NOT surface in Pixora Daily's Escenas 3D either. Keeps Daily
+                  // to the real 3D-parallax scenes (Thanos, Superman, …).
+                  !_hiddenFromParallaxTab(e) &&
                   (category == 'SCENES_3D' ||
                       e.tags.map((t) => t.toLowerCase()).contains('amor')))
               .toList()

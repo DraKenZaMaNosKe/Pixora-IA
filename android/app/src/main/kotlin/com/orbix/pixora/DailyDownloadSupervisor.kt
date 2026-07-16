@@ -106,8 +106,12 @@ object DailyDownloadSupervisor {
                 val id = p.getOrNull(0).orEmpty()
                 val flat = p.getOrNull(4).orEmpty()
                 val spec = p.getOrNull(5).orEmpty()
-                if (id.isEmpty() || flat.isEmpty() || spec.isEmpty()) {
-                    Log.w(TAG, "scene '$id' skipped — wire entry missing urls")
+                // flat may be empty: some scenes carry no image_url in the index
+                // and the flat marker is derived from the spec's background.url
+                // later (same fallback Dart's prefetch uses). Only the spec URL
+                // is mandatory.
+                if (id.isEmpty() || spec.isEmpty()) {
+                    Log.w(TAG, "scene '$id' skipped — wire entry missing spec url")
                     continue
                 }
                 scenes.put(id, JSONObject()
@@ -176,7 +180,6 @@ object DailyDownloadSupervisor {
             return SceneOutcome.COMPLETE
         }
 
-        val flatUrl = sceneField(context, id, "flat_url") ?: return SceneOutcome.STALE
         val specUrl = sceneField(context, id, "spec_url") ?: return SceneOutcome.STALE
 
         // 1. SPEC — download if absent, validate with the renderer's own parser
@@ -228,7 +231,15 @@ object DailyDownloadSupervisor {
             }
         }
 
-        // 4. MARKER — the commit. Only reachable when 1-3 all verified.
+        // 4. MARKER — the commit. Only reachable when 1-3 all verified. The
+        // flat URL comes from the wire (index image_url) or, when the index
+        // carries none, from the spec's background.url — the same fallback
+        // Dart's prefetch uses. Without either, the scene can't have a marker.
+        val flatUrl = sceneField(context, id, "flat_url") ?: spec.backgroundUrl
+        if (flatUrl.isNullOrEmpty()) {
+            markFailed(context, gen, id, "marker", "NO_FLAT_URL", permanent = true)
+            return SceneOutcome.PERMANENT
+        }
         return when (step(context, gen, id, "marker", marker, flatUrl, MIN_IMAGE_BYTES) {
             decodableImage(it)
         }) {
