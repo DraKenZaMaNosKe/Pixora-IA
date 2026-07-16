@@ -25,6 +25,7 @@ import 'core/services/legal_service.dart';
 import 'core/services/ia_quota_service.dart';
 import 'core/services/live_wallpaper_catalog_service.dart';
 import 'core/services/mystery_exclusion_service.dart';
+import 'core/services/rate_service.dart';
 import 'core/services/ringtone_service.dart';
 import 'core/services/story_catalog_service.dart';
 import 'core/services/push_notification_service.dart';
@@ -122,6 +123,10 @@ Future<void> main() async {
     unawaited(PresenceService.instance.init());
     await CreditService.instance.init();
     await GracePassService.instance.init();
+    // Awaited, not unawaited: init() stamps rate_first_seen_at, and an apply
+    // racing an unfinished init would measure the app's age against a
+    // missing stamp.
+    await RateService.instance.init();
     await AuraPlayerService.instance.init();
     // Mystery Card exclusion set (Hive box `mystery_excluded`).
     // 2026-06-24 — wallpapers ya instalados no aparecen como mystery.
