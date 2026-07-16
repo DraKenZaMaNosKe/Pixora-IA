@@ -7,6 +7,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
+import 'core/navigation/app_navigator.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/auto_rotate_service.dart';
 import 'core/services/analytics_service.dart';
@@ -37,10 +38,8 @@ import 'core/services/wallpaper_stats_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/splash/presentation/splash_page.dart';
 
-/// Global navigator key kept around in case a future flow needs it.
-/// The ad-overlay path no longer uses it — see [adShowingNotifier] below.
-final GlobalKey<NavigatorState> pixoraNavigatorKey =
-    GlobalKey<NavigatorState>();
+// pixoraNavigatorKey moved to core/navigation/app_navigator.dart so services
+// can import it without importing this file (which imports them).
 
 /// Toggled by AdService.showInterstitialAd around the AdMob show. While
 /// `true`, PixoraApp swaps its entire content for a black ColoredBox —
