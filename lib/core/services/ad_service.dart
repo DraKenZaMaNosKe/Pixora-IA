@@ -132,6 +132,18 @@ class AdService {
   /// skips on even counts (2nd, 4th, 6th…).
   int _actionCount = 0;
 
+  /// Whether the most recent [showInterstitialAd] call actually put an ad on
+  /// screen. Every early return sets this false, so a caller that runs after
+  /// the flow — RateService, deciding whether the moment is clean enough to
+  /// ask for a review — can tell an ad-free apply from one that just
+  /// interrupted the user.
+  ///
+  /// A field rather than parity arithmetic on [_actionCount]: reading the
+  /// counter backwards is what left [isNextActionFree] inverted for two
+  /// months. State that says what it means has no such failure mode.
+  bool _lastActionShowedAd = false;
+  bool get lastActionShowedAd => _lastActionShowedAd;
+
   bool get isAdLoaded => _isAdLoaded;
 
   /// Whether the NEXT action will be ad-free. Drives the "SIN AD"/"CON AD"
@@ -251,6 +263,7 @@ class AdService {
     // NO ads — the value prop of the subscription is "no ads + extras".
     // Logged so the dashboard shows what we're skipping for premium users.
     if (SubscriptionService.instance.hasAccess) {
+      _lastActionShowedAd = false;
       _logAd(
         adKind: 'interstitial',
         placement: placement,
@@ -268,6 +281,7 @@ class AdService {
     // ad-free gift during a Free Hour (they'd get nothing for it). Early-return
     // before _actionCount++ so the alternating cadence isn't contaminated.
     if (FreeHourService.instance.isActive) {
+      _lastActionShowedAd = false;
       _logAd(
         adKind: 'interstitial',
         placement: placement,
@@ -284,6 +298,7 @@ class AdService {
     // de bienvenida" advertised at the end of the guided tour. Consume the
     // pass so subsequent installs follow normal alternating-skip rules.
     if (GracePassService.instance.hasGrace) {
+      _lastActionShowedAd = false;
       unawaited(GracePassService.instance.consume());
       _logAd(
         adKind: 'interstitial',
@@ -298,6 +313,7 @@ class AdService {
 
     // ─── Debug bypass ────────────────────────────────────────────────────────
     if (_debugDisableAds) {
+      _lastActionShowedAd = false;
       _logAd(
         adKind: 'interstitial',
         placement: placement,
@@ -328,6 +344,7 @@ class AdService {
     _actionCount++;
     final shouldShow = _actionCount.isOdd;
     if (!shouldShow) {
+      _lastActionShowedAd = false;
       _logAd(
         adKind: 'interstitial',
         placement: placement,
@@ -341,6 +358,7 @@ class AdService {
 
     // ─── Ad not preloaded → skip ─────────────────────────────────────────────
     if (_interstitialAd == null || !_isAdLoaded) {
+      _lastActionShowedAd = false;
       _logAd(
         adKind: 'interstitial',
         placement: placement,
@@ -352,6 +370,9 @@ class AdService {
       loadInterstitialAd();
       return;
     }
+
+    // Past every gate: an ad is going on screen.
+    _lastActionShowedAd = true;
 
     // ─── Show the ad ─────────────────────────────────────────────────────────
     // Minimal AdMob flow — trust the SDK. The 3-minute watchdog stays as a
