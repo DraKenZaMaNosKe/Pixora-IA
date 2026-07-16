@@ -60,7 +60,16 @@ class RateAppSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text('🥹', style: TextStyle(fontSize: 40)),
+              // Bundled rather than the 🥹 character: U+1F979 is Emoji 14.0
+              // (2021) and minSdk is 24 (Android 7, 2016), so every device
+              // below Android 13 renders it as an empty box — in the one
+              // sheet where we ask for a good review. Noto Emoji, Apache 2.0.
+              Image.asset(
+                'assets/rate/face_tears.webp',
+                width: 48,
+                height: 48,
+                filterQuality: FilterQuality.medium,
+              ),
               const SizedBox(height: 12),
               Text(
                 LocaleHelper.fromCms(
