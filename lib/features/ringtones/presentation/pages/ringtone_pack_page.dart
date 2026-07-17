@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
@@ -603,18 +604,35 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
             ),
             child: Row(
               children: [
-                // Track number
+                // Leading: the tone's pixel-art icon when it has one, else the
+                // track number. Same 28px width either way so rows stay aligned.
                 SizedBox(
                   width: 28,
-                  child: Text(
-                    trackNum.toString().padLeft(2, '0'),
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: _neonCyan.withValues(alpha: 0.75),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
+                  child: tone.previewImageUrl.isEmpty
+                      ? Text(
+                          trackNum.toString().padLeft(2, '0'),
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: _neonCyan.withValues(alpha: 0.75),
+                            letterSpacing: 0.5,
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: tone.previewImageUrl,
+                          width: 28,
+                          height: 28,
+                          filterQuality: FilterQuality.medium,
+                          errorWidget: (_, __, ___) => Text(
+                            trackNum.toString().padLeft(2, '0'),
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: _neonCyan.withValues(alpha: 0.75),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
                 ),
                 // Title
                 Expanded(

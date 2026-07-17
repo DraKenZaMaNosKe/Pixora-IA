@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -641,6 +642,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
             onLongPress: () => _showSetAsDialog(tone),
             width: 110,
             statsId: 'tone_${tone.id}',
+            previewImageUrl: tone.previewImageUrl,
           );
         },
       ),
@@ -679,6 +681,7 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
             onTap: () => _togglePreview(tone),
             onLongPress: () => _showSetAsDialog(tone),
             statsId: 'tone_${tone.id}',
+            previewImageUrl: tone.previewImageUrl,
           );
           // 2026-07-05 — Mystery card en TONOS (selección proporcional sobre
           // los tonos visibles). Reveal = card del tono (sin auto-play).
@@ -902,6 +905,7 @@ class _TapeMini extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
     required this.statsId,
+    this.previewImageUrl = '',
     this.width,
   });
   final String title;
@@ -911,6 +915,9 @@ class _TapeMini extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final String statsId;
+  // Per-tone pixel-art icon. Empty → keep the spinning-reels look, so tones
+  // without art never look broken while the catalogue fills in.
+  final String previewImageUrl;
   final double? width;
 
   @override
@@ -952,16 +959,36 @@ class _TapeMini extends StatelessWidget {
                 ),
               ),
             ),
-            // Reels
+            // Reels — or the tone's pixel-art icon when it has one.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _Reel(size: 14, spinning: isPlaying),
-                  _Reel(size: 14, spinning: isPlaying),
-                ],
-              ),
+              child: previewImageUrl.isEmpty
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _Reel(size: 14, spinning: isPlaying),
+                        _Reel(size: 14, spinning: isPlaying),
+                      ],
+                    )
+                  : SizedBox(
+                      // 24 (not 34): at 34 the card overflowed its aspect-ratio
+                      // slot by 9px on the bottom. 24 clears it and the icon is
+                      // still clearly readable.
+                      height: 24,
+                      child: CachedNetworkImage(
+                        imageUrl: previewImageUrl,
+                        height: 24,
+                        // Pixel art downscaled — medium keeps it clean without
+                        // the shimmer that FilterQuality.none aliases into.
+                        filterQuality: FilterQuality.medium,
+                        // While loading / on error, fall back to the reels so
+                        // the card never shows a broken-image glyph.
+                        placeholder: (_, __) =>
+                            _Reel(size: 14, spinning: isPlaying),
+                        errorWidget: (_, __, ___) =>
+                            _Reel(size: 14, spinning: isPlaying),
+                      ),
+                    ),
             ),
             // Title
             Padding(
