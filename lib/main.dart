@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
@@ -55,15 +59,33 @@ import 'features/splash/presentation/splash_page.dart';
 final ValueNotifier<bool> adShowingNotifier = ValueNotifier<bool>(false);
 
 Future<void> main() async {
-  // Catch all uncaught Flutter framework errors
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    debugPrint('[Pixora] FlutterError: ${details.exception}');
-  };
-
-  // Catch all uncaught async errors
+  // All uncaught errors flow to Crashlytics. Handlers are wired INSIDE the
+  // zone, right after Firebase.initializeApp — recordError needs Firebase up
+  // first. The window before init (only ensureInitialized runs) can't throw
+  // anything Crashlytics would miss meaningfully.
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Firebase FIRST so crash reporting is armed before anything risky runs.
+    // PushNotificationService also calls initializeApp later; the default app
+    // is returned as-is on the second call, so there's no double-init throw.
+    await Firebase.initializeApp();
+    // No dev noise in the dashboard — only real installs report.
+    await FirebaseCrashlytics.instance
+        .setCrashlyticsCollectionEnabled(!kDebugMode);
+
+    // Uncaught Flutter framework errors → Crashlytics (fatal). Keep
+    // presentError so the red screen still shows in debug.
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    };
+    // Uncaught async errors outside the Flutter framework (platform channels,
+    // isolates) → Crashlytics.
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
 
     // Memory: cap Flutter's in-memory image cache so 4K wallpapers don't
     // balloon RAM on mid-range devices (Samsung A15 / MediaTek chips crash
@@ -176,8 +198,10 @@ Future<void> main() async {
     unawaited(SubscriptionService.instance.init());
     runApp(const ProviderScope(child: PixoraApp()));
   }, (error, stackTrace) {
+    // Backstop for anything the two handlers above didn't catch (errors
+    // thrown during the zone's own setup before they were wired).
     debugPrint('[Pixora] Uncaught error: $error');
-    debugPrint('[Pixora] Stack: $stackTrace');
+    FirebaseCrashlytics.instance.recordError(error, stackTrace, fatal: true);
   });
 }
 

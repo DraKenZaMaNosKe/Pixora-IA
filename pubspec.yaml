@@ -46,6 +46,7 @@ dependencies:
   # the device's local zone).
   timezone: ^0.9.4
   flutter_timezone: ^3.0.1
+  firebase_crashlytics: ^4.3.10
 
 dependency_overrides:
   win32: 5.5.5
