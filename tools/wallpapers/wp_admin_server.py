@@ -2063,6 +2063,12 @@ class Handler(BaseHTTPRequestHandler):
                     "featured": spec.get("featured", False),
                     "spec_url": f"{SUPABASE_STORAGE}/object/public/{spec_bucket}/{spec_key}",
                 }
+                # Carry description + glow from the spec so making a scene
+                # visible doesn't wipe the copy the app reads from the index.
+                if spec.get("description"):
+                    entry["description"] = spec["description"]
+                if spec.get("glow_color"):
+                    entry["glow_color"] = spec["glow_color"]
                 if spec.get("hidden_in"):
                     entry["hidden_in"] = spec["hidden_in"]
                 items.append(entry)
