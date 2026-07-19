@@ -170,6 +170,10 @@ class _Hero extends StatelessWidget {
                 const SizedBox(height: 14),
                 Text(
                   event.name,
+                  // Remote name at 42pt inside a fixed-height hero — cap it so
+                  // a long title can't overflow the hero on a narrow screen.
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontFamily: 'Fraunces',
                     fontStyle: FontStyle.italic,

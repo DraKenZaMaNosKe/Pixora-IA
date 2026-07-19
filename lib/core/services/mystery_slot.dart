@@ -1,6 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'mystery_exclusion_service.dart';
+import 'subscription_service.dart';
 
 /// Selección PROPORCIONAL de Mystery cards (tap-to-reveal).
 ///
@@ -48,6 +49,11 @@ Set<String> pickMysteryIds(
   Iterable<String> ids, {
   bool checkFavorites = false,
 }) {
+  // Subscribers paid for full access — nothing should hide behind a
+  // reveal-to-earn card. One gate here covers every screen that calls this
+  // (amor, live, 3D, ringtones, wallpapers).
+  if (SubscriptionService.instance.hasAccess) return const <String>{};
+
   final eligible = <String>[];
   for (final id in ids) {
     if (MysteryExclusionService.instance.isExcluded(id)) continue;

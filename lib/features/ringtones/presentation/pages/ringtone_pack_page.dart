@@ -221,44 +221,48 @@ class _RingtonePackPageState extends State<RingtonePackPage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: _bgMid,
+      // Scrollable so the "set as" options can't overflow on short screens.
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: _neonCyan.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
+      builder: (ctx) => SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: _neonCyan.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(tone.name,
-                style: GoogleFonts.bangers(
-                  fontSize: 22,
-                  color: _neonPink,
-                  letterSpacing: 1.5,
-                )),
-            const SizedBox(height: 16),
-            _setOption(ctx, Icons.phone_in_talk, 'RING', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 0);
-            }),
-            _setOption(ctx, Icons.notifications, 'MSG', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 1);
-            }),
-            _setOption(ctx, Icons.alarm, 'ALARMA', () {
-              Navigator.pop(ctx);
-              _setAs(tone, 2);
-            }),
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 16),
+              Text(tone.name,
+                  style: GoogleFonts.bangers(
+                    fontSize: 22,
+                    color: _neonPink,
+                    letterSpacing: 1.5,
+                  )),
+              const SizedBox(height: 16),
+              _setOption(ctx, Icons.phone_in_talk, 'RING', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 0);
+              }),
+              _setOption(ctx, Icons.notifications, 'MSG', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 1);
+              }),
+              _setOption(ctx, Icons.alarm, 'ALARMA', () {
+                Navigator.pop(ctx);
+                _setAs(tone, 2);
+              }),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );

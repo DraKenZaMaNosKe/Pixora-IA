@@ -208,61 +208,65 @@ class _RingtonesPageState extends ConsumerState<RingtonesPage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: _bodyA,
+      // Scrollable so the "set as" options can't overflow on short screens.
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
         side: BorderSide(color: _neonPink, width: 1),
       ),
       builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: _neonCyan.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(2),
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: _neonCyan.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                tone.name.toUpperCase(),
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: _cream,
-                  letterSpacing: 0.5,
+                const SizedBox(height: 16),
+                Text(
+                  tone.name.toUpperCase(),
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: _cream,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              _buildSetOption(
-                Icons.phone_in_talk,
-                LocaleHelper.pick(es: 'Tono de llamada', en: 'Ringtone'),
-                () {
-                  Navigator.pop(ctx);
-                  _setAs(tone, 0);
-                },
-              ),
-              _buildSetOption(
-                Icons.notifications,
-                LocaleHelper.pick(es: 'Notificación', en: 'Notification'),
-                () {
-                  Navigator.pop(ctx);
-                  _setAs(tone, 1);
-                },
-              ),
-              _buildSetOption(
-                Icons.alarm,
-                LocaleHelper.pick(es: 'Alarma', en: 'Alarm'),
-                () {
-                  Navigator.pop(ctx);
-                  _setAs(tone, 2);
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
+                const SizedBox(height: 16),
+                _buildSetOption(
+                  Icons.phone_in_talk,
+                  LocaleHelper.pick(es: 'Tono de llamada', en: 'Ringtone'),
+                  () {
+                    Navigator.pop(ctx);
+                    _setAs(tone, 0);
+                  },
+                ),
+                _buildSetOption(
+                  Icons.notifications,
+                  LocaleHelper.pick(es: 'Notificación', en: 'Notification'),
+                  () {
+                    Navigator.pop(ctx);
+                    _setAs(tone, 1);
+                  },
+                ),
+                _buildSetOption(
+                  Icons.alarm,
+                  LocaleHelper.pick(es: 'Alarma', en: 'Alarm'),
+                  () {
+                    Navigator.pop(ctx);
+                    _setAs(tone, 2);
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         );
       },

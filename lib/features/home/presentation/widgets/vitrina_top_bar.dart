@@ -53,7 +53,10 @@ class VitrinaTopBar extends StatelessWidget {
             ),
             const SizedBox(width: 8),
           ],
-          freeHourChip,
+          // Flexible so the widest variable element yields space first — with
+          // Free Hour active + search shown + a 5-digit balance, this Row can
+          // otherwise run past a 360dp width. The chip already caps + ellipses.
+          Flexible(child: freeHourChip),
           const SizedBox(width: 8),
           creditsBadge,
           const SizedBox(width: 8),

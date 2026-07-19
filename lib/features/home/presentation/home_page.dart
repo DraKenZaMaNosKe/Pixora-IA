@@ -281,88 +281,93 @@ class _HomePageState extends ConsumerState<HomePage> {
       context: context,
       backgroundColor: h.surface,
       isDismissible: true,
+      // Scrollable so it never overflows on short screens (Huawei 1080x1920)
+      // or when the system font scale is large.
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(HudTokens.rSharp)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(
-            HudTokens.sp6, HudTokens.sp5, HudTokens.sp6, HudTokens.sp6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              '// PROTECT_DIAMONDS',
-              style: HudTokens.display(
-                  size: 12, color: h.accent, letterSpacing: 0.1),
-            ),
-            const SizedBox(height: HudTokens.sp3),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(Icons.diamond, size: 34, color: h.accent2),
-                const SizedBox(width: HudTokens.sp2),
-                Text(
-                  '$balance',
-                  style: HudTokens.display(
-                      size: 40, color: h.text, letterSpacing: -0.02),
-                ),
-              ],
-            ),
-            const SizedBox(height: HudTokens.sp2),
-            Text(
-              'YOU HIT 100 DIAMONDS',
-              textAlign: TextAlign.center,
-              style: HudTokens.display(
-                  size: 18, color: h.text, letterSpacing: 0.02),
-            ),
-            const SizedBox(height: HudTokens.sp2),
-            Text(
-              'Sign in so they follow you across devices. If you wipe this '
-              "phone, they're gone.",
-              textAlign: TextAlign.center,
-              style: HudTokens.body(size: 13, color: h.textDim),
-            ),
-            const SizedBox(height: HudTokens.sp5),
-            HudPrimaryButton(
-              label: 'PROTECT WITH GOOGLE',
-              icon: Icons.shield_outlined,
-              onPressed: () async {
-                Navigator.pop(ctx);
-                final success = await AuthService.instance.signInWithGoogle();
-                if (success && mounted) {
-                  setState(() {});
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '// DIAMONDS PROTECTED',
-                        style: HudTokens.mono(
-                          size: 11,
-                          color: Colors.white,
-                          weight: FontWeight.w700,
-                          letterSpacing: 0.1,
+      builder: (ctx) => SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+              HudTokens.sp6, HudTokens.sp5, HudTokens.sp6, HudTokens.sp6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '// PROTECT_DIAMONDS',
+                style: HudTokens.display(
+                    size: 12, color: h.accent, letterSpacing: 0.1),
+              ),
+              const SizedBox(height: HudTokens.sp3),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.diamond, size: 34, color: h.accent2),
+                  const SizedBox(width: HudTokens.sp2),
+                  Text(
+                    '$balance',
+                    style: HudTokens.display(
+                        size: 40, color: h.text, letterSpacing: -0.02),
+                  ),
+                ],
+              ),
+              const SizedBox(height: HudTokens.sp2),
+              Text(
+                'YOU HIT 100 DIAMONDS',
+                textAlign: TextAlign.center,
+                style: HudTokens.display(
+                    size: 18, color: h.text, letterSpacing: 0.02),
+              ),
+              const SizedBox(height: HudTokens.sp2),
+              Text(
+                'Sign in so they follow you across devices. If you wipe this '
+                "phone, they're gone.",
+                textAlign: TextAlign.center,
+                style: HudTokens.body(size: 13, color: h.textDim),
+              ),
+              const SizedBox(height: HudTokens.sp5),
+              HudPrimaryButton(
+                label: 'PROTECT WITH GOOGLE',
+                icon: Icons.shield_outlined,
+                onPressed: () async {
+                  Navigator.pop(ctx);
+                  final success = await AuthService.instance.signInWithGoogle();
+                  if (success && mounted) {
+                    setState(() {});
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '// DIAMONDS PROTECTED',
+                          style: HudTokens.mono(
+                            size: 11,
+                            color: Colors.white,
+                            weight: FontWeight.w700,
+                            letterSpacing: 0.1,
+                          ),
                         ),
+                        backgroundColor: HudTokens.okGreen,
                       ),
-                      backgroundColor: HudTokens.okGreen,
-                    ),
-                  );
-                }
-              },
-            ),
-            const SizedBox(height: HudTokens.sp3),
-            Center(
-              child: TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text(
-                  'MAYBE LATER',
-                  style: HudTokens.mono(
-                      size: 10, color: h.textDim, letterSpacing: 0.25),
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: HudTokens.sp3),
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(
+                    'MAYBE LATER',
+                    style: HudTokens.mono(
+                        size: 10, color: h.textDim, letterSpacing: 0.25),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ).whenComplete(() {
@@ -405,70 +410,75 @@ class _HomePageState extends ConsumerState<HomePage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: h.surface,
+      // Scrollable so it never overflows on short screens / large font scale.
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(HudTokens.rSharp)),
       ),
       builder: (ctx) => ListenableBuilder(
         listenable: credits,
-        builder: (ctx, _) => Padding(
-          padding: const EdgeInsets.fromLTRB(
-              HudTokens.sp6, HudTokens.sp5, HudTokens.sp6, HudTokens.sp6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('// DIAMONDS_WALLET',
-                  style: HudTokens.display(
-                      size: 12, color: h.accent, letterSpacing: 0.1)),
-              const SizedBox(height: HudTokens.sp4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.diamond, size: 38, color: h.accent2),
-                  const SizedBox(width: HudTokens.sp2),
-                  Text('${credits.balance}',
-                      style: HudTokens.display(
-                          size: 44, color: h.text, letterSpacing: -0.02)),
-                ],
-              ),
-              const SizedBox(height: HudTokens.sp2),
-              Center(
-                child: Text('BALANCE',
-                    style: HudTokens.mono(
-                        size: 10, color: h.textDim, letterSpacing: 0.3)),
-              ),
-              const SizedBox(height: HudTokens.sp5),
-              ClipPath(
-                clipper: const CornerCutClipper(cut: HudTokens.cornerCutSm),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: HudTokens.sp4),
-                  decoration: BoxDecoration(
-                    color: h.surfaceHi,
-                    border: Border.all(color: h.divider, width: 1),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _creditStat('EARNED', '${credits.totalEarned}'),
-                      Container(width: 1, height: 30, color: h.divider),
-                      _creditStat('ADS', '${credits.adsWatched}'),
-                      Container(width: 1, height: 30, color: h.divider),
-                      _creditStat('PER AD', '+${CreditService.creditsPerAd}'),
-                    ],
+        builder: (ctx, _) => SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+                HudTokens.sp6, HudTokens.sp5, HudTokens.sp6, HudTokens.sp6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('// DIAMONDS_WALLET',
+                    style: HudTokens.display(
+                        size: 12, color: h.accent, letterSpacing: 0.1)),
+                const SizedBox(height: HudTokens.sp4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.diamond, size: 38, color: h.accent2),
+                    const SizedBox(width: HudTokens.sp2),
+                    Text('${credits.balance}',
+                        style: HudTokens.display(
+                            size: 44, color: h.text, letterSpacing: -0.02)),
+                  ],
+                ),
+                const SizedBox(height: HudTokens.sp2),
+                Center(
+                  child: Text('BALANCE',
+                      style: HudTokens.mono(
+                          size: 10, color: h.textDim, letterSpacing: 0.3)),
+                ),
+                const SizedBox(height: HudTokens.sp5),
+                ClipPath(
+                  clipper: const CornerCutClipper(cut: HudTokens.cornerCutSm),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: HudTokens.sp4),
+                    decoration: BoxDecoration(
+                      color: h.surfaceHi,
+                      border: Border.all(color: h.divider, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _creditStat('EARNED', '${credits.totalEarned}'),
+                        Container(width: 1, height: 30, color: h.divider),
+                        _creditStat('ADS', '${credits.adsWatched}'),
+                        Container(width: 1, height: 30, color: h.divider),
+                        _creditStat('PER AD', '+${CreditService.creditsPerAd}'),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: HudTokens.sp4),
-              Text(
-                '> WATCH ADS TO EARN DIAMONDS AUTOMATICALLY',
-                textAlign: TextAlign.center,
-                style: HudTokens.mono(
-                    size: 10, color: h.textDim, letterSpacing: 0.15),
-              ),
-              const SizedBox(height: HudTokens.sp3),
-            ],
+                const SizedBox(height: HudTokens.sp4),
+                Text(
+                  '> WATCH ADS TO EARN DIAMONDS AUTOMATICALLY',
+                  textAlign: TextAlign.center,
+                  style: HudTokens.mono(
+                      size: 10, color: h.textDim, letterSpacing: 0.15),
+                ),
+                const SizedBox(height: HudTokens.sp3),
+              ],
+            ),
           ),
         ),
       ),

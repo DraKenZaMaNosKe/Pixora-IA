@@ -75,6 +75,12 @@ class SubscriptionService extends ChangeNotifier {
   bool _storeAvailable = false;
   bool _purchaseInFlight = false;
 
+  /// Debug-only: lets the simulated purchase (which can't reach Play Billing
+  /// on a sideloaded build) actually flip the app into the subscribed state,
+  /// so the ad-free / mystery-free experience can be tested end to end. Never
+  /// set outside debug — guarded by [debugGrantAccess].
+  bool _debugForceAccess = false;
+
   SubscriptionStatus get status => _status;
   String? get tier => _tier;
   DateTime? get trialEndsAt => _trialEndsAt;
@@ -85,7 +91,14 @@ class SubscriptionService extends ChangeNotifier {
   int get generationsRemaining =>
       (_generationsLimit - _generationsUsed).clamp(0, 999999);
   int get freeGensRemaining => _freeGensRemaining;
-  bool get hasAccess => _status.hasAccess;
+  bool get hasAccess => _debugForceAccess || _status.hasAccess;
+
+  /// Debug-only entry point for the simulated purchase. No-op in release.
+  void debugGrantAccess() {
+    if (!kDebugMode) return;
+    _debugForceAccess = true;
+    notifyListeners();
+  }
 
   /// True si el user puede generar IA. Dos caminos:
   ///   1. Suscriptor activo Y le quedan generations del plan
