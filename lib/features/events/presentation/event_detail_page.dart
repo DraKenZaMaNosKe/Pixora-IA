@@ -262,7 +262,7 @@ class _Body extends StatelessWidget {
             const SizedBox(width: 30),
             _Stat(
               label: 'Acceso',
-              value: event.isProOnly ? 'PRO' : 'Libre',
+              value: event.isProOnly ? 'PLUS' : 'Libre',
               h: h,
               accent: event.themeColor,
             ),
@@ -659,9 +659,9 @@ class _StickyCta extends StatelessWidget {
   Widget build(BuildContext context) {
     String label;
     if (event.isPast) {
-      label = hasAccess ? 'Revivir el recuerdo' : 'Ver wallpapers (Pro)';
+      label = hasAccess ? 'Revivir el recuerdo' : 'Ver wallpapers (Plus)';
     } else if (locked) {
-      label = '🔒  Hazte Pro · \$9.99 USD/mes';
+      label = '🔒  Hazte Plus';
     } else if (event.isUpcoming) {
       label = 'Recuérdamelo cuando empiece';
     } else {
@@ -719,7 +719,7 @@ class _StickyCta extends StatelessWidget {
       final ok = await SubscriptionService.instance.buyMonthly();
       if (ok && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('¡Bienvenido a Pixora Pro!')),
+          const SnackBar(content: Text('¡Bienvenido a Pixora Plus!')),
         );
       }
       return;

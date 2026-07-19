@@ -207,8 +207,8 @@ class _TermsAcceptancePageState extends State<TermsAcceptancePage> {
               'Para usar Pixora debes ser mayor de 13 años. Entre 13 y 18 años requieres consentimiento de un tutor.',
             ),
             _section(
-              '5. Suscripción Pixora Pro',
-              'La suscripción Pixora Pro tiene un costo de \$9.99 USD (\$199.00 MXN) mensuales, \$24.99 USD (\$499.00 MXN) trimestrales o \$89.99 USD (\$1,799.00 MXN) anuales. Se cobra mediante Google Play Billing. La cancelación se realiza desde Google Play Store, no desde la app. Conservas acceso hasta el fin del periodo pagado.',
+              '5. Suscripción Pixora Plus',
+              'Pixora Plus es una suscripción mensual con renovación automática. El precio se muestra en tu moneda local antes de comprar y se cobra mediante Google Play Billing. Si eres elegible, incluye una prueba gratis de 7 días que se convierte en suscripción de pago al terminar, salvo que canceles antes. La cancelación se realiza desde Google Play Store, no desde la app; conservas acceso hasta el fin del periodo pagado.',
             ),
             _section(
               '8. Generación con IA',

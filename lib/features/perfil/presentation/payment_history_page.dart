@@ -145,7 +145,7 @@ class _Empty extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Cuando te suscribas a Pixora Pro, aquí verás cada cargo procesado.',
+            'Cuando te suscribas a Pixora Plus, aquí verás cada cargo procesado.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 13, color: h.textDim, height: 1.5),
           ),
@@ -169,19 +169,16 @@ class _PaymentRow extends StatelessWidget {
         ? DateTime.tryParse(payment['started_at'].toString())
         : null;
     // user_subscriptions doesn't keep amount/currency directly — derive from
-    // product_id. Adjust here if more SKUs are added.
-    // 2026-06-24 — pricing v1.7.37: mensual $199 MXN ($9.99 USD),
-    // trimestral $499 (~17% off), anual $1799 (~25% off).
+    // Only the monthly plan (pixora_monthly) exists on Play. The amount is the
+    // MX list price; international users are charged in their own currency by
+    // Play, so this is an approximation for non-MX regions. Add SKUs here only
+    // when they actually exist in Play Console.
     final (amountMxn, currency) = switch (productId) {
       'pixora_monthly' => (199.0, 'MXN'),
-      'pixora_quarterly' => (499.0, 'MXN'),
-      'pixora_yearly' => (1799.0, 'MXN'),
       _ => (0.0, 'MXN'),
     };
     final tierLabel = switch (tier) {
       'monthly' => 'mensual',
-      'quarterly' => 'trimestral',
-      'yearly' => 'anual',
       _ => tier,
     };
 
@@ -207,7 +204,7 @@ class _PaymentRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Pixora Pro · $tierLabel',
+                    'Pixora Plus · $tierLabel',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

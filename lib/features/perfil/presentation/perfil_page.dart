@@ -76,7 +76,7 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
           if (isPro)
             _Tile(
               icon: Icons.star_rounded,
-              title: 'Pixora Pro',
+              title: 'Pixora Plus',
               subtitle: '${_formatRenewal()}\nGestiona o cancela en Play Store',
               onTap: _openSubscriptionDetails,
               trailing: Icon(Icons.open_in_new, size: 16, color: h.textDim),
@@ -85,11 +85,13 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
           else
             _Tile(
               icon: Icons.workspace_premium_outlined,
-              title: 'Hacerse Pro',
+              title: 'Hacerse Plus',
               subtitle: 'Sin anuncios + códices y eventos exclusivos',
-              trailing: const Text(
-                '\$9.99 USD',
-                style: TextStyle(
+              trailing: Text(
+                // Real localized Play price, not a hardcoded currency.
+                SubscriptionService.instance.monthlyProduct?.price ??
+                    '\$199 MXN',
+                style: const TextStyle(
                   color: Color(0xFFD9B14A),
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
@@ -494,7 +496,7 @@ class _Header extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
-                        '⭐ PIXORA PRO',
+                        '⭐ PIXORA PLUS',
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 10,
