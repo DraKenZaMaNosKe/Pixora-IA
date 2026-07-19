@@ -28,6 +28,12 @@ import '../../../../core/services/wallpaper_stats_service.dart';
 import '../../data/models/wallpaper.dart';
 import '../widgets/holocard_like_overlay.dart';
 
+// Paleta del menú "aplicar pieza" estilo anime (Eduardo 2026-07-19):
+// morado/rosa/cyan eléctricos, para que el sheet se sienta de opening de anime.
+const _kAnimePink = Color(0xFFFF9EE6);
+const _kAnimeCyan = Color(0xFF7BE0FF);
+const _kAnimeLav = Color(0xFFC9B8FF);
+
 /// Auction-listing preview for a wallpaper. Presents the image as a framed
 /// piece with catalog metadata below — as if it were a lot in a fine art
 /// auction house. Black ink background, gold borders, serif typography.
@@ -400,7 +406,10 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: context.hud.surface,
+      // Anime style (Eduardo 2026-07-19): fondo transparente para que el
+      // degradado morado del sheet mande; el color real vive en el
+      // DecoratedBox de abajo.
+      backgroundColor: Colors.transparent,
       // 2026-06-13 FIX: en pantallas chicas (Huawei VNS-L53 y similares) el
       // contenido del sheet excede la altura disponible y RenderFlex
       // overflowed by 34 pixels. Solucion: isScrollControlled permite que el
@@ -408,7 +417,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
       // mas abajo deja al usuario hacer swipe si aun no cabe todo.
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       // 2026-06-07 FIX: AdMob keeps the system nav bar hidden during the
       // interstitial; ~1.3s after dismiss Android restores it and
@@ -430,103 +439,112 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.85,
               ),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    24,
-                    20,
-                    24,
-                    20 + MediaQuery.of(context).viewPadding.bottom,
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF1B1030), Color(0xFF0C0718)],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Header
-                      Row(
-                        children: [
-                          Text('— ',
-                              style: _serif(13,
-                                  color: context.hud.accent,
-                                  s: FontStyle.italic)),
-                          Text(
-                            'aplicar pieza',
-                            style: _serif(15,
-                                color: context.hud.accent,
-                                s: FontStyle.italic,
-                                w: FontWeight.w500),
-                          ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: context.hud.accent, width: 1),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  border: Border(
+                    top: BorderSide(color: Color(0xFF3A2A5E), width: 1),
+                  ),
+                ),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      20,
+                      24,
+                      20 + MediaQuery.of(context).viewPadding.bottom,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Header — anime: título rosa itálico, chip cyan.
+                        Row(
+                          children: [
+                            Text('— ',
+                                style: _serif(13,
+                                    color: _kAnimePink, s: FontStyle.italic)),
+                            Text(
+                              'aplicar pieza',
+                              style: _serif(15,
+                                  color: _kAnimePink,
+                                  s: FontStyle.italic,
+                                  w: FontWeight.w700),
                             ),
-                            child: Text(
-                              isFree ? 'SIN AD' : 'CON AD',
-                              style:
-                                  _meta(9, color: context.hud.accent, ls: 0.2),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: _kAnimeCyan, width: 1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                isFree ? 'SIN AD' : 'CON AD',
+                                style: _meta(9, color: _kAnimeCyan, ls: 0.2),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Diamonds line
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.diamond,
-                              color: context.hud.accent, size: 13),
-                          const SizedBox(width: 5),
-                          Text('$credits diamantes',
-                              style: _meta(11,
-                                  color: context.hud.textDim, ls: 0.15)),
-                          const SizedBox(width: 12),
-                          Text('·',
-                              style: _meta(11, color: context.hud.textDim)),
-                          const SizedBox(width: 12),
-                          Text(
-                            isFree
-                                ? 'próximo sin cobro'
-                                : '+${CreditService.creditsPerAd} por ver',
-                            style:
-                                _meta(11, color: context.hud.textDim, ls: 0.05),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      // 2026-06-13 (Eduardo) — LIVE primero para que sea el
-                      // primer boton que tocan casi por inercia, antes de
-                      // leer. El foil shimmer + glow lo hace destacar como
-                      // CTA principal y empuja la conversion a la experiencia
-                      // premium (live wallpaper con efectos).
-                      _buildLiveFoilOption(() {
-                        Navigator.pop(context);
-                        _applyLiveWallpaper();
-                      }),
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 10),
-                        height: 1,
-                        color: context.hud.divider,
-                      ),
-                      _buildOption(Icons.home_outlined, 'Pantalla principal',
-                          'home screen', () {
-                        Navigator.pop(context);
-                        _applyWallpaper(0);
-                      }),
-                      _buildOption(Icons.lock_outline, 'Pantalla de bloqueo',
-                          'lock screen', () {
-                        Navigator.pop(context);
-                        _applyWallpaper(1);
-                      }),
-                      _buildOption(Icons.phone_android_outlined,
-                          'Ambas pantallas', 'both', () {
-                        Navigator.pop(context);
-                        _applyWallpaper(2);
-                      }),
-                    ],
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Diamonds line — lavanda anime.
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.diamond,
+                                color: _kAnimeCyan, size: 13),
+                            const SizedBox(width: 5),
+                            Text('$credits diamantes',
+                                style: _meta(11, color: _kAnimeLav, ls: 0.15)),
+                            const SizedBox(width: 12),
+                            Text('·', style: _meta(11, color: _kAnimeLav)),
+                            const SizedBox(width: 12),
+                            Text(
+                              isFree
+                                  ? 'próximo sin cobro'
+                                  : '+${CreditService.creditsPerAd} por ver',
+                              style: _meta(11, color: _kAnimeLav, ls: 0.05),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        // 2026-06-13 (Eduardo) — LIVE primero para que sea el
+                        // primer boton que tocan casi por inercia, antes de
+                        // leer. El foil shimmer + glow lo hace destacar como
+                        // CTA principal y empuja la conversion a la experiencia
+                        // premium (live wallpaper con efectos).
+                        _buildLiveFoilOption(() {
+                          Navigator.pop(context);
+                          _applyLiveWallpaper();
+                        }),
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          height: 1,
+                          color: const Color(0xFF3A2A5E),
+                        ),
+                        _buildOption(Icons.home_outlined, 'Pantalla principal',
+                            'home screen', () {
+                          Navigator.pop(context);
+                          _applyWallpaper(0);
+                        }),
+                        _buildOption(Icons.lock_outline, 'Pantalla de bloqueo',
+                            'lock screen', () {
+                          Navigator.pop(context);
+                          _applyWallpaper(1);
+                        }),
+                        _buildOption(Icons.phone_android_outlined,
+                            'Ambas pantallas', 'both', () {
+                          Navigator.pop(context);
+                          _applyWallpaper(2);
+                        }),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -545,7 +563,7 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            Icon(icon, color: context.hud.accent, size: 22),
+            Icon(icon, color: _kAnimeCyan, size: 22),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -553,131 +571,148 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
                 children: [
                   Text(label,
                       style: _display(15,
-                          color: context.hud.text,
+                          color: const Color(0xFFEAFAFF),
                           w: FontWeight.w700,
                           ls: -0.01)),
                   const SizedBox(height: 2),
                   Text('— $sub',
-                      style: _serif(12,
-                          color: context.hud.textDim, s: FontStyle.italic)),
+                      style:
+                          _serif(12, color: _kAnimeLav, s: FontStyle.italic)),
                 ],
               ),
             ),
             Icon(Icons.chevron_right,
-                color: context.hud.accent.withValues(alpha: 0.5)),
+                color: _kAnimePink.withValues(alpha: 0.7)),
           ],
         ),
       ),
     );
   }
 
-  /// Featured "Live wallpaper" CTA with holographic foil shimmer.
-  /// Designed to draw attention to the LIVE option over the static apply
-  /// targets (Home / Lock / Both). Visual recipe:
-  ///   - Tinted gold background (subtle, 8-14% alpha)
-  ///   - 1px gold border + rounded corners (6px)
-  ///   - Diagonal foil sweep (gold→cyan→magenta) animates L→R every 3.5s
-  ///     using the existing [_holoSweep] controller (free — already ticking
-  ///     for the card holo shine, no extra ticker needed)
-  ///   - Icon + label in gold-pale (#F0DD9E) so they stand out vs the
-  ///     regular options' white text
+  /// Featured "Live wallpaper" CTA — estilo ANIME (Eduardo escogió el diseño
+  /// #1, 2026-07-19). Carta legendaria morada→rosa que LATE suavemente, con
+  /// destellos que titilan y un badge "EFECTOS", para que sea claramente la
+  /// joya del menú y el primer botón que el usuario quiere tocar. El latido y
+  /// el titileo se derivan del [_holoSweep] (ya ticando, sin ticker extra).
   Widget _buildLiveFoilOption(VoidCallback onTap) {
-    const goldPale = Color(0xFFF0DD9E);
-    const gold = Color(0xFFE6B655);
-    final radius = BorderRadius.circular(6);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: radius,
-      child: ClipRRect(
-        borderRadius: radius,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                gold.withValues(alpha: 0.06),
-                gold.withValues(alpha: 0.12),
-                gold.withValues(alpha: 0.06),
-              ],
-            ),
-            border: Border.all(color: gold.withValues(alpha: 0.30), width: 1),
+    final radius = BorderRadius.circular(12);
+    return AnimatedBuilder(
+      animation: _holoSweep,
+      builder: (ctx, _) {
+        final v = _holoSweep.value;
+        // Onda triangular 0→1→0 para el latido (sin dart:math).
+        final tri = v < 0.5 ? v * 2 : 2 - v * 2;
+        final scale = 1.0 + 0.03 * tri;
+        // Opacidad titilante por destello, con fases distintas.
+        double tw(double phase) {
+          final s = (v + phase) % 1.0;
+          final t = s < 0.5 ? s * 2 : 2 - s * 2;
+          return 0.25 + 0.75 * t;
+        }
+
+        return Transform.scale(
+          scale: scale,
+          child: InkWell(
+            onTap: onTap,
             borderRadius: radius,
-          ),
-          child: Stack(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                child: Row(
-                  children: [
-                    const Icon(Icons.auto_awesome_outlined,
-                        color: goldPale, size: 22),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Live wallpaper (con efectos)',
-                              style: _display(15,
-                                  color: goldPale,
-                                  w: FontWeight.w700,
-                                  ls: -0.01)),
-                          const SizedBox(height: 2),
-                          Text('— live + touch',
-                              style: _serif(12,
-                                  color: context.hud.textDim,
-                                  s: FontStyle.italic)),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.chevron_right,
-                        color: goldPale.withValues(alpha: 0.85)),
-                  ],
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xFFFF3FA4), Color(0xFF7A2BFF)],
                 ),
-              ),
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: AnimatedBuilder(
-                    animation: _holoSweep,
-                    builder: (ctx, _) {
-                      return LayoutBuilder(builder: (ctx, c) {
-                        final w = c.maxWidth;
-                        // Slide a translucent diagonal band from off-screen
-                        // left (-w) to off-screen right (+2w) so the cycle
-                        // travels its full width PLUS one band width.
-                        final dx = -w + _holoSweep.value * (w * 3);
-                        return Stack(children: [
-                          Positioned(
-                            left: dx,
-                            top: 0,
-                            bottom: 0,
-                            width: w,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment(-0.6, -1),
-                                  end: Alignment(0.6, 1),
-                                  colors: [
-                                    Color(0x00000000),
-                                    Color(0x73FFEBAA), // 45% pale gold
-                                    Color(0x5978DCFF), // 35% cyan
-                                    Color(0x66FF96E6), // 40% magenta
-                                    Color(0x00000000),
-                                  ],
-                                  stops: [0.30, 0.45, 0.50, 0.55, 0.70],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ]);
-                      });
-                    },
+                borderRadius: radius,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFF3FA4).withValues(alpha: 0.45),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
                   ),
-                ),
+                ],
               ),
-            ],
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(13, 15, 13, 15),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.auto_awesome,
+                            color: Colors.white, size: 24),
+                        const SizedBox(width: 15),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Live wallpaper (con efectos)',
+                                  style: _display(15.5,
+                                      color: Colors.white,
+                                      w: FontWeight.w800,
+                                      ls: -0.01)),
+                              const SizedBox(height: 2),
+                              Text('— live + touch',
+                                  style: _serif(12,
+                                      color: const Color(0xFFFFE0F5),
+                                      s: FontStyle.italic)),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                  // Badge EFECTOS (esquina superior).
+                  Positioned(
+                    top: 7,
+                    right: 40,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF04D),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text('✦ EFECTOS',
+                          style: _meta(8.5,
+                                  color: const Color(0xFF7A2BFF), ls: 0.1)
+                              .copyWith(fontWeight: FontWeight.w800)),
+                    ),
+                  ),
+                  // Destellos que titilan.
+                  Positioned(
+                    left: 9,
+                    top: 6,
+                    child: Opacity(
+                      opacity: tw(0.0),
+                      child: const Text('✦',
+                          style: TextStyle(color: Colors.white, fontSize: 11)),
+                    ),
+                  ),
+                  Positioned(
+                    left: 70,
+                    bottom: 7,
+                    child: Opacity(
+                      opacity: tw(0.45),
+                      child: const Text('✧',
+                          style: TextStyle(color: _kAnimeCyan, fontSize: 9)),
+                    ),
+                  ),
+                  Positioned(
+                    right: 96,
+                    top: 20,
+                    child: Opacity(
+                      opacity: tw(0.7),
+                      child: const Text('✦',
+                          style: TextStyle(color: Colors.white, fontSize: 8)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
