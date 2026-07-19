@@ -87,6 +87,9 @@ Wallpaper _wallpaperFromCatalogIndex(CatalogIndexEntry e) {
     id: e.id,
     name: e.titleFor('es'),
     description: raw['description']?.toString() ?? '',
+    // Rich markup ([[name:]], [[power:]]…) lives in its own column so older
+    // app builds keep rendering the plain `description` without raw tags.
+    descriptionRich: raw['description_rich']?.toString(),
     imageFile: imageFile,
     previewFile: previewFile,
     imageSize: (raw['image_size'] as num?)?.toInt() ?? 0,

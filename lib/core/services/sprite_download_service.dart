@@ -125,22 +125,31 @@ class SpriteDownloadService {
     }
   }
 
-  Future<Map<String, dynamic>> _fetchManifest() async {
-    if (_manifest != null) return _manifest!;
+  /// Fetch the sprite manifest. Uses in-memory then disk cache (24h TTL).
+  ///
+  /// [forceRefresh] bypasses BOTH caches and hits the network. Callers use
+  /// this to self-heal when a scene references a `manifest_key` that isn't in
+  /// the cached manifest — a strong signal the cache predates new content and
+  /// must be refreshed, instead of blocking new sprites for up to 24h.
+  Future<Map<String, dynamic>> _fetchManifest(
+      {bool forceRefresh = false}) async {
+    if (!forceRefresh && _manifest != null) return _manifest!;
 
     // Try disk cache first (expire after 24h to pick up new entries)
-    try {
-      final root = await _spritesDir();
-      final cacheFile = File('${root.path}/manifest.json');
-      if (cacheFile.existsSync()) {
-        final age = DateTime.now().difference(cacheFile.lastModifiedSync());
-        if (age.inHours < 24) {
-          _manifest = json.decode(await cacheFile.readAsString())
-              as Map<String, dynamic>;
-          return _manifest!;
+    if (!forceRefresh) {
+      try {
+        final root = await _spritesDir();
+        final cacheFile = File('${root.path}/manifest.json');
+        if (cacheFile.existsSync()) {
+          final age = DateTime.now().difference(cacheFile.lastModifiedSync());
+          if (age.inHours < 24) {
+            _manifest = json.decode(await cacheFile.readAsString())
+                as Map<String, dynamic>;
+            return _manifest!;
+          }
         }
-      }
-    } catch (_) {}
+      } catch (_) {}
+    }
 
     try {
       final r = await http
@@ -174,7 +183,11 @@ class SpriteDownloadService {
       return false;
     }
 
-    final manifest = await _fetchManifest();
+    var manifest = await _fetchManifest();
+    // Self-heal: unknown folder key ⇒ stale cache ⇒ force one fresh fetch.
+    if (folders.any((f) => manifest[f] is! Map)) {
+      manifest = await _fetchManifest(forceRefresh: true);
+    }
     if (manifest.isEmpty) return false;
 
     final root = await _spritesDir();
@@ -297,7 +310,14 @@ class SpriteDownloadService {
           '[Pixora] No internet — skipping spec sprite download (${keys.length} keys)');
       return false;
     }
-    final manifest = await _fetchManifest();
+    var manifest = await _fetchManifest();
+    // Self-heal: if any referenced key is missing from the cached manifest,
+    // the cache predates this scene's content — force a fresh fetch once.
+    if (keys.any((k) => manifest[k] is! Map)) {
+      debugPrint(
+          '[Pixora] Scene references unknown sprite key(s) — refreshing manifest');
+      manifest = await _fetchManifest(forceRefresh: true);
+    }
     if (manifest.isEmpty) {
       debugPrint(
           '[Pixora] Empty sprite manifest — cannot resolve scene sprites');

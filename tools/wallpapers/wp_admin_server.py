@@ -2067,6 +2067,8 @@ class Handler(BaseHTTPRequestHandler):
                 # visible doesn't wipe the copy the app reads from the index.
                 if spec.get("description"):
                     entry["description"] = spec["description"]
+                if spec.get("description_rich"):
+                    entry["description_rich"] = spec["description_rich"]
                 if spec.get("glow_color"):
                     entry["glow_color"] = spec["glow_color"]
                 if spec.get("hidden_in"):
