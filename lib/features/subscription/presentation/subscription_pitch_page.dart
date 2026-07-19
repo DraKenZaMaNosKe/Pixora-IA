@@ -209,7 +209,7 @@ class _SubscriptionPitchPageState extends State<SubscriptionPitchPage> {
 
                   SizedBox(height: topGap * 0.7 + 16),
                   Text(
-                    'Desbloquea la\ncolección completa.',
+                    'Sin anuncios.\nSin límites.',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.fraunces(
                       fontStyle: FontStyle.italic,
@@ -222,7 +222,8 @@ class _SubscriptionPitchPageState extends State<SubscriptionPitchPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Wallpapers, escenas 3D y tonos que no están\nen la versión gratis.',
+                    '5 imágenes con IA al día, diamantes diarios y tus\n'
+                    'favoritos sincronizados — la experiencia completa.',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       fontSize: 13.5,

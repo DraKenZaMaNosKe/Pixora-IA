@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/design/hud_tokens.dart';
 import '../../../core/services/auth_service.dart';
@@ -361,8 +362,18 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
     );
     if (confirm != true) return;
     if (!mounted) return;
-    _showSnack(
-        'Eliminación de cuenta próximamente disponible. Contacta a soporte por ahora.');
+    // Real deletion — the same RPC Settings uses. (This screen used to promise
+    // deletion and then only show a "coming soon" snackbar.)
+    try {
+      await Supabase.instance.client.rpc('delete_my_account');
+      await AuthService.instance.signOut();
+      if (!mounted) return;
+      _showSnack('Cuenta eliminada.');
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+      _showSnack('No se pudo eliminar la cuenta. Intenta de nuevo.');
+    }
   }
 
   void _showSnack(String msg) {
@@ -380,7 +391,9 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
     if (days < 0) return 'En periodo de gracia';
     final fmt =
         '${next.day.toString().padLeft(2, '0')}/${next.month.toString().padLeft(2, '0')}/${next.year}';
-    return 'Próx. renovación $fmt · \$199 MXN';
+    final price =
+        SubscriptionService.instance.monthlyProduct?.price ?? '\$199 MXN';
+    return 'Próx. renovación $fmt · $price';
   }
 }
 

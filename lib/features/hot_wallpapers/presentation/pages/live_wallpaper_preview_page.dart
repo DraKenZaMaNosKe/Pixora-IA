@@ -136,7 +136,7 @@ class _LiveWallpaperPreviewPageState extends State<LiveWallpaperPreviewPage> {
       await SharePlus.instance.share(
         ShareParams(
           text:
-              '${widget.wallpaper.name} · Pixora IA live wallpaper\nhttps://pixora.app',
+              '${widget.wallpaper.name} · Pixora IA live wallpaper\nhttps://play.google.com/store/apps/details?id=com.orbix.pixora',
           subject: widget.wallpaper.name,
         ),
       );

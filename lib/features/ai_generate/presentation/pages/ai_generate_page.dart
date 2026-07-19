@@ -523,7 +523,7 @@ class _AIGeneratePageState extends State<AIGeneratePage>
       return 'CRÉDITOS INSUFICIENTES';
     }
     if (msg.contains('daily_cap_reached')) {
-      return 'MÁXIMO DIARIO ALCANZADO (20/DÍA)';
+      return 'LLEGASTE A TU MÁXIMO DE HOY · VUELVE MAÑANA';
     }
     if (msg.contains('too_many_pending')) {
       return 'DEMASIADAS EN COLA · ESPERA';

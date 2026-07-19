@@ -29,7 +29,7 @@ class PixoraEvent {
     required this.themeColorDark,
     required this.startsAt,
     required this.endsAt,
-    this.isProOnly = true,
+    this.isProOnly = false,
     this.wallpaperIds = const [],
     this.wallpaperCount = 0,
     this.tags = const [],
@@ -123,7 +123,7 @@ class PixoraEvent {
       themeColorDark: parseColor(json['theme_color_dark'] as String?),
       startsAt: DateTime.parse(json['starts_at'] as String).toUtc(),
       endsAt: DateTime.parse(json['ends_at'] as String).toUtc(),
-      isProOnly: json['is_pro_only'] as bool? ?? true,
+      isProOnly: json['is_pro_only'] as bool? ?? false,
       wallpaperIds: (json['wallpaper_ids'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??

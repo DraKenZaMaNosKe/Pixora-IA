@@ -11,10 +11,15 @@
       "theme_color_dark": "#C43473",
       "starts_at": "2026-05-08T00:00:00Z",
       "ends_at": "2026-05-12T23:59:59Z",
-      "is_pro_only": true,
+      "is_pro_only": false,
       "wallpaper_ids": [],
       "wallpaper_count": 12,
-      "tags": ["flores", "familia", "amor", "celebracion"],
+      "tags": [
+        "flores",
+        "familia",
+        "amor",
+        "celebracion"
+      ],
       "banner_url": null,
       "memoria_url": null
     },
@@ -27,10 +32,15 @@
       "theme_color_dark": "#0E6E35",
       "starts_at": "2026-09-13T00:00:00Z",
       "ends_at": "2026-09-17T23:59:59Z",
-      "is_pro_only": true,
+      "is_pro_only": false,
       "wallpaper_ids": [],
       "wallpaper_count": 8,
-      "tags": ["mexico", "patrio", "tricolor", "septiembre"],
+      "tags": [
+        "mexico",
+        "patrio",
+        "tricolor",
+        "septiembre"
+      ],
       "banner_url": null,
       "memoria_url": null
     },
@@ -43,10 +53,15 @@
       "theme_color_dark": "#C04E0E",
       "starts_at": "2026-10-25T00:00:00Z",
       "ends_at": "2026-10-31T23:59:59Z",
-      "is_pro_only": true,
+      "is_pro_only": false,
       "wallpaper_ids": [],
       "wallpaper_count": 14,
-      "tags": ["halloween", "horror", "calabazas", "noche"],
+      "tags": [
+        "halloween",
+        "horror",
+        "calabazas",
+        "noche"
+      ],
       "banner_url": null,
       "memoria_url": null
     },
@@ -59,10 +74,16 @@
       "theme_color_dark": "#A8821E",
       "starts_at": "2026-10-28T00:00:00Z",
       "ends_at": "2026-11-03T23:59:59Z",
-      "is_pro_only": true,
+      "is_pro_only": false,
       "wallpaper_ids": [],
       "wallpaper_count": 24,
-      "tags": ["muertos", "mexica", "ofrenda", "catrina", "altares"],
+      "tags": [
+        "muertos",
+        "mexica",
+        "ofrenda",
+        "catrina",
+        "altares"
+      ],
       "banner_url": null,
       "memoria_url": null
     },
@@ -75,10 +96,15 @@
       "theme_color_dark": "#8E2222",
       "starts_at": "2026-12-15T00:00:00Z",
       "ends_at": "2026-12-26T23:59:59Z",
-      "is_pro_only": true,
+      "is_pro_only": false,
       "wallpaper_ids": [],
       "wallpaper_count": 18,
-      "tags": ["navidad", "diciembre", "familia", "calidez"],
+      "tags": [
+        "navidad",
+        "diciembre",
+        "familia",
+        "calidez"
+      ],
       "banner_url": null,
       "memoria_url": null
     },
@@ -91,10 +117,15 @@
       "theme_color_dark": "#4A2DBF",
       "starts_at": "2026-12-28T00:00:00Z",
       "ends_at": "2027-01-05T23:59:59Z",
-      "is_pro_only": true,
+      "is_pro_only": false,
       "wallpaper_ids": [],
       "wallpaper_count": 10,
-      "tags": ["año nuevo", "fuegos", "celebracion", "futuro"],
+      "tags": [
+        "año nuevo",
+        "fuegos",
+        "celebracion",
+        "futuro"
+      ],
       "banner_url": null,
       "memoria_url": null
     },
@@ -107,10 +138,15 @@
       "theme_color_dark": "#C03554",
       "starts_at": "2027-02-10T00:00:00Z",
       "ends_at": "2027-02-17T23:59:59Z",
-      "is_pro_only": true,
+      "is_pro_only": false,
       "wallpaper_ids": [],
       "wallpaper_count": 12,
-      "tags": ["amor", "san valentin", "pareja", "rosas"],
+      "tags": [
+        "amor",
+        "san valentin",
+        "pareja",
+        "rosas"
+      ],
       "banner_url": null,
       "memoria_url": null
     }

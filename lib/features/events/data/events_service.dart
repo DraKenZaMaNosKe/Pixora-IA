@@ -57,6 +57,10 @@ class EventsService {
         final events = raw
             .whereType<Map<String, dynamic>>()
             .map(PixoraEvent.fromJson)
+            // Only surface events that actually have wallpapers. An event with
+            // no content is a teaser that promises a collection it can't
+            // deliver — hide it until it's launched with real wallpapers.
+            .where((e) => e.wallpaperIds.isNotEmpty)
             .toList();
         _cached = events;
         _cachedAt = DateTime.now();

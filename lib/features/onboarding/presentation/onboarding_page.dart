@@ -70,7 +70,7 @@ class _OnboardingPageState extends State<OnboardingPage>
       titlePre: 'Tu pantalla, ',
       titleHl: 'viva',
       body:
-          'Miles de wallpapers, sonidos y experiencias que cobran vida. Prepárate para presumir tu teléfono.',
+          'Cientos de wallpapers, sonidos y experiencias que cobran vida. Prepárate para presumir tu teléfono.',
     ),
     _SlideData(
       isDial: true,
