@@ -61,6 +61,7 @@ app.*.map.json
 *.env.local
 *.jks
 *.keystore
+android/key.properties
 google-services.json
 GoogleService-Info.plist
 KEYS_LOCAL.md
