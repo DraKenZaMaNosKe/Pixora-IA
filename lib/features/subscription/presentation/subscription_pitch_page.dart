@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../core/services/analytics_service.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../core/services/subscription_service.dart';
 
 /// Premium pitch shown right after the onboarding tutorial completes.
@@ -84,6 +85,27 @@ class _SubscriptionPitchPageState extends State<SubscriptionPitchPage> {
     AnalyticsService.instance.trackPitchCtaTap();
     setState(() => _purchasing = true);
     try {
+      // Require an account BEFORE buying. A subscription with no account is
+      // money we can't attribute to anyone — it wouldn't sync across devices
+      // and the server can't record the entitlement (verification defers when
+      // signed out, so the user would pay and the app wouldn't know). Sign in
+      // first, and only then open the purchase sheet.
+      if (!AuthService.instance.isLoggedIn) {
+        final signedIn = await AuthService.instance.signInWithGoogle();
+        if (!mounted) return;
+        if (!signedIn) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Inicia sesión con Google para suscribirte — así tu '
+                'suscripción te sigue en todos tus dispositivos.',
+              ),
+            ),
+          );
+          return; // finally resets _purchasing
+        }
+      }
+
       // Debug builds (sideloaded APK) cannot reach Google Play Billing —
       // the upload key signature doesn't match what Play Store has on file,
       // and apps must be installed via Play to even initialise BillingClient.
