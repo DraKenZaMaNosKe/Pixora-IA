@@ -36,6 +36,11 @@ class TypewriterText extends StatefulWidget {
     this.cursorColor,
     this.scrollController,
     this.autoScrollAlignment = 0.62,
+    this.dropCapStyle,
+    this.dropCapDecoration,
+    this.dropCapPadding =
+        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+    this.onSegmentComplete,
   });
 
   /// Texto crudo, opcionalmente con markup `[[rol:contenido]]`.
@@ -69,6 +74,24 @@ class TypewriterText extends StatefulWidget {
   /// Dónde dejar el cursor dentro del viewport al autoscrollear (0 = arriba,
   /// 1 = abajo). 0.62 ≈ zona de lectura cómoda, un poco abajo del centro.
   final double autoScrollAlignment;
+
+  /// Si se provee, la PRIMERA letra visible se pinta con este estilo fusionado
+  /// sobre el base (letra capital estilo libro). Se aplica aunque la primera
+  /// palabra tenga rol de color: la capital manda. Null = sin capital.
+  final TextStyle? dropCapStyle;
+
+  /// Si se provee (junto con [dropCapStyle]), la letra capital se dibuja dentro
+  /// de una caja con esta decoración (estilo revista/cómic) en vez de suelta.
+  /// La caja es visible desde el frame 1 (la capital no se teclea).
+  final BoxDecoration? dropCapDecoration;
+
+  /// Padding interior de la caja de la letra capital.
+  final EdgeInsets dropCapPadding;
+
+  /// Se llama cada vez que termina de teclearse un segmento resaltado, con su
+  /// rol (`name`/`power`/…). Úsalo para efectos puntuales (p.ej. haptic al
+  /// completar una palabra `power`). No se llama para el texto sin rol.
+  final void Function(String role)? onSegmentComplete;
 
   @override
   State<TypewriterText> createState() => _TypewriterTextState();
@@ -177,9 +200,19 @@ class _TypewriterTextState extends State<TypewriterText> {
     }
   }
 
+  /// Índices (exclusivos) donde termina cada segmento CON rol, junto con su
+  /// rol — para disparar [onSegmentComplete] cuando el cursor los cruza.
+  final List<(int, String)> _roleEnds = [];
+
   void _rebuild() {
     _segs = _parseSegments(widget.text);
     _plain = _segs.map((s) => s.text).join();
+    _roleEnds.clear();
+    var acc = 0;
+    for (final s in _segs) {
+      acc += s.text.length;
+      if (s.role != null && s.text.isNotEmpty) _roleEnds.add((acc, s.role!));
+    }
   }
 
   bool get _done => _visible >= _plain.length;
@@ -232,6 +265,16 @@ class _TypewriterTextState extends State<TypewriterText> {
         _ => 0,
       };
     });
+    // ¿Se acaba de completar una palabra resaltada? → callback (haptic, etc.)
+    final cb = widget.onSegmentComplete;
+    if (cb != null) {
+      for (final (end, role) in _roleEnds) {
+        if (end == _visible) {
+          cb(role);
+          break;
+        }
+      }
+    }
     _scheduleAutoScroll();
   }
 
@@ -251,6 +294,8 @@ class _TypewriterTextState extends State<TypewriterText> {
     final children = <InlineSpan>[];
     var remaining = _visible; // chars visibles globales por repartir
     var cursorPlaced = false;
+    // La letra capital se consume UNA vez, del primer carácter no vacío.
+    var dropPending = widget.dropCapStyle != null;
 
     TextStyle styleFor(String? role) {
       final hl = role == null ? null : widget.highlightStyles[role];
@@ -259,10 +304,40 @@ class _TypewriterTextState extends State<TypewriterText> {
 
     for (final seg in _segs) {
       final segStyle = styleFor(seg.role);
-      final vis = remaining.clamp(0, seg.text.length);
+      var text = seg.text;
+      // ── Letra capital: primer char del primer segmento con texto ──
+      if (dropPending && text.isNotEmpty) {
+        dropPending = false;
+        final capStyle = base.merge(widget.dropCapStyle);
+        final firstChar = text.substring(0, 1);
+        if (widget.dropCapDecoration != null) {
+          // Caja estilo revista: visible desde el frame 1 (no se teclea),
+          // ocupa el índice 0, así el resto del texto empata sus métricas.
+          children.add(WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Container(
+              margin: const EdgeInsets.only(right: 6),
+              padding: widget.dropCapPadding,
+              decoration: widget.dropCapDecoration,
+              child: Text(firstChar, style: capStyle),
+            ),
+          ));
+          if (remaining > 0) remaining -= 1;
+        } else if (remaining > 0) {
+          children.add(TextSpan(text: firstChar, style: capStyle));
+          remaining -= 1;
+        } else {
+          // Aún no se teclea: reservar su métrica en transparente.
+          children.add(TextSpan(
+            text: firstChar,
+            style: capStyle.copyWith(color: Colors.transparent),
+          ));
+        }
+        text = text.substring(1);
+      }
+      final vis = remaining.clamp(0, text.length);
       if (vis > 0) {
-        children
-            .add(TextSpan(text: seg.text.substring(0, vis), style: segStyle));
+        children.add(TextSpan(text: text.substring(0, vis), style: segStyle));
         remaining -= vis;
       }
       // Cursor de ANCHO CERO justo tras el último char visible: no ocupa
@@ -291,9 +366,9 @@ class _TypewriterTextState extends State<TypewriterText> {
       // Resto transparente: reserva el layout final desde el frame 1,
       // el CTA de abajo nunca se mueve. Conserva el estilo del segmento
       // (con color transparente) para que las métricas coincidan.
-      if (vis < seg.text.length) {
+      if (vis < text.length) {
         children.add(TextSpan(
-          text: seg.text.substring(vis),
+          text: text.substring(vis),
           style: segStyle.copyWith(color: Colors.transparent),
         ));
       }

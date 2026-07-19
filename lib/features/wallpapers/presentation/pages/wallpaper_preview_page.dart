@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -756,12 +757,16 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
                             _buildHoloCard(),
                             const SizedBox(height: 12),
                             _buildHoloDescription(),
-                            const SizedBox(height: 14),
-                            _buildHoloCta(),
+                            const SizedBox(height: 8),
                           ],
                         ),
                       ),
                     ),
+                    // CTA anclado FUERA del scroll: por más larga que sea la
+                    // descripción, "APLICAR" siempre queda visible al fondo
+                    // (Eduardo 2026-07-19 — antes se perdía hasta abajo).
+                    const SizedBox(height: 10),
+                    _buildHoloCta(),
                   ],
                 ),
               ),
@@ -822,6 +827,9 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
         // toggleLike ni acumule animaciones encimadas.
         HeartBurstButton(
           active: isFav,
+          // Imán de like: late + suelta corazoncitos mientras no sea favorito,
+          // para invitar al usuario a darle like (Eduardo 2026-07-19).
+          attract: !isFav,
           onTap: () {
             if (!_favGuard.tryFire()) return;
             ref.read(favoritesProvider.notifier).toggle(widget.wallpaper.id);
@@ -1092,65 +1100,124 @@ class _WallpaperPreviewPageState extends ConsumerState<WallpaperPreviewPage>
   /// Sin cap de líneas: las descripciones ricas (~400 chars) se muestran
   /// completas; la página ya scrollea. TypewriterText reserva la altura
   /// final desde el inicio, así el CTA no brinca mientras escribe.
+  /// Regex de emojis iniciales (para separarlos como "kicker" y que la letra
+  /// capital caiga en la primera LETRA, no en un emoji). Cubre los bloques
+  /// pictográficos comunes + selector de variación + ZWJ + espacios.
+  static final RegExp _kLeadEmoji = RegExp(
+    r'^[\s\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}️‍]+',
+    unicode: true,
+  );
+
+  /// Estilo "Revista Pop" (Eduardo escogió esta dirección 2026-07-19):
+  /// sans con energía, alineado a la izquierda, letra capital en caja dorada,
+  /// palabras de color con glow (poder/emoción en negritas gruesas) y un
+  /// haptic sutil cada vez que se completa una palabra `power`.
   Widget _buildHoloDescription() {
     final h = context.hud;
     final isIos = h.isIosStyle;
     final w = widget.wallpaper;
-    final text =
-        w.displayDescription.isNotEmpty ? w.displayDescription : w.name;
-    // Paleta de resaltado — 4 roles que contrastan pero combinan sobre el
-    // fondo oscuro (2 cálidos: oro + coral · 2 fríos: menta + celeste).
-    // El texto base sube a crema legible (antes usaba textDim, un dorado
-    // apagado difícil de leer). Roles:
-    //   name    → personajes / sagas (oro brillante)
-    //   place   → lugares / mundos (menta)
-    //   power   → poderes / energía / acción (celeste)
-    //   emotion → emociones / valores / la lección de la escena (coral)
-    // `key` queda como alias suave de `place` por compatibilidad.
+    final raw = w.displayDescription.isNotEmpty ? w.displayDescription : w.name;
+
+    // Separar emojis iniciales (kicker arriba) del cuerpo tecleado.
+    final m = _kLeadEmoji.firstMatch(raw);
+    final kicker = m != null ? raw.substring(0, m.end).trim() : '';
+    final body = m != null ? raw.substring(m.end) : raw;
+
+    // Paleta de resaltado por rol:
+    //   name → personajes/sagas · place → lugares · power → poder/energía ·
+    //   emotion → la emoción/lección. `key` = alias de place (compat).
     final Map<String, Color> hc = isIos
         ? const {
-            'name': Color(0xFFB8912E), // oro oscuro
-            'place': Color(0xFF00A878), // teal
-            'power': Color(0xFF2A7FC0), // azul
-            'emotion': Color(0xFFD9663B), // terracota
+            'name': Color(0xFFB8912E),
+            'place': Color(0xFF00A878),
+            'power': Color(0xFF2A7FC0),
+            'emotion': Color(0xFFD9663B),
           }
         : const {
-            'name':
-                Color(0xFFF2C230), // ámbar dorado vivo (contrasta con crema)
-            'place': Color(0xFF6FE0C0), // menta agua
-            'power': Color(0xFF8FD3FF), // celeste
-            'emotion': Color(0xFFF6A07A), // coral cálido
+            'name': Color(0xFFF2C230),
+            'place': Color(0xFF6FE0C0),
+            'power': Color(0xFF8FD3FF),
+            'emotion': Color(0xFFF6A07A),
           };
-    TextStyle hl(String role) =>
-        TextStyle(color: hc[role], fontWeight: FontWeight.w600);
+    // Glow del mismo color al aparecer (solo B&G oscuro; en iOS claro ensucia).
+    // Poder y emoción van más gruesas para darles punch de revista.
+    TextStyle hl(String role) {
+      final heavy = role == 'power' || role == 'emotion';
+      return TextStyle(
+        color: hc[role],
+        fontWeight: heavy ? FontWeight.w800 : FontWeight.w700,
+        shadows: isIos
+            ? null
+            : [Shadow(color: hc[role]!.withValues(alpha: 0.55), blurRadius: 9)],
+      );
+    }
+
+    final accent = isIos ? const Color(0xFF0A84FF) : HudTokens.goldBright;
+    final baseStyle = GoogleFonts.inter(
+      fontSize: 13.5,
+      fontWeight: FontWeight.w500,
+      color: h.text,
+      height: 1.62,
+    );
+    // Letra capital dentro de caja (gradiente dorado en B&G, azul en iOS).
+    final dropDeco = BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: isIos
+            ? const [Color(0xFF0A84FF), Color(0xFF0060D0)]
+            : const [Color(0xFFFBD65B), Color(0xFFE0A21F)],
+      ),
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: isIos
+          ? null
+          : [
+              BoxShadow(
+                color: HudTokens.goldBright.withValues(alpha: 0.45),
+                blurRadius: 12,
+                offset: const Offset(0, 3),
+              ),
+            ],
+    );
+    final capStyle = TextStyle(
+      fontSize: 13.5 * 2.0,
+      fontWeight: FontWeight.w800,
+      height: 1.0,
+      color: isIos ? Colors.white : const Color(0xFF241800),
+    );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: TypewriterText(
-        text,
-        textAlign: TextAlign.center,
-        scrollController: _detailScroll,
-        cursorColor: isIos ? const Color(0xFF0A84FF) : HudTokens.goldBright,
-        highlightStyles: {
-          'name': hl('name'),
-          'place': hl('place'),
-          'power': hl('power'),
-          'emotion': hl('emotion'),
-          'key': hl('place'),
-        },
-        style: isIos
-            ? GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: h.text,
-                height: 1.45,
-              )
-            : GoogleFonts.cormorantGaramond(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w400,
-                color: h.text,
-                height: 1.45,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (kicker.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6, left: 2),
+              child: Text(kicker, style: const TextStyle(fontSize: 22)),
+            ),
+          TypewriterText(
+            body,
+            textAlign: TextAlign.start,
+            scrollController: _detailScroll,
+            cursorColor: accent,
+            dropCapStyle: capStyle,
+            dropCapDecoration: dropDeco,
+            dropCapPadding:
+                const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+            onSegmentComplete: (role) {
+              if (role == 'power') HapticFeedback.lightImpact();
+            },
+            highlightStyles: {
+              'name': hl('name'),
+              'place': hl('place'),
+              'power': hl('power'),
+              'emotion': hl('emotion'),
+              'key': hl('place'),
+            },
+            style: baseStyle,
+          ),
+        ],
       ),
     );
   }
