@@ -547,6 +547,11 @@
   <aside class="left" id="left">
     <div class="section-title">FILTRAR</div>
     <input type="text" class="search" id="search" placeholder="buscar por nombre o tag...">
+    <select class="search" id="sort-order" style="cursor:pointer; margin-top:6px;">
+      <option value="new">↓ Nuevos primero</option>
+      <option value="old">↑ Viejos primero</option>
+      <option value="az">A – Z</option>
+    </select>
     <div class="section-title" id="list-section-title">3D SCENES</div>
     <div id="catalog-list" class="loading">cargando...</div>
   </aside>
@@ -1105,7 +1110,7 @@ async function loadCatalog() {
       const d = await r.json();
       state.catalog = (d.items || []).filter(it => it.type === 'canvas_scene').map(it => ({
         id: it.id, name: (it.title?.es || it.title?.en || it.id), tags: it.tags || [],
-        preview_url: it.preview_url, kind: '3d',
+        preview_url: it.preview_url, kind: '3d', created_at: it.created_at || '',
       }));
     } catch (e) { list.innerHTML = '<div class="loading">error: ' + e.message + '</div>'; return; }
   } else if (state.mode === 'live') {
@@ -1151,6 +1156,16 @@ function renderCatalogList() {
     if (!q) return true;
     return it.name.toLowerCase().includes(q) || (it.tags || []).some(t => t.toLowerCase().includes(q));
   });
+  // Orden: nuevos primero (default) / viejos primero / A-Z. Las fechas ISO
+  // comparan cronologicamente como strings; los items sin created_at ('')
+  // quedan al final cuando es "nuevos primero".
+  const order = ($('#sort-order') && $('#sort-order').value) || 'new';
+  if (order === 'az') {
+    filtered.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  } else {
+    const dir = order === 'old' ? 1 : -1;
+    filtered.sort((a, b) => dir * String(a.created_at || '').localeCompare(String(b.created_at || '')));
+  }
   const list = $('#catalog-list');
   if (!filtered.length) { list.innerHTML = '<div class="loading">sin resultados</div>'; return; }
   list.innerHTML = '';
@@ -3076,6 +3091,7 @@ $$('#tabs .tab').forEach(t => t.onclick = () => {
 });
 
 $('#search').addEventListener('input', renderCatalogList);
+$('#sort-order').addEventListener('change', renderCatalogList);
 $('#btn-reload').onclick = () => {
   if (state.selectedId) {
     const item = state.catalog.find(it => it.id === state.selectedId);

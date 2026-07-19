@@ -2047,6 +2047,12 @@ class Handler(BaseHTTPRequestHandler):
                 idx = _storage_get("wallpaper-images", "catalog_index.json")
             except Exception as e:
                 return self._send_json({"error": f"index fetch: {e}"}, 502)
+            import time as _t
+            # Preservar created_at del entry previo (para el orden del editor);
+            # si la escena es nueva y no lo tiene, estamparlo ahora.
+            _old = next((i for i in idx.get("items", []) if i.get("id") == sid), None)
+            _created = (_old or {}).get("created_at") or spec.get("created_at") \
+                or _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime())
             items = [i for i in idx.get("items", []) if i.get("id") != sid]
             is_published = spec.get("published") is not False
             if is_published:
@@ -2062,6 +2068,7 @@ class Handler(BaseHTTPRequestHandler):
                     "category": spec.get("category"),
                     "featured": spec.get("featured", False),
                     "spec_url": f"{SUPABASE_STORAGE}/object/public/{spec_bucket}/{spec_key}",
+                    "created_at": _created,
                 }
                 # Carry description + glow from the spec so making a scene
                 # visible doesn't wipe the copy the app reads from the index.
@@ -2074,7 +2081,6 @@ class Handler(BaseHTTPRequestHandler):
                 if spec.get("hidden_in"):
                     entry["hidden_in"] = spec["hidden_in"]
                 items.append(entry)
-            import time as _t
             items.sort(key=lambda it: (it.get("type") or "", it.get("id") or ""))
             idx["items"] = items
             idx["version"] = int(idx.get("version", 0)) + 1
