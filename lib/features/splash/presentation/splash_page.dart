@@ -68,7 +68,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     try {
       if (mounted) {
         setState(() {
-          _loadingStatus = 'CHARGEMENT DU CATALOGUE';
+          _loadingStatus = 'CARGANDO CATÁLOGO';
           _loadingProgress = 0.25;
         });
       }
@@ -76,7 +76,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
       if (mounted) {
         setState(() {
-          _loadingStatus = 'SYNCHRONISATION';
+          _loadingStatus = 'SINCRONIZANDO';
           _loadingProgress = 0.55;
         });
       }
@@ -84,7 +84,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
       if (mounted) {
         setState(() {
-          _loadingStatus = 'PRÉPARATION';
+          _loadingStatus = 'PREPARANDO';
           _loadingProgress = 0.85;
         });
       }
@@ -102,13 +102,13 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
       if (mounted) {
         setState(() {
-          _loadingStatus = 'BIENVENUE';
+          _loadingStatus = 'BIENVENIDO';
           _loadingProgress = 1.0;
         });
       }
     } catch (e) {
       debugPrint('[Pixora] Preload error (continuing): $e');
-      if (mounted) setState(() => _loadingStatus = 'BIENVENUE');
+      if (mounted) setState(() => _loadingStatus = 'BIENVENIDO');
     }
     _loadingDone = true;
     _navigateIfReady();
