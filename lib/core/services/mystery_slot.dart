@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'mystery_exclusion_service.dart';
@@ -49,6 +50,10 @@ Set<String> pickMysteryIds(
   Iterable<String> ids, {
   bool checkFavorites = false,
 }) {
+  // Eduardo 2026-07-20: sin cartas misteriosas en DEBUG para pruebas en su
+  // Samsung. Release intacto (producción sí las muestra).
+  if (kDebugMode) return const <String>{};
+
   // Subscribers paid for full access — nothing should hide behind a
   // reveal-to-earn card. One gate here covers every screen that calls this
   // (amor, live, 3D, ringtones, wallpapers).

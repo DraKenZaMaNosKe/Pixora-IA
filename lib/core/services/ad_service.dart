@@ -101,7 +101,10 @@ class AdService {
   /// so this device gets TEST ads only (safe, no suspension risk). Real users
   /// get real ads and we restore revenue. Keep ALL test devices in
   /// _testDeviceIds before flipping this back on a new dev machine.
-  static bool get _debugDisableAds => false;
+  // Eduardo 2026-07-20: sin ads en builds DEBUG para que él pruebe en su
+  // Samsung sin interrupciones. Release (kDebugMode=false) NO se afecta —
+  // producción sigue mostrando ads reales/test normalmente.
+  static bool get _debugDisableAds => kDebugMode;
 
   /// True when ads should be globally suppressed for this user — either the
   /// debug flag is on or they have an active subscription. Both interstitial
