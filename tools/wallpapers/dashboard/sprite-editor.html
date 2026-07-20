@@ -2598,6 +2598,40 @@ function renderItemsPanel() {
       markDirty(); renderItemsPanel(); updateStatusBar(); pushHistory();
     };
   });
+  // Toggle behavior: static ⇄ translate. Convierte cualquier sprite en
+  // "animado A→B" (aparecen play/ruta/SALE-ENTRA) o lo regresa a fijo, para
+  // que toda escena tenga las herramientas de animacion cuando se requiera.
+  panel.querySelectorAll('[data-togglebeh]').forEach(btn => {
+    btn.onclick = async (e) => {
+      e.stopPropagation();
+      const idx = +btn.dataset.togglebeh;
+      const sp = state.spec.sprites[idx];
+      if (!sp) return;
+      const p = sp.params || (sp.params = {});
+      if (sp.behavior === 'translate') {
+        // translate → static: fija en el punto de SALIDA (A), quita la ruta.
+        const from = Array.isArray(p.from) ? p.from : [0.5, 0.5];
+        p.x = from[0]; p.y = from[1];
+        if (p.parallax_factor === undefined) p.parallax_factor = 0.85;
+        delete p.from; delete p.to; delete p.duration_s;
+        delete p.orient_to_motion; delete p.rotation;
+        sp.behavior = 'static';
+      } else {
+        // static → translate: crea una ruta A→B desde la posicion actual.
+        const x = (p.x !== undefined ? p.x : 0.5), y = (p.y !== undefined ? p.y : 0.5);
+        p.from = [x, y];
+        p.to = [Math.max(-0.3, x - 0.4), y];
+        p.duration_s = p.duration_s || 8;
+        p.orient_to_motion = false;
+        p.rotation = p.rotation || 0;
+        delete p.x; delete p.y; delete p.parallax_factor;
+        sp.behavior = 'translate';
+      }
+      markDirty(); pushHistory();
+      await rebuildScene();
+      renderItemsPanel(); updateStatusBar();
+    };
+  });
   // Arm "draw route A→B": next click-drag on the stage sets from→to.
   panel.querySelectorAll('[data-route]').forEach(btn => {
     btn.onclick = (e) => {
@@ -2829,6 +2863,7 @@ function spriteCardHtml(sp, i) {
       <span class="name">${escapeHtml(sp.name)}</span>
       <button class="zbtn" title="Mandar atras (z-1)" data-zbump="-1" data-zkind="sprite" data-zidx="${i}">▼</button>
       <button class="zbtn" title="Traer al frente (z+1)" data-zbump="1" data-zkind="sprite" data-zidx="${i}">▲</button>
+      <button class="zbtn" data-togglebeh="${i}" title="${isTranslate(sp) ? 'Volver fijo (quita la ruta A→B)' : 'Animar: cruza de A→B (activa play/ruta)'}" style="width:auto;padding:0 6px">${isTranslate(sp) ? '📌' : '🎬'}</button>
       <span class="badge" title="${escapeHtml(grp)}">${grpBadge} · ${sp.behavior}${fs ? ' · FS' : ''} · Z${zVal}</span>
     </div>
     ${posFields}
