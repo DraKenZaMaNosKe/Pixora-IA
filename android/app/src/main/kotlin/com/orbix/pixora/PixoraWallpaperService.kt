@@ -186,8 +186,11 @@ class PixoraWallpaperService : WallpaperService() {
         private var gyroRegistered = false
         @Volatile private var tiltXNorm = 0f
         @Volatile private var tiltYNorm = 0f
-        private val tiltAmpX get() = (surfaceWidth * 0.07f).coerceAtLeast(40f)
-        private val tiltAmpY get() = (surfaceHeight * 0.07f).coerceAtLeast(60f)
+        // Amplitud del parallax (offset máx al giro completo). Bajado de 0.07 a
+        // 0.045 (Eduardo 2026-07-20: se sentía exagerado en todas las escenas).
+        // Knob GLOBAL — afecta todas las canvas_scene proporcionalmente.
+        private val tiltAmpX get() = (surfaceWidth * 0.045f).coerceAtLeast(40f)
+        private val tiltAmpY get() = (surfaceHeight * 0.045f).coerceAtLeast(60f)
 
         private val gyroListener = object : SensorEventListener {
             override fun onAccuracyChanged(s: Sensor?, a: Int) {}
