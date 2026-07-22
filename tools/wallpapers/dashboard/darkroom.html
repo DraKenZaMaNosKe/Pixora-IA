@@ -185,9 +185,18 @@ body::after{
 /* ================================================================ */
 /* CANISTERS + WIRES + POLAROIDS (Revelado)                         */
 /* ================================================================ */
-.canisters{position:fixed;left:24px;top:280px;z-index:40;display:flex;flex-direction:column;gap:14px}
+.canisters{position:fixed;left:24px;top:274px;bottom:20px;z-index:40;display:flex;flex-direction:column;gap:14px;
+  /* Scroll the rail when there are more categories than fit the viewport.
+     padding-right leaves room for the always-on labels; pointer-events:none
+     lets clicks pass through the (transparent) label zone to the polaroids
+     underneath, while each .canister re-enables its own pointer events. */
+  overflow-y:auto;overflow-x:hidden;padding:6px 176px 6px 0;pointer-events:none;
+  scrollbar-width:thin;scrollbar-color:rgba(232,90,60,.5) transparent}
+.canisters::-webkit-scrollbar{width:5px}
+.canisters::-webkit-scrollbar-thumb{background:rgba(232,90,60,.45);border-radius:3px}
+.canisters::-webkit-scrollbar-track{background:transparent}
 .canister{
-  position:relative;width:72px;height:72px;cursor:pointer;
+  position:relative;width:72px;height:72px;cursor:pointer;flex-shrink:0;pointer-events:auto;
   background:url('/img/canister.webp') center/contain no-repeat;
   filter:drop-shadow(0 6px 12px rgba(0,0,0,.7));
   transition:transform .2s,filter .2s;
@@ -781,6 +790,54 @@ body::after{
           <tr><th>#</th><th>usuario</th><th class="num">devices</th><th class="num">ads</th><th class="num">rewarded</th><th class="num">$ est</th></tr>
         </thead>
         <tbody><tr><td colspan="6" class="loading">cargando…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Suscripciones · ingresos recurrentes (audit BD FASE 1) -->
+  <div class="room-title" style="margin-top:44px">
+    <p class="eyebrow" id="subs-price-eyebrow">SUSCRIPCIONES · —</p>
+    <h1 class="title">Pixora Plus</h1>
+    <p class="subtitle">— ingresos recurrentes, altas y bajas</p>
+  </div>
+
+  <div class="kpi-strip" id="subs-kpi">
+    <div class="loading">— contando suscriptores…</div>
+  </div>
+
+  <div class="ledger-wrap">
+    <div class="ledger">
+      <h3 class="ledger-title">Movimientos por mes</h3>
+      <p class="ledger-sub">— altas, renovaciones, bajas, reembolsos y churn</p>
+      <table class="ledger-table" id="subs-monthly">
+        <thead>
+          <tr><th>mes</th><th class="num">altas</th><th class="num">renov</th><th class="num">cancel</th><th class="num">reemb</th><th class="num">exp</th><th class="num">churn%</th></tr>
+        </thead>
+        <tbody><tr><td colspan="7" class="loading">cargando…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="ledger">
+      <h3 class="ledger-title">Historial de compras</h3>
+      <p class="ledger-sub">— ledger append-only de eventos de suscripción</p>
+      <table class="ledger-table" id="subs-history">
+        <thead>
+          <tr><th>hora</th><th>evento</th><th>plan</th><th class="num">$</th><th>order</th></tr>
+        </thead>
+        <tbody><tr><td colspan="5" class="loading">cargando…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ledger-wrap" id="credits-drift-wrap" style="display:none">
+    <div class="ledger">
+      <h3 class="ledger-title">⚠️ Créditos con descuadre</h3>
+      <p class="ledger-sub">— saldo que no cuadra con el ledger (monitoreo audit C-2)</p>
+      <table class="ledger-table" id="credits-drift">
+        <thead>
+          <tr><th>user</th><th class="num">balance</th><th class="num">earned</th><th class="num">spent</th><th class="num">ledger</th><th class="num">drift</th></tr>
+        </thead>
+        <tbody></tbody>
       </table>
     </div>
   </div>
@@ -1433,6 +1490,68 @@ async function loadIngresos(){
         <td class="num">${fmt(u.rewarded_ads)}</td>
         <td class="num accent">$${Number(u.est_revenue_usd || 0).toFixed(2)}</td>
       </tr>`).join('');
+  }
+
+  loadSubsLedger();
+}
+
+// Suscripciones · lee las vistas del audit BD FASE 1 (v_subs_mrr, v_subs_monthly,
+// v_purchase_history, subscription_products, v_credits_reconciliation).
+async function loadSubsLedger(){
+  const kpi = document.getElementById('subs-kpi');
+  const monEl = document.querySelector('#subs-monthly tbody');
+  const histEl = document.querySelector('#subs-history tbody');
+  const [mrr, monthly, products, hist, drift] = await Promise.all([
+    api('/api/subs-mrr'),
+    api('/api/subs-monthly?months=12'),
+    api('/api/subs-products'),
+    api('/api/purchase-history?limit=40'),
+    api('/api/credits-drift'),
+  ]);
+  const m = (Array.isArray(mrr) && mrr[0]) || {};
+  const cur = (Array.isArray(monthly) && monthly[0]) || {};
+  if(Array.isArray(products) && products.length){
+    const p = products[0];
+    document.getElementById('subs-price-eyebrow').textContent =
+      'SUSCRIPCIONES · $' + p.price_mxn + ' MXN/' + p.billing_period_months + 'm';
+  }
+  const cards = [
+    ['MRR (CON DERECHO)', '$' + Number(m.mrr_mxn_con_derecho || 0).toFixed(0), 'MXN mensual'],
+    ['RENOVANDO', fmt(m.subs_renovando || 0), 'con derecho ' + fmt(m.subs_con_derecho || 0)],
+    ['ALTAS ESTE MES', fmt(cur.altas || 0), (cur.trials || 0) + ' trials'],
+    ['CHURN', (cur.churn_pct_aprox ?? 0) + '%', (cur.reembolsos || 0) + ' reembolsos'],
+  ];
+  kpi.innerHTML = cards.map(([l,v,n]) =>
+    `<div class="kpi"><p class="kpi-label">${l}</p><p class="kpi-value">${v}</p><p class="kpi-note">${escapeHtml(n)}</p></div>`).join('');
+
+  const mm = Array.isArray(monthly) ? monthly : [];
+  monEl.innerHTML = mm.length ? mm.map(r =>
+    `<tr><td>${escapeHtml(r.mes)}</td><td class="num">${r.altas}</td><td class="num">${r.renovaciones}</td>` +
+    `<td class="num">${r.cancelaciones}</td><td class="num">${r.reembolsos}</td><td class="num">${r.expiraciones}</td>` +
+    `<td class="num accent">${r.churn_pct_aprox ?? '—'}</td></tr>`).join('')
+    : '<tr><td colspan="7" class="loading">sin movimientos aún</td></tr>';
+
+  const LABEL = {purchase:'alta',trial_start:'trial',conversion:'conversión',reactivation:'reactivación',
+    renewal:'renovación',cancellation:'cancelación',expiration:'expiración',refund:'reembolso',
+    grace_start:'gracia',hold:'hold',pause:'pausa',status_change:'cambio',admin_adjustment:'ajuste'};
+  const hh = Array.isArray(hist) ? hist : [];
+  histEl.innerHTML = hh.length ? hh.map(e =>
+    `<tr><td class="num">${shortTime(e.occurred_at)}</td><td><span class="pill">${escapeHtml(LABEL[e.event_type] || e.event_type)}</span></td>` +
+    `<td>${escapeHtml(e.tier || e.product_id || '—')}</td><td class="num accent">${e.price_mxn != null ? ('$' + e.price_mxn) : '—'}</td>` +
+    `<td>${escapeHtml((e.order_id || '').slice(-10))}</td></tr>`).join('')
+    : '<tr><td colspan="5" class="loading">sin eventos</td></tr>';
+
+  const dwrap = document.getElementById('credits-drift-wrap');
+  const dEl = document.querySelector('#credits-drift tbody');
+  const dd = Array.isArray(drift) ? drift : [];
+  if(dd.length){
+    dwrap.style.display = '';
+    dEl.innerHTML = dd.map(r =>
+      `<tr><td>${escapeHtml((r.user_id || '').slice(0,8))}</td><td class="num">${r.balance}</td>` +
+      `<td class="num">${r.total_earned}</td><td class="num">${r.total_spent}</td>` +
+      `<td class="num">${r.ledger_sum}</td><td class="num accent">${r.drift}</td></tr>`).join('');
+  } else {
+    dwrap.style.display = 'none';
   }
 }
 
