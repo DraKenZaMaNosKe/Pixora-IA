@@ -207,7 +207,16 @@ class AdService {
     // request los respete. El RequestConfiguration es global y persiste
     // todo el lifecycle del app.
     await MobileAds.instance.updateRequestConfiguration(
-      RequestConfiguration(testDeviceIds: _testDeviceIds),
+      RequestConfiguration(
+        testDeviceIds: _testDeviceIds,
+        // v1.7.10 mitigation — G rating excludes heavy playable game ads that
+        // OOM mid-range Samsungs. Was lost from the global init at some
+        // refactor; only _BannerAdHost re-applied it (and only if the user
+        // opened the HUD), so interstitials — the heavy format — were being
+        // requested with no filter. This is the direct cause of "real ads
+        // crash, test ads don't".
+        maxAdContentRating: MaxAdContentRating.g,
+      ),
     );
     await MobileAds.instance.initialize();
     loadInterstitialAd();
