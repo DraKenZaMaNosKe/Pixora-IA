@@ -30,7 +30,7 @@ class AdService {
   /// before we're officially in production. Flip to `true` the day Google
   /// approves production access, then rebuild. Banner + native read this same
   /// flag (see wallpaper_viewer_hud_page.dart and native_ad_service.dart).
-  static const useProductionAds = false;
+  static const useProductionAds = true;
 
   // Interstitial unit IDs. Prod = Pixora_Interstitial_ApplyWallpaper.
   static const _prodInterstitialId = 'ca-app-pub-6734758230109098/6687118537';
