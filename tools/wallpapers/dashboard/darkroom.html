@@ -80,7 +80,7 @@ body::after{
 .title{font-family:'Redaction',serif;font-weight:700;font-size:72px;line-height:.95;color:var(--parchment);margin:0 0 8px;letter-spacing:-1px;text-shadow:0 4px 20px rgba(0,0,0,.8)}
 .subtitle{font-family:'Caveat',cursive;font-size:26px;color:var(--kraft);opacity:.8;transform:rotate(-1.2deg);display:inline-block;margin:0}
 
-.search-line{display:flex;align-items:center;gap:16px;padding:20px 60px 8px;position:relative;z-index:5}
+.search-line{display:flex;align-items:center;gap:16px;padding:20px 60px 8px;position:relative;z-index:55}
 .search-input{
   flex:1;max-width:520px;background:transparent;border:none;
   border-bottom:1px dashed rgba(215,184,150,.35);padding:10px 4px;
@@ -185,37 +185,60 @@ body::after{
 /* ================================================================ */
 /* CANISTERS + WIRES + POLAROIDS (Revelado)                         */
 /* ================================================================ */
-.canisters{position:fixed;left:24px;top:274px;bottom:20px;z-index:40;display:flex;flex-direction:column;gap:14px;
-  /* Scroll the rail when there are more categories than fit the viewport.
-     padding-right leaves room for the always-on labels; pointer-events:none
-     lets clicks pass through the (transparent) label zone to the polaroids
-     underneath, while each .canister re-enables its own pointer events. */
-  overflow-y:auto;overflow-x:hidden;padding:6px 176px 6px 0;pointer-events:none;
-  scrollbar-width:thin;scrollbar-color:rgba(232,90,60,.5) transparent}
-.canisters::-webkit-scrollbar{width:5px}
-.canisters::-webkit-scrollbar-thumb{background:rgba(232,90,60,.45);border-radius:3px}
-.canisters::-webkit-scrollbar-track{background:transparent}
-.canister{
-  position:relative;width:72px;height:72px;cursor:pointer;flex-shrink:0;pointer-events:auto;
-  background:url('/img/canister.webp') center/contain no-repeat;
-  filter:drop-shadow(0 6px 12px rgba(0,0,0,.7));
-  transition:transform .2s,filter .2s;
+/* Category filter · darkroom "label selector" dropdown (replaces ink-cans) */
+.cat-filter{position:relative;z-index:25;flex-shrink:0}
+.cat-trigger{
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  padding:9px 14px;
+  background:linear-gradient(180deg, rgba(237,215,168,.10), rgba(42,31,26,.34));
+  border:1px solid rgba(176,134,65,.45);border-radius:11px;
+  font-family:'Caveat',cursive;font-size:20px;color:var(--parchment);line-height:1;
+  box-shadow:0 4px 14px rgba(0,0,0,.4), inset 0 1px 0 rgba(237,215,168,.08);
+  transition:border-color .2s, box-shadow .2s, transform .15s;
 }
-.canister::after{
-  content:attr(data-count);
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--parchment);
-  font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,1), 0 0 6px rgba(0,0,0,1);margin-top:4px;
+.cat-trigger:hover{border-color:var(--ember);box-shadow:0 6px 18px rgba(232,90,60,.22), inset 0 1px 0 rgba(237,215,168,.12);transform:translateY(-1px)}
+.cat-filter.open .cat-trigger{border-color:var(--safelight-glow);box-shadow:0 0 0 1px rgba(201,58,42,.45), 0 8px 24px rgba(0,0,0,.55)}
+.cat-dot{width:9px;height:9px;border-radius:50%;background:var(--safelight-glow);box-shadow:0 0 8px var(--safelight-glow);flex-shrink:0}
+.cat-current{white-space:nowrap;text-transform:capitalize;padding-bottom:2px}
+.cat-count-badge{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--void);background:var(--gilt);border-radius:20px;padding:2px 8px;min-width:24px;text-align:center;
 }
-.canister-label{
-  position:absolute;left:84px;top:50%;transform:translateY(-50%);
-  font-family:'Caveat',cursive;font-size:18px;color:var(--kraft);
-  white-space:nowrap;opacity:.75;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.9);
+.cat-chevron{font-size:12px;color:var(--kraft);transition:transform .25s, color .2s;margin-left:2px}
+.cat-filter.open .cat-chevron{transform:rotate(180deg);color:var(--ember)}
+.cat-menu{
+  position:absolute;top:calc(100% + 8px);right:0;min-width:264px;
+  /* Cap to the space below the trigger so the menu never runs off the
+     bottom of the viewport (the internal scrollbar stays fully reachable). */
+  max-height:min(460px, calc(100vh - 410px));
+  overflow-y:auto;overflow-x:hidden;
+  background:linear-gradient(180deg,#22170f 0%, #150e09 100%);
+  border:1px solid rgba(176,134,65,.4);border-radius:12px;padding:8px;
+  box-shadow:0 26px 64px rgba(0,0,0,.72), 0 0 0 4px rgba(11,5,7,.4);
+  transform-origin:top right;animation:catMenuIn .18s ease-out;
+  scrollbar-width:thin;scrollbar-color:rgba(232,90,60,.5) transparent;
 }
-.canister:hover{transform:translateX(4px)}
-.canister:hover .canister-label{opacity:1;color:var(--parchment)}
-.canister.active{filter:drop-shadow(0 0 12px rgba(232,90,60,.6)) drop-shadow(0 6px 12px rgba(0,0,0,.7))}
-.canister.active::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--safelight-glow);pointer-events:none}
+@keyframes catMenuIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
+.cat-menu::-webkit-scrollbar{width:6px}
+.cat-menu::-webkit-scrollbar-thumb{background:rgba(232,90,60,.45);border-radius:3px}
+.cat-menu::-webkit-scrollbar-track{background:transparent}
+.cat-opt{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  width:100%;text-align:left;cursor:pointer;
+  padding:9px 12px;border:none;border-left:3px solid transparent;border-radius:8px;background:transparent;
+  font-family:'Newsreader',serif;font-size:15px;color:var(--kraft);
+  transition:background .15s, color .15s, border-color .15s, padding-left .15s;
+}
+.cat-opt:hover{background:rgba(232,90,60,.10);color:var(--parchment);border-left-color:var(--ember);padding-left:16px}
+.cat-opt.active{background:rgba(201,58,42,.16);color:var(--parchment);border-left-color:var(--safelight-glow)}
+.cat-opt-name{text-transform:capitalize;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-opt-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gilt);flex-shrink:0}
+.cat-opt.active .cat-opt-count{color:var(--ember)}
+@media (prefers-reduced-motion:reduce){
+  .cat-menu{animation:none}
+  .cat-trigger,.cat-chevron,.cat-opt{transition:none}
+}
+/* WIRES + POLAROIDS (Revelado) — canister rail retired for the dropdown */
 
 .room{padding:24px 60px 60px 130px;position:relative;z-index:4}
 .wire-row{position:relative;margin:82px 0 46px}
@@ -740,9 +763,16 @@ body::after{
 
   <div class="search-line">
     <input class="search-input" type="text" placeholder="filtra por nombre, id, categoría…" id="search-input">
+    <div class="cat-filter" id="cat-filter">
+      <button class="cat-trigger" id="cat-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" title="Filtrar por categoría">
+        <span class="cat-dot"></span>
+        <span class="cat-current" id="cat-current">todo</span>
+        <span class="cat-count-badge" id="cat-current-count">—</span>
+        <span class="cat-chevron">▾</span>
+      </button>
+      <div class="cat-menu" id="cat-menu" role="listbox" hidden></div>
+    </div>
   </div>
-
-  <aside class="canisters" id="canisters"></aside>
 
   <main class="room" id="room">
     <div class="empty-strip">cargando negativos…</div>
@@ -1161,36 +1191,63 @@ const state = {
 async function loadRevelado(){
   const d = await api('/api/all-wallpapers?limit=2000');
   state.wallpapers = (d && d.items) || [];
-  buildCanisters();
+  buildCategoryFilter();
   updateTrayCounts();
   applyFilters();
 }
 
-function buildCanisters(){
+// Category filter dropdown. Entry = [cat|null, label, count]; null cat = "todo".
+function buildCategoryFilter(){
   const cats = {};
   for(const w of state.wallpapers){
     const c = (w.category || 'SIN CAT').toUpperCase();
     cats[c] = (cats[c] || 0) + 1;
   }
-  const wrap = document.getElementById('canisters');
-  wrap.innerHTML = '';
-  wrap.appendChild(makeCanister(null, 'todo', state.wallpapers.length));
-  Object.entries(cats).sort((a,b) => b[1] - a[1]).forEach(([cat, count]) => {
-    wrap.appendChild(makeCanister(cat, cat.toLowerCase(), count));
+  const entries = [[null, 'todo', state.wallpapers.length]].concat(
+    Object.entries(cats).sort((a,b) => b[1] - a[1]).map(([cat, count]) => [cat, cat.toLowerCase(), count])
+  );
+  const menu = document.getElementById('cat-menu');
+  menu.innerHTML = entries.map(([cat, label, count]) =>
+    `<button class="cat-opt${state.filterCat === cat ? ' active' : ''}" role="option">
+       <span class="cat-opt-name">${escapeHtml(label)}</span>
+       <span class="cat-opt-count">${count}</span>
+     </button>`).join('');
+  menu.querySelectorAll('.cat-opt').forEach((el, i) => {
+    el.addEventListener('click', () => {
+      const [cat, label, count] = entries[i];
+      state.filterCat = cat;
+      setCatTrigger(label, count);
+      buildCategoryFilter();   // refresh active row
+      closeCatMenu();
+      applyFilters();
+    });
   });
+  const sel = entries.find(e => e[0] === state.filterCat) || entries[0];
+  setCatTrigger(sel[1], sel[2]);
+
+  if(!window._catWired){
+    window._catWired = true;
+    document.getElementById('cat-trigger').addEventListener('click', (e) => { e.stopPropagation(); toggleCatMenu(); });
+    document.addEventListener('click', (e) => { if(!e.target.closest('#cat-filter')) closeCatMenu(); });
+    document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeCatMenu(); });
+  }
 }
-function makeCanister(cat, label, count){
-  const el = document.createElement('div');
-  el.className = 'canister' + (state.filterCat === cat ? ' active' : '');
-  el.dataset.count = count;
-  el.dataset.cat = cat || '';
-  el.innerHTML = `<span class="canister-label">— ${label}</span>`;
-  el.addEventListener('click', () => {
-    state.filterCat = state.filterCat === cat ? null : cat;
-    buildCanisters();
-    applyFilters();
-  });
-  return el;
+function setCatTrigger(label, count){
+  document.getElementById('cat-current').textContent = label;
+  document.getElementById('cat-current-count').textContent = count;
+}
+function openCatMenu(){
+  document.getElementById('cat-filter').classList.add('open');
+  const m = document.getElementById('cat-menu'); m.hidden = false;
+  document.getElementById('cat-trigger').setAttribute('aria-expanded', 'true');
+}
+function closeCatMenu(){
+  document.getElementById('cat-filter').classList.remove('open');
+  document.getElementById('cat-menu').hidden = true;
+  document.getElementById('cat-trigger').setAttribute('aria-expanded', 'false');
+}
+function toggleCatMenu(){
+  document.getElementById('cat-filter').classList.contains('open') ? closeCatMenu() : openCatMenu();
 }
 function updateTrayCounts(){
   const counts = {static:0, live:0, panoramic:0, canvas_scene:0};
