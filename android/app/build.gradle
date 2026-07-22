@@ -56,7 +56,9 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 24
-        targetSdkVersion 35
+        // Google Play requiere target API 36 (Android 16) antes del 30-ago-2026.
+        // Flutter 3.44 default = 36 y el SDK android-36 ya está instalado.
+        targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

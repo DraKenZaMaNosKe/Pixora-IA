@@ -1,7 +1,7 @@
 name: pixora
 description: "Pixora IA - Wallpapers, Ringtones & Icon Packs"
 publish_to: 'none'
-version: 1.7.67+112
+version: 1.7.68+113
 
 environment:
   sdk: '>=3.3.1 <4.0.0'
@@ -35,7 +35,7 @@ dependencies:
   package_info_plus: ^8.0.0
   device_info_plus: ^10.1.2
   archive: ^4.0.2
-  in_app_purchase: ^3.2.0
+  in_app_purchase: ^3.3.0   # 3.3.0 -> in_app_purchase_android 0.5.x = Play Billing 8 (req. Google 30-ago-2026)
   google_fonts: ^6.2.1
   url_launcher: ^6.3.0
   # Firebase (added 2026-05-11 — FCM push notifications)
