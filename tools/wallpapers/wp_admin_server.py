@@ -1397,6 +1397,43 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send_json(data, status)
 
+        # ─── Suscripciones / ingresos recurrentes ─────────────────
+        # Vistas creadas en el audit de BD FASE 1 (2026-07-22). Fuente de
+        # verdad del historial de compras: subscription_events (append-only
+        # por trigger AFTER INSERT/UPDATE en user_subscriptions). MRR y churn
+        # se derivan de ahí + subscription_products (precios de Play).
+        if path == "/api/subs-dashboard":
+            data, status = self._proxy(
+                "v_subs_dashboard?select=tier,status,subs,proxima_expiracion&order=tier"
+            )
+            return self._send_json(data, status)
+
+        if path == "/api/subs-mrr":
+            data, status = self._proxy("v_subs_mrr")
+            return self._send_json(data, status)
+
+        if path == "/api/subs-monthly":
+            limit = int(query.get("months", ["12"])[0])
+            data, status = self._proxy(f"v_subs_monthly?order=mes.desc&limit={limit}")
+            return self._send_json(data, status)
+
+        if path == "/api/purchase-history":
+            limit = int(query.get("limit", ["50"])[0])
+            data, status = self._proxy(f"v_purchase_history?limit={limit}")
+            return self._send_json(data, status)
+
+        if path == "/api/subs-products":
+            data, status = self._proxy(
+                "subscription_products?select=product_id,tier,price_mxn,billing_period_months,active&order=price_mxn"
+            )
+            return self._send_json(data, status)
+
+        if path == "/api/credits-drift":
+            data, status = self._proxy(
+                "v_credits_reconciliation?drift=neq.0&select=user_id,balance,total_earned,total_spent,ledger_sum,drift"
+            )
+            return self._send_json(data, status)
+
         # ─── Likes audit (counter drift detection) ────────────────
         # Compara wallpaper_stats.likes (counter) vs COUNT(wallpaper_likes)
         # rows reales. Devuelve solo los wallpapers con drift para monitoring

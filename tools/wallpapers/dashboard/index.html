@@ -1555,6 +1555,76 @@ button { white-space: nowrap; }
     </div>
   </div>
 
+  <!-- ─── SUSCRIPCIONES · ingresos recurrentes (audit BD FASE 1) ─────────── -->
+  <div class="section-title" style="margin-top: 28px">
+    <span>Suscripciones · ingresos recurrentes (Pixora Plus)</span>
+    <span class="dim mono" style="font-size:10px" id="subs-price-display">precio · cargando...</span>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi green">
+      <div class="label">MRR (con derecho)</div>
+      <div class="value" id="subs-mrr">$--</div>
+      <div class="delta" id="subs-mrr-renov">-- renovando</div>
+    </div>
+    <div class="kpi gold">
+      <div class="label">Suscriptores renovando</div>
+      <div class="value" id="subs-active">--</div>
+      <div class="delta" id="subs-active-detail">-- con derecho</div>
+    </div>
+    <div class="kpi purple">
+      <div class="label">Altas este mes</div>
+      <div class="value" id="subs-altas-mes">--</div>
+      <div class="delta" id="subs-trials-mes">-- trials</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">Churn (mes actual)</div>
+      <div class="value" id="subs-churn">--%</div>
+      <div class="delta" id="subs-reembolsos-mes">-- reembolsos</div>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="panel">
+      <h3>Movimientos por mes <span class="count" id="subs-monthly-count">--</span></h3>
+      <div class="scrollable">
+        <table>
+          <thead>
+            <tr>
+              <th>mes</th>
+              <th class="num">altas</th>
+              <th class="num">renov</th>
+              <th class="num">cancel</th>
+              <th class="num">reemb</th>
+              <th class="num">exp</th>
+              <th class="num">churn%</th>
+            </tr>
+          </thead>
+          <tbody id="subs-monthly-tbody"><tr><td colspan="7" class="loading">cargando</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Historial de compras · eventos <span class="count" id="subs-history-count">--</span></h3>
+      <div class="dim" style="font-size:11px; margin-bottom:8px;">
+        Ledger append-only: altas, renovaciones, cancelaciones, reembolsos, expiraciones.
+      </div>
+      <div class="scrollable" id="subs-history">
+        <div class="loading">cargando</div>
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px;" id="credits-drift-panel" hidden>
+    <h3>⚠️ Créditos con descuadre <span class="count" id="credits-drift-count">--</span></h3>
+    <div class="dim" style="font-size:11px; margin-bottom:8px;">
+      Saldo que no cuadra con el ledger (vista v_credits_reconciliation · monitoreo del audit C-2).
+    </div>
+    <div class="scrollable">
+      <table>
+        <thead><tr><th>user</th><th class="num">balance</th><th class="num">earned</th><th class="num">spent</th><th class="num">ledger</th><th class="num">drift</th></tr></thead>
+        <tbody id="credits-drift-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
   </section>
   <!-- ════ /PAGE: TESORO ═════════════════════════════════════════════════════ -->
 
@@ -2708,6 +2778,82 @@ async function loadAdFeed() {
   });
 }
 
+// ─── Suscripciones (audit BD FASE 1) ──────────────────────────────────────
+async function loadSubs() {
+  const [mrr, monthly, products] = await Promise.all([
+    api('/api/subs-mrr'),
+    api('/api/subs-monthly?months=12'),
+    api('/api/subs-products'),
+  ]);
+  if (Array.isArray(products) && products.length) {
+    $('#subs-price-display').textContent = products
+      .map(p => `${p.product_id} · $${p.price_mxn} MXN/${p.billing_period_months}m`).join('   ·   ');
+  }
+  const m = (Array.isArray(mrr) && mrr[0]) || {};
+  $('#subs-mrr').textContent = '$' + Number(m.mrr_mxn_con_derecho || 0).toFixed(0) + ' MXN';
+  $('#subs-mrr-renov').textContent = '$' + Number(m.mrr_mxn_renovando || 0).toFixed(0) + ' renovando';
+  $('#subs-active').textContent = m.subs_renovando ?? 0;
+  $('#subs-active-detail').textContent = (m.subs_con_derecho ?? 0) + ' con derecho';
+
+  const tbody = $('#subs-monthly-tbody');
+  const mm = Array.isArray(monthly) ? monthly : [];
+  $('#subs-monthly-count').textContent = mm.length;
+  if (mm.length) {
+    tbody.innerHTML = mm.map(r =>
+      `<tr><td class="mono">${escape(r.mes)}</td><td class="num">${r.altas}</td>` +
+      `<td class="num">${r.renovaciones}</td><td class="num">${r.cancelaciones}</td>` +
+      `<td class="num">${r.reembolsos}</td><td class="num">${r.expiraciones}</td>` +
+      `<td class="num">${r.churn_pct_aprox ?? '--'}</td></tr>`).join('');
+    const cur = mm[0];
+    $('#subs-altas-mes').textContent = cur.altas;
+    $('#subs-trials-mes').textContent = cur.trials + ' trials';
+    $('#subs-churn').textContent = (cur.churn_pct_aprox ?? 0) + '%';
+    $('#subs-reembolsos-mes').textContent = cur.reembolsos + ' reembolsos';
+  } else {
+    tbody.innerHTML = '<tr><td colspan="7" class="dim">sin movimientos aún</td></tr>';
+  }
+}
+
+async function loadPurchaseHistory() {
+  const rows = await api('/api/purchase-history?limit=50');
+  if (!Array.isArray(rows)) return;
+  $('#subs-history-count').textContent = rows.length;
+  const el = $('#subs-history');
+  if (!rows.length) { el.innerHTML = '<div class="empty">Sin eventos de compra aún.</div>'; return; }
+  const LABEL = {
+    purchase:'<span class="pill install">alta</span>', trial_start:'<span class="pill">trial</span>',
+    conversion:'<span class="pill install">conversión</span>', reactivation:'<span class="pill install">reactivación</span>',
+    renewal:'<span class="pill">renovación</span>', cancellation:'<span class="pill unfavorite">cancelación</span>',
+    expiration:'<span class="pill">expiración</span>', refund:'<span class="pill unfavorite">reembolso</span>',
+    grace_start:'<span class="pill">gracia</span>', hold:'<span class="pill">hold</span>', pause:'<span class="pill">pausa</span>',
+  };
+  el.innerHTML = '';
+  rows.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'event-row';
+    const price = r.price_mxn != null ? `$${r.price_mxn}` : '';
+    div.innerHTML =
+      `<div class="ts">${fmtTs(r.occurred_at)}</div>` +
+      `<div>${LABEL[r.event_type] || escape(r.event_type)}</div>` +
+      `<div class="wp" style="cursor:default">${escape(r.tier || r.product_id || '')} <span class="dim">${price}</span></div>` +
+      `<div class="who dim" style="font-size:10px">${escape((r.order_id || '').slice(-10))}</div>`;
+    el.appendChild(div);
+  });
+}
+
+async function loadCreditsDrift() {
+  const rows = await api('/api/credits-drift');
+  const panel = $('#credits-drift-panel');
+  if (!Array.isArray(rows) || !rows.length) { panel.hidden = true; return; }
+  panel.hidden = false;
+  $('#credits-drift-count').textContent = rows.length;
+  $('#credits-drift-tbody').innerHTML = rows.map(r =>
+    `<tr><td class="mono" style="font-size:10px">${escape((r.user_id || '').slice(0,8))}</td>` +
+    `<td class="num">${r.balance}</td><td class="num">${r.total_earned}</td>` +
+    `<td class="num">${r.total_spent}</td><td class="num">${r.ledger_sum}</td>` +
+    `<td class="num" style="color:#E6B655">${r.drift}</td></tr>`).join('');
+}
+
 async function loadFeed() {
   const rows = await api('/api/recent-events?limit=50');
   if (!Array.isArray(rows)) return;
@@ -3341,6 +3487,7 @@ async function refreshAll() {
     loadStats(), loadDaily(), loadTopWallpapers(), loadActiveTesters(),
     loadTopUsers(), loadFeed(),
     loadAdStats(), loadAdRevenueDaily(), loadAdTopUsers(), loadAdFeed(),
+    loadSubs(), loadPurchaseHistory(), loadCreditsDrift(),
   ]);
   $('#last-refresh').textContent = new Date().toLocaleTimeString('es-MX');
 }
