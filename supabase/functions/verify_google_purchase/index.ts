@@ -309,6 +309,24 @@ Deno.serve(async (req: Request) => {
     );
   }
 
+  // Free the "one active subscription per user" slot before writing the new
+  // row. idx_subs_active_user is a partial UNIQUE index on (user_id) WHERE
+  // status IN ('trial','active','in_grace_period','cancelled'). A user who
+  // re-subscribes after a prior (refunded/cancelled/expired-but-still-flagged)
+  // purchase has a DIFFERENT purchase_token, so a plain insert of the new
+  // active row collides with the stale one. Supersede any other blocking row
+  // for this user first. 'expired' is outside the index predicate, so the
+  // stale row leaves the unique slot while its history is preserved.
+  const { error: supersedeErr } = await admin
+    .from('user_subscriptions')
+    .update({ status: 'expired', verified_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .neq('purchase_token', purchase_token)
+    .in('status', ['trial', 'active', 'in_grace_period', 'cancelled']);
+  if (supersedeErr) {
+    return errorResponse('db_supersede_failed', supersedeErr.message, 500);
+  }
+
   const row = {
     user_id: userId,
     product_id,
