@@ -402,6 +402,26 @@ class Handler(BaseHTTPRequestHandler):
             print(f"[catalog-cache] fetch {kind} failed: {e}")
             return None
 
+    def _put_ringtones_catalog(self, cat):
+        """PUT the ringtones catalog back to Storage + invalidate cache.
+        Returns (ok, err_msg). Always re-serializes the full parsed dict
+        (never raw text) so the JSON stays valid for the app."""
+        body = json.dumps(cat, indent=2, ensure_ascii=False).encode("utf-8")
+        url = f"{SUPABASE_STORAGE}/object/wallpaper-images/ringtones_catalog.json"
+        req = urllib.request.Request(url, data=body, method="PUT")
+        req.add_header("Authorization", f"Bearer {SERVICE_KEY}")
+        req.add_header("Content-Type", "application/json")
+        req.add_header("x-upsert", "true")
+        try:
+            with urllib.request.urlopen(req, timeout=20) as r:
+                _ = r.status
+            Handler._catalog_cache.pop("ringtones", None)
+            return True, None
+        except urllib.error.HTTPError as e:
+            return False, e.read().decode()[:300]
+        except Exception as e:
+            return False, str(e)[:300]
+
     # The app tracks stats with type-specific prefixes (see
     # wallpaper_stats_service.dart): a ringtone pack lives in catalog as
     # id='zelda_pack' but is tracked as 'tone_pack_zelda_pack'. The catalog
@@ -639,6 +659,61 @@ class Handler(BaseHTTPRequestHandler):
                 cfg = {"enabled": False, "duration_min": 7, "hour": 20,
                        "minute": 0, "notify": True}
             return self._send_json(cfg)
+
+        # ─── TONOS: flat list of all ringtones across packs ──────────
+        # Powers the "Tonos" section in the darkroom (edit title, sort,
+        # assign image). Volume is small (~72) so we return everything and
+        # sort client-side.
+        if path == "/api/tones":
+            Handler._catalog_cache.pop("ringtones", None)  # always fresh for the editor
+            cat = self._get_catalog("ringtones")
+            if not cat:
+                return self._send_json({"error": "catalog fetch failed"}, 502)
+            base = f"{SUPABASE_STORAGE}/object/public/wallpaper-images/"
+            tones = []
+            for p_idx, pack in enumerate(cat.get("packs", [])):
+                for t_idx, t in enumerate(pack.get("tones", [])):
+                    pv = t.get("previewImage", "") or ""
+                    tones.append({
+                        "id": t.get("id"),
+                        "name": t.get("name"),
+                        "pack_id": pack.get("id"),
+                        "pack_name": pack.get("name"),
+                        "category": pack.get("category"),
+                        "duration": t.get("duration", 0),
+                        "suggestedType": t.get("suggestedType"),
+                        "file": t.get("file"),
+                        "audio_url": base + (t.get("file", "") or ""),
+                        "previewImage": pv,
+                        "preview_url": (base + pv) if pv else "",
+                        "addedAt": t.get("addedAt"),
+                        "catalog_order": p_idx * 1000 + t_idx,
+                    })
+            # Merge engagement (likes/downloads/views) from wallpaper_stats.
+            # App tracks tones as 'tone_<id>' (see ringtone_pack_page.dart).
+            stats_by_id = {}
+            try:
+                st_status, rows = _supabase_rest(
+                    "GET", "wallpaper_stats",
+                    query="select=wallpaper_id,likes,downloads,views")
+                if st_status == 200 and isinstance(rows, list):
+                    stats_by_id = {r.get("wallpaper_id"): r for r in rows}
+            except Exception as e:
+                print(f"[tones] stats fetch failed: {e}")
+            for t in tones:
+                s = (stats_by_id.get("tone_" + (t["id"] or ""))
+                     or stats_by_id.get(t["id"]) or {})
+                t["likes"] = int(s.get("likes") or 0)
+                t["dl"] = int(s.get("downloads") or 0)
+                t["views_ct"] = int(s.get("views") or 0)
+            return self._send_json({
+                "version": cat.get("version"),
+                "total": len(tones),
+                "missing_added_at": sum(1 for t in tones if not t["addedAt"]),
+                "total_likes": sum(t["likes"] for t in tones),
+                "total_downloads": sum(t["dl"] for t in tones),
+                "tones": tones,
+            })
 
         # 2026-07-04 — Darkroom is the new default. The old dashboard
         # stays available at /legacy so we can still access Text CMS
@@ -2225,12 +2300,38 @@ class Handler(BaseHTTPRequestHandler):
             new_sprites = payload.get("sprites")
             new_layers = payload.get("image_layers")
             new_cycles = payload.get("cycles")
+            new_rigs = payload.get("rigs")
             if not scene_id:
                 return self._send_json({"error": "scene_id required"}, 400)
-            if new_sprites is None and new_layers is None and new_cycles is None:
-                return self._send_json({"error": "sprites, image_layers or cycles required"}, 400)
+            if new_sprites is None and new_layers is None and new_cycles is None and new_rigs is None:
+                return self._send_json({"error": "sprites, image_layers, cycles or rigs required"}, 400)
             if not self._SAFE_ID_RE.match(scene_id):
                 return self._send_json({"error": "invalid scene_id format"}, 400)
+            # Validate rigs: bones non-empty, ids present, parents resolve, NO
+            # parent cycles — a cycle crashes the :wallpaper process' topoSort.
+            if new_rigs is not None:
+                if not isinstance(new_rigs, list):
+                    return self._send_json({"error": "rigs must be a list"}, 400)
+                for rig in new_rigs:
+                    bones = rig.get("bones") if isinstance(rig, dict) else None
+                    if not isinstance(bones, list) or not bones:
+                        return self._send_json({"error": "rig.bones must be non-empty"}, 400)
+                    ids = set()
+                    for b in bones:
+                        if not isinstance(b, dict) or not isinstance(b.get("id"), str):
+                            return self._send_json({"error": "each bone needs a string id"}, 400)
+                        ids.add(b["id"])
+                    parent = {b["id"]: b.get("parent") for b in bones}
+                    for bid in ids:
+                        seen, cur = set(), bid
+                        while cur is not None:
+                            if cur in seen:
+                                return self._send_json({"error": f"parent cycle at bone '{bid}'"}, 400)
+                            seen.add(cur)
+                            p = parent.get(cur)
+                            if p is not None and p not in ids:
+                                return self._send_json({"error": f"bone parent '{p}' not found"}, 400)
+                            cur = p
             try:
                 spec = fetch_scene_spec(scene_id, SERVICE_KEY)
             except Exception as e:
@@ -2245,6 +2346,8 @@ class Handler(BaseHTTPRequestHandler):
             # The order/windows come pre-computed from the editor.
             if isinstance(new_cycles, list):
                 spec["cycles"] = new_cycles
+            if isinstance(new_rigs, list):
+                spec["rigs"] = new_rigs
             try:
                 put_scene_spec(scene_id, spec, SERVICE_KEY)
             except Exception as e:
@@ -2259,6 +2362,7 @@ class Handler(BaseHTTPRequestHandler):
                 "scene_id": scene_id,
                 "sprites_updated": len(spec.get("sprites") or []),
                 "layers_updated": len(spec.get("image_layers") or []),
+                "rigs_updated": len(spec.get("rigs") or []),
                 "layers_revision_bumped": bumped_layers,
                 "fcm": fcm_ok,
             })
@@ -2461,6 +2565,85 @@ class Handler(BaseHTTPRequestHandler):
             }
 
             return self._send_json(result)
+
+        # ─── TONOS: update a tone's editable fields (title, type) ────
+        # body: {id: "<tone_id>", fields: {name: "..."}}
+        if path == "/api/tone/update":
+            body = self._read_json_body() or {}
+            tid = body.get("id")
+            fields = body.get("fields", {})
+            if not tid or not isinstance(fields, dict) or not fields:
+                return self._send_json({"error": "id/fields required"}, 400)
+            # Allowlist — NEVER accept duration/file (keeps duration int by
+            # construction; the audio path is immutable from the editor).
+            clean = {}
+            if "name" in fields:
+                nm = str(fields["name"]).strip()
+                if not nm:
+                    return self._send_json({"error": "name cannot be empty"}, 400)
+                clean["name"] = nm
+            if "suggestedType" in fields:
+                st = str(fields["suggestedType"]).strip()
+                if st not in ("notification", "ringtone", "alarm"):
+                    return self._send_json({"error": "bad suggestedType"}, 400)
+                clean["suggestedType"] = st
+            if not clean:
+                return self._send_json({"error": "no allowed fields"}, 400)
+
+            Handler._catalog_cache.pop("ringtones", None)
+            cat = self._get_catalog("ringtones")
+            if not cat:
+                return self._send_json({"error": "catalog fetch failed"}, 502)
+            found = None
+            for pack in cat.get("packs", []):
+                for t in pack.get("tones", []):
+                    if t.get("id") == tid:
+                        found = t
+                        break
+                if found:
+                    break
+            if not found:
+                return self._send_json({"error": f"tone {tid} not found"}, 404)
+            found.update(clean)
+            cat["lastUpdated"] = datetime_now_iso()
+            ok, err = self._put_ringtones_catalog(cat)
+            if not ok:
+                return self._send_json({"error": err}, 502)
+            try:
+                pushed = _fcm_push_catalog_invalidate("ringtones")
+            except Exception:
+                pushed = False
+            return self._send_json({"ok": True, "id": tid,
+                                    "updated_fields": list(clean.keys()),
+                                    "fcm_pushed": pushed})
+
+        # ─── TONOS: backfill addedAt (synthetic, by catalog order) ────
+        # First tone in the catalog = oldest. New tones added later carry a
+        # real datetime_now_iso() which always beats these 2026-01 synthetics.
+        if path == "/api/tones/backfill-added-at":
+            Handler._catalog_cache.pop("ringtones", None)
+            cat = self._get_catalog("ringtones")
+            if not cat:
+                return self._send_json({"error": "catalog fetch failed"}, 502)
+            from datetime import timedelta as _td
+            base = datetime(2026, 1, 1, tzinfo=timezone.utc)
+            order = backfilled = skipped = 0
+            for pack in cat.get("packs", []):
+                for t in pack.get("tones", []):
+                    if t.get("addedAt"):
+                        skipped += 1
+                    else:
+                        ts = base + _td(seconds=order * 60)
+                        t["addedAt"] = ts.strftime("%Y-%m-%dT%H:%M:%SZ")
+                        backfilled += 1
+                    order += 1
+            if backfilled:
+                cat["lastUpdated"] = datetime_now_iso()
+                ok, err = self._put_ringtones_catalog(cat)
+                if not ok:
+                    return self._send_json({"error": err}, 502)
+            return self._send_json({"ok": True, "backfilled": backfilled,
+                                    "skipped": skipped, "source": "synthetic"})
 
         # ─── Text CMS (Postgres-backed) ───────────────────────────
         if path == '/api/strings/upsert':

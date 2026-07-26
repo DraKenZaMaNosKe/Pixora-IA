@@ -223,6 +223,15 @@ class SpriteSheet(
         paint.alpha = 255
     }
 
+    /** Current frame's full-res bitmap (not prescaled). Used by RigController,
+     *  which composes its own transform matrix instead of calling drawAt.
+     *  Null if not loaded or the frame is recycled. */
+    fun currentBitmap(): Bitmap? {
+        if (!loaded || bitmaps.isEmpty()) return null
+        val b = bitmaps[frameIndex % bitmaps.size]
+        return if (b.isRecycled) null else b
+    }
+
     fun release() {
         for (b in prescaled) if (!b.isRecycled && b !in bitmaps) b.recycle()
         prescaled.clear()

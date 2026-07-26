@@ -197,3 +197,148 @@ export function worldDragToNormDelta(dxWorld, dyWorld, surfaceW = surface.w, sur
     dyNorm: -dyWorld / surfaceH,
   };
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BONE RIG — port fiel de RigController.kt (mantener en sync).
+   Todo vive en "espacio Android": origen top-left, +Y ABAJO, rotación
+   horaria positiva en grados, matrices con semántica post-concat (cada
+   postX antepone por la izquierda: M' = X · M). El flip a mundo Three.js
+   (+Y arriba, origen centro) se hace UNA vez al final con F·D·P.
+
+   mat2d = [a, b, tx, c, d, ty]  →  (x,y) ↦ (a·x+b·y+tx, c·x+d·y+ty)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export function m2Identity() { return [1, 0, 0, 0, 1, 0]; }
+
+/** A·B (aplica B primero, luego A). */
+export function m2Mul(A, B) {
+  return [
+    A[0] * B[0] + A[1] * B[3],           A[0] * B[1] + A[1] * B[4],           A[0] * B[2] + A[1] * B[5] + A[2],
+    A[3] * B[0] + A[4] * B[3],           A[3] * B[1] + A[4] * B[4],           A[3] * B[2] + A[4] * B[5] + A[5],
+  ];
+}
+// post-ops: M' = OP · M  (igual que android.graphics.Matrix.postXxx)
+export function m2PostTranslate(m, tx, ty) { return m2Mul([1, 0, tx, 0, 1, ty], m); }
+export function m2PostScale(m, s) { return m2Mul([s, 0, 0, 0, s, 0], m); }
+export function m2PostRotateDeg(m, deg) {
+  const r = deg * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+  return m2Mul([c, -s, 0, s, c, 0], m);   // horario en espacio Y-abajo (Android)
+}
+export function m2PostConcat(m, other) { return m2Mul(other, m); }
+export function m2Apply(m, x, y) { return { x: m[0] * x + m[1] * y + m[2], y: m[3] * x + m[4] * y + m[5] }; }
+
+/** Espejo de RigController.sampleLocal: matriz local del hueso a la fase dada. */
+export function rigSampleLocal(bone, phase, easing) {
+  let dx = 0, dy = 0, rot = 0, s = 1;
+  const kf = bone.keyframes || [];
+  if (kf.length) {
+    let i = 0;
+    while (i < kf.length - 1 && phase >= (kf[i + 1].t ?? 0)) i++;
+    const a = kf[i], c = (i + 1 < kf.length) ? kf[i + 1] : kf[i];
+    const span = (c.t ?? 0) - (a.t ?? 0);
+    let u = span > 1e-5 ? (phase - (a.t ?? 0)) / span : 0;
+    u = Math.max(0, Math.min(1, u));
+    if (easing === 'smooth') u = u * u * (3 - 2 * u);
+    const lerp = (p, q) => p + (q - p) * u;
+    dx = lerp(a.x ?? 0, c.x ?? 0);
+    dy = lerp(a.y ?? 0, c.y ?? 0);
+    rot = lerp(a.rotation ?? 0, c.rotation ?? 0);
+    s = lerp(a.scale ?? 1, c.scale ?? 1);
+  }
+  const px = (bone.pivot_px || [0, 0])[0], py = (bone.pivot_px || [0, 0])[1];
+  let m = m2Identity();
+  m = m2PostTranslate(m, -px, -py);
+  m = m2PostScale(m, s);
+  m = m2PostRotateDeg(m, rot);
+  m = m2PostTranslate(m, px + dx, py + dy);
+  return m;
+}
+
+/** Espejo de la matriz global (espacio personaje → pantalla Android). */
+export function rigGlobalMatrix(rig, rootPivot, sw = surface.w, sh = surface.h) {
+  const f = subjectFactor(sw, sh);
+  const k = (rig.scale ?? 1) * f;
+  const ax = sw / 2 + ((rig.anchor?.[0] ?? 0.5) - 0.5) * REFERENCE_SURFACE_W * f;
+  const ay = sh / 2 + ((rig.anchor?.[1] ?? 0.5) - 0.5) * REFERENCE_SURFACE_H * f;
+  let g = m2Identity();
+  g = m2PostTranslate(g, -rootPivot[0], -rootPivot[1]);
+  g = m2PostScale(g, k);
+  g = m2PostTranslate(g, ax, ay);
+  return g;
+}
+
+function rigTopoSort(bones) {
+  const byId = {}; bones.forEach(b => { byId[b.id] = b; });
+  const out = [], seen = new Set();
+  const visit = (b) => {
+    if (seen.has(b.id)) return;
+    if (b.parent && byId[b.parent] && !seen.has(b.parent)) visit(byId[b.parent]);
+    seen.add(b.id); out.push(b);
+  };
+  bones.forEach(visit);
+  return out;
+}
+
+/** Devuelve {boneId: worldMat2d} para todos los huesos a la fase dada. */
+export function rigComposeWorld(rig, phase, sw = surface.w, sh = surface.h) {
+  const bones = rig.bones || [];
+  const root = bones.find(b => !b.parent) || bones[0];
+  const rootPivot = root ? (root.pivot_px || [0, 0]) : [0, 0];
+  const G = rigGlobalMatrix(rig, rootPivot, sw, sh);
+  const world = {};
+  for (const b of rigTopoSort(bones)) {
+    let w = rigSampleLocal(b, phase, rig.easing);
+    const parentW = b.parent ? world[b.parent] : null;
+    w = m2PostConcat(w, parentW || G);
+    world[b.id] = w;
+  }
+  return world;
+}
+
+/** Matriz de dibujo de la parte (incluye el offset del crop). D = W · T(offset). */
+export function rigBoneDrawMatrix(worldMat, bone) {
+  let d = m2Identity();
+  d = m2PostTranslate(d, (bone.offset_px || [0, 0])[0], (bone.offset_px || [0, 0])[1]);
+  d = m2PostConcat(d, worldMat);
+  return d;
+}
+
+/** Flip pantalla-Android → mundo Three (origen centro, +Y arriba). */
+export function rigScreenToWorldMat(sw = surface.w, sh = surface.h) {
+  return [1, 0, -sw / 2, 0, -1, sh / 2];
+}
+/** Plane (origen centro, +Y arriba, tam natW×natH) → bitmap px (top-left, +Y abajo). */
+export function rigPlaneToBitmapMat(natW, natH) {
+  return [1, 0, natW / 2, 0, -1, natH / 2];
+}
+
+/**
+ * Matriz completa mesh→mundo para una parte: M = F · D · P.
+ * Llena y devuelve un THREE.Matrix4 (pásale la clase THREE).
+ */
+export function rigBoneMatrix4(THREE, worldMat, bone, natW, natH, zThree, sw = surface.w, sh = surface.h) {
+  const D = rigBoneDrawMatrix(worldMat, bone);
+  const M = m2Mul(rigScreenToWorldMat(sw, sh), m2Mul(D, rigPlaneToBitmapMat(natW, natH)));
+  const m4 = new THREE.Matrix4();
+  // M = [a,b,tx, c,d,ty]  → punto (x,y,0,1) ↦ (a·x+b·y+tx, c·x+d·y+ty, z)
+  m4.set(
+    M[0], M[1], 0, M[2],
+    M[3], M[4], 0, M[5],
+    0, 0, 1, zThree,
+    0, 0, 0, 1,
+  );
+  return m4;
+}
+
+/** Posición en MUNDO Three del pivote de un hueso (para dibujar el crosshair). */
+export function rigPivotWorld(worldMat, bone, sw = surface.w, sh = surface.h) {
+  const p = bone.pivot_px || [0, 0];
+  const screen = m2Apply(worldMat, p[0], p[1]);
+  return m2Apply(rigScreenToWorldMat(sw, sh), screen.x, screen.y);
+}
+
+/** Delta de arrastre (mundo Three) → delta de anchor normalizado del rig. */
+export function rigAnchorDragDelta(dxWorld, dyWorld, sw = surface.w, sh = surface.h) {
+  const f = subjectFactor(sw, sh) || 1;
+  return { dax: dxWorld / (REFERENCE_SURFACE_W * f), day: -dyWorld / (REFERENCE_SURFACE_H * f) };
+}

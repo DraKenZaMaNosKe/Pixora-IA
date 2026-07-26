@@ -3,27 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pixora · Cuarto Oscuro</title>
+<title>PixelStudio · Pixora Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Redaction:wght@400;700&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Redaction:wght@400;700&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Chakra+Petch:wght@500;600;700&family=Mochiy+Pop+One&display=swap">
 
 <style>
 :root{
-  --void:#0B0507;
-  --safelight:#8B1E1E;
-  --safelight-glow:#C93A2A;
-  --ember:#E85A3C;
-  --kraft:#D4B896;
-  --parchment:#EDD7A8;
-  --parchment-2:#E4C892;
-  --ink:#2A1F1A;
-  --ink-soft:rgba(42,31,26,.6);
-  --gilt:#B08641;
-  --wire:#7A6952;
-  --wood:#5C4A3A;
-  --wood-2:#8B6F47;
-  --green:#4A6B2A;
+  /* ── Tema ANIME NEÓN (2026-07-25) — nombres viejos, valores nuevos, así
+     todo lo que usa var(--x) se transforma solo ── */
+  --void:#0d0720;
+  --safelight:#FF2E9A;       /* acento primario (era rojo) → magenta */
+  --safelight-glow:#22D3EE;  /* acento glow → cian */
+  --ember:#FFD23F;           /* amarillo */
+  --kraft:#C4D2F0;           /* texto cuerpo (cool light) */
+  --parchment:#EAF6FF;       /* titulos brillantes */
+  --parchment-2:#DCE9FF;
+  --ink:#EAF6FF;             /* texto sobre tarjetas (ahora oscuras) */
+  --ink-soft:rgba(234,246,255,.6);
+  --gilt:#FFD23F;
+  --wire:#7C6FB0;
+  --wood:#2a1a4a;            /* bordes/paneles oscuros */
+  --wood-2:#3d2a6a;
+  --green:#38F2B0;           /* mint */
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -255,7 +257,7 @@ body::after{
 }
 .wire::before,.wire::after{
   content:"";position:absolute;top:-6px;width:14px;height:14px;
-  background:radial-gradient(circle at 35% 30%, #d4a355, var(--gilt) 50%, #6e4f22 100%);
+  background:radial-gradient(circle at 35% 30%, #7bf5ff, #22d3ee 55%, #0e7490 100%);
   border-radius:50%;box-shadow:0 3px 5px rgba(0,0,0,.7), inset 0 -2px 3px rgba(0,0,0,.5);
 }
 .wire::before{left:-8px}
@@ -427,6 +429,98 @@ body::after{
   border:1.5px solid var(--ink);border-radius:2px;
 }
 .ledger-table .accent{color:var(--safelight);font-weight:600}
+.tone-thumb{width:42px;height:42px;object-fit:cover;border-radius:5px;display:block;cursor:pointer;border:1px solid rgba(90,60,30,.3)}
+.tone-thumb-empty{display:flex;align-items:center;justify-content:center;color:var(--safelight);background:rgba(139,30,30,.06);border:1px dashed rgba(90,60,30,.45);font-size:18px}
+.tone-play{width:32px;height:32px;border-radius:50%;border:1px solid var(--safelight,#c93a2a);background:rgba(139,30,30,.1);color:var(--safelight,#c93a2a);cursor:pointer;font-size:13px;line-height:1}
+.tone-play:hover{background:var(--safelight,#c93a2a);color:#fff}
+
+/* ═══════════ TONOS · sala neón anime (scoped — no toca el resto) ═══════════ */
+[data-page="tonos"]{
+  --tn-cyan:#22d3ee; --tn-mag:#ff2e9a; --tn-yel:#ffd23f; --tn-mint:#38f2b0; --tn-ink:#eaf6ff;
+  position:relative; border-radius:18px; padding:18px 0 44px; overflow:hidden;
+  background:
+    radial-gradient(90% 60% at 15% 0%, rgba(34,211,238,.14), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, rgba(255,46,154,.16), transparent 55%),
+    linear-gradient(160deg,#160a2e,#0d0720 72%);
+}
+[data-page="tonos"]::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;
+  background-image:linear-gradient(rgba(34,211,238,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.2) 1px,transparent 1px);
+  background-size:34px 34px;-webkit-mask-image:linear-gradient(#000,transparent 55%);mask-image:linear-gradient(#000,transparent 55%)}
+[data-page="tonos"] .room-title{position:relative;padding-left:60px}
+[data-page="tonos"] .eyebrow{color:var(--tn-cyan);letter-spacing:5px;font-family:'Chakra Petch',monospace}
+[data-page="tonos"] .title{font-family:'Mochiy Pop One','Chakra Petch',sans-serif;font-weight:400;font-size:58px;letter-spacing:1px;
+  color:#fff;text-shadow:0 0 14px rgba(34,211,238,.8),0 0 30px rgba(255,46,154,.5)}
+[data-page="tonos"] .subtitle{font-family:'Chakra Petch',sans-serif;color:#c9b3ff;transform:none;opacity:.9;font-size:18px}
+.tonos-eq{position:absolute;top:6px;right:60px;display:flex;gap:4px;align-items:flex-end;height:46px}
+.tonos-eq span{width:6px;height:20px;border-radius:3px;background:linear-gradient(#22d3ee,#ff2e9a);animation:eqbar 1s ease-in-out infinite}
+.tonos-eq span:nth-child(2n){background:linear-gradient(#ffd23f,#ff2e9a)}
+.tonos-eq span:nth-child(1){animation-delay:-.10s}.tonos-eq span:nth-child(2){animation-delay:-.50s}
+.tonos-eq span:nth-child(3){animation-delay:-.30s}.tonos-eq span:nth-child(4){animation-delay:-.70s}
+.tonos-eq span:nth-child(5){animation-delay:-.20s}.tonos-eq span:nth-child(6){animation-delay:-.60s}
+.tonos-eq span:nth-child(7){animation-delay:-.15s}.tonos-eq span:nth-child(8){animation-delay:-.55s}
+.tonos-eq span:nth-child(9){animation-delay:-.35s}.tonos-eq span:nth-child(10){animation-delay:-.75s}
+.tonos-eq span:nth-child(11){animation-delay:-.25s}.tonos-eq span:nth-child(12){animation-delay:-.65s}
+@keyframes eqbar{0%,100%{height:8px}50%{height:44px}}
+@media (prefers-reduced-motion:reduce){.tonos-eq span{animation:none;height:22px}}
+[data-page="tonos"] #tonos-sort{padding-left:60px;gap:8px;margin-top:8px}
+[data-page="tonos"] #tonos-sort button{background:rgba(255,255,255,.06);border:1.5px solid rgba(34,211,238,.4);color:#cfeeffcc;
+  border-radius:20px;padding:6px 16px;font-family:'Chakra Petch',sans-serif;font-weight:600;letter-spacing:.5px;transition:all .15s}
+[data-page="tonos"] #tonos-sort button:hover{border-color:var(--tn-cyan);color:#fff;box-shadow:0 0 12px rgba(34,211,238,.4)}
+[data-page="tonos"] #tonos-sort button.active{background:linear-gradient(90deg,#22d3ee,#ff2e9a);border-color:transparent;color:#0d0720;font-weight:700;box-shadow:0 0 16px rgba(255,46,154,.5)}
+[data-page="tonos"] .ledger-wrap{padding:14px 40px 0}
+[data-page="tonos"] .ledger{background:rgba(13,7,32,.72);border:1.5px solid rgba(34,211,238,.35);border-radius:16px;
+  box-shadow:0 0 40px rgba(34,211,238,.12),inset 0 0 60px rgba(255,46,154,.05);overflow-x:auto}
+[data-page="tonos"] .ledger-title{font-family:'Chakra Petch',sans-serif;color:#fff;border-bottom-color:rgba(34,211,238,.25)}
+[data-page="tonos"] #tonos-count{background:linear-gradient(90deg,#22d3ee,#38f2b0);color:#08131a;font-weight:700;border-radius:20px;padding:2px 12px}
+[data-page="tonos"] .ledger-sub{color:#c9b3ffaa;font-family:'Chakra Petch',sans-serif}
+[data-page="tonos"] .ledger-table{color:var(--tn-ink);font-family:'Chakra Petch',sans-serif;font-size:14px;min-width:640px}
+[data-page="tonos"] .ledger-table th{color:#7fd7e8;border-bottom-color:rgba(34,211,238,.3);font-family:'Chakra Petch',sans-serif;letter-spacing:1px}
+[data-page="tonos"] .ledger-table td{border-bottom:1px solid rgba(120,90,200,.18)}
+[data-page="tonos"] .ledger-table tr:hover td{background:rgba(34,211,238,.08)}
+[data-page="tonos"] .ledger-table td.num{color:#ffd23f}
+[data-page="tonos"] .tone-play{width:38px;height:38px;border-radius:50%;border:2px solid var(--tn-cyan);
+  background:radial-gradient(circle at 40% 35%,rgba(34,211,238,.35),rgba(13,7,32,.6));color:var(--tn-cyan);font-size:14px;
+  box-shadow:0 0 10px rgba(34,211,238,.4);transition:all .15s}
+[data-page="tonos"] .tone-play:hover{background:var(--tn-cyan);color:#0d0720;box-shadow:0 0 18px var(--tn-cyan);transform:scale(1.08)}
+[data-page="tonos"] .tone-thumb{width:48px;height:48px;border-radius:10px;border:2px solid rgba(255,46,154,.5);box-shadow:0 0 10px rgba(255,46,154,.25);transition:transform .15s}
+[data-page="tonos"] .tone-thumb:hover{transform:scale(1.12) rotate(-3deg);border-color:var(--tn-mag)}
+[data-page="tonos"] .tone-thumb-empty{color:var(--tn-mag);background:rgba(255,46,154,.08);border:2px dashed rgba(255,46,154,.5)}
+[data-page="tonos"] .tone-name{color:#fff;font-family:'Chakra Petch',sans-serif;font-size:15px;border-bottom:1px dashed rgba(34,211,238,.4);width:100%;max-width:230px}
+[data-page="tonos"] .ledger-table th:nth-child(8),[data-page="tonos"] .ledger-table td:nth-child(8){color:#ff2e9a}
+[data-page="tonos"] .ledger-table td:nth-child(3){width:240px}
+[data-page="tonos"] .tone-name:focus{border-bottom:2px solid var(--tn-cyan)}
+[data-page="tonos"] .ledger-table .pill{background:linear-gradient(90deg,rgba(124,77,255,.9),rgba(255,46,154,.85));color:#fff;border-radius:14px;
+  font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:11px;letter-spacing:.5px;box-shadow:0 0 8px rgba(124,77,255,.35)}
+[data-page="tonos"] .tone-save.stamp-approve{border:2px solid var(--tn-mint);color:var(--tn-mint);border-radius:8px;background:rgba(56,242,176,.08);transform:none;letter-spacing:2px;box-shadow:0 0 10px rgba(56,242,176,.3)}
+[data-page="tonos"] .tone-save.stamp-approve:hover{background:var(--tn-mint);color:#08131a;transform:scale(1.05)}
+[data-page="tonos"] #tonos-backfill-btn{border-color:var(--tn-yel);color:var(--tn-yel);border-radius:8px;background:rgba(255,210,63,.08)}
+@media (max-width:720px){
+  [data-page="tonos"] .room-title,[data-page="tonos"] #tonos-sort,[data-page="tonos"] #tonos-backfill{padding-left:18px;padding-right:18px}
+  [data-page="tonos"] .ledger-wrap{padding:12px 12px 0}
+  [data-page="tonos"] .title{font-size:38px}
+  .tonos-eq{right:16px;height:30px}
+  [data-page="tonos"] .ledger-table th:nth-child(4),[data-page="tonos"] .ledger-table td:nth-child(4){display:none}
+  [data-page="tonos"] .ledger-table th:nth-child(7),[data-page="tonos"] .ledger-table td:nth-child(7){display:none}
+}
+
+/* ═══════════ Monitor global de descargas + mascota Pixi ═══════════ */
+#dl-bar{position:fixed;top:0;left:0;height:3px;width:0;z-index:9999;opacity:0;
+  background:linear-gradient(90deg,#22d3ee,#ff2e9a,#ffd23f);box-shadow:0 0 10px rgba(34,211,238,.6);transition:opacity .2s}
+#dl-bar.on{width:100%;opacity:1;animation:dlslide 1.1s ease-in-out infinite}
+@keyframes dlslide{0%{clip-path:inset(0 95% 0 0)}50%{clip-path:inset(0 20% 0 20%)}100%{clip-path:inset(0 0 0 95%)}}
+#dl-monitor{position:fixed;bottom:16px;right:132px;z-index:9998;min-width:190px;max-width:270px;
+  background:rgba(13,7,32,.94);border:1.5px solid rgba(34,211,238,.5);border-radius:12px;padding:10px 13px;
+  font-family:'Chakra Petch',monospace;font-size:12px;color:#cfeeff;box-shadow:0 0 22px rgba(34,211,238,.28);
+  opacity:0;transform:translateY(8px);pointer-events:none;transition:all .2s}
+#dl-monitor.on{opacity:1;transform:translateY(0)}
+#dl-monitor .dlm-head{color:#22d3ee;font-weight:700;letter-spacing:1px;margin-bottom:5px}
+#dl-monitor ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+#dl-monitor li{color:#eaf6ff;opacity:.92}
+#pixi{position:fixed;bottom:8px;right:12px;width:112px;height:auto;z-index:9998;pointer-events:none;
+  filter:drop-shadow(0 0 12px rgba(34,211,238,.45));animation:pixifloat 4s ease-in-out infinite}
+@keyframes pixifloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@media (max-width:720px){#pixi{width:74px}#dl-monitor{right:92px;min-width:150px;font-size:11px}}
+@media (prefers-reduced-motion:reduce){#pixi,#dl-bar.on{animation:none}}
 
 /* KPI strip for revenue */
 .kpi-strip{
@@ -532,7 +626,7 @@ body::after{
 <div class="dust" id="dust"></div>
 
 <header class="shelf">
-  <div class="brand">PIX<em>·</em>ORA <em>·</em> ADMIN</div>
+  <div class="brand">PIXEL<em>·</em>STUDIO</div>
   <nav class="tabs">
     <button class="tab-btn" data-tab="resumen">Resumen</button>
     <button class="tab-btn active" data-tab="revelado">Revelado</button>
@@ -541,6 +635,7 @@ body::after{
     <button class="tab-btn" data-tab="eventos">Eventos</button>
     <button class="tab-btn" data-tab="escenas">Escenas</button>
     <button class="tab-btn" data-tab="textos">Textos</button>
+    <button class="tab-btn" data-tab="tonos">Tonos</button>
     <button class="tab-btn" data-tab="envivo">En Vivo</button>
     <button class="tab-btn" data-tab="stats">Estadísticas</button>
   </nav>
@@ -588,6 +683,89 @@ body::after{
   .dr-stat h4{color:#E8B48C;margin:0 0 10px;font-size:13px;font-weight:600}
   .dr-stat canvas{max-height:260px}
   #stats-time-note{display:none;font-size:11px;color:#E85A3C;margin-top:6px;font-style:italic}
+
+  /* ═══════════════════ TEMA ANIME NEÓN GLOBAL (2026-07-25) ═══════════════════
+     Override final (gana en cascada): transforma TODO el panel de "darkroom
+     tétrico" a neón divertido. Las variables :root ya se cambiaron; esto ajusta
+     fondos/tipografías/tarjetas que tenían valores hardcodeados del tema viejo. */
+  body{
+    background:
+      radial-gradient(70% 45% at 12% 0%, rgba(34,211,238,.13), transparent 55%),
+      radial-gradient(75% 55% at 100% 100%, rgba(255,46,154,.16), transparent 55%),
+      linear-gradient(180deg,#120b28,#0b0620 72%,#0d0720) fixed !important;
+    color:var(--kraft);
+    font-family:'Sora','Chakra Petch',sans-serif;
+  }
+  body::after{background:radial-gradient(circle at 30% 25%, rgba(255,46,154,.20) 0%, rgba(34,211,238,.10) 38%, transparent 62%) !important}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.10;
+    background-image:linear-gradient(rgba(34,211,238,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.4) 1px,transparent 1px);
+    background-size:40px 40px;-webkit-mask-image:linear-gradient(#000,transparent 62%);mask-image:linear-gradient(#000,transparent 62%)}
+  .shelf{background:linear-gradient(180deg,rgba(13,7,32,.95),rgba(13,7,32,.6) 70%,transparent) !important;border-bottom:1px solid rgba(34,211,238,.22) !important}
+  .brand{font-family:'Chakra Petch',sans-serif;color:#fff;text-shadow:0 0 10px rgba(34,211,238,.5)}
+  .brand em{color:var(--safelight)}
+  .tab-btn{font-family:'Chakra Petch',sans-serif;font-size:15px;letter-spacing:.5px}
+  .tab-btn.active{color:#fff;text-decoration-color:var(--safelight)}
+  .title{font-family:'Mochiy Pop One','Chakra Petch',sans-serif;font-weight:400;letter-spacing:0;
+    text-shadow:0 0 14px rgba(34,211,238,.7),0 0 28px rgba(255,46,154,.45)}
+  .subtitle{font-family:'Chakra Petch',sans-serif;transform:none;opacity:.9}
+  .eyebrow{font-family:'Chakra Petch',monospace}
+  /* tarjetas: pergamino → vidrio oscuro neón */
+  .ledger,.pinned-card,.dr-stat{
+    background:rgba(15,9,36,.82) !important;border:1.5px solid rgba(34,211,238,.28) !important;
+    box-shadow:0 0 30px rgba(34,211,238,.10) !important;color:var(--ink)}
+  .journal{background:linear-gradient(160deg,#160e33,#0e0826) !important;
+    box-shadow:0 40px 100px rgba(0,0,0,.85),0 0 0 2px rgba(34,211,238,.5),0 0 40px rgba(255,46,154,.25) !important}
+  .journal::before{background:linear-gradient(90deg,transparent,rgba(34,211,238,.25) 50%,transparent) !important}
+  .ledger-title,.pinned-value,.dr-stat h4{color:#fff}
+  .pinned-label,.pinned-note,.ledger-sub{color:var(--kraft)}
+  .ledger-table{color:var(--ink)}
+  .ledger-table th{color:var(--safelight-glow);border-bottom-color:rgba(34,211,238,.28)}
+  .ledger-table td{border-bottom-color:rgba(124,111,176,.2)}
+  .ledger-table tr:hover td{background:rgba(34,211,238,.07)}
+  .field-input,.field-textarea{color:var(--ink);border-bottom-color:rgba(34,211,238,.4)}
+  .field-input:focus,.field-textarea:focus{border-bottom-color:var(--safelight)}
+  .field-label{color:var(--safelight-glow)}
+  .pill{background:linear-gradient(90deg,rgba(124,77,255,.85),rgba(255,46,154,.8)) !important;color:#fff !important}
+  .stamp-approve{color:var(--safelight-glow)}
+  .stamp-approve:hover{background:var(--safelight-glow);color:#0d0720}
+  .search-input{color:var(--parchment)}
+  .session-clock{color:var(--kraft)}
+  .dr-filters button{font-family:'Chakra Petch',sans-serif}
+  /* ── FUERA EL DORADO: todas las tarjetas/notas/frames/trays pergamino → vidrio oscuro neón ── */
+  .pinned-card,.note,.polaroid,.tray,.kpi,.kpi-strip,.frame,.pinned-photo{
+    background:rgba(15,9,36,.82) !important;
+    border:1.5px solid rgba(34,211,238,.25) !important;
+    box-shadow:0 8px 26px rgba(0,0,0,.5),0 0 20px rgba(34,211,238,.08) !important;
+    color:var(--ink) !important}
+  .note{font-family:'Chakra Petch',sans-serif !important}
+  .polaroid .polaroid-photo,.polaroid.developing .polaroid-photo,.pinned-photo{background:#0e0826 !important}
+  .pinned-card::before{background:radial-gradient(circle at 35% 30%,#7bf5ff,#22d3ee 60%,#0e7490 100%) !important}
+  .tray.active,.tray:hover{border-color:var(--safelight) !important;box-shadow:0 0 16px rgba(255,46,154,.4) !important}
+  .section-header h2{font-family:'Chakra Petch',sans-serif;color:#fff}
+  .dr-stat h4{color:var(--safelight-glow) !important}
+  .kpi-label,.kpi .label,.note-tape{color:var(--kraft)}
+  .wax{background:radial-gradient(circle at 40% 35%,#ff7ac8 0%,#ff2e9a 60%,#7a1450 100%) !important}
+  /* botones genéricos → neón LEGIBLE (tenían fondo claro/default → texto invisible) */
+  button.btn,.btn,.dr-btn,.action-btn{
+    background:linear-gradient(90deg,#22d3ee,#ff2e9a) !important;color:#08131a !important;
+    border:none !important;border-radius:8px !important;font-family:'Chakra Petch',sans-serif !important;
+    font-weight:700 !important;letter-spacing:.5px;cursor:pointer;box-shadow:0 0 14px rgba(34,211,238,.35) !important}
+  button.btn:hover,.btn:hover,.dr-btn:hover,.action-btn:hover{filter:brightness(1.12)}
+  /* panel Hora Free (bg café + etiqueta dorada inline) → vidrio oscuro neón */
+  #freehour-panel{background:rgba(15,9,36,.85) !important;border:1.5px solid rgba(34,211,238,.3) !important}
+  /* últimos dorados: placa de canister, badge de conteo, alambres/pins */
+  .tray-plaque{background:linear-gradient(90deg,#22d3ee,#ff2e9a) !important;color:#08131a !important;
+    font-family:'Chakra Petch',sans-serif !important;box-shadow:none !important;border-radius:6px}
+  .cat-count-badge{background:linear-gradient(90deg,#22d3ee,#38f2b0) !important;color:#08131a !important}
+  .wire{background:linear-gradient(180deg,#3d2a6a,#7c6fb0 50%,#2a1a4a) !important}
+  .wire::before,.wire::after{background:radial-gradient(circle at 35% 30%,#7bf5ff,#22d3ee 55%,#0e7490) !important}
+  /* En Vivo — tarjetas de dispositivo: textos tan/pergamino → neón frío (sin dorados) */
+  .dr-est,.dr-devlabel{color:#22d3ee !important}
+  .dr-wp,.dr-ov{color:#eaf6ff !important}
+  .dr-tone,.dr-pill,.dr-empty{color:#9fb2d8 !important}
+  .dr-filters button{color:#9fb2d8 !important;border-color:rgba(34,211,238,.25) !important}
+  .dr-filters button.active{background:linear-gradient(90deg,#22d3ee,#ff2e9a) !important;color:#08131a !important;border-color:transparent !important}
+  @media (prefers-reduced-motion:reduce){body::after{animation:none}}
 </style>
 
 <section class="page" data-page="envivo">
@@ -681,7 +859,7 @@ body::after{
   function startLive(){loadLive();if(liveTimer)clearInterval(liveTimer);liveTimer=setInterval(()=>{if(!document.hidden)loadLive();},15000);}
 
   function mkChart(id,cfg){if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(el&&window.Chart)charts[id]=new Chart(el,cfg);}
-  const RED='#E85A3C',GILT='#D9BE86';
+  const RED='#E85A3C',GILT='#22d3ee';
   const AX={x:{ticks:{color:'#a89078'},grid:{color:'rgba(168,144,120,.12)'}},y:{ticks:{color:'#a89078'},grid:{color:'rgba(168,144,120,.12)'}}};
   async function loadStats(){
     try{
@@ -693,7 +871,7 @@ body::after{
       const ti=s.top_installed||[];
       mkChart('chart-installed',{type:'bar',data:{labels:ti.map(x=>x.wallpaper_id),datasets:[{label:'Instalados',data:ti.map(x=>x.installs),backgroundColor:RED}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:AX.x,y:{ticks:{color:'#c9b499',font:{size:10}},grid:{display:false}}}}});
       const km=s.kind_mix||[];
-      mkChart('chart-kind',{type:'doughnut',data:{labels:km.map(x=>x.active_kind),datasets:[{data:km.map(x=>x.devices),backgroundColor:['#E85A3C','#D9BE86','#c98a2e','#8a6f4d','#5c4a3a','#a8927a']}]},options:{plugins:{legend:{labels:{color:'#c9b499'}}}}});
+      mkChart('chart-kind',{type:'doughnut',data:{labels:km.map(x=>x.active_kind),datasets:[{data:km.map(x=>x.devices),backgroundColor:['#E85A3C','#22d3ee','#38f2b0','#7c9cff','#c084fc','#f472b6']}]},options:{plugins:{legend:{labels:{color:'#c9b499'}}}}});
       const tt=s.top_wallpapers_time||[]; const note=$$('#stats-time-note'); if(note) note.style.display=tt.length?'none':'block';
       mkChart('chart-time',{type:'bar',data:{labels:tt.map(x=>x.content_id),datasets:[{label:'Horas',data:tt.map(x=>x.hours),backgroundColor:GILT},{label:'Retención prom (h)',data:tt.map(x=>x.avg_retention_hours),backgroundColor:RED}]},options:{indexAxis:'y',plugins:{legend:{labels:{color:'#c9b499'}}},scales:{x:AX.x,y:{ticks:{color:'#c9b499',font:{size:10}},grid:{display:false}}}}});
     }catch(e){console.warn('stats',e);}
@@ -723,7 +901,7 @@ body::after{
   <div id="freehour-panel" style="background:linear-gradient(135deg,#2a2018,#1a140e);border:1px solid rgba(224,180,140,.25);border-radius:14px;padding:16px 18px;margin:14px 0">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
       <div>
-        <div style="font-size:16px;font-weight:700;color:#E0B47A">🎉 Hora Free
+        <div style="font-size:16px;font-weight:700;color:#22d3ee">🎉 Hora Free
           <span id="fh-state" style="font-size:11px;padding:2px 10px;border-radius:20px;margin-left:8px">—</span></div>
         <div style="font-size:12px;color:#c9b499;margin-top:4px">Happy hour diario sin anuncios · para todos los usuarios · propaga en ≤30 min</div>
       </div>
@@ -756,7 +934,7 @@ body::after{
 <!-- =============================================================== -->
 <section class="page active" data-page="revelado">
   <div class="room-title">
-    <p class="eyebrow" id="date-revelado">CUARTO OSCURO · —</p>
+    <p class="eyebrow" id="date-revelado">PIXEL STUDIO · —</p>
     <h1 class="title">Revelado</h1>
     <p class="subtitle">— colgamos las fotos que salieron esta semana</p>
   </div>
@@ -956,10 +1134,10 @@ body::after{
   <div style="padding:0 60px 40px;position:relative;z-index:4">
     <div style="background:linear-gradient(180deg, #1a0f0d 0%, #0a0507 100%);border:6px solid var(--wood);box-shadow:0 24px 48px rgba(0,0,0,.8), 0 0 0 3px var(--wood-2), inset 0 0 60px rgba(0,0,0,.6);position:relative;overflow:hidden">
       <!-- brass corner rivets to feel like a mounted editor plate -->
-      <span style="position:absolute;top:8px;left:8px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #d4a355, var(--gilt) 50%, #6e4f22 100%);box-shadow:0 2px 3px rgba(0,0,0,.7);z-index:2"></span>
-      <span style="position:absolute;top:8px;right:8px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #d4a355, var(--gilt) 50%, #6e4f22 100%);box-shadow:0 2px 3px rgba(0,0,0,.7);z-index:2"></span>
-      <span style="position:absolute;bottom:8px;left:8px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #d4a355, var(--gilt) 50%, #6e4f22 100%);box-shadow:0 2px 3px rgba(0,0,0,.7);z-index:2"></span>
-      <span style="position:absolute;bottom:8px;right:8px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #d4a355, var(--gilt) 50%, #6e4f22 100%);box-shadow:0 2px 3px rgba(0,0,0,.7);z-index:2"></span>
+      <span style="position:absolute;top:8px;left:8px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #7bf5ff, #22d3ee 55%, #0e7490 100%);box-shadow:0 2px 3px rgba(0,0,0,.7);z-index:2"></span>
+      <span style="position:absolute;top:8px;right:8px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #7bf5ff, #22d3ee 55%, #0e7490 100%);box-shadow:0 2px 3px rgba(0,0,0,.7);z-index:2"></span>
+      <span style="position:absolute;bottom:8px;left:8px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #7bf5ff, #22d3ee 55%, #0e7490 100%);box-shadow:0 2px 3px rgba(0,0,0,.7);z-index:2"></span>
+      <span style="position:absolute;bottom:8px;right:8px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #7bf5ff, #22d3ee 55%, #0e7490 100%);box-shadow:0 2px 3px rgba(0,0,0,.7);z-index:2"></span>
       <iframe id="sprite-frame" src="about:blank" style="width:100%;height:calc(100vh - 300px);min-height:640px;border:none;background:#0a0507;display:block"></iframe>
     </div>
     <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;font-family:'Caveat',cursive;color:var(--kraft);font-size:18px">
@@ -992,6 +1170,49 @@ body::after{
       </a>
     </div>
   </div>
+</section>
+
+<section class="page" data-page="tonos">
+  <div class="room-title tonos-hero">
+    <div class="tonos-eq" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <p class="eyebrow" id="date-tonos">♫ FONOTECA · —</p>
+    <h1 class="title">Tonos</h1>
+    <p class="subtitle">— la rocola del laboratorio ✧ tono por tono</p>
+  </div>
+
+  <div class="dr-filters" id="tonos-sort" style="padding:0 60px">
+    <button data-tsort="newest" class="active">Más nuevos</button>
+    <button data-tsort="oldest">Más antiguos</button>
+    <button data-tsort="name_asc">Nombre A→Z</button>
+    <button data-tsort="name_desc">Nombre Z→A</button>
+    <button data-tsort="duration">Duración</button>
+    <button data-tsort="likes">♥ Likes</button>
+    <button data-tsort="downloads">↓ Descargas</button>
+  </div>
+
+  <div id="tonos-backfill" style="display:none;padding:6px 60px">
+    <button class="stamp stamp-approve" id="tonos-backfill-btn" style="padding:6px 18px;font-size:13px;letter-spacing:2px">ESTAMPAR FECHAS</button>
+    <span id="tonos-backfill-msg" style="margin-left:12px;color:#c9b499;font-size:13px"></span>
+  </div>
+
+  <div class="ledger-wrap">
+    <div class="ledger">
+      <h3 class="ledger-title">Catálogo de tonos <span class="pill" id="tonos-count">—</span></h3>
+      <p class="ledger-sub">— ▶ para escuchar · edita el nombre y estampa GUARDAR · ♪ para asignar imagen</p>
+      <table class="ledger-table" id="tonos-table">
+        <thead><tr>
+          <th></th><th></th><th>nombre</th><th>pack</th><th>tipo</th>
+          <th class="num">seg</th><th class="num">agregado</th><th class="num">♥</th><th class="num">↓</th><th></th>
+        </tr></thead>
+        <tbody><tr><td colspan="10" class="loading">cargando la rocola…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <audio id="tone-player"></audio>
+  <input type="file" id="tone-img-input" accept="image/png,image/jpeg,image/webp" style="display:none">
 </section>
 
 <!-- Journal modal — shared edit form -->
@@ -1039,6 +1260,14 @@ body::after{
   </div>
 </div>
 
+<!-- Monitor global de descargas + mascota Pixi -->
+<div id="dl-bar"></div>
+<div id="dl-monitor">
+  <div class="dlm-head">📡 Monitor · <span id="dl-count">0</span></div>
+  <ul id="dl-list"><li>listo ✓</li></ul>
+</div>
+<img id="pixi" src="/img/pixi_idle.png" alt="Pixi" title="Pixi · tu asistente del laboratorio">
+
 <script>
 // ============================================================
 // Utilities
@@ -1074,6 +1303,7 @@ function showTab(name){
     usuarios: loadUsuarios,
     eventos: loadEventos,
     escenas: loadEscenas,
+    tonos: loadTonos,
   };
   if(loaders[name] && !state.loaded[name]){
     loaders[name]();
@@ -1714,6 +1944,171 @@ function loadEscenas(){
 }
 
 // ============================================================
+// TONOS (fonoteca — editar título, ordenar, imagen)
+// ============================================================
+state.tones = []; state.toneSort = 'newest'; state.tonePlaying = null;
+
+async function loadTonos(){
+  const d = await api('/api/tones');
+  state.tones = (d && d.tones) || [];
+  const cnt = document.getElementById('tonos-count');
+  if(cnt) cnt.textContent = state.tones.length;
+  const bf = document.getElementById('tonos-backfill');
+  const bmsg = document.getElementById('tonos-backfill-msg');
+  const need = d && d.missing_added_at > 0;
+  if(bf) bf.style.display = need ? 'block' : 'none';
+  if(bmsg && need) bmsg.textContent = d.missing_added_at + ' tonos sin fecha';
+  renderTonos();
+}
+function sortTones(list){
+  const by = {
+    newest:   (a,b)=> (b.addedAt||'').localeCompare(a.addedAt||'') || a.catalog_order-b.catalog_order,
+    oldest:   (a,b)=> (a.addedAt||'zzz').localeCompare(b.addedAt||'zzz') || a.catalog_order-b.catalog_order,
+    name_asc: (a,b)=> (a.name||'').localeCompare(b.name||'','es'),
+    name_desc:(a,b)=> (b.name||'').localeCompare(a.name||'','es'),
+    duration: (a,b)=> (b.duration||0)-(a.duration||0),
+    likes:    (a,b)=> (b.likes||0)-(a.likes||0),
+    downloads:(a,b)=> (b.dl||0)-(a.dl||0),
+  };
+  return [...list].sort(by[state.toneSort] || by.newest);
+}
+function renderTonos(){
+  const tb = document.querySelector('#tonos-table tbody');
+  if(!tb) return;
+  if(!state.tones.length){ tb.innerHTML = '<tr><td colspan="10" class="loading">no hay tonos</td></tr>'; return; }
+  tb.innerHTML = sortTones(state.tones).map(t => `
+    <tr data-tone="${escapeHtml(t.id)}">
+      <td><button class="tone-play" data-url="${escapeHtml(t.audio_url)}" title="escuchar">▶</button></td>
+      <td>${t.preview_url
+            ? `<img class="tone-thumb" src="${escapeHtml(t.preview_url)}" loading="lazy" title="cambiar imagen">`
+            : `<span class="tone-thumb tone-thumb-empty" title="asignar imagen">♪</span>`}</td>
+      <td><input class="field-input tone-name" value="${escapeHtml(t.name||'')}" data-orig="${escapeHtml(t.name||'')}"></td>
+      <td><span class="pill">${escapeHtml(t.pack_name||t.pack_id||'')}</span></td>
+      <td>${escapeHtml(t.suggestedType||'—')}</td>
+      <td class="num">${t.duration}s</td>
+      <td class="num">${t.addedAt ? shortDate(t.addedAt) : '—'}</td>
+      <td class="num" style="color:#ff2e9a;font-weight:700">${t.likes||0}</td>
+      <td class="num">${t.dl||0}</td>
+      <td><button class="stamp stamp-approve tone-save" style="display:none;padding:4px 12px;font-size:11px;letter-spacing:2px">GUARDAR</button></td>
+    </tr>`).join('');
+}
+function playTone(btn){
+  const p = document.getElementById('tone-player');
+  const prev = state.tonePlaying;
+  if(prev && prev !== btn) prev.textContent = '▶';
+  if(prev === btn && !p.paused){ p.pause(); btn.textContent='▶'; state.tonePlaying=null; return; }
+  p.src = btn.dataset.url; p.play().catch(()=>{});
+  btn.textContent='⏸'; state.tonePlaying=btn;
+}
+async function saveTone(row){
+  const id = row.dataset.tone;
+  const input = row.querySelector('.tone-name');
+  const btn = row.querySelector('.tone-save');
+  btn.textContent='…'; btn.disabled=true;
+  try{
+    const r = await fetch('/api/tone/update',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id, fields:{name: input.value.trim()}})});
+    const d = await r.json();
+    if(d && d.ok){
+      input.dataset.orig = input.value.trim();
+      const tone = state.tones.find(x=>x.id===id); if(tone) tone.name = input.value.trim();
+      btn.style.display='none'; btn.disabled=false; btn.textContent='GUARDAR'; btn.style.color='';
+      flashSafelight(); setSaveStatus(new Date()); if(window.pixiCelebrate) window.pixiCelebrate();
+    } else { throw new Error((d&&d.error)||'error'); }
+  } catch(e){ btn.disabled=false; btn.textContent='✗ error'; btn.style.color='#e5a08c'; console.error('saveTone',e); }
+}
+let _toneImgRow = null;
+function openToneImagePicker(row){
+  _toneImgRow = row;
+  const inp = document.getElementById('tone-img-input');
+  if(inp){ inp.value=''; inp.click(); }
+}
+async function backfillToneDates(btn){
+  const msg = document.getElementById('tonos-backfill-msg');
+  btn.disabled=true; if(msg) msg.textContent='estampando…';
+  try{
+    const d = await (await fetch('/api/tones/backfill-added-at',{method:'POST'})).json();
+    if(d && d.ok){ if(msg) msg.textContent = `✓ ${d.backfilled} fechas estampadas`;
+      state.loaded.tonos=false; loadTonos();
+      document.getElementById('tonos-backfill').style.display='none'; }
+    else if(msg) msg.textContent = '✗ '+((d&&d.error)||'error');
+  }catch(e){ if(msg) msg.textContent='✗ '+e; } finally { btn.disabled=false; }
+}
+// Event delegation for the tones section
+document.addEventListener('input', e => {
+  const el = e.target;
+  if(el.classList && el.classList.contains('tone-name')){
+    const row = el.closest('tr'); const btn = row && row.querySelector('.tone-save');
+    if(btn) btn.style.display = (el.value.trim() !== el.dataset.orig) ? 'inline-block' : 'none';
+  }
+});
+document.addEventListener('click', e => {
+  const t = e.target;
+  if(!t || !t.classList) return;
+  if(t.classList.contains('tone-play')) return playTone(t);
+  if(t.classList.contains('tone-save')) return saveTone(t.closest('tr'));
+  if(t.classList.contains('tone-thumb')) return openToneImagePicker(t.closest('tr'));
+  if(t.id === 'tonos-backfill-btn') return backfillToneDates(t);
+  if(t.dataset && t.dataset.tsort){
+    state.toneSort = t.dataset.tsort;
+    document.querySelectorAll('#tonos-sort button').forEach(b=>b.classList.toggle('active', b===t));
+    renderTonos();
+  }
+});
+document.getElementById('tone-img-input')?.addEventListener('change', async e => {
+  const file = e.target.files[0]; if(!file || !_toneImgRow) return;
+  const id = _toneImgRow.dataset.tone;
+  const fd = new FormData(); fd.append('tone_id', id); fd.append('file', file);
+  try{
+    const r = await fetch('/api/tone/image',{method:'POST',body:fd});
+    if(r.status===404){ alert('La subida de imágenes estará lista en la fase 2.'); return; }
+    const d = await r.json();
+    if(d && d.ok){ const tone = state.tones.find(x=>x.id===id);
+      if(tone){ tone.preview_url = d.preview_url + '?t=' + Date.now(); tone.previewImage = d.previewImage; }
+      renderTonos(); flashSafelight(); }
+    else alert('Error: '+((d&&d.error)||'?'));
+  }catch(err){ alert('Error subiendo imagen: '+err); }
+});
+const _tonePlayerEl = document.getElementById('tone-player');
+if(_tonePlayerEl) _tonePlayerEl.addEventListener('ended', ()=>{
+  if(state.tonePlaying){ state.tonePlaying.textContent='▶'; state.tonePlaying=null; }
+});
+
+// ============================================================
+// MONITOR GLOBAL DE DESCARGAS + MASCOTA PIXI
+// (envuelve fetch: muestra qué se está descargando + anima a Pixi)
+// ============================================================
+(function(){
+  const MOODS={idle:'/img/pixi_idle.png',thinking:'/img/pixi_pensando.png',happy:'/img/pixi_festejando.png'};
+  const bar=document.getElementById('dl-bar'), panel=document.getElementById('dl-monitor'),
+        list=document.getElementById('dl-list'), pixi=document.getElementById('pixi'), cnt=document.getElementById('dl-count');
+  let active=0; const items=new Map(); let seq=0;
+  const LABELS=[[/\/api\/tones\b/,'cargando tonos 🎵'],[/\/api\/tone\/update/,'guardando tono 💾'],
+    [/\/api\/tone\/image/,'subiendo imagen 🖼️'],[/\/api\/tones\/backfill/,'estampando fechas 📅'],
+    [/\/api\/stats/,'estadísticas 📊'],[/\/api\/top-/,'ranking 🏆'],[/\/api\/recent-events/,'eventos ⚡'],
+    [/\/api\/catalog-search/,'buscando 🔍'],[/\/api\/wallpaper-edit/,'guardando wallpaper 💾'],
+    [/\/api\/strings/,'textos ✍️'],[/\/api\//,'consultando…']];
+  function lbl(u){for(const[re,l]of LABELS){if(re.test(u))return l;}return 'descargando…';}
+  function setMood(m){if(pixi&&MOODS[m])pixi.src=MOODS[m];}
+  function render(){
+    const on=active>0;
+    if(bar)bar.classList.toggle('on',on);
+    if(panel)panel.classList.toggle('on',on);
+    if(cnt)cnt.textContent=active;
+    if(list)list.innerHTML=[...items.values()].map(t=>'<li>'+escapeHtml(t)+'</li>').join('')||'<li>listo ✓</li>';
+    setMood(on?'thinking':'idle');
+  }
+  window.pixiCelebrate=function(){setMood('happy');setTimeout(()=>{if(active===0)setMood('idle');},1400);};
+  const _fetch=window.fetch.bind(window);
+  window.fetch=function(...args){
+    const url=(args[0]&&args[0].url)||String(args[0]||'');
+    let id=null;
+    if(/\/api\//.test(url)){id=++seq;active++;items.set(id,lbl(url));render();}
+    return _fetch(...args).finally(()=>{if(id!==null){items.delete(id);active=Math.max(0,active-1);render();}});
+  };
+})();
+
+// ============================================================
 // AMBIENT & UTIL
 // ============================================================
 function flashSafelight(){
@@ -1735,7 +2130,7 @@ tickClock();
 
 function setDateEyebrows(){
   const today = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}).toUpperCase();
-  ['resumen','revelado','ingresos','usuarios','eventos','escenas'].forEach(k => {
+  ['resumen','revelado','ingresos','usuarios','eventos','escenas','tonos'].forEach(k => {
     const el = document.getElementById('date-' + k); if(el) el.textContent = el.textContent.replace('—', today);
   });
 }
@@ -1784,7 +2179,7 @@ seedDust(20);
 
 // Initial tab from hash, default to revelado
 const initial = (location.hash || '#revelado').slice(1);
-const validTabs = ['resumen','revelado','ingresos','usuarios','eventos','escenas','textos'];
+const validTabs = ['resumen','revelado','ingresos','usuarios','eventos','escenas','textos','tonos'];
 showTab(validTabs.includes(initial) ? initial : 'revelado');
 </script>
 </body>

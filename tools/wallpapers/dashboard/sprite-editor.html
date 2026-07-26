@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Pixora · Scene Editor</title>
+<title>PixelStudio · Editor de Escenas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&family=Mochiy+Pop+One&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-0: #060611;
@@ -516,13 +519,96 @@
     padding: 6px 8px; border-radius: 6px; font-family: inherit; font-size: 11px;
   }
   .import-hint { font-size: 9px; color: var(--dim); letter-spacing: .08em; flex: 1; min-width: 200px; }
+  /* ═══════════ PIXORA STATION — consola + cartuchos (override, gana en cascada) ═══════════ */
+  :root{
+    --bg-0:#0d0720; --bg-1:#140b2c; --bg-2:#1c1238; --bg-3:#251847;
+    --line:rgba(255,255,255,.05); --line-hi:rgba(34,211,238,.22);
+    --gold:#FFD23F; --gold-bright:#FFE070; --cyan:#22D3EE; --magenta:#FF2E9A;
+    --plastic-0:#151028; --plastic-1:#1F1738; --plastic-2:#2B2050; --plastic-hi:rgba(255,255,255,.10);
+  }
+  body{font-family:'Chakra Petch','JetBrains Mono',monospace}
+  @media (min-width:901px){
+    .main{gap:12px;padding:12px;grid-template-columns:264px 1fr 320px}
+    .left,.right{border:0 !important;border-radius:16px;
+      background:linear-gradient(180deg,var(--bg-1),var(--bg-0)) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 24px -8px rgba(0,0,0,.5)}
+    .stage{border-radius:22px}
+  }
+  .topbar{border-bottom:0 !important;box-shadow:0 1px 0 rgba(34,211,238,.14),0 10px 30px -12px rgba(0,0,0,.7)}
+  .brand{font-family:'Mochiy Pop One',sans-serif;font-size:13px;color:var(--cyan)}
+  .left::-webkit-scrollbar,.right::-webkit-scrollbar{width:8px}
+  .left::-webkit-scrollbar-thumb,.right::-webkit-scrollbar-thumb{background:var(--plastic-2);border-radius:99px}
+  .left::-webkit-scrollbar-track,.right::-webkit-scrollbar-track{background:transparent}
+  .tab{font-family:'Press Start 2P',monospace;font-size:8px;border:0 !important;border-radius:6px;background:transparent !important;box-shadow:none !important}
+  .tab.active{color:var(--gold-bright);background:rgba(255,210,63,.08) !important}
+  .tab.active::before{content:'▶ ';color:var(--gold);animation:cur-blink 1s steps(2) infinite}
+  @keyframes cur-blink{50%{opacity:0}}
+  .btn{border-radius:8px;box-shadow:0 3px 0 rgba(0,0,0,.45)}
+  .btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.45)}
+  .btn.primary{background:linear-gradient(180deg,var(--gold-bright),var(--gold)) !important;color:#241a00 !important;box-shadow:0 3px 0 #8f6e12,0 6px 16px -4px rgba(255,210,63,.4) !important}
+  .btn.primary:active{box-shadow:0 1px 0 #8f6e12 !important}
+  .section-title{font-family:'Press Start 2P',monospace;font-size:7px;border-bottom:0 !important;display:inline-block;background:rgba(255,210,63,.1);color:var(--gold);padding:3px 6px;border-radius:4px}
+  /* ── CARTUCHOS ── */
+  #catalog-list{display:grid;grid-template-columns:1fr 1fr;gap:12px 9px;padding-top:4px}
+  #catalog-list.loading{display:block}
+  .list-item{display:block !important;padding:0 !important;position:relative;overflow:hidden;cursor:pointer;user-select:none;
+    border-left:0 !important;border-radius:9px 9px 5px 5px;
+    background:linear-gradient(180deg,var(--plastic-2) 0%,var(--plastic-1) 45%,var(--plastic-0) 100%) !important;
+    box-shadow:inset 0 1px 0 var(--plastic-hi),inset 0 -3px 0 rgba(0,0,0,.4),0 5px 12px -4px rgba(0,0,0,.6);
+    transition:transform .16s ease,box-shadow .16s ease}
+  .list-item::before{content:'';display:block;height:11px;margin:6px 14px 5px;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.09) 0 2px,transparent 2px 7px);border-radius:2px}
+  .list-item::after{content:'';position:absolute;left:28%;right:28%;bottom:0;height:4px;background:var(--bg-0);border-radius:3px 3px 0 0}
+  .list-thumb{width:auto !important;height:auto !important;aspect-ratio:3/4;margin:0 9px !important;border-radius:5px;
+    border:1px solid rgba(255,255,255,.13);box-shadow:inset 0 0 0 2px rgba(0,0,0,.35);
+    background-size:cover;background-position:center;background-color:var(--bg-3)}
+  .list-meta{padding:6px 9px 11px !important;text-align:center;flex:none !important}
+  .list-name{font-family:'Chakra Petch',monospace;font-size:10px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .list-type{display:inline-block;margin-top:3px;padding:1px 6px;font-size:7px;letter-spacing:.16em;border-radius:3px;color:#241a00;background:var(--gold);opacity:.85}
+  .list-item:hover{transform:translateY(-4px);box-shadow:inset 0 1px 0 var(--plastic-hi),0 10px 20px -6px rgba(34,211,238,.35)}
+  .list-item.selected{transform:translateY(-2px);background:linear-gradient(180deg,var(--plastic-2),var(--plastic-0)) !important;
+    box-shadow:inset 0 1px 0 var(--plastic-hi),0 0 0 2px var(--cyan),0 0 18px -2px rgba(34,211,238,.5) !important}
+  .list-item.selected .list-type{background:var(--cyan)}
+  /* ── panel derecho estilo menú ── */
+  .item-card{border:0 !important;border-radius:12px;background:var(--plastic-1) !important;box-shadow:inset 0 1px 0 var(--plastic-hi)}
+  .item-card.selected{background:linear-gradient(90deg,rgba(34,211,238,.14),var(--plastic-1) 60%) !important;box-shadow:inset 3px 0 0 var(--cyan),0 0 14px -4px rgba(34,211,238,.4) !important}
+  .field input,.field select,.field textarea{background:#0a0616 !important;border:0 !important;border-radius:6px;box-shadow:inset 0 1px 3px rgba(0,0,0,.6)}
+  /* ── consola: bisel + slot + LED ── */
+  .console-frame{position:absolute;inset:6px;z-index:9;pointer-events:none;border-radius:20px;
+    box-shadow:inset 0 0 0 7px var(--plastic-1),inset 0 0 0 8px rgba(255,255,255,.06),inset 0 0 42px rgba(0,0,0,.55)}
+  .console-slot{position:absolute;top:0;left:50%;transform:translateX(-50%);width:190px;height:15px;border-radius:0 0 9px 9px;
+    background:linear-gradient(180deg,var(--plastic-2),var(--plastic-0));box-shadow:0 3px 8px rgba(0,0,0,.5)}
+  .console-slot i{position:absolute;inset:4px 14px auto;height:4px;background:#050310;border-radius:2px;box-shadow:inset 0 1px 2px #000}
+  .console-led{position:absolute;bottom:13px;left:22px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:pulse 2.2s ease-in-out infinite}
+  .console-led.on{background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:none}
+  .console-brand{position:absolute;bottom:9px;right:22px;font-family:'Mochiy Pop One',sans-serif;font-size:9px;letter-spacing:.22em;color:rgba(255,255,255,.22)}
+  /* estado vacío + boot */
+  .stage-empty{display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .empty-cart{width:72px;height:90px;margin:0 auto 14px;border-radius:8px 8px 4px 4px;
+    background:linear-gradient(180deg,var(--plastic-2),var(--plastic-0));box-shadow:inset 0 1px 0 var(--plastic-hi),0 8px 20px -6px rgba(0,0,0,.6);animation:cartfloat 3s ease-in-out infinite}
+  @keyframes cartfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .empty-title{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--cyan);text-align:center;text-shadow:0 0 10px rgba(34,211,238,.6)}
+  .empty-hint{font-family:'Chakra Petch',monospace;font-size:12px;color:var(--dim);text-align:center;margin-top:8px;animation:cur-blink 1.1s steps(2) infinite}
+  #boot-overlay{position:absolute;inset:6px;z-index:60;border-radius:20px;overflow:hidden;pointer-events:none;background:var(--bg-0);animation:boot-fade .25s ease .95s forwards}
+  .boot-cart{position:absolute;top:0;left:50%;width:96px;height:116px;transform:translate(-50%,-130%);border-radius:8px 8px 4px 4px;
+    background:linear-gradient(180deg,var(--plastic-2),var(--plastic-0));box-shadow:0 8px 24px rgba(0,0,0,.6);animation:boot-insert .5s cubic-bezier(.5,0,.7,.4) forwards;padding:10px 10px 0}
+  .boot-cart-label{width:100%;height:78%;border-radius:4px;background-size:cover;background-position:center}
+  @keyframes boot-insert{0%{transform:translate(-50%,-130%)}62%{transform:translate(-50%,-12%)}74%{transform:translate(-50%,-16%)}100%{transform:translate(-50%,6%);opacity:0}}
+  .boot-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:0;
+    animation:boot-crt .45s ease .45s forwards;
+    background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,#16102e 0%,var(--bg-0) 75%)}
+  @keyframes boot-crt{0%{opacity:0;transform:scaleY(.02)}55%{opacity:1;transform:scaleY(1.03)}100%{opacity:1;transform:scaleY(1)}}
+  .boot-logo{font-family:'Press Start 2P',monospace;font-size:21px;color:var(--cyan);text-shadow:0 0 14px rgba(34,211,238,.8),3px 3px 0 var(--magenta)}
+  .boot-name{font-family:'Chakra Petch',monospace;font-size:11px;letter-spacing:.2em;color:var(--gold)}
+  @keyframes boot-fade{to{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.empty-cart,.console-led{animation:none}}
 </style>
 </head>
 <body>
 
 <!-- ═════ TOPBAR ═════ -->
 <div class="topbar">
-  <div class="brand"><span class="brand-dot"></span> PIXORA · EDITOR</div>
+  <div class="brand"><span class="brand-dot"></span> PIXEL · STUDIO</div>
   <div class="tabs" id="tabs">
     <button class="tab active" data-mode="3d">3D · SCENES</button>
     <button class="tab" data-mode="live">LIVE · VIDEOS</button>
@@ -552,6 +638,12 @@
       <option value="old">↑ Viejos primero</option>
       <option value="az">A – Z</option>
     </select>
+    <div class="section-title" style="margin-top:10px">CARGAR POR ID (ocultas)</div>
+    <div style="display:flex;gap:4px">
+      <input type="text" class="search" id="load-id" placeholder="scene_id..." style="flex:1;margin:0">
+      <button class="btn" id="load-id-btn" style="padding:0 12px">Ir</button>
+    </div>
+    <div id="load-id-recent" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px"></div>
     <div class="section-title" id="list-section-title">3D SCENES</div>
     <div id="catalog-list" class="loading">cargando...</div>
   </aside>
@@ -606,13 +698,22 @@
     <canvas id="canvas-3d" style="display:none"></canvas>
     <video id="canvas-video" style="display:none" autoplay loop muted playsinline></video>
     <img id="canvas-static" class="static-img" style="display:none">
-    <div class="stage-empty" id="stage-empty">selecciona un wallpaper del panel izquierdo</div>
+    <div class="stage-empty" id="stage-empty">
+      <div class="empty-cart"></div>
+      <div class="empty-title">INSERTA UN CARTUCHO</div>
+      <div class="empty-hint">◀ elige una escena de la repisa</div>
+    </div>
     <div class="stage-ctrl" id="stage-ctrl" style="display:none">
       <button class="ctrl-btn" id="ctrl-zoom-out" title="Zoom out">−</button>
       <button class="ctrl-btn active" id="ctrl-fit" title="Encuadrar al teléfono">⛶</button>
       <span id="zoom-label" style="font-size:10px;color:var(--dim);min-width:42px;text-align:center">100%</span>
       <button class="ctrl-btn" id="ctrl-zoom-in" title="Zoom in">+</button>
       <button class="ctrl-btn" id="ctrl-anim" title="Pausa / play animación">⏸</button>
+    </div>
+    <div class="console-frame" aria-hidden="true">
+      <div class="console-slot"><i></i></div>
+      <div class="console-led" id="console-led"></div>
+      <div class="console-brand">PIXEL·STUDIO</div>
     </div>
   </main>
 
@@ -751,6 +852,10 @@ let phoneFrame = null;          // visual border of the phone screen
 let bgMesh = null;
 let layerMeshes = [];           // {mesh, layer}
 let spriteMeshes = [];          // {mesh, spriteDef, frames: [Texture], idx, framesLoaded}
+let rigMeshes = [];             // {mesh, rigIdx, boneIdx, natW, natH}
+let rigCrosshair = null;        // THREE marker for the selected bone's pivot
+let rigAnimate = false;         // ▶ toggle: bind pose (false) vs animated loop (true)
+let rigStartMs = 0;
 
 // Every scene load/rebuild claims a generation. Async work checks it after each
 // await and bails if a newer load started — otherwise textures from the previous
@@ -1172,6 +1277,9 @@ function renderCatalogList() {
   filtered.forEach(it => {
     const row = document.createElement('div');
     row.className = 'list-item' + (state.selectedId === it.id ? ' selected' : '');
+    row.dataset.preview = it.preview_url || '';
+    row.dataset.pname = it.name || '';
+    row.dataset.pkind = (it.kind || '').toUpperCase();
     row.innerHTML = `
       <div class="list-thumb" style="background-image:url('${it.preview_url || ''}')"></div>
       <div class="list-meta">
@@ -1182,6 +1290,62 @@ function renderCatalogList() {
     row.onclick = () => loadItem(it);
     list.appendChild(row);
   });
+}
+
+// ── Hover preview: pasa el mouse sobre una escena → vista grande (explorar fácil) ──
+(function(){
+  const style=document.createElement('style');
+  style.textContent=`
+    #scene-hover{position:fixed;z-index:99999;pointer-events:none;opacity:0;transform:translateY(6px) scale(.96);
+      transition:opacity .12s,transform .12s;width:250px;background:rgba(13,7,32,.96);
+      border:2px solid #22d3ee;border-radius:14px;padding:8px;box-shadow:0 0 30px rgba(34,211,238,.5),0 12px 40px rgba(0,0,0,.75)}
+    #scene-hover.on{opacity:1;transform:translateY(0) scale(1)}
+    #scene-hover img{width:100%;height:auto;max-height:440px;object-fit:contain;border-radius:8px;display:block;background:#000}
+    #scene-hover .sh-name{font-family:'Chakra Petch',monospace,sans-serif;color:#eaf6ff;font-size:13px;font-weight:700;margin-top:6px;text-align:center}
+    #scene-hover .sh-kind{font-family:monospace;color:#22d3ee;font-size:10px;letter-spacing:2px;text-align:center;margin-top:2px}
+  `;
+  document.head.appendChild(style);
+  const box=document.createElement('div'); box.id='scene-hover';
+  box.innerHTML='<img alt=""><div class="sh-name"></div><div class="sh-kind"></div>';
+  document.body.appendChild(box);
+  const img=box.querySelector('img'), nm=box.querySelector('.sh-name'), kd=box.querySelector('.sh-kind');
+  let cur=null;
+  function place(e){
+    const w=266, h=box.offsetHeight||300, pad=16;
+    let x=e.clientX+pad, y=e.clientY-h/2;
+    if(x+w>window.innerWidth) x=e.clientX-w-pad;
+    y=Math.max(pad, Math.min(window.innerHeight-h-pad, y));
+    box.style.left=x+'px'; box.style.top=y+'px';
+  }
+  document.addEventListener('mouseover', e=>{
+    const it=e.target.closest && e.target.closest('.list-item');
+    if(!it || !it.dataset.preview) return;
+    if(cur!==it){ cur=it; img.src=it.dataset.preview; nm.textContent=it.dataset.pname||''; kd.textContent=it.dataset.pkind||''; }
+    box.classList.add('on'); place(e);
+  });
+  document.addEventListener('mousemove', e=>{ if(cur && e.target.closest && e.target.closest('.list-item')===cur) place(e); });
+  document.addEventListener('mouseout', e=>{
+    const it=e.target.closest && e.target.closest('.list-item');
+    if(it && (!e.relatedTarget || !e.relatedTarget.closest || e.relatedTarget.closest('.list-item')!==it)){ box.classList.remove('on'); cur=null; }
+  });
+})();
+
+// ── Animación de boot: insertar cartucho + encendido CRT al seleccionar escena ──
+function playBoot(it){
+  try{
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (state.selectedId === it.id) return;          // re-click al mismo: sin boot
+    document.getElementById('boot-overlay')?.remove();
+    const stage = document.getElementById('stage'); if(!stage) return;
+    const ov = document.createElement('div'); ov.id = 'boot-overlay';
+    const bg = (it.preview_url || '').replace(/['"\\]/g,'');
+    ov.innerHTML = `
+      <div class="boot-cart"><div class="boot-cart-label" style="background-image:url('${bg}')"></div></div>
+      <div class="boot-screen"><div class="boot-logo">PIXEL·STUDIO</div><div class="boot-name">${escapeHtml(it.name || it.id)}</div></div>`;
+    stage.appendChild(ov);
+    ov.addEventListener('animationend', e => { if (e.animationName === 'boot-fade') ov.remove(); });
+    setTimeout(() => { ov.remove(); }, 1500);        // failsafe
+  }catch(e){ /* el boot nunca debe romper la carga */ }
 }
 
 function escapeHtml(s) {
@@ -1196,6 +1360,7 @@ async function loadItem(it) {
   if (state.dirty) {
     if (!confirm('Hay cambios sin guardar. ¿Descartar y cargar otro?')) return;
   }
+  playBoot(it);   // animación "insertar cartucho + boot" (no bloquea la carga)
   state.selectedId = it.id;
   state.spec = null;
   state.selection = [];
@@ -1204,6 +1369,7 @@ async function loadItem(it) {
   resetPreviewZoom();
   updateSaveButton();
   $('#stage-empty').style.display = 'none';
+  document.getElementById('console-led')?.classList.add('on');
   $('#canvas-3d').style.display = 'none';
   $('#canvas-video').style.display = 'none';
   $('#canvas-static').style.display = 'none';
@@ -1418,7 +1584,9 @@ async function rebuildScene(gen) {
     disposeMesh(o.mesh);
     (o.frames || []).forEach(t => t && t.dispose && t.dispose());
   });
-  bgMesh = null; layerMeshes = []; spriteMeshes = [];
+  rigMeshes.forEach(o => disposeMesh(o.mesh));
+  if (rigCrosshair) { disposeMesh(rigCrosshair); rigCrosshair = null; }
+  bgMesh = null; layerMeshes = []; spriteMeshes = []; rigMeshes = [];
 
   // Snapshot: state.spec can change under us while we await textures, and
   // reading it again after an await would build the *new* scene's assets a
@@ -1470,8 +1638,12 @@ async function rebuildScene(gen) {
   // so the percentage counts against the real total instead of walking backwards
   // as each new row appears.
   const sprites = spec.sprites || [];
-  if (sprites.length) lhGroup(gen, `sprites · ${sprites.length}`);
-  sprites.forEach((sp, i) => lhAdd(gen, 'S' + i, sp.name || sp.manifest_key || ('sprite ' + i)));
+  // Sprites referenced by a rig bone are drawn BY the rig (below), not as
+  // standalone sprites — mirrors runtime where behavior:"preload" draws nothing.
+  const rigSpriteNames = new Set((spec.rigs || []).flatMap(r => (r.bones || []).map(b => b.sprite).filter(Boolean)));
+  const drawSprites = sprites.filter(s => !rigSpriteNames.has(s.name));
+  if (drawSprites.length) lhGroup(gen, `sprites · ${drawSprites.length}`);
+  sprites.forEach((sp, i) => { if (!rigSpriteNames.has(sp.name)) lhAdd(gen, 'S' + i, sp.name || sp.manifest_key || ('sprite ' + i)); });
 
   let li = -1;
   for (let i = 0; i < imgLayers.length; i++) {
@@ -1504,13 +1676,94 @@ async function rebuildScene(gen) {
   for (let i = 0; i < sprites.length; i++) {
     if (isStaleGen(gen)) return;
     const sp = sprites[i];
+    if (rigSpriteNames.has(sp.name)) continue;  // drawn by the rig, not as a sprite
     lhSet(gen, 'S' + i, 'busy');
     const obj = await buildSpriteMesh(sp, i, gen);
     if (isStaleGen(gen)) { if (obj) disposeSpriteObj(obj); return; }
     lhSet(gen, 'S' + i, obj ? 'ok' : 'err');
     if (obj) spriteMeshes.push(obj);
   }
+
+  // Bone rigs — one plane per drawn bone. Matrices are computed each frame in
+  // tick() (updateRigMeshes) porting RigController.kt for WYSIWYG with device.
+  const rigs = spec.rigs || [];
+  for (let ri = 0; ri < rigs.length; ri++) {
+    const bones = rigs[ri].bones || [];
+    const drawn = bones.filter(b => b.sprite);
+    if (drawn.length) lhGroup(gen, `rig · ${drawn.length}`);
+    for (let bi = 0; bi < bones.length; bi++) {
+      if (isStaleGen(gen)) return;
+      const bone = bones[bi];
+      if (!bone.sprite) continue;
+      const sp = sprites.find(s => s.name === bone.sprite);
+      if (!sp) { console.warn('rig bone sprite missing in sprites[]:', bone.sprite); continue; }
+      const key = 'R' + ri + '_' + bi;
+      lhAdd(gen, key, bone.id); lhSet(gen, key, 'busy');
+      try {
+        const tex = await loadTexture(spriteFrameUrl(sp.manifest_key, 1));
+        if (isStaleGen(gen)) { tex.dispose(); return; }
+        const div = SC.spriteSampleDiv(sp.params || {});
+        const natW = tex.image.width / div, natH = tex.image.height / div;
+        const g = new THREE.PlaneGeometry(natW, natH);
+        const m = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+        const mesh = new THREE.Mesh(g, m);
+        mesh.matrixAutoUpdate = false;   // matrix set manually from rig math
+        mesh.userData = { kind: 'rigbone', rigIdx: ri, boneIdx: bi, natW, natH };
+        scene.add(mesh);
+        rigMeshes.push({ mesh, rigIdx: ri, boneIdx: bi, natW, natH });
+        lhSet(gen, key, 'ok');
+      } catch (e) { lhSet(gen, key, 'err'); console.warn('rig bone load failed', bone.id, e); }
+    }
+  }
+  updateRigMeshes(0);
   lhFinish(gen);
+}
+
+/** Recompute every rig bone's mesh matrix from the rig math (RigController port).
+ *  Runs each frame so panel edits reflect instantly. Bind pose unless rigAnimate. */
+function updateRigMeshes(phaseOverride) {
+  const rigs = state.spec && state.spec.rigs;
+  if (!rigs || !rigMeshes.length) return;
+  const sw = phoneW(), sh = phoneH();
+  let phase = 0;
+  if (phaseOverride != null) phase = phaseOverride;
+  else if (rigAnimate) {
+    const loop = Math.max(0.1, rigs[0].loop_seconds || 4) * 1000;
+    if (!rigStartMs) rigStartMs = performance.now();
+    phase = ((performance.now() - rigStartMs) % loop) / loop;
+  }
+  const worldByRig = rigs.map(rig => SC.rigComposeWorld(rig, phase, sw, sh));
+  for (const o of rigMeshes) {
+    const rig = rigs[o.rigIdx]; if (!rig) continue;
+    const bone = rig.bones[o.boneIdx]; if (!bone) continue;
+    const world = worldByRig[o.rigIdx][bone.id]; if (!world) continue;
+    const zThree = 1 + (rig.z || 0) * 0.1 + (bone.z || 0) * 0.005;
+    o.mesh.matrix.copy(SC.rigBoneMatrix4(THREE, world, bone, o.natW, o.natH, zThree, sw, sh));
+    o.mesh.matrixWorldNeedsUpdate = true;
+  }
+  updateRigCrosshair(worldByRig, sw, sh);
+}
+
+/** Yellow cross at the selected bone's pivot (numeric pivot editing needs it). */
+function updateRigCrosshair(worldByRig, sw, sh) {
+  const sel = (state.selection || []).find(s => s.kind === 'bone');
+  if (!sel || !state.spec.rigs) { if (rigCrosshair) rigCrosshair.visible = false; return; }
+  const rig = state.spec.rigs[sel.rigIdx]; if (!rig) return;
+  const bone = rig.bones[sel.boneIdx]; if (!bone) return;
+  const world = worldByRig[sel.rigIdx] && worldByRig[sel.rigIdx][bone.id]; if (!world) return;
+  const p = SC.rigPivotWorld(world, bone, sw, sh);
+  if (!rigCrosshair) {
+    rigCrosshair = new THREE.LineSegments(new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0xffd23f }));
+    rigCrosshair.renderOrder = 999;
+    scene.add(rigCrosshair);
+  }
+  const s = 26;
+  rigCrosshair.geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+    p.x - s, p.y, 50, p.x + s, p.y, 50, p.x, p.y - s, 50, p.x, p.y + s, 50]), 3));
+  rigCrosshair.geometry.attributes.position.needsUpdate = true;
+  rigCrosshair.geometry.computeBoundingSphere();
+  rigCrosshair.visible = true;
 }
 
 function disposeSpriteObj(o) {
@@ -1886,14 +2139,23 @@ function tick() {
     layerMeshes.forEach(o => {
       const amp = o.layer.bob_amplitude_px || 0;
       const period = o.layer.bob_period_sec || 4;
-      const baseY = -(o.layer.offset_y_px || 0);
-      if (amp > 0) {
-        const phase = (tSec / period) * 2 * Math.PI;
-        o.mesh.position.y = baseY + Math.sin(phase) * amp;
-      } else {
-        o.mesh.position.y = baseY;
+      let py = -(o.layer.offset_y_px || 0);
+      let px = o.layer.offset_x_px || 0;
+      if (amp > 0) py += Math.sin((tSec / period) * 2 * Math.PI) * amp;
+      // DRIFT: breathing translate+zoom+rotate (mirror of native drawLayerCentered).
+      // Three.js is Y-up + CCW-positive → negate dy and rotation vs the spec.
+      const d = o.layer.drift;
+      if (d && d.period_s) {
+        const u = Math.sin(2 * Math.PI * tSec / d.period_s);
+        px += (d.amp_x_pct / 100) * SC.surface.w * u;
+        py += -(d.amp_y_pct / 100) * SC.surface.h * u;
+        const smin = d.scale_min || 1, smax = d.scale_max || 1;
+        const s = (smin + smax) / 2 + (smax - smin) / 2 * u;
+        o.mesh.scale.set(s, s, 1);
+        o.mesh.rotation.z = -(d.rot_deg || 0) * u * Math.PI / 180;
       }
-      o.mesh.position.x = o.layer.offset_x_px || 0;
+      o.mesh.position.x = px;
+      o.mesh.position.y = py;
     });
   }
   // Frame cycles — multiplex layer visibility exactly like the device
@@ -1940,6 +2202,7 @@ function tick() {
       });
     });
   }
+  updateRigMeshes();
   updateTransformBox();
   renderer.render(scene, camera);
 }
@@ -2487,10 +2750,16 @@ function renderItemsPanel() {
   }
   const sprites = state.spec.sprites || [];
   const layers = state.spec.image_layers || [];
+  // Sprites owned by a rig bone are edited as BONES (below), not as sprites.
+  const rigSpriteNames = new Set((state.spec.rigs || []).flatMap(r => (r.bones || []).map(b => b.sprite).filter(Boolean)));
   let html = '';
-  if (sprites.length) {
+  // Bone rig editor first (it's the star when the scene has one).
+  (state.spec.rigs || []).forEach((rig, ri) => { html += rigSectionHtml(rig, ri); });
+  const shownSprites = sprites.filter(sp => !rigSpriteNames.has(sp.name));
+  if (shownSprites.length) {
     html += '<div class="section-title" style="margin-top:0">SPRITES</div>';
     sprites.forEach((sp, i) => {
+      if (rigSpriteNames.has(sp.name)) return;
       html += spriteCardHtml(sp, i);
     });
   }
@@ -2549,7 +2818,11 @@ function renderItemsPanel() {
       const kind = inp.dataset.kind;
       const key = inp.dataset.key;
       const v = inp.type === 'checkbox' ? inp.checked : parseFloat(inp.value);
-      if (kind === 'sprite') {
+      if (kind === 'rig') {
+        setRigParam(+inp.dataset.rig, key, v);
+      } else if (kind === 'bone') {
+        setBoneParam(+inp.dataset.rig, +inp.dataset.bone, key, v);
+      } else if (kind === 'sprite') {
         setSpriteParam(idx, key, v);
       } else if (kind === 'layer') {
         const l = state.spec.image_layers[idx];
@@ -2571,6 +2844,22 @@ function renderItemsPanel() {
       markDirty(); updateStatusBar();
     };
   });
+  panel.querySelectorAll('[data-bonepick]').forEach(card => {
+    card.onclick = (ev) => {
+      if (ev.target.closest('input,button')) return;   // no robar clicks de inputs/±
+      const [ri, bi] = card.dataset.bonepick.split('_').map(Number);
+      state.selection = [{ kind: 'bone', rigIdx: ri, boneIdx: bi }];
+      renderItemsPanel();
+    };
+  });
+  {
+    const ab = panel.querySelector('#rig-anim-toggle');
+    if (ab) ab.onclick = () => {
+      rigAnimate = !rigAnimate;
+      if (rigAnimate) rigStartMs = performance.now();
+      renderItemsPanel();
+    };
+  }
   panel.querySelectorAll('.item-card[data-pick]').forEach(card => {
     card.onclick = (ev) => {
       const kind = card.dataset.kind;
@@ -2752,6 +3041,16 @@ function renderItemsPanel() {
       const key = btn.dataset.key;
       const factor = parseFloat(btn.dataset.bump);
       const kind = btn.dataset.kind || 'sprite';
+      if (kind === 'rig') {
+        const ri = +btn.dataset.rig;
+        setRigParam(ri, key, rigGet(ri, key) + factor);
+        renderItemsPanel(); markDirty(); updateStatusBar(); return;
+      }
+      if (kind === 'bone') {
+        const ri = +btn.dataset.rig, bi = +btn.dataset.bone;
+        setBoneParam(ri, bi, key, boneGet(ri, bi, key) + factor);
+        renderItemsPanel(); markDirty(); updateStatusBar(); return;
+      }
       if (kind === 'layer') {
         const l = state.spec.image_layers[idx];
         if (key === 'offset_x_px' || key === 'offset_y_px') {
@@ -2785,6 +3084,88 @@ function renderItemsPanel() {
       renderItemsPanel(); markDirty(); updateStatusBar();
     };
   });
+}
+
+/* ── Bone rig editor: getters/setters + panel HTML ────────────────────── */
+function rigGet(ri, key) {
+  const rig = state.spec.rigs[ri]; const a = rig.anchor || [0.5, 0.5];
+  if (key === 'anchor_x') return a[0];
+  if (key === 'anchor_y') return a[1];
+  if (key === 'scale') return rig.scale ?? 1;
+  if (key === 'z') return rig.z ?? 10;
+  if (key === 'loop_seconds') return rig.loop_seconds ?? 4;
+  return 0;
+}
+function setRigParam(ri, key, v) {
+  const rig = state.spec.rigs[ri]; if (!rig || isNaN(v)) return;
+  if (key === 'anchor_x') { rig.anchor = rig.anchor || [0.5, 0.5]; rig.anchor[0] = v; }
+  else if (key === 'anchor_y') { rig.anchor = rig.anchor || [0.5, 0.5]; rig.anchor[1] = v; }
+  else if (key === 'scale') rig.scale = Math.max(0.01, v);
+  else if (key === 'z') rig.z = Math.round(v);
+  else if (key === 'loop_seconds') rig.loop_seconds = Math.max(0.1, v);
+  markDirty();
+}
+function boneGet(ri, bi, key) {
+  const b = state.spec.rigs[ri].bones[bi];
+  const pv = b.pivot_px || [0, 0], of = b.offset_px || [0, 0];
+  if (key === 'pivot_px_x') return pv[0];
+  if (key === 'pivot_px_y') return pv[1];
+  if (key === 'offset_px_x') return of[0];
+  if (key === 'offset_px_y') return of[1];
+  if (key === 'z') return b.z ?? 0;
+  return 0;
+}
+function setBoneParam(ri, bi, key, v) {
+  const b = state.spec.rigs[ri].bones[bi]; if (!b || isNaN(v)) return;
+  if (key === 'pivot_px_x') { b.pivot_px = b.pivot_px || [0, 0]; b.pivot_px[0] = v; }
+  else if (key === 'pivot_px_y') { b.pivot_px = b.pivot_px || [0, 0]; b.pivot_px[1] = v; }
+  else if (key === 'offset_px_x') { b.offset_px = b.offset_px || [0, 0]; b.offset_px[0] = v; }
+  else if (key === 'offset_px_y') { b.offset_px = b.offset_px || [0, 0]; b.offset_px[1] = v; }
+  else if (key === 'z') b.z = Math.round(v);
+  markDirty();
+}
+function rigFieldHtml(label, key, val, step, b1, b2, dset) {
+  return `<div class="field"><label>${label}</label>
+    <input type="number" step="${step}" value="${val}" ${dset} data-key="${key}">
+    <button class="bump" ${dset} data-key="${key}" data-bump="${-b1}">−</button>
+    <button class="bump" ${dset} data-key="${key}" data-bump="${b1}">+</button>
+    ${b2 != null ? `<button class="bump" ${dset} data-key="${key}" data-bump="${b2}">++</button>` : ''}
+  </div>`;
+}
+function rigSectionHtml(rig, ri) {
+  const ds = `data-kind="rig" data-rig="${ri}"`;
+  let h = `<div class="section-title" style="margin-top:0">🦴 RIG · ${escapeHtml(rig.name || 'rig')}</div>`;
+  h += `<div class="item-card">`;
+  h += `<div style="font-size:11px;opacity:.6;margin-bottom:4px">arrastra el personaje en el preview para moverlo · char ${(rig.char_size || []).join('×')}</div>`;
+  h += rigFieldHtml('POSICIÓN X', 'anchor_x', rigGet(ri, 'anchor_x').toFixed(4), '0.005', 0.005, null, ds);
+  h += rigFieldHtml('POSICIÓN Y', 'anchor_y', rigGet(ri, 'anchor_y').toFixed(4), '0.005', 0.005, null, ds);
+  h += rigFieldHtml('TAMAÑO', 'scale', rigGet(ri, 'scale').toFixed(3), '0.01', 0.01, 0.05, ds);
+  h += rigFieldHtml('Z', 'z', rigGet(ri, 'z'), '1', 1, null, ds);
+  h += rigFieldHtml('LOOP s', 'loop_seconds', rigGet(ri, 'loop_seconds'), '0.5', 0.5, null, ds);
+  h += `<div class="field"><label>ANIMAR</label><button class="btn" type="button" id="rig-anim-toggle" style="padding:3px 8px;font-size:10px">${rigAnimate ? '⏸ pausa' : '▶ ver'}</button></div>`;
+  h += `</div>`;
+  (rig.bones || []).forEach((b, bi) => { h += boneCardHtml(rig, ri, b, bi); });
+  return h;
+}
+function boneCardHtml(rig, ri, b, bi) {
+  const sel = (state.selection || []).some(s => s.kind === 'bone' && s.rigIdx === ri && s.boneIdx === bi);
+  const ds = `data-kind="bone" data-rig="${ri}" data-bone="${bi}"`;
+  const R = (k) => Math.round(boneGet(ri, bi, k));
+  let h = `<div class="item-card${sel ? ' selected' : ''}" data-bonepick="${ri}_${bi}" style="cursor:pointer">`;
+  h += `<div class="section-title" style="margin:0 0 4px">${escapeHtml(b.id)}${b.sprite ? '' : ' · root'}${b.parent ? ` <span style="opacity:.5;font-weight:400">↳${escapeHtml(b.parent)}</span>` : ''}</div>`;
+  if (b.sprite) {
+    h += rigFieldHtml('PIVOTE X', 'pivot_px_x', R('pivot_px_x'), '1', 1, 10, ds);
+    h += rigFieldHtml('PIVOTE Y', 'pivot_px_y', R('pivot_px_y'), '1', 1, 10, ds);
+    h += rigFieldHtml('ENCAJE X', 'offset_px_x', R('offset_px_x'), '1', 1, 10, ds);
+    h += rigFieldHtml('ENCAJE Y', 'offset_px_y', R('offset_px_y'), '1', 1, 10, ds);
+    h += rigFieldHtml('Z', 'z', R('z'), '1', 1, null, ds);
+  } else {
+    h += `<div style="font-size:11px;opacity:.6;padding:2px 0">raíz — mueve todo (usa POSICIÓN/TAMAÑO de arriba)</div>`;
+    h += rigFieldHtml('PIVOTE X', 'pivot_px_x', R('pivot_px_x'), '1', 1, 10, ds);
+    h += rigFieldHtml('PIVOTE Y', 'pivot_px_y', R('pivot_px_y'), '1', 1, 10, ds);
+  }
+  h += `</div>`;
+  return h;
 }
 
 function spriteCardHtml(sp, i) {
@@ -3059,6 +3440,9 @@ async function save() {
         sprites: state.spec.sprites || [],
         image_layers: state.spec.image_layers || [],
         cycles: state.spec.cycles || [],
+        // Only send rigs when the scene actually has one, so saving a normal
+        // scene never stamps an empty rigs[] key onto unrelated specs.
+        ...(Array.isArray(state.spec.rigs) && state.spec.rigs.length ? { rigs: state.spec.rigs } : {}),
       }),
     });
     if (r.ok) {
@@ -3114,6 +3498,7 @@ $$('#tabs .tab').forEach(t => t.onclick = () => {
   viewZoom = 1;
   // Hide stage children
   $('#stage-empty').style.display = '';
+  document.getElementById('console-led')?.classList.remove('on');
   $('#canvas-3d').style.display = 'none';
   $('#canvas-video').style.display = 'none';
   $('#canvas-static').style.display = 'none';
@@ -3127,6 +3512,31 @@ $$('#tabs .tab').forEach(t => t.onclick = () => {
 
 $('#search').addEventListener('input', renderCatalogList);
 $('#sort-order').addEventListener('change', renderCatalogList);
+
+// Cargar escena por ID directo (incluye ocultas/published:false que no salen
+// en catalog_index). loadSceneSpec baja el spec de wallpaper-scenes sin filtrar.
+function loadSceneById(id) {
+  id = (id || '').trim();
+  if (!id) return;
+  const recent = JSON.parse(localStorage.getItem('rig_recent_ids') || '[]')
+    .filter(x => x !== id);
+  recent.unshift(id);
+  localStorage.setItem('rig_recent_ids', JSON.stringify(recent.slice(0, 6)));
+  renderRecentIds();
+  loadItem({ id, kind: '3d', name: id });
+}
+function renderRecentIds() {
+  const box = $('#load-id-recent'); if (!box) return;
+  const recent = JSON.parse(localStorage.getItem('rig_recent_ids') || '[]');
+  box.innerHTML = recent.map(id =>
+    `<span class="chip" data-id="${escapeHtml(id)}" style="cursor:pointer;font-size:10px;padding:2px 7px;border:1px solid var(--cyan,#22d3ee);border-radius:10px;color:var(--cyan,#22d3ee)">${escapeHtml(id)}</span>`
+  ).join('');
+  box.querySelectorAll('.chip').forEach(c =>
+    c.onclick = () => loadSceneById(c.dataset.id));
+}
+$('#load-id-btn').onclick = () => loadSceneById($('#load-id').value);
+$('#load-id').addEventListener('keydown', e => { if (e.key === 'Enter') loadSceneById($('#load-id').value); });
+renderRecentIds();
 $('#btn-reload').onclick = () => {
   if (state.selectedId) {
     const item = state.catalog.find(it => it.id === state.selectedId);

@@ -67,6 +67,7 @@ class CanvasSceneRenderer(private val context: Context) {
     // Active sub-systems (rebuilt when spec changes)
     private val sheets = mutableMapOf<String, SpriteSheet>()
     private val spriteControllers = mutableListOf<SpriteController>()
+    private val rigControllers = mutableListOf<RigController>()
     private val particleSystems = mutableListOf<ParticleSystem>()
     private val events = mutableListOf<SceneEvent>()
     private val layerBitmaps = mutableListOf<Pair<ImageLayerDef, Bitmap>>()
@@ -82,6 +83,7 @@ class CanvasSceneRenderer(private val context: Context) {
     /** Spec revision per layer — admin bump forces RAM reload. */
     private val layerSourceRevision = mutableMapOf<String, Int>()
     private val layerPaint = Paint(Paint.FILTER_BITMAP_FLAG)
+    private val driftMatrix = android.graphics.Matrix()  // reused per-frame for drift layers
 
     // Layer pre-scaling — see ensureLayersPrescaled().
     // We track surface dimensions so we re-prescale if the surface is recreated
@@ -146,7 +148,7 @@ class CanvasSceneRenderer(private val context: Context) {
         get() {
             val s = spec ?: return false
             return s.imageLayers.any {
-                it.bobAmplitudePx > 0f || it.motion != null || it.collision != null
+                it.bobAmplitudePx > 0f || it.motion != null || it.collision != null || it.drift != null
             } || s.cycles.isNotEmpty()
         }
 
@@ -164,7 +166,7 @@ class CanvasSceneRenderer(private val context: Context) {
         get() {
             val s = spec ?: return false
             return hasBobAnimation || s.sprites.isNotEmpty() ||
-                s.particles.isNotEmpty()
+                s.particles.isNotEmpty() || s.hasRig
         }
     // The Pixora "P" 3D logo signature is owned globally by
     // PixoraWallpaperService so it appears on every wallpaper, not only
@@ -208,6 +210,7 @@ class CanvasSceneRenderer(private val context: Context) {
         Log.d(TAG, "loadSpec $sceneId: parsing fresh (mtime=$diskMtime, was=$loadedSpecMtime)")
         // Tear down old subsystems (preserve sprite bitmaps if reused below)
         spriteControllers.clear()
+        rigControllers.clear()
         particleSystems.clear()
         events.clear()
         recycleLayerBitmaps()
@@ -315,6 +318,10 @@ class CanvasSceneRenderer(private val context: Context) {
                 SpriteController.create(sp, sheet)?.let { spriteControllers.add(it) }
             }
         }
+        // Rig controllers — parts were loaded into `sheets` above (behavior:preload).
+        if (rigControllers.isEmpty() && s.rigs.isNotEmpty()) {
+            for (rig in s.rigs) rigControllers.add(RigController(rig, sheets))
+        }
         if (particleSystems.isEmpty() && s.particles.isNotEmpty()) {
             for (p in s.particles) {
                 ParticleSystem.create(p)?.let { particleSystems.add(it) }
@@ -410,6 +417,10 @@ class CanvasSceneRenderer(private val context: Context) {
                     c.draw(canvas, surfaceWidth, surfaceHeight, tick)
                 }
             })
+        }
+        // Bone-rigged characters — interleave by their z like layers/sprites.
+        for (rc in rigControllers) {
+            phase1.add(DrawItem(rc.z) { rc.draw(canvas, surfaceWidth, surfaceHeight) })
         }
         phase1.sortBy { it.z }
         for (item in phase1) item.drawFn()
@@ -596,6 +607,42 @@ class CanvasSceneRenderer(private val context: Context) {
 
         // Skip draw if fully transparent (rise_fade end state, hidden layers).
         if (interactiveAlpha <= 0.005f) return
+
+        // DRIFT: subtle "breathing" (translate + zoom + rotate on one sine wave).
+        // Only this layer uses a matrix; every other layer keeps the fast-path
+        // blit. The bitmap stays prescaled — the animated zoom lives in the matrix.
+        val drift = def.drift
+        if (drift != null) {
+            val tSec = System.nanoTime().toDouble() / 1_000_000_000.0
+            val u = kotlin.math.sin(2.0 * Math.PI * tSec / drift.periodSec).toFloat()
+            val px = left + drawW / 2f
+            val py = top + drawH / 2f
+            // Coverage clamp: guarantee the zoom keeps the layer covering the
+            // surface even at max translate/rotation (no empty edges).
+            val rotRad = (Math.abs(drift.rotDeg) * Math.PI / 180.0).toFloat()
+            val cosR = kotlin.math.cos(rotRad).coerceAtLeast(0.0001f)
+            val sinR = kotlin.math.sin(rotRad)
+            val ampXpx = Math.abs(drift.ampXPct / 100f * sw)
+            val ampYpx = Math.abs(drift.ampYPct / 100f * sh)
+            val reqX = (sw / 2f + ampXpx + (drawH / 2f) * sinR) / ((drawW / 2f) * cosR)
+            val reqY = (sh / 2f + ampYpx + (drawW / 2f) * sinR) / ((drawH / 2f) * cosR)
+            val sMin = maxOf(drift.scaleMin, reqX, reqY)
+            val sMax = maxOf(drift.scaleMax, sMin)
+            val s = (sMin + sMax) / 2f + (sMax - sMin) / 2f * u
+            val dx = (drift.ampXPct / 100f) * sw * u
+            val dy = (drift.ampYPct / 100f) * sh * u
+            driftMatrix.reset()
+            driftMatrix.postTranslate(left, top)
+            driftMatrix.postRotate(drift.rotDeg * u, px, py)
+            driftMatrix.postScale(s, s, px, py)
+            driftMatrix.postTranslate(dx, dy)
+            val prev = layerPaint.alpha
+            if (interactiveAlpha < 0.995f)
+                layerPaint.alpha = (interactiveAlpha * 255f).toInt().coerceIn(0, 255)
+            canvas.drawBitmap(bmp, driftMatrix, layerPaint)
+            layerPaint.alpha = prev
+            return
+        }
 
         if (interactiveAlpha >= 0.995f) {
             canvas.drawBitmap(bmp, left, top, layerPaint)  // pure blit
@@ -883,6 +930,7 @@ class CanvasSceneRenderer(private val context: Context) {
 
     fun release() {
         spriteControllers.clear()
+        rigControllers.clear()
         particleSystems.clear()
         events.clear()
         for (s in sheets.values) s.release()

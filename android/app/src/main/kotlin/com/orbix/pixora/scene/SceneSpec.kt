@@ -33,10 +33,14 @@ data class SceneSpec(
     /** Frame cycles — groups of image_layers whose alphas are time-multiplexed.
      *  Used for face blink, fire flicker, traffic light, etc. (v1.7.41). */
     val cycles: List<CycleDef>,
+    /** Bone-rigged characters — parts moved by code, joined hierarchically by
+     *  parent/pivot (moving the torso drags head/arms/legs). See RigController. */
+    val rigs: List<RigDef>,
     /** Optional per-scene overrides for the BrandingLogo (P 3D signature). */
     val brandingJson: JSONObject?,
 ) {
     val hasParallax: Boolean get() = imageLayers.isNotEmpty()
+    val hasRig: Boolean get() = rigs.isNotEmpty()
 
     companion object {
         private const val TAG = "SceneSpec"
@@ -70,6 +74,9 @@ data class SceneSpec(
                 },
                 cycles = parseList(j.optJSONArray("cycles")) {
                     CycleDef.parse(it)
+                },
+                rigs = parseList(j.optJSONArray("rigs")) {
+                    RigDef.parse(it)
                 },
                 brandingJson = j.optJSONObject("branding"),
             )
@@ -165,6 +172,9 @@ data class ImageLayerDef(
     val collision: CollisionDef?,
     /** Bumped by admin on in-place asset replace — forces client re-download. */
     val revision: Int,
+    /** Autonomous "breathing" drift: a subtle translate + zoom + rotate loop
+     *  (like a nebula slowly floating). Null = static (fast-path blit). */
+    val drift: DriftDef?,
 ) {
     companion object {
         fun parse(j: JSONObject): ImageLayerDef? = try {
@@ -189,6 +199,7 @@ data class ImageLayerDef(
                 motion = j.optJSONObject("motion")?.let { MotionDef.parse(it) },
                 collision = j.optJSONObject("collision")?.let { CollisionDef.parse(it) },
                 revision = j.optInt("revision", 0),
+                drift = j.optJSONObject("drift")?.let { DriftDef.parse(it) },
             )
         } catch (e: Exception) { null }
 
@@ -199,6 +210,33 @@ data class ImageLayerDef(
             if (x < 0 || y < 0 || w <= 0 || h <= 0) return null
             return android.graphics.RectF(x, y, x + w, y + h)
         }
+    }
+}
+
+/** Subtle autonomous "drift" for a layer — a single sine wave (period_s)
+ *  drives translate (% of surface, signed → amp_y negative = anti-phase),
+ *  zoom (scale_min↔scale_max) and rotation (±rot_deg) simultaneously. Mirrors
+ *  the CSS `bgDrift` prototype. Applied via matrix in drawLayerCentered; the
+ *  layer is still prescaled (the animated zoom lives entirely in the matrix). */
+data class DriftDef(
+    val ampXPct: Float,
+    val ampYPct: Float,
+    val scaleMin: Float,
+    val scaleMax: Float,
+    val rotDeg: Float,
+    val periodSec: Float,
+) {
+    companion object {
+        fun parse(j: JSONObject): DriftDef? = try {
+            DriftDef(
+                ampXPct = j.f("amp_x_pct", 0f).coerceIn(-10f, 10f),
+                ampYPct = j.f("amp_y_pct", 0f).coerceIn(-10f, 10f),
+                scaleMin = j.f("scale_min", 1f).coerceIn(1f, 3f),
+                scaleMax = j.f("scale_max", 1f).coerceIn(1f, 3f),
+                rotDeg = j.f("rot_deg", 0f).coerceIn(-5f, 5f),
+                periodSec = j.f("period_s", 11f).coerceAtLeast(1f),
+            )
+        } catch (e: Exception) { null }
     }
 }
 
@@ -350,6 +388,104 @@ data class EventDef(
                 intervalSec = j.optDouble("interval_s", 10.0).toFloat(),
                 durationSec = j.optDouble("duration_s", 2.0).toFloat(),
                 params = j.optJSONObject("params") ?: JSONObject(),
+            )
+        } catch (e: Exception) { null }
+    }
+}
+
+/** A bone-rigged character. All pivot/offset/keyframe positions live in
+ *  "character space" — pixels of the source illustration (char_size). The
+ *  RigController converts that to screen space via anchor + scale + subjectFactor.
+ *  Parts are declared in sprites[] with behavior:"preload"; each bone references
+ *  one by [BoneDef.sprite] and the RigController draws it with a composed matrix. */
+data class RigDef(
+    val name: String,
+    /** z within the scene's layer/sprite interleaving (draw order vs bg/layers). */
+    val z: Int,
+    /** Screen position (SPEC_NORM over target 1080x2340) where the root pivot lands. */
+    val anchor: Pair<Float, Float>,
+    /** Source illustration dims in px — defines "character space". */
+    val charSize: Pair<Float, Float>,
+    /** charPx -> reference px (1080x2340) conversion factor. */
+    val scale: Float,
+    val loopSeconds: Float,
+    val easing: String,          // "linear" | "smooth"
+    val bones: List<BoneDef>,
+) {
+    companion object {
+        fun parse(j: JSONObject): RigDef? = try {
+            val cs = j.vec2("char_size", 1080f to 2340f)
+            RigDef(
+                name = j.optString("name", "rig"),
+                z = j.optInt("z", 10),
+                anchor = j.vec2("anchor", 0.5f to 0.5f),
+                charSize = cs,
+                scale = j.f("scale", 1f).coerceAtLeast(0.01f),
+                loopSeconds = j.f("loop_seconds", 4f).coerceAtLeast(0.1f),
+                easing = j.optString("easing", "smooth"),
+                bones = run {
+                    val arr = j.optJSONArray("bones")
+                    val out = mutableListOf<BoneDef>()
+                    if (arr != null) for (i in 0 until arr.length()) {
+                        arr.optJSONObject(i)?.let { BoneDef.parse(it)?.let(out::add) }
+                    }
+                    out
+                },
+            ).takeIf { it.bones.isNotEmpty() }
+        } catch (e: Exception) { null }
+    }
+}
+
+/** One bone: a part attached to its [parent] (null = root), rotating around
+ *  its [pivotPx] and animated by [keyframes] over the rig's loop. */
+data class BoneDef(
+    val id: String,
+    val parent: String?,        // null = root (no drawn part)
+    val sprite: String?,        // sprite name (from sprites[]); null for root
+    val pivotPx: Pair<Float, Float>,
+    val offsetPx: Pair<Float, Float>,  // crop's top-left in character space
+    val z: Int,                 // draw order within the rig
+    val keyframes: List<BoneKeyframe>,
+) {
+    companion object {
+        fun parse(j: JSONObject): BoneDef? = try {
+            BoneDef(
+                id = j.getString("id"),
+                parent = j.optString("parent").takeIf { it.isNotBlank() && it != "null" },
+                sprite = j.optString("sprite").takeIf { it.isNotBlank() && it != "null" },
+                pivotPx = j.vec2("pivot_px", 0f to 0f),
+                offsetPx = j.vec2("offset_px", 0f to 0f),
+                z = j.optInt("z", 0),
+                keyframes = run {
+                    val arr = j.optJSONArray("keyframes")
+                    val out = mutableListOf<BoneKeyframe>()
+                    if (arr != null) for (i in 0 until arr.length()) {
+                        arr.optJSONObject(i)?.let { BoneKeyframe.parse(it)?.let(out::add) }
+                    }
+                    out.sortedBy { it.t }
+                },
+            )
+        } catch (e: Exception) { null }
+    }
+}
+
+/** A keyframe at normalized loop phase [t] (0..1). Absent channels default
+ *  to no-op (x=0, y=0, rotation=0, scale=1). x/y in character-space px. */
+data class BoneKeyframe(
+    val t: Float,
+    val x: Float,
+    val y: Float,
+    val rotation: Float,
+    val scale: Float,
+) {
+    companion object {
+        fun parse(j: JSONObject): BoneKeyframe? = try {
+            BoneKeyframe(
+                t = j.f("t", 0f).coerceIn(0f, 1f),
+                x = j.f("x", 0f),
+                y = j.f("y", 0f),
+                rotation = j.f("rotation", 0f),
+                scale = j.f("scale", 1f),
             )
         } catch (e: Exception) { null }
     }
