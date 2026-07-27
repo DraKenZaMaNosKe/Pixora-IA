@@ -48,6 +48,7 @@ object UsageAccountant {
     private const val MAX_LEDGER_LINES = 500
     private const val SEG_CAP_S = 21_600            // 6h defensive cap
     private const val RECOVER_DELAY_MS = 3_000L
+    private const val STATE_REPORT_MIN_GAP_MS = 10 * 60 * 1000L  // ≥1 state-only report / 10 min
 
     private const val CHECKPOINT_FILE = "usage_open_segment.json"
     private const val LEDGER_FILE = "usage_ledger.jsonl"
@@ -63,6 +64,7 @@ object UsageAccountant {
     private var openSegment: Segment? = null
     private var nextRetryAtElapsed = 0L
     private var backoffMs = 0L
+    private var lastStateReportElapsed = 0L
     private var catalogCache: Map<String, String>? = null
     private var identityCache: Identity? = null
 
@@ -106,6 +108,7 @@ object UsageAccountant {
                 openSegment(now, wall)
             }
         }
+        reportStateOnly()
     }
 
     fun engineHidden() {
@@ -146,6 +149,7 @@ object UsageAccountant {
             catalogCache = null // catalog may have changed; force a re-read
             if (visibleCount > 0 && !occluded) openSegment(now, wall)
         }
+        reportStateOnly()
     }
 
     /** onCreate — recover a segment orphaned by a kill, then flush the backlog. */
@@ -155,6 +159,25 @@ object UsageAccountant {
             handler?.postDelayed({
                 maybeFlush(SystemClock.elapsedRealtime(), force = true)
             }, RECOVER_DELAY_MS)
+        }
+    }
+
+    /** Report current active-wallpaper state to presence WITHOUT credits.
+     *  The only path that can reflect Daily rotation (happens inside the
+     *  service) and the engine's ground-truth. Throttled; needs identity file. */
+    fun reportStateOnly() {
+        val now = SystemClock.elapsedRealtime()
+        post {
+            if (lastStateReportElapsed != 0L &&
+                now - lastStateReportElapsed < STATE_REPORT_MIN_GAP_MS) return@post
+            val id = identity() ?: return@post
+            val body = JSONObject().apply {
+                put("p_device_id", id.deviceId)
+                put("p_state", stateJson(id))
+                put("p_credits", JSONArray())
+            }
+            val code = postRpc(id, body)
+            if (code in 200..299) lastStateReportElapsed = now
         }
     }
 
