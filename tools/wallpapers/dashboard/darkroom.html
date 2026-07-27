@@ -1096,7 +1096,7 @@ body::after{
 
   <div class="ledger-wrap">
     <div class="ledger">
-      <h3 class="ledger-title">Testers activos <span class="badge" id="testers-window">14D</span></h3>
+      <h3 class="ledger-title">Usuarios reales <span class="badge" id="testers-window">14D</span></h3>
       <p class="ledger-sub">— excluyendo tus devices; ordenado por más reciente</p>
       <table class="ledger-table" id="testers-table">
         <thead>
@@ -1768,10 +1768,10 @@ async function loadIngresos(){
   ]);
   const s = stats && stats[0] ? stats[0] : {};
   const cards = [
-    ['INGRESO TOTAL', '$' + Number(s.revenue_usd || 0).toFixed(2), 'estimado USD'],
-    ['ANUNCIOS SERVIDOS', fmt(s.total_ads || 0), 'todo tiempo'],
-    ['USUARIOS ÚNICOS', fmt(s.unique_users || 0), 'con anuncios'],
-    ['RECOMPENSADOS', fmt(s.rewarded || 0), 'ads completos'],
+    ['INGRESO TOTAL', '$' + Number(s.est_total_usd || 0).toFixed(2), 'estimado USD · todo tiempo'],
+    ['ANUNCIOS MOSTRADOS', fmt(s.total_shown || 0), `de ${fmt(s.total_ads || 0)} intentos`],
+    ['USUARIOS ÚNICOS', fmt(s.unique_devices || 0), 'con anuncios'],
+    ['ÚLTIMOS 30 DÍAS', '$' + Number(s.est_last_30d_usd || 0).toFixed(2), 'estimado USD'],
   ];
   kpi.innerHTML = cards.map(([l,v,n]) => `
     <div class="kpi">
@@ -1883,11 +1883,19 @@ async function loadUsuarios(){
     api('/api/top-users?limit=200'),
   ]);
   if(testers && testers.summary){
+    // Corte de producción: usuarios con primer contacto >= esta fecha son
+    // "reales nuevos". Testers PrimeTestLab (CORE_TESTER) y bots de Google
+    // (BOT_BATCH) se filtran del análisis pero SIGUEN en el histórico.
+    const LAUNCH = '2026-07-27';
+    const items = testers.items || [];
+    const isReal = t => t.kind !== 'BOT_BATCH' && t.kind !== 'CORE_TESTER';
+    const reales = items.filter(isReal);
+    const realesHoy = reales.filter(t => (t.first || '').slice(0,10) >= LAUNCH);
     const cards = [
-      ['CORE TESTERS', fmt(testers.summary.CORE_TESTER || 0), 'reales PrimeTestLab'],
-      ['CASUAL', fmt(testers.summary.CASUAL || 0), 'tocan la app'],
-      ['SINGLE HIT', fmt(testers.summary.SINGLE_HIT || 0), 'visitantes puntuales'],
-      ['BOT BATCH', fmt(testers.summary.BOT_BATCH || 0), 'Google pre-launch'],
+      ['REALES · NUEVOS', fmt(realesHoy.length), 'desde ' + LAUNCH],
+      ['REALES · TOTAL', fmt(reales.length), 'usuarios genuinos'],
+      ['TESTERS', fmt(testers.summary.CORE_TESTER || 0), 'PrimeTestLab (filtrado)'],
+      ['BOTS', fmt(testers.summary.BOT_BATCH || 0), 'Google pre-launch (filtrado)'],
     ];
     kpi.innerHTML = cards.map(([l,v,n]) => `
       <div class="kpi">
@@ -1895,8 +1903,11 @@ async function loadUsuarios(){
         <p class="kpi-value">${v}</p>
         <p class="kpi-note">${escapeHtml(n)}</p>
       </div>`).join('');
-    const items = (testers.items || []).slice(0, 30);
-    testersEl.innerHTML = items.map((t,i) => `
+    // Tabla: SOLO usuarios reales, los más nuevos primero.
+    const rows = reales.slice()
+      .sort((a,b) => (b.first || '').localeCompare(a.first || ''))
+      .slice(0, 30);
+    testersEl.innerHTML = rows.length ? rows.map((t,i) => `
       <tr>
         <td>${i+1}</td>
         <td class="mono">${escapeHtml(t.device_id)}</td>
@@ -1907,7 +1918,8 @@ async function loadUsuarios(){
         <td class="num">${t.wallpapers_touched}</td>
         <td>v${escapeHtml(t.app_version_latest || '?')}</td>
         <td class="num">${relTime(t.last)}</td>
-      </tr>`).join('');
+      </tr>`).join('')
+      : '<tr><td colspan="9" class="loading">sin usuarios reales todavía — llegarán al publicar el AAB + correr el anuncio</td></tr>';
   } else {
     testersEl.innerHTML = '<tr><td colspan="9" class="loading">sin datos</td></tr>';
   }
