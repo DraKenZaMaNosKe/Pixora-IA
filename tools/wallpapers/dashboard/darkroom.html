@@ -672,12 +672,41 @@ body::after{
   .dr-tone{font-size:10px;color:#c9b499;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dr-meta{font-size:9px;color:#9a8574;margin-top:2px}
   .dr-empty{opacity:.5;padding:40px;text-align:center;grid-column:1/-1;color:#c9b499}
-  #envivo-detail{position:fixed;right:22px;top:90px;width:320px;max-height:78vh;overflow:auto;background:linear-gradient(180deg,#F5E9C3,#E4D19C);color:var(--ink,#2A1F1A);border-radius:6px;padding:18px;z-index:60;box-shadow:0 14px 44px rgba(0,0,0,.6);transform:rotate(-.6deg);display:none}
-  #envivo-detail h3{font-family:'Caveat',cursive;font-size:24px;margin:0 0 8px}
-  .dr-close{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--ink,#2A1F1A);cursor:pointer;font-size:16px}
-  .dd-row{font-size:12px;margin:4px 0}
-  .dd-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
-  .dd-table th,.dd-table td{text-align:left;padding:4px 6px;border-bottom:1px solid rgba(42,31,26,.2)}
+  #envivo-detail{position:fixed;right:22px;top:90px;width:334px;max-height:78vh;overflow:auto;
+    background:linear-gradient(165deg,rgba(22,14,51,.97),rgba(11,6,32,.96));color:var(--ink);
+    border-radius:16px;padding:20px 18px 16px;z-index:60;border:1.5px solid rgba(34,211,238,.35);
+    box-shadow:0 22px 64px rgba(0,0,0,.72),0 0 44px rgba(34,211,238,.14),inset 0 0 0 1px rgba(255,46,154,.06);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:none;
+    animation:ddIn .28s cubic-bezier(.2,.9,.3,1)}
+  @keyframes ddIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+  /* scanline HUD: se queda pegada arriba al hacer scroll */
+  #envivo-detail::before{content:"";position:sticky;top:0;display:block;height:3px;margin:-20px -18px 15px;
+    background:linear-gradient(90deg,#22d3ee,#7c4dff 45%,#ff2e9a);
+    box-shadow:0 0 16px rgba(34,211,238,.55);border-radius:16px 16px 0 0}
+  #envivo-detail h3{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:17px;margin:0 0 2px;
+    color:#fff;letter-spacing:.3px;line-height:1.25;display:flex;align-items:center;gap:8px}
+  .dr-close{position:absolute;top:14px;right:12px;width:26px;height:26px;border-radius:8px;z-index:2;
+    background:rgba(255,46,154,.12);border:1px solid rgba(255,46,154,.32);color:#ff8dcb;
+    cursor:pointer;font-size:13px;line-height:1;transition:.15s}
+  .dr-close:hover{background:rgba(255,46,154,.3);color:#fff;box-shadow:0 0 12px rgba(255,46,154,.45)}
+  .dd-live{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:600;letter-spacing:1px;
+    color:#08131a;background:linear-gradient(90deg,#22d3ee,#38f2b0);padding:2px 8px;border-radius:20px;
+    display:inline-flex;align-items:center;gap:5px;flex-shrink:0;margin-left:auto}
+  .dd-live::before{content:"";width:6px;height:6px;border-radius:50%;background:#08131a;
+    animation:ddPulse 1.3s ease-in-out infinite}
+  @keyframes ddPulse{0%,100%{opacity:.3}50%{opacity:1}}
+  .dd-id{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:rgba(34,211,238,.5);
+    margin:0 0 13px;word-break:break-all}
+  .dd-row{font-family:'Chakra Petch',sans-serif;font-size:12px;margin:7px 0;color:var(--ink);
+    display:flex;gap:8px;line-height:1.4;align-items:baseline}
+  .dd-row>span:first-child{color:rgba(34,211,238,.8);min-width:72px;flex-shrink:0;font-weight:500}
+  .dd-row b{color:#eaf6ff;font-weight:600}
+  .dd-tag{font-size:9px;color:#38f2b0;border:1px solid rgba(56,242,176,.4);border-radius:6px;padding:0 5px;margin-left:6px}
+  .dd-table{width:100%;border-collapse:collapse;font-family:'Chakra Petch',sans-serif;font-size:11px;margin-top:14px}
+  .dd-table th{text-align:left;padding:5px 6px;color:var(--safelight-glow);font-weight:600;
+    text-transform:uppercase;letter-spacing:.5px;font-size:9px;border-bottom:1px solid rgba(34,211,238,.3)}
+  .dd-table td{text-align:left;padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:var(--ink)}
+  .dd-table tr:hover td{background:rgba(34,211,238,.05)}
   .dr-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:10px}
   .dr-stat{background:rgba(20,12,10,.45);border:1px solid var(--wood,#4a3d30);border-radius:10px;padding:14px}
   .dr-stat h4{color:#E8B48C;margin:0 0 10px;font-size:13px;font-weight:600}
@@ -846,12 +875,12 @@ body::after{
       const tops=(d.usage_totals||[]).map(u=>`<tr><td>${esc(u.content_id)}</td><td>${esc(u.content_kind)}</td><td>${secToHuman(u.total_seconds)}</td></tr>`).join('')||'<tr><td colspan=3 style="opacity:.55">Sin tiempo aún (llega con el heartbeat)</td></tr>';
       const viewed=[...new Set((d.viewed||[]).map(v=>v.wallpaper_id))].slice(0,20).map(esc).join(', ')||'—';
       panel.innerHTML=`<button class="dr-close" onclick="this.parentNode.style.display='none'">✕</button>
-        <h3>${p.email?'📧':'🏷️'} ${esc(p.label||id)}</h3>
-        <div class="dd-row" style="opacity:.45;font-size:10px;margin-top:-6px">${esc(id)}</div>
-        <div class="dd-row">Wallpaper: <b>${esc(p.wallpaper_title||p.active_wallpaper_id||'—')}</b> ${p.daily_enabled?'⟳ Daily':''}</div>
-        <div class="dd-row">Tono: <b>${esc(p.active_ringtone_title||'—')}</b></div>
-        <div class="dd-row">Versión: <b>${esc(p.app_version||'?')}</b> · ${esc(p.device_model||'?')}</div>
-        <div class="dd-row">Vistos: ${viewed}</div>
+        <h3><span style="flex-shrink:0">${p.email?'📧':'🏷️'}</span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.label||id)}</span><span class="dd-live">EN VIVO</span></h3>
+        <div class="dd-id">${esc(id)}</div>
+        <div class="dd-row"><span>Wallpaper</span><b>${esc(p.wallpaper_title||p.active_wallpaper_id||'—')}</b>${p.daily_enabled?'<span class="dd-tag">⟳ Daily</span>':''}</div>
+        <div class="dd-row"><span>Tono</span><b>${esc(p.active_ringtone_title||'—')}</b></div>
+        <div class="dd-row"><span>Versión</span><b>${esc(p.app_version||'?')}</b> · ${esc(p.device_model||'?')}</div>
+        <div class="dd-row"><span>Vistos</span><b style="font-weight:400;color:var(--ink-soft)">${viewed}</b></div>
         <table class="dd-table"><tr><th>Contenido</th><th>Tipo</th><th>Tiempo</th></tr>${tops}</table>`;
     }catch(e){panel.innerHTML='<button class="dr-close" onclick="this.parentNode.style.display=\'none\'">✕</button><div style="padding:16px">Error</div>';}
   };
