@@ -194,6 +194,12 @@ class WallpaperStatsService {
   Future<void> _migrateDeviceIdOnce() async {
     try {
       if (_likesBox?.get('device_id_migrated_v1') == true) return;
+      if (!AnalyticsService.instance.deviceIdReady) {
+        // Canonical id not yet the durable persisted one — defer (do NOT set
+        // the flag) so we retry next cold start instead of migrating history
+        // to a transient id.
+        return;
+      }
       final legacy = _likesBox?.get('device_id') as String?;
       final canonical = AnalyticsService.instance.deviceId;
       if (legacy == null || legacy.isEmpty || legacy == canonical) {

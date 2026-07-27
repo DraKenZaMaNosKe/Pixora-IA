@@ -128,6 +128,14 @@ class AnalyticsService {
     return id;
   }
 
+  /// True once the persistent Hive box is open AND holds a device_id — i.e.
+  /// [deviceId] is returning the durable canonical id, not a throwaway id
+  /// generated before init(). Callers that must not persist decisions against
+  /// a transient id (e.g. the one-shot stats migration) gate on this.
+  bool get deviceIdReady =>
+      _box != null &&
+      ((_box?.get(_deviceIdKey) as String?)?.isNotEmpty ?? false);
+
   String _generateSessionId() {
     final r = Random();
     final ts = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
