@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'analytics_service.dart';
 import 'mystery_exclusion_service.dart';
 
 /// Wallpaper stats with real-time updates via Supabase Realtime.
@@ -56,6 +57,7 @@ class WallpaperStatsService {
     _initialized = true;
 
     _likesBox = await Hive.openBox('wallpaper_likes');
+    unawaited(_migrateDeviceIdOnce());
 
     // Fetch all stats
     try {
@@ -176,14 +178,36 @@ class WallpaperStatsService {
     return _likesBox?.get('liked_$wallpaperId', defaultValue: false) ?? false;
   }
 
-  /// Device ID for anonymous like tracking.
-  String get _deviceId {
-    var id = _likesBox?.get('device_id') as String?;
-    if (id == null) {
-      id = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
-      _likesBox?.put('device_id', id);
+  /// Device ID for anonymous like/event tracking.
+  ///
+  /// 2026-07-26 — Unified with the canonical AnalyticsService id (same id the
+  /// heartbeat/presence uses) so events + presence correlate. The old legacy
+  /// key `device_id` in the likes box is preserved (not deleted) and used only
+  /// by the one-shot server-side migration in [_migrateDeviceIdOnce].
+  String get _deviceId => AnalyticsService.instance.deviceId;
+
+  /// One-shot server-side migration of the legacy stats id → canonical id.
+  /// Renames this device's wallpaper_likes + wallpaper_events rows so its
+  /// history isn't split. Idempotent server-side; the local flag is only set
+  /// on a 2xx so a failure retries next cold start. Legacy key is kept.
+  Future<void> _migrateDeviceIdOnce() async {
+    try {
+      if (_likesBox?.get('device_id_migrated_v1') == true) return;
+      final legacy = _likesBox?.get('device_id') as String?;
+      final canonical = AnalyticsService.instance.deviceId;
+      if (legacy == null || legacy.isEmpty || legacy == canonical) {
+        await _likesBox?.put('device_id_migrated_v1', true);
+        return;
+      }
+      await _client.rpc('migrate_device_identity', params: {
+        'p_old': legacy,
+        'p_new': canonical,
+      });
+      await _likesBox?.put('device_id_migrated_v1', true);
+    } catch (e) {
+      debugPrint('[Stats] device_id migration deferred: $e');
+      // do NOT set the flag → retried on next cold start
     }
-    return id;
   }
 
   /// 2026-06-13 — Set the absolute liked state for a wallpaper.
