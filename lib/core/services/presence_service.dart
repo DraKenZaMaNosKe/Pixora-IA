@@ -71,4 +71,28 @@ class PresenceService with WidgetsBindingObserver {
       if (kDebugMode) debugPrint('[Presence] ping failed: $e');
     }
   }
+
+  /// Fire an immediate heartbeat that INCLUDES the active wallpaper, called the
+  /// moment the user applies one. The periodic beat deliberately omits active_*
+  /// (would go stale vs Daily rotation); usage_report merges by key presence,
+  /// so this partial state only touches active_kind/active_wallpaper_id.
+  Future<void> reportApplied(String contentId, {required String kind}) async {
+    try {
+      final did = AnalyticsService.instance.deviceId;
+      if (did.isEmpty || contentId.isEmpty) return;
+      await Supabase.instance.client.rpc('usage_report', params: {
+        'p_device_id': did,
+        'p_state': {
+          'source': 'app',
+          if (_appVersion != null) 'app_version': _appVersion,
+          'active_kind': kind,
+          'active_wallpaper_id': contentId,
+          'wallpaper_set_at': DateTime.now().toUtc().toIso8601String(),
+        },
+        'p_credits': const <dynamic>[],
+      });
+    } catch (e) {
+      if (kDebugMode) debugPrint('[Presence] reportApplied failed: $e');
+    }
+  }
 }

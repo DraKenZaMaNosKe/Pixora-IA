@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'analytics_service.dart';
 import 'mystery_exclusion_service.dart';
+import 'presence_service.dart';
 
 /// Wallpaper stats with real-time updates via Supabase Realtime.
 class WallpaperStatsService {
@@ -394,6 +395,15 @@ class WallpaperStatsService {
   /// para que un fallo de Hive no rompa el tracking principal.
   Future<void> trackInstall(String wallpaperId) async {
     await _logEvent(wallpaperId, 'install');
+    // 2026-07-26 — report the active wallpaper to presence so "En Vivo" shows
+    // it. Skip ringtones/stories/ai (not wallpapers). The precise kind is
+    // corrected shortly after by UsageAccountant (wallpaper service).
+    if (!wallpaperId.startsWith('tone_') &&
+        !wallpaperId.startsWith('story_') &&
+        wallpaperId != 'ai_generated') {
+      unawaited(
+          PresenceService.instance.reportApplied(wallpaperId, kind: 'static'));
+    }
     try {
       unawaited(MysteryExclusionService.instance.exclude(wallpaperId));
     } catch (e) {
