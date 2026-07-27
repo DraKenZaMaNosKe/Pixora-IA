@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Pixora IA** — Flutter app for Android (primary) and iOS (reduced set) offering wallpapers (static, live video, interactive, shader, day-cycle), stories, ringtones, and the **AURA** wellness audio module. Developed by Orbix Studio.
 
 - Package: `com.orbix.pixora`
-- Working branch: `play-store-estable`
+- **Ramas (flujo dev→prod, desde 2026-07-26):** `desarrollo` = trabajo diario (aquí se codea y prueba en device); `play-store-estable` = **PRODUCCIÓN** (de aquí sale el AAB). Nunca codear directo en producción: trabajar en `desarrollo`, y cuando algo esté probado, mergear `desarrollo` → `play-store-estable` y compilar el release desde ahí. `main` está obsoleta (502 commits atrás), no usar.
 - Version: `pubspec.yaml` → `version: X.Y.Z+N`
 - iOS gating: everything except `WallpapersPage`, `FavoritesPage`, `SettingsPage` is wrapped in `if (!Platform.isIOS)` in `home_page.dart`
 
