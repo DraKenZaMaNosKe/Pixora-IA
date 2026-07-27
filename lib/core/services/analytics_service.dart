@@ -48,6 +48,7 @@ class AnalyticsService {
   static const int _maxQueueSize = 500;
 
   Box<dynamic>? _box;
+  String? _deviceIdCache;
   Timer? _timer;
   bool _initialized = false;
   bool _flushing = false;
@@ -113,11 +114,17 @@ class AnalyticsService {
   }
 
   String get deviceId {
+    final mem = _deviceIdCache;
+    if (mem != null && mem.isNotEmpty) return mem;
     final cached = _box?.get(_deviceIdKey) as String?;
-    if (cached != null && cached.isNotEmpty) return cached;
+    if (cached != null && cached.isNotEmpty) {
+      _deviceIdCache = cached;
+      return cached;
+    }
     final id = DateTime.now().microsecondsSinceEpoch.toRadixString(36) +
         Random().nextInt(1 << 32).toRadixString(36);
-    _box?.put(_deviceIdKey, id);
+    _deviceIdCache = id; // stable for this process even if Hive is down
+    _box?.put(_deviceIdKey, id); // best-effort persist
     return id;
   }
 
