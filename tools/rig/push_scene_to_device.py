@@ -4,11 +4,11 @@ prefs y reinicia SOLO el proceso :wallpaper (kill por pid, NO force-stop).
 
 Uso: python push_scene_to_device.py <SID> <rig_dir> <staging_dir>
 """
-import subprocess, sys, time, re, urllib.request
+import subprocess, sys, time, re, urllib.request, os
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-D = "RF8X903KZ3K"; PKG = "com.orbix.pixora"
+D = os.environ.get("ADB_DEVICE", "RF8X903KZ3K"); PKG = "com.orbix.pixora"
 PUB = "https://vzuwvsmlyigjtsearxym.supabase.co/storage/v1/object/public"
 SID = sys.argv[1]; RIG_DIR = sys.argv[2]; STAGE = Path(sys.argv[3])
 TMP = Path("_pushtmp"); TMP.mkdir(exist_ok=True)
