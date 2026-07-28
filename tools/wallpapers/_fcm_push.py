@@ -106,6 +106,45 @@ def send_to_topic(topic: str, data: dict[str, Any]) -> bool:
         return False
 
 
+def send_notification(title: str, body: str, topic: str = "new_content") -> bool:
+    """Send a VISIBLE notification (title + body) to every device subscribed to
+    [topic]. Unlike send_to_topic() which is data-only and silent, this shows
+    up in the notification tray (FCM renders it directly when the app is in the
+    background). Use for user-facing announcements — new content, etc.
+    Returns True on HTTP 200."""
+    token = _get_access_token()
+    if token is None:
+        return False
+    url = f"https://fcm.googleapis.com/v1/projects/{PROJECT_ID}/messages:send"
+    body_msg = {
+        "message": {
+            "topic": topic,
+            "notification": {"title": title, "body": body},
+            "android": {
+                "priority": "HIGH",
+                "notification": {"default_sound": True},
+            },
+        }
+    }
+    try:
+        res = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json; UTF-8",
+            },
+            data=json.dumps(body_msg),
+            timeout=10,
+        )
+        if res.status_code == 200:
+            return True
+        print(f"[FCM] notification failed HTTP {res.status_code}: {res.text[:200]}")
+        return False
+    except Exception as e:
+        print(f"[FCM] notification exception: {e}")
+        return False
+
+
 def send_text_cms_update() -> bool:
     """Convenience wrapper — push the text_cms_invalidate signal to all
     Pixora clients. Called by wp_admin_server.py after every upsert."""
