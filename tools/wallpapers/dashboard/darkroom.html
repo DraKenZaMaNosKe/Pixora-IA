@@ -189,6 +189,19 @@ body::after{
 /* ================================================================ */
 /* Category filter · darkroom "label selector" dropdown (replaces ink-cans) */
 .cat-filter{position:relative;z-index:25;flex-shrink:0}
+.order-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.order-select,.order-save{
+  min-height:38px;border:1px solid rgba(34,211,238,.3);border-radius:18px;
+  background:rgba(8,15,32,.88);color:#dce8ff;padding:7px 14px;
+  font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.04em
+}
+.order-save{cursor:pointer;background:linear-gradient(90deg,#22d3ee,#ff2e9a);color:#08131a;font-weight:800}
+.order-save:disabled{cursor:not-allowed;filter:grayscale(1);opacity:.45}
+.order-hint{font-size:11px;color:#8293b8;max-width:260px}
+.polaroid[draggable="true"]{cursor:grab}
+.polaroid[draggable="true"]:active{cursor:grabbing}
+.polaroid.dragging{opacity:.35;filter:saturate(.35);animation:none}
+.polaroid.drop-before{box-shadow:-7px 0 0 #22d3ee,0 12px 20px rgba(0,0,0,.65)}
 .cat-trigger{
   display:flex;align-items:center;gap:10px;cursor:pointer;
   padding:9px 14px;
@@ -979,6 +992,17 @@ body::after{
       </button>
       <div class="cat-menu" id="cat-menu" role="listbox" hidden></div>
     </div>
+    <div class="order-tools">
+      <select class="order-select" id="wallpaper-sort" aria-label="Ordenar wallpapers">
+        <option value="manual">Orden manual del catálogo</option>
+        <option value="newest">Más nuevos primero</option>
+        <option value="oldest">Más antiguos primero</option>
+        <option value="name">Nombre A–Z</option>
+        <option value="category">Categoría A–Z</option>
+      </select>
+      <button class="order-save" id="save-wallpaper-order" type="button" disabled>Guardar orden</button>
+      <span class="order-hint" id="order-hint">Elige “Estáticos” y arrastra las fotos para ordenar.</span>
+    </div>
   </div>
 
   <main class="room" id="room">
@@ -1314,9 +1338,14 @@ const relTime = ts => {
   if (diff < 86400) return 'hace ' + Math.floor(diff/3600) + 'h';
   return 'hace ' + Math.floor(diff/86400) + 'd';
 };
-async function api(path){
-  try { const r = await fetch(API + path); return await r.json(); }
-  catch(e){ console.error('api', path, e); return null; }
+async function api(path, options = {}){
+  try {
+    const r = await fetch(API + path, options);
+    const data = await r.json();
+    if(!r.ok) throw new Error(data?.error || `HTTP ${r.status}`);
+    return data;
+  }
+  catch(e){ console.error('api', path, e); return {error:e.message}; }
 }
 
 // ============================================================
@@ -1444,6 +1473,7 @@ const state = {
   loaded: {},
   wallpapers: [], visible: [],
   filterType: null, filterCat: null, query: '',
+  sortMode: 'manual', pendingOrder: new Map(),
   editing: null,
 };
 
@@ -1455,34 +1485,42 @@ async function loadRevelado(){
   applyFilters();
 }
 
-// Category filter dropdown. Entry = [cat|null, label, count]; null cat = "todo".
+// Dropdown combinado: accesos de tipo primero y categorías después.
 function buildCategoryFilter(){
   const cats = {};
   for(const w of state.wallpapers){
     const c = (w.category || 'SIN CAT').toUpperCase();
     cats[c] = (cats[c] || 0) + 1;
   }
-  const entries = [[null, 'todo', state.wallpapers.length]].concat(
-    Object.entries(cats).sort((a,b) => b[1] - a[1]).map(([cat, count]) => [cat, cat.toLowerCase(), count])
+  const staticCount = state.wallpapers.filter(w => w.type === 'static').length;
+  const entries = [
+    {cat:null, type:null, label:'todo', count:state.wallpapers.length},
+    {cat:null, type:'static', label:'estáticos', count:staticCount},
+  ].concat(
+    Object.entries(cats).sort((a,b) => b[1] - a[1])
+      .map(([cat, count]) => ({cat, type:null, label:cat.toLowerCase(), count}))
   );
   const menu = document.getElementById('cat-menu');
-  menu.innerHTML = entries.map(([cat, label, count]) =>
-    `<button class="cat-opt${state.filterCat === cat ? ' active' : ''}" role="option">
-       <span class="cat-opt-name">${escapeHtml(label)}</span>
-       <span class="cat-opt-count">${count}</span>
+  menu.innerHTML = entries.map(entry =>
+    `<button class="cat-opt${state.filterCat === entry.cat && state.filterType === entry.type ? ' active' : ''}" role="option">
+       <span class="cat-opt-name">${escapeHtml(entry.label)}</span>
+       <span class="cat-opt-count">${entry.count}</span>
      </button>`).join('');
   menu.querySelectorAll('.cat-opt').forEach((el, i) => {
     el.addEventListener('click', () => {
-      const [cat, label, count] = entries[i];
-      state.filterCat = cat;
-      setCatTrigger(label, count);
+      if(!confirmDiscardOrder()) return;
+      const entry = entries[i];
+      state.filterCat = entry.cat;
+      state.filterType = entry.type;
+      syncTraySelection();
+      setCatTrigger(entry.label, entry.count);
       buildCategoryFilter();   // refresh active row
       closeCatMenu();
       applyFilters();
     });
   });
-  const sel = entries.find(e => e[0] === state.filterCat) || entries[0];
-  setCatTrigger(sel[1], sel[2]);
+  const sel = entries.find(e => e.cat === state.filterCat && e.type === state.filterType) || entries[0];
+  setCatTrigger(sel.label, sel.count);
 
   if(!window._catWired){
     window._catWired = true;
@@ -1524,6 +1562,15 @@ function applyFilters(){
     }
     return true;
   });
+  const sorter = {
+    manual: (a,b) => (b.sort_order || 0) - (a.sort_order || 0),
+    newest: (a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
+    oldest: (a,b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
+    name: (a,b) => (a.name || a.id).localeCompare(b.name || b.id, 'es'),
+    category: (a,b) => (a.category || '').localeCompare(b.category || '', 'es')
+      || (a.name || a.id).localeCompare(b.name || b.id, 'es'),
+  }[state.sortMode];
+  state.visible.sort(sorter);
   renderRevelado();
 }
 function renderRevelado(){
@@ -1532,21 +1579,25 @@ function renderRevelado(){
     room.innerHTML = '<div class="empty-strip">— sin negativos que cuadren con estos filtros</div>';
     return;
   }
-  const groups = {};
-  for(const w of state.visible){
+  const globalManual = state.sortMode === 'manual' && state.filterType === 'static'
+    && !state.filterCat && !state.query;
+  const groups = globalManual ? {'ORDEN GLOBAL': state.visible} : {};
+  if(!globalManual) for(const w of state.visible){
     const cat = w.category || 'SIN CATEGORÍA';
     (groups[cat] = groups[cat] || []).push(w);
   }
-  const catOrder = Object.entries(groups)
-    .map(([cat, items]) => [cat, items, Math.max(...items.map(i => new Date(i.created_at || 0).getTime()))])
-    .sort((a,b) => b[2] - a[2]).map(([cat]) => cat);
+  const catOrder = state.sortMode === 'category'
+    ? Object.keys(groups).sort((a,b) => a.localeCompare(b, 'es'))
+    : Object.entries(groups)
+      .map(([cat, items]) => [cat, items, Math.max(...items.map(i => new Date(i.created_at || 0).getTime()))])
+      .sort((a,b) => b[2] - a[2]).map(([cat]) => cat);
   room.innerHTML = catOrder.map(cat => {
     const items = groups[cat];
     return `
       <div class="wire-row">
         <div class="wire-tag">— ${cat.toLowerCase()} <em>${items.length}</em></div>
         <div class="wire"></div>
-        <div class="strip">${items.slice(0, 60).map(polaroidHTML).join('')}</div>
+        <div class="strip">${(globalManual ? items : items.slice(0, 60)).map(polaroidHTML).join('')}</div>
         <div class="edge-zone left"><span class="edge-arrow">‹</span></div>
         <div class="edge-zone right"><span class="edge-arrow">›</span></div>
       </div>`;
@@ -1554,10 +1605,95 @@ function renderRevelado(){
   room.querySelectorAll('.wire-row').forEach(wireEdgeScroll);
   room.querySelectorAll('.polaroid').forEach((el, i) => {
     el.style.setProperty('--delay', `${(-i * 0.3) % 5}s`);
-    el.addEventListener('click', () => openEdit(el.dataset.id));
+    el.addEventListener('click', () => {
+      if(el.dataset.justDragged === '1'){ delete el.dataset.justDragged; return; }
+      openEdit(el.dataset.id);
+    });
     el.classList.add('developing');
     setTimeout(() => el.classList.remove('developing'), 1500 + i * 40);
   });
+  wireManualOrdering();
+}
+
+function syncTraySelection(){
+  document.querySelectorAll('.tray').forEach(x =>
+    x.classList.toggle('active', x.dataset.type === state.filterType));
+}
+
+function confirmDiscardOrder(){
+  if(!state.pendingOrder.size) return true;
+  if(!confirm('Hay un orden sin guardar. ¿Descartarlo y cambiar de vista?')) return false;
+  state.pendingOrder.clear();
+  const button = document.getElementById('save-wallpaper-order');
+  button.disabled = true;
+  button.textContent = 'Guardar orden';
+  return true;
+}
+
+function wireManualOrdering(){
+  const manual = state.sortMode === 'manual' && state.filterType === 'static'
+    && !state.filterCat && !state.query;
+  const hint = document.getElementById('order-hint');
+  hint.textContent = manual
+    ? 'Orden global: arrastra cualquier foto y pulsa Guardar orden.'
+    : 'El orden manual se habilita con Estáticos, sin búsqueda ni categoría.';
+  document.querySelectorAll('.polaroid').forEach(card => {
+    const item = state.wallpapers.find(w => w.id === card.dataset.id);
+    card.draggable = Boolean(manual && item?.type === 'static');
+  });
+  if(!manual) return;
+  document.querySelectorAll('.strip').forEach(strip => {
+    let dragged = null;
+    strip.addEventListener('dragstart', e => {
+      dragged = e.target.closest('.polaroid');
+      if(!dragged) return;
+      dragged.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    strip.addEventListener('dragover', e => {
+      if(!dragged) return;
+      e.preventDefault();
+      const target = e.target.closest('.polaroid');
+      strip.querySelectorAll('.drop-before').forEach(x => x.classList.remove('drop-before'));
+      if(!target || target === dragged) return;
+      target.classList.add('drop-before');
+      const before = e.clientX < target.getBoundingClientRect().left + target.offsetWidth / 2;
+      strip.insertBefore(dragged, before ? target : target.nextSibling);
+    });
+    strip.addEventListener('dragend', () => {
+      if(!dragged) return;
+      dragged.classList.remove('dragging');
+      dragged.dataset.justDragged = '1';
+      strip.querySelectorAll('.drop-before').forEach(x => x.classList.remove('drop-before'));
+      const ids = [...strip.querySelectorAll('.polaroid')].map(x => x.dataset.id);
+      ids.forEach((id, index) => state.pendingOrder.set(id, ids.length - index));
+      document.getElementById('save-wallpaper-order').disabled = state.pendingOrder.size === 0;
+      dragged = null;
+    });
+  });
+}
+
+async function saveWallpaperOrder(){
+  const button = document.getElementById('save-wallpaper-order');
+  if(!state.pendingOrder.size) return;
+  button.disabled = true;
+  button.textContent = 'Guardando…';
+  try{
+    const items = [...state.pendingOrder].map(([id, sortOrder]) => ({id, sortOrder}));
+    const result = await api('/api/wallpapers/reorder', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({items})
+    });
+    if(!result?.ok) throw new Error(result?.error || 'No se pudo guardar');
+    state.pendingOrder.clear();
+    button.textContent = 'Orden guardado ✓';
+    await loadRevelado();
+    setTimeout(() => { button.textContent = 'Guardar orden'; }, 1500);
+  }catch(error){
+    button.disabled = false;
+    button.textContent = 'Reintentar';
+    alert(`No se pudo guardar el orden: ${error.message}`);
+  }
 }
 // ── Safelight edge-scroll engine ───────────────────────────────────────
 // One rAF drives whichever wire the cursor is working. Speed is quadratic
@@ -1667,7 +1803,7 @@ function pageEdgeScroll(){
     if (t !== 0 && !raf) raf = requestAnimationFrame(tick);
   }, {passive: true});
 }
-pageEdgeScroll();
+// pageEdgeScroll(); // desactivado 2026-07-27: el auto-scroll al mover el mouse cerca de los bordes estorbaba la navegación (la rueda del mouse ya hace scroll)
 
 function polaroidHTML(w){
   const isNew = w.created_at && (Date.now() - new Date(w.created_at).getTime()) < 14 * 86400000;
@@ -2200,17 +2336,33 @@ document.querySelectorAll('.tab-btn').forEach(b => {
   b.addEventListener('click', () => showTab(b.dataset.tab));
 });
 document.getElementById('search-input').addEventListener('input', e => {
+  if(state.pendingOrder.size && !confirmDiscardOrder()){
+    e.target.value = state.query;
+    return;
+  }
   state.query = e.target.value.trim();
   applyFilters();
 });
 document.querySelectorAll('.tray').forEach(el => {
   el.addEventListener('click', () => {
+    if(!confirmDiscardOrder()) return;
     const t = el.dataset.type;
     state.filterType = state.filterType === t ? null : t;
-    document.querySelectorAll('.tray').forEach(x => x.classList.toggle('active', x.dataset.type === state.filterType));
+    state.filterCat = null;
+    syncTraySelection();
+    buildCategoryFilter();
     applyFilters();
   });
 });
+document.getElementById('wallpaper-sort').addEventListener('change', e => {
+  if(!confirmDiscardOrder()){
+    e.target.value = state.sortMode;
+    return;
+  }
+  state.sortMode = e.target.value;
+  applyFilters();
+});
+document.getElementById('save-wallpaper-order').addEventListener('click', saveWallpaperOrder);
 document.getElementById('btn-save').addEventListener('click', saveEdit);
 document.getElementById('btn-cancel').addEventListener('click', closeEdit);
 document.getElementById('modal').addEventListener('click', e => { if(e.target.id === 'modal') closeEdit(); });

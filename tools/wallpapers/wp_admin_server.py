@@ -2497,6 +2497,67 @@ class Handler(BaseHTTPRequestHandler):
         # ─── Single-wallpaper edit (Postgres + JSON sync) ────────
         # POST /api/wallpaper-edit
         # body: {kind: "static"|"live", id: "...", fields: {name, ...}}
+        if path == "/api/wallpapers/reorder":
+            payload = self._read_json_body() or {}
+            items = payload.get("items")
+            if not isinstance(items, list) or not items or len(items) > 2000:
+                return self._send_json(
+                    {"error": "items must contain 1..2000 rows"}, 400)
+            cleaned = []
+            seen = set()
+            for item in items:
+                wid = item.get("id") if isinstance(item, dict) else None
+                order = item.get("sortOrder") if isinstance(item, dict) else None
+                if not isinstance(wid, str) or not self._SAFE_ID_RE.fullmatch(wid):
+                    return self._send_json({"error": f"invalid id: {wid!r}"}, 400)
+                if wid in seen:
+                    return self._send_json({"error": f"duplicate id: {wid}"}, 400)
+                if not isinstance(order, int) or order < -2147483648 or order > 2147483647:
+                    return self._send_json(
+                        {"error": f"invalid sortOrder for {wid}"}, 400)
+                seen.add(wid)
+                cleaned.append((order, wid))
+            conn = cur = None
+            try:
+                sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+                from apply_migration import connect
+                conn = connect()
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT id FROM wallpapers WHERE id = ANY(%s) "
+                    "AND type = 'static'::wallpaper_type",
+                    (list(seen),),
+                )
+                found = {row[0] for row in cur.fetchall()}
+                if found != seen:
+                    missing = sorted(seen - found)
+                    conn.rollback()
+                    return self._send_json(
+                        {"error": "non-static or missing ids", "ids": missing}, 400)
+                cur.executemany(
+                    "UPDATE wallpapers SET sort_order = %s, updated_at = now() "
+                    "WHERE id = %s",
+                    cleaned,
+                )
+                conn.commit()
+            except Exception as exc:
+                if conn:
+                    conn.rollback()
+                return self._send_json({"error": str(exc)}, 500)
+            finally:
+                if cur:
+                    cur.close()
+                if conn:
+                    conn.close()
+            pushed = False
+            try:
+                pushed = bool(_fcm_push_catalog_invalidate("wallpapers"))
+            except Exception:
+                pass
+            return self._send_json({
+                "ok": True, "updated": len(cleaned), "fcm": pushed,
+            })
+
         if path == "/api/wallpaper-edit":
             length = int(self.headers.get("Content-Length", "0"))
             body = self.rfile.read(length) if length > 0 else b"{}"

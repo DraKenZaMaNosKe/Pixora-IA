@@ -125,3 +125,9 @@ firebase-service-account.json
 /mcps/
 /terminals/
 /rel
+_cstmp/
+tools/rig/_cstmp/
+tools/rig/_pushtmp/
+supabase/.temp/
+.codex/
+.agents/
