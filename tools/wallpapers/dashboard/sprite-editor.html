@@ -251,6 +251,14 @@
     display: inline-flex; align-items: center; justify-content: center;
   }
   .bump:active { background: var(--cyan); color: #000; }
+  /* Parallax: deslizador amigable con nivel nombrado (Fijo→Máximo) */
+  .prlx-slider { display: flex; align-items: center; gap: 8px; margin: -2px 0 8px 54px; }
+  .prlx-slider input[type="range"] { flex: 1; accent-color: var(--cyan); cursor: pointer; height: 4px; }
+  .prlx-level {
+    font-size: 9px; letter-spacing: .08em; color: #000; font-weight: 700;
+    background: var(--cyan); padding: 2px 8px; border-radius: 10px;
+    min-width: 54px; text-align: center; white-space: nowrap;
+  }
   .zbtn {
     background: var(--bg-2); border: 1px solid var(--line);
     color: var(--gold); width: 22px; height: 22px; border-radius: 4px;
@@ -2844,6 +2852,30 @@ function renderItemsPanel() {
       markDirty(); updateStatusBar();
     };
   });
+  // Parallax amigable: sincroniza deslizador ↔ número ↔ etiqueta de nivel.
+  // El modelo ya lo actualiza el handler genérico de arriba (data-key); estos
+  // listeners solo mantienen la UI en sync (no tocan el modelo → sin doble
+  // escritura). Los botones ± re-renderan el panel, así que se auto-actualizan.
+  panel.querySelectorAll('[data-prlx-range]').forEach(rng => {
+    rng.addEventListener('input', () => {
+      const id = rng.dataset.prlxRange;
+      const v = parseFloat(rng.value) || 0;
+      const num = panel.querySelector(`[data-prlx-num="${id}"]`);
+      if (num) num.value = v.toFixed(2);
+      const lvl = panel.querySelector(`[data-prlx-level="${id}"]`);
+      if (lvl) lvl.textContent = prlxLevelName(v);
+    });
+  });
+  panel.querySelectorAll('[data-prlx-num]').forEach(num => {
+    num.addEventListener('input', () => {
+      const id = num.dataset.prlxNum;
+      const v = parseFloat(num.value) || 0;
+      const rng = panel.querySelector(`[data-prlx-range="${id}"]`);
+      if (rng) rng.value = v;
+      const lvl = panel.querySelector(`[data-prlx-level="${id}"]`);
+      if (lvl) lvl.textContent = prlxLevelName(v);
+    });
+  });
   panel.querySelectorAll('[data-bonepick]').forEach(card => {
     card.onclick = (ev) => {
       if (ev.target.closest('input,button')) return;   // no robar clicks de inputs/±
@@ -3265,6 +3297,16 @@ function spriteCardHtml(sp, i) {
   </div>`;
 }
 
+// Nombre amigable del nivel de parallax según el factor (0 = fija).
+function prlxLevelName(v) {
+  v = +v || 0;
+  if (v <= 0.001) return 'Fijo';
+  if (v < 0.12) return 'Sutil';
+  if (v < 0.28) return 'Medio';
+  if (v < 0.45) return 'Fuerte';
+  return 'Máximo';
+}
+
 function layerCardHtml(l, i, hiddenPreview = false) {
   const sel = isSelected('layer', i);
   const grp = cycleGroupPrefix(l.key);
@@ -3294,9 +3336,13 @@ function layerCardHtml(l, i, hiddenPreview = false) {
       <button class="bump" data-bump="0.05" data-idx="${i}" data-key="scale" data-kind="layer">+</button>
     </div>
     <div class="field"><label>PRLLX</label>
-      <input type="number" step="0.05" value="${(l.parallax_factor || 0).toFixed(2)}" data-kind="layer" data-idx="${i}" data-key="parallax_factor">
+      <input type="number" step="0.05" value="${(l.parallax_factor || 0).toFixed(2)}" data-kind="layer" data-idx="${i}" data-key="parallax_factor" data-prlx-num="${i}">
       <button class="bump" data-bump="-0.05" data-idx="${i}" data-key="parallax_factor" data-kind="layer">−</button>
       <button class="bump" data-bump="0.05" data-idx="${i}" data-key="parallax_factor" data-kind="layer">+</button>
+    </div>
+    <div class="prlx-slider" title="Qué tanto se mueve esta capa con el giroscopio. Fondo = poco (Fijo/Sutil); primer plano = más (Fuerte/Máximo).">
+      <input type="range" min="0" max="0.6" step="0.01" value="${(l.parallax_factor || 0)}" data-kind="layer" data-idx="${i}" data-key="parallax_factor" data-prlx-range="${i}">
+      <span class="prlx-level" data-prlx-level="${i}">${prlxLevelName(l.parallax_factor || 0)}</span>
     </div>
     <div class="field"><label>BOB</label>
       <input type="number" step="2" value="${l.bob_amplitude_px || 0}" data-kind="layer" data-idx="${i}" data-key="bob_amplitude_px">
