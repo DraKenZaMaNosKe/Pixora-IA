@@ -146,7 +146,11 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
     final out = <_ViewerItem>[];
     for (var i = 0; i < widget.wallpapers.length; i++) {
       out.add(_WallpaperItem(widget.wallpapers[i]));
-      if ((i + 1) % widget.adInterval == 0 &&
+      // Skip the interleaved native ad card when ads are globally suppressed
+      // (debug/tester, active subscription, or Free Hour) — same gate the
+      // interstitials use, so no ad surface leaks past it.
+      if (!AdService.adsDisabledForUser &&
+          (i + 1) % widget.adInterval == 0 &&
           i < widget.wallpapers.length - 1) {
         out.add(const _AdItem());
       }
@@ -397,9 +401,12 @@ class _WallpaperViewerHudPageState extends State<WallpaperViewerHudPage>
                   liked: _currentWallpaper != null &&
                       _likedIds.contains(_currentWallpaper!.id),
                 ),
-                _BannerAdHost(
-                  adUnitId: WallpaperViewerHudPage._bannerAdUnitId,
-                ),
+                // Banner also consults the global gate — hidden in
+                // debug/tester, for subscribers, and during Free Hour.
+                if (!AdService.adsDisabledForUser)
+                  _BannerAdHost(
+                    adUnitId: WallpaperViewerHudPage._bannerAdUnitId,
+                  ),
               ],
             ),
             // Animated scanline overlay for HUD feel (subtle)
