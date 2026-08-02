@@ -1,0 +1,311 @@
+# AGENTS.md
+
+This file provides guidance to Codex (Codex.ai/code) when working with code in this repository. Keep it lean — this file is loaded into every session's context.
+
+## Project
+
+**Pixora IA** — Flutter app for Android (primary) and iOS (reduced set) offering wallpapers (static, live video, interactive, shader, day-cycle), stories, ringtones, and the **AURA** wellness audio module. Developed by Orbix Studio.
+
+- Package: `com.orbix.pixora`
+- Working branch: `play-store-estable`
+- Version: `pubspec.yaml` → `version: X.Y.Z+N`
+- iOS gating: everything except `WallpapersPage`, `FavoritesPage`, `SettingsPage` is wrapped in `if (!Platform.isIOS)` in `home_page.dart`
+
+## Language & tone — MANDATORY
+
+The user is from **Guadalajara, Jalisco, México**. **Always respond in Latin Mexican Spanish, informal tone** ("tú", "amigo", "porfa", "haber qué tal queda", "ahorita", "chido"). Never use Castilian Spanish ("vale", "tío", "guay", "ordenador"). Never default to English.
+
+**Tone**: profesional pero cercano (un colega ingeniero que es buen amigo). NO ranchero/iletrado. **NUNCA abreviar palabras completas**: escribir "para", "porque", "qué", "está" — NUNCA "pa", "pq", "q", "stá". Aclarado explícitamente 2026-05-04.
+
+Code, commits, log lines, and technical `.md` files stay in English (repo convention). User-facing chat, explanations, summaries, status reports → Spanish MX.
+
+If the user writes in English, still reply in Spanish unless they explicitly ask otherwise.
+
+## Time awareness
+
+**Never assume or guess the time of day.** Before saying "good morning", "good night", or making any time-based greeting or assumption, check the actual time:
+```bash
+date
+```
+The user's timezone is CST (Mexico, UTC-6). Use the real time to greet appropriately. No lies, no assumptions.
+
+## First 30 seconds of a new session
+
+1. Check the time: `date` — greet accordingly
+2. `git status` + `git log --oneline -5` — know where you are
+2. Skim this file (you're doing it) for conventions and pitfalls
+3. Check `C:\Users\lalo\.Codex\projects\D--Orbix-Pixora-IA\memory\MEMORY.md` — persistent user memories
+4. If the task touches AURA, also skim `docs/superpowers/plans/2026-04-07-aura-*.md`
+5. If the task is business/product (not coding), read the master doc (see §Pointers below)
+
+## Common commands
+
+```bash
+# Flutter
+flutter pub get
+flutter analyze lib/features/<feature>      # scope for speed
+flutter build apk --debug                    # → build/app/outputs/flutter-apk/app-debug.apk
+flutter build appbundle                      # release AAB for Play Store
+flutter run                                  # (ask user first — confirmed device)
+
+# Device testing (Samsung primary: RF8X903KZ3K)
+adb devices
+adb -s RF8X903KZ3K install -r build/app/outputs/flutter-apk/app-debug.apk
+# On INSTALL_FAILED_UPDATE_INCOMPATIBLE (release signature conflict):
+adb -s RF8X903KZ3K uninstall com.orbix.pixora && adb -s RF8X903KZ3K install build/app/outputs/flutter-apk/app-debug.apk
+
+# Verify runtime on device
+adb -s RF8X903KZ3K logcat -c
+adb -s RF8X903KZ3K shell am start -n com.orbix.pixora/.MainActivity
+adb -s RF8X903KZ3K logcat -d | grep -E "flutter|Pixora|AndroidRuntime|FATAL"
+```
+
+No automated test suite exists. Validation is manual on device.
+
+## Architecture big picture
+
+**Feature-folder layout.** `lib/features/<name>/{data,presentation,providers,services}`. Each feature owns its model, Supabase catalog service, Riverpod providers, pages and widgets. Cross-cutting singletons live in `lib/core/services/`.
+
+**Singleton pattern, not Riverpod for services.** `lib/core/services/*.dart` files expose `SomeService.instance` (plain Dart singletons, `ChangeNotifier` where reactivity is needed). Riverpod is used for UI-level providers (`lib/features/<x>/providers/`).
+
+**Native bridge.** `MainActivity.kt` must extend **`AudioServiceActivity`** (NOT `FlutterActivity`) — required by `just_audio_background`. Exposes `com.orbix.pixora/wallpaper` MethodChannel with `setWallpaper`, `setLiveWallpaper`, `setRingtone`, `startStory`, `startDayCycle`, `startAutoRotate`, `setShaderWallpaper`, `resetEngine`. `PixoraWallpaperService` runs in isolated `:wallpaper` process (see §Pitfalls).
+
+## Cross-cutting singletons (NEVER reimplement)
+
+| Singleton | Purpose | Key rule |
+|---|---|---|
+| `AdService.instance.showInterstitialAd(onAdDismissed:)` | Interstitial ads | **Every** install/apply/download action MUST go through this. Alternates 1-yes/2-no internally, auto-awards credits on dismissal. |
+| `CreditService.instance` | Hive-backed diamond credits (`ChangeNotifier`) | Use `earnFromAd()` / `spend()`. Never mutate `_balance` directly. `_debugDisableAds=true` bypasses ads in dev. |
+| `AuthService.instance` | Optional Google Sign-In | App works fully signed-out. Don't gate features behind auth. |
+| `WallpaperStatsService.instance.trackView(id)` / `trackDownload(id)` | View/download counts on cards | ID conventions: `tone_<x>`, `tone_pack_<x>`, `aura_<x>`, bare wallpaper id otherwise. |
+| `AuraPlayerService.instance` | Sole owner of the `AudioPlayer` for AURA | Sleep timer + loop + background live here. UI reads streams, calls methods — never touches the player directly. |
+
+## Catalog fetching — two patterns, don't mix
+
+1. **Static JSON in Supabase Storage** (wallpapers, live wallpapers, stories, day cycles, ringtones). Template: `lib/core/services/live_wallpaper_catalog_service.dart`. `http.get(storageBase/<bucket>/<catalog>.json)` + 6h in-memory cache.
+2. **Postgres table via `supabase_flutter`** (AURA only so far). Template: `lib/features/aura/data/repositories/aura_repository.dart`. `Supabase.instance.client.from('aura_tracks').select()`.
+
+When adding a new content vertical, pick one and stay with it. Don't invent a third.
+
+## Hard-learned pitfalls ⚠️
+
+### A. WallpaperService Surface producer conflict
+A `WallpaperService` Engine's Surface accepts **one producer at a time**: Canvas (`lockCanvas`) OR MediaPlayer (`setSurface`). Once Canvas touched it, `MediaPlayer.setSurface()` fails with `setVideoSurfaceTexture -22 (EINVAL)`. `unlockCanvasAndPost()` does NOT release the binding. Switching modes REQUIRES killing the `:wallpaper` process so Android respawns the Engine with a fresh Surface. This is what `MainActivity.killWallpaperProcess()` does on every mode switch. Also why the manifest has `android:process=":wallpaper"` for `PixoraWallpaperService`. **Do not try to share the Surface.** History: commits `cc9da25`, `e871c31`, `061aa1c`.
+
+### B. MainActivity must extend AudioServiceActivity
+`just_audio_background` requires the hosting Activity to be `AudioServiceActivity` from `com.ryanheise.audioservice`. Reverting to `FlutterActivity` crashes at startup with `PlatformException: The Activity class declared in your AndroidManifest.xml is wrong`. Fixed in `1b26bee`.
+
+### C. NDK version must match plugins
+`android/app/build.gradle` → `ndkVersion "27.0.12077973"`. Plugins request it; downgrading triggers a Gradle warning and can break native builds.
+
+### D. ClockRenderer hourly flash must check minute == 0
+`ClockRenderer.kt` triggers a full-screen glow flash when the hour changes. The condition must include `minute <= 1` — otherwise the flash fires when the user unlocks their phone 20 minutes after the hour, which makes no sense. The flash should only fire if the user is looking at the wallpaper at the actual hour change. Fixed in the `hour != lastHour && lastHour >= 0 && minute <= 1` guard.
+
+### E. Don't wrap AdMob with our own timeout/safety nets
+Tried twice (60s, then 25s). Both times the user perceived the ad as "broken / paused" because AdMob creatives have their OWN internal countdown before the close button becomes tappable — that countdown looks like a frozen ad to the user, but it's working as designed. Our timer only added confusion. The SDK always shows the X eventually; trust it. If a creative is genuinely abusive (no X, no countdown finish), block the advertiser in AdMob console — that's the right tool, not Flutter-side timers. History: reverted in 2026-05-05 after the user pushed back.
+
+### F. GitHub Push Protection is active
+Secret scanning blocks pushes containing Supabase JWTs, Google OAuth IDs/secrets, Freesound keys, keystore passwords, etc. Before committing anything that might contain a secret (docs, snapshots, config examples), grep for the patterns and redact. If a push is rejected, amend the commit — don't try to force it.
+
+## Feature module map
+
+| Path | What lives there |
+|---|---|
+| `lib/features/home/` | Bottom nav — 3 parallel lists (`_pages`, `_title`, `BottomNavigationBar.items`) must stay in sync, each non-iOS tab wrapped in `if (!Platform.isIOS)` |
+| `lib/features/wallpapers/` | Main static wallpaper grid (always visible, incl. iOS) |
+| `lib/features/hot_wallpapers/` | The LIVE tab (video wallpapers + Explore mode, despite the legacy folder name) |
+| `lib/features/aura/` | Wellness audio — frequencies + nature, Supabase-backed |
+| `lib/features/stories/`, `day_cycle/`, `ringtones/`, `ai_generate/`, `favorites/`, `settings/` | Each a tab |
+| `lib/core/services/` | Cross-cutting singletons (see table above) |
+| `lib/core/utils/locale_helper.dart` | Tiny ES/EN picker — `LocaleHelper.isSpanish` + `LocaleHelper.pick(es:, en:)`. No `.arb` l10n setup. |
+| `lib/core/constants/supabase_config.dart` | URL + anon key (public, in lib) |
+| `tools/aura/` | AURA content pipeline (ffmpeg + Python + Supabase uploader). `tracks_manifest.json` is the single source of truth. |
+| `docs/superpowers/plans/` | Implementation plans from brainstorming sessions |
+
+## Content dimensions (official Pixora specs)
+
+| Type | Dimensions (px) | Aspect | Notes |
+|---|---|---|---|
+| Static wallpaper (phone) | 1080 x 2340 | ~9:16 | Portrait, WebP |
+| **Panoramic wallpaper** | **4192 x 1024** | **~4:1** | Ultra-wide, scrollable on home. **Generate in Gemini** (Grok doesn't support custom ultra-wide) |
+| Video wallpaper (LIVE) | 720p wide, 5-8s | varies | MP4 H.264 baseline, no audio, <2 MB |
+| Day Cycle (per image) | 1080 x 2340 | ~9:16 | 4 images: morning/afternoon/evening/night |
+| Story frame | 1080 x 2340 | ~9:16 | 4-8 frames per story |
+| Preview wallpaper | 540 x 1170 | ~9:16 | WebP, <50 KB |
+| Preview video | 720 x 720 | 1:1 | WebP, <50 KB |
+| Play Store screenshot | 1080 x 1920 or 1080 x 2340 | 9:16 | Min 2, max 8 |
+
+**AI image generation**: use Gemini for panoramics (4192x1024) and custom sizes. Grok works for standard sizes. Always specify "no text, no letters" in prompts when generating base images for text-overlay features (e.g. cemetery tombstones).
+
+## Conventions
+
+- **Commits**: Conventional Commits scoped by feature. Examples: `feat(aura):`, `fix(live):`, `chore(android):`, `docs:`, `refactor:`, `security:`
+- **Bilingual**: use `LocaleHelper` for new user-facing strings in AURA and any feature that needs it. Most legacy features are English-only with occasional inline Spanish.
+- **CRLF warnings** on Windows during git add are expected — ignore unless git errors out.
+- **Don't create `.md` files** unless explicitly asked.
+
+## Permissions (settings.json) — what's active
+
+Settings live in `.Codex/settings.json` (committed, safe defaults) and `.Codex/settings.local.json` (gitignored, personal overrides).
+
+**Auto-allowed** (no prompt): reads, git status/log/diff, flutter pub/analyze/build/test, adb devices + install + logcat + shell am/input, ffmpeg/ffprobe, python, Supabase MCP reads (`list_*`, `execute_sql`, `get_*`).
+
+**Will ask first**: `git push`, `git pull`, `git merge`, `gh pr/release`, `apply_migration`, `deploy_edge_function`, `flutter run`, emulator boot, sdkmanager/avdmanager.
+
+**DENIED — don't try**: `rm -rf`, `git reset --hard`, `git rebase`, `git push --force`, `git clean -f`, `filter-branch`, Supabase `pause/restore/delete/create_project`, **Edit/Write on `KEYS_LOCAL.md`**, `android/key.properties`, `*.keystore`, `*.jks`, `**/.env*`, Chrome registry policies, `taskkill /F`.
+
+**Bypass legitimately**: If you need to modify a denied file consciously (e.g. rotate a key), use `Bash(python:*)` to script the edit. The deny is there to block accidental automated edits, not conscious intentional ones.
+
+## Subagents — invoke proactively
+
+**`orbix-dev-guardian`** (Sonnet, color pink, user-scope). Launch after every significant change in Pixora. It runs:
+- `flutter analyze` scoped to touched files
+- `flutter build apk --debug`
+- Install on Samsung + launch + logcat smoke test
+- Supabase health check (row counts, 3 sample URLs return 200)
+- Master doc snapshot to `docs/master_doc_snapshots/` (gitignored)
+- Append a verification sub-section to the master doc
+- Emit a structured progress report
+
+Its persistent memory lives at `C:\Users\lalo\.Codex\agent-memory\orbix-dev-guardian\`. Delegate validation work to it — it has specialized knowledge and preserves your context.
+
+**When NOT to invoke it**: for mechanical single-line edits, git ops, running a command you can do yourself in 5 seconds.
+
+## Memory system
+
+Two persistent memory stores:
+
+1. **User memory** (main Codex): `C:\Users\lalo\.Codex\projects\D--Orbix-Pixora-IA\memory\`
+   - `MEMORY.md` is the index — one-line entries, max ~200 lines (truncated after)
+   - Each entry is a `.md` file with frontmatter (`name`, `description`, `type: user|feedback|project|reference`)
+   - Update when learning user preferences, feedback patterns, project decisions, or external references
+   - Don't save code patterns, file paths, or anything derivable from grep
+
+2. **Agent memory** (`orbix-dev-guardian`): `C:\Users\lalo\.Codex\agent-memory\orbix-dev-guardian\`
+   - Same schema. Builds up cross-project institutional knowledge.
+
+## Ultrathink rule
+
+**Propose** `ultrathink` (or `think hard` for middle ground) before any turn that is expensive to reverse:
+- Architecture decisions with multiple valid approaches
+- Monetization model choices
+- Bugs that resisted 2+ fix attempts
+- Code review of critical/risky code pre-release
+
+**Never use silently** — always ask permission first with a short note like *"esto es difícil de revertir, ¿le damos ultrathink?"*. Don't use for mechanical work: git ops, following patterns, typo fixes, adding a tab like an existing one.
+
+Saved as feedback memory `feedback_ultrathink_suggest.md` — persists across sessions.
+
+## Pointers to deeper context
+
+| What you need | Where to find it |
+|---|---|
+| Business context, mission, history, revenue targets, version log, full secrets inventory | **Master document** (canonical source of truth) at `G:/Mi unidad/pixoraIA_admin/admin/administracion/Pixora_IA_Documento_Maestro.docx`. Read via `python-docx`. **Do not mirror its contents here** — it drifts. |
+| Secrets (Supabase service role, Google OAuth, keystore, Freesound, Play Console, GitHub PAT) | Master doc §11. Local working copy in `KEYS_LOCAL.md` (gitignored) for scripts — canonical source wins if they diverge. |
+| **Postgres direct password** (for `tools/apply_migration.py` and any psycopg2 script) | `KEYS_LOCAL.md` → section "Supabase — Postgres Direct Connection". Project has the **Dedicated IPv4 add-on** enabled (paid, ~$4/mes) since 2026-05-05 — needed because `db.PROJECT_REF.supabase.co` is IPv6-only otherwise. |
+| **Firebase project ID** (for FCM Admin SDK, push, Crashlytics) | `device-streaming-bab2df46` — same in `android/app/google-services.json`. Service account is `firebase-adminsdk-fbsvc@device-streaming-bab2df46.iam.gserviceaccount.com`. |
+| **Firebase service account JSON** (for sending FCM push from Python, e.g. Text CMS invalidation) | `D:/Orbix/orbixprivate/secrets/pixora-firebase/firebase-service-account.json`. NOT in Pixora-IA repo — lives in orbixprivate so it never leaks. Used by `tools/wallpapers/_fcm_push.py`. Re-generate from Firebase Console → Project Settings → Service Accounts if lost (only downloadable once at creation). |
+| **FCM topics already used** | `new_content` (broadcast to all users) and `text_cms_update` (invalidates Text CMS cache). All users auto-subscribe in `PushNotificationService.instance.init()`. |
+| **pixora-admin dashboard** (local web tool, NOT a separate repo) | Lives INSIDE Pixora-IA at `tools/wallpapers/`. Server: `wp_admin_server.py` (Python stdlib HTTP on port 5757). Frontend: `dashboard/index.html` (vanilla JS, ~3700 lines, no framework). Reads SERVICE_KEY from `KEYS_LOCAL.md`. Tabs: RESUMEN, WALLPAPERS, INGRESOS, USUARIOS, EVENTOS, ENGAGEMENT, TEXTOS. Launched silently via `launch_admin_silent.vbs` shortcut. |
+| **Text CMS** (edit Flutter copy from admin without recompiling) | Phase 1 shipped 2026-05-17. Spec: `docs/superpowers/specs/2026-05-17-text-cms-design.md`. Plan: `docs/superpowers/plans/2026-05-17-text-cms-phase1.md`. Tables: `app_sections`, `app_components`, `app_strings`. Flutter: `LocaleHelper.fromCms(key, fallbackEs:, fallbackEn:)` + `AppStringsService.instance` (Hive cache, 5min TTL, refresh on resume + pull-to-refresh). Admin tab "TEXTOS" with WYSIWYG. |
+| **UI component map** (inventory of editable strings per release) | `docs/component_map/v{X.Y.Z}.md`. First snapshot: `v1.7.17.md` (20 components, ~250 strings, partial coverage). Regenerated each release. Doc maestro §7.Y has summary + table. |
+| AURA content pipeline design | `docs/superpowers/plans/2026-04-07-aura-content-pipeline.md` |
+| AURA app integration design | `docs/superpowers/plans/2026-04-07-aura-app-integration.md` |
+| Agent definition | `C:\Users\lalo\.Codex\agents\orbix-dev-guardian.md` |
+
+## Master doc update duty
+
+After any of these, append (don't rewrite) a sub-section to the master `.docx` via `python-docx`:
+
+| Trigger | Section |
+|---|---|
+| New feature shipped | §7 (Arquitectura) + new status sub-section |
+| Business/monetization decision | §8 |
+| Version bump in `pubspec.yaml` | §12 (Registro de Versiones) |
+| New credential added | §11 (never paste the value — reference `KEYS_LOCAL.md`) |
+| New platform pitfall learned | Add to "lecciones aprendidas" so it's not re-learned |
+| AURA track added/removed | §14.3 or §14.4 |
+| Legal / compliance document (Privacy Policy, ToS, licenses, data-safety specs) | §13 (Anexos) — add as §13.X with content spec + URL + acceptance criteria |
+| Daily / milestone progress report | §19+ (next available "Reporte de progreso") |
+| Design system decision (tokens, look-and-feel rationale) | §21 (Sistema de Diseño) |
+
+## GitHub Projects sync duty
+
+Board: https://github.com/users/DraKenZaMaNosKe/projects/3 ("Pixora IA + IntraPC Solutions Roadmap"). Keep it in sync alongside the master doc — propose the update, don't act silently. Use `gh` CLI.
+
+| Trigger | Acción |
+|---|---|
+| Release shipped a Play Store (version bump + tag) | Crear issue retroactivo con checklist de lo shippeado → Status `Done` → asignar al milestone correspondiente o crear uno nuevo `v1.X Stability / Feature` |
+| Milestone completado (todos los issues cerrados) | Cerrar el milestone en GitHub + crear el siguiente (p.ej. v1.6.0 → v1.7.0) |
+| Decisión de negocio/infra (monetización, banking, proveedores, legal) | Crear issue en el milestone correspondiente con contexto + dependencias + gating. Ej: `IntraPC Formalizacion` para RFC/cuentas/contabilidad |
+| Nuevo pitfall técnico que nos costó tiempo | Issue con label `documentation` — sirve de log + recordatorio para futuras sesiones |
+| Trabajo arrancado (empezamos a implementar un issue) | Mover a `In Progress` |
+| Trabajo completado localmente pero sin shippear | Mover a `In Progress` (no `Done` — Done es cuando llega a Play Store) |
+
+**Cuándo proponer sync automáticamente (sin que el usuario lo pida):**
+- Al terminar una sesión que shipeó a Play Store → "¿sincronizamos el board?"
+- Al ver que una decisión de negocio se tomó en conversación pero no está en el board
+- Al notar que un issue del board lleva 2+ semanas abierto sin actividad → preguntar si sigue relevante
+
+**Comandos base:**
+```bash
+gh project list --owner DraKenZaMaNosKe
+gh project item-list 3 --owner DraKenZaMaNosKe --limit 100
+gh issue create --repo DraKenZaMaNosKe/Pixora-IA --milestone "v1.X ..." --label "..." --title "..." --body "..."
+gh project item-add 3 --owner DraKenZaMaNosKe --url <issue-url>
+# Project ID: PVT_kwHOAXyhK84BUT3u · Status field: PVTSSF_lAHOAXyhK84BUT3uzhBc84E
+# Options: Todo=f75ad846 · In Progress=47fc9ee4 · Done=98236657
+gh project item-edit --id <item-id> --field-id PVTSSF_lAHOAXyhK84BUT3uzhBc84E --project-id PVT_kwHOAXyhK84BUT3u --single-select-option-id <option-id>
+```
+
+## `orbixprivate` sync duty (cross-machine recovery)
+
+Private repo: https://github.com/DraKenZaMaNosKe/orbixprivate (clonado en `D:/Orbix/orbixprivate/`). Es el respaldo/sync de: user-scope agents, memorias, secretos (`KEYS_LOCAL.md`, `settings.local.json`), y export del doc maestro. Sin este sync, cambiar de máquina = perder contexto.
+
+**Al inicio de sesión en máquina nueva:**
+```bash
+cd /d/Orbix/orbixprivate && git pull && bash scripts/bootstrap.sh
+```
+Esto restaura agente + memorias + secretos a sus ubicaciones en `~/.Codex/` y `D:/Orbix/Pixora-IA/`.
+
+**Al cerrar sesión productiva (SIEMPRE proponer esto al usuario):**
+```bash
+cd /d/Orbix/orbixprivate && bash scripts/sync-to-private.sh
+# Review diff, then:
+git add -A && git commit -m "sync: end-of-session YYYY-MM-DD from <home|work> PC" && git push
+```
+
+**Triggers para proponer el sync sin que el usuario lo pida:**
+| Trigger | Prioridad |
+|---|---|
+| Usuario dice "ya me voy a dormir" / "nos vemos mañana" / "cierra sesión" | Alta — sin sync, las memorias nuevas se pierden si se cae el disco |
+| Nueva memoria agregada durante la sesión (feedback/project/tech/reference) | Alta |
+| Nueva versión publicada a Play Store | Media — KEYS_LOCAL puede haber rotado |
+| Más de 3 días sin commits en `orbixprivate` pero con actividad en Pixora | Media |
+| Usuario a punto de cambiar de máquina ("mañana sigo en el trabajo") | Crítica |
+
+**Si hay divergencia con remoto** (otra PC pushed first): `git pull --no-rebase` crea merge commit (AGENTS.md prohíbe rebase). Los archivos raramente entran en conflicto porque cada máquina toca memorias/secretos distintos.
+
+**NUNCA:** push a `orbixprivate` sin haber corrido primero `sync-to-private.sh` (pushear solo con cambios manuales pierde la captura automática de memorias). NUNCA hacer el repo público — contiene secretos en texto plano.
+
+## Roadmap & tasks
+
+**All objectives, tasks, and feature plans live in the master document — NOT here.** Key sections: §14 (AURA), §16 (Art Gallery + Cemetery), §17 (LiveCalendar + Zodiac). Don't duplicate them in AGENTS.md.
+
+To check current pending tasks at session start:
+```bash
+python -c "from docx import Document; [print(p.text[:120]) for p in Document(r'G:/Mi unidad/pixoraIA_admin/admin/administracion/Pixora_IA_Documento_Maestro.docx').paragraphs if any(k in p.text.lower() for k in ['pendiente','objetivo','tarea'])]"
+```
+
+## What NOT to do
+
+- ❌ Commit `KEYS_LOCAL.md`, `android/key.properties`, `*.keystore`, `*.jks`, `.env*`, `.Codex/settings.local.json`, `tools/aura/out/`, `tools/aura/raw/`, `docs/master_doc_snapshots/` — all gitignored for a reason
+- ❌ Mirror master doc business content into AGENTS.md or the repo (drift)
+- ❌ Paste secrets into the repo ever — even in comments, examples, or tests
+- ❌ Share a `WallpaperService` Surface between Canvas and MediaPlayer
+- ❌ Revert `MainActivity` to extend `FlutterActivity`
+- ❌ Reimplement ads, credits, or stats tracking — use the singletons
+- ❌ Invent a third catalog fetching pattern
+- ❌ Rebase/reset/force-push published branches
+- ❌ Use `ultrathink` without asking
+- ❌ Skip device testing on Pixora before claiming work is done

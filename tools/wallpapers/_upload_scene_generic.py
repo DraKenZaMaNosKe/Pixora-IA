@@ -150,6 +150,10 @@ def upload_scene(cfg):
         if L.get("bob"):
             layer["bob_amplitude_px"] = L["bob"][0]
             layer["bob_period_sec"] = L["bob"][1]
+        if L.get("bob_phase_source"):
+            layer["bob_phase_source"] = L["bob_phase_source"]
+        if "initial_alpha" in L:
+            layer["initial_alpha"] = L["initial_alpha"]
         image_layers.append(layer)
 
     spec = {
