@@ -1118,8 +1118,9 @@ class Handler(BaseHTTPRequestHandler):
                         return "offline"
                     return "churned"
 
-                # Human label: email if the device ever logged in, else a
-                # deterministic memorable alias. (Phone MODEL comes with F1.)
+                # Human label: email if the device ever logged in, else the
+                # REAL device_id (para estadísticas/monitoreo precisos — antes
+                # se inventaba un alias tipo "Tigre Solar" que confundía).
                 emails = {}
                 erows, _ = self._proxy("admin_device_email?select=device_id,email&limit=2000")
                 for e in (erows or []):
@@ -1130,7 +1131,7 @@ class Handler(BaseHTTPRequestHandler):
                     counts[r["tier"]] = counts.get(r["tier"], 0) + 1
                     did = r.get("device_id", "")
                     r["email"] = emails.get(did)
-                    r["label"] = emails.get(did) or _device_alias(did)
+                    r["label"] = emails.get(did) or did
                 payload = {"devices": rows, "counts": counts, "total": len(rows)}
 
             elif path == "/api/device-detail":
@@ -1149,7 +1150,7 @@ class Handler(BaseHTTPRequestHandler):
                 presence = (pres[0] if pres else {})
                 email = (em[0].get("email") if em else None)
                 presence["email"] = email
-                presence["label"] = email or _device_alias(did)
+                presence["label"] = email or did
                 payload = {
                     "presence": presence,
                     "usage_totals": totals or [],
