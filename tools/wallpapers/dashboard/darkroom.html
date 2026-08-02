@@ -720,6 +720,13 @@ body::after{
     text-transform:uppercase;letter-spacing:.5px;font-size:9px;border-bottom:1px solid rgba(34,211,238,.3)}
   .dd-table td{text-align:left;padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.06);color:var(--ink)}
   .dd-table tr:hover td{background:rgba(34,211,238,.05)}
+  /* Toast de usuario nuevo en vivo */
+  #dr-toast-wrap{position:fixed;top:80px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+  .dr-toast{background:linear-gradient(90deg,#22d3ee,#ff2e9a);color:#08131a;font-weight:700;
+    padding:12px 18px;border-radius:12px;box-shadow:0 8px 30px rgba(34,211,238,.45);
+    font-size:13px;max-width:320px;animation:drToastIn .35s ease-out}
+  .dr-toast.out{opacity:0;transform:translateX(24px);transition:.4s}
+  @keyframes drToastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
   .dr-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:10px}
   .dr-stat{background:rgba(20,12,10,.45);border:1px solid var(--wood,#4a3d30);border-radius:10px;padding:14px}
   .dr-stat h4{color:#E8B48C;margin:0 0 10px;font-size:13px;font-weight:600}
@@ -847,7 +854,25 @@ body::after{
 <script>
 (function(){
   const $$ = s => document.querySelector(s);
-  let liveTimer = null, charts = {};
+  let liveTimer = null, charts = {}, liveKnownIds = null;
+
+  function showToast(text){
+    let c = document.getElementById('dr-toast-wrap');
+    if(!c){ c = document.createElement('div'); c.id='dr-toast-wrap'; document.body.appendChild(c); }
+    const t = document.createElement('div'); t.className='dr-toast'; t.textContent=text; c.appendChild(t);
+    setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),400); }, 6000);
+  }
+  function notifyNewUsers(devs){
+    const n = devs.length;
+    const label = devs[0].label || devs[0].device_id || 'dispositivo';
+    const msg = n===1 ? `Nuevo usuario en vivo: ${label}` : `${n} usuarios nuevos en vivo 🎉`;
+    showToast('🎉 ' + msg);                                   // 1) toast en pantalla
+    try{ if(window.Notification && Notification.permission==='granted')  // 2) notificación del navegador
+      new Notification('Pixora · En Vivo', {body: msg, icon: '/img/anime/mascota_pixi.png'}); }catch(_){}
+    try{ const ac=new (window.AudioContext||window.webkitAudioContext)();  // 3) beep
+      const o=ac.createOscillator(), g=ac.createGain(); o.connect(g); g.connect(ac.destination);
+      o.frequency.value=880; g.gain.value=0.05; o.start(); o.stop(ac.currentTime+0.18); }catch(_){}
+  }
   const TIER = {online:{c:'#2ecc71',l:'En línea'},alive:{c:'#E8B48C',l:'Activo'},offline:{c:'#7a6a5a',l:'Inactivo'},churned:{c:'#c93a2a',l:'Perdido'}};
   function secToHuman(s){s=Math.floor(s||0);if(s<60)return s+'s';const d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60);if(d>0)return d+'d '+h+'h';if(h>0)return h+'h '+m+'m';return m+'m';}
   function esc(x){return String(x==null?'':x).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
@@ -856,6 +881,15 @@ body::after{
     try{
       const d = await (await fetch('/api/live-devices?window_min=90')).json();
       const counts = d.counts||{};
+      // ── Alerta de usuarios nuevos (mientras el panel esté abierto) ──
+      const allDevs = d.devices || [];
+      if (liveKnownIds === null) {
+        liveKnownIds = new Set(allDevs.map(x => x.device_id)); // primer poll: sembrar sin alertar
+      } else {
+        const nuevos = allDevs.filter(x => x.device_id && !liveKnownIds.has(x.device_id));
+        nuevos.forEach(x => liveKnownIds.add(x.device_id));
+        if (nuevos.length) notifyNewUsers(nuevos);
+      }
       $$('#envivo-counters').innerHTML = ['online','alive','offline','churned'].map(t=>
         `<span class="dr-pill"><i class="dr-dot ${t==='online'?'on':''}" style="background:${TIER[t].c};color:${TIER[t].c}"></i>${TIER[t].l}: <b>${counts[t]||0}</b></span>`).join('');
       const grid=$$('#envivo-grid'), filter=grid.dataset.filter||'all';
@@ -892,13 +926,22 @@ body::after{
         <div class="dd-id">${esc(id)}</div>
         <div class="dd-row"><span>Wallpaper</span><b>${esc(p.wallpaper_title||p.active_wallpaper_id||'—')}</b>${p.daily_enabled?'<span class="dd-tag">⟳ Daily</span>':''}</div>
         <div class="dd-row"><span>Tono</span><b>${esc(p.active_ringtone_title||'—')}</b></div>
-        <div class="dd-row"><span>Versión</span><b>${esc(p.app_version||'?')}</b> · ${esc(p.device_model||'?')}</div>
+        <div class="dd-row"><span>Versión</span><b>${esc(p.app_version||'?')}</b> · ${esc(p.device_model||'?')}${p.android_sdk?` · SDK ${esc(String(p.android_sdk))}`:''}</div>
+        <div class="dd-row"><span>Primer contacto</span><b>${p.first_seen_at?new Date(p.first_seen_at).toLocaleString('es-MX'):'—'}</b></div>
+        <div class="dd-row"><span>Última vez</span><b>${p.last_seen_at?new Date(p.last_seen_at).toLocaleString('es-MX'):'—'}</b></div>
+        <div class="dd-row"><span>Fuente</span><b>${esc(p.last_source||'—')}</b>${p.daily_enabled?'<span class="dd-tag">⟳ Daily</span>':''}</div>
         <div class="dd-row"><span>Vistos</span><b style="font-weight:400;color:var(--ink-soft)">${viewed}</b></div>
         <table class="dd-table"><tr><th>Contenido</th><th>Tipo</th><th>Tiempo</th></tr>${tops}</table>`;
     }catch(e){panel.innerHTML='<button class="dr-close" onclick="this.parentNode.style.display=\'none\'">✕</button><div style="padding:16px">Error</div>';}
   };
 
-  function startLive(){loadLive();if(liveTimer)clearInterval(liveTimer);liveTimer=setInterval(()=>{if(!document.hidden)loadLive();},15000);}
+  function startLive(){
+    if(window.Notification && Notification.permission==='default'){ try{Notification.requestPermission();}catch(_){}}
+    liveKnownIds=null;  // re-sembrar al entrar al tab (evita falsas alertas)
+    loadLive();
+    if(liveTimer)clearInterval(liveTimer);
+    liveTimer=setInterval(()=>{if(!document.hidden)loadLive();},15000);
+  }
 
   function mkChart(id,cfg){if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(el&&window.Chart)charts[id]=new Chart(el,cfg);}
   const RED='#E85A3C',GILT='#22d3ee';
@@ -2019,19 +2062,22 @@ async function loadUsuarios(){
     api('/api/top-users?limit=200'),
   ]);
   if(testers && testers.summary){
-    // Corte de producción: usuarios con primer contacto >= esta fecha son
-    // "reales nuevos". Testers PrimeTestLab (CORE_TESTER) y bots de Google
-    // (BOT_BATCH) se filtran del análisis pero SIGUEN en el histórico.
-    const LAUNCH = '2026-07-27';
+    // Ventanas RODANTES (se actualizan solas). Un usuario "real nuevo" es el
+    // que tuvo su primer contacto dentro de la ventana. Testers PrimeTestLab
+    // (CORE_TESTER) y bots de Google (BOT_BATCH) se filtran pero SIGUEN en el
+    // histórico. `first` viene en ISO UTC → comparación directa de strings.
+    const cut24 = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    const cut7d = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
     const items = testers.items || [];
     const isReal = t => t.kind !== 'BOT_BATCH' && t.kind !== 'CORE_TESTER';
     const reales = items.filter(isReal);
-    const realesHoy = reales.filter(t => (t.first || '').slice(0,10) >= LAUNCH);
+    const nuevos24 = reales.filter(t => (t.first || '') >= cut24);
+    const nuevos7d = reales.filter(t => (t.first || '') >= cut7d);
     const cards = [
-      ['REALES · NUEVOS', fmt(realesHoy.length), 'desde ' + LAUNCH],
+      ['NUEVOS · 24H', fmt(nuevos24.length), 'primer contacto hoy'],
+      ['NUEVOS · 7 DÍAS', fmt(nuevos7d.length), 'última semana'],
       ['REALES · TOTAL', fmt(reales.length), 'usuarios genuinos'],
-      ['TESTERS', fmt(testers.summary.CORE_TESTER || 0), 'PrimeTestLab (filtrado)'],
-      ['BOTS', fmt(testers.summary.BOT_BATCH || 0), 'Google pre-launch (filtrado)'],
+      ['BOTS/TESTERS', fmt((testers.summary.CORE_TESTER || 0) + (testers.summary.BOT_BATCH || 0)), 'filtrados del análisis'],
     ];
     kpi.innerHTML = cards.map(([l,v,n]) => `
       <div class="kpi">
