@@ -19,6 +19,7 @@ import json
 import re
 import sys
 import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 
 from PIL import Image
@@ -185,6 +186,12 @@ def upload_scene(cfg):
         "published": bool(cfg.get("published", False)),
         "description": cfg.get("desc_plain", ""),
         "spec_url": f"{PROJECT}/storage/v1/object/public/{SCENES_BUCKET}/{sid}.json",
+        # created_at OBLIGATORIO: sin él, el editor de sprites (orden "nuevos
+        # primero") manda la escena al FONDO en vez de arriba. Preserva el
+        # existente si la escena ya estaba en el catálogo.
+        "created_at": next((it.get("created_at") for it in cat.get("items", [])
+                            if it.get("id") == sid and it.get("created_at")),
+                           datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")),
     }
     items = [it for it in cat.get("items", []) if it.get("id") != sid]
     items.insert(0, entry)
