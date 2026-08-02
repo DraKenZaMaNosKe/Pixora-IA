@@ -2057,10 +2057,18 @@ async function loadUsuarios(){
   const kpi = document.getElementById('users-kpi');
   const testersEl = document.querySelector('#testers-table tbody');
   const usersEl = document.querySelector('#users-table tbody');
-  const [testers, users] = await Promise.all([
+  const [testers, users, live] = await Promise.all([
     api('/api/active-devices?days=14'),
     api('/api/top-users?limit=200'),
+    api('/api/live-devices?window_min=999999&limit=2000'),
   ]);
+  // Mapa de presencia (heartbeat) por device_id → recencia y primer contacto REALES.
+  // La tabla de abajo salía "vieja" porque usaba solo eventos de wallpaper; el
+  // heartbeat refleja la última vez que ABRIÓ la app, mucho más fresco.
+  const presById = {};
+  ((live && live.devices) || []).forEach(d => {
+    if (d.device_id) presById[d.device_id] = { last: d.last_seen_at, first: d.first_seen_at };
+  });
   if(testers && testers.summary){
     // Ventanas RODANTES (se actualizan solas). Un usuario "real nuevo" es el
     // que tuvo su primer contacto dentro de la ventana. Testers PrimeTestLab
@@ -2070,9 +2078,16 @@ async function loadUsuarios(){
     const cut7d = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
     const items = testers.items || [];
     const isReal = t => t.kind !== 'BOT_BATCH' && t.kind !== 'CORE_TESTER';
-    const reales = items.filter(isReal);
-    const nuevos24 = reales.filter(t => (t.first || '') >= cut24);
-    const nuevos7d = reales.filter(t => (t.first || '') >= cut7d);
+    // Enriquecer con presencia: effLast = lo más reciente entre evento y heartbeat;
+    // effFirst = lo más antiguo entre ambos (primer contacto real).
+    const reales = items.filter(isReal).map(t => {
+      const p = presById[t.device_id] || {};
+      const effLast = [p.last, t.last].filter(Boolean).sort().pop() || t.last;
+      const effFirst = [p.first, t.first].filter(Boolean).sort()[0] || t.first;
+      return { ...t, effLast, effFirst };
+    });
+    const nuevos24 = reales.filter(t => (t.effFirst || '') >= cut24);
+    const nuevos7d = reales.filter(t => (t.effFirst || '') >= cut7d);
     const cards = [
       ['NUEVOS · 24H', fmt(nuevos24.length), 'primer contacto hoy'],
       ['NUEVOS · 7 DÍAS', fmt(nuevos7d.length), 'última semana'],
@@ -2085,22 +2100,26 @@ async function loadUsuarios(){
         <p class="kpi-value">${v}</p>
         <p class="kpi-note">${escapeHtml(n)}</p>
       </div>`).join('');
-    // Tabla: SOLO usuarios reales, los más nuevos primero.
+    // Tabla: SOLO usuarios reales, los MÁS ACTIVOS primero (recencia real del
+    // heartbeat, no del último evento). Los nuevos de hoy suben al tope.
     const rows = reales.slice()
-      .sort((a,b) => (b.first || '').localeCompare(a.first || ''))
+      .sort((a,b) => (b.effLast || '').localeCompare(a.effLast || ''))
       .slice(0, 30);
-    testersEl.innerHTML = rows.length ? rows.map((t,i) => `
+    const cut24row = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    testersEl.innerHTML = rows.length ? rows.map((t,i) => {
+      const nuevo = (t.effFirst || '') >= cut24row ? ' <span class="dd-tag">NUEVO</span>' : '';
+      return `
       <tr>
         <td>${i+1}</td>
-        <td class="mono">${escapeHtml(t.device_id)}</td>
+        <td class="mono">${escapeHtml(t.device_id)}${nuevo}</td>
         <td><span class="pill">${(t.kind || '').replace('_',' ')}</span></td>
         <td class="num">${t.events}</td>
         <td class="num accent">${t.install}</td>
         <td class="num">${t.download}</td>
         <td class="num">${t.wallpapers_touched}</td>
         <td>v${escapeHtml(t.app_version_latest || '?')}</td>
-        <td class="num">${relTime(t.last)}</td>
-      </tr>`).join('')
+        <td class="num">${relTime(t.effLast)}</td>
+      </tr>`; }).join('')
       : '<tr><td colspan="9" class="loading">sin usuarios reales todavía — llegarán al publicar el AAB + correr el anuncio</td></tr>';
   } else {
     testersEl.innerHTML = '<tr><td colspan="9" class="loading">sin datos</td></tr>';
