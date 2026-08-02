@@ -1052,6 +1052,17 @@ class Handler(BaseHTTPRequestHandler):
         # Supersedes /api/active-devices. Sources device_presence (heartbeat,
         # once F1 ships) with fallback to app_events/wallpaper_events (marked
         # estimated) so the panel works TODAY. 10s micro-cache for polling.
+        # Momento en que el sistema de alertas fijó su baseline (empezó a
+        # monitorear). El dashboard usa esto para marcar "NUEVO" solo a devices
+        # llegados DESPUÉS del baseline → coincide exacto con lo que dispara una
+        # alerta al celular/correo. Lee new_user_alerts (service key bypassa RLS).
+        if path == "/api/monitoring-baseline":
+            rows, _ = self._proxy(
+                "new_user_alerts?classified_as=eq.BASELINE&select=detected_at"
+                "&order=detected_at.desc&limit=1")
+            baseline_at = rows[0]["detected_at"] if rows else None
+            return self._send_json({"baseline_at": baseline_at}, 200)
+
         if path in ("/api/live-devices", "/api/device-detail", "/api/usage-stats"):
             import time as _t
             ck = self.path

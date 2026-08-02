@@ -2057,11 +2057,15 @@ async function loadUsuarios(){
   const kpi = document.getElementById('users-kpi');
   const testersEl = document.querySelector('#testers-table tbody');
   const usersEl = document.querySelector('#users-table tbody');
-  const [testers, users, live] = await Promise.all([
+  const [testers, users, live, baseline] = await Promise.all([
     api('/api/active-devices?days=14'),
     api('/api/top-users?limit=200'),
     api('/api/live-devices?window_min=999999&limit=2000'),
+    api('/api/monitoring-baseline'),
   ]);
+  // Momento en que arrancó el monitoreo de alertas. "NUEVO" = llegó DESPUÉS
+  // de esto → coincide EXACTO con lo que dispara una alerta al celular/correo.
+  const baselineAt = (baseline && baseline.baseline_at) || null;
   // Mapa de presencia (heartbeat) por device_id → recencia y primer contacto REALES.
   // La tabla de abajo salía "vieja" porque usaba solo eventos de wallpaper; el
   // heartbeat refleja la última vez que ABRIÓ la app, mucho más fresco.
@@ -2086,10 +2090,13 @@ async function loadUsuarios(){
       const effFirst = [p.first, t.first].filter(Boolean).sort()[0] || t.first;
       return { ...t, effLast, effFirst };
     });
-    const nuevos24 = reales.filter(t => (t.effFirst || '') >= cut24);
+    // "NUEVO" = después del baseline (lo que te alerta). Si aún no hay baseline,
+    // cae a 24h como respaldo.
+    const newCut = baselineAt || cut24;
+    const nuevosBase = reales.filter(t => (t.effFirst || '') >= newCut);
     const nuevos7d = reales.filter(t => (t.effFirst || '') >= cut7d);
     const cards = [
-      ['NUEVOS · 24H', fmt(nuevos24.length), 'primer contacto hoy'],
+      ['NUEVOS · ALERTADOS', fmt(nuevosBase.length), baselineAt ? 'desde que prendimos alertas' : 'últimas 24h'],
       ['NUEVOS · 7 DÍAS', fmt(nuevos7d.length), 'última semana'],
       ['REALES · TOTAL', fmt(reales.length), 'usuarios genuinos'],
       ['BOTS/TESTERS', fmt((testers.summary.CORE_TESTER || 0) + (testers.summary.BOT_BATCH || 0)), 'filtrados del análisis'],
@@ -2105,9 +2112,9 @@ async function loadUsuarios(){
     const rows = reales.slice()
       .sort((a,b) => (b.effLast || '').localeCompare(a.effLast || ''))
       .slice(0, 30);
-    const cut24row = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    const newCutRow = baselineAt || new Date(Date.now() - 24 * 3600 * 1000).toISOString();
     testersEl.innerHTML = rows.length ? rows.map((t,i) => {
-      const nuevo = (t.effFirst || '') >= cut24row ? ' <span class="dd-tag">NUEVO</span>' : '';
+      const nuevo = (t.effFirst || '') >= newCutRow ? ' <span class="dd-tag">NUEVO</span>' : '';
       return `
       <tr>
         <td>${i+1}</td>
