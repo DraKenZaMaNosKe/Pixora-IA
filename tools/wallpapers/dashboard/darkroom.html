@@ -1165,6 +1165,11 @@ body::after{
     <div class="ledger">
       <h3 class="ledger-title">Usuarios reales <span class="badge" id="testers-window">14D</span></h3>
       <p class="ledger-sub">— excluyendo tus devices; ordenado por más reciente</p>
+      <div class="dr-filters" id="usuarios-filters" style="margin:4px 0 10px">
+        <button data-ufilter="all" class="active">Todos</button>
+        <button data-ufilter="online">🟢 En línea</button>
+        <button data-ufilter="new">✨ Nuevos</button>
+      </div>
       <table class="ledger-table" id="testers-table">
         <thead>
           <tr><th>#</th><th>device</th><th>tipo</th><th class="num">events</th><th class="num">inst</th><th class="num">DL</th><th class="num">wp</th><th>app</th><th class="num">última</th></tr>
@@ -2053,6 +2058,15 @@ async function loadSubsLedger(){
 // ============================================================
 // USUARIOS
 // ============================================================
+let usuariosFilter = 'all';
+document.addEventListener('click', e => {
+  const f = e.target.closest('#usuarios-filters [data-ufilter]');
+  if (!f) return;
+  usuariosFilter = f.dataset.ufilter;
+  document.querySelectorAll('#usuarios-filters [data-ufilter]').forEach(b => b.classList.remove('active'));
+  f.classList.add('active');
+  loadUsuarios();
+});
 async function loadUsuarios(){
   const kpi = document.getElementById('users-kpi');
   const testersEl = document.querySelector('#testers-table tbody');
@@ -2107,18 +2121,27 @@ async function loadUsuarios(){
         <p class="kpi-value">${v}</p>
         <p class="kpi-note">${escapeHtml(n)}</p>
       </div>`).join('');
-    // Tabla: SOLO usuarios reales, los MÁS ACTIVOS primero (recencia real del
-    // heartbeat, no del último evento). Los nuevos de hoy suben al tope.
-    const rows = reales.slice()
-      .sort((a,b) => (b.effLast || '').localeCompare(a.effLast || ''))
-      .slice(0, 30);
+    // Tabla: usuarios reales. Filtro (Todos / En línea / Nuevos) + orden por
+    // actividad real (heartbeat). "En línea" = heartbeat en los últimos 15 min.
     const newCutRow = baselineAt || new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    const onlineCut = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const isOnline = t => (t.effLast || '') >= onlineCut;
+    let pool = reales;
+    if (usuariosFilter === 'online') pool = reales.filter(isOnline);
+    else if (usuariosFilter === 'new') pool = reales.filter(t => (t.effFirst || '') >= newCutRow);
+    const rows = pool.slice()
+      .sort((a,b) => (b.effLast || '').localeCompare(a.effLast || ''))
+      .slice(0, 60);
+    // contador en el chip "En línea"
+    const onCountEl = document.querySelector('[data-ufilter="online"]');
+    if (onCountEl) onCountEl.textContent = `🟢 En línea (${reales.filter(isOnline).length})`;
     testersEl.innerHTML = rows.length ? rows.map((t,i) => {
       const nuevo = (t.effFirst || '') >= newCutRow ? ' <span class="dd-tag">NUEVO</span>' : '';
+      const dot = isOnline(t) ? '<span style="color:#2ecc71">● </span>' : '';
       return `
       <tr>
         <td>${i+1}</td>
-        <td class="mono">${escapeHtml(t.device_id)}${nuevo}</td>
+        <td class="mono">${dot}${escapeHtml(t.device_id)}${nuevo}</td>
         <td><span class="pill">${(t.kind || '').replace('_',' ')}</span></td>
         <td class="num">${t.events}</td>
         <td class="num accent">${t.install}</td>
@@ -2127,7 +2150,7 @@ async function loadUsuarios(){
         <td>v${escapeHtml(t.app_version_latest || '?')}</td>
         <td class="num">${relTime(t.effLast)}</td>
       </tr>`; }).join('')
-      : '<tr><td colspan="9" class="loading">sin usuarios reales todavía — llegarán al publicar el AAB + correr el anuncio</td></tr>';
+      : `<tr><td colspan="9" class="loading">${usuariosFilter === 'online' ? 'nadie en línea ahora mismo' : usuariosFilter === 'new' ? 'sin usuarios nuevos desde el baseline' : 'sin usuarios reales todavía'}</td></tr>`;
   } else {
     testersEl.innerHTML = '<tr><td colspan="9" class="loading">sin datos</td></tr>';
   }

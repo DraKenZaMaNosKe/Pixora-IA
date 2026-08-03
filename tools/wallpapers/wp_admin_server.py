@@ -1074,12 +1074,19 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/live-devices":
                 window = int(query.get("window_min", ["90"])[0])
                 limit = int(query.get("limit", ["300"])[0])
+                # Excluir los devices de Eduardo (los de prueba) — reusa la
+                # tabla alert_device_exclusions del sistema de alertas. Así el
+                # "En Vivo" muestra solo usuarios reales, no el Samsung/Huawei.
+                exc_rows, _ = self._proxy(
+                    "alert_device_exclusions?select=device_id&limit=500")
+                excluded = {x["device_id"] for x in (exc_rows or [])}
                 rows, _ = self._proxy(f"admin_live_devices?order=last_seen_at.desc&limit={limit}")
-                rows = rows or []
+                rows = [r for r in (rows or []) if r.get("device_id") not in excluded]
                 seen = {r["device_id"] for r in rows}
                 est, _ = self._proxy(f"admin_presence_proxy?order=last_seen_at.desc&limit={limit}")
                 for e in (est or []):
-                    if e.get("device_id") and e["device_id"] not in seen:
+                    if e.get("device_id") and e["device_id"] not in seen \
+                            and e["device_id"] not in excluded:
                         e["estimated"] = True
                         e["active_wallpaper_id"] = e.get("est_wallpaper_id")
                         rows.append(e)
