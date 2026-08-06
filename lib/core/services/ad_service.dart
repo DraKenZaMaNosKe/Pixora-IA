@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'analytics_service.dart';
 import 'credit_service.dart';
 import 'free_hour_service.dart';
 import 'grace_pass_service.dart';
@@ -502,10 +502,12 @@ class AdService {
     Map<String, dynamic>? metadata,
   }) async {
     try {
-      final box = Hive.isBoxOpen('wallpaper_likes')
-          ? Hive.box('wallpaper_likes')
-          : await Hive.openBox('wallpaper_likes');
-      final deviceId = box.get('device_id') as String? ?? 'unknown';
+      // Canonical device_id — same source app_events / wallpaper_events use,
+      // so ad revenue attributes to the right device. Previously read a Hive
+      // key ('wallpaper_likes' → 'device_id') that was rarely populated, so
+      // every ad logged as 'unknown' and per-user attribution was impossible.
+      // Fixed 2026-08-06 after cross-checking against AdMob.
+      final deviceId = AnalyticsService.instance.deviceId;
       await Supabase.instance.client.rpc('wp_log_ad_event', params: {
         'p_device_id': deviceId,
         'p_ad_kind': adKind,
