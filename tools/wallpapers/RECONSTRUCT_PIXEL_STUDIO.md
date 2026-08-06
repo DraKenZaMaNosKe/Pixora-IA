@@ -96,8 +96,10 @@ Y en Pixora-IA, commitear/pushear los cambios de código/tooling como siempre
 - **La base de datos (Supabase) es la misma** desde cualquier PC — es en la nube.
   Pixel Studio solo necesita la SERVICE_KEY para leerla. No hay que "migrar datos".
 - **Los archivos de estadísticas** viven en Google Drive
-  (`.../claude_compartido/tiktok/stadistics/`) — se sincronizan solos con Drive.
-  Su copia versionada va en orbixprivate (ver `sync-to-private.sh`).
+  (`.../claude_compartido/tiktok/stadistics/`) — se sincronizan solos con la
+  misma cuenta de Drive en cualquier PC. El **código** que los genera
+  (`tools/stats/capture_daily.py`) sí está en GitHub. Así: Drive da los datos,
+  GitHub da los scripts.
 - **Las vistas SQL** (`admin_accounts`, `admin_anon_devices`, etc.) ya están en
   Supabase (nube) — no hay que recrearlas por PC. Su definición queda respaldada
   en `supabase/migrations/`.
