@@ -105,6 +105,49 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Email of the pre-provisioned Play-review account (active subscription
+  /// until 2036). Reviewers reach it ONLY through the hidden version-tap + key
+  /// flow in Settings; the key they type IS this account's Supabase password,
+  /// so nothing secret is baked into the app (decompiling reveals only this
+  /// email). Documented in Play Console "Sign-in details".
+  static const String _reviewerEmail = 'pixorareview@gmail.com';
+
+  /// Hidden reviewer access. Signs into [_reviewerEmail] using [key] as the
+  /// Supabase password — no Google Sign-In, no billing. Mirrors the Google
+  /// post-login flow (`_logSessionAndSyncCredits`) so the subscription syncs,
+  /// the paywall opens and ads are suppressed. Returns true on success.
+  ///
+  /// Added 2026-08-06 to fix the Play takedown: the reviewer couldn't complete
+  /// Google Sign-In, so AI generation (gated server-side by `auth.uid()`) was
+  /// unreachable. This gives them a login path that needs only the key.
+  Future<bool> signInAsReviewer(String key) async {
+    if (_signingIn) return false;
+    _signingIn = true;
+    try {
+      // Clean switch if a real user is already signed in.
+      if (currentUser != null) {
+        try {
+          await _client.auth.signOut();
+        } catch (_) {}
+      }
+      final res = await _client.auth.signInWithPassword(
+        email: _reviewerEmail,
+        password: key,
+      );
+      if (res.user != null) {
+        unawaited(_logSessionAndSyncCredits());
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('[Auth] reviewer sign-in failed: $e');
+      return false;
+    } finally {
+      _signingIn = false;
+    }
+  }
+
   /// Fire-and-forget: record a session row and merge any local diamond
   /// earnings into the server account.
   Future<void> _logSessionAndSyncCredits() async {

@@ -21,6 +21,11 @@ class SettingsPage extends ConsumerStatefulWidget {
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _appVersion = '';
 
+  // Hidden reviewer unlock: 7 taps on the version row (like Android's
+  // dev-mode) opens a key dialog. Resets if taps are >2s apart.
+  int _versionTaps = 0;
+  DateTime? _lastVersionTap;
+
   // Wallpaper overlay toggles (read from / written to native SharedPreferences).
   final Map<String, bool> _overlays = {
     'clock': true,
@@ -110,6 +115,84 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
+  // ── Hidden reviewer access ────────────────────────────────────────────
+  // 7 taps on the version row → key dialog. The correct key signs into the
+  // pre-provisioned review account (active subscription) so Play reviewers can
+  // use AI generation with no Google Sign-In and no billing. Documented in
+  // Play Console "Sign-in details". Added 2026-08-06 for the takedown appeal.
+  void _onVersionTap() {
+    final now = DateTime.now();
+    if (_lastVersionTap == null ||
+        now.difference(_lastVersionTap!) > const Duration(seconds: 2)) {
+      _versionTaps = 0;
+    }
+    _lastVersionTap = now;
+    _versionTaps++;
+    if (_versionTaps >= 7) {
+      _versionTaps = 0;
+      _showReviewerKeyDialog();
+    } else if (_versionTaps >= 4) {
+      final remaining = 7 - _versionTaps;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          duration: const Duration(milliseconds: 700),
+          content: Text('$remaining more taps...'),
+        ));
+    }
+  }
+
+  Future<void> _showReviewerKeyDialog() async {
+    final controller = TextEditingController();
+    bool busy = false;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => AlertDialog(
+          title: const Text('Reviewer access'),
+          content: TextField(
+            controller: controller,
+            obscureText: true,
+            autofocus: true,
+            decoration: const InputDecoration(hintText: 'Access key'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: busy ? null : () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: busy
+                  ? null
+                  : () async {
+                      setLocal(() => busy = true);
+                      final ok = await AuthService.instance
+                          .signInAsReviewer(controller.text.trim());
+                      if (!ctx.mounted) return;
+                      Navigator.of(ctx).pop();
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(ok
+                            ? 'Reviewer mode enabled — full access granted'
+                            : 'Invalid key'),
+                      ));
+                      if (ok) setState(() {});
+                    },
+              child: busy
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Unlock'),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+  }
+
   // All AutoRotate UI + state moved to PixoraDailyPage 2026-05-05.
   // Settings is no longer the entry point — see PixoraDailyBanner widget
   // on the Wallpapers home (lib/features/wallpapers/presentation/widgets/).
@@ -176,6 +259,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 icon: Icons.info_outline,
                 title: 'Pixora IA',
                 subtitle: _appVersion.isEmpty ? 'v —' : 'v$_appVersion',
+                onTap: _onVersionTap,
               ),
               const _SettingsTile(
                 icon: Icons.code,
