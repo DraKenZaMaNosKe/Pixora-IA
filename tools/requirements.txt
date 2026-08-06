@@ -1,0 +1,12 @@
+# Dependencias Python para las herramientas de Pixora IA
+# (Pixel Studio admin dashboard, uploaders de contenido, captura de stats).
+# Instalar con:  pip install -r tools/requirements.txt
+#
+# NO son dependencias de la app Flutter — solo del tooling en tools/.
+
+psycopg2-binary        # conexión directa a Postgres (apply_migration, stats, uploaders)
+requests               # FCM push (tools/wallpapers/_fcm_push.py)
+google-auth            # auth del service account de Firebase para FCM
+Pillow                 # procesamiento de imágenes en los uploaders de escenas
+openpyxl               # leer exports .xlsx (TikTok Ads, etc.)
+python-docx            # leer/escribir el documento maestro (.docx)
