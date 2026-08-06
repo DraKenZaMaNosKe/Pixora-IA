@@ -1326,6 +1326,45 @@ class Handler(BaseHTTPRequestHandler):
                 "items": items,
             }, 200)
 
+        # ─── Accounts rollup (Cuentas por correo) ─────────────────
+        # Agrupa la población por identidad ESTABLE (correo / cuenta auth) en
+        # vez de por device_id (que cambia al reinstalar). Feeds la sub-vista
+        # "Cuentas" de la pestaña Usuarios. Devuelve cuentas registradas + un
+        # bloque de devices anónimos (nunca iniciaron sesión). Excluye a
+        # Eduardo por defecto (?include_eduardo=1 para incluirlo). 2026-08-05.
+        if path == "/api/accounts":
+            include_edu = query.get("include_eduardo", ["0"])[0] == "1"
+            EDU_EMAILS = ("eduardojcr@gmail.com", "gameover.lalo.83@gmail.com",
+                          "pixoramain@gmail.com", "testerorbix@gmail.com",
+                          "pixorareview@gmail.com")
+            # 1) Cuentas registradas (una fila por correo)
+            acc_q = "admin_accounts?select=*&order=last_seen_at.desc.nullslast"
+            if not include_edu:
+                acc_q += "&email=not.in.(" + ",".join(EDU_EMAILS) + ")"
+            accounts, _ = self._proxy(acc_q)
+            accounts = accounts if isinstance(accounts, list) else []
+            # 2) Devices anónimos (nunca hicieron login)
+            anon, _ = self._proxy(
+                "admin_anon_devices?select=*&order=last_seen_at.desc.nullslast&limit=1000")
+            anon = anon if isinstance(anon, list) else []
+            if not include_edu:
+                excl, _ = self._proxy("alert_device_exclusions?select=device_id&limit=1000")
+                excl_ids = {e.get("device_id") for e in (excl or [])}
+                anon = [d for d in anon if d.get("device_id") not in excl_ids]
+            summary = {
+                "accounts": len(accounts),
+                "subscribers": sum(1 for a in accounts if a.get("is_subscriber")),
+                "applied": sum(1 for a in accounts if a.get("applied_wallpaper")),
+                "multi_device": sum(1 for a in accounts if (a.get("device_count") or 0) > 1),
+                "anon": len(anon),
+            }
+            return self._send_json({
+                "summary": summary,
+                "accounts": accounts,
+                "anon_devices": anon,
+                "eduardo_excluded": not include_edu,
+            }, 200)
+
         # ─── Recently added wallpapers (freshness monitoring) ─────
         # Wallpapers creados en los últimos ?days=N con stats mergeados
         # (likes/downloads/views/installs). Feeds panel "Últimos agregados"
@@ -1489,6 +1528,17 @@ class Handler(BaseHTTPRequestHandler):
             data, status = self._proxy(
                 f"ad_events?select=id,ts,device_id,user_id,ad_kind,placement,wallpaper_id,shown,rewarded&order=ts.desc&limit={limit}"
             )
+            # Estimado por impresión = eCPM(ad_kind) / 1000, solo si se mostró.
+            # Antes el frontend pintaba $0.000 porque este campo nunca venía.
+            # Es un ESTIMADO (tarifa LATAM), no el ingreso real de AdMob.
+            if status < 400 and isinstance(data, list):
+                rates, _ = self._proxy("ad_network_rates?select=ad_kind,ecpm_usd")
+                ecpm = {r["ad_kind"]: float(r["ecpm_usd"])
+                        for r in (rates or []) if r.get("ecpm_usd") is not None}
+                for e in data:
+                    shown = e.get("shown")
+                    e["est_revenue"] = round(ecpm.get(e.get("ad_kind"), 0.0) / 1000.0, 6) \
+                        if (shown is None or shown) else 0.0
             return self._send_json(data, status)
 
         # ─── Suscripciones / ingresos recurrentes ─────────────────

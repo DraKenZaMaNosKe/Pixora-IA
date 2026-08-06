@@ -1163,6 +1163,20 @@ body::after{
 
   <div class="ledger-wrap">
     <div class="ledger">
+      <h3 class="ledger-title">Cuentas — por persona</h3>
+      <p class="ledger-sub">— identidad estable por correo; un teléfono cambia de id al reinstalar, el correo no</p>
+      <div class="kpi-strip" id="cuentas-kpi" style="margin:6px 0 12px"><div class="loading">— consultando cuentas…</div></div>
+      <div class="dr-filters" id="cuentas-filters" style="margin:4px 0 10px">
+        <button data-cfilter="email" class="active">📧 Con correo</button>
+        <button data-cfilter="anon">👤 Anónimos</button>
+      </div>
+      <table class="ledger-table" id="cuentas-table">
+        <thead id="cuentas-thead"></thead>
+        <tbody><tr><td colspan="7" class="loading">cargando…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="ledger">
       <h3 class="ledger-title">Usuarios reales <span class="badge" id="testers-window">14D</span></h3>
       <p class="ledger-sub">— excluyendo tus devices; ordenado por más reciente</p>
       <div class="dr-filters" id="usuarios-filters" style="margin:4px 0 10px">
@@ -2067,7 +2081,77 @@ document.addEventListener('click', e => {
   f.classList.add('active');
   loadUsuarios();
 });
+
+// ---- Cuentas: sub-vista agrupada por persona (correo) ----
+let cuentasFilter = 'email';
+let cuentasData = null;
+document.addEventListener('click', e => {
+  const f = e.target.closest('#cuentas-filters [data-cfilter]');
+  if (!f) return;
+  cuentasFilter = f.dataset.cfilter;
+  document.querySelectorAll('#cuentas-filters [data-cfilter]').forEach(b => b.classList.remove('active'));
+  f.classList.add('active');
+  renderCuentas();
+});
+async function loadCuentas(){
+  try { cuentasData = await api('/api/accounts'); } catch(_) { cuentasData = null; }
+  renderCuentas();
+}
+function renderCuentas(){
+  const kpi = document.getElementById('cuentas-kpi');
+  const thead = document.getElementById('cuentas-thead');
+  const tbody = document.querySelector('#cuentas-table tbody');
+  if (!kpi || !thead || !tbody) return;
+  const d = cuentasData;
+  if (!d || !d.summary){ tbody.innerHTML = '<tr><td colspan="8" class="loading">sin datos</td></tr>'; return; }
+  const s = d.summary;
+  const eb = document.querySelector('[data-cfilter="email"]');
+  const ab = document.querySelector('[data-cfilter="anon"]');
+  if (eb) eb.textContent = `📧 Con correo (${s.accounts})`;
+  if (ab) ab.textContent = `👤 Anónimos (${s.anon})`;
+  const cards = [
+    ['CUENTAS', fmt(s.accounts), 'con correo'],
+    ['SUSCRIPTORES', fmt(s.subscribers), 'de pago activos'],
+    ['APLICARON WP', fmt(s.applied), 'pusieron fondo'],
+    ['ANÓNIMOS', fmt(s.anon), 'sin login'],
+  ];
+  kpi.innerHTML = cards.map(([l,v,n]) => `
+    <div class="kpi"><p class="kpi-label">${l}</p><p class="kpi-value">${v}</p><p class="kpi-note">${escapeHtml(n)}</p></div>`).join('');
+
+  if (cuentasFilter === 'email'){
+    thead.innerHTML = '<tr><th>#</th><th>correo</th><th class="num">📱</th><th>registrado</th><th>sub</th><th>wp</th><th>app</th><th class="num">última</th></tr>';
+    const rows = d.accounts || [];
+    tbody.innerHTML = rows.length ? rows.map((a,i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td class="mono">${escapeHtml(a.email || '—')}${a.is_admin ? ' <span class="dd-tag">ADMIN</span>' : ''}</td>
+        <td class="num${(a.device_count||0) > 1 ? ' accent' : ''}">${a.device_count || 0}</td>
+        <td>${(a.registered_at || '').slice(0,10) || '—'}</td>
+        <td>${a.is_subscriber ? '⭐' : '·'}</td>
+        <td>${a.applied_wallpaper ? '🖼️' : '·'}</td>
+        <td>v${escapeHtml(a.app_version || '?')}</td>
+        <td class="num">${relTime(a.last_seen_at)}</td>
+      </tr>`).join('')
+      : '<tr><td colspan="8" class="loading">sin cuentas registradas</td></tr>';
+  } else {
+    thead.innerHTML = '<tr><th>#</th><th>device</th><th>modelo</th><th>app</th><th>wp</th><th>primera</th><th class="num">última</th></tr>';
+    const rows = d.anon_devices || [];
+    tbody.innerHTML = rows.length ? rows.slice(0,200).map((a,i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td class="mono">${escapeHtml(a.device_id || '—')}</td>
+        <td>${escapeHtml(a.device_model || '—')}</td>
+        <td>v${escapeHtml(a.app_version || '?')}</td>
+        <td>${a.applied_wallpaper ? '🖼️' : '·'}</td>
+        <td>${(a.first_seen_at || '').slice(0,10) || '—'}</td>
+        <td class="num">${relTime(a.last_seen_at)}</td>
+      </tr>`).join('')
+      : '<tr><td colspan="7" class="loading">sin devices anónimos</td></tr>';
+  }
+}
+
 async function loadUsuarios(){
+  loadCuentas();
   const kpi = document.getElementById('users-kpi');
   const testersEl = document.querySelector('#testers-table tbody');
   const usersEl = document.querySelector('#users-table tbody');
