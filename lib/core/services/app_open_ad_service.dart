@@ -28,10 +28,10 @@ class AppOpenAdService {
   AppOpenAdService._();
   static final instance = AppOpenAdService._();
 
-  // Google TEST App Open unit — safe until the production unit exists.
+  // Google TEST App Open unit — used in debug / when prod id is empty.
   static const String _testAppOpenId = 'ca-app-pub-3940256099942544/9257395921';
-  // TODO(prod): paste the real AdMob "App Open" ad unit id here.
-  static const String _prodAppOpenId = '';
+  // Pixora production App Open unit (AdMob "Pixora_AppOpen", created 2026-08-10).
+  static const String _prodAppOpenId = 'ca-app-pub-6734758230109098/4300023419';
   static String get _adUnitId =>
       (AdService.useProductionAds && _prodAppOpenId.isNotEmpty)
           ? _prodAppOpenId
