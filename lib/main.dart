@@ -13,6 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/navigation/app_navigator.dart';
 import 'core/services/ad_service.dart';
+import 'core/services/app_open_ad_service.dart';
 import 'core/services/auto_rotate_service.dart';
 import 'core/services/analytics_service.dart';
 import 'core/services/free_hour_service.dart';
@@ -170,6 +171,10 @@ Future<void> main() async {
     // hardcoded strings in each widget.
     unawaited(AppStringsService.instance.initialize());
     AdService.instance.initialize();
+    // App Open ad — compliant "entrada" monetization. Skips first launch,
+    // frequency-capped, never stacks on our interstitial, respects
+    // adsDisabledForUser. Non-blocking; shown on resume (see below).
+    unawaited(AppOpenAdService.instance.initialize());
     // Free Hour — daily ad-free "happy hour". Ships DORMANT (remote flag OFF by
     // default); init just opens a Hive box + a 404-safe config fetch, so it's
     // launch-safe. Enabled later by uploading free_hour_config.json.
@@ -258,6 +263,9 @@ class _PixoraAppState extends State<PixoraApp> with WidgetsBindingObserver {
       WallpaperStatsService.instance.dispose();
     }
     if (state == AppLifecycleState.resumed) {
+      // App Open ad on return to foreground (skips first launch, freq-capped,
+      // never stacks on our interstitial, subscribers/Free Hour/debug exempt).
+      unawaited(AppOpenAdService.instance.showIfAvailable());
       // Text CMS: refresh strings when user comes back to the app. Combined
       // with the 5-min TTL and pull-to-refresh in section pages, this gives
       // near-live updates without needing FCM push. Non-blocking; failures

@@ -115,6 +115,12 @@ class AdService {
       SubscriptionService.instance.hasAccess ||
       FreeHourService.instance.isActive;
 
+  /// Timestamp of the last time our own full-screen (interstitial) ad was
+  /// actually shown. The App Open ad manager reads this to avoid stacking an
+  /// app-open ad right after an interstitial (a Play/AdMob policy violation).
+  /// Set in [_logAd] whenever `shown == true`.
+  static DateTime? lastFullScreenAdAt;
+
   InterstitialAd? _interstitialAd;
   bool _isAdLoaded = false;
   bool _isAdLoading = false;
@@ -502,6 +508,9 @@ class AdService {
     Map<String, dynamic>? metadata,
   }) async {
     try {
+      // Record when a full-screen ad actually appeared, so the App Open ad
+      // manager can avoid stacking on top of it.
+      if (shown) lastFullScreenAdAt = DateTime.now();
       // Canonical device_id — same source app_events / wallpaper_events use,
       // so ad revenue attributes to the right device. Previously read a Hive
       // key ('wallpaper_likes' → 'device_id') that was rarely populated, so
