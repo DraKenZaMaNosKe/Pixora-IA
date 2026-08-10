@@ -253,6 +253,7 @@ class EqualizerRenderer(private val context: Context? = null) {
         // Dispatch to preset-specific renderer (2026-06-06: slimmed to 4 presets)
         when (currentPreset.eqStyle) {
             EqStyle.GOLD_SEGMENTED -> { /* fall through to CLASICO code below */ }
+            EqStyle.AURORA_BLUE -> { drawAuroraBlue(canvas); return }
             EqStyle.GROK_SPECTRUM -> { drawGrokSpectrum(canvas); return }
             EqStyle.CRT_BARS -> { drawCrtBars(canvas); return }
             EqStyle.CYBER_GLITCH -> { drawCyberGlitch(canvas); return }
@@ -790,6 +791,87 @@ class EqualizerRenderer(private val context: Context? = null) {
             canvas.drawPath(path, barPaint)
         }
         barPaint.shader = null
+    }
+
+    // ── CLASICO 2026-08 · AURORA BLUE (design #4) — rounded pill bars in an
+    //    ADAPTIVE blue palette (dark base → icy light top), soft glow + mirror.
+    //    The hue leans toward the wallpaper's glowColor but is clamped to the
+    //    blue band [196,236] so it always reads BLUE while harmonizing with the
+    //    scene. Two gradients built per frame (cheap) so it re-adapts live when
+    //    the wallpaper (glowColor) changes.
+    private val abHsv = FloatArray(3)
+    private val abPal = FloatArray(2)
+    private val abColor = FloatArray(3)
+    // Local matrix that animates the whole-fill flowing gradient upward so the
+    // ENTIRE interior of each bar appears to be drawn base→top (Eduardo 2026-08-09).
+    private val abFlowMatrix = android.graphics.Matrix()
+    private fun adaptiveBluePalette(out: FloatArray) {
+        Color.colorToHSV(glowColor, abHsv)
+        val d = ((abHsv[0] - 212f + 540f) % 360f) - 180f   // signed(glowHue - blue)
+        out[0] = (212f + d * 0.15f).coerceIn(196f, 236f)   // small nudge, stays blue
+        out[1] = abHsv[1].coerceIn(0.60f, 0.95f)           // borrow the scene's vividness
+    }
+    private fun hsvA(h: Float, s: Float, v: Float): Int {
+        abColor[0] = ((h % 360f) + 360f) % 360f
+        abColor[1] = s.coerceIn(0f, 1f)
+        abColor[2] = v.coerceIn(0f, 1f)
+        return Color.HSVToColor(abColor)
+    }
+
+    private fun drawAuroraBlue(canvas: Canvas) {
+        // ── Fully PROPORTIONAL layout → auto-adjusts to ANY screen/density.
+        // Every dimension is a fraction of surfaceWidth/surfaceHeight (no fixed
+        // px), so the bars, spacing, height and floor scale on any device.
+        val n = PixoraWallpaperService.BAR_COUNT
+        val barSpacing = surfaceWidth * 0.0028f          // ~3px @1080, scales
+        val eqWidth = surfaceWidth * 0.90f
+        val barWidth = (eqWidth - barSpacing * (n - 1)) / n
+        val eqStartX = (surfaceWidth - eqWidth) / 2f
+        // Base FLUSH at the very bottom border (tiny proportional margin), bars
+        // grow straight UP. 2026-08-09: lowered to the bottom border per Eduardo.
+        val bottomY = surfaceHeight.toFloat()      // flush at the very bottom edge (Eduardo)
+        val maxBarHeight = surfaceHeight * 0.11f   // half length (Eduardo 2026-08-09)
+        adaptiveBluePalette(abPal)
+        val h = abPal[0]; val s = abPal[1]
+        // Beautiful ALL-DARK gradient: deep blue → indigo → dark purple → dark
+        // violet (Eduardo 2026-08-09 — replaced the light-blue top with a
+        // morado/violeta oscuro). Base hue stays adaptive (blue from the
+        // wallpaper); the purple/violet stops are fixed so they read right.
+        val cBase = hsvA(h - 2f,                       minOf(1.0f, s + 0.10f), 0.34f) // deep blue (adaptive)
+        val cDeep = hsvA((h + 30f).coerceAtMost(250f), minOf(1.0f, s + 0.12f), 0.30f) // indigo
+        val cMid  = hsvA(262f,                          minOf(1.0f, s + 0.13f), 0.32f) // dark purple
+        val cLite = hsvA(274f,                          minOf(1.0f, s + 0.15f), 0.38f) // dark violet (top)
+        val glow  = hsvA(h + 6f, s, 0.50f)
+
+        // WHOLE-FILL flow (Eduardo 2026-08-09): the ENTIRE interior's colors
+        // scroll UPWARD continuously — not a single band. A repeating (MIRROR)
+        // vertical gradient anchored to canvas Y (every bar in phase) whose
+        // local matrix translates up over time. Reads like the whole fill is
+        // being drawn from the bottom up, over and over.
+        val period = maxBarHeight * 0.85f
+        val flow = LinearGradient(0f, 0f, 0f, period,
+            intArrayOf(cBase, cDeep, cMid, cLite),
+            floatArrayOf(0f, 0.35f, 0.70f, 1f),
+            Shader.TileMode.MIRROR)
+        val phase = ((System.currentTimeMillis() % 2600L) / 2600f) * (period * 2f)
+        abFlowMatrix.setTranslate(0f, -phase)   // pattern rises
+        flow.setLocalMatrix(abFlowMatrix)
+
+        // Semi-transparent bars — the wallpaper shows through (Eduardo 2026-08-09).
+        barPaint.alpha = 185
+        for (i in 0 until n) {
+            val v = effectiveAudioLevel(i)
+            val bh = v * maxBarHeight + barWidth * 0.5f  // min = half-pill even when quiet
+            val x = eqStartX + i * (barWidth + barSpacing)
+            barPaint.shader = flow
+            if (tier.useBarShadow) barPaint.setShadowLayer(surfaceWidth * 0.007f, 0f, 0f, glow)
+            else barPaint.setShadowLayer(0f, 0f, 0f, 0)
+            canvas.drawRoundRect(x, bottomY - bh, x + barWidth, bottomY,
+                barWidth / 2f, barWidth / 2f, barPaint)
+        }
+        barPaint.setShadowLayer(0f, 0f, 0f, 0)
+        barPaint.shader = null
+        barPaint.alpha = 255
     }
 
     // ── 08 · AURORA RIBBONS — pill-shaped bars with aurora gradient + mirror

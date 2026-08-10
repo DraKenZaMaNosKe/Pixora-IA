@@ -58,7 +58,7 @@ enum class HudPreset(
         clockLetterSpacing = 0.08f,
         clockGlowColor = Color.parseColor("#E6B655"),
         clockGlowRadius = 30f,
-        eqStyle = EqStyle.GOLD_SEGMENTED,
+        eqStyle = EqStyle.AURORA_BLUE,
         eqPrimary = Color.parseColor("#E6B655"),
         eqSecondary = Color.parseColor("#FFD23F"),
         eqTertiary = 0,
@@ -139,10 +139,12 @@ enum class HudPreset(
 }
 
 enum class EqStyle {
-    GOLD_SEGMENTED,    // CLASICO — segmented gold bars + gold mirror
+    GOLD_SEGMENTED,    // (legacy) segmented gold/Winamp bars — kept for reference
     GROK_SPECTRUM,     // GROK — gradient bars cyan→green→yellow→orange + mirror
     CRT_BARS,          // CRT — cyan bars + horizontal sine wave overlay
     CYBER_GLITCH,      // CYBER — yellow bars with red/cyan RGB offset on peaks
+    AURORA_BLUE,       // CLASICO (2026-08) — rounded pill bars, BLUE palette that
+                       // adapts to the wallpaper's glowColor + glow + mirror.
 }
 
 enum class HudStyle {
