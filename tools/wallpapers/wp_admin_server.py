@@ -19,6 +19,10 @@ from pathlib import Path
 from socketserver import ThreadingMixIn
 from threading import Timer
 
+# Preselección — local batch review before uploading (sandboxed to 1_por_editar).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import preselection as presel  # noqa: E402
+
 
 def datetime_now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -647,6 +651,32 @@ class Handler(BaseHTTPRequestHandler):
         path = urllib.parse.urlparse(self.path).path
         query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
 
+        # ─── Preselección: revisión de lotes locales (sandbox 1_por_editar) ──
+        # NUNCA toca Supabase; NUNCA publica. Todo se resuelve contra la raíz
+        # autorizada y se valida (ver preselection.py).
+        if path.startswith("/api/preselection/"):
+            try:
+                sub = path[len("/api/preselection/"):]
+                if sub == "batches":
+                    return self._send_json(presel.list_batches())
+                if sub == "batch":
+                    return self._send_json(
+                        presel.batch_detail(query.get("name", [""])[0]))
+                if sub == "review":
+                    return self._send_json(
+                        presel.get_review(query.get("batch", [""])[0]))
+                if sub == "asset":
+                    f = presel.safe_asset(query.get("batch", [""])[0],
+                                          query.get("path", [""])[0])
+                    return self._send(200, presel.content_type_for(f),
+                                      f.read_bytes(),
+                                      {"Cache-Control": "public, max-age=3600"})
+                return self._send_json({"error": "unknown preselection route"}, 404)
+            except presel.PreselError as e:
+                return self._send_json({"error": str(e)}, e.status)
+            except Exception as e:
+                return self._send_json({"error": f"preselection: {e}"}, 500)
+
         # Free Hour current config (reads free_hour_config.json from Storage).
         if path == "/api/free-hour":
             import time as _t
@@ -939,6 +969,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send_json({"error": f"bucket list: {e}"}, 502)
             ids = {f["name"][:-5] for f in files
                    if isinstance(f, dict) and str(f.get("name", "")).endswith(".json")}
+            file_dates = {
+                f["name"][:-5]: (f.get("updated_at") or f.get("created_at") or "")
+                for f in files
+                if isinstance(f, dict) and str(f.get("name", "")).endswith(".json")
+            }
 
             try:
                 iurl = f"{SUPABASE_STORAGE}/object/public/wallpaper-images/catalog_index.json"
@@ -965,6 +1000,7 @@ class Handler(BaseHTTPRequestHandler):
                         "published": True,
                         "hidden_in": hit.get("hidden_in", []),
                         "spec_url": hit.get("spec_url"),
+                        "created_at": hit.get("created_at", ""),
                         "orphan_spec": sid not in ids,
                     })
                     continue
@@ -986,6 +1022,7 @@ class Handler(BaseHTTPRequestHandler):
                     "published": spec.get("published") is not False,
                     "hidden_in": spec.get("hidden_in", []),
                     "spec_url": f"{SUPABASE_STORAGE}/object/public/wallpaper-scenes/{sid}.json",
+                    "created_at": spec.get("created_at") or file_dates.get(sid, ""),
                     "orphan_spec": False,
                 })
             return self._send_json({
@@ -1954,6 +1991,7 @@ class Handler(BaseHTTPRequestHandler):
         return self._send_json({"ok": True, **summary, "fcm": fcm_ok})
 
     _DASHBOARD_MIME = {
+        ".html": "text/html; charset=utf-8",
         ".js": "text/javascript; charset=utf-8",
         ".css": "text/css; charset=utf-8",
         ".json": "application/json; charset=utf-8",
@@ -2035,6 +2073,56 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
 
+        # ─── Preselección: POST (review / promote / prepare-sprite) ──────────
+        # NUNCA publica ni toca Supabase. `promote` COPIA aprobadas a
+        # 2_listo_para_subir (conserva originales) y transmite progreso NDJSON.
+        if path.startswith("/api/preselection/"):
+            sub = path[len("/api/preselection/"):]
+            length = int(self.headers.get("Content-Length", "0"))
+            raw = self.rfile.read(length) if length > 0 else b"{}"
+            try:
+                body = json.loads(raw.decode("utf-8")) if raw.strip() else {}
+            except Exception as e:
+                return self._send_json({"error": f"bad JSON: {e}"}, 400)
+            batch = body.get("batch", "")
+            try:
+                if sub == "review":
+                    return self._send_json(presel.post_review(batch, body))
+                if sub == "review-bulk":
+                    return self._send_json(presel.set_status_bulk(
+                        batch, body.get("ids"), body.get("status", "pendiente")))
+                if sub == "prepare-sprite":
+                    return self._send_json(
+                        presel.prepare_sprite(batch, body.get("scene", "")))
+                if sub == "promote":
+                    if body.get("plan"):
+                        return self._send_json(presel.promote_plan(batch))
+                    presel.batch_dir(batch)  # validate before streaming
+                    self.send_response(200)
+                    self.send_header(
+                        "Content-Type", "application/x-ndjson; charset=utf-8")
+                    self.send_header("Cache-Control", "no-cache")
+                    self.end_headers()
+                    try:
+                        for ev in presel.promote_iter(batch):
+                            self.wfile.write(
+                                (json.dumps(ev, ensure_ascii=False) + "\n")
+                                .encode("utf-8"))
+                            self.wfile.flush()
+                    except Exception as e:
+                        try:
+                            self.wfile.write(
+                                (json.dumps({"event": "error", "error": str(e)})
+                                 + "\n").encode("utf-8"))
+                        except Exception:
+                            pass
+                    return
+                return self._send_json({"error": "unknown preselection route"}, 404)
+            except presel.PreselError as e:
+                return self._send_json({"error": str(e)}, e.status)
+            except Exception as e:
+                return self._send_json({"error": f"preselection: {e}"}, 500)
+
         # ─── Free Hour: enable/disable the daily ad-free happy hour ────────
         # Writes free_hour_config.json to Storage. App reads it (TTL 30min /
         # on resume). Default in the app is OFF, so absence = current behavior.
@@ -2092,7 +2180,8 @@ class Handler(BaseHTTPRequestHandler):
             if not wid or not isinstance(fields, dict) or not fields:
                 return self._send_json({"error": "id + fields required"}, 400)
             allowed = {"name", "description", "tags", "glow_color", "badge",
-                       "category", "featured", "published", "daily_eligible"}
+                       "category", "featured", "published", "daily_eligible",
+                       "sort_order"}
             clean = {k: v for k, v in fields.items() if k in allowed}
             if not clean:
                 return self._send_json({"error": "no allowed fields"}, 400)
@@ -2114,16 +2203,22 @@ class Handler(BaseHTTPRequestHandler):
             except urllib.error.HTTPError as e:
                 data = {"error": e.read().decode()[:500]}
                 status = e.code
-            try:
-                pushed = _fcm_push_catalog_invalidate("wallpapers")
-            except Exception:
-                pushed = False
+            import threading as _threading
+            def _push_after_wallpaper_edit():
+                try:
+                    _fcm_push_catalog_invalidate("wallpapers")
+                except Exception:
+                    pass
+            _threading.Thread(
+                target=_push_after_wallpaper_edit,
+                name=f"fcm-wallpaper-edit-{wid}", daemon=True,
+            ).start()
             return self._send_json({
                 "id": wid,
                 "updated_fields": list(clean.keys()),
                 "postgres_status": status,
                 "postgres_response": data,
-                "fcm_pushed": pushed,
+                "fcm_pushed": "queued",
             }, status if status < 400 else 500)
 
         # (see GET /api/scenes for the listing that survives hiding)
@@ -2421,11 +2516,20 @@ class Handler(BaseHTTPRequestHandler):
                 put_scene_spec(scene_id, spec, SERVICE_KEY)
             except Exception as e:
                 return self._send_json({"error": f"spec save: {e}"}, 502)
-            fcm_ok = False
-            try:
-                fcm_ok = bool(_fcm_push_catalog_invalidate("wallpapers"))
-            except Exception:
-                pass
+            # The spec is already durable at this point. Do not keep Pixel
+            # Studio blocked while FCM talks to devices; cache invalidation is
+            # best-effort and can safely continue after the response.
+            import threading as _threading
+            def _push_after_scene_save():
+                try:
+                    _fcm_push_catalog_invalidate("wallpapers")
+                except Exception:
+                    pass
+            _threading.Thread(
+                target=_push_after_scene_save,
+                name=f"fcm-scene-save-{scene_id}",
+                daemon=True,
+            ).start()
             return self._send_json({
                 "ok": True,
                 "scene_id": scene_id,
@@ -2433,7 +2537,7 @@ class Handler(BaseHTTPRequestHandler):
                 "layers_updated": len(spec.get("image_layers") or []),
                 "rigs_updated": len(spec.get("rigs") or []),
                 "layers_revision_bumped": bumped_layers,
-                "fcm": fcm_ok,
+                "fcm": "queued",
             })
 
         # Import image from connected Android device into a canvas_scene.

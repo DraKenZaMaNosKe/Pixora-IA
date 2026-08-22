@@ -58,18 +58,25 @@ body::after{
   background:linear-gradient(180deg, rgba(20,10,10,.9), rgba(20,10,10,.6) 70%, transparent);
   backdrop-filter:blur(6px);
   border-bottom:1px solid rgba(215,184,150,.08);
-  display:flex;align-items:center;gap:32px;
+  display:flex;align-items:center;gap:22px;flex-wrap:nowrap;
 }
-.brand{font-family:'Redaction',serif;font-weight:700;font-size:22px;letter-spacing:6px;color:var(--parchment)}
+.brand{font-family:'Redaction',serif;font-weight:700;font-size:22px;letter-spacing:6px;color:var(--parchment);flex:0 0 auto}
 .brand em{color:var(--safelight-glow);font-style:normal}
-.tabs{display:flex;gap:4px;flex:1}
+/* Barra de menú pro: fila única, scroll horizontal limpio (nunca se corta) */
+.tabs{display:flex;gap:3px;flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden;
+  flex-wrap:nowrap;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 22px),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 22px),transparent 100%)}
+.tabs::-webkit-scrollbar{display:none}
 .tab-btn{
-  padding:8px 18px;background:transparent;border:none;cursor:pointer;
+  padding:8px 14px;background:transparent;border:none;cursor:pointer;
   font-family:'Caveat',cursive;font-size:20px;color:var(--kraft);
-  opacity:.55;transition:opacity .2s,transform .2s;
+  opacity:.55;transition:opacity .18s,background .18s,color .18s;
+  white-space:nowrap;flex:0 0 auto;border-radius:10px;line-height:1;
 }
-.tab-btn:hover{opacity:.9;transform:translateY(-1px)}
-.tab-btn.active{opacity:1;color:var(--parchment);text-decoration:underline;text-decoration-color:var(--safelight-glow);text-decoration-thickness:2px;text-underline-offset:6px}
+.tab-btn:hover{opacity:.95;background:rgba(255,255,255,.06)}
+.tab-btn.active{opacity:1;color:var(--parchment);background:rgba(255,255,255,.05);
+  text-decoration:underline;text-decoration-color:var(--safelight-glow);text-decoration-thickness:2px;text-underline-offset:6px}
 .session-clock{
   font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--kraft);opacity:.55;letter-spacing:2px;
   display:flex;flex-direction:column;align-items:flex-end;gap:2px;
@@ -529,8 +536,9 @@ body::after{
 #dl-monitor .dlm-head{color:#22d3ee;font-weight:700;letter-spacing:1px;margin-bottom:5px}
 #dl-monitor ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
 #dl-monitor li{color:#eaf6ff;opacity:.92}
-#pixi{position:fixed;bottom:8px;right:12px;width:112px;height:auto;z-index:9998;pointer-events:none;
-  filter:drop-shadow(0 0 12px rgba(34,211,238,.45));animation:pixifloat 4s ease-in-out infinite}
+#pixi{position:fixed;bottom:8px;right:12px;width:112px;height:auto;z-index:9998;pointer-events:auto;cursor:grab;
+  filter:drop-shadow(0 0 12px rgba(34,211,238,.45));animation:pixifloat 4s ease-in-out infinite;touch-action:none}
+#pixi.dragging{animation:none;cursor:grabbing;filter:drop-shadow(0 0 18px rgba(255,46,154,.6))}
 @keyframes pixifloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 @media (max-width:720px){#pixi{width:74px}#dl-monitor{right:92px;min-width:150px;font-size:11px}}
 @media (prefers-reduced-motion:reduce){#pixi,#dl-bar.on{animation:none}}
@@ -646,6 +654,7 @@ body::after{
     <button class="tab-btn" data-tab="ingresos">Ingresos</button>
     <button class="tab-btn" data-tab="usuarios">Usuarios</button>
     <button class="tab-btn" data-tab="eventos">Eventos</button>
+    <button class="tab-btn" data-tab="preseleccion">Preselección</button>
     <button class="tab-btn" data-tab="escenas">Escenas</button>
     <button class="tab-btn" data-tab="textos">Textos</button>
     <button class="tab-btn" data-tab="tonos">Tonos</button>
@@ -1240,6 +1249,62 @@ body::after{
 <!-- =============================================================== -->
 <!-- ESCENAS (Sprite Editor embed)                                    -->
 <!-- =============================================================== -->
+<section class="page" data-page="preseleccion">
+  <div class="room-title">
+    <p class="eyebrow" id="psel-eyebrow">MESA DE CURADURÍA · —</p>
+    <h1 class="title">Preselección</h1>
+    <p class="subtitle">— revisa lotes locales antes de subir · nada se publica solo</p>
+  </div>
+
+  <div class="psel-bar">
+    <select id="psel-batch" class="psel-select"></select>
+    <button id="psel-reload" class="psel-mini" title="Recargar">↻</button>
+    <span id="psel-batch-info" class="psel-info">—</span>
+    <div class="psel-bar-actions">
+      <button id="psel-promote" class="psel-btn psel-btn-go" disabled>⬆ Pasar aprobadas a listo</button>
+    </div>
+  </div>
+
+  <div class="psel-toolbar">
+    <input id="psel-search" class="psel-search" placeholder="🔎 Buscar por nombre o id…">
+    <div class="psel-chips" id="psel-type-filters">
+      <button data-tf="all" class="active">Todas</button>
+      <button data-tf="static">🖼️ Estáticas</button>
+      <button data-tf="panoramic">🌄 Panorámicas</button>
+      <button data-tf="canvas_scene">🎞️ Paralaje</button>
+    </div>
+    <div class="psel-chips" id="psel-status-filters">
+      <button data-sf="all" class="active">Estado</button>
+      <button data-sf="aprobada">✅</button>
+      <button data-sf="rechazada">❌</button>
+      <button data-sf="pendiente">⏳</button>
+    </div>
+    <span id="psel-counters" class="psel-counters"></span>
+  </div>
+
+  <div class="psel-selbar">
+    <button id="psel-sel-all" class="psel-selbtn">☑ Seleccionar todas</button>
+    <button id="psel-sel-none" class="psel-selbtn">☐ Deseleccionar</button>
+    <span id="psel-selcount" class="psel-selcount">0 seleccionadas</span>
+    <span class="psel-selspacer"></span>
+    <button id="psel-bulk-ok" class="psel-selbtn ok" disabled>✅ Validar selección</button>
+    <button id="psel-bulk-no" class="psel-selbtn no" disabled>❌ Rechazar selección</button>
+    <button id="psel-bulk-pe" class="psel-selbtn pe" disabled>⏳ Pendiente</button>
+  </div>
+
+  <div class="psel-grid" id="psel-grid">
+    <div class="psel-empty">Selecciona un lote para empezar.</div>
+  </div>
+</section>
+
+<!-- Inspector de hover (preview lateral + lupa), no bloquea -->
+<div id="psel-inspect" class="psel-inspect" hidden>
+  <div class="psel-inspect-head" id="psel-inspect-head"></div>
+  <div class="psel-inspect-full" id="psel-inspect-full"><div class="psel-inspect-dot" id="psel-inspect-dot"></div></div>
+  <div class="psel-inspect-hint">🔍 mueve el cursor sobre la miniatura para inspeccionar</div>
+</div>
+<div id="psel-loupe" class="psel-loupe" hidden></div>
+
 <section class="page" data-page="escenas">
   <div class="room-title">
     <p class="eyebrow" id="date-escenas">MESA DE MONTAJE · —</p>
@@ -1415,6 +1480,8 @@ async function api(path, options = {}){
 // ============================================================
 function showTab(name){
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  // keep the active tab visible in the scrollable menu bar
+  document.querySelector('.tab-btn.active')?.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.dataset.page === name));
   const loaders = {
     resumen: loadResumen,
@@ -1422,6 +1489,7 @@ function showTab(name){
     ingresos: loadIngresos,
     usuarios: loadUsuarios,
     eventos: loadEventos,
+    preseleccion: loadPreseleccion,
     escenas: loadEscenas,
     tonos: loadTonos,
   };
@@ -1498,7 +1566,7 @@ async function loadResumen(){
     ['VISTAS', fmt(s.total_views), 'en toda la historia'],
     ['INSTALLS', fmt(s.total_installs), 'wallpapers aplicados'],
     ['TESTERS 7D', testers ? fmt(testers.summary.CORE_TESTER) : '—', 'core PrimeTestLab'],
-    ['ANUNCIOS', ads && ads[0] ? fmt(ads[0].total_ads) : '—', ads && ads[0] ? '$' + Number(ads[0].revenue_usd || 0).toFixed(2) + ' USD' : ''],
+    ['ANUNCIOS', ads && ads[0] ? fmt(ads[0].total_ads) : '—', ads && ads[0] ? '$' + Number(ads[0].est_total_usd || 0).toFixed(2) + ' USD est.' : ''],
     ['CATEGORÍAS', fmt(Object.keys(s.by_category || {}).length), 'tipos distintos'],
   ];
   board.innerHTML = cards.map(([label, value, note]) => `
@@ -2464,6 +2532,26 @@ if(_tonePlayerEl) _tonePlayerEl.addEventListener('ended', ()=>{
   };
 })();
 
+// ---- Pixi movible (arrastrar para que no estorbe; posición persistente) ----
+(function(){
+  const pixi=document.getElementById('pixi'); if(!pixi) return;
+  try{ const p=JSON.parse(localStorage.getItem('pixi_pos')||'null');
+    if(p && p.left!=null){ pixi.style.left=p.left+'px'; pixi.style.top=p.top+'px'; pixi.style.right='auto'; pixi.style.bottom='auto'; } }catch(_){}
+  let d=null, moved=false;
+  const down=(cx,cy)=>{ const r=pixi.getBoundingClientRect(); d={dx:cx-r.left, dy:cy-r.top}; moved=false; pixi.classList.add('dragging'); };
+  const move=(cx,cy)=>{ if(!d) return; moved=true;
+    let x=Math.max(2,Math.min(window.innerWidth-40, cx-d.dx)), y=Math.max(2,Math.min(window.innerHeight-40, cy-d.dy));
+    pixi.style.left=x+'px'; pixi.style.top=y+'px'; pixi.style.right='auto'; pixi.style.bottom='auto'; };
+  const up=()=>{ if(!d) return; d=null; pixi.classList.remove('dragging');
+    if(moved){ const r=pixi.getBoundingClientRect(); localStorage.setItem('pixi_pos', JSON.stringify({left:Math.round(r.left), top:Math.round(r.top)})); } };
+  pixi.addEventListener('mousedown', e=>{ e.preventDefault(); down(e.clientX,e.clientY); });
+  window.addEventListener('mousemove', e=>move(e.clientX,e.clientY));
+  window.addEventListener('mouseup', up);
+  pixi.addEventListener('touchstart', e=>{ const t=e.touches[0]; down(t.clientX,t.clientY); }, {passive:true});
+  window.addEventListener('touchmove', e=>{ if(d){ const t=e.touches[0]; move(t.clientX,t.clientY); } }, {passive:true});
+  window.addEventListener('touchend', up);
+})();
+
 // ============================================================
 // AMBIENT & UTIL
 // ============================================================
@@ -2549,10 +2637,750 @@ document.addEventListener('keydown', e => { if(e.key === 'Escape' && document.ge
 
 seedDust(20);
 
+// ============================================================
+// PRESELECCIÓN — revisión de lotes locales antes de subir
+// ============================================================
+const psel = { batch:null, scenes:[], totals:null, typeFilter:'all', statusFilter:'all', search:'', bound:false, noteTimers:{}, dlClosed:false, selected:new Set() };
+const PSEL_TYPE_BADGE = {static:'🖼️', panoramic:'🌄', canvas_scene:'🎞️', unknown:'❓'};
+const PSEL_ST_ICON = {aprobada:'✅', rechazada:'❌', pendiente:'⏳'};
+const PSEL_LAYER_Z = {background:0, effect_far:1, contact_shadow:2, character_canvas:3, ambient_glow:4, effect_near:5};
+
+function pselBindOnce(){
+  if(psel.bound) return; psel.bound = true;
+  document.getElementById('psel-batch').addEventListener('change', e => pselLoadBatch(e.target.value));
+  document.getElementById('psel-reload').addEventListener('click', () => pselLoadBatch(psel.batch));
+  document.getElementById('psel-search').addEventListener('input', e => { psel.search = e.target.value; pselRenderGrid(); });
+  document.getElementById('psel-type-filters').addEventListener('click', e => {
+    const b = e.target.closest('[data-tf]'); if(!b) return;
+    psel.typeFilter = b.dataset.tf;
+    document.querySelectorAll('#psel-type-filters [data-tf]').forEach(x=>x.classList.toggle('active', x===b));
+    pselRenderGrid();
+  });
+  document.getElementById('psel-status-filters').addEventListener('click', e => {
+    const b = e.target.closest('[data-sf]'); if(!b) return;
+    psel.statusFilter = b.dataset.sf;
+    document.querySelectorAll('#psel-status-filters [data-sf]').forEach(x=>x.classList.toggle('active', x===b));
+    pselRenderGrid();
+  });
+  document.getElementById('psel-promote').addEventListener('click', pselPromote);
+  // selección en bloque
+  document.getElementById('psel-sel-all').addEventListener('click', () => pselSelectAll(true));
+  document.getElementById('psel-sel-none').addEventListener('click', () => pselSelectAll(false));
+  document.getElementById('psel-bulk-ok').addEventListener('click', () => pselBulkStatus('aprobada'));
+  document.getElementById('psel-bulk-no').addEventListener('click', () => pselBulkStatus('rechazada'));
+  document.getElementById('psel-bulk-pe').addEventListener('click', () => pselBulkStatus('pendiente'));
+  // inspector de hover (preview lateral + lupa)
+  const grid = document.getElementById('psel-grid');
+  grid.addEventListener('mousemove', pselInspectMove);
+  grid.addEventListener('mouseleave', pselInspectHide);
+  document.getElementById('psel-viewer-close').addEventListener('click', pselCloseViewer);
+  document.getElementById('psel-zoom-in').addEventListener('click', ()=>pselZoom(1.25));
+  document.getElementById('psel-zoom-out').addEventListener('click', ()=>pselZoom(0.8));
+  document.getElementById('psel-zoom-reset').addEventListener('click', pselResetView);
+  pselDlInit();
+  document.addEventListener('keydown', e => { if(e.key==='Escape' && !document.getElementById('psel-viewer').hidden) pselCloseViewer(); });
+}
+
+// ---------- Gestor de descargas: minimizar / mover / redimensionar / ocultar ----------
+function pselDlInit(){
+  const panel = document.getElementById('psel-dl');
+  const head  = document.getElementById('psel-dl-head');
+  const fab   = document.getElementById('psel-dl-restore');
+  if(!panel || panel.dataset.init) return; panel.dataset.init = '1';
+  // restaurar posición / tamaño / minimizado guardados
+  try {
+    const pos = JSON.parse(localStorage.getItem('psel_dl_pos')||'null');
+    if(pos && pos.left!=null){ panel.style.left=pos.left+'px'; panel.style.top=pos.top+'px'; panel.style.right='auto'; panel.style.bottom='auto';
+      if(pos.w) panel.style.width=pos.w+'px'; if(pos.h) panel.style.height=pos.h+'px'; }
+    if(localStorage.getItem('psel_dl_min')==='1') panel.classList.add('minimized');
+  } catch(_){}
+  const savePos = () => {
+    const r = panel.getBoundingClientRect();
+    localStorage.setItem('psel_dl_pos', JSON.stringify({
+      left:Math.round(r.left), top:Math.round(r.top), w:Math.round(r.width),
+      h: panel.classList.contains('minimized') ? null : Math.round(r.height)
+    }));
+  };
+  // minimizar / expandir
+  document.getElementById('psel-dl-min').addEventListener('click', () => {
+    const m = panel.classList.toggle('minimized');
+    localStorage.setItem('psel_dl_min', m?'1':'0'); if(!m) savePos();
+  });
+  // ocultar → muestra el botón flotante
+  document.getElementById('psel-dl-close').addEventListener('click', () => {
+    panel.hidden = true; if(fab) fab.hidden = false; psel.dlClosed = true;
+  });
+  if(fab) fab.addEventListener('click', () => { fab.hidden = true; panel.hidden = false; psel.dlClosed = false; pselDlUpdateCount(); });
+  // arrastrar por la cabecera
+  let dr = null;
+  head.addEventListener('mousedown', e => {
+    if(e.target.closest('button')) return;
+    const r = panel.getBoundingClientRect();
+    dr = {dx:e.clientX-r.left, dy:e.clientY-r.top}; e.preventDefault(); document.body.style.userSelect='none';
+  });
+  window.addEventListener('mousemove', e => {
+    if(!dr) return;
+    let x = e.clientX-dr.dx, y = e.clientY-dr.dy;
+    x = Math.max(4, Math.min(window.innerWidth-60, x));
+    y = Math.max(4, Math.min(window.innerHeight-30, y));
+    panel.style.left=x+'px'; panel.style.top=y+'px'; panel.style.right='auto'; panel.style.bottom='auto';
+  });
+  window.addEventListener('mouseup', () => { if(dr){ dr=null; document.body.style.userSelect=''; savePos(); } });
+  // persistir tamaño tras redimensionar
+  panel.addEventListener('mouseup', () => { if(!dr) savePos(); });
+  // contador en vivo de descargas
+  const list = document.getElementById('psel-dl-list');
+  if(list){ new MutationObserver(pselDlUpdateCount).observe(list, {childList:true}); }
+}
+function pselDlUpdateCount(){
+  const active = document.querySelectorAll('#psel-dl-list .psel-dl-row:not(.done):not(.err)').length;
+  const badge  = document.getElementById('psel-dl-count');
+  if(badge) badge.textContent = active>0 ? (active+' activa'+(active>1?'s':'')) : '';
+  const fab = document.getElementById('psel-dl-restore');
+  if(fab){ fab.dataset.n = active>0 ? String(active) : ''; }
+}
+
+async function loadPreseleccion(){ pselBindOnce(); await pselLoadBatches(); }
+
+async function pselLoadBatches(){
+  const sel = document.getElementById('psel-batch');
+  try {
+    const data = await (await fetch('/api/preselection/batches', {cache:'no-store'})).json();
+    const batches = (data.batches||[]).filter(b => b.source==='downloads' || b.scenes > 0);
+    if(!batches.length){
+      sel.innerHTML = '<option>— sin lotes con escenas —</option>';
+      document.getElementById('psel-grid').innerHTML = '<div class="psel-empty">No hay lotes con escenas en 1_por_editar.</div>';
+      return;
+    }
+    sel.innerHTML = batches.map(b => `<option value="${escapeHtml(b.name)}">${escapeHtml(b.label||b.name)} · ${b.scenes} imágenes</option>`).join('');
+    const last = localStorage.getItem('psel_last_batch');
+    const pick = (batches.find(b=>b.name===last)||batches[0]).name;
+    sel.value = pick; await pselLoadBatch(pick);
+  } catch(e){
+    document.getElementById('psel-grid').innerHTML = `<div class="psel-empty">Error cargando lotes: ${escapeHtml(String(e))}</div>`;
+  }
+}
+
+async function pselLoadBatch(name){
+  if(!name) return;
+  psel.batch = name; localStorage.setItem('psel_last_batch', name);
+  document.getElementById('psel-batch').value = name;
+  document.getElementById('psel-eyebrow').textContent = 'MESA DE CURADURÍA · ' + name.toUpperCase();
+  const grid = document.getElementById('psel-grid');
+  grid.innerHTML = '<div class="psel-empty">Cargando escenas…</div>';
+  try {
+    const d = await (await fetch('/api/preselection/batch?name=' + encodeURIComponent(name), {cache:'no-store'})).json();
+    if(d.error){ grid.innerHTML = `<div class="psel-empty">${escapeHtml(d.error)}</div>`; return; }
+    psel.scenes = d.scenes || []; psel.totals = d.totals || {};
+    psel.selected.clear();
+    const t = d.totals||{}, ty = t.types||{};
+    document.getElementById('psel-batch-info').textContent = `${t.scenes||0} escenas · ${ty.static||0}🖼️ ${ty.panoramic||0}🌄 ${ty.canvas_scene||0}🎞️`;
+    // lote nuevo (sin ninguna revisión previa) → por default TODAS validadas
+    if(d.source!=='downloads' && psel.scenes.length && psel.scenes.every(s => !(s.review && s.review.updated_at))){
+      await pselSeedAllApproved();
+    }
+    pselRenderGrid();
+  } catch(e){ grid.innerHTML = `<div class="psel-empty">Error: ${escapeHtml(String(e))}</div>`; }
+}
+
+function pselCounts(){
+  const c = {aprobada:0, rechazada:0, pendiente:0};
+  psel.scenes.forEach(s => { const st=(s.review||{}).status||'pendiente'; c[st]=(c[st]||0)+1; });
+  return c;
+}
+
+function pselUpdateCounters(){
+  const c = pselCounts();
+  document.getElementById('psel-counters').innerHTML =
+    `<span class="psel-ct psel-ok">✅ ${c.aprobada}</span><span class="psel-ct psel-no">❌ ${c.rechazada}</span><span class="psel-ct psel-pe">⏳ ${c.pendiente}</span>`;
+  const btn = document.getElementById('psel-promote');
+  if(psel.batch==='__downloads__'){
+    btn.disabled = c.aprobada === 0;
+    btn.textContent = `⬆ Pasar aprobadas a Drive (${c.aprobada})`;
+    return;
+  }
+  btn.disabled = c.aprobada === 0; btn.textContent = `⬆ Pasar aprobadas a listo (${c.aprobada})`;
+}
+function pselRenderGrid(){
+  const grid = document.getElementById('psel-grid');
+  pselUpdateCounters();
+
+  const q = psel.search.toLowerCase();
+  const list = psel.scenes.filter(s => {
+    if(psel.typeFilter!=='all' && s.type!==psel.typeFilter) return false;
+    const st = (s.review||{}).status||'pendiente';
+    if(psel.statusFilter!=='all' && st!==psel.statusFilter) return false;
+    if(q && !(s.id.toLowerCase().includes(q) || (s.name||'').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if(!list.length){ grid.innerHTML = '<div class="psel-empty">Sin escenas con esos filtros.</div>'; return; }
+  grid.innerHTML = list.map(s => {
+    const st = (s.review||{}).status||'pendiente';
+    const notes = (s.review||{}).notes||'';
+    const picked = psel.selected.has(s.id);
+    const warn = ((s.problems&&s.problems.length)||(s.missing&&s.missing.length)) ? '<span class="psel-warn" title="Ver advertencias">⚠️</span>' : '';
+    return `<div class="psel-card psel-st-${st}${picked?' picked':''}" data-scene="${escapeHtml(s.id)}">
+      <label class="psel-pick" title="Seleccionar"><input type="checkbox" class="psel-pick-cb" ${picked?'checked':''}></label>
+      <div class="psel-thumb" data-thumb="${s.thumb?escapeHtml(s.thumb):''}"></div>
+      <div class="psel-card-body"><div class="psel-card-name">${PSEL_TYPE_BADGE[s.type]||'❓'} ${escapeHtml(s.name||s.id)} ${warn}</div>
+      <div class="psel-card-meta">${escapeHtml(s.type)}${s.dims?` · ${s.dims[0]}×${s.dims[1]}`:''}</div></div>
+      <div class="psel-card-status psel-badge-${st}">${PSEL_ST_ICON[st]}</div>
+      <div class="psel-card-rev">
+        <button class="psel-cr ok ${st==='aprobada'?'on':''}" data-cst="aprobada" title="Aprobar">✅</button>
+        <button class="psel-cr no ${st==='rechazada'?'on':''}" data-cst="rechazada" title="Rechazar">❌</button>
+        <button class="psel-cr pe ${st==='pendiente'?'on':''}" data-cst="pendiente" title="Pendiente">⏳</button>
+        <input class="psel-cnote" placeholder="nota / qué editar…" value="${escapeHtml(notes)}">
+        <span class="psel-cnote-st" title="Estado de guardado"></span>
+      </div></div>`;
+  }).join('');
+  pselLazyThumbs();
+  grid.querySelectorAll('.psel-card').forEach(card => {
+    const id = card.dataset.scene;
+    const s = psel.scenes.find(x => x.id === id);
+    // abrir el visor solo desde la miniatura o el título (no desde los controles)
+    card.querySelector('.psel-thumb').addEventListener('click', () => pselOpenViewer(id));
+    card.querySelector('.psel-card-body').addEventListener('click', () => pselOpenViewer(id));
+    card.querySelectorAll('[data-cst]').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation(); pselCardSetStatus(s, b.dataset.cst);
+    }));
+    const note = card.querySelector('.psel-cnote');
+    note.addEventListener('click', e => e.stopPropagation());
+    note.addEventListener('input', () => pselCardNote(s, note.value, card));
+    const cb = card.querySelector('.psel-pick-cb');
+    cb.addEventListener('click', e => e.stopPropagation());
+    cb.addEventListener('change', () => pselToggleSelect(id, cb.checked, card));
+  });
+  pselUpdateSelBar();
+}
+// ---- acciones inline sobre la tarjeta (sin abrir el visor) ----
+function pselReflectCard(s){
+  const card = document.querySelector('.psel-card[data-scene="' + (window.CSS&&CSS.escape?CSS.escape(s.id):s.id) + '"]');
+  if(!card) return;
+  const status = (s.review||{}).status||'pendiente';
+  card.classList.remove('psel-st-aprobada','psel-st-rechazada','psel-st-pendiente');
+  card.classList.add('psel-st-'+status);
+  card.querySelectorAll('[data-cst]').forEach(b => b.classList.toggle('on', b.dataset.cst===status));
+  const badge = card.querySelector('.psel-card-status');
+  if(badge){ badge.className = 'psel-card-status psel-badge-'+status; badge.textContent = PSEL_ST_ICON[status]; }
+  if(psel.statusFilter!=='all' && status!==psel.statusFilter) card.remove();
+}
+function pselCardSetStatus(s, status){
+  s.review = Object.assign({}, s.review, {status});
+  pselSaveReview(s);
+  pselReflectCard(s);
+  pselUpdateCounters();
+  if(window.pixiCelebrate && status==='aprobada') window.pixiCelebrate();
+}
+function pselCardNote(s, val, card){
+  const st = card && card.querySelector('.psel-cnote-st');
+  if(st) st.textContent = '…';
+  clearTimeout(psel.noteTimers[s.id]);
+  psel.noteTimers[s.id] = setTimeout(async () => {
+    s.review = Object.assign({}, s.review, {notes: val});
+    await pselSaveReview(s);
+    if(st){ st.textContent = '✓'; setTimeout(()=>{ if(st.textContent==='✓') st.textContent=''; }, 1500); }
+  }, 700);
+}
+// ---- por default todas validadas (lote nuevo) ----
+async function pselSeedAllApproved(){
+  try {
+    const r = await (await fetch('/api/preselection/review-bulk', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({batch:psel.batch, ids:'all', status:'aprobada'})})).json();
+    const now = (r && r.updated_at) || new Date().toISOString();
+    psel.scenes.forEach(s => { s.review = Object.assign({}, s.review, {status:'aprobada', updated_at:now}); });
+  } catch(_){}
+}
+// ---- selección múltiple + acciones en bloque ----
+function pselToggleSelect(id, on, card){
+  if(on) psel.selected.add(id); else psel.selected.delete(id);
+  card = card || document.querySelector('.psel-card[data-scene="' + (window.CSS&&CSS.escape?CSS.escape(id):id) + '"]');
+  if(card){ card.classList.toggle('picked', on); const cb=card.querySelector('.psel-pick-cb'); if(cb) cb.checked=on; }
+  pselUpdateSelBar();
+}
+function pselSelectAll(on){
+  if(!on) psel.selected.clear();
+  document.querySelectorAll('#psel-grid .psel-card').forEach(card => {
+    const id = card.dataset.scene;
+    if(on) psel.selected.add(id);
+    card.classList.toggle('picked', on);
+    const cb = card.querySelector('.psel-pick-cb'); if(cb) cb.checked = on;
+  });
+  pselUpdateSelBar();
+}
+function pselUpdateSelBar(){
+  const n = psel.selected.size;
+  const el = document.getElementById('psel-selcount');
+  if(el) el.textContent = n + ' seleccionada' + (n===1?'':'s');
+  ['psel-bulk-ok','psel-bulk-no','psel-bulk-pe'].forEach(idb => { const b=document.getElementById(idb); if(b) b.disabled = n===0; });
+}
+async function pselBulkStatus(status){
+  const ids = [...psel.selected]; if(!ids.length) return;
+  const verb = {aprobada:'Validar', rechazada:'Rechazar', pendiente:'Dejar pendientes'}[status] || 'Cambiar';
+  if(ids.length > 1 && !confirm(`¿${verb} ${ids.length} escenas seleccionadas?`)) return;
+  try {
+    const r = await (await fetch('/api/preselection/review-bulk', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({batch:psel.batch, ids, status})})).json();
+    if(r.error) throw new Error(r.error);
+    const now = r.updated_at || new Date().toISOString();
+    ids.forEach(id => { const s = psel.scenes.find(x => x.id===id); if(s){ s.review = Object.assign({}, s.review, {status, updated_at:now}); pselReflectCard(s); } });
+    pselUpdateCounters();
+    if(status==='aprobada' && window.pixiCelebrate) window.pixiCelebrate();
+  } catch(e){ alert('Error al aplicar en bloque: ' + e); }
+}
+// ---- inspector de hover: preview lateral + lupa (sin dar clic) ----
+let pselInspectId = null;
+function pselInspectMove(e){
+  const thumb = e.target.closest('.psel-thumb');
+  if(!thumb){ pselInspectHide(); return; }
+  const card = thumb.closest('.psel-card'); if(!card){ pselInspectHide(); return; }
+  const s = psel.scenes.find(x => x.id === card.dataset.scene);
+  if(!s){ pselInspectHide(); return; }
+  if(pselInspectId !== s.id) pselInspectShow(s, card);
+  pselInspectLoupe(e.clientX, e.clientY, thumb);
+}
+function pselInspectShow(s, card){
+  pselInspectId = s.id;
+  const insp = document.getElementById('psel-inspect'), full = document.getElementById('psel-inspect-full'), loupe = document.getElementById('psel-loupe');
+  document.getElementById('psel-inspect-head').innerHTML =
+    `<b>${PSEL_TYPE_BADGE[s.type]||'❓'} ${escapeHtml(s.name||s.id)}</b><span>${escapeHtml(s.type)}${s.dims?` · ${s.dims[0]}×${s.dims[1]}`:''}</span>`;
+  const dims = s.dims || [1080,2340], ar = dims[0]/dims[1];
+  const maxW = Math.min(window.innerWidth*0.42, 460), maxH = window.innerHeight*0.80;
+  let pw = maxW, ph = pw/ar; if(ph > maxH){ ph = maxH; pw = ph*ar; }
+  full.style.width = Math.round(pw)+'px'; full.style.height = Math.round(ph)+'px';
+  const cr = card.getBoundingClientRect();
+  insp.classList.toggle('left', cr.left > window.innerWidth/2);
+  const placeholder = card.querySelector('.psel-thumb').dataset.url || '';
+  const prodUrl = pselAssetUrl((s.assets && s.assets.production) || s.thumb);
+  const url0 = placeholder || prodUrl;
+  full.style.backgroundImage = `url('${url0}')`;
+  loupe.style.backgroundImage = `url('${url0}')`;
+  const im = new Image();
+  im.onload = () => { if(pselInspectId === s.id){ full.style.backgroundImage = `url('${prodUrl}')`; loupe.style.backgroundImage = `url('${prodUrl}')`; } };
+  im.src = prodUrl;
+  insp.hidden = false; loupe.hidden = false;
+}
+function pselInspectLoupe(cx, cy, thumb){
+  const loupe = document.getElementById('psel-loupe'); if(loupe.hidden) return;
+  const tr = thumb.getBoundingClientRect();
+  const relx = Math.max(0, Math.min(1, (cx-tr.left)/tr.width));
+  const rely = Math.max(0, Math.min(1, (cy-tr.top)/tr.height));
+  const L = loupe.offsetWidth || 190, Z = 2.6;
+  loupe.style.left = (cx - L/2)+'px'; loupe.style.top = (cy - L/2)+'px';
+  const bgW = tr.width*Z, bgH = tr.height*Z;
+  loupe.style.backgroundSize = bgW+'px '+bgH+'px';
+  loupe.style.backgroundPosition = (-(relx*bgW - L/2))+'px '+(-(rely*bgH - L/2))+'px';
+  const dot = document.getElementById('psel-inspect-dot'), full = document.getElementById('psel-inspect-full');
+  if(dot && full){ dot.style.left = (relx*full.clientWidth)+'px'; dot.style.top = (rely*full.clientHeight)+'px'; }
+}
+function pselInspectHide(){
+  pselInspectId = null;
+  const insp = document.getElementById('psel-inspect'), loupe = document.getElementById('psel-loupe');
+  if(insp) insp.hidden = true; if(loupe) loupe.hidden = true;
+}
+
+let pselThumbObs = null;
+function pselLazyThumbs(){
+  if(pselThumbObs) pselThumbObs.disconnect();
+  pselThumbObs = new IntersectionObserver(entries => {
+    entries.forEach(async e => {
+      if(!e.isIntersecting) return;
+      const el = e.target; pselThumbObs.unobserve(el);
+      const rel = el.dataset.thumb; if(!rel) return;
+      const url = await pselFetchAsset(rel, 'miniatura');
+      if(url){ el.style.backgroundImage = `url('${url}')`; el.dataset.url = url; el.classList.add('loaded'); }
+    });
+  }, {rootMargin:'250px'});
+  document.querySelectorAll('.psel-thumb[data-thumb]').forEach(el => pselThumbObs.observe(el));
+}
+
+// ---------- Gestor de descargas (anime) ----------
+let pselDlSeq = 0;
+function pselAssetUrl(rel){ return `/api/preselection/asset?batch=${encodeURIComponent(psel.batch)}&path=${encodeURIComponent(rel)}`; }
+function pselFmtBytes(b){ if(b==null) return '—'; const u=['B','KB','MB','GB']; let i=0; b=+b; while(b>=1024&&i<3){b/=1024;i++;} return b.toFixed(b<10&&i>0?1:0)+' '+u[i]; }
+function pselDlRow(id, name){
+  if(psel.dlClosed){ const fab=document.getElementById('psel-dl-restore'); if(fab) fab.hidden=false; }
+  else { document.getElementById('psel-dl').hidden = false; }
+  const list = document.getElementById('psel-dl-list');
+  let row = document.getElementById('psel-dl-'+id);
+  if(!row){ row=document.createElement('div'); row.className='psel-dl-row'; row.id='psel-dl-'+id;
+    row.innerHTML = `<div class="psel-dl-name"></div><div class="psel-dl-meta"></div><div class="psel-dl-bar"><div class="psel-dl-fill"></div></div>`;
+    row.querySelector('.psel-dl-name').textContent = name; list.prepend(row); }
+  return row;
+}
+async function pselFetchAsset(rel, kind){
+  const id = ++pselDlSeq; const name = rel.split('/').pop();
+  const ext = (name.split('.').pop()||'').toUpperCase();
+  const row = pselDlRow(id, name);
+  const meta = row.querySelector('.psel-dl-meta'), fill = row.querySelector('.psel-dl-fill');
+  meta.textContent = `${kind} · ${ext} · …`;
+  try {
+    const resp = await fetch(pselAssetUrl(rel));
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const total = +(resp.headers.get('Content-Length')||0);
+    const reader = resp.body.getReader(); let got=0; const chunks=[];
+    for(;;){ const {done,value}=await reader.read(); if(done) break; chunks.push(value); got+=value.length;
+      if(total){ fill.style.width=Math.min(100,got/total*100)+'%'; meta.textContent=`${kind} · ${ext} · ${pselFmtBytes(got)}/${pselFmtBytes(total)}`; }
+      else meta.textContent=`${kind} · ${ext} · ${pselFmtBytes(got)}`; }
+    fill.style.width='100%'; row.classList.add('done'); meta.textContent=`${kind} · ${ext} · ${pselFmtBytes(got)} ✓`;
+    setTimeout(()=>{ row.classList.add('fade'); setTimeout(()=>row.remove(),600); }, 2200);
+    return URL.createObjectURL(new Blob(chunks));
+  } catch(e){ row.classList.add('err'); meta.textContent=`${kind} · error`; setTimeout(()=>row.remove(),4000); return null; }
+}
+
+// ---------- Visor (zoom / pan / capas / advertencias / revisión) ----------
+const pselV = { scene:null, zoom:1, tx:0, ty:0, drag:false, sx:0, sy:0, sway:null };
+function pselApplyTransform(){
+  const wrap = document.getElementById('psel-canvas'); if(!wrap) return;
+  wrap.style.transform = `translate(${pselV.tx}px,${pselV.ty}px) scale(${pselV.zoom})`;
+  document.getElementById('psel-zoom-val').textContent = Math.round(pselV.zoom*100)+'%';
+}
+function pselZoom(f){ pselV.zoom = Math.min(5, Math.max(1, pselV.zoom*f)); if(pselV.zoom===1){pselV.tx=0;pselV.ty=0;} pselApplyTransform(); }
+function pselResetView(){ pselV.zoom=1; pselV.tx=0; pselV.ty=0; pselApplyTransform(); }
+function pselBindStage(){
+  const stage = document.getElementById('psel-stage');
+  stage.onwheel = e => { e.preventDefault(); pselZoom(e.deltaY<0?1.12:0.9); };
+  stage.onmousedown = e => { if(pselV.zoom<=1) return; pselV.drag=true; pselV.sx=e.clientX-pselV.tx; pselV.sy=e.clientY-pselV.ty; stage.classList.add('grabbing'); };
+  window.onmousemove = e => { if(!pselV.drag) return; pselV.tx=e.clientX-pselV.sx; pselV.ty=e.clientY-pselV.sy; pselApplyTransform(); };
+  window.onmouseup = () => { pselV.drag=false; stage.classList.remove('grabbing'); };
+  stage.ondblclick = pselResetView;
+}
+async function pselOpenViewer(sceneId){
+  const s = psel.scenes.find(x=>x.id===sceneId); if(!s) return;
+  pselV.scene = s; pselResetView();
+  if(pselV.sway){ cancelAnimationFrame(pselV.sway); pselV.sway=null; }
+  document.getElementById('psel-viewer').hidden = false;
+  pselRenderViewerSide(s);
+  const stage = document.getElementById('psel-stage');
+  stage.innerHTML = '<div class="psel-canvas" id="psel-canvas"><div class="psel-loading">Cargando…</div></div>';
+  const canvas = document.getElementById('psel-canvas');
+  if(s.type==='canvas_scene' && s.assets.layers && s.assets.layers.length){
+    await pselLoadLayers(s, canvas);
+  } else {
+    const rel = s.assets.production || s.thumb;
+    const url = await pselFetchAsset(rel, 'escena');
+    canvas.innerHTML = `<img class="psel-img" id="psel-img" src="${url||''}" draggable="false">`;
+    const img = document.getElementById('psel-img');
+    img.onload = () => pselCheckImageWarnings(img, s);
+  }
+  pselApplyTransform(); pselBindStage();
+}
+async function pselLoadLayers(s, canvas){
+  canvas.innerHTML = '';
+  const ordered = s.assets.layers.slice().sort((a,b) => {
+    const ka = a.split('/').pop().replace(/\.\w+$/,''), kb = b.split('/').pop().replace(/\.\w+$/,'');
+    return (PSEL_LAYER_Z[ka]??99) - (PSEL_LAYER_Z[kb]??99);
+  });
+  pselV.layerEls = [];
+  for(let i=0;i<ordered.length;i++){
+    const rel = ordered[i], key = rel.split('/').pop().replace(/\.\w+$/,'');
+    const url = await pselFetchAsset(rel, 'capa');
+    const img = document.createElement('img');
+    img.className='psel-layer'; img.dataset.key=key; img.dataset.depth=(PSEL_LAYER_Z[key]??i);
+    img.src = url||''; img.draggable=false; canvas.appendChild(img);
+    pselV.layerEls.push(img);
+  }
+  // sway parallax preview
+  const t0 = performance.now();
+  const tick = () => {
+    const t = (performance.now()-t0)/1000;
+    pselV.layerEls.forEach(el => {
+      if(el.style.display==='none') return;
+      const depth = +el.dataset.depth;
+      const amp = 4 + depth*3;
+      el.style.transform = `translateX(${Math.sin(t*0.7)*amp}px) translateY(${Math.cos(t*0.5)*amp*0.4}px)`;
+    });
+    pselV.sway = requestAnimationFrame(tick);
+  };
+  pselV.sway = requestAnimationFrame(tick);
+}
+function pselCheckImageWarnings(img, s){
+  try {
+    const c = document.createElement('canvas'); const w=Math.min(64,img.naturalWidth), h=Math.min(160,img.naturalHeight);
+    c.width=w; c.height=h; const ctx=c.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+    const rows = [0, h-1]; let blackEdges=0;
+    rows.forEach(y => { let dark=0; const d=ctx.getImageData(0,y,w,1).data;
+      for(let x=0;x<w;x++){ const i=x*4; if(d[i]<14&&d[i+1]<14&&d[i+2]<14) dark++; }
+      if(dark/w > 0.9) blackEdges++; });
+    if(blackEdges>0){ const el=document.getElementById('psel-warn-dyn'); if(el){ el.style.display='block'; el.textContent='⚠️ Posibles franjas negras arriba/abajo'; } }
+  } catch(e){}
+}
+function pselRenderViewerSide(s){
+  const st = (s.review||{}).status||'pendiente';
+  const notes = (s.review||{}).notes||'';
+  const warns = [].concat((s.missing||[]).map(m=>'Falta: '+m), (s.problems||[]));
+  const layerToggles = (s.type==='canvas_scene' && s.assets.layers.length)
+    ? `<div class="psel-side-h">Capas</div><div class="psel-layers-list">` +
+      s.assets.layers.map(l => { const k=l.split('/').pop().replace(/\.\w+$/,''); return `<label class="psel-lyr"><input type="checkbox" checked data-lyr="${k}"> ${k}</label>`; }).join('') + `</div>` : '';
+  document.getElementById('psel-viewer-side').innerHTML = `
+    <div class="psel-side-title">${PSEL_TYPE_BADGE[s.type]||'❓'} ${escapeHtml(s.name||s.id)}</div>
+    <div class="psel-side-sub">${escapeHtml(s.id)}</div>
+    <div class="psel-side-meta">${escapeHtml(s.type)}${s.dims?` · ${s.dims[0]}×${s.dims[1]}`:''} · ${s.layers_count||0} capas</div>
+    ${warns.length?`<div class="psel-warns">${warns.map(w=>'⚠️ '+escapeHtml(w)).join('<br>')}</div>`:''}
+    <div class="psel-warn-dyn" id="psel-warn-dyn" style="display:none"></div>
+    ${layerToggles}
+    <div class="psel-side-h">Revisión</div>
+    <div class="psel-rev-btns">
+      <button data-rev="aprobada" class="psel-rev ${st==='aprobada'?'on':''}">✅ Aprobada</button>
+      <button data-rev="rechazada" class="psel-rev ${st==='rechazada'?'on':''}">❌ Rechazada</button>
+      <button data-rev="pendiente" class="psel-rev ${st==='pendiente'?'on':''}">⏳ Pendiente</button>
+    </div>
+    <div class="psel-side-h">¿Qué hay que mejorar?</div>
+    <div class="psel-note-chips">
+      ${['Acercar al personaje','Corregir bordes verdes','Cambiar el fondo','Evitar recortes','Apoyar los pies en el suelo','Aumentar el paralaje','Ajustar iluminación/efectos'].map(x=>`<button class="psel-chip" data-note="${escapeHtml(x)}">${escapeHtml(x)}</button>`).join('')}
+    </div>
+    <textarea id="psel-notes" class="psel-notes" placeholder="Escribe correcciones y modificaciones…">${escapeHtml(notes)}</textarea>
+    <div class="psel-save-state" id="psel-save-state"></div>
+    <button class="psel-btn psel-btn-sprite" id="psel-prep-sprite">🎨 Preparar para editor de sprites</button>`;
+  // bind side events
+  document.querySelectorAll('.psel-rev-btns [data-rev]').forEach(b => b.addEventListener('click', () => pselSetStatus(s, b.dataset.rev)));
+  document.querySelectorAll('.psel-note-chips [data-note]').forEach(b => b.addEventListener('click', () => {
+    const ta = document.getElementById('psel-notes');
+    ta.value = (ta.value ? ta.value.replace(/\s*$/,'') + '; ' : '') + b.dataset.note;
+    pselQueueNotes(s);
+  }));
+  document.getElementById('psel-notes').addEventListener('input', () => pselQueueNotes(s));
+  document.querySelectorAll('.psel-layers-list [data-lyr]').forEach(cb => cb.addEventListener('change', () => {
+    const el = (pselV.layerEls||[]).find(x=>x.dataset.key===cb.dataset.lyr); if(el) el.style.display = cb.checked?'':'none';
+  }));
+  const prep = document.getElementById('psel-prep-sprite');
+  if(s.type==='source'){
+    prep.disabled = true;
+    prep.textContent = 'Primero pasar a Drive';
+  } else prep.addEventListener('click', () => pselPrepareSprite(s));
+}
+function pselSetStatus(s, status){
+  s.review = Object.assign({}, s.review, {status});
+  document.querySelectorAll('.psel-rev-btns [data-rev]').forEach(b => b.classList.toggle('on', b.dataset.rev===status));
+  pselSaveReview(s);
+  pselReflectCard(s);
+  pselUpdateCounters();
+}
+function pselQueueNotes(s){
+  clearTimeout(psel.noteTimers[s.id]);
+  document.getElementById('psel-save-state').textContent = 'escribiendo…';
+  psel.noteTimers[s.id] = setTimeout(() => {
+    s.review = Object.assign({}, s.review, {notes: document.getElementById('psel-notes').value});
+    pselSaveReview(s);
+  }, 700);
+}
+async function pselSaveReview(s){
+  const ss = document.getElementById('psel-save-state'); if(ss) ss.textContent = 'guardando…';
+  try {
+    const r = await (await fetch('/api/preselection/review', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({batch:psel.batch, scene:s.id, status:(s.review||{}).status||'pendiente', notes:(s.review||{}).notes||''})})).json();
+    if(r.error) throw new Error(r.error);
+    if(ss) ss.textContent = '✓ guardado ' + (r.updated_at||'');
+  } catch(e){ if(ss) ss.textContent = '✗ error al guardar'; }
+}
+function pselCloseViewer(){
+  document.getElementById('psel-viewer').hidden = true;
+  if(pselV.sway){ cancelAnimationFrame(pselV.sway); pselV.sway=null; }
+  window.onmousemove=null; window.onmouseup=null;
+}
+async function pselPrepareSprite(s){
+  try {
+    const r = await (await fetch('/api/preselection/prepare-sprite', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({batch:psel.batch, scene:s.id})})).json();
+    if(r.error) throw new Error(r.error);
+    alert('Preparar para editor de sprites\n\n' + r.warning + '\n\nPasos:\n' + r.next_steps.map((x,i)=>`${i+1}. ${x}`).join('\n'));
+  } catch(e){ alert('Error: ' + e); }
+}
+
+// ---------- Promote (streaming NDJSON → gestor de descargas) ----------
+async function pselPromote(){
+  const c = pselCounts();
+  if(!c.aprobada) return;
+  const fromDownloads = psel.batch==='__downloads__';
+  const destination = fromDownloads ? 'la bandeja de entrada del Drive' : '2_listo_para_subir';
+  if(fromDownloads && !confirm(`¿Copiar ${c.aprobada} imagen(es) aprobada(s) a ${destination}?\nLos originales se conservan. Nada se publica.`)) return;
+  if(!fromDownloads && !confirm(`¿Copiar ${c.aprobada} escena(s) aprobada(s) a 2_listo_para_subir?\nLos originales se conservan. Nada se sube a Supabase.`)) return;
+  const btn = document.getElementById('psel-promote'); btn.disabled = true; btn.textContent = 'Copiando…';
+  const id = 'promote'; const row = pselDlRow(id, '⬆ Pasando aprobadas a listo');
+  const meta = row.querySelector('.psel-dl-meta'), fill = row.querySelector('.psel-dl-fill');
+  try {
+    const resp = await fetch('/api/preselection/promote', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({batch:psel.batch})});
+    const reader = resp.body.getReader(); const dec = new TextDecoder(); let buf='', total=0, done=0, files=0;
+    for(;;){ const {done:d,value}=await reader.read(); if(d) break; buf += dec.decode(value,{stream:true});
+      let nl; while((nl=buf.indexOf('\n'))>=0){ const line=buf.slice(0,nl).trim(); buf=buf.slice(nl+1); if(!line) continue;
+        let ev; try{ ev=JSON.parse(line); }catch(_){ continue; }
+        if(ev.event==='start'){ total=ev.total_bytes||0; meta.textContent=`0/${ev.count_files} archivos · ${pselFmtBytes(0)}`; }
+        else if(ev.event==='file'){ files++; done=ev.done_bytes||done; if(total) fill.style.width=Math.min(100,done/total*100)+'%';
+          meta.textContent=`${files} archivos · ${pselFmtBytes(done)}${total?'/'+pselFmtBytes(total):''} · ${ev.name}`; }
+        else if(ev.event==='skip'){ meta.textContent=`saltada (ya existe): ${ev.scene}`; }
+        else if(ev.event==='done'){ fill.style.width='100%'; row.classList.add('done');
+          meta.textContent=`✓ ${ev.copied_scenes} escenas · ${ev.files_copied} archivos · ${pselFmtBytes(ev.total_bytes)}`;
+          alert(`Listo ✅\nCopiadas: ${ev.copied_scenes} escenas (${ev.files_copied} archivos)\nSaltadas: ${ev.skipped_scenes}\n→ 2_listo_para_subir\n\nNada se subió a Supabase.`); }
+        else if(ev.event==='error'){ throw new Error(ev.error); }
+      } }
+  } catch(e){ row.classList.add('err'); meta.textContent='error: '+e; alert('Error al copiar: '+e); }
+  finally { if(fromDownloads) await pselLoadBatches(); else pselRenderGrid(); }
+}
+
 // Initial tab from hash, default to revelado
 const initial = (location.hash || '#revelado').slice(1);
-const validTabs = ['resumen','revelado','ingresos','usuarios','eventos','escenas','textos','tonos'];
-showTab(validTabs.includes(initial) ? initial : 'revelado');
+const validTabs = ['resumen','revelado','ingresos','usuarios','eventos','preseleccion','escenas','textos','tonos'];
+const _startTab = validTabs.includes(initial) ? initial : 'revelado';
+// Espera a que TODO el DOM esté parseado: los modales (psel-viewer, psel-dl…)
+// viven después de este <script>, y showTab → loader los referencia. Sin esto,
+// refrescar directo en #preseleccion truena pselBindOnce (getElementById null).
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => showTab(_startTab));
+else showTab(_startTab);
 </script>
+
+<!-- ═══════════ PRESELECCIÓN · estilos + modales ═══════════ -->
+<style>
+[data-page="preseleccion"]{--ps-cyan:#22d3ee;--ps-mag:#ff2e9a;--ps-ok:#34d399;--ps-no:#f87171;--ps-pe:#fbbf24;--ps-ink:#eaf6ff;}
+.psel-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:0 60px;margin:8px 0 14px}
+.psel-select{background:#12101a;color:#eaf6ff;border:1.5px solid rgba(34,211,238,.4);border-radius:10px;padding:9px 14px;font-size:14px;max-width:420px}
+.psel-mini{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.4);color:#22d3ee;border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:16px}
+.psel-mini:hover{background:rgba(34,211,238,.25)}
+.psel-info{color:#9fb3d6;font-family:'JetBrains Mono',monospace;font-size:12px}
+.psel-bar-actions{margin-left:auto}
+.psel-btn{border:none;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer;font-size:14px}
+.psel-btn-go{background:linear-gradient(90deg,#22d3ee,#7c4dff);color:#04121a}
+.psel-btn-go:disabled{opacity:.4;cursor:not-allowed}
+.psel-btn-sprite{background:linear-gradient(90deg,#ff2e9a,#7c4dff);color:#fff;width:100%;margin-top:12px}
+.psel-toolbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:0 60px;margin-bottom:16px}
+.psel-search{background:#0d0b16;border:1.5px solid rgba(120,160,220,.3);border-radius:20px;padding:9px 16px;color:#eaf6ff;min-width:240px;font-size:14px}
+.psel-chips{display:flex;gap:6px}
+.psel-chips button{background:rgba(120,160,220,.1);border:1px solid rgba(120,160,220,.25);color:#c9d6ee;border-radius:16px;padding:6px 12px;cursor:pointer;font-size:12.5px}
+.psel-chips button.active{background:linear-gradient(90deg,rgba(34,211,238,.3),rgba(255,46,154,.25));border-color:#22d3ee;color:#fff}
+.psel-counters{margin-left:auto;display:flex;gap:10px}
+.psel-ct{font-family:'JetBrains Mono',monospace;font-size:13px;padding:4px 9px;border-radius:8px}
+.psel-ok{background:rgba(52,211,153,.14);color:#34d399}.psel-no{background:rgba(248,113,113,.14);color:#f87171}.psel-pe{background:rgba(251,191,36,.14);color:#fbbf24}
+.psel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;padding:0 60px 80px}
+/* barra de selección múltiple */
+.psel-selbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:0 60px;margin:-4px 0 16px}
+.psel-selbtn{background:rgba(120,160,220,.1);border:1px solid rgba(120,160,220,.28);color:#dbe6f7;border-radius:10px;padding:7px 13px;cursor:pointer;font-size:12.5px;font-family:'Chakra Petch','JetBrains Mono',monospace}
+.psel-selbtn:hover:not(:disabled){border-color:#22d3ee;color:#fff}
+.psel-selbtn:disabled{opacity:.4;cursor:not-allowed}
+.psel-selbtn.ok{border-color:rgba(52,211,153,.5);color:#6ee7b7}
+.psel-selbtn.ok:hover:not(:disabled){background:rgba(52,211,153,.2)}
+.psel-selbtn.no{border-color:rgba(248,113,113,.5);color:#fca5a5}
+.psel-selbtn.no:hover:not(:disabled){background:rgba(248,113,113,.2)}
+.psel-selbtn.pe{border-color:rgba(251,191,36,.5);color:#fcd34d}
+.psel-selcount{font-family:'JetBrains Mono',monospace;font-size:12px;color:#9fb3d6}
+.psel-selspacer{flex:1}
+/* checkbox de selección en la tarjeta */
+.psel-pick{position:absolute;top:7px;left:7px;z-index:3;width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);border-radius:8px;cursor:pointer}
+.psel-pick-cb{width:16px;height:16px;cursor:pointer;accent-color:#22d3ee}
+.psel-card.picked{border-color:#22d3ee;box-shadow:0 0 0 2px rgba(34,211,238,.5),0 10px 30px rgba(0,0,0,.5)}
+/* inspector de hover: preview lateral + lupa */
+.psel-inspect{position:fixed;top:74px;right:24px;z-index:9700;pointer-events:none;background:linear-gradient(160deg,rgba(15,10,32,.97),rgba(10,7,22,.98));border:1.5px solid rgba(34,211,238,.5);border-radius:16px;padding:12px;box-shadow:0 24px 60px rgba(0,0,0,.7),0 0 30px rgba(34,211,238,.15)}
+.psel-inspect.left{right:auto;left:24px}
+.psel-inspect[hidden]{display:none}
+.psel-inspect-head{display:flex;flex-direction:column;gap:2px;margin-bottom:9px;color:#eaf6ff}
+.psel-inspect-head b{font-size:14px}
+.psel-inspect-head span{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8ba0c4}
+.psel-inspect-full{position:relative;background:#0a0812 center/contain no-repeat;border-radius:10px;border:1px solid rgba(120,160,220,.18)}
+.psel-inspect-dot{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border:2px solid #ff2e9a;border-radius:50%;box-shadow:0 0 8px rgba(255,46,154,.85);pointer-events:none}
+.psel-inspect-hint{margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6f83a8;text-align:center}
+.psel-loupe{position:fixed;z-index:9750;width:190px;height:190px;border-radius:50%;pointer-events:none;background-repeat:no-repeat;border:3px solid rgba(34,211,238,.9);box-shadow:0 0 0 2px rgba(0,0,0,.5),0 14px 40px rgba(0,0,0,.6),inset 0 0 24px rgba(0,0,0,.35)}
+.psel-loupe[hidden]{display:none}
+@media(max-width:900px){.psel-loupe,.psel-inspect{display:none}}
+.psel-empty{grid-column:1/-1;text-align:center;color:#8ba0c4;padding:60px 0;font-family:'JetBrains Mono',monospace}
+.psel-card{position:relative;background:linear-gradient(180deg,#141020,#0d0a16);border:1.5px solid rgba(120,160,220,.18);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .12s,border-color .12s}
+.psel-card:hover{transform:translateY(-3px);border-color:rgba(34,211,238,.6);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.psel-card.psel-st-aprobada{border-color:rgba(52,211,153,.55)}.psel-card.psel-st-rechazada{border-color:rgba(248,113,113,.5)}
+.psel-thumb{aspect-ratio:9/16;background:#0a0812 center/cover no-repeat;background-size:cover;transition:opacity .3s;opacity:.25}
+.psel-thumb.loaded{opacity:1}
+.psel-card-body{padding:9px 11px}
+.psel-card-name{color:#eaf6ff;font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.psel-card-meta{color:#8ba0c4;font-size:11px;font-family:'JetBrains Mono',monospace;margin-top:3px}
+.psel-warn{filter:saturate(1.4)}
+.psel-card-status{position:absolute;top:8px;right:8px;font-size:16px;background:rgba(0,0,0,.55);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+/* controles inline de revisión en la tarjeta */
+.psel-card-rev{display:flex;flex-wrap:wrap;align-items:center;gap:5px;padding:7px 9px 9px;border-top:1px solid rgba(120,160,220,.12)}
+.psel-cr{background:rgba(120,160,220,.1);border:1px solid rgba(120,160,220,.22);border-radius:8px;width:31px;height:28px;font-size:14px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;opacity:.55;transition:opacity .12s,transform .1s,background .12s}
+.psel-cr:hover{opacity:1;transform:translateY(-1px)}
+.psel-cr.ok.on{opacity:1;border-color:#34d399;background:rgba(52,211,153,.28)}
+.psel-cr.no.on{opacity:1;border-color:#f87171;background:rgba(248,113,113,.28)}
+.psel-cr.pe.on{opacity:1;border-color:#fbbf24;background:rgba(251,191,36,.24)}
+.psel-cnote-st{font-family:'JetBrains Mono',monospace;font-size:12px;color:#6ee7b7;flex:0 0 auto;width:14px;text-align:center}
+.psel-cnote{flex:1 1 100%;min-width:0;background:#0a0812;border:1px solid rgba(120,160,220,.25);border-radius:8px;color:#eaf6ff;padding:6px 9px;font-size:11.5px;box-sizing:border-box}
+.psel-cnote::placeholder{color:#5f7194}
+.psel-cnote:focus{outline:none;border-color:#22d3ee;background:#0d0a18}
+/* visor */
+.psel-viewer{position:fixed;inset:0;z-index:9000;background:rgba(4,6,14,.94);display:flex}
+.psel-viewer[hidden]{display:none}
+.psel-stage{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:grab;position:relative}
+.psel-stage.grabbing{cursor:grabbing}
+.psel-canvas{position:relative;will-change:transform;transform-origin:center center}
+.psel-img{max-height:88vh;max-width:100%;display:block;user-select:none}
+.psel-layer{position:absolute;top:0;left:0;max-height:88vh;user-select:none;will-change:transform}
+.psel-layer:first-child{position:relative}
+.psel-loading{color:#9fb3d6;font-family:'JetBrains Mono',monospace}
+.psel-viewer-side{width:340px;background:#0c0a16;border-left:1.5px solid rgba(34,211,238,.25);padding:22px;overflow-y:auto;color:#eaf6ff}
+.psel-side-title{font-size:19px;font-weight:750}
+.psel-side-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8ba0c4;margin:2px 0 8px}
+.psel-side-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:#9fb3d6}
+.psel-side-h{margin:18px 0 8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#22d3ee;font-family:'JetBrains Mono',monospace}
+.psel-warns{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:9px 12px;font-size:12.5px;color:#fbd34d;margin-top:10px}
+.psel-warn-dyn{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);border-radius:10px;padding:8px 12px;font-size:12.5px;color:#fca5a5;margin-top:8px}
+.psel-layers-list{display:flex;flex-direction:column;gap:5px}
+.psel-lyr{font-size:12.5px;color:#c9d6ee;font-family:'JetBrains Mono',monospace;cursor:pointer}
+.psel-rev-btns{display:flex;flex-direction:column;gap:7px}
+.psel-rev{background:rgba(120,160,220,.1);border:1.5px solid rgba(120,160,220,.25);color:#dbe6f7;border-radius:10px;padding:10px;cursor:pointer;font-size:14px;text-align:left}
+.psel-rev.on{border-color:#22d3ee;background:rgba(34,211,238,.18);color:#fff}
+.psel-note-chips{display:flex;flex-wrap:wrap;gap:6px}
+.psel-chip{background:rgba(255,46,154,.1);border:1px solid rgba(255,46,154,.3);color:#ffb3d9;border-radius:14px;padding:5px 10px;cursor:pointer;font-size:11.5px}
+.psel-chip:hover{background:rgba(255,46,154,.25);color:#fff}
+.psel-notes{width:100%;min-height:90px;background:#0a0812;border:1.5px solid rgba(120,160,220,.3);border-radius:10px;color:#eaf6ff;padding:11px;font-size:13px;margin-top:10px;resize:vertical;box-sizing:border-box}
+.psel-save-state{font-family:'JetBrains Mono',monospace;font-size:11px;color:#6ee7b7;margin-top:6px;min-height:14px}
+.psel-viewer-close{position:absolute;top:16px;left:16px;z-index:10;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer}
+.psel-zoom-ctl{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;background:rgba(12,10,22,.9);border:1px solid rgba(34,211,238,.35);border-radius:24px;padding:6px 10px}
+.psel-zoom-ctl button{background:rgba(34,211,238,.15);border:none;color:#22d3ee;border-radius:14px;padding:6px 12px;cursor:pointer;font-size:15px;font-weight:700}
+.psel-zoom-ctl span{color:#eaf6ff;font-family:'JetBrains Mono',monospace;font-size:13px;min-width:44px;text-align:center}
+/* gestor de descargas anime */
+.psel-dl{position:fixed;bottom:20px;right:20px;z-index:9500;width:330px;height:320px;max-height:82vh;max-width:92vw;min-width:230px;min-height:46px;display:flex;flex-direction:column;background:linear-gradient(160deg,rgba(19,10,46,.97),rgba(13,7,32,.97));border:1.5px solid rgba(34,211,238,.5);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 30px rgba(34,211,238,.15);overflow:hidden;resize:both}
+.psel-dl[hidden]{display:none}
+.psel-dl.minimized{resize:none;height:46px!important;min-height:46px}
+.psel-dl.minimized .psel-dl-list{display:none}
+.psel-dl-head{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;font-weight:700;color:#eaf6ff;background:linear-gradient(90deg,rgba(34,211,238,.22),rgba(255,46,154,.18));font-family:'Chakra Petch','JetBrains Mono',monospace;letter-spacing:1px;cursor:move;user-select:none;flex:0 0 auto}
+.psel-dl-title{display:flex;align-items:center}
+.psel-dl-count{font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(34,211,238,.28);color:#bff3ff;border-radius:10px;padding:1px 7px;margin-left:8px}
+.psel-dl-count:empty{display:none}
+.psel-dl-btns{display:flex;gap:3px}
+.psel-dl-head button{background:none;border:none;color:#c9d6ee;cursor:pointer;font-size:14px;width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.psel-dl-head button:hover{background:rgba(255,255,255,.14);color:#fff}
+.psel-dl-list{flex:1 1 auto;min-height:0;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:8px}
+.psel-dl-restore{position:fixed;bottom:20px;right:20px;z-index:9500;width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(34,211,238,.6);background:linear-gradient(160deg,rgba(19,10,46,.97),rgba(13,7,32,.97));color:#22d3ee;font-size:22px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 20px rgba(34,211,238,.25)}
+.psel-dl-restore[hidden]{display:none}
+.psel-dl-restore:hover{transform:translateY(-2px);color:#fff}
+.psel-dl-row{background:rgba(10,7,24,.7);border:1px solid rgba(120,160,220,.18);border-radius:10px;padding:8px 10px;transition:opacity .5s,transform .3s}
+.psel-dl-row.done{border-color:rgba(52,211,153,.4)}
+.psel-dl-row.err{border-color:rgba(248,113,113,.5)}
+.psel-dl-row.fade{opacity:0;transform:translateX(20px)}
+.psel-dl-name{color:#eaf6ff;font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.psel-dl-meta{color:#9fb3d6;font-size:10.5px;font-family:'JetBrains Mono',monospace;margin:2px 0 5px}
+.psel-dl-bar{height:5px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.psel-dl-fill{height:100%;width:0;background:linear-gradient(90deg,#22d3ee,#ff2e9a);box-shadow:0 0 8px rgba(34,211,238,.6);transition:width .15s}
+.psel-dl-row.done .psel-dl-fill{background:linear-gradient(90deg,#34d399,#22d3ee)}
+@media(max-width:760px){.psel-bar,.psel-toolbar,.psel-grid{padding-left:16px;padding-right:16px}.psel-viewer-side{width:100%;position:absolute;bottom:0;max-height:45vh}.psel-viewer{flex-direction:column}}
+</style>
+
+<div id="psel-viewer" class="psel-viewer" hidden>
+  <button class="psel-viewer-close" id="psel-viewer-close">✕</button>
+  <div class="psel-stage" id="psel-stage"></div>
+  <div class="psel-viewer-side" id="psel-viewer-side"></div>
+  <div class="psel-zoom-ctl">
+    <button id="psel-zoom-out">−</button>
+    <span id="psel-zoom-val">100%</span>
+    <button id="psel-zoom-in">+</button>
+    <button id="psel-zoom-reset">Restaurar</button>
+  </div>
+</div>
+
+<div id="psel-dl" class="psel-dl" hidden>
+  <div class="psel-dl-head" id="psel-dl-head">
+    <span class="psel-dl-title">⬇ DESCARGAS<span id="psel-dl-count" class="psel-dl-count"></span></span>
+    <span class="psel-dl-btns">
+      <button id="psel-dl-min" title="Minimizar / expandir">▁</button>
+      <button id="psel-dl-close" title="Ocultar">✕</button>
+    </span>
+  </div>
+  <div class="psel-dl-list" id="psel-dl-list"></div>
+</div>
+<button id="psel-dl-restore" class="psel-dl-restore" hidden title="Mostrar descargas">⬇</button>
 </body>
 </html>

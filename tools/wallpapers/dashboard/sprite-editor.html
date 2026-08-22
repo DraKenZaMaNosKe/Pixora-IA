@@ -870,6 +870,7 @@ let rigStartMs = 0;
 // scene keep resolving and get added to the scene that replaced it.
 let sceneGen = 0;
 const isStaleGen = (gen) => gen !== sceneGen;
+let catalogGen = 0;
 
 // ── Load HUD ──────────────────────────────────────────────────────────
 // Live readout of every asset the scene pulls, so it's never a mystery why
@@ -1212,6 +1213,8 @@ window.addEventListener('resize', fitCanvas);
 // ═════════════════════════════════════════════════════════════════════
 
 async function loadCatalog() {
+  const gen = ++catalogGen;
+  const requestedMode = state.mode;
   const list = $('#catalog-list');
   list.innerHTML = '<div class="loading">cargando...</div>';
   state.catalog = [];
@@ -1219,11 +1222,14 @@ async function loadCatalog() {
   if (state.mode === '3d') {
     $('#list-section-title').textContent = '3D · CANVAS SCENES';
     try {
-      const r = await fetch(`${SUPA_STORAGE}/wallpaper-images/catalog_index.json`);
+      // Fuente administrativa completa: incluye published:false y escenas
+      // retiradas del índice público, para poder editarlas y reactivarlas.
+      const r = await fetch(`/api/scenes?editor_nc=${Date.now()}`, { cache: 'no-store' });
       const d = await r.json();
-      state.catalog = (d.items || []).filter(it => it.type === 'canvas_scene').map(it => ({
+      if (gen !== catalogGen || state.mode !== requestedMode) return;
+      state.catalog = (d.rows || []).filter(it => it.type === 'canvas_scene').map(it => ({
         id: it.id, name: (it.title?.es || it.title?.en || it.id), tags: it.tags || [],
-        preview_url: it.preview_url, kind: '3d', created_at: it.created_at || '',
+        preview_url: it.preview_url, kind: '3d', created_at: it.created_at || '', raw: it,
       }));
     } catch (e) { list.innerHTML = '<div class="loading">error: ' + e.message + '</div>'; return; }
   } else if (state.mode === 'live') {
@@ -1231,6 +1237,7 @@ async function loadCatalog() {
     try {
       const r = await fetch(`/api/catalog-search?kinds=live&limit=60`);
       const d = await r.json();
+      if (gen !== catalogGen || state.mode !== requestedMode) return;
       state.catalog = (d.rows || []).map(it => ({
         id: it.id, name: it.name || it.id, tags: it.tags || [],
         preview_url: it.preview_url, kind: 'live', raw: it,
@@ -1239,28 +1246,37 @@ async function loadCatalog() {
   } else if (state.mode === 'static') {
     $('#list-section-title').textContent = 'STATIC WALLPAPERS';
     try {
-      const r = await fetch(`/api/catalog-search?kinds=static&limit=60`);
+      // Postgres es la fuente primaria de imágenes nuevas. A diferencia del
+      // dynamic_catalog, también devuelve las pendientes/published:false.
+      const r = await fetch(`/api/all-wallpapers?type=static&limit=1000`, { cache: 'no-store' });
       const d = await r.json();
-      state.catalog = (d.rows || []).map(it => ({
-        id: it.id, name: it.name || it.id, tags: it.tags || [],
-        preview_url: it.preview_url, kind: 'static', raw: it,
-      }));
+      if (gen !== catalogGen || state.mode !== requestedMode) return;
+      state.catalog = (d.items || [])
+        .filter(it => !['SCENES', 'PANORAMIC'].includes((it.category || '').toUpperCase()))
+        .map(it => ({
+          id: it.id, name: it.name || it.id, tags: it.tags || [],
+          preview_url: it.preview_url, kind: 'static', raw: it,
+          created_at: it.created_at || it.updated_at || '',
+          sort_order: Number(it.sort_order || 0),
+        }));
     } catch (e) { list.innerHTML = '<div class="loading">' + e.message + '</div>'; return; }
   } else if (state.mode === 'panoramic') {
     $('#list-section-title').textContent = 'PANORAMIC';
     try {
-      const r = await fetch(`/api/catalog-search?kinds=static&limit=120`);
+      const r = await fetch(`/api/all-wallpapers?type=panoramic&limit=1000`, { cache: 'no-store' });
       const d = await r.json();
-      state.catalog = (d.rows || [])
-        .filter(it => (it.category || '').toUpperCase() === 'PANORAMIC')
+      if (gen !== catalogGen || state.mode !== requestedMode) return;
+      state.catalog = (d.items || [])
         .map(it => ({
           id: it.id, name: it.name || it.id, tags: it.tags || [],
           preview_url: it.preview_url, kind: 'panoramic', raw: it,
+          created_at: it.created_at || it.updated_at || '',
+          sort_order: Number(it.sort_order || 0),
         }));
     } catch (e) { list.innerHTML = '<div class="loading">' + e.message + '</div>'; return; }
   }
 
-  renderCatalogList();
+  if (gen === catalogGen && state.mode === requestedMode) renderCatalogList();
 }
 
 function renderCatalogList() {
@@ -1277,7 +1293,16 @@ function renderCatalogList() {
     filtered.sort((a, b) => String(a.name).localeCompare(String(b.name)));
   } else {
     const dir = order === 'old' ? 1 : -1;
-    filtered.sort((a, b) => dir * String(a.created_at || '').localeCompare(String(b.created_at || '')));
+    filtered.sort((a, b) => {
+      const byDate = dir * String(a.created_at || '').localeCompare(String(b.created_at || ''));
+      if (byDate) return byDate;
+      // Batch uploads share the same timestamp. sort_order is assigned in
+      // ingestion order, so it is the stable tie-breaker that keeps the most
+      // recently prepared scenes at the top instead of using API/random order.
+      const byOrder = dir * (Number(a.sort_order || 0) - Number(b.sort_order || 0));
+      if (byOrder) return byOrder;
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    });
   }
   const list = $('#catalog-list');
   if (!filtered.length) { list.innerHTML = '<div class="loading">sin resultados</div>'; return; }
@@ -1365,6 +1390,11 @@ function escapeHtml(s) {
 // ═════════════════════════════════════════════════════════════════════
 
 async function loadItem(it) {
+  const expectedKind = state.mode === '3d' ? '3d' : state.mode;
+  if (it.kind !== expectedKind) {
+    toast('La lista cambió de pestaña; recargando…', 'error');
+    return loadCatalog();
+  }
   if (state.dirty) {
     if (!confirm('Hay cambios sin guardar. ¿Descartar y cargar otro?')) return;
   }
@@ -1425,6 +1455,9 @@ async function loadSceneSpec(it) {
     if (isStaleGen(gen)) return;
     state.spec = spec;
     lhSet(gen, 'spec', 'ok');
+    // The controls only depend on JSON, not on GPU textures. Show them now so
+    // a slow image never leaves the right panel stuck on "cargando spec...".
+    renderItemsPanel();
   } catch (e) {
     if (isStaleGen(gen)) return;
     lhSet(gen, 'spec', 'err');
@@ -1484,11 +1517,16 @@ function assetUrlWithBust(url, revision) {
 
 function loadTexture(url) {
   return new Promise((res, rej) => {
+    const timer = setTimeout(() => rej(new Error('timeout cargando textura')), 15000);
     texLoader.load(url, t => {
+      clearTimeout(timer);
       t.colorSpace = THREE.SRGBColorSpace;
       t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter;
       res(t);
-    }, undefined, rej);
+    }, undefined, e => {
+      clearTimeout(timer);
+      rej(e);
+    });
   });
 }
 
@@ -3477,6 +3515,17 @@ function toggleCycleFrame(cycIdx, fromHidden, idx) {
 
 async function save() {
   if (!state.dirty) return;
+  const saveBtn = $('#btn-save');
+  const saveHtml = saveBtn.innerHTML;
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<span class="ico">⏳</span> GUARDANDO…';
+  toast('Guardando cambios…', '');
+  const finishSaveUi = () => {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = saveHtml;
+    updateSaveButton();
+  };
+  try {
   if (state.mode === '3d' && state.spec) {
     const r = await fetch('/api/save-scene-sprites', {
       method: 'POST',
@@ -3494,7 +3543,7 @@ async function save() {
     if (r.ok) {
       const j = await r.json();
       state.dirty = false; updateSaveButton();
-      toast(`Guardado · FCM ${j.fcm ? 'OK' : '✗'} · ${j.layers_updated} layers`, 'ok');
+      toast(`Guardado ✓ · ${j.layers_updated} capas`, 'ok');
     } else {
       const t = await r.text();
       toast('ERROR: ' + t.slice(0,80), 'error');
@@ -3507,10 +3556,13 @@ async function save() {
       if (state.staticMeta[k] !== undefined) fields[k] = state.staticMeta[k];
     });
     const kind = state.mode === 'live' ? 'live' : 'static';
-    const r = await fetch('/api/wallpaper-edit', {
+    const isPostgresImage = state.mode === 'static' || state.mode === 'panoramic';
+    const r = await fetch(isPostgresImage ? '/api/wallpaper-update-pg' : '/api/wallpaper-edit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({kind, id: state.staticMeta.id, fields}),
+      body: JSON.stringify(isPostgresImage
+        ? {id: state.staticMeta.id, fields}
+        : {kind, id: state.staticMeta.id, fields}),
     });
     if (r.ok) {
       state.dirty = false; updateSaveButton();
@@ -3518,6 +3570,11 @@ async function save() {
     } else {
       toast('ERROR al guardar', 'error');
     }
+  }
+  } catch (e) {
+    toast('ERROR: ' + String(e?.message || e).slice(0, 100), 'error');
+  } finally {
+    finishSaveUi();
   }
 }
 

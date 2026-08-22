@@ -171,9 +171,7 @@
       "mcp__claude_ai_Supabase__create_project",
 
       "Edit(KEYS_LOCAL.md)",
-      "Write(KEYS_LOCAL.md)",
       "Edit(android/key.properties)",
-      "Write(android/key.properties)",
       "Edit(**/*.keystore)",
       "Edit(**/*.jks)",
       "Edit(**/.env)",

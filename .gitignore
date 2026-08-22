@@ -131,3 +131,8 @@ tools/rig/_pushtmp/
 supabase/.temp/
 .codex/
 .agents/
+
+# Key.properties backups — contain keystore passwords, NEVER commit
+android/key.properties.bak*
+# Runtime publish-progress state — ephemeral, no repo value
+tools/wallpapers/dashboard/batch_publish_progress.json

@@ -95,8 +95,10 @@ class SpriteDownloadService {
     final expectedSize = info['size'] as int?;
     if (expectedSize == null) return true;
     final metaFile = File('${dir.path}/$_metaFileName');
-    // Legacy folders (pre-meta) — trust frame count until next download.
-    if (!metaFile.existsSync()) return true;
+    // Legacy folders do not prove which ZIP revision produced the frames.
+    // Re-download once so replacements under a stable manifest key cannot keep
+    // stale artwork forever; the successful download writes the metadata file.
+    if (!metaFile.existsSync()) return false;
     try {
       final meta =
           json.decode(metaFile.readAsStringSync()) as Map<String, dynamic>;
