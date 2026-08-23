@@ -132,6 +132,12 @@ data class SpriteDef(
 data class ImageLayerDef(
     val key: String,
     val url: String,
+    /** Optional grayscale depth map aligned pixel-for-pixel with [url].
+     *  White pixels are near and black pixels are far. When present, the
+     *  renderer deforms this layer as one continuous 2.5D mesh. */
+    val depthMapUrl: String?,
+    /** Multiplier for per-pixel depth displacement. 0 disables the mesh. */
+    val depthStrength: Float,
     val parallaxFactor: Float,   // gyro tilt depth (0=static, 1=full tilt)
     val scrollFactor: Float,     // home-page swipe pan (0=fixed, 1=full panoramic)
     val z: Int,
@@ -182,6 +188,8 @@ data class ImageLayerDef(
             ImageLayerDef(
                 key = j.getString("key"),
                 url = j.getString("url"),
+                depthMapUrl = j.optString("depth_map_url").takeIf { it.isNotBlank() },
+                depthStrength = j.f("depth_strength", 0f).coerceIn(0f, 3f),
                 parallaxFactor = pf,
                 // scroll_factor falls back to parallax_factor for backward compat,
                 // BUT the typical usage is to set them independently:

@@ -228,6 +228,48 @@ class SceneSpecService {
         final revisionMatch =
             cachedRevision != null && cachedRevision == specRevision;
 
+        // Fetch the optional depth map BEFORE any color-layer early return.
+        // A cached color image must not prevent a newly-added depth map from
+        // reaching the native renderer.
+        final depthUrl = l['depth_map_url'] as String?;
+        if (depthUrl != null && depthUrl.isNotEmpty) {
+          final depthKey = '${key}_depth';
+          final depthOut = File('${dir.path}/$depthKey.webp');
+          final depthEntry = meta[depthKey];
+          final depthCachedUrl = depthEntry is Map
+              ? depthEntry['url'] as String?
+              : depthEntry as String?;
+          final depthCachedRevision = depthEntry is Map
+              ? (depthEntry['revision'] as num?)?.toInt()
+              : null;
+          final depthFresh =
+              depthOut.existsSync() && depthOut.lengthSync() > 1024;
+          if (!depthFresh ||
+              depthCachedUrl != depthUrl ||
+              depthCachedRevision != specRevision) {
+            try {
+              final depthResponse = await http
+                  .get(Uri.parse(depthUrl))
+                  .timeout(const Duration(seconds: 30));
+              if (depthResponse.statusCode == 200 &&
+                  depthResponse.bodyBytes.length > 1024) {
+                await depthOut.writeAsBytes(depthResponse.bodyBytes);
+                meta[depthKey] = {
+                  'url': depthUrl,
+                  'size': depthResponse.bodyBytes.length,
+                  if (specRevision > 0) 'revision': specRevision,
+                };
+                metaChanged = true;
+                debugPrint(
+                    '[SceneSpec] $sceneId/$depthKey: depth fetch, ${depthResponse.bodyBytes.length} bytes');
+              }
+            } catch (e) {
+              debugPrint(
+                  '[SceneSpec] $sceneId/$depthKey: depth fetch error $e');
+            }
+          }
+        }
+
         if (fileFresh &&
             cachedUrl == url &&
             revisionMatch &&

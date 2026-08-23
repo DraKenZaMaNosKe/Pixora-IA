@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.util.Log
 import com.orbix.pixora.renderers.SpriteSheet
@@ -26,6 +27,8 @@ class CanvasSceneRenderer(private val context: Context) {
 
     companion object {
         private const val TAG = "CanvasScene"
+        private const val DEPTH_MESH_W = 18
+        private const val DEPTH_MESH_H = 40
         /** Authoring reference resolution. ALL px-based spec fields
          *  (`offset_x_px`, `bob_amplitude_px`, `motion.amplitude_px`,
          *  `collision.amplitude_px` / `rise_px`, etc.) are interpreted at
@@ -71,6 +74,11 @@ class CanvasSceneRenderer(private val context: Context) {
     private val particleSystems = mutableListOf<ParticleSystem>()
     private val events = mutableListOf<SceneEvent>()
     private val layerBitmaps = mutableListOf<Pair<ImageLayerDef, Bitmap>>()
+    private val depthBitmaps = mutableMapOf<String, Bitmap>()
+    private val depthMeshSamples = mutableMapOf<String, FloatArray>()
+    private val depthMeshVertices = mutableMapOf<String, FloatArray>()
+    private val loadedDepthKeys = mutableSetOf<String>()
+    private val depthSourceMtime = mutableMapOf<String, Long>()
     /** Disk mtime per layer key — detect remote re-uploads without URL change. */
     // Throttle for per-frame mtime polling (loadSpec + ensureLoaded). v1.7.44 fix:
     // Grok's v1.7.42 hot-reload added one File.lastModified() per spec + per layer,
@@ -255,9 +263,15 @@ class CanvasSceneRenderer(private val context: Context) {
             if (!needsReload) {
                 for (layer in s.imageLayers) {
                     val f = File(layerDir, "${layer.key}.webp")
+                    val depthFile = File(layerDir, "${layer.key}_depth.webp")
                     val mtime = if (f.isFile) f.lastModified() else 0L
+                    val depthMtime = if (depthFile.isFile) depthFile.lastModified() else 0L
                     if (layerSourceMtime[layer.key] != mtime ||
-                        layerSourceRevision[layer.key] != layer.revision) {
+                        layerSourceRevision[layer.key] != layer.revision ||
+                        (layer.depthMapUrl != null &&
+                            (!depthFile.isFile ||
+                                layer.key !in loadedDepthKeys ||
+                                depthSourceMtime[layer.key] != depthMtime))) {
                         needsReload = true
                         break
                     }
@@ -277,6 +291,18 @@ class CanvasSceneRenderer(private val context: Context) {
                     val bmp = BitmapFactory.decodeFile(f.absolutePath, opts)
                     if (bmp != null) {
                         layerBitmaps.add(layer to bmp)
+                        if (layer.depthMapUrl != null && layer.depthStrength > 0f) {
+                            val depthFile = ensureDepthFile(layerDir, layer)
+                            val depthBmp = depthFile?.let {
+                                BitmapFactory.decodeFile(it.absolutePath, opts)
+                            }
+                            if (depthBmp != null) {
+                                depthBitmaps[layer.key] = depthBmp
+                                depthSourceMtime[layer.key] = depthFile.lastModified()
+                            } else {
+                                Log.w(TAG, "Depth map unavailable for ${layer.key}; using flat parallax")
+                            }
+                        }
                         layerSourceMtime[layer.key] = f.lastModified()
                         layerSourceRevision[layer.key] = layer.revision
                         Log.d(TAG, "Loaded layer ${layer.key} rev=${layer.revision} ${bmp.width}x${bmp.height} pf=${layer.parallaxFactor}")
@@ -505,9 +531,33 @@ class CanvasSceneRenderer(private val context: Context) {
         }
     }
 
+    private fun ensureDepthFile(layerDir: File, layer: ImageLayerDef): File? {
+        val f = File(layerDir, "${layer.key}_depth.webp")
+        if (f.isFile && f.length() > 1024L) return f
+        val url = layer.depthMapUrl ?: return null
+        return try {
+            val conn = java.net.URL(url).openConnection()
+            conn.connectTimeout = 15_000
+            conn.readTimeout = 30_000
+            conn.getInputStream().use { input ->
+                f.outputStream().use { output -> input.copyTo(output) }
+            }
+            if (f.isFile && f.length() > 1024L) f else null
+        } catch (e: Exception) {
+            Log.e(TAG, "Depth-map download failed ${layer.key}: ${e.message}")
+            null
+        }
+    }
+
     private fun recycleLayerBitmaps() {
         for ((_, b) in layerBitmaps) if (!b.isRecycled) b.recycle()
         layerBitmaps.clear()
+        for (b in depthBitmaps.values) if (!b.isRecycled) b.recycle()
+        depthBitmaps.clear()
+        depthMeshSamples.clear()
+        depthMeshVertices.clear()
+        loadedDepthKeys.clear()
+        depthSourceMtime.clear()
         layerSourceMtime.clear()
         layerSourceRevision.clear()
         // v1.7.45 debug: log px-scale on every layer rebuild so we can verify
@@ -608,6 +658,15 @@ class CanvasSceneRenderer(private val context: Context) {
         // Skip draw if fully transparent (rise_fade end state, hidden layers).
         if (interactiveAlpha <= 0.005f) return
 
+        // Native 2.5D path: one continuous BitmapMesh draw. The grayscale
+        // depth map bends a modest 18x40 mesh, avoiding hundreds of tile
+        // draws and the seams/holes they produce. White moves toward the
+        // gyro direction; black recedes.
+        if (def.depthStrength > 0f && depthMeshSamples.containsKey(def.key)) {
+            drawDepthMappedLayer(canvas, bmp, def, left, top, interactiveAlpha)
+            return
+        }
+
         // DRIFT: subtle "breathing" (translate + zoom + rotate on one sine wave).
         // Only this layer uses a matrix; every other layer keeps the fast-path
         // blit. The bitmap stays prescaled — the animated zoom lives in the matrix.
@@ -652,6 +711,47 @@ class CanvasSceneRenderer(private val context: Context) {
             canvas.drawBitmap(bmp, left, top, layerPaint)
             layerPaint.alpha = prev
         }
+    }
+
+    private fun drawDepthMappedLayer(
+        canvas: Canvas,
+        bmp: Bitmap,
+        def: ImageLayerDef,
+        left: Float,
+        top: Float,
+        alpha: Float,
+    ) {
+        val samples = depthMeshSamples[def.key] ?: return
+        val vertices = depthMeshVertices.getOrPut(def.key) {
+            FloatArray((DEPTH_MESH_W + 1) * (DEPTH_MESH_H + 1) * 2)
+        }
+        val stepX = bmp.width.toFloat() / DEPTH_MESH_W
+        val stepY = bmp.height.toFloat() / DEPTH_MESH_H
+        val strength = def.depthStrength
+        var sampleIndex = 0
+        var vertexIndex = 0
+        for (y in 0..DEPTH_MESH_H) {
+            for (x in 0..DEPTH_MESH_W) {
+                val signedDepth = (samples[sampleIndex++] - 0.5f) * 2f
+                vertices[vertexIndex++] = left + x * stepX + tiltX * strength * signedDepth
+                vertices[vertexIndex++] = top + y * stepY + tiltY * strength * signedDepth
+            }
+        }
+        val previousAlpha = layerPaint.alpha
+        if (alpha < 0.995f) {
+            layerPaint.alpha = (alpha * 255f).toInt().coerceIn(0, 255)
+        }
+        canvas.drawBitmapMesh(
+            bmp,
+            DEPTH_MESH_W,
+            DEPTH_MESH_H,
+            vertices,
+            0,
+            null,
+            0,
+            layerPaint,
+        )
+        layerPaint.alpha = previousAlpha
     }
 
     /** Per-frame update for image_layer motion (auto_jump) and collision-driven
@@ -917,6 +1017,46 @@ class CanvasSceneRenderer(private val context: Context) {
         }
         layerBitmaps.clear()
         layerBitmaps.addAll(newList)
+
+        // Match each depth map to its already-prescaled color bitmap, then
+        // sample it once at mesh vertices. Per-frame work is only vertex math.
+        for ((def, colorBitmap) in layerBitmaps) {
+            val rawDepth = depthBitmaps[def.key] ?: continue
+            val scaledDepth = try {
+                if (rawDepth.width == colorBitmap.width && rawDepth.height == colorBitmap.height) {
+                    rawDepth
+                } else {
+                    Bitmap.createScaledBitmap(
+                        rawDepth,
+                        colorBitmap.width,
+                        colorBitmap.height,
+                        true,
+                    ).also { if (it !== rawDepth) rawDepth.recycle() }
+                }
+            } catch (e: OutOfMemoryError) {
+                Log.w(TAG, "Depth-map prescale OOM for ${def.key}; sampling source resolution")
+                rawDepth
+            }
+            depthBitmaps[def.key] = scaledDepth
+            val samples = FloatArray((DEPTH_MESH_W + 1) * (DEPTH_MESH_H + 1))
+            var index = 0
+            for (y in 0..DEPTH_MESH_H) {
+                val py = ((y.toFloat() / DEPTH_MESH_H) * (scaledDepth.height - 1))
+                    .toInt().coerceIn(0, scaledDepth.height - 1)
+                for (x in 0..DEPTH_MESH_W) {
+                    val px = ((x.toFloat() / DEPTH_MESH_W) * (scaledDepth.width - 1))
+                        .toInt().coerceIn(0, scaledDepth.width - 1)
+                    samples[index++] = Color.red(scaledDepth.getPixel(px, py)) / 255f
+                }
+            }
+            depthMeshSamples[def.key] = samples
+            loadedDepthKeys.add(def.key)
+            if (!scaledDepth.isRecycled) scaledDepth.recycle()
+        }
+        // Depth bitmaps are only needed while building the tiny mesh sample
+        // arrays. Releasing them here saves roughly one full-screen ARGB layer
+        // (10-14 MB) for the lifetime of the wallpaper.
+        depthBitmaps.clear()
         prescaledForW = surfaceWidth
         prescaledForH = surfaceHeight
         Log.d(TAG, "Layers prescaled for ${surfaceWidth}x${surfaceHeight} (${scaledCount}/${newList.size} rescaled)")
