@@ -110,7 +110,7 @@ abstract class PurchaseGateway {
   Future<bool> isAvailable();
   Future<List<StoreProduct>> queryProducts(Set<String> logicalIds);
   Stream<StorePurchase> get purchases;      // ONLY channel for results
-  Future<void> buy(StoreProduct product);   // returns void — result arrives via [purchases]
+  Future<bool> buy(StoreProduct product);   // true = flow launched (NOT completed); result via [purchases]
   Future<void> finish(StorePurchase p, {required bool consume});
   Future<void> restore();                   // re-emits owned products via [purchases]
   Uri? manageSubscriptionUri(String logicalId);
@@ -119,7 +119,7 @@ abstract class PurchaseGateway {
 ```
 
 Anti-leak rules:
-- `buy()` → `void`; the real result (pending, parental approval, slow card) arrives async via the stream. Single code path prevents Play/Samsung contract drift.
+- `buy()` → `Future<bool>` meaning "purchase flow launched" (NOT "purchase completed"); the real purchase result (pending, parental approval, slow card) still arrives async via the stream. The bool only reports whether the store showed the sheet — which `buyMonthly()` and the pitch UI depend on. (F0 ruling 2026-08-23: original spec said `void`, but that discarded the "sheet not shown" signal and caused a false "welcome" UX.)
 - `restore()` normalizes to the stream (Samsung's synchronous `getOwnedProducts` list is pushed into the same stream).
 - `verificationBlob` opaque = deliberate leak. Play needs `{purchaseToken, packageName, productId}`, Samsung needs `{purchaseId,...}`. They travel as-is to the server, which branches on `store`. Client never interprets them.
 - `logicalId` vs `storeSku`: a per-flavor `ProductCatalog` translates. IDs registered separately per console WILL diverge.
