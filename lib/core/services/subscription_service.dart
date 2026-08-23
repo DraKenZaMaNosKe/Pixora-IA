@@ -60,7 +60,6 @@ class SubscriptionService extends ChangeNotifier {
   static final instance = SubscriptionService._();
 
   // ── Play Store product IDs (must match Play Console SKUs) ────────────
-  static const productMonthly = 'pixora_monthly';
 
   // ── State ────────────────────────────────────────────────────────────
   SubscriptionStatus _status = SubscriptionStatus.unknown;
