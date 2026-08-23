@@ -90,8 +90,7 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
               subtitle: 'Sin anuncios + códices y eventos exclusivos',
               trailing: Text(
                 // Real localized Play price, not a hardcoded currency.
-                SubscriptionService.instance.monthlyProduct?.price ??
-                    '\$199 MXN',
+                SubscriptionService.instance.monthlyPrice ?? '\$199 MXN',
                 style: const TextStyle(
                   color: Color(0xFFD9B14A),
                   fontWeight: FontWeight.w700,
@@ -391,8 +390,7 @@ class _PerfilPageState extends ConsumerState<PerfilPage> {
     if (days < 0) return 'En periodo de gracia';
     final fmt =
         '${next.day.toString().padLeft(2, '0')}/${next.month.toString().padLeft(2, '0')}/${next.year}';
-    final price =
-        SubscriptionService.instance.monthlyProduct?.price ?? '\$199 MXN';
+    final price = SubscriptionService.instance.monthlyPrice ?? '\$199 MXN';
     return 'Próx. renovación $fmt · $price';
   }
 }

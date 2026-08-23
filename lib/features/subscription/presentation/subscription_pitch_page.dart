@@ -76,7 +76,7 @@ class _SubscriptionPitchPageState extends State<SubscriptionPitchPage> {
   /// only if the product hasn't loaded yet. Never hardcode a currency here —
   /// showing "$9.99 USD" to a user Google charges €11.99 is a trust-killer.
   String get _priceLabel {
-    final p = SubscriptionService.instance.monthlyProduct?.price;
+    final p = SubscriptionService.instance.monthlyPrice;
     return (p == null || p.isEmpty) ? '\$199 MXN' : p;
   }
 
