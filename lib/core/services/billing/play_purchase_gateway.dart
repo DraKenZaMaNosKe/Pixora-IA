@@ -75,17 +75,18 @@ class PlayPurchaseGateway implements PurchaseGateway {
   }
 
   @override
-  Future<void> buy(StoreProduct product) async {
+  Future<bool> buy(StoreProduct product) async {
     final details = _detailsByLogicalId[product.logicalId];
     if (details == null) {
       debugPrint('[PlayGW] buy: no ProductDetails cached for '
           '${product.logicalId} — call queryProducts first');
-      return;
+      return false;
     }
     final param = PurchaseParam(productDetails: details);
     // Subscriptions use buyNonConsumable per in_app_purchase docs.
     final shown = await _iap.buyNonConsumable(purchaseParam: param);
     if (!shown) debugPrint('[PlayGW] buyNonConsumable returned false');
+    return shown;
   }
 
   @override

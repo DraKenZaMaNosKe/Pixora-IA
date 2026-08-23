@@ -244,9 +244,10 @@ class SubscriptionService extends ChangeNotifier {
 
   // ── Purchasing ──────────────────────────────────────────────────────
 
-  /// Launches the Play Store purchase sheet for the monthly subscription.
-  /// Returns `true` if the sheet was shown; the actual purchase completion
-  /// arrives asynchronously via the `purchaseStream`.
+  /// Launches the store purchase sheet for the monthly subscription.
+  /// Returns `true` if the sheet was launched; the actual purchase completion
+  /// arrives asynchronously via the gateway's purchases stream. Returns
+  /// `false` if the store could not show the sheet.
   Future<bool> buyMonthly() async {
     if (!_storeAvailable) {
       debugPrint('[Subs] Store not available');
@@ -266,8 +267,8 @@ class SubscriptionService extends ChangeNotifier {
     _purchaseInFlight = true;
     notifyListeners();
     try {
-      await _gateway.buy(_monthlyProductInfo!);
-      return true; // sheet launched; result arrives via _onPurchase
+      final shown = await _gateway.buy(_monthlyProductInfo!);
+      return shown;
     } catch (e) {
       debugPrint('[Subs] buyMonthly failed: $e');
       return false;

@@ -62,9 +62,12 @@ abstract class PurchaseGateway {
   /// and restores (isRestored=true).
   Stream<StorePurchase> get purchases;
 
-  /// Launch the store purchase flow. Returns nothing — the result arrives
-  /// asynchronously via [purchases].
-  Future<void> buy(StoreProduct product);
+  /// Launch the store purchase flow. Returns true if the purchase flow was
+  /// successfully launched — NOT that the purchase completed. The real
+  /// purchase result always arrives asynchronously via [purchases]. Returns
+  /// false if the store declined to show the sheet (client busy, stale
+  /// product, etc.).
+  Future<bool> buy(StoreProduct product);
 
   /// Unifies acknowledge/consume/completePurchase. Call only AFTER the
   /// server has verified the purchase.
