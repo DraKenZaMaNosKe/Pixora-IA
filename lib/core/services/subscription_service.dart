@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'billing/purchase_gateway.dart';
+import 'billing/play_purchase_gateway.dart';
+import 'billing/product_catalog.dart';
 
 /// Subscription state for the current user. Sourced from the Supabase
 /// `subscription_status` RPC which is the server-side source of truth.
@@ -47,10 +50,10 @@ extension SubscriptionStatusX on SubscriptionStatus {
 /// 1. `init()` — wire up IAP listeners, restore past purchases.
 /// 2. `loadProducts()` — fetch SKU details from Play Store.
 /// 3. `buy(product)` — launch Google Play purchase sheet.
-/// 4. On purchase success, `_handlePurchaseUpdate` receives the event and
-///    calls `_verifyWithServer(purchaseToken)` which proxies to a Supabase
-///    Edge Function. The Edge Function verifies the token with Google Play
-///    Developer API and upserts `user_subscriptions`.
+/// 4. On purchase success, `_onPurchase` receives the event and calls
+///    `_verifyPurchase(purchase)` which proxies to a Supabase Edge Function.
+///    The Edge Function verifies the token with Google Play Developer API
+///    and upserts `user_subscriptions`.
 /// 5. UI listens via `ChangeNotifier` and re-reads `status`, `expiresAt`, etc.
 class SubscriptionService extends ChangeNotifier {
   SubscriptionService._();
@@ -58,7 +61,6 @@ class SubscriptionService extends ChangeNotifier {
 
   // ── Play Store product IDs (must match Play Console SKUs) ────────────
   static const productMonthly = 'pixora_monthly';
-  static const _allProductIds = <String>{productMonthly};
 
   // ── State ────────────────────────────────────────────────────────────
   SubscriptionStatus _status = SubscriptionStatus.unknown;
@@ -71,9 +73,11 @@ class SubscriptionService extends ChangeNotifier {
   int _generationsUsed = 0;
   int _generationsLimit = 0;
   int _freeGensRemaining = 0;
-  ProductDetails? _monthlyProduct;
+  StoreProduct? _monthlyProductInfo;
   bool _storeAvailable = false;
   bool _purchaseInFlight = false;
+
+  final PurchaseGateway _gateway = PlayPurchaseGateway();
 
   /// Debug-only: lets the simulated purchase (which can't reach Play Billing
   /// on a sideloaded build) actually flip the app into the subscribed state,
@@ -105,28 +109,28 @@ class SubscriptionService extends ChangeNotifier {
   ///   2. Tiene gens gratis disponibles (acumuladas por trial / promo)
   bool get canGenerate =>
       (hasAccess && generationsRemaining > 0) || _freeGensRemaining > 0;
-  ProductDetails? get monthlyProduct => _monthlyProduct;
+  String? get monthlyPrice => _monthlyProductInfo?.formattedPrice;
   bool get storeAvailable => _storeAvailable;
   bool get purchaseInFlight => _purchaseInFlight;
 
   SupabaseClient get _sb => Supabase.instance.client;
   bool get _isLoggedIn => _sb.auth.currentUser != null;
 
-  StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
+  StreamSubscription<StorePurchase>? _purchaseSub;
   RealtimeChannel? _realtimeChannel;
 
   // ── Init / dispose ──────────────────────────────────────────────────
 
   Future<void> init() async {
     try {
-      _storeAvailable = await InAppPurchase.instance.isAvailable();
+      _storeAvailable = await _gateway.isAvailable();
       if (!_storeAvailable) {
-        debugPrint('[Subs] Play Store billing not available on this device');
+        debugPrint('[Subs] store billing not available on this device');
         return;
       }
-      _purchaseSub = InAppPurchase.instance.purchaseStream.listen(
-        _handlePurchaseUpdate,
-        onError: (Object e) => debugPrint('[Subs] purchaseStream error: $e'),
+      _purchaseSub = _gateway.purchases.listen(
+        _onPurchase,
+        onError: (Object e) => debugPrint('[Subs] purchases stream error: $e'),
       );
       await _loadProducts();
       if (_isLoggedIn) {
@@ -141,6 +145,7 @@ class SubscriptionService extends ChangeNotifier {
   @override
   void dispose() {
     _purchaseSub?.cancel();
+    _gateway.dispose();
     _realtimeChannel?.unsubscribe();
     super.dispose();
   }
@@ -149,19 +154,10 @@ class SubscriptionService extends ChangeNotifier {
 
   Future<void> _loadProducts() async {
     try {
-      final response =
-          await InAppPurchase.instance.queryProductDetails(_allProductIds);
-      if (response.error != null) {
-        debugPrint('[Subs] queryProductDetails error: ${response.error}');
-      }
-      if (response.notFoundIDs.isNotEmpty) {
-        debugPrint(
-            '[Subs] SKUs not found on Play Store: ${response.notFoundIDs}. '
-            'Likely not yet published or propagating — can take up to 24h after '
-            'creation in Play Console.');
-      }
-      for (final p in response.productDetails) {
-        if (p.id == productMonthly) _monthlyProduct = p;
+      final products =
+          await _gateway.queryProducts(ProductCatalog.allLogicalIds);
+      for (final p in products) {
+        if (p.logicalId == ProductCatalog.monthly) _monthlyProductInfo = p;
       }
       notifyListeners();
     } catch (e) {
@@ -256,10 +252,10 @@ class SubscriptionService extends ChangeNotifier {
       debugPrint('[Subs] Store not available');
       return false;
     }
-    if (_monthlyProduct == null) {
+    if (_monthlyProductInfo == null) {
       await _loadProducts();
-      if (_monthlyProduct == null) {
-        debugPrint('[Subs] Monthly SKU not loaded — is it published?');
+      if (_monthlyProductInfo == null) {
+        debugPrint('[Subs] Monthly product not loaded — is it published?');
         return false;
       }
     }
@@ -270,16 +266,8 @@ class SubscriptionService extends ChangeNotifier {
     _purchaseInFlight = true;
     notifyListeners();
     try {
-      final param = PurchaseParam(productDetails: _monthlyProduct!);
-      // For subscriptions, `buyNonConsumable` is correct per the
-      // in_app_purchase docs. Consumables are only for one-time goods
-      // that can be re-bought (coins, gems).
-      final shown =
-          await InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
-      if (!shown) {
-        debugPrint('[Subs] buyNonConsumable returned false');
-      }
-      return shown;
+      await _gateway.buy(_monthlyProductInfo!);
+      return true; // sheet launched; result arrives via _onPurchase
     } catch (e) {
       debugPrint('[Subs] buyMonthly failed: $e');
       return false;
@@ -296,16 +284,15 @@ class SubscriptionService extends ChangeNotifier {
     if (!_storeAvailable) return 0;
     _restoredCountSinceCall = 0;
     try {
-      debugPrint('[Subs] restorePurchases → calling IAP');
-      await InAppPurchase.instance.restorePurchases();
+      debugPrint('[Subs] restorePurchases → gateway.restore');
+      await _gateway.restore();
       // Give the stream a moment to deliver restore events.
       await Future.delayed(const Duration(seconds: 2));
       debugPrint(
-          '[Subs] restorePurchases done — saw $_restoredCountSinceCall purchases');
+          '[Subs] restore done — saw $_restoredCountSinceCall purchases');
       return _restoredCountSinceCall;
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('[Subs] restorePurchases failed: $e');
-      debugPrint('[Subs] stack: $st');
       return 0;
     }
   }
@@ -329,112 +316,71 @@ class SubscriptionService extends ChangeNotifier {
     return 'ok_seen_$seen';
   }
 
-  void _handlePurchaseUpdate(List<PurchaseDetails> purchases) async {
-    debugPrint('[Subs] _handlePurchaseUpdate: ${purchases.length} purchase(s)');
-    for (final p in purchases) {
-      debugPrint('[Subs]   -> productID=${p.productID} status=${p.status} '
-          'pendingComplete=${p.pendingCompletePurchase}');
-      switch (p.status) {
-        case PurchaseStatus.pending:
-          debugPrint('[Subs] Purchase pending: ${p.productID}');
-          break;
-        case PurchaseStatus.purchased:
-        case PurchaseStatus.restored:
-          if (p.status == PurchaseStatus.restored) _restoredCountSinceCall++;
-          await _verifyWithServer(p);
-          break;
-        case PurchaseStatus.error:
-          debugPrint('[Subs] Purchase error: ${p.error?.message} '
-              'code=${p.error?.code}');
-          break;
-        case PurchaseStatus.canceled:
-          debugPrint('[Subs] Purchase canceled by user');
-          break;
-      }
-      // Always complete pending purchases once handled — removes from queue.
-      if (p.pendingCompletePurchase) {
-        try {
-          await InAppPurchase.instance.completePurchase(p);
-          debugPrint('[Subs] completePurchase OK for ${p.productID}');
-        } catch (e) {
-          debugPrint('[Subs] completePurchase failed: $e');
-        }
-      }
+  void _onPurchase(StorePurchase p) async {
+    debugPrint('[Subs] _onPurchase: logicalId=${p.logicalId} state=${p.state} '
+        'restored=${p.isRestored}');
+    switch (p.state) {
+      case PurchaseState.pending:
+        debugPrint('[Subs] purchase pending: ${p.logicalId}');
+        break;
+      case PurchaseState.purchased:
+        if (p.isRestored) _restoredCountSinceCall++;
+        await _verifyPurchase(p);
+        break;
+      case PurchaseState.failed:
+        debugPrint('[Subs] purchase error: ${p.errorMessage}');
+        break;
+      case PurchaseState.canceled:
+        debugPrint('[Subs] purchase canceled by user');
+        break;
     }
+    // Always finish so the item leaves the store queue.
+    await _gateway.finish(p, consume: false);
   }
 
-  Future<void> _verifyWithServer(PurchaseDetails p) async {
-    // Use `print` instead of `debugPrint` to bypass Flutter's internal
-    // throttling — we need every line of this path in logcat, even under load.
-    debugPrint('[Subs] _verifyWithServer START for ${p.productID}');
-
+  Future<void> _verifyPurchase(StorePurchase p) async {
+    debugPrint('[Subs] _verifyPurchase START for ${p.logicalId}');
     if (!_isLoggedIn) {
       debugPrint('[Subs] verification deferred — user not logged in');
       return;
     }
-    final purchaseToken = p.verificationData.serverVerificationData;
-    final productId = p.productID;
-    final source = p.verificationData.source;
-    debugPrint('[Subs] token source=$source tokenLen=${purchaseToken.length}');
+    final purchaseToken = p.verificationBlob['purchaseToken'] as String? ?? '';
+    final productId = p.verificationBlob['productId'] as String? ?? p.logicalId;
     if (purchaseToken.isEmpty) {
       debugPrint('[Subs] ABORT: empty purchase_token');
       return;
     }
-
-    // 1) Sanity check the auth session is still alive RIGHT NOW (the client
-    //    could have logged out between the purchase start and completion).
     final session = _sb.auth.currentSession;
-    debugPrint('[Subs] current session: hasUser=${session?.user != null} '
-        'accessTokenLen=${session?.accessToken.length ?? 0} '
-        'expiresAt=${session?.expiresAt}');
     if (session == null) {
       debugPrint('[Subs] ABORT: no Supabase session at verify time');
       return;
     }
-
-    // 2) Call the Edge Function with up to 3 attempts (network flakes etc.).
     Object? lastError;
     for (var attempt = 1; attempt <= 3; attempt++) {
       try {
-        debugPrint('[Subs] invoke attempt $attempt → verify_google_purchase');
         final response = await _sb.functions.invoke(
           'verify_google_purchase',
-          body: {
-            'purchase_token': purchaseToken,
-            'product_id': productId,
-          },
+          body: {'purchase_token': purchaseToken, 'product_id': productId},
         );
         final status = response.status;
-        final data = response.data;
-        debugPrint('[Subs] invoke returned: status=$status data=$data');
         if (status == 200) {
-          debugPrint('[Subs] verify SUCCESS on attempt $attempt');
           await refreshStatus();
-          debugPrint('[Subs] status refreshed post-verify');
           return;
         }
-        // Non-2xx but didn't throw — still report and break (retrying won't help
-        // for 4xx).
         if (status >= 400 && status < 500) {
-          debugPrint('[Subs] verify got client error $status — not retrying');
+          debugPrint('[Subs] verify client error $status — not retrying');
           return;
         }
-        lastError = 'status=$status data=$data';
-      } catch (e, st) {
-        debugPrint(
-            '[Subs] invoke attempt $attempt threw: ${e.runtimeType}: $e');
-        debugPrint('[Subs] stack: $st');
+        lastError = 'status=$status';
+      } catch (e) {
         lastError = e;
       }
       if (attempt < 3) {
-        final backoff = Duration(milliseconds: 500 * attempt);
-        debugPrint('[Subs] retrying after ${backoff.inMilliseconds}ms');
-        await Future.delayed(backoff);
+        await Future.delayed(Duration(milliseconds: 500 * attempt));
       }
     }
-    debugPrint('[Subs] _verifyWithServer GAVE UP after 3 attempts. '
-        'last=$lastError');
-    // Still try to refresh in case a prior attempt wrote the row.
+    debugPrint(
+        '[Subs] _verifyPurchase gave up after 3 attempts. last=$lastError');
     try {
       await refreshStatus();
     } catch (_) {}
