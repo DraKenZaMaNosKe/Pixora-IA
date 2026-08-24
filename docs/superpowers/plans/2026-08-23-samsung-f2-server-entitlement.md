@@ -81,10 +81,16 @@ UPDATE public.user_subscriptions
   WHERE store_transaction_id IS NULL AND purchase_token IS NOT NULL;
 
 -- 2. store-aware active-subscription uniqueness (replaces one-per-user)
-DROP INDEX IF EXISTS public.idx_subs_active_user;
-CREATE UNIQUE INDEX IF NOT EXISTS idx_subs_active_user_store
+-- LIVE SCHEMA verified 2026-08-23: the active-sub UNIQUE index is
+-- `idx_subs_entitled_user` with predicate (trial,active,in_grace_period,
+-- on_hold,paused) — NOT the original `idx_subs_active_user`. Drop the REAL
+-- one and recreate store-aware with the SAME predicate (do not change which
+-- statuses occupy the slot).
+DROP INDEX IF EXISTS public.idx_subs_entitled_user;
+DROP INDEX IF EXISTS public.idx_subs_active_user; -- legacy name, no-op if absent
+CREATE UNIQUE INDEX IF NOT EXISTS idx_subs_entitled_user_store
   ON public.user_subscriptions(user_id, store)
-  WHERE status IN ('trial','active','in_grace_period','cancelled');
+  WHERE status IN ('trial','active','in_grace_period','on_hold','paused');
 
 -- 3. cross-store transaction uniqueness (idempotency for client verifies)
 CREATE UNIQUE INDEX IF NOT EXISTS idx_subs_store_txn
@@ -180,7 +186,8 @@ SELECT column_name, data_type, column_default FROM information_schema.columns
 WHERE table_name='user_subscriptions' AND column_name IN ('store','store_transaction_id');
 -- new indexes exist, old one gone
 SELECT indexname FROM pg_indexes WHERE tablename='user_subscriptions'
-  AND indexname IN ('idx_subs_active_user','idx_subs_active_user_store','idx_subs_store_txn');
+  AND indexname IN ('idx_subs_entitled_user','idx_subs_entitled_user_store','idx_subs_store_txn');
+-- Expected: idx_subs_entitled_user GONE; idx_subs_entitled_user_store + idx_subs_store_txn PRESENT
 -- billing_events exists with RLS on and NO policies
 SELECT relrowsecurity FROM pg_class WHERE relname='billing_events';
 SELECT count(*) FROM pg_policies WHERE tablename='billing_events';
@@ -221,8 +228,13 @@ In the supersede block (currently lines ~320-328), add a `.eq('store','play')` f
     .eq('user_id', userId)
     .eq('store', 'play')
     .neq('purchase_token', purchase_token)
-    .in('status', ['trial', 'active', 'in_grace_period', 'cancelled']);
+    .in('status', ['trial', 'active', 'in_grace_period', 'on_hold', 'paused']);
 ```
+NOTE: the status list is aligned to the LIVE index predicate
+(`idx_subs_entitled_user`: trial/active/in_grace_period/on_hold/paused). The
+original code used `[...,'cancelled']` which never matched the live index —
+this both store-scopes AND corrects that latent mismatch. `cancelled` is
+outside the unique predicate, so it does not need superseding.
 
 - [ ] **Step 2: Stamp store + store_transaction_id on the row**
 
