@@ -76,13 +76,25 @@ Deno.serve(async (req: Request) => {
     samsung = JSON.parse(text);
   } catch (e) { return errorResponse('samsung_verify_failed', String(e), 502); }
 
+  // SECURITY: tier/limit MUST derive from the product Samsung CONFIRMS, never
+  // from the client-supplied product_id alone — a client could claim
+  // pixora_yearly (limit 2000) while buying pixora_monthly (limit 100) and
+  // over-grant themselves (entitlement tampering). Reject any mismatch. The
+  // exact Samsung response field is finalized at activation (F3); at that
+  // point make `verifiedProductId` REQUIRED (fail-closed if absent).
+  const verifiedProductId = (samsung['itemId'] ?? samsung['productId'] ?? samsung['item_id']) as string | undefined;
+  if (verifiedProductId && verifiedProductId !== product_id) {
+    return errorResponse('product_mismatch', `client ${product_id} != verified ${verifiedProductId}`, 400);
+  }
+  const effectiveProductId = verifiedProductId ?? product_id;
+
   const expiresAtRaw = samsung['expiryTime'] as string | undefined;
   const statusRaw = samsung['status'] as string | undefined; // finalized at F3
   const expiresAt = expiresAtRaw ? new Date(expiresAtRaw).toISOString() : null;
   if (!expiresAt) return errorResponse('missing_expiry', 'Samsung did not return expiry', 502);
   const status = statusRaw === 'CANCELLED' ? 'cancelled'
     : statusRaw === 'EXPIRED' ? 'expired' : 'active';
-  const { tier, limit } = productMeta(product_id);
+  const { tier, limit } = productMeta(effectiveProductId);
 
   const admin = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -112,7 +124,7 @@ Deno.serve(async (req: Request) => {
 
   const now = new Date().toISOString();
   const { error: upErr } = await admin.from('user_subscriptions').upsert({
-    user_id: userId, product_id, tier, status,
+    user_id: userId, product_id: effectiveProductId, tier, status,
     store: 'samsung', store_transaction_id: purchase_id,
     started_at: now, expires_at: expiresAt,
     trial_ends_at: null, auto_renew: true, verified_at: now,
