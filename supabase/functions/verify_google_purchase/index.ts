@@ -321,8 +321,9 @@ Deno.serve(async (req: Request) => {
     .from('user_subscriptions')
     .update({ status: 'expired', verified_at: new Date().toISOString() })
     .eq('user_id', userId)
+    .eq('store', 'play')
     .neq('purchase_token', purchase_token)
-    .in('status', ['trial', 'active', 'in_grace_period', 'cancelled']);
+    .in('status', ['trial', 'active', 'in_grace_period', 'on_hold', 'paused']);
   if (supersedeErr) {
     return errorResponse('db_supersede_failed', supersedeErr.message, 500);
   }
@@ -337,6 +338,8 @@ Deno.serve(async (req: Request) => {
     trial_ends_at: status === 'trial' ? expiresAt : null,
     auto_renew: autoRenewEnabled,
     purchase_token,
+    store: 'play',
+    store_transaction_id: purchase_token,
     order_id: latestOrderId ?? null,
     verified_at: new Date().toISOString(),
     generations_limit: limit,
