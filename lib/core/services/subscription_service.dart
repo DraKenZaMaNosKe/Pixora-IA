@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'billing/purchase_gateway.dart';
-import 'billing/play_purchase_gateway.dart';
 import 'billing/product_catalog.dart';
+import 'billing/store_flavor.dart';
 
 /// Subscription state for the current user. Sourced from the Supabase
 /// `subscription_status` RPC which is the server-side source of truth.
@@ -76,7 +76,7 @@ class SubscriptionService extends ChangeNotifier {
   bool _storeAvailable = false;
   bool _purchaseInFlight = false;
 
-  final PurchaseGateway _gateway = PlayPurchaseGateway();
+  final PurchaseGateway _gateway = createPurchaseGateway();
 
   /// Debug-only: lets the simulated purchase (which can't reach Play Billing
   /// on a sideloaded build) actually flip the app into the subscribed state,
