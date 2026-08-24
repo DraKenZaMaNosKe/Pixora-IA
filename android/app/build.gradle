@@ -87,6 +87,18 @@ android {
             }
         }
     }
+
+    flavorDimensions "store"
+    productFlavors {
+        play {
+            dimension "store"
+            // same applicationId as defaultConfig (com.orbix.pixora) — no suffix
+        }
+        samsung {
+            dimension "store"
+            // same applicationId — the Galaxy Store binary shares the package
+        }
+    }
 }
 
 flutter {
