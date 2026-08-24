@@ -216,6 +216,8 @@ New Edge Functions: `verify_samsung_purchase` (on-purchase verify via Samsung Or
 
 ---
 
+10. **Flavor builds must be isolated (F1 lesson, 2026-08-23).** Compiling `play` and `samsung` back-to-back without `flutter clean` between them can embed the WRONG flavor's Dart code in the APK (stale snapshot cache) — a samsung APK came out with `PlayPurchaseGateway` instead of `DisabledPurchaseGateway`. The source was correct; a clean rebuild fixed it. `pixora-release-prep` must `flutter clean` between per-flavor builds. A samsung AAB with Play Billing embedded violates Galaxy Store policy and doesn't work. Also: `android:allowBackup` defaults true → SharedPreferences restore across reinstalls (play/samsung share package + debug key) can leak first-run state in QA.
+
 ## Open questions
 
 None blocking. Play App Signing confirmed active (2026-08-23). Product catalog: samsung reuses `pixora_monthly` logical ID with its own Seller Portal SKU (confirm exact SKU string at F1).
