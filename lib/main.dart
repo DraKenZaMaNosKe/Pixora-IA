@@ -13,6 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/supabase_config.dart';
 import 'core/navigation/app_navigator.dart';
 import 'core/services/ad_service.dart';
+import 'core/services/billing/store_flavor.dart';
 import 'core/services/app_open_ad_service.dart';
 import 'core/services/auto_rotate_service.dart';
 import 'core/services/analytics_service.dart';
@@ -201,6 +202,7 @@ Future<void> main() async {
     // Supabase in parallel. If a user is already signed in, onSignIn will
     // fire again once session hydrates.
     unawaited(SubscriptionService.instance.init());
+    AnalyticsService.instance.track('app_boot', {'store': currentStore.name});
     runApp(const ProviderScope(child: PixoraApp()));
   }, (error, stackTrace) {
     // Backstop for anything the two handlers above didn't catch (errors
