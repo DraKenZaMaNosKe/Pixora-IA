@@ -277,8 +277,18 @@ Deno.serve(async (req: Request) => {
   const latestOrderId = play['latestOrderId'] as string | undefined;
   const startTimeRaw = play['startTime'] as string | undefined;
 
+  // SECURITY: tier/limit MUST derive from the product Google CONFIRMS in the
+  // verified lineItem, never from the client-supplied product_id alone — a
+  // client could claim pixora_yearly while buying pixora_monthly and
+  // over-grant themselves (entitlement tampering). Reject a mismatch.
+  const verifiedProductId = firstLine['productId'] as string | undefined;
+  if (verifiedProductId && verifiedProductId !== product_id) {
+    return errorResponse('product_mismatch', `client ${product_id} != verified ${verifiedProductId}`, 400);
+  }
+  const effectiveProductId = verifiedProductId ?? product_id;
+
   const status = mapStatus(state);
-  const { tier, limit } = productMeta(product_id);
+  const { tier, limit } = productMeta(effectiveProductId);
   const expiresAt = expiryTimeRaw ? new Date(expiryTimeRaw).toISOString() : null;
   const startedAt = startTimeRaw ? new Date(startTimeRaw).toISOString() : new Date().toISOString();
 
@@ -330,7 +340,7 @@ Deno.serve(async (req: Request) => {
 
   const row = {
     user_id: userId,
-    product_id,
+    product_id: effectiveProductId,
     tier,
     status,
     started_at: startedAt,
