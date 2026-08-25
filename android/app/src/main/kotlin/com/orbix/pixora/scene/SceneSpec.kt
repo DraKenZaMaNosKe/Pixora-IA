@@ -189,7 +189,7 @@ data class ImageLayerDef(
                 key = j.getString("key"),
                 url = j.getString("url"),
                 depthMapUrl = j.optString("depth_map_url").takeIf { it.isNotBlank() },
-                depthStrength = j.f("depth_strength", 0f).coerceIn(0f, 3f),
+                depthStrength = j.f("depth_strength", 0f).coerceIn(0f, 1.5f),
                 parallaxFactor = pf,
                 // scroll_factor falls back to parallax_factor for backward compat,
                 // BUT the typical usage is to set them independently:

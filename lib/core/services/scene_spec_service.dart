@@ -253,7 +253,7 @@ class SceneSpecService {
                   .timeout(const Duration(seconds: 30));
               if (depthResponse.statusCode == 200 &&
                   depthResponse.bodyBytes.length > 1024) {
-                await depthOut.writeAsBytes(depthResponse.bodyBytes);
+                await _writeLayerAtomically(depthOut, depthResponse.bodyBytes);
                 meta[depthKey] = {
                   'url': depthUrl,
                   'size': depthResponse.bodyBytes.length,
@@ -298,7 +298,7 @@ class SceneSpecService {
               .get(Uri.parse(url))
               .timeout(const Duration(seconds: 30));
           if (r.statusCode == 200 && r.bodyBytes.length > 1024) {
-            await out.writeAsBytes(r.bodyBytes);
+            await _writeLayerAtomically(out, r.bodyBytes);
             meta[key] = {
               'url': url,
               'size': r.bodyBytes.length,
@@ -328,6 +328,22 @@ class SceneSpecService {
       }
     } catch (e) {
       debugPrint('[SceneSpec] $sceneId: image_layers cache dir error $e');
+    }
+  }
+
+  /// Prevent the native wallpaper renderer from observing a partially-written
+  /// layer while Flutter refreshes the cache.
+  Future<void> _writeLayerAtomically(File target, List<int> bytes) async {
+    final tmp = File('${target.path}.tmp');
+    if (tmp.existsSync()) await tmp.delete();
+    await tmp.writeAsBytes(bytes, flush: true);
+    try {
+      await tmp.rename(target.path);
+    } on FileSystemException {
+      // Some filesystems do not replace an existing destination on rename.
+      // The fully flushed temp is still used; only the final swap differs.
+      if (target.existsSync()) await target.delete();
+      await tmp.rename(target.path);
     }
   }
 

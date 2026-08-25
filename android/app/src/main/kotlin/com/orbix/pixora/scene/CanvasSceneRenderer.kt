@@ -266,11 +266,11 @@ class CanvasSceneRenderer(private val context: Context) {
                     val depthFile = File(layerDir, "${layer.key}_depth.webp")
                     val mtime = if (f.isFile) f.lastModified() else 0L
                     val depthMtime = if (depthFile.isFile) depthFile.lastModified() else 0L
+                    val depthActive = layer.depthMapUrl != null && layer.depthStrength > 0f
                     if (layerSourceMtime[layer.key] != mtime ||
                         layerSourceRevision[layer.key] != layer.revision ||
-                        (layer.depthMapUrl != null &&
-                            (!depthFile.isFile ||
-                                layer.key !in loadedDepthKeys ||
+                        (depthActive &&
+                            (layer.key !in loadedDepthKeys ||
                                 depthSourceMtime[layer.key] != depthMtime))) {
                         needsReload = true
                         break
@@ -294,12 +294,24 @@ class CanvasSceneRenderer(private val context: Context) {
                         if (layer.depthMapUrl != null && layer.depthStrength > 0f) {
                             val depthFile = ensureDepthFile(layerDir, layer)
                             val depthBmp = depthFile?.let {
-                                BitmapFactory.decodeFile(it.absolutePath, opts)
+                                BitmapFactory.decodeFile(
+                                    it.absolutePath,
+                                    BitmapFactory.Options().apply {
+                                        inPreferredConfig = Bitmap.Config.RGB_565
+                                    },
+                                )
                             }
                             if (depthBmp != null) {
                                 depthBitmaps[layer.key] = depthBmp
                                 depthSourceMtime[layer.key] = depthFile.lastModified()
                             } else {
+                                depthFile?.delete()
+                                // Mark this revision as handled. Flat fallback
+                                // remains stable instead of retrying network or
+                                // decoding on every draw frame. A new file mtime
+                                // or revision will trigger one fresh attempt.
+                                loadedDepthKeys.add(layer.key)
+                                depthSourceMtime[layer.key] = 0L
                                 Log.w(TAG, "Depth map unavailable for ${layer.key}; using flat parallax")
                             }
                         }
@@ -662,7 +674,9 @@ class CanvasSceneRenderer(private val context: Context) {
         // depth map bends a modest 18x40 mesh, avoiding hundreds of tile
         // draws and the seams/holes they produce. White moves toward the
         // gyro direction; black recedes.
-        if (def.depthStrength > 0f && depthMeshSamples.containsKey(def.key)) {
+        if (def.depthStrength > 0f &&
+            def.drift == null &&
+            depthMeshSamples.containsKey(def.key)) {
             drawDepthMappedLayer(canvas, bmp, def, left, top, interactiveAlpha)
             return
         }
@@ -733,8 +747,16 @@ class CanvasSceneRenderer(private val context: Context) {
         for (y in 0..DEPTH_MESH_H) {
             for (x in 0..DEPTH_MESH_W) {
                 val signedDepth = (samples[sampleIndex++] - 0.5f) * 2f
-                vertices[vertexIndex++] = left + x * stepX + tiltX * strength * signedDepth
-                vertices[vertexIndex++] = top + y * stepY + tiltY * strength * signedDepth
+                // Pin the outer mesh boundary to the overscanned bitmap. This
+                // keeps the continuous deformation from exposing empty edges.
+                val edgeFalloff = minOf(
+                    kotlin.math.sin(Math.PI * x / DEPTH_MESH_W).toFloat(),
+                    kotlin.math.sin(Math.PI * y / DEPTH_MESH_H).toFloat(),
+                ).coerceIn(0f, 1f)
+                vertices[vertexIndex++] = left + x * stepX +
+                    tiltX * strength * signedDepth * edgeFalloff
+                vertices[vertexIndex++] = top + y * stepY +
+                    tiltY * strength * signedDepth * edgeFalloff
             }
         }
         val previousAlpha = layerPaint.alpha
@@ -1018,40 +1040,26 @@ class CanvasSceneRenderer(private val context: Context) {
         layerBitmaps.clear()
         layerBitmaps.addAll(newList)
 
-        // Match each depth map to its already-prescaled color bitmap, then
-        // sample it once at mesh vertices. Per-frame work is only vertex math.
-        for ((def, colorBitmap) in layerBitmaps) {
+        // Sample each raw depth map directly at normalized mesh coordinates.
+        // There is no reason to create a second full-screen depth bitmap: 779
+        // grayscale samples are sufficient and save a large temporary memory
+        // spike on low-RAM devices.
+        for ((def, _) in layerBitmaps) {
             val rawDepth = depthBitmaps[def.key] ?: continue
-            val scaledDepth = try {
-                if (rawDepth.width == colorBitmap.width && rawDepth.height == colorBitmap.height) {
-                    rawDepth
-                } else {
-                    Bitmap.createScaledBitmap(
-                        rawDepth,
-                        colorBitmap.width,
-                        colorBitmap.height,
-                        true,
-                    ).also { if (it !== rawDepth) rawDepth.recycle() }
-                }
-            } catch (e: OutOfMemoryError) {
-                Log.w(TAG, "Depth-map prescale OOM for ${def.key}; sampling source resolution")
-                rawDepth
-            }
-            depthBitmaps[def.key] = scaledDepth
             val samples = FloatArray((DEPTH_MESH_W + 1) * (DEPTH_MESH_H + 1))
             var index = 0
             for (y in 0..DEPTH_MESH_H) {
-                val py = ((y.toFloat() / DEPTH_MESH_H) * (scaledDepth.height - 1))
-                    .toInt().coerceIn(0, scaledDepth.height - 1)
+                val py = ((y.toFloat() / DEPTH_MESH_H) * (rawDepth.height - 1))
+                    .toInt().coerceIn(0, rawDepth.height - 1)
                 for (x in 0..DEPTH_MESH_W) {
-                    val px = ((x.toFloat() / DEPTH_MESH_W) * (scaledDepth.width - 1))
-                        .toInt().coerceIn(0, scaledDepth.width - 1)
-                    samples[index++] = Color.red(scaledDepth.getPixel(px, py)) / 255f
+                    val px = ((x.toFloat() / DEPTH_MESH_W) * (rawDepth.width - 1))
+                        .toInt().coerceIn(0, rawDepth.width - 1)
+                    samples[index++] = Color.red(rawDepth.getPixel(px, py)) / 255f
                 }
             }
             depthMeshSamples[def.key] = samples
             loadedDepthKeys.add(def.key)
-            if (!scaledDepth.isRecycled) scaledDepth.recycle()
+            if (!rawDepth.isRecycled) rawDepth.recycle()
         }
         // Depth bitmaps are only needed while building the tiny mesh sample
         // arrays. Releasing them here saves roughly one full-screen ARGB layer
