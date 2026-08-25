@@ -72,6 +72,11 @@ def main() -> None:
             path = tmp / f"{layer['key']}.webp"
             path.write_bytes(fetch(layer["url"]))
             layer_files.append(path)
+            depth_url = layer.get("depth_map_url")
+            if depth_url:
+                depth_path = tmp / f"{layer['key']}_depth.webp"
+                depth_path.write_bytes(fetch(depth_url))
+                layer_files.append(depth_path)
 
         sprite_packs = []
         manifest_keys = {
