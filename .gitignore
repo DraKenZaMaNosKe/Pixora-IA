@@ -65,6 +65,9 @@ android/key.properties
 google-services.json
 GoogleService-Info.plist
 KEYS_LOCAL.md
+# Local Tailscale TLS material — private backup belongs outside the repository
+*.ts.net.key
+*.ts.net.crt
 
 # Master doc snapshots (local only, not for version control)
 docs/master_doc_snapshots/
